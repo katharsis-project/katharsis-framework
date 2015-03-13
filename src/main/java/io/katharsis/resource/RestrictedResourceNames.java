@@ -9,5 +9,5 @@ public enum RestrictedResourceNames {
      * See {@link <a href="http://jsonapi.org/format/#fetching-relationships">Fetching Relationships</a>}
      */
     links,
-    
+
 }

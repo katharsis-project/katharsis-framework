@@ -17,12 +17,12 @@ public enum RestrictedMembers {
     type,
 
     /**
-     *  Information about a resource's relationships
+     * Information about a resource's relationships
      */
     links,
 
     /**
-     *  Meta-information about a resource
+     * Meta-information about a resource
      */
     meta,
 

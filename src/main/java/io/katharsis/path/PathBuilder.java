@@ -11,32 +11,32 @@ public class PathBuilder {
         String[] strings = splitPath(path);
 
         ResourcePath previousResourcePath = null, currentResourcePath = null;
-        
+
         int currentElementIdx = 0;
-        while(true) {
+        while (true) {
             if (currentElementIdx >= strings.length) {
                 break;
             }
 
             currentResourcePath = new ResourcePath(strings[currentElementIdx]);
             currentElementIdx++;
-            
+
             if (previousResourcePath != null) {
                 previousResourcePath.setChildResource(currentResourcePath);
                 currentResourcePath.setParentResource(previousResourcePath);
             }
             previousResourcePath = currentResourcePath;
-            
+
             if (currentElementIdx >= strings.length) {
                 break;
             } else {
                 currentResourcePath.setIds(new PathIds(strings[currentElementIdx]));
                 currentElementIdx++;
             }
-            
+
             if (currentElementIdx >= strings.length) {
                 break;
-            } else if (RELATIONSHIP_MARK.equals(strings[currentElementIdx])){
+            } else if (RELATIONSHIP_MARK.equals(strings[currentElementIdx])) {
                 currentResourcePath.setRelationship(true);
                 currentElementIdx++;
             }
