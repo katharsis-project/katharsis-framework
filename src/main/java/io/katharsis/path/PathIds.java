@@ -3,21 +3,24 @@ package io.katharsis.path;
 import java.util.HashSet;
 import java.util.Set;
 
-public class PathIds<ID> {
-    private Set<ID> ids = new HashSet<>(1);
+/**
+ * Represent an id or ids passed in the path from a client.
+ */
+public class PathIds {
+    private Set<String> ids = new HashSet<>(1);
 
     public PathIds() {
     }
 
-    public PathIds(ID id) {
+    public PathIds(String id) {
         ids.add(id);
     }
 
-    public Set<ID> getIds() {
+    public Set<String> getIds() {
         return ids;
     }
 
-    public void setIds(Set<ID> ids) {
+    public void setIds(Set<String> ids) {
         this.ids = ids;
     }
 
