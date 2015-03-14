@@ -14,7 +14,7 @@ public interface EntityRepository<T, ID extends Serializable> {
 
     T findOne(ID id);
 
-    Iterable<T> findAll(Iterable<ID> ids);
+    Iterable<T> findAll();
 
     void delete(ID id);
 }
