@@ -1,27 +1,20 @@
 package io.katharsis.path;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Represent an id or ids passed in the path from a client.
  */
 public class PathIds {
-    private Set<String> ids = new HashSet<>(1);
-
-    public PathIds() {
-    }
+    private List<String> ids = new LinkedList<>();
 
     public PathIds(String id) {
         ids.add(id);
     }
 
-    public Set<String> getIds() {
+    public List<String> getIds() {
         return ids;
-    }
-
-    public void setIds(Set<String> ids) {
-        this.ids = ids;
     }
 
     @Override

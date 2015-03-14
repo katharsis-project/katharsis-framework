@@ -1,8 +1,10 @@
 package io.katharsis.dispatcher.controller;
 
 import io.katharsis.path.ResourcePath;
+import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
+import io.katharsis.response.CollectionResponse;
 
 public class CollectionGet implements BaseController {
 
@@ -19,7 +21,10 @@ public class CollectionGet implements BaseController {
 
     @Override
     public BaseResponse<?> accept(ResourcePath resourcePath) {
+        String resourceName = resourcePath.getResourceName();
+        RegistryEntry registryEntry = resourceRegistry.get(resourceName);
+        Iterable iterable = registryEntry.getEntityRepository().findAll();
 
-        return null;
+        return new CollectionResponse(iterable);
     }
 }

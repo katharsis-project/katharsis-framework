@@ -1,15 +1,17 @@
 package io.katharsis.response;
 
-import java.util.List;
+public class CollectionResponse implements BaseResponse<Iterable<?>> {
+    private Iterable<?> data;
 
-public class CollectionResponse implements BaseResponse<List<?>> {
-    private List<?> data;
+    public CollectionResponse(Iterable<?> data) {
+        this.data = data;
+    }
 
-    public List<?> getData() {
+    public Iterable<?> getData() {
         return data;
     }
 
-    public void setData(List<?> data) {
+    public void setData(Iterable<?> data) {
         this.data = data;
     }
 }
