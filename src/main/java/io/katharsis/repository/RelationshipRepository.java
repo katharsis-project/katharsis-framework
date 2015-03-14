@@ -1,14 +1,16 @@
 package io.katharsis.repository;
 
 /**
- * Base repository responsible for operations on relations 
+ * Base repository responsible for operations on relations
+ *
  * @param <T> source class type
  * @param <D> destination class type
  */
 public interface RelationshipRepository<T, D> {
 
     /**
-     * Add relation from source to destination 
+     * Add relation from source to destination
+     *
      * @param source
      * @param destination
      */
@@ -16,6 +18,7 @@ public interface RelationshipRepository<T, D> {
 
     /**
      * Remove relation from source to destination
+     *
      * @param source
      * @param destination
      */

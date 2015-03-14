@@ -5,6 +5,8 @@ package io.katharsis.path;
  * ResourcePath object.
  * <p>
  * It is represented in a form of a doubly-linked list
+ *
+ * @todo Important! Check whether requested for collection of resources identified by group of IDs
  */
 public class ResourcePath {
 
