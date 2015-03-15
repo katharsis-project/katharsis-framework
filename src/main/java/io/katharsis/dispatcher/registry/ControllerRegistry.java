@@ -6,11 +6,11 @@ import io.katharsis.path.ResourcePath;
 import java.util.LinkedList;
 import java.util.List;
 
-public class RequestRegistry {
+public class ControllerRegistry {
 
     private final List<BaseController> controllers = new LinkedList<>();
 
-    public void register(BaseController controller) {
+    public void addController(BaseController controller) {
         controllers.add(controller);
     }
 

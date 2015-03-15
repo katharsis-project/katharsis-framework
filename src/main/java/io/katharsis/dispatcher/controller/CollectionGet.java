@@ -20,9 +20,9 @@ public class CollectionGet implements BaseController {
     }
 
     @Override
-    public BaseResponse<?> accept(ResourcePath resourcePath) {
+    public BaseResponse<?> handle(ResourcePath resourcePath) {
         String resourceName = resourcePath.getResourceName();
-        RegistryEntry registryEntry = resourceRegistry.get(resourceName);
+        RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
         Iterable iterable = registryEntry.getEntityRepository().findAll();
 
         return new CollectionResponse(iterable);
