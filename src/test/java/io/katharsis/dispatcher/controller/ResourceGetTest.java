@@ -1,8 +1,12 @@
 package io.katharsis.dispatcher.controller;
 
+import io.katharsis.context.SampleJsonApplicationContext;
 import io.katharsis.path.PathBuilder;
 import io.katharsis.path.ResourcePath;
 import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.resource.registry.ResourceRegistryBuilder;
+import io.katharsis.resource.registry.ResourceRegistryBuilderTest;
+import io.katharsis.response.BaseResponse;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,7 +20,8 @@ public class ResourceGetTest {
     @Before
     public void prepare() {
         pathBuilder = new PathBuilder();
-        resourceRegistry = new ResourceRegistry();
+        ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonApplicationContext());
+        resourceRegistry = registryBuilder.build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE);
         requestType = "GET";
     }
 
@@ -44,5 +49,19 @@ public class ResourceGetTest {
 
         // THEN
         Assert.assertEquals(result, true);
+    }
+
+    @Test
+    public void onGivenRequestResourceGetShouldHandleIt() {
+        // GIVEN
+
+        ResourcePath resourcePath = pathBuilder.buildPath("/tasks/1");
+        ResourceGet sut = new ResourceGet(resourceRegistry);
+
+        // WHEN
+        BaseResponse<?> response = sut.handle(resourcePath);
+
+        // THEN
+        Assert.assertNotNull(response);
     }
 }

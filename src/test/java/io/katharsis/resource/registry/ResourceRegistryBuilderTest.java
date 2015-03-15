@@ -13,17 +13,18 @@ import java.util.List;
 
 public class ResourceRegistryBuilderTest {
 
+    public static final String TEST_MODELS_PACKAGE = "io.katharsis.resource.mock";
+
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
     @Test
     public void onValidPackageShouldBuildRegistry() {
         // GIVEN
-        String packageName = "io.katharsis.resource.mock";
         ResourceRegistryBuilder sut = new ResourceRegistryBuilder(new SampleJsonApplicationContext());
 
         // WHEN
-        ResourceRegistry resourceRegistry = sut.build(packageName);
+        ResourceRegistry resourceRegistry = sut.build(TEST_MODELS_PACKAGE);
 
         // THEN
         RegistryEntry tasksEntry = resourceRegistry.getEntry("tasks");
@@ -40,7 +41,6 @@ public class ResourceRegistryBuilderTest {
     @Test
     public void onNoEntityRepositoryInstanceShouldThrowException() {
         // GIVEN
-        String packageName = "io.katharsis.resource.mock";
         ResourceRegistryBuilder sut = new ResourceRegistryBuilder(new SampleJsonApplicationContext(){
             public <T> T getInstance(Class<T> clazz) {
                 if (clazz == TaskRepository.class) {
@@ -55,13 +55,12 @@ public class ResourceRegistryBuilderTest {
         expectedException.expect(RepositoryNotFoundException.class);
 
         // WHEN
-        sut.build(packageName);
+        sut.build(TEST_MODELS_PACKAGE);
     }
 
     @Test
     public void onNoRelationshipRepositoryInstanceShouldThrowException() {
         // GIVEN
-        String packageName = "io.katharsis.resource.mock";
         ResourceRegistryBuilder sut = new ResourceRegistryBuilder(new SampleJsonApplicationContext(){
             public <T> T getInstance(Class<T> clazz) {
                 if (clazz == TaskToProjectRepository.class) {
@@ -76,13 +75,12 @@ public class ResourceRegistryBuilderTest {
         expectedException.expect(RepositoryNotFoundException.class);
 
         // WHEN
-        sut.build(packageName);
+        sut.build(TEST_MODELS_PACKAGE);
     }
 
     @Test
     public void onNoRepositoryShouldThrowException() {
         // GIVEN
-        String packageName = "io.katharsis.resource.mock.models";
         ResourceRegistryBuilder sut = new ResourceRegistryBuilder(new SampleJsonApplicationContext(){
             public <T> T getInstance(Class<T> clazz) {
                 if (clazz == TaskToProjectRepository.class) {
@@ -97,6 +95,6 @@ public class ResourceRegistryBuilderTest {
         expectedException.expect(RepositoryNotFoundException.class);
 
         // WHEN
-        sut.build(packageName);
+        sut.build(TEST_MODELS_PACKAGE);
     }
 }

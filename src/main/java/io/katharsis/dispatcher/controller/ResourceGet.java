@@ -25,7 +25,10 @@ public class ResourceGet implements BaseController {
         String resourceName = resourcePath.getResourceName();
         PathIds resourceIds = resourcePath.getIds();
         RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
-        Object entity = registryEntry.getEntityRepository().findOne(resourceIds.getIds().get(0));
+        String id = resourceIds.getIds().get(0);
+
+        // @TODO add automatic casting of ids
+        Object entity = registryEntry.getEntityRepository().findOne(Long.valueOf(id));
 
         return new ResourceResponse<>(entity);
     }
