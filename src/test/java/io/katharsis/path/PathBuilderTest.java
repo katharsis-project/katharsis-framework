@@ -3,6 +3,8 @@ package io.katharsis.path;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Arrays;
+
 public class PathBuilderTest {
 
     @Test
@@ -76,5 +78,19 @@ public class PathBuilderTest {
         ResourcePath expectedPath = new ResourcePath("resource2", false);
         expectedPath.setParentResource(new ResourcePath("resource1", true, new PathIds("1")));
         Assert.assertEquals(expectedPath, resourcePath);
+    }
+
+    @Test
+    public void onMultipleResourceInstancesPathShouldReturnCollectionPath() throws Exception {
+        // GIVEN
+        String path = "/resource1/1,2";
+        PathBuilder sut = new PathBuilder();
+
+        // WHEN
+        ResourcePath resourcePath = sut.buildPath(path);
+
+        // THEN
+        Assert.assertTrue(resourcePath.isCollection());
+        Assert.assertEquals(resourcePath.getIds().getIds(), Arrays.asList("1", "2"));
     }
 }

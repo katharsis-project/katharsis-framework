@@ -3,10 +3,8 @@ package io.katharsis.path;
 /**
  * Represent a JSON API path sent to the server. Each resource or field defined in the path is represented by one
  * ResourcePath object.
- * <p>
- * It is represented in a form of a doubly-linked list
  *
- * @todo Important! Check whether requested for collection of resources identified by group of IDs
+ * It is represented in a form of a doubly-linked list
  */
 public class ResourcePath {
 
@@ -47,6 +45,14 @@ public class ResourcePath {
         this.resourceName = resourceName;
         this.isRelationship = isRelationship;
         this.ids = ids;
+    }
+
+    /**
+     * Returns true if a ResourcePath concerns a collection.
+     * It can happen if there's no or more than one id provided.
+     */
+    public boolean isCollection() {
+        return ids == null || ids.getIds().size() > 1;
     }
 
     public String getResourceName() {

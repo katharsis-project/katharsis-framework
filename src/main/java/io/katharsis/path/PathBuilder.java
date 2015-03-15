@@ -1,5 +1,8 @@
 package io.katharsis.path;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Builder responsible for parsing URL path.
  */
@@ -30,7 +33,8 @@ public class PathBuilder {
             if (currentElementIdx >= strings.length) {
                 break;
             } else {
-                currentResourcePath.setIds(new PathIds(strings[currentElementIdx]));
+                PathIds pathIds = createPathIds(strings[currentElementIdx]);
+                currentResourcePath.setIds(pathIds);
                 currentElementIdx++;
             }
 
@@ -43,6 +47,11 @@ public class PathBuilder {
         }
 
         return currentResourcePath;
+    }
+
+    private PathIds createPathIds(String idsString) {
+        List<String> pathIds = Arrays.asList(idsString.split(PathIds.ID_SEPERATOR));
+        return new PathIds(pathIds);
     }
 
     private String[] splitPath(String path) {

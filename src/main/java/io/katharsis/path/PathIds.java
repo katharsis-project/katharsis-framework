@@ -1,5 +1,6 @@
 package io.katharsis.path;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -7,10 +8,16 @@ import java.util.List;
  * Represent an id or ids passed in the path from a client.
  */
 public class PathIds {
+    public static final String ID_SEPERATOR = ",";
+
     private List<String> ids = new LinkedList<>();
 
     public PathIds(String id) {
         ids.add(id);
+    }
+
+    public PathIds(Collection<String> id) {
+        ids.addAll(id);
     }
 
     public List<String> getIds() {
