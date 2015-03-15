@@ -12,13 +12,16 @@ public class PathBuilder {
 
     public ResourcePath buildPath(String path) {
         String[] strings = splitPath(path);
+        if (strings.length == 0 || (strings.length == 1 && "".equals(strings[0]))) {
+            throw new IllegalArgumentException("Path is empty");
+        }
 
         ResourcePath previousResourcePath = null, currentResourcePath = null;
 
         int currentElementIdx = 0;
         while (true) {
             if (currentElementIdx >= strings.length) {
-                break;
+                throw new IllegalArgumentException("No type field defined after links marker");
             }
 
             currentResourcePath = new ResourcePath(strings[currentElementIdx]);

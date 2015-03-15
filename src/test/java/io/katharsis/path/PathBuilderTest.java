@@ -1,14 +1,33 @@
 package io.katharsis.path;
 
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.util.Arrays;
 
 public class PathBuilderTest {
 
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
+
     @Test
-    public void onFlatResourcePathShouldReturnFlatPath() throws Exception {
+    public void onEmptyPathShouldThrowException() {
+        // GIVEN
+        String path = "/";
+        PathBuilder sut = new PathBuilder();
+
+        // THEN
+        expectedException.expect(IllegalArgumentException.class);
+        expectedException.expectMessage("Path is empty");
+
+        // WHEN
+        sut.buildPath(path);
+    }
+
+    @Test
+    public void onFlatResourcePathShouldReturnFlatPath() {
         // GIVEN
         String path = "/resource1/";
         PathBuilder sut = new PathBuilder();
@@ -19,10 +38,11 @@ public class PathBuilderTest {
         // THEN
         ResourcePath expectedPath = new ResourcePath("resource1");
         Assert.assertEquals(expectedPath, resourcePath);
+        Assert.assertTrue(expectedPath.isCollection());
     }
 
     @Test
-    public void onFlatResourceInstancePathShouldReturnFlatPath() throws Exception {
+    public void onFlatResourceInstancePathShouldReturnFlatPath() {
         // GIVEN
         String path = "/resource1/1";
         PathBuilder sut = new PathBuilder();
@@ -33,10 +53,11 @@ public class PathBuilderTest {
         // THEN
         ResourcePath expectedPath = new ResourcePath("resource1", false, new PathIds("1"));
         Assert.assertEquals(expectedPath, resourcePath);
+        Assert.assertFalse(expectedPath.isCollection());
     }
 
     @Test
-    public void onNestedResourcePathShouldReturnNestedPath() throws Exception {
+    public void onNestedResourcePathShouldReturnNestedPath() {
         // GIVEN
         String path = "/resource1/1/resource2";
         PathBuilder sut = new PathBuilder();
@@ -51,7 +72,7 @@ public class PathBuilderTest {
     }
 
     @Test
-    public void onNestedResourceInstancePathShouldReturnNestedPath() throws Exception {
+    public void onNestedResourceInstancePathShouldReturnNestedPath() {
         // GIVEN
         String path = "/resource1/1/resource2/2";
         PathBuilder sut = new PathBuilder();
@@ -66,7 +87,7 @@ public class PathBuilderTest {
     }
 
     @Test
-    public void onNestedResourceRelationshipPathShouldReturnNestedPath() throws Exception {
+    public void onNestedResourceRelationshipPathShouldReturnNestedPath() {
         // GIVEN
         String path = "/resource1/1/links/resource2/";
         PathBuilder sut = new PathBuilder();
@@ -81,7 +102,22 @@ public class PathBuilderTest {
     }
 
     @Test
-    public void onMultipleResourceInstancesPathShouldReturnCollectionPath() throws Exception {
+    public void onNestedWrongResourceRelationshipPathShouldThrowException() {
+        // GIVEN
+        String path = "/resource1/1/links/";
+        PathBuilder sut = new PathBuilder();
+
+        expectedException.expect(IllegalArgumentException.class);
+        expectedException.expectMessage("No type field defined after links marker");
+
+        // WHEN
+        sut.buildPath(path);
+
+        // THEN - EXCEPTION
+    }
+
+    @Test
+    public void onMultipleResourceInstancesPathShouldReturnCollectionPath() {
         // GIVEN
         String path = "/resource1/1,2";
         PathBuilder sut = new PathBuilder();
