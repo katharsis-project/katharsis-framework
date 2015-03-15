@@ -3,6 +3,7 @@ package io.katharsis.resource.registry;
 import io.katharsis.repository.EntityRepository;
 import io.katharsis.repository.RelationshipRepository;
 
+import java.util.LinkedList;
 import java.util.List;
 
 public class RegistryEntry<T> {
@@ -10,7 +11,7 @@ public class RegistryEntry<T> {
     private List<RelationshipRepository<T, ?>> relationshipRepositories;
 
     public RegistryEntry(EntityRepository<T, ?> entityRepository) {
-        this(entityRepository, null);
+        this(entityRepository, new LinkedList<>());
     }
 
     public RegistryEntry(EntityRepository<T, ?> entityRepository, List<RelationshipRepository<T, ?>> relationshipRepositories) {
