@@ -9,11 +9,11 @@ import java.util.Map;
 public class ResourceRegistry {
     private Map<Class, RegistryEntry> resources = new HashMap<>();
 
-    public <T> void add(Class<T> resource, RegistryEntry<? extends T> registryEntry) {
+    public <T> void addEntry(Class<T> resource, RegistryEntry<? extends T> registryEntry) {
         resources.put(resource, registryEntry);
     }
 
-    public RegistryEntry get(String searchType) {
+    public RegistryEntry getEntry(String searchType) {
         for (Map.Entry<Class, RegistryEntry> entry : resources.entrySet()) {
             String type = getResourceType(entry.getKey());
             if (searchType.equals(type)) {

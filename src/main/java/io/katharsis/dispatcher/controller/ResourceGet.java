@@ -21,10 +21,10 @@ public class ResourceGet implements BaseController {
     }
 
     @Override
-    public BaseResponse<?> accept(ResourcePath resourcePath) {
+    public BaseResponse<?> handle(ResourcePath resourcePath) {
         String resourceName = resourcePath.getResourceName();
         PathIds resourceIds = resourcePath.getIds();
-        RegistryEntry registryEntry = resourceRegistry.get(resourceName);
+        RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
         Object entity = registryEntry.getEntityRepository().findOne(resourceIds.getIds().get(0));
 
         return new ResourceResponse<>(entity);

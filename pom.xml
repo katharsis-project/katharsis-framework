@@ -34,6 +34,7 @@
                         <format>xml</format>
                     </formats>
                     <aggregate>true</aggregate>
+                    <check/>
                 </configuration>
                 <dependencies>
                     <dependency>
@@ -48,6 +49,7 @@
                 <artifactId>coveralls-maven-plugin</artifactId>
                 <version>3.0.1</version>
                 <configuration>
+                    <!--suppress MavenModelInspection -->
                     <repoToken>${env.coverallsToken}</repoToken>
                 </configuration>
             </plugin>
@@ -64,6 +66,12 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>1.10.19</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
