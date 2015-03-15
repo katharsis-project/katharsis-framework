@@ -8,9 +8,10 @@ import org.junit.Test;
 
 import static org.mockito.Mockito.mock;
 
-public class ResourceGetTest {
+public class CollectionGetTest {
+
     @Test
-    public void onGivenRequestCollectionGetShouldDenyIt() {
+    public void onGivenRequestCollectionGetShouldAcceptIt() {
         // GIVEN
         String path = "/resource/";
         String requestType = "GET";
@@ -18,17 +19,17 @@ public class ResourceGetTest {
         ResourcePath resourcePath = pathBuilder.buildPath(path);
 
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-        ResourceGet sut = new ResourceGet(resourceRegistry);
+        CollectionGet sut = new CollectionGet(resourceRegistry);
 
         // WHEN
         boolean result = sut.isAcceptable(resourcePath, requestType);
 
         // THEN
-        Assert.assertEquals(result, false);
+        Assert.assertEquals(result, true);
     }
 
     @Test
-    public void onGivenRequestResourceGetShouldAcceptIt() {
+    public void onGivenRequestResourceGetShouldDenyIt() {
         // GIVEN
         String path = "/resource/2";
         String requestType = "GET";
@@ -36,12 +37,12 @@ public class ResourceGetTest {
         ResourcePath resourcePath = pathBuilder.buildPath(path);
 
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-        ResourceGet sut = new ResourceGet(resourceRegistry);
+        CollectionGet sut = new CollectionGet(resourceRegistry);
 
         // WHEN
         boolean result = sut.isAcceptable(resourcePath, requestType);
 
         // THEN
-        Assert.assertEquals(result, true);
+        Assert.assertEquals(result, false);
     }
 }
