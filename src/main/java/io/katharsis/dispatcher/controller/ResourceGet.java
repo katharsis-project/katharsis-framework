@@ -17,7 +17,7 @@ public class ResourceGet implements BaseController {
 
     @Override
     public boolean isAcceptable(ResourcePath resourcePath, String requestType) {
-        return resourcePath.getIds() != null && "GET".equals(requestType);
+        return !resourcePath.isCollection() && "GET".equals(requestType);
     }
 
     @Override
