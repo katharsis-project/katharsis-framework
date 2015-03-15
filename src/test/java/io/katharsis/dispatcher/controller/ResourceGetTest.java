@@ -4,20 +4,26 @@ import io.katharsis.path.PathBuilder;
 import io.katharsis.path.ResourcePath;
 import io.katharsis.resource.registry.ResourceRegistry;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
-import static org.mockito.Mockito.mock;
-
 public class ResourceGetTest {
+
+    private PathBuilder pathBuilder;
+    private String requestType;
+    private ResourceRegistry resourceRegistry;
+
+    @Before
+    public void prepare() {
+        pathBuilder = new PathBuilder();
+        resourceRegistry = new ResourceRegistry();
+        requestType = "GET";
+    }
+
     @Test
     public void onGivenRequestCollectionGetShouldDenyIt() {
         // GIVEN
-        String path = "/resource/";
-        String requestType = "GET";
-        PathBuilder pathBuilder = new PathBuilder();
-        ResourcePath resourcePath = pathBuilder.buildPath(path);
-
-        ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
+        ResourcePath resourcePath = pathBuilder.buildPath("/resource/");
         ResourceGet sut = new ResourceGet(resourceRegistry);
 
         // WHEN
@@ -30,12 +36,7 @@ public class ResourceGetTest {
     @Test
     public void onGivenRequestResourceGetShouldAcceptIt() {
         // GIVEN
-        String path = "/resource/2";
-        String requestType = "GET";
-        PathBuilder pathBuilder = new PathBuilder();
-        ResourcePath resourcePath = pathBuilder.buildPath(path);
-
-        ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
+        ResourcePath resourcePath = pathBuilder.buildPath("/resource/2");
         ResourceGet sut = new ResourceGet(resourceRegistry);
 
         // WHEN
