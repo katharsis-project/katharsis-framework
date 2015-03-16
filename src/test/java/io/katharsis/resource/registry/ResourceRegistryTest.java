@@ -1,6 +1,6 @@
 package io.katharsis.resource.registry;
 
-import io.katharsis.resource.ResourceNotFoundException;
+import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.models.UnAnnotatedTask;
 import org.junit.Assert;
@@ -17,7 +17,7 @@ public class ResourceRegistryTest {
     public void onExistingTypeShouldReturnEntry() {
         // GIVEN
         ResourceRegistry sut = new ResourceRegistry();
-        sut.addEntry(Task.class, new RegistryEntry<>(null));
+        sut.addEntry(Task.class, new RegistryEntry<>(null, null));
 
         // WHEN
         RegistryEntry tasksEntry = sut.getEntry("tasks");
@@ -42,7 +42,7 @@ public class ResourceRegistryTest {
     public void onUnAnnotatedTypeShouldThrowException() {
         // GIVEN
         ResourceRegistry sut = new ResourceRegistry();
-        sut.addEntry(UnAnnotatedTask.class, new RegistryEntry<>(null));
+        sut.addEntry(UnAnnotatedTask.class, new RegistryEntry<>(null, null));
 
         // THEN
         expectedException.expect(RuntimeException.class);

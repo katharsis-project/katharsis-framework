@@ -3,8 +3,6 @@ package io.katharsis.resource.mock.models;
 import io.katharsis.resource.annotations.JsonApiId;
 import io.katharsis.resource.annotations.JsonApiResource;
 
-import java.util.List;
-
 @JsonApiResource(type = "projects")
 public class Project {
 

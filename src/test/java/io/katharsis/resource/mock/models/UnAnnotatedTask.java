@@ -1,7 +1,5 @@
 package io.katharsis.resource.mock.models;
 
-import io.katharsis.resource.mock.models.Project;
-
 public class UnAnnotatedTask {
 
     private Long id;

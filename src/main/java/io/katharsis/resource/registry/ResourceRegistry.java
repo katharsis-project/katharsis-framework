@@ -1,7 +1,7 @@
 package io.katharsis.resource.registry;
 
-import io.katharsis.resource.ResourceNotFoundException;
 import io.katharsis.resource.annotations.JsonApiResource;
+import io.katharsis.resource.exception.ResourceNotFoundException;
 
 import java.lang.annotation.Annotation;
 import java.util.HashMap;

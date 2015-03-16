@@ -8,8 +8,9 @@ public interface JsonApplicationContext {
 
     /**
      * Get an instance of a class
+     *
      * @param clazz class to be searched for
-     * @param <T> type of returning object
+     * @param <T>   type of returning object
      * @return instance of a class of type T which implements/extends or is instance of clazz
      */
     <T> T getInstance(Class<T> clazz);
