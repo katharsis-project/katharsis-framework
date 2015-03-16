@@ -3,6 +3,7 @@ package io.katharsis.dispatcher.controller;
 import io.katharsis.context.SampleJsonApplicationContext;
 import io.katharsis.path.PathBuilder;
 import io.katharsis.path.ResourcePath;
+import io.katharsis.resource.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryBuilder;
 import io.katharsis.resource.registry.ResourceRegistryBuilderTest;
@@ -20,7 +21,7 @@ public class CollectionGetTest {
     @Before
     public void prepare() {
         pathBuilder = new PathBuilder();
-        ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonApplicationContext());
+        ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonApplicationContext(), new ResourceInformationBuilder());
         resourceRegistry = registryBuilder.build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE);
         requestType = "GET";
     }

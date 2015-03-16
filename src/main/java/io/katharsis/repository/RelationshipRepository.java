@@ -11,7 +11,7 @@ public interface RelationshipRepository<T, D> {
     /**
      * Add relation from source to destination
      *
-     * @param source instance of a source class
+     * @param source      instance of a source class
      * @param destination instance of a destination class
      */
     void addRelation(T source, D destination);
@@ -19,7 +19,7 @@ public interface RelationshipRepository<T, D> {
     /**
      * Remove relation from source to destination
      *
-     * @param source instance of a source class
+     * @param source      instance of a source class
      * @param destination instance of a destination class
      */
     void removeRelation(T source, D destination);

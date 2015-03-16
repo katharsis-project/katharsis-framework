@@ -1,4 +1,4 @@
-package io.katharsis.resource;
+package io.katharsis.resource.exception;
 
 /**
  * Thrown when resource for a type cannot be found.
