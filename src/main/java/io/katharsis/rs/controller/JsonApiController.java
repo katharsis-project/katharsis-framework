@@ -1,11 +1,8 @@
 package io.katharsis.rs.controller;
 
 import io.katharsis.dispatcher.RequestDispatcher;
-import io.katharsis.dispatcher.controller.CollectionGet;
-import io.katharsis.dispatcher.controller.ResourceGet;
-import io.katharsis.dispatcher.registry.ControllerRegistry;
 import io.katharsis.path.ResourcePath;
-import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.response.BaseResponse;
 import io.katharsis.rs.controller.annotation.JsonInject;
 import io.katharsis.rs.type.JsonApiMediaType;
 
@@ -21,11 +18,11 @@ public class JsonApiController {
     private ResourcePath resourcePath;
 
     @JsonInject
-    private ResourceRegistry resourceRegistry;
+    private RequestDispatcher requestDispatcher;
 
     @GET
     public Response getRequest(@PathParam("path") String path) {
-        RequestDispatcher dispatcher = new RequestDispatcher(new ControllerRegistry(new CollectionGet(resourceRegistry), new ResourceGet(resourceRegistry)));
-        return Response.ok(dispatcher.dispatchRequest(resourcePath, "GET")).build();
+        BaseResponse<?> response = requestDispatcher.dispatchRequest(resourcePath, "GET");
+        return Response.ok(response).build();
     }
 }

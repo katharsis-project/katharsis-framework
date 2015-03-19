@@ -1,10 +1,13 @@
 package io.katharsis.rs.controller;
 
+import io.katharsis.dispatcher.RequestDispatcher;
 import io.katharsis.path.ResourcePath;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.CollectionResponse;
+import io.katharsis.response.ResourceResponse;
 import io.katharsis.rs.controller.annotation.JsonInject;
 import io.katharsis.rs.controller.hk2.JsonInjectResolver;
+import io.katharsis.rs.controller.hk2.factory.RequestDispatcherFactory;
 import io.katharsis.rs.controller.hk2.factory.ResourcePathFactory;
 import io.katharsis.rs.controller.hk2.factory.ResourceRegistryFactory;
 import io.katharsis.rs.resource.model.Task;
@@ -21,11 +24,13 @@ import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.ServletDeploymentContext;
 import org.glassfish.jersey.test.grizzly.GrizzlyWebTestContainerFactory;
 import org.glassfish.jersey.test.spi.TestContainerFactory;
+import org.junit.Assert;
 import org.junit.Test;
 
 import javax.inject.Singleton;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.GenericType;
+import java.util.stream.StreamSupport;
 
 public class JsonApiControllerTest extends JerseyTest {
 
@@ -40,18 +45,32 @@ public class JsonApiControllerTest extends JerseyTest {
                 new ServletContainer(new MyApplication())).build();
     }
 
-
     @Test
-    public void onNestedPathShouldProcessIt() {
-//        CollectionResponse<Task> clientResponse
+    public void onSimpleCollectionGetShouldReturnCollectionOfResources() {
+        // WHEN
         CollectionResponse<Task> taskCollectionResponse = target("tasks/")
                 .request()
                 .get(new GenericType<CollectionResponse<Task>>() {
                 });
 
-//        String s = clientResponse.readEntity(String.class);
-//        assertEquals(Response.Status.OK.getStatusCode(), clientResponse.getStatus());
-        taskCollectionResponse.equals(null);
+        // THEN
+        Assert.assertNotNull(taskCollectionResponse);
+        Assert.assertNotNull(taskCollectionResponse.getData());
+        Assert.assertEquals(1L, StreamSupport.stream(taskCollectionResponse.getData().spliterator(), false).count());
+    }
+
+    @Test
+    public void onSimpleResourceGetShouldReturnOneResource() {
+        // WHEN
+        ResourceResponse<Task> taskResourceResponse = target("tasks/1")
+                .request()
+                .get(new GenericType<ResourceResponse<Task>>() {
+                });
+
+        // THEN
+        Assert.assertNotNull(taskResourceResponse);
+        Assert.assertNotNull(taskResourceResponse.getData());
+        Assert.assertEquals(1L, (long) taskResourceResponse.getData().getId());
     }
 
     @ApplicationPath("/")
@@ -62,11 +81,12 @@ public class JsonApiControllerTest extends JerseyTest {
             register(new AbstractBinder() {
                 @Override
                 protected void configure() {
-                    bind(ProjectRepository.class).to(ProjectRepository.class).in(Singleton.class);
-                    bind(TaskRepository.class).to(TaskRepository.class).in(Singleton.class);
-                    bind(TaskToProjectRepository.class).to(TaskToProjectRepository.class).in(Singleton.class);
-                    bindFactory(ResourcePathFactory.class).to(ResourcePath.class).in(Singleton.class);
-                    bindFactory(ResourceRegistryFactory.class).to(ResourceRegistry.class).in(Singleton.class);
+                    bindAsContract(ProjectRepository.class);
+                    bindAsContract(TaskRepository.class);
+                    bindAsContract(TaskToProjectRepository.class);
+                    bindFactory(RequestDispatcherFactory.class).to(RequestDispatcher.class);
+                    bindFactory(ResourcePathFactory.class).to(ResourcePath.class);
+                    bindFactory(ResourceRegistryFactory.class).to(ResourceRegistry.class);
 
                     bind(JsonInjectResolver.class)
                             .to(new TypeLiteral<InjectionResolver<JsonInject>>() {
