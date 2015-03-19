@@ -3,6 +3,9 @@ package io.katharsis.response;
 public class ResourceResponse<T> implements BaseResponse<T> {
     private T data;
 
+    public ResourceResponse() {
+    }
+
     public ResourceResponse(T data) {
         this.data = data;
     }
