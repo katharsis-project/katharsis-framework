@@ -1,21 +1,18 @@
 package io.katharsis.dispatcher;
 
 import io.katharsis.dispatcher.registry.ControllerRegistry;
-import io.katharsis.path.PathBuilder;
 import io.katharsis.path.ResourcePath;
+import io.katharsis.response.BaseResponse;
 
 public class RequestDispatcher {
 
     private ControllerRegistry controllerRegistry;
-    private PathBuilder pathBuilder;
 
-    public RequestDispatcher(ControllerRegistry controllerRegistry, PathBuilder pathBuilder) {
+    public RequestDispatcher(ControllerRegistry controllerRegistry) {
         this.controllerRegistry = controllerRegistry;
-        this.pathBuilder = pathBuilder;
     }
 
-    public void dispatchRequest(String path, String requestType) {
-        ResourcePath resourcePath = pathBuilder.buildPath(path);
-        controllerRegistry.getController(resourcePath, requestType).handle(resourcePath);
+    public BaseResponse<?> dispatchRequest(ResourcePath resourcePath, String requestType) {
+        return controllerRegistry.getController(resourcePath, requestType).handle(resourcePath);
     }
 }
