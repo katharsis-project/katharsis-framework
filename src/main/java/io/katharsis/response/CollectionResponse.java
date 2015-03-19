@@ -1,17 +1,20 @@
 package io.katharsis.response;
 
-public class CollectionResponse implements BaseResponse<Iterable<?>> {
-    private Iterable<?> data;
+public class CollectionResponse<T> implements BaseResponse<Iterable<T>> {
+    private Iterable<T> data;
 
-    public CollectionResponse(Iterable<?> data) {
+    public CollectionResponse() {
+    }
+
+    public CollectionResponse(Iterable<T> data) {
         this.data = data;
     }
 
-    public Iterable<?> getData() {
+    public Iterable<T> getData() {
         return data;
     }
 
-    public void setData(Iterable<?> data) {
+    public void setData(Iterable<T> data) {
         this.data = data;
     }
 }
