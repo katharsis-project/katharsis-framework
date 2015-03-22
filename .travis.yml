@@ -4,3 +4,5 @@ jdk:
   - oraclejdk8
 after_success:
 - mvn clean cobertura:cobertura coveralls:report
+- curl -XPOST -uophirh:${env.bintrayPassword} https://api.bintray.com/content/ophirh/demo/tr_demo/$TRAVIS_JOB_NUMBER/publish
+- curl -XGET https://bintray.com/ophirh/demo/tr_demo/$TRAVIS_JOB_NUMBER
