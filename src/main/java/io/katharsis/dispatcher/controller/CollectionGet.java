@@ -5,6 +5,10 @@ import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
 import io.katharsis.response.CollectionResponse;
+import io.katharsis.response.Container;
+
+import java.util.LinkedList;
+import java.util.List;
 
 public class CollectionGet implements BaseController {
 
@@ -24,7 +28,11 @@ public class CollectionGet implements BaseController {
         String resourceName = resourcePath.getResourceName();
         RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
         Iterable iterable = registryEntry.getEntityRepository().findAll();
+        List<Container> containers = new LinkedList<>();
+        for (Object element : iterable) {
+            containers.add(new Container(element));
+        }
 
-        return new CollectionResponse(iterable);
+        return new CollectionResponse(containers);
     }
 }

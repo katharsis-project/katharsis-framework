@@ -5,6 +5,7 @@ import io.katharsis.path.ResourcePath;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
+import io.katharsis.response.Container;
 import io.katharsis.response.ResourceResponse;
 
 import java.io.Serializable;
@@ -33,7 +34,7 @@ public class ResourceGet implements BaseController {
         Serializable castedId = castIdValue(id, idType);
         Object entity = registryEntry.getEntityRepository().findOne(castedId);
 
-        return new ResourceResponse<>(entity);
+        return new ResourceResponse<>(new Container(entity));
     }
 
     // @TODO add more customized casting of ids
