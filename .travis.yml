@@ -4,4 +4,4 @@ jdk:
   - oraclejdk8
 after_success:
 - mvn clean cobertura:cobertura coveralls:report
-- curl -T target/katharsis-core-${project.version}.jar -u ${env.bintrayUser}:${env.bintrayPassword https://api.bintray.com/content/masterspambot/maven/katharsis/$TRAVIS_JOB_NUMBER/katharsis-core-${project.version}.jar
+- curl -T target/katharsis-core-${project.version}.jar -u ${env.bintrayUser}:${env.bintrayPassword} https://api.bintray.com/content/masterspambot/maven/katharsis/$TRAVIS_JOB_NUMBER/katharsis-core-${project.version}.jar
