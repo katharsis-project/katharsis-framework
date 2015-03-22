@@ -1,20 +1,20 @@
 package io.katharsis.response;
 
-public class ResourceResponse<T> implements BaseResponse<T> {
-    private T data;
+public class ResourceResponse<T> implements BaseResponse<Container<T>> {
+    private Container<T> data;
 
     public ResourceResponse() {
     }
 
-    public ResourceResponse(T data) {
+    public ResourceResponse(Container<T> data) {
         this.data = data;
     }
 
-    public T getData() {
+    public Container<T> getData() {
         return data;
     }
 
-    public void setData(T data) {
+    public void setData(Container<T> data) {
         this.data = data;
     }
 }

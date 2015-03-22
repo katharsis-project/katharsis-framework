@@ -3,6 +3,8 @@ package io.katharsis.resource.mock.repository;
 import io.katharsis.repository.EntityRepository;
 import io.katharsis.resource.mock.models.Project;
 
+import java.util.LinkedList;
+
 public class ProjectRepository implements EntityRepository<Project, Long> {
     @Override
     public <S extends Project> S save(S entity) {
@@ -16,7 +18,7 @@ public class ProjectRepository implements EntityRepository<Project, Long> {
 
     @Override
     public Iterable<Project> findAll() {
-        return null;
+        return new LinkedList<>();
     }
 
     @Override
