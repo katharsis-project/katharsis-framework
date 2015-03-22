@@ -4,5 +4,8 @@ jdk:
   - oraclejdk8
 after_success:
 - mvn clean cobertura:cobertura coveralls:report
-- curl -XPOST -uophirh:${env.bintrayPassword} https://api.bintray.com/content/ophirh/demo/tr_demo/$TRAVIS_JOB_NUMBER/publish
-- curl -XGET https://bintray.com/ophirh/demo/tr_demo/$TRAVIS_JOB_NUMBER
+
+- curl -T target/katharsis-core-1.0-SNAPSHOT.jar -u ${env.bintrayUser}:${env.bintrayPassword https://api.bintray.com/content/masterspambot/maven/katharsis/$TRAVIS_JOB_NUMBER/$TRAVIS_JOB_NUMBER/katharsis-core-1.0-SNAPSHOT.jar
+
+- curl -X POST -u ${env.bintrayUser}:${env.bintrayPassword} https://api.bintray.com/content/masterspambot/maven/katharsis/$TRAVIS_JOB_NUMBER/publish
+- curl -X GET https://bintray.com/masterspambot/maven/katharsis/$TRAVIS_JOB_NUMBER
