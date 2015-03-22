@@ -12,8 +12,6 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <javaVersion>1.8</javaVersion>
-        <bintray.repo>masterspambot/repo</bintray.repo>
-        <bintray.package>katharsis</bintray.package>
     </properties>
 
     <build>
@@ -72,13 +70,6 @@
             </plugin>
         </plugins>
     </build>
-
-    <distributionManagement>
-        <repository>
-            <id>katharsis</id>
-            <url>https://api.bintray.com/maven/${bintray.repo}/${bintray.package}</url>
-        </repository>
-    </distributionManagement>
 
     <dependencies>
         <dependency>
