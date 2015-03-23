@@ -33,7 +33,7 @@ public class ResourceRegistryBuilder {
      *
      * @param packageName Package containing resources (models) and repositories.
      */
-    public ResourceRegistry build(String packageName) {
+    public ResourceRegistry build(String packageName, String serviceUrl) {
         Reflections reflections = new Reflections(packageName);
 
         Set<Class<?>> jsonApiResources = reflections.getTypesAnnotatedWith(JsonApiResource.class);
@@ -41,7 +41,7 @@ public class ResourceRegistryBuilder {
         Set<Class<? extends RelationshipRepository>> relationshipRepositoryClasses = reflections
                 .getSubTypesOf(RelationshipRepository.class);
 
-        ResourceRegistry resourceRegistry = new ResourceRegistry();
+        ResourceRegistry resourceRegistry = new ResourceRegistry(serviceUrl);
         for (Class resourceClass : jsonApiResources) {
             Class<? extends EntityRepository> foundEntityRepositoryClass = findEntityRepository(resourceClass, entityRepositoryClasses);
             Set<Class<? extends RelationshipRepository>> foundRelationshipRepositoriesClasses =

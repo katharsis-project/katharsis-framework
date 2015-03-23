@@ -1,6 +1,7 @@
 package io.katharsis.response;
 
 public class CollectionResponse<T> implements BaseResponse<Iterable<Container<T>>> {
+
     private Iterable<Container<T>> data;
 
     public CollectionResponse() {

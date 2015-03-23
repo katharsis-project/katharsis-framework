@@ -8,7 +8,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ResourceRegistry {
-    private Map<Class, RegistryEntry> resources = new HashMap<>();
+    private final Map<Class, RegistryEntry> resources = new HashMap<>();
+    private final String serviceUrl;
+
+    public ResourceRegistry(String serviceUrl) {
+        this.serviceUrl = serviceUrl;
+    }
 
     public <T> void addEntry(Class<T> resource, RegistryEntry<? extends T> registryEntry) {
         resources.put(resource, registryEntry);
@@ -24,7 +29,15 @@ public class ResourceRegistry {
         throw new ResourceNotFoundException("Resource of type not found: " + searchType);
     }
 
-    private String getResourceType(Class clazz) {
+    public RegistryEntry getEntry(Class clazz) {
+        RegistryEntry registryEntry = resources.get(clazz);
+        if (registryEntry != null) {
+            return registryEntry;
+        }
+        throw new ResourceNotFoundException("Resource of class not found: " + clazz.getCanonicalName());
+    }
+
+    public String getResourceType(Class clazz) {
         Annotation[] annotations = clazz.getAnnotations();
         for (Annotation annotation : annotations) {
             if (annotation instanceof JsonApiResource) {
@@ -33,5 +46,9 @@ public class ResourceRegistry {
             }
         }
         throw new RuntimeException("Class has no JsonApiResource annotation: " + clazz.getCanonicalName());
+    }
+
+    public String getResourceUrl(Class clazz) {
+        return serviceUrl + "/" + getResourceType(clazz);
     }
 }
