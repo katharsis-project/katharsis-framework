@@ -5,4 +5,3 @@ jdk:
 after_success:
 - mvn clean cobertura:cobertura coveralls:report
 - mvn clean deploy
-- curl -T target/katharsis-core-0.1.jar -u ${env.bintrayUser}:${env.bintrayPassword} https://api.bintray.com/content/masterspambot/maven/katharsis/$TRAVIS_JOB_NUMBER/katharsis-core-0.1.jar
