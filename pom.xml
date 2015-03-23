@@ -4,7 +4,7 @@
 
     <groupId>io.katharsis</groupId>
     <artifactId>katharsis-core</artifactId>
-    <version>0.1</version>
+    <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>katharsis-core</name>
@@ -12,7 +12,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <javaVersion>1.8</javaVersion>
-        <jackson.version>2.5.1</jackson.version>
+        <jackson.version>2.4.5</jackson.version>
     </properties>
 
     <build>
@@ -84,9 +84,14 @@
             <version>0.4.0</version>
         </dependency>
         <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
+            <version>1.9.2</version>
+        </dependency>
+        <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.5.1</version>
+            <version>${jackson.version}</version>
         </dependency>
 
 
@@ -103,4 +108,12 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <distributionManagement>
+        <repository>
+            <id>oss-jfrog</id>
+            <name>Artifactory snapshots</name>
+            <url>http://oss.jfrog.org/artifactory/oss-snapshot-local</url>
+        </repository>
+    </distributionManagement>
 </project>
