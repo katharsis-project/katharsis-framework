@@ -21,7 +21,7 @@ public class ResourceRegistryFactory implements Factory<ResourceRegistry> {
     @Override
     public ResourceRegistry provide() {
         ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new Hk2Context(locator), new ResourceInformationBuilder());
-        return registryBuilder.build("io.katharsis.rs.resource");
+        return registryBuilder.build("io.katharsis.rs.resource", "https:/service.local");
     }
 
     @Override

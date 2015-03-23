@@ -15,7 +15,8 @@ public class TaskRepository implements EntityRepository<Task, Long> {
 
     @Override
     public Task findOne(Long aLong) {
-        return new Task(aLong, "Task");
+        Task task = new Task(aLong, "Some task");
+        return task;
     }
 
     @Override

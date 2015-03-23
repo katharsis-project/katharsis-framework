@@ -13,6 +13,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <javaVersion>1.8</javaVersion>
+        <jackson.version>2.4.5</jackson.version>
     </properties>
 
     <build>
@@ -64,6 +65,16 @@
           <version>2.0.1</version>
       </dependency>
       <dependency>
+          <groupId>org.glassfish.jersey.media</groupId>
+          <artifactId>jersey-media-json-jackson</artifactId>
+          <version>2.17</version>
+      </dependency>
+      <dependency>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>jackson-annotations</artifactId>
+          <version>${jackson.version}</version>
+      </dependency>
+      <dependency>
           <groupId>io.katharsis</groupId>
           <artifactId>katharsis-core</artifactId>
           <version>1.0-SNAPSHOT</version>
@@ -76,16 +87,24 @@
           <scope>test</scope>
       </dependency>
       <dependency>
-          <groupId>org.glassfish.jersey.media</groupId>
-          <artifactId>jersey-media-json-jackson</artifactId>
-          <version>2.17</version>
-          <scope>test</scope>
-      </dependency>
-      <dependency>
           <groupId>junit</groupId>
           <artifactId>junit</artifactId>
           <version>4.12</version>
           <scope>test</scope>
       </dependency>
   </dependencies>
+    <repositories>
+        <repository>
+            <id>oss-jfrog-artifactory</id>
+            <url>http://oss.jfrog.org/artifactory/oss-snapshot-local</url>
+        </repository>
+    </repositories>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>oss-jfrog-artifactory</id>
+            <name>oss-jfrog-artifactory-snapshots</name>
+            <url>http://oss.jfrog.org/artifactory/oss-snapshot-local</url>
+        </snapshotRepository>
+    </distributionManagement>
 </project>

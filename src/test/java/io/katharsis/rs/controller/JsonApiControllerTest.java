@@ -3,14 +3,12 @@ package io.katharsis.rs.controller;
 import io.katharsis.dispatcher.RequestDispatcher;
 import io.katharsis.path.ResourcePath;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.response.CollectionResponse;
-import io.katharsis.response.ResourceResponse;
 import io.katharsis.rs.controller.annotation.JsonInject;
 import io.katharsis.rs.controller.hk2.JsonInjectResolver;
 import io.katharsis.rs.controller.hk2.factory.RequestDispatcherFactory;
 import io.katharsis.rs.controller.hk2.factory.ResourcePathFactory;
 import io.katharsis.rs.controller.hk2.factory.ResourceRegistryFactory;
-import io.katharsis.rs.resource.model.Task;
+import io.katharsis.rs.jackson.JsonApiObjectMapperResolver;
 import io.katharsis.rs.resource.repository.ProjectRepository;
 import io.katharsis.rs.resource.repository.TaskRepository;
 import io.katharsis.rs.resource.repository.TaskToProjectRepository;
@@ -29,8 +27,6 @@ import org.junit.Test;
 
 import javax.inject.Singleton;
 import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.core.GenericType;
-import java.util.stream.StreamSupport;
 
 public class JsonApiControllerTest extends JerseyTest {
 
@@ -48,29 +44,23 @@ public class JsonApiControllerTest extends JerseyTest {
     @Test
     public void onSimpleCollectionGetShouldReturnCollectionOfResources() {
         // WHEN
-        CollectionResponse<Task> taskCollectionResponse = target("tasks/")
+        String taskCollectionResponse = target("tasks/")
                 .request()
-                .get(new GenericType<CollectionResponse<Task>>() {
-                });
+                .get(String.class);
 
         // THEN
         Assert.assertNotNull(taskCollectionResponse);
-        Assert.assertNotNull(taskCollectionResponse.getData());
-        Assert.assertEquals(1L, StreamSupport.stream(taskCollectionResponse.getData().spliterator(), false).count());
     }
 
     @Test
     public void onSimpleResourceGetShouldReturnOneResource() {
         // WHEN
-        ResourceResponse<Task> taskResourceResponse = target("tasks/1")
+        String taskResourceResponse = target("tasks/1")
                 .request()
-                .get(new GenericType<ResourceResponse<Task>>() {
-                });
+                .get(String.class);
 
         // THEN
         Assert.assertNotNull(taskResourceResponse);
-        Assert.assertNotNull(taskResourceResponse.getData());
-        Assert.assertEquals(1L, (long) taskResourceResponse.getData().getId());
     }
 
     @ApplicationPath("/")
@@ -78,6 +68,8 @@ public class JsonApiControllerTest extends JerseyTest {
 
         public MyApplication() {
             register(JsonApiController.class);
+            register(JsonApiObjectMapperResolver.class);
+
             register(new AbstractBinder() {
                 @Override
                 protected void configure() {
