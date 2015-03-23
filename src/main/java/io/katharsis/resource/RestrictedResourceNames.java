@@ -6,7 +6,7 @@ package io.katharsis.resource;
 public enum RestrictedResourceNames {
     /**
      * It is an url relationship indicator
-     * See {@link <a href="http://jsonapi.org/format/#fetching-relationships">Fetching Relationships</a>}
+     * See <a href="http://jsonapi.org/format/#fetching-relationships">Fetching Relationships</a>
      */
     links,
 

@@ -2,8 +2,8 @@ package io.katharsis.resource;
 
 /**
  * A set of restricted members (fields) of a model
- * <p/>
- * See {@link <a href="http://jsonapi.org/format/#document-structure-resource-object-complex-attributes">Complex Attributes</a>}
+ *
+ * See <a href="http://jsonapi.org/format/#document-structure-resource-object-complex-attributes">Complex Attributes</a>
  */
 public enum RestrictedMembers {
     /**
