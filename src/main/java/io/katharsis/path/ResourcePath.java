@@ -3,7 +3,7 @@ package io.katharsis.path;
 /**
  * Represent a JSON API path sent to the server. Each resource or field defined in the path is represented by one
  * ResourcePath object.
- * <p/>
+ *
  * It is represented in a form of a doubly-linked list
  */
 public class ResourcePath {
