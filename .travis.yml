@@ -2,6 +2,10 @@ sudo: false
 language: java
 jdk:
   - oraclejdk8
+branches:
+  except:
+    - travis
+before_install: "git clone -b travis `git config --get remote.origin.url` target/travis"
 after_success:
 - mvn clean cobertura:cobertura coveralls:report
-- mvn clean deploy
+- mvn clean deploy --settings target/travis/settings.xml
