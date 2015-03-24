@@ -1,6 +1,6 @@
 package io.katharsis.dispatcher;
 
-import io.katharsis.dispatcher.controller.CollectionGet;
+import io.katharsis.dispatcher.controller.collection.CollectionGet;
 import io.katharsis.dispatcher.registry.ControllerRegistry;
 import io.katharsis.path.PathBuilder;
 import io.katharsis.path.ResourcePath;
