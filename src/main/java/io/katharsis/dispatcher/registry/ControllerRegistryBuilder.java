@@ -1,7 +1,7 @@
 package io.katharsis.dispatcher.registry;
 
-import io.katharsis.dispatcher.controller.CollectionGet;
-import io.katharsis.dispatcher.controller.ResourceGet;
+import io.katharsis.dispatcher.controller.collection.CollectionGet;
+import io.katharsis.dispatcher.controller.resource.ResourceGet;
 import io.katharsis.resource.registry.ResourceRegistry;
 
 public class ControllerRegistryBuilder {

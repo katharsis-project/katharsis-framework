@@ -1,5 +1,6 @@
-package io.katharsis.dispatcher.controller;
+package io.katharsis.dispatcher.controller.resource;
 
+import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.path.PathIds;
 import io.katharsis.path.ResourcePath;
 import io.katharsis.resource.registry.RegistryEntry;
@@ -18,11 +19,24 @@ public class ResourceGet implements BaseController {
         this.resourceRegistry = resourceRegistry;
     }
 
+    /**
+     * Checks if requested resource method is acceptable
+     *
+     * @param resourcePath Requested resource path
+     * @param requestType  HTTP request type
+     * @return Acceptance result in boolean
+     */
     @Override
     public boolean isAcceptable(ResourcePath resourcePath, String requestType) {
         return !resourcePath.isCollection() && "GET".equals(requestType);
     }
 
+    /**
+     * Passes the request to controller method
+     *
+     * @param resourcePath Requested resource path
+     * @return ResourceResponse object
+     */
     @Override
     public BaseResponse<?> handle(ResourcePath resourcePath) {
         String resourceName = resourcePath.getResourceName();
@@ -32,7 +46,7 @@ public class ResourceGet implements BaseController {
 
         Class<?> idType = registryEntry.getResourceInformation().getIdField().getType();
         Serializable castedId = castIdValue(id, idType);
-        Object entity = registryEntry.getEntityRepository().findOne(castedId);
+        Object entity = registryEntry.getResourceRepository().findOne(castedId);
 
         return new ResourceResponse<>(new Container(entity));
     }

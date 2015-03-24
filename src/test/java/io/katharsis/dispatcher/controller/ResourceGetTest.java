@@ -1,6 +1,7 @@
 package io.katharsis.dispatcher.controller;
 
 import io.katharsis.context.SampleJsonApplicationContext;
+import io.katharsis.dispatcher.controller.resource.ResourceGet;
 import io.katharsis.path.PathBuilder;
 import io.katharsis.path.ResourcePath;
 import io.katharsis.resource.ResourceInformationBuilder;
