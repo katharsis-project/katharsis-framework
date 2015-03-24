@@ -93,6 +93,7 @@
           <scope>test</scope>
       </dependency>
   </dependencies>
+    
     <repositories>
         <repository>
             <id>oss-jfrog-artifactory</id>
