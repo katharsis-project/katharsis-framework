@@ -12,6 +12,11 @@ public class ProjectRepository implements ResourceRepository<Project, Long> {
     }
 
     @Override
+    public <S extends Project> S update(S entity) {
+        return null;
+    }
+
+    @Override
     public Project findOne(Long aLong) {
         return null;
     }

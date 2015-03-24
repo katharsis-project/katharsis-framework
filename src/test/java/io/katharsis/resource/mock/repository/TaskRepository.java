@@ -12,6 +12,11 @@ public class TaskRepository implements ResourceRepository<Task, Long> {
     }
 
     @Override
+    public <S extends Task> S update(S entity) {
+        return null;
+    }
+
+    @Override
     public Task findOne(Long aLong) {
         return null;
     }
