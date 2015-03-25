@@ -33,11 +33,11 @@ public class PathBuilderTest {
         PathBuilder sut = new PathBuilder();
 
         // WHEN
-        ResourcePath resourcePath = sut.buildPath(path);
+        JsonPath jsonPath = sut.buildPath(path);
 
         // THEN
-        ResourcePath expectedPath = new ResourcePath("resource1");
-        Assert.assertEquals(expectedPath, resourcePath);
+        JsonPath expectedPath = new JsonPath("resource1");
+        Assert.assertEquals(expectedPath, jsonPath);
         Assert.assertTrue(expectedPath.isCollection());
     }
 
@@ -48,11 +48,11 @@ public class PathBuilderTest {
         PathBuilder sut = new PathBuilder();
 
         // WHEN
-        ResourcePath resourcePath = sut.buildPath(path);
+        JsonPath jsonPath = sut.buildPath(path);
 
         // THEN
-        ResourcePath expectedPath = new ResourcePath("resource1", false, new PathIds("1"));
-        Assert.assertEquals(expectedPath, resourcePath);
+        JsonPath expectedPath = new JsonPath("resource1", false, new PathIds("1"));
+        Assert.assertEquals(expectedPath, jsonPath);
         Assert.assertFalse(expectedPath.isCollection());
     }
 
@@ -63,12 +63,12 @@ public class PathBuilderTest {
         PathBuilder sut = new PathBuilder();
 
         // WHEN
-        ResourcePath resourcePath = sut.buildPath(path);
+        JsonPath jsonPath = sut.buildPath(path);
 
         // THEN
-        ResourcePath expectedPath = new ResourcePath("resource2");
-        expectedPath.setParentResource(new ResourcePath("resource1", false, new PathIds("1")));
-        Assert.assertEquals(expectedPath, resourcePath);
+        JsonPath expectedPath = new JsonPath("resource2");
+        expectedPath.setParentResource(new JsonPath("resource1", false, new PathIds("1")));
+        Assert.assertEquals(expectedPath, jsonPath);
     }
 
     @Test
@@ -78,12 +78,12 @@ public class PathBuilderTest {
         PathBuilder sut = new PathBuilder();
 
         // WHEN
-        ResourcePath resourcePath = sut.buildPath(path);
+        JsonPath jsonPath = sut.buildPath(path);
 
         // THEN
-        ResourcePath expectedPath = new ResourcePath("resource2", false, new PathIds("2"));
-        expectedPath.setParentResource(new ResourcePath("resource1", false, new PathIds("1")));
-        Assert.assertEquals(expectedPath, resourcePath);
+        JsonPath expectedPath = new JsonPath("resource2", false, new PathIds("2"));
+        expectedPath.setParentResource(new JsonPath("resource1", false, new PathIds("1")));
+        Assert.assertEquals(expectedPath, jsonPath);
     }
 
     @Test
@@ -93,12 +93,12 @@ public class PathBuilderTest {
         PathBuilder sut = new PathBuilder();
 
         // WHEN
-        ResourcePath resourcePath = sut.buildPath(path);
+        JsonPath jsonPath = sut.buildPath(path);
 
         // THEN
-        ResourcePath expectedPath = new ResourcePath("resource2", false);
-        expectedPath.setParentResource(new ResourcePath("resource1", true, new PathIds("1")));
-        Assert.assertEquals(expectedPath, resourcePath);
+        JsonPath expectedPath = new JsonPath("resource2", false);
+        expectedPath.setParentResource(new JsonPath("resource1", true, new PathIds("1")));
+        Assert.assertEquals(expectedPath, jsonPath);
     }
 
     @Test
@@ -123,10 +123,10 @@ public class PathBuilderTest {
         PathBuilder sut = new PathBuilder();
 
         // WHEN
-        ResourcePath resourcePath = sut.buildPath(path);
+        JsonPath jsonPath = sut.buildPath(path);
 
         // THEN
-        Assert.assertTrue(resourcePath.isCollection());
-        Assert.assertEquals(resourcePath.getIds().getIds(), Arrays.asList("1", "2"));
+        Assert.assertTrue(jsonPath.isCollection());
+        Assert.assertEquals(jsonPath.getIds().getIds(), Arrays.asList("1", "2"));
     }
 }

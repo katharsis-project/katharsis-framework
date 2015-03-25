@@ -1,8 +1,8 @@
 package io.katharsis.dispatcher.controller.resource;
 
+import io.katharsis.path.JsonPath;
 import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.path.PathIds;
-import io.katharsis.path.ResourcePath;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
@@ -22,25 +22,27 @@ public class ResourceGet implements BaseController {
     /**
      * Checks if requested resource method is acceptable
      *
-     * @param resourcePath Requested resource path
+     * @param jsonPath Requested resource path
      * @param requestType  HTTP request type
      * @return Acceptance result in boolean
      */
     @Override
-    public boolean isAcceptable(ResourcePath resourcePath, String requestType) {
-        return !resourcePath.isCollection() && "GET".equals(requestType);
+    public boolean isAcceptable(JsonPath jsonPath, String requestType) {
+        return !jsonPath.isCollection()
+                && !jsonPath.isRelationship()
+                && "GET".equals(requestType);
     }
 
     /**
      * Passes the request to controller method
      *
-     * @param resourcePath Requested resource path
+     * @param jsonPath Requested resource path
      * @return ResourceResponse object
      */
     @Override
-    public BaseResponse<?> handle(ResourcePath resourcePath) {
-        String resourceName = resourcePath.getResourceName();
-        PathIds resourceIds = resourcePath.getIds();
+    public BaseResponse<?> handle(JsonPath jsonPath) {
+        String resourceName = jsonPath.getElementName();
+        PathIds resourceIds = jsonPath.getIds();
         RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
         String id = resourceIds.getIds().get(0);
 
