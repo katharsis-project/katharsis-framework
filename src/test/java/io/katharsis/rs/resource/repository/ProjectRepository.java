@@ -1,13 +1,18 @@
 package io.katharsis.rs.resource.repository;
 
-import io.katharsis.repository.EntityRepository;
+import io.katharsis.repository.ResourceRepository;
 import io.katharsis.rs.resource.model.Project;
 import org.jvnet.hk2.annotations.Service;
 
 @Service
-public class ProjectRepository implements EntityRepository<Project, Long> {
+public class ProjectRepository implements ResourceRepository<Project, Long> {
     @Override
     public <S extends Project> S save(S entity) {
+        return null;
+    }
+
+    @Override
+    public <S extends Project> S update(S s) {
         return null;
     }
 
