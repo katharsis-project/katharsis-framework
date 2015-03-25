@@ -5,10 +5,10 @@ jdk:
 after_success:
 - mvn clean cobertura:cobertura coveralls:report
 - mvn clean deploy --settings settings.xml
- webhooks:
-    urls:
-      - https://webhooks.gitter.im/e/f34d68708d0b9bd6b567
-      - https://webhooks.gitter.im/e/58a2e6d7a81c681cd924
-    on_success: change
-    on_failure: always
-    on_start: false
+webhooks:
+  urls:
+    - https://webhooks.gitter.im/e/f34d68708d0b9bd6b567
+    - https://webhooks.gitter.im/e/58a2e6d7a81c681cd924
+  on_success: change
+  on_failure: always
+  on_start: false
