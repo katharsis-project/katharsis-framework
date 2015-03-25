@@ -1,8 +1,8 @@
 package io.katharsis.dispatcher.controller.resource;
 
 import io.katharsis.dispatcher.controller.BaseController;
+import io.katharsis.path.JsonPath;
 import io.katharsis.path.PathIds;
-import io.katharsis.path.ResourcePath;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
@@ -20,14 +20,14 @@ public class ResourcePost implements BaseController {
     }
 
     @Override
-    public boolean isAcceptable(ResourcePath resourcePath, String requestType) {
-        return !resourcePath.isCollection() && "POST".equals(requestType);
+    public boolean isAcceptable(JsonPath jsonPath, String requestType) {
+        return !jsonPath.isCollection() && "POST".equals(requestType);
     }
 
     @Override
-    public BaseResponse<?> handle(ResourcePath resourcePath) {
-        String resourceName = resourcePath.getResourceName();
-        PathIds resourceIds = resourcePath.getIds();
+    public BaseResponse<?> handle(JsonPath jsonPath) {
+        String resourceName = jsonPath.getResourceName();
+        PathIds resourceIds = jsonPath.getIds();
         RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
         String id = resourceIds.getIds().get(0);
 

@@ -10,14 +10,14 @@ import java.util.List;
 public class RegistryEntry<T> {
     private ResourceInformation<T> resourceInformation;
     private ResourceRepository<T, ?> resourceRepository;
-    private List<RelationshipRepository<T, ?>> relationshipRepositories;
+    private List<RelationshipRepository<T, ?, ?, ?>> relationshipRepositories;
 
     public RegistryEntry(ResourceInformation<T> resourceInformation, ResourceRepository<T, ?> resourceRepository) {
         this(resourceInformation, resourceRepository, new LinkedList<>());
     }
 
     public RegistryEntry(ResourceInformation<T> resourceInformation, ResourceRepository<T, ?> resourceRepository,
-                         List<RelationshipRepository<T, ?>> relationshipRepositories) {
+                         List<RelationshipRepository<T, ?, ?, ?>> relationshipRepositories) {
         this.resourceInformation = resourceInformation;
         this.resourceRepository = resourceRepository;
         this.relationshipRepositories = relationshipRepositories;
@@ -27,7 +27,7 @@ public class RegistryEntry<T> {
         return resourceRepository;
     }
 
-    public List<RelationshipRepository<T, ?>> getRelationshipRepositories() {
+    public List<RelationshipRepository<T, ?, ?, ?>> getRelationshipRepositories() {
         return relationshipRepositories;
     }
 

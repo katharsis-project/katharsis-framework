@@ -1,10 +1,10 @@
 package io.katharsis.dispatcher.controller;
 
-import io.katharsis.path.ResourcePath;
+import io.katharsis.path.JsonPath;
 import io.katharsis.response.BaseResponse;
 
 public interface BaseController {
-    boolean isAcceptable(ResourcePath resourcePath, String requestType);
+    boolean isAcceptable(JsonPath jsonPath, String requestType);
 
-    BaseResponse<?> handle(ResourcePath resourcePath);
+    BaseResponse<?> handle(JsonPath jsonPath);
 }

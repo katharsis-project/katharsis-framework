@@ -10,13 +10,13 @@ public class PathBuilder {
     public static final String SEPARATOR = "/";
     public static final String RELATIONSHIP_MARK = "links";
 
-    public ResourcePath buildPath(String path) {
+    public JsonPath buildPath(String path) {
         String[] strings = splitPath(path);
         if (strings.length == 0 || (strings.length == 1 && "".equals(strings[0]))) {
             throw new IllegalArgumentException("Path is empty");
         }
 
-        ResourcePath previousResourcePath = null, currentResourcePath = null;
+        JsonPath previousJsonPath = null, currentJsonPath;
 
         int currentElementIdx = 0;
         while (true) {
@@ -24,32 +24,32 @@ public class PathBuilder {
                 throw new IllegalArgumentException("No type field defined after links marker");
             }
 
-            currentResourcePath = new ResourcePath(strings[currentElementIdx]);
+            currentJsonPath = new JsonPath(strings[currentElementIdx]);
             currentElementIdx++;
 
-            if (previousResourcePath != null) {
-                previousResourcePath.setChildResource(currentResourcePath);
-                currentResourcePath.setParentResource(previousResourcePath);
+            if (previousJsonPath != null) {
+                previousJsonPath.setChildResource(currentJsonPath);
+                currentJsonPath.setParentResource(previousJsonPath);
             }
-            previousResourcePath = currentResourcePath;
+            previousJsonPath = currentJsonPath;
 
             if (currentElementIdx >= strings.length) {
                 break;
             } else {
                 PathIds pathIds = createPathIds(strings[currentElementIdx]);
-                currentResourcePath.setIds(pathIds);
+                currentJsonPath.setIds(pathIds);
                 currentElementIdx++;
             }
 
             if (currentElementIdx >= strings.length) {
                 break;
             } else if (RELATIONSHIP_MARK.equals(strings[currentElementIdx])) {
-                currentResourcePath.setRelationship(true);
+                currentJsonPath.setHasRelationshipMark(true);
                 currentElementIdx++;
             }
         }
 
-        return currentResourcePath;
+        return currentJsonPath;
     }
 
     private PathIds createPathIds(String idsString) {
