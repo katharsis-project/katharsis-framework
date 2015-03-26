@@ -8,7 +8,7 @@
 	<packaging>pom</packaging>
 
 	<name>Katharsis parent POM</name>
-	<url>https://github.com/IjinPL/katharsis-parent</url>
+	<url>https://github.com/masterspambot/katharsis-parent</url>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
