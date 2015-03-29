@@ -2,6 +2,7 @@ package io.katharsis.dispatcher.controller.resource;
 
 import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.path.JsonPath;
+import io.katharsis.path.LinksPath;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
 
@@ -16,7 +17,7 @@ public class LinkResourceGet implements BaseController {
     @Override
     public boolean isAcceptable(JsonPath jsonPath, String requestType) {
         return !jsonPath.isCollection()
-                && jsonPath.isRelationship()
+                && jsonPath instanceof LinksPath
                 && "GET".equals(requestType);
     }
 

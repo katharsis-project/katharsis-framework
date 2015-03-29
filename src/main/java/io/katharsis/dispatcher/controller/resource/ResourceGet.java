@@ -1,8 +1,10 @@
 package io.katharsis.dispatcher.controller.resource;
 
-import io.katharsis.path.JsonPath;
 import io.katharsis.dispatcher.controller.BaseController;
+import io.katharsis.path.JsonPath;
 import io.katharsis.path.PathIds;
+import io.katharsis.path.ResourcePath;
+import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
@@ -29,7 +31,7 @@ public class ResourceGet implements BaseController {
     @Override
     public boolean isAcceptable(JsonPath jsonPath, String requestType) {
         return !jsonPath.isCollection()
-                && !jsonPath.isRelationship()
+                && jsonPath instanceof ResourcePath
                 && "GET".equals(requestType);
     }
 
@@ -44,6 +46,9 @@ public class ResourceGet implements BaseController {
         String resourceName = jsonPath.getElementName();
         PathIds resourceIds = jsonPath.getIds();
         RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
+        if (registryEntry ==null) {
+            throw new ResourceNotFoundException("Resource of type not found: " + resourceName);
+        }
         String id = resourceIds.getIds().get(0);
 
         Class<?> idType = registryEntry.getResourceInformation().getIdField().getType();

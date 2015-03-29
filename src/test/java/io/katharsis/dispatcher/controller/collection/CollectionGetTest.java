@@ -2,7 +2,6 @@ package io.katharsis.dispatcher.controller.collection;
 
 import io.katharsis.context.SampleJsonApplicationContext;
 import io.katharsis.path.JsonPath;
-import io.katharsis.dispatcher.controller.collection.CollectionGet;
 import io.katharsis.path.PathBuilder;
 import io.katharsis.resource.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -22,16 +21,16 @@ public class CollectionGetTest {
 
     @Before
     public void prepare() {
-        pathBuilder = new PathBuilder();
         ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonApplicationContext(), new ResourceInformationBuilder());
         resourceRegistry = registryBuilder.build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, ResourceRegistryTest.TEST_MODELS_URL);
+        pathBuilder = new PathBuilder(resourceRegistry);
         requestType = "GET";
     }
 
     @Test
     public void onGivenRequestCollectionGetShouldAcceptIt() {
         // GIVEN
-        JsonPath jsonPath = pathBuilder.buildPath("/resource/");
+        JsonPath jsonPath = pathBuilder.buildPath("/tasks/");
         CollectionGet sut = new CollectionGet(resourceRegistry);
 
         // WHEN
@@ -44,7 +43,7 @@ public class CollectionGetTest {
     @Test
     public void onGivenRequestCollectionGetShouldDenyIt() {
         // GIVEN
-        JsonPath jsonPath = pathBuilder.buildPath("/resource/2");
+        JsonPath jsonPath = pathBuilder.buildPath("/tasks/2");
         CollectionGet sut = new CollectionGet(resourceRegistry);
 
         // WHEN
