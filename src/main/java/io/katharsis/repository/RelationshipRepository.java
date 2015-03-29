@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * Base unidirectional repository responsible for operations on relations.
  *
- * @todo solve the problem of many relations between the same resources
+ * TODO solve the problem of many relations between the same resources
  *
  * @param <T> source class type
  * @param <D> target class type
