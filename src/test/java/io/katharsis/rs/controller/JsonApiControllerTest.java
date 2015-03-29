@@ -1,12 +1,12 @@
 package io.katharsis.rs.controller;
 
 import io.katharsis.dispatcher.RequestDispatcher;
-import io.katharsis.path.ResourcePath;
+import io.katharsis.path.JsonPath;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.rs.controller.annotation.JsonInject;
 import io.katharsis.rs.controller.hk2.JsonInjectResolver;
+import io.katharsis.rs.controller.hk2.factory.JsonPathFactory;
 import io.katharsis.rs.controller.hk2.factory.RequestDispatcherFactory;
-import io.katharsis.rs.controller.hk2.factory.ResourcePathFactory;
 import io.katharsis.rs.controller.hk2.factory.ResourceRegistryFactory;
 import io.katharsis.rs.jackson.JsonApiObjectMapperResolver;
 import io.katharsis.rs.resource.repository.ProjectRepository;
@@ -77,7 +77,7 @@ public class JsonApiControllerTest extends JerseyTest {
                     bindAsContract(TaskRepository.class);
                     bindAsContract(TaskToProjectRepository.class);
                     bindFactory(RequestDispatcherFactory.class).to(RequestDispatcher.class);
-                    bindFactory(ResourcePathFactory.class).to(ResourcePath.class);
+                    bindFactory(JsonPathFactory.class).to(JsonPath.class);
                     bindFactory(ResourceRegistryFactory.class).to(ResourceRegistry.class);
 
                     bind(JsonInjectResolver.class)

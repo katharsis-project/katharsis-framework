@@ -25,7 +25,7 @@ public class ResourceRegistryFactory implements Factory<ResourceRegistry> {
     }
 
     @Override
-    public void dispose(ResourceRegistry resourcePath) {
+    public void dispose(ResourceRegistry JsonPath) {
 
     }
 }

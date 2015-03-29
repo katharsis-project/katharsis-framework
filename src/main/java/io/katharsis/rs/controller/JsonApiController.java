@@ -1,7 +1,7 @@
 package io.katharsis.rs.controller;
 
 import io.katharsis.dispatcher.RequestDispatcher;
-import io.katharsis.path.ResourcePath;
+import io.katharsis.path.JsonPath;
 import io.katharsis.response.BaseResponse;
 import io.katharsis.rs.controller.annotation.JsonInject;
 import io.katharsis.rs.type.JsonApiMediaType;
@@ -15,14 +15,14 @@ import javax.ws.rs.core.Response;
 public class JsonApiController {
 
     @JsonInject
-    private ResourcePath resourcePath;
+    private JsonPath JsonPath;
 
     @JsonInject
     private RequestDispatcher requestDispatcher;
 
     @GET
     public Response getRequest(@PathParam("path") String path) {
-        BaseResponse<?> response = requestDispatcher.dispatchRequest(resourcePath, "GET");
+        BaseResponse<?> response = requestDispatcher.dispatchRequest(JsonPath, "GET");
         return Response.ok(response).build();
     }
 }
