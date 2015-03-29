@@ -42,6 +42,8 @@ public abstract class JsonPath {
     /**
      * Returns true if a JsonPath concerns a collection.
      * It can happen if there's no or more than one id provided.
+     *
+     * @return true if a path concern a collection
      */
     public abstract boolean isCollection();
 

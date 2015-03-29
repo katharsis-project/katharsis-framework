@@ -32,6 +32,8 @@ public class ResourceRegistryBuilder {
      * Scans all classes in provided package and finds all resources and repositories associated with found resource.
      *
      * @param packageName Package containing resources (models) and repositories.
+     * @param serviceUrl URL to the service
+     * @return an instance of ResourceRegistry
      */
     public ResourceRegistry build(String packageName, String serviceUrl) {
         Reflections reflections = new Reflections(packageName);
