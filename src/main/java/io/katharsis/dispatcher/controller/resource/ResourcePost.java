@@ -3,6 +3,7 @@ package io.katharsis.dispatcher.controller.resource;
 import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.path.JsonPath;
 import io.katharsis.path.PathIds;
+import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
@@ -29,6 +30,9 @@ public class ResourcePost implements BaseController {
         String resourceName = jsonPath.getResourceName();
         PathIds resourceIds = jsonPath.getIds();
         RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
+        if (registryEntry == null) {
+            throw new ResourceNotFoundException("Resource of type not found: " + resourceName);
+        }
         String id = resourceIds.getIds().get(0);
 
         Class<?> idType = registryEntry.getResourceInformation().getIdField().getType();

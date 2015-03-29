@@ -1,6 +1,7 @@
 package io.katharsis.resource;
 
 import java.lang.reflect.Field;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -16,14 +17,27 @@ public class ResourceInformation<T> {
     private Field idField;
 
     /**
-     * A set of fields that has basic Java types (String, Long, ...)
+     * A set of fields that has basic Java types (String, Long, ...).
      */
     private Set<Field> basicFields;
 
     /**
-     * A set of fields that contains non-standard Java types (List, Set, custom classes, ...)
+     * A set of fields that contains non-standard Java types (List, Set, custom classes, ...).
      */
     private Set<Field> relationshipFields;
+
+    /**
+     * Returns resource's all fields.
+     *
+     * @return All fields of a resource
+     */
+    public Set<Field> getAllFields() {
+        HashSet<Field> fields = new HashSet<>(basicFields);
+        fields.addAll(relationshipFields);
+        fields.add(idField);
+
+        return fields;
+    }
 
     public Field getIdField() {
         return idField;

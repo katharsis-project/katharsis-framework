@@ -1,22 +1,37 @@
 package io.katharsis.dispatcher;
 
+import io.katharsis.context.SampleJsonApplicationContext;
 import io.katharsis.dispatcher.controller.collection.CollectionGet;
 import io.katharsis.dispatcher.registry.ControllerRegistry;
 import io.katharsis.path.JsonPath;
 import io.katharsis.path.PathBuilder;
+import io.katharsis.resource.ResourceInformationBuilder;
+import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.resource.registry.ResourceRegistryBuilder;
+import io.katharsis.resource.registry.ResourceRegistryBuilderTest;
+import io.katharsis.resource.registry.ResourceRegistryTest;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.mockito.Mockito.*;
 
 public class RequestDispatcherTest {
 
+    private ResourceRegistry resourceRegistry;
+
+    @Before
+    public void prepare() {
+        ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonApplicationContext(), new ResourceInformationBuilder());
+        resourceRegistry = registryBuilder.build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, ResourceRegistryTest.TEST_MODELS_URL);
+    }
+
     @Test
     public void onGivenPathAndRequestTypeControllerShouldHandleRequest() throws Exception {
         // GIVEN
-        String path = "/resource/";
+        String path = "/tasks/";
         String requestType = "GET";
 
-        PathBuilder pathBuilder = new PathBuilder();
+        PathBuilder pathBuilder = new PathBuilder(resourceRegistry);
         ControllerRegistry controllerRegistry = new ControllerRegistry();
         CollectionGet collectionGet = mock(CollectionGet.class);
         controllerRegistry.addController(collectionGet);

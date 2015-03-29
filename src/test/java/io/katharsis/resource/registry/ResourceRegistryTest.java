@@ -2,11 +2,12 @@ package io.katharsis.resource.registry;
 
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.mock.models.Task;
-import io.katharsis.resource.mock.models.UnAnnotatedTask;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ResourceRegistryTest {
 
@@ -55,15 +56,15 @@ public class ResourceRegistryTest {
     }
 
     @Test
-    public void onNonExistingTypeShouldThrowException() {
+    public void onNonExistingTypeShouldReturnNull() {
         // GIVEN
         ResourceRegistry sut = new ResourceRegistry(TEST_MODELS_URL);
 
-        // THEN
-        expectedException.expect(ResourceNotFoundException.class);
-
         // WHEN
-        sut.getEntry("nonExistingType");
+        RegistryEntry entry = sut.getEntry("nonExistingType");
+
+        // THEN
+        assertThat(entry).isNull();
     }
 
     @Test
@@ -76,18 +77,5 @@ public class ResourceRegistryTest {
 
         // WHEN
         sut.getEntry(Long.class);
-    }
-
-    @Test
-    public void onUnAnnotatedTypeShouldThrowException() {
-        // GIVEN
-        ResourceRegistry sut = new ResourceRegistry(TEST_MODELS_URL);
-        sut.addEntry(UnAnnotatedTask.class, new RegistryEntry<>(null, null));
-
-        // THEN
-        expectedException.expect(RuntimeException.class);
-
-        // WHEN
-        sut.getEntry("tasks");
     }
 }
