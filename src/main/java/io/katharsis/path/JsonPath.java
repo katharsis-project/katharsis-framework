@@ -6,7 +6,8 @@ import java.util.Objects;
  * Represent a JSON API path sent to the server. Each resource or field defined in the path is represented by one
  * derived class of JsonPath object.
  *
- * It is represented in a form of a doubly-linked list
+ * It is represented in a form of a doubly-linked list which must start with one or more ResourcePath instances and can
+ * end with either FieldPath or LinksPath instance.
  */
 public abstract class JsonPath {
 

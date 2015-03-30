@@ -2,6 +2,9 @@ package io.katharsis.path;
 
 import io.katharsis.context.SampleJsonApplicationContext;
 import io.katharsis.resource.ResourceInformationBuilder;
+import io.katharsis.resource.exception.ResourceException;
+import io.katharsis.resource.exception.ResourceFieldNotFoundException;
+import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryBuilder;
 import io.katharsis.resource.registry.ResourceRegistryBuilderTest;
@@ -87,18 +90,17 @@ public class PathBuilderTest {
     }
 
     @Test
-    public void onNestedResourceInstancePathShouldReturnNestedPath() {
+    public void onNestedResourceInstancePathShouldThrowException() {
         // GIVEN
         String path = "/tasks/1/project/2";
         PathBuilder sut = new PathBuilder(resourceRegistry);
 
-        // WHEN
-        JsonPath jsonPath = sut.buildPath(path);
-
         // THEN
-        JsonPath expectedPath = new FieldPath("project", new PathIds("2"));
-        expectedPath.setParentResource(new ResourcePath("tasks", new PathIds("1")));
-        Assert.assertEquals(expectedPath, jsonPath);
+        expectedException.expect(ResourceException.class);
+        expectedException.expectMessage("LinksPath and FieldPath cannot contain ids");
+
+        // WHEN
+        sut.buildPath(path);
     }
 
     @Test
@@ -117,33 +119,59 @@ public class PathBuilderTest {
     }
 
     @Test
+    public void onNonRelationshipFieldShouldThrowException() {
+        // GIVEN
+        String path = "/tasks/1/links/name/";
+        PathBuilder sut = new PathBuilder(resourceRegistry);
+
+        // THEN
+        expectedException.expect(ResourceFieldNotFoundException.class);
+        expectedException.expectMessage("Field was not found: name");
+
+        // WHEN
+        sut.buildPath(path);
+    }
+
+    @Test
     public void onNestedWrongResourceRelationshipPathShouldThrowException() {
         // GIVEN
         String path = "/tasks/1/links/";
         PathBuilder sut = new PathBuilder(resourceRegistry);
 
-        expectedException.expect(IllegalArgumentException.class);
-        expectedException.expectMessage("No type field defined after links marker");
+        // THEN
+        expectedException.expect(ResourceFieldNotFoundException.class);
+        expectedException.expectMessage("Field was not found: ");
 
         // WHEN
         sut.buildPath(path);
-
-        // THEN - EXCEPTION
     }
 
     @Test
-    public void onResourceFieldShouldReturnFieldPath() {
+    public void onLinksPathWithIdShouldThrowException() {
+        // GIVEN
+        String path = "/tasks/1/links/project/1";
+        PathBuilder sut = new PathBuilder(resourceRegistry);
+
+        // THEN
+        expectedException.expect(ResourceException.class);
+        expectedException.expectMessage("LinksPath and FieldPath cannot contain ids");
+
+        // WHEN
+        sut.buildPath(path);
+    }
+
+    @Test
+    public void onNonExistingFieldShouldThrowException() {
         // GIVEN
         String path = "/tasks/1/nonExistingField/";
         PathBuilder sut = new PathBuilder(resourceRegistry);
 
-        expectedException.expect(IllegalArgumentException.class);
-        expectedException.expectMessage("No type field defined after links marker");
+        // THEN
+        expectedException.expect(ResourceFieldNotFoundException.class);
+        expectedException.expectMessage("Field was not found: nonExistingField");
 
         // WHEN
         sut.buildPath(path);
-
-        // THEN - EXCEPTION
     }
 
     @Test
@@ -152,13 +180,12 @@ public class PathBuilderTest {
         String path = "/nonExistingResource";
         PathBuilder sut = new PathBuilder(resourceRegistry);
 
-        expectedException.expect(IllegalArgumentException.class);
+        // THEN
+        expectedException.expect(ResourceNotFoundException.class);
         expectedException.expectMessage("Invalid path: /nonExistingResource");
 
         // WHEN
         sut.buildPath(path);
-
-        // THEN - EXCEPTION
     }
 
     @Test
@@ -167,13 +194,12 @@ public class PathBuilderTest {
         String path = "/links";
         PathBuilder sut = new PathBuilder(resourceRegistry);
 
-        expectedException.expect(IllegalArgumentException.class);
+        // THEN
+        expectedException.expect(ResourceNotFoundException.class);
         expectedException.expectMessage("Invalid path: /links");
 
         // WHEN
         sut.buildPath(path);
-
-        // THEN - EXCEPTION
     }
 
     @Test

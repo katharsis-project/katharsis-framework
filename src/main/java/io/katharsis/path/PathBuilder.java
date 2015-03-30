@@ -1,5 +1,8 @@
 package io.katharsis.path;
 
+import io.katharsis.resource.exception.ResourceException;
+import io.katharsis.resource.exception.ResourceFieldNotFoundException;
+import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 
@@ -30,7 +33,7 @@ public class PathBuilder {
         JsonPath previousJsonPath = null, currentJsonPath = null;
         PathIds pathIds;
         boolean relationshipMark;
-        String elementName = null;
+        String elementName;
 
         for (int currentElementIdx = 0; currentElementIdx < strings.length; ) {
             elementName = null;
@@ -56,8 +59,11 @@ public class PathBuilder {
                 currentJsonPath = new ResourcePath(elementName);
             } else if (previousJsonPath != null) {
                 currentJsonPath = getNonResourcePath(previousJsonPath, elementName, relationshipMark);
+                if (pathIds != null) {
+                    throw new ResourceException("LinksPath and FieldPath cannot contain ids");
+                }
             } else {
-                throw new IllegalArgumentException("Invalid path: " + path);
+                throw new ResourceNotFoundException("Invalid path: " + path);
             }
 
             currentJsonPath.setIds(pathIds);
@@ -74,7 +80,7 @@ public class PathBuilder {
     private JsonPath getNonResourcePath(JsonPath previousJsonPath, String elementName, boolean relationshipMark) {
         String previousElementName = previousJsonPath.getElementName();
         RegistryEntry previousEntry = resourceRegistry.getEntry(previousElementName);
-        Set<Field> resourceFields = previousEntry.getResourceInformation().getAllFields();
+        Set<Field> resourceFields = previousEntry.getResourceInformation().getRelationshipFields();
         for (Field field : resourceFields) {
             if (field.getName().equals(elementName)) {
                 if (relationshipMark) {
@@ -84,7 +90,7 @@ public class PathBuilder {
                 }
             }
         }
-        throw new IllegalArgumentException("No type field defined after links marker");
+        throw new ResourceFieldNotFoundException("Field was not found: " + elementName);
     }
 
     private PathIds createPathIds(String idsString) {
