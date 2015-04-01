@@ -8,13 +8,16 @@ import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.Container;
 import io.katharsis.response.LinksContainer;
-import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.beanutils.PropertyUtils;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
 
+/**
+ * This class serializes an single resource which can be included in <i>data</i> field of JSON API response.
+ */
 public class ContainerSerializer extends JsonSerializer<Container> {
 
     private ResourceRegistry resourceRegistry;
@@ -42,15 +45,13 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         try {
             writeId(gen, data, resourceInformation.getIdField());
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            // @todo handle this error
-            e.printStackTrace();
+            throw new JsonSerializationException("Exception while writing id field", e);
         }
 
         try {
             writeBasicFields(gen, data, resourceInformation.getBasicFields());
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            // @todo handle this error
-            e.printStackTrace();
+            throw new JsonSerializationException("Exception while writing basic fields", e);
         }
 
         writeRelationshipFields(gen, data, resourceInformation.getRelationshipFields());
@@ -58,14 +59,14 @@ public class ContainerSerializer extends JsonSerializer<Container> {
 
     private void writeId(JsonGenerator gen, Object data, Field idField)
             throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
-        Object sourceId = BeanUtils.getProperty(data, idField.getName());
+        Object sourceId = PropertyUtils.getProperty(data, idField.getName());
         gen.writeObjectField("id", sourceId);
     }
 
     private void writeBasicFields(JsonGenerator gen, Object data, Set<Field> basicFields)
             throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
         for (Field basicField : basicFields) {
-            Object basicFieldValue = BeanUtils.getProperty(data, basicField.getName());
+            Object basicFieldValue = PropertyUtils.getProperty(data, basicField.getName());
             gen.writeObjectField(basicField.getName(), basicFieldValue);
         }
     }
