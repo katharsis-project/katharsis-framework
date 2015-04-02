@@ -7,7 +7,8 @@ import io.katharsis.resource.ResourceInformation;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.Container;
-import io.katharsis.response.LinksContainer;
+import io.katharsis.response.DataLinksContainer;
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
 
 import java.io.IOException;
@@ -35,9 +36,14 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         gen.writeEndObject();
     }
 
+    /**
+     * Writes a value. Each serialized container must contain type field whose value is string
+     * <a href="http://jsonapi.org/format/#document-structure-resource-types"></a>.
+     */
     private void writeData(JsonGenerator gen, Object data) throws IOException {
         Class<?> dataClass = data.getClass();
         String resourceType = resourceRegistry.getResourceType(dataClass);
+
         gen.writeStringField("type", resourceType);
 
         RegistryEntry entry = resourceRegistry.getEntry(dataClass);
@@ -57,9 +63,13 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         writeRelationshipFields(gen, data, resourceInformation.getRelationshipFields());
     }
 
+    /**
+     * The id MUST be written as a string
+     * <a href="http://jsonapi.org/format/#document-structure-resource-ids">Resource IDs</a>.
+     */
     private void writeId(JsonGenerator gen, Object data, Field idField)
             throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
-        Object sourceId = PropertyUtils.getProperty(data, idField.getName());
+        String sourceId = BeanUtils.getProperty(data, idField.getName());
         gen.writeObjectField("id", sourceId);
     }
 
@@ -72,8 +82,8 @@ public class ContainerSerializer extends JsonSerializer<Container> {
     }
 
     private void writeRelationshipFields(JsonGenerator gen, Object data, Set<Field> relationshipFields) throws IOException {
-        LinksContainer linksContainer = new LinksContainer(data, relationshipFields);
-        gen.writeObjectField("links", linksContainer);
+        DataLinksContainer dataLinksContainer = new DataLinksContainer(data, relationshipFields);
+        gen.writeObjectField("links", dataLinksContainer);
     }
 
     public Class<Container> handledType() {
