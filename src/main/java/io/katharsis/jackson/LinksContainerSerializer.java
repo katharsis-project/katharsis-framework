@@ -27,12 +27,12 @@ public class LinksContainerSerializer extends JsonSerializer<LinksContainer> {
         String resourceUrl = resourceRegistry.getResourceUrl(sourceClass);
         RegistryEntry entry = resourceRegistry.getEntry(sourceClass);
         Field idField = entry.getResourceInformation().getIdField();
-        Object sourceId = null;
+
+        Object sourceId;
         try {
             sourceId = BeanUtils.getProperty(linksContainer.getData(), idField.getName());
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            // @todo handle error
-            e.printStackTrace();
+            throw new JsonSerializationException("Exception while writing links", e);
         }
         gen.writeStringField("self", resourceUrl + "/" + sourceId);
         gen.writeEndObject();
