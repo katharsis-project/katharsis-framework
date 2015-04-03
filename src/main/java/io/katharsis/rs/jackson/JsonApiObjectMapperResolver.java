@@ -1,10 +1,7 @@
 package io.katharsis.rs.jackson;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.katharsis.jackson.ContainerSerializer;
-import io.katharsis.jackson.DataLinksContainerSerializer;
-import io.katharsis.jackson.ObjectMapperBuilder;
-import io.katharsis.jackson.RelationshipContainerSerializer;
+import io.katharsis.jackson.JsonApiModuleBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
 
 import javax.inject.Inject;
@@ -23,10 +20,9 @@ public class JsonApiObjectMapperResolver implements ContextResolver<ObjectMapper
 
     @Override
     public ObjectMapper getContext(Class<?> type) {
-        ObjectMapperBuilder objectMapperBuilder = new ObjectMapperBuilder();
-        ObjectMapper objectMapper = objectMapperBuilder.buildWith(new ContainerSerializer(resourceRegistry),
-                new DataLinksContainerSerializer(resourceRegistry),
-                new RelationshipContainerSerializer(resourceRegistry));
+        JsonApiModuleBuilder jsonApiModuleBuilder = new JsonApiModuleBuilder();
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(jsonApiModuleBuilder.build(resourceRegistry));
         return objectMapper;
     }
 }
