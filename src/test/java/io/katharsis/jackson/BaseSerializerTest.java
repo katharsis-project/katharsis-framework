@@ -18,9 +18,9 @@ public abstract class BaseSerializerTest {
         ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonApplicationContext(), new ResourceInformationBuilder());
         ResourceRegistry resourceRegistry = registryBuilder.build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, ResourceRegistryTest.TEST_MODELS_URL);
 
-        ObjectMapperBuilder objectMapperBuilder = new ObjectMapperBuilder();
-        sut = objectMapperBuilder.buildWith(new ContainerSerializer(resourceRegistry),
-                new DataLinksContainerSerializer(resourceRegistry),
-                new RelationshipContainerSerializer(resourceRegistry));
+        JsonApiModuleBuilder jsonApiModuleBuilder = new JsonApiModuleBuilder();
+
+        sut = new ObjectMapper();
+        sut.registerModule(jsonApiModuleBuilder.build(resourceRegistry));
     }
 }
