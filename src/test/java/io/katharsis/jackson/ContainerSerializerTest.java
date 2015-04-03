@@ -21,7 +21,7 @@ public class ContainerSerializerTest extends BaseSerializerTest {
     }
 
     @Test
-    public void onSimpleObjectShouldIncludeId() throws Exception {
+    public void onSimpleObjectShouldIncludeStringId() throws Exception {
         // GIVEN
         Project project = new Project();
         project.setId(1L);

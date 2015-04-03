@@ -12,6 +12,8 @@ import org.apache.commons.beanutils.PropertyUtils;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 
 /**
  * Serializes a relationship inside of top-level links object
@@ -50,23 +52,76 @@ public class RelationshipContainerSerializer extends JsonSerializer<Relationship
                 + relationshipContainer.getRelationshipField().getName());
     }
 
+    /**
+     * Here it is needed to check actual generic type of a class. To achieve that {@code Class::getType} method cannot
+     * be used because of type erasure.
+     *
+     * @param relationshipContainer
+     * @param gen
+     * @throws IOException
+     */
     private void writeLinkage(RelationshipContainer relationshipContainer, JsonGenerator gen) throws IOException {
-        Class<?> relationshipClass = relationshipContainer.getRelationshipField().getType();
+        Class baseClass = relationshipContainer.getRelationshipField().getType();
+        Class relationshipClass = getResourceClass(relationshipContainer.getRelationshipField(), baseClass);
         RegistryEntry relationshipEntry = resourceRegistry.getEntry(relationshipClass);
+
         gen.writeFieldName("linkage");
-        writeLinkage(relationshipContainer, gen, relationshipClass, relationshipEntry);
+        writeLinkageField(relationshipContainer, gen, baseClass, relationshipClass, relationshipEntry);
     }
 
-    private void writeLinkage(RelationshipContainer relationshipContainer, JsonGenerator gen, Class<?> relationshipClass, RegistryEntry relationshipEntry) throws IOException {
+    private Class<?> getResourceClass(Field relationshipField, Class baseClass) {
+        if (Iterable.class.isAssignableFrom(baseClass)) {
+            Type genericFieldType = relationshipField.getGenericType();
+            if (genericFieldType instanceof ParameterizedType) {
+                ParameterizedType aType = (ParameterizedType) genericFieldType;
+                Type[] fieldArgTypes = aType.getActualTypeArguments();
+                if (fieldArgTypes.length == 1 && fieldArgTypes[0] instanceof Class<?>) {
+                    return (Class) fieldArgTypes[0];
+                } else {
+                    throw new RuntimeException("Wrong type: " + aType);
+                }
+            } else {
+                throw new RuntimeException("The relationship must be parametrized (cannot be wildcard or array): "
+                        + genericFieldType);
+            }
+        }
+        return baseClass;
+    }
+
+    private void writeLinkageField(RelationshipContainer relationshipContainer, JsonGenerator gen, Class baseClass,
+                                   Class relationshipClass, RegistryEntry relationshipEntry)
+            throws IOException {
         try {
-            if (Iterable.class.isAssignableFrom(relationshipClass)) {
-                throw new UnsupportedOperationException("Not implemented");
+            if (Iterable.class.isAssignableFrom(baseClass)) {
+                writeToManyLinkage(relationshipContainer, gen, relationshipClass, relationshipEntry);
             } else {
                 writeToOneLinkage(relationshipContainer, gen, relationshipClass, relationshipEntry);
             }
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             throw new JsonSerializationException("Exception while writing id field", e);
         }
+    }
+
+    private void writeToManyLinkage(RelationshipContainer relationshipContainer, JsonGenerator gen, Class relationshipClass, RegistryEntry relationshipEntry)
+            throws IOException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+        Field relationshipField = relationshipContainer.getRelationshipField();
+        Object targetDataObj = PropertyUtils.getProperty(relationshipContainer.getDataLinksContainer().getData(), relationshipField.getName());
+
+        gen.writeStartArray();
+        if (targetDataObj != null) {
+            for (Object objectItem : (Iterable) targetDataObj) {
+                writeLinkage(gen, relationshipClass, relationshipEntry, objectItem);
+            }
+        }
+        gen.writeEndArray();
+    }
+
+    private void writeLinkage(JsonGenerator gen, Class relationshipClass, RegistryEntry relationshipEntry, Object objectItem)
+            throws IOException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+        gen.writeStartObject();
+        writeType(gen, relationshipClass);
+        writeId(gen, objectItem, relationshipEntry.getResourceInformation().getIdField());
+        gen.writeEndObject();
     }
 
     private void writeToOneLinkage(RelationshipContainer relationshipContainer, JsonGenerator gen, Class<?> relationshipClass, RegistryEntry relationshipEntry)
@@ -76,10 +131,7 @@ public class RelationshipContainerSerializer extends JsonSerializer<Relationship
         if (targetDataObj == null) {
             gen.writeObject(null);
         } else {
-            gen.writeStartObject();
-            writeType(gen, relationshipClass);
-            writeId(gen, targetDataObj, relationshipEntry.getResourceInformation().getIdField());
-            gen.writeEndObject();
+            writeLinkage(gen, relationshipClass, relationshipEntry, targetDataObj);
         }
     }
 
