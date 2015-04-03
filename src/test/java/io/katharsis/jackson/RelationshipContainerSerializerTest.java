@@ -2,8 +2,11 @@ package io.katharsis.jackson;
 
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
+import io.katharsis.resource.mock.models.User;
 import io.katharsis.response.Container;
 import org.junit.Test;
+
+import java.util.Collections;
 
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 
@@ -83,5 +86,36 @@ public class RelationshipContainerSerializerTest extends BaseSerializerTest {
 
         // THEN
         assertThatJson(result).node("links.project.linkage").isEqualTo("null");
+    }
+
+    @Test
+    public void onToManyRelationshipShouldIncludeToManyRelationshipLinkage() throws Exception {
+        // GIVEN
+        User user = new User();
+        user.setId(1L);
+        Project project = new Project();
+        project.setId(2L);
+        user.setAssignedProjects(Collections.singletonList(project));
+
+        // WHEN
+        String result = sut.writeValueAsString(new Container<>(user));
+
+        // THEN
+        assertThatJson(result).node("links.assignedProjects.linkage").isArray().ofLength(1);
+        assertThatJson(result).node("links.assignedProjects.linkage[0].type").isEqualTo("projects");
+        assertThatJson(result).node("links.assignedProjects.linkage[0].id").isEqualTo("\"2\"");
+    }
+
+    @Test
+    public void onToManyNullRelationshipShouldIncludeNullToManyRelationshipLinkage() throws Exception {
+        // GIVEN
+        User user = new User();
+        user.setId(1L);
+
+        // WHEN
+        String result = sut.writeValueAsString(new Container<>(user));
+
+        // THEN
+        assertThatJson(result).node("links.assignedProjects.linkage").isArray().ofLength(0);
     }
 }
