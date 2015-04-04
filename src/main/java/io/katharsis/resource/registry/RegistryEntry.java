@@ -6,6 +6,7 @@ import io.katharsis.resource.ResourceInformation;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 public class RegistryEntry<T> {
     private ResourceInformation<T> resourceInformation;
@@ -33,5 +34,20 @@ public class RegistryEntry<T> {
 
     public ResourceInformation<T> getResourceInformation() {
         return resourceInformation;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RegistryEntry<?> that = (RegistryEntry<?>) o;
+        return Objects.equals(resourceInformation, that.resourceInformation) &&
+                Objects.equals(resourceRepository, that.resourceRepository) &&
+                Objects.equals(relationshipRepositories, that.relationshipRepositories);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(resourceInformation, resourceRepository, relationshipRepositories);
     }
 }
