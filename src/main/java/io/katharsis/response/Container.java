@@ -1,5 +1,7 @@
 package io.katharsis.response;
 
+import java.util.Objects;
+
 public class Container<T> {
     T data;
 
@@ -22,16 +24,12 @@ public class Container<T> {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
-        Container that = (Container) o;
-
-        if (data != null ? !data.equals(that.data) : that.data != null) return false;
-
-        return true;
+        Container<?> container = (Container<?>) o;
+        return Objects.equals(data, container.data);
     }
 
     @Override
     public int hashCode() {
-        return data != null ? data.hashCode() : 0;
+        return Objects.hash(data);
     }
 }

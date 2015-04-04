@@ -22,11 +22,9 @@ public class ResourceGet implements BaseController {
     }
 
     /**
-     * Checks if requested resource method is acceptable
+     * {@inheritDoc}
      *
-     * @param jsonPath Requested resource path
-     * @param requestType  HTTP request type
-     * @return Acceptance result in boolean
+     * Checks if requested resource method is acceptable - is a GET request for a resource.
      */
     @Override
     public boolean isAcceptable(JsonPath jsonPath, String requestType) {
@@ -36,10 +34,9 @@ public class ResourceGet implements BaseController {
     }
 
     /**
-     * Passes the request to controller method
+     * {@inheritDoc}
      *
-     * @param jsonPath Requested resource path
-     * @return ResourceResponse object
+     * Passes the request to controller method.
      */
     @Override
     public BaseResponse<?> handle(JsonPath jsonPath) {

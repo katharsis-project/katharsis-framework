@@ -20,6 +20,11 @@ public class ResourcePost implements BaseController {
         this.resourceRegistry = resourceRegistry;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Check if it is a POST request for a resource.
+     */
     @Override
     public boolean isAcceptable(JsonPath jsonPath, String requestType) {
         return !jsonPath.isCollection() && "POST".equals(requestType);
