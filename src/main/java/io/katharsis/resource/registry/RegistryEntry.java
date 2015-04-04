@@ -8,6 +8,15 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Holds information about a resource of type <i>T</i> and its repositories.
+ * It includes the following information:
+ * - ResourceInformation instance with information about the resource,
+ * - ResourceRepository instance,
+ * - List of all repositories for relationships defined in resource class.
+ *
+ * @param <T> resource type
+ */
 public class RegistryEntry<T> {
     private ResourceInformation<T> resourceInformation;
     private ResourceRepository<T, ?> resourceRepository;

@@ -71,8 +71,6 @@ public class RelationshipContainerSerializerTest extends BaseSerializerTest {
 
         // THEN
         assertThatJson(result).node("links.project.linkage").isPresent();
-        assertThatJson(result).node("links.project.linkage.type").isEqualTo("projects");
-        assertThatJson(result).node("links.project.linkage.id").isEqualTo("\"2\"");
     }
 
     @Test
@@ -102,8 +100,6 @@ public class RelationshipContainerSerializerTest extends BaseSerializerTest {
 
         // THEN
         assertThatJson(result).node("links.assignedProjects.linkage").isArray().ofLength(1);
-        assertThatJson(result).node("links.assignedProjects.linkage[0].type").isEqualTo("projects");
-        assertThatJson(result).node("links.assignedProjects.linkage[0].id").isEqualTo("\"2\"");
     }
 
     @Test

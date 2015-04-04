@@ -14,7 +14,8 @@ public class JsonApiModuleBuilder {
 
         simpleModule.addSerializer(new ContainerSerializer(resourceRegistry))
                 .addSerializer(new DataLinksContainerSerializer(resourceRegistry))
-                .addSerializer(new RelationshipContainerSerializer(resourceRegistry));
+                .addSerializer(new RelationshipContainerSerializer(resourceRegistry))
+                .addSerializer(new LinkageContainerSerializer(resourceRegistry));
 
         return simpleModule;
     }

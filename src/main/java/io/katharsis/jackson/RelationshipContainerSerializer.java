@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.response.LinkageContainer;
 import io.katharsis.response.RelationshipContainer;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
@@ -110,18 +111,10 @@ public class RelationshipContainerSerializer extends JsonSerializer<Relationship
         gen.writeStartArray();
         if (targetDataObj != null) {
             for (Object objectItem : (Iterable) targetDataObj) {
-                writeLinkage(gen, relationshipClass, relationshipEntry, objectItem);
+                gen.writeObject(new LinkageContainer(objectItem, relationshipClass, relationshipEntry));
             }
         }
         gen.writeEndArray();
-    }
-
-    private void writeLinkage(JsonGenerator gen, Class relationshipClass, RegistryEntry relationshipEntry, Object objectItem)
-            throws IOException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
-        gen.writeStartObject();
-        writeType(gen, relationshipClass);
-        writeId(gen, objectItem, relationshipEntry.getResourceInformation().getIdField());
-        gen.writeEndObject();
     }
 
     private void writeToOneLinkage(RelationshipContainer relationshipContainer, JsonGenerator gen, Class<?> relationshipClass, RegistryEntry relationshipEntry)
@@ -131,19 +124,8 @@ public class RelationshipContainerSerializer extends JsonSerializer<Relationship
         if (targetDataObj == null) {
             gen.writeObject(null);
         } else {
-            writeLinkage(gen, relationshipClass, relationshipEntry, targetDataObj);
+            gen.writeObject(new LinkageContainer(targetDataObj, relationshipClass, relationshipEntry));
         }
-    }
-
-    private void writeType(JsonGenerator gen, Class<?> relationshipClass) throws IOException {
-        String resourceType = resourceRegistry.getResourceType(relationshipClass);
-        gen.writeObjectField("type", resourceType);
-    }
-
-    private void writeId(JsonGenerator gen, Object targetDataObj, Field idField)
-            throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
-        String sourceId = BeanUtils.getProperty(targetDataObj, idField.getName());
-        gen.writeObjectField("id", sourceId);
     }
 
     public Class<RelationshipContainer> handledType() {
