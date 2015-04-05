@@ -20,12 +20,11 @@ public class LinkResourceGetTest {
     private static final String REQUEST_TYPE = "GET";
 
     private PathBuilder pathBuilder;
-    private ResourceRegistry resourceRegistry;
 
     @Before
     public void prepare() {
         ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonApplicationContext(), new ResourceInformationBuilder());
-        resourceRegistry = registryBuilder.build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, ResourceRegistryTest.TEST_MODELS_URL);
+        ResourceRegistry resourceRegistry = registryBuilder.build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, ResourceRegistryTest.TEST_MODELS_URL);
         pathBuilder = new PathBuilder(resourceRegistry);
     }
 

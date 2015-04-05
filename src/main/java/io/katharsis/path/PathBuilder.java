@@ -66,7 +66,9 @@ public class PathBuilder {
                 throw new ResourceNotFoundException("Invalid path: " + path);
             }
 
-            currentJsonPath.setIds(pathIds);
+            if (pathIds != null) {
+                currentJsonPath.setIds(pathIds);
+            }
             if (previousJsonPath != null) {
                 previousJsonPath.setChildResource(currentJsonPath);
                 currentJsonPath.setParentResource(previousJsonPath);

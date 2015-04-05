@@ -3,6 +3,7 @@ package io.katharsis.resource.registry;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.resource.ResourceInformation;
+import net.jodah.typetools.TypeResolver;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -39,6 +40,20 @@ public class RegistryEntry<T> {
 
     public List<RelationshipRepository<T, ?, ?, ?>> getRelationshipRepositories() {
         return relationshipRepositories;
+    }
+
+    public RelationshipRepository<T, ?, ?, ?> getRelationshipRepositoryForClass(Class clazz) {
+        RelationshipRepository<T, ?, ?, ?> foundRelationshipRepository = null;
+        for (RelationshipRepository<T, ?, ?, ?> relationshipRepository : relationshipRepositories) {
+            Class<?>[] typeArgs = TypeResolver
+                    .resolveRawArguments(RelationshipRepository.class, relationshipRepository.getClass());
+
+            if (clazz == typeArgs[RelationshipRepository.TARGET_TYPE_GENERIC_PARAMETER_IDX]) {
+                foundRelationshipRepository = relationshipRepository;
+            }
+        }
+
+        return foundRelationshipRepository;
     }
 
     public ResourceInformation<T> getResourceInformation() {
