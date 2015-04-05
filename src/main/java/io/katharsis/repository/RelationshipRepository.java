@@ -11,6 +11,8 @@ import java.io.Serializable;
  */
 public interface RelationshipRepository<T, T_ID extends Serializable, D, D_ID extends Serializable> {
 
+    int TARGET_TYPE_GENERIC_PARAMETER_IDX = 2;
+
     /**
      * Add relation from source to target
      *
