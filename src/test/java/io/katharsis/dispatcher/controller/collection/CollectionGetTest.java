@@ -3,6 +3,7 @@ package io.katharsis.dispatcher.controller.collection;
 import io.katharsis.context.SampleJsonApplicationContext;
 import io.katharsis.path.JsonPath;
 import io.katharsis.path.PathBuilder;
+import io.katharsis.queryParams.RequestParams;
 import io.katharsis.resource.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryBuilder;
@@ -61,7 +62,7 @@ public class CollectionGetTest {
         CollectionGet sut = new CollectionGet(resourceRegistry);
 
         // WHEN
-        BaseResponse<?> response = sut.handle(jsonPath);
+        BaseResponse<?> response = sut.handle(jsonPath, new RequestParams());
 
         // THEN
         Assert.assertNotNull(response);

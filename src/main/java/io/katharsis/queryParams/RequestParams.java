@@ -3,12 +3,12 @@ package io.katharsis.queryParams;
 import java.util.List;
 
 public class RequestParams {
-    public List filters;
-    public List sorting;
-    public List grouping;
-    public List pagination;
-    public List includedFields;
-    public List includedRelations;
+    private List filters;
+    private List sorting;
+    private List grouping;
+    private List pagination;
+    private List includedFields;
+    private List includedRelations;
 
     public List getFilters() {
         return filters;
