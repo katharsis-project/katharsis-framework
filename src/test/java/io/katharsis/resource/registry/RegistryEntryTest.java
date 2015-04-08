@@ -22,7 +22,7 @@ public class RegistryEntryTest {
         RegistryEntry<Task> sut = new RegistryEntry<>(null, null, Collections.singletonList(new TaskToProjectRepository()));
 
         // WHEN
-        RelationshipRepository<Task, ?, ?, ?> relationshipRepository = sut.getRelationshipRepositoryForClass(Project.class);
+        RelationshipRepository<Task, ?, ?> relationshipRepository = sut.getRelationshipRepositoryForClass(Project.class);
 
         // THEN
         assertThat(relationshipRepository).isExactlyInstanceOf(TaskToProjectRepository.class);
@@ -34,7 +34,7 @@ public class RegistryEntryTest {
         RegistryEntry<Task> sut = new RegistryEntry<>(null, null, Collections.singletonList(new TaskToProjectRepository()));
 
         // WHEN
-        RelationshipRepository<Task, ?, ?, ?> relationshipRepository = sut.getRelationshipRepositoryForClass(User.class);
+        RelationshipRepository<Task, ?, ?> relationshipRepository = sut.getRelationshipRepositoryForClass(User.class);
 
         // THEN
         assertThat(relationshipRepository).isNull();
