@@ -7,14 +7,13 @@ import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.LinkageContainer;
 import io.katharsis.response.RelationshipContainer;
+import io.katharsis.utils.Generics;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 
 /**
  * Serializes a relationship inside of top-level links object
@@ -63,31 +62,13 @@ public class RelationshipContainerSerializer extends JsonSerializer<Relationship
      */
     private void writeLinkage(RelationshipContainer relationshipContainer, JsonGenerator gen) throws IOException {
         Class baseClass = relationshipContainer.getRelationshipField().getType();
-        Class relationshipClass = getResourceClass(relationshipContainer.getRelationshipField(), baseClass);
+        Class relationshipClass = Generics.getResourceClass(relationshipContainer.getRelationshipField(), baseClass);
         RegistryEntry relationshipEntry = resourceRegistry.getEntry(relationshipClass);
 
         gen.writeFieldName("linkage");
         writeLinkageField(relationshipContainer, gen, baseClass, relationshipClass, relationshipEntry);
     }
 
-    private Class<?> getResourceClass(Field relationshipField, Class baseClass) {
-        if (Iterable.class.isAssignableFrom(baseClass)) {
-            Type genericFieldType = relationshipField.getGenericType();
-            if (genericFieldType instanceof ParameterizedType) {
-                ParameterizedType aType = (ParameterizedType) genericFieldType;
-                Type[] fieldArgTypes = aType.getActualTypeArguments();
-                if (fieldArgTypes.length == 1 && fieldArgTypes[0] instanceof Class<?>) {
-                    return (Class) fieldArgTypes[0];
-                } else {
-                    throw new RuntimeException("Wrong type: " + aType);
-                }
-            } else {
-                throw new RuntimeException("The relationship must be parametrized (cannot be wildcard or array): "
-                        + genericFieldType);
-            }
-        }
-        return baseClass;
-    }
 
     private void writeLinkageField(RelationshipContainer relationshipContainer, JsonGenerator gen, Class baseClass,
                                    Class relationshipClass, RegistryEntry relationshipEntry)
