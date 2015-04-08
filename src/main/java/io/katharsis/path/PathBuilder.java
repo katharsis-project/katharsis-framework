@@ -55,7 +55,7 @@ public class PathBuilder {
                 currentElementIdx++;
             }
             RegistryEntry entry = resourceRegistry.getEntry(elementName);
-            if (entry != null) {
+            if (entry != null && !relationshipMark) {
                 currentJsonPath = new ResourcePath(elementName);
             } else if (previousJsonPath != null) {
                 currentJsonPath = getNonResourcePath(previousJsonPath, elementName, relationshipMark);

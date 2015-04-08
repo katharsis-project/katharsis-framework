@@ -9,8 +9,12 @@ import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryBuilder;
 import io.katharsis.resource.registry.ResourceRegistryBuilderTest;
 import io.katharsis.resource.registry.ResourceRegistryTest;
+import io.katharsis.response.BaseResponse;
+import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -20,11 +24,15 @@ public class LinkResourceGetTest {
     private static final String REQUEST_TYPE = "GET";
 
     private PathBuilder pathBuilder;
+    private ResourceRegistry resourceRegistry;
+
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
 
     @Before
     public void prepare() {
         ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonApplicationContext(), new ResourceInformationBuilder());
-        ResourceRegistry resourceRegistry = registryBuilder.build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, ResourceRegistryTest.TEST_MODELS_URL);
+        resourceRegistry = registryBuilder.build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, ResourceRegistryTest.TEST_MODELS_URL);
         pathBuilder = new PathBuilder(resourceRegistry);
     }
 
@@ -54,5 +62,33 @@ public class LinkResourceGetTest {
 
         // THEN
         assertThat(result).isFalse();
+    }
+
+    @Test
+    public void onGivenRequestLinkResourceGetShouldHandleIt() {
+        // GIVEN
+
+        JsonPath jsonPath = pathBuilder.buildPath("/tasks/1/links/project");
+        LinkResourceGet sut = new LinkResourceGet(resourceRegistry);
+
+        // WHEN
+        BaseResponse<?> response = sut.handle(jsonPath);
+
+        // THEN
+        Assert.assertNotNull(response);
+    }
+
+    @Test
+    public void onGivenRequestLinkResourcesGetShouldHandleIt() {
+        // GIVEN
+
+        JsonPath jsonPath = pathBuilder.buildPath("/users/1/links/assignedProjects");
+        LinkResourceGet sut = new LinkResourceGet(resourceRegistry);
+
+        // WHEN
+        BaseResponse<?> response = sut.handle(jsonPath);
+
+        // THEN
+        Assert.assertNotNull(response);
     }
 }
