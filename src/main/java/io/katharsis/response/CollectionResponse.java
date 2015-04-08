@@ -2,22 +2,22 @@ package io.katharsis.response;
 
 import java.util.Objects;
 
-public class CollectionResponse<T> implements BaseResponse<Iterable<Container<T>>> {
+public class CollectionResponse implements BaseResponse<Iterable> {
 
-    private Iterable<Container<T>> data;
+    private Iterable data;
 
     public CollectionResponse() {
     }
 
-    public CollectionResponse(Iterable<Container<T>> data) {
+    public CollectionResponse(Iterable data) {
         this.data = data;
     }
 
-    public Iterable<Container<T>> getData() {
+    public Iterable getData() {
         return data;
     }
 
-    public void setData(Iterable<Container<T>> data) {
+    public void setData(Iterable data) {
         this.data = data;
     }
 
@@ -25,7 +25,7 @@ public class CollectionResponse<T> implements BaseResponse<Iterable<Container<T>
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        CollectionResponse<?> that = (CollectionResponse<?>) o;
+        CollectionResponse that = (CollectionResponse) o;
         return Objects.equals(data, that.data);
     }
 
