@@ -2,21 +2,21 @@ package io.katharsis.response;
 
 import java.util.Objects;
 
-public class ResourceResponse<T> implements BaseResponse<Container<T>> {
-    private Container<T> data;
+public class ResourceResponse implements BaseResponse {
+    private Object data;
 
     public ResourceResponse() {
     }
 
-    public ResourceResponse(Container<T> data) {
+    public ResourceResponse(Object data) {
         this.data = data;
     }
 
-    public Container<T> getData() {
+    public Object getData() {
         return data;
     }
 
-    public void setData(Container<T> data) {
+    public void setData(Object data) {
         this.data = data;
     }
 
@@ -24,7 +24,7 @@ public class ResourceResponse<T> implements BaseResponse<Container<T>> {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ResourceResponse<?> that = (ResourceResponse<?>) o;
+        ResourceResponse that = (ResourceResponse) o;
         return Objects.equals(data, that.data);
     }
 

@@ -52,7 +52,7 @@ public class ResourceGet implements BaseController {
         Serializable castedId = castIdValue(id, idType);
         Object entity = registryEntry.getResourceRepository().findOne(castedId);
 
-        return new ResourceResponse<>(new Container(entity));
+        return new ResourceResponse(new Container(entity));
     }
 
     // @TODO add more customized casting of ids

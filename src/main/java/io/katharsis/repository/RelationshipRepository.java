@@ -7,9 +7,10 @@ import java.io.Serializable;
  * fieldName field as last parameter. It solves a problem of many relationships between the same resources.
  *
  * @param <T> source class type
+ * @param <T_ID> T class id type
  * @param <D> target class type
  */
-public interface RelationshipRepository<T, T_ID extends Serializable, D, D_ID extends Serializable> {
+public interface RelationshipRepository<T, T_ID extends Serializable, D> {
 
     int TARGET_TYPE_GENERIC_PARAMETER_IDX = 2;
 
@@ -27,6 +28,7 @@ public interface RelationshipRepository<T, T_ID extends Serializable, D, D_ID ex
      *
      * @param source instance of a source class
      * @param target instance of a target class
+     * @param fieldName name of source's filed
      */
     void removeRelation(T source, D target, String fieldName);
 
@@ -34,6 +36,7 @@ public interface RelationshipRepository<T, T_ID extends Serializable, D, D_ID ex
      * Find a relation's target identifier
      *
      * @param sourceId an identifier of a source
+     * @param fieldName name of source's filed
      * @return an identifier of a target of a relation
      */
     D findOneTarget(T_ID sourceId, String fieldName);
@@ -42,23 +45,8 @@ public interface RelationshipRepository<T, T_ID extends Serializable, D, D_ID ex
      * Find a relation's target identifiers
      *
      * @param sourceId an identifier of a source
+     * @param fieldName name of source's filed
      * @return identifiers of targets of a relation
      */
-    Iterable<D> findTarget(T_ID sourceId, String fieldName);
-
-    /**
-     * Find a relation's target identifier
-     *
-     * @param sourceId an identifier of a source
-     * @return an identifier of a target of a relation
-     */
-    D_ID findOneTargetId(T_ID sourceId, String fieldName);
-
-    /**
-     * Find a relation's target identifiers
-     *
-     * @param sourceId an identifier of a source
-     * @return identifiers of targets of a relation
-     */
-    Iterable<D_ID> findTargetIds(T_ID sourceId, String fieldName);
+    Iterable<D> findTargets(T_ID sourceId, String fieldName);
 }
