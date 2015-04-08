@@ -133,6 +133,20 @@ public class PathBuilderTest {
     }
 
     @Test
+    public void onRelationshipFieldInLinksShouldThrowException() {
+        // GIVEN
+        String path = "/users/1/links/projects";
+        PathBuilder sut = new PathBuilder(resourceRegistry);
+
+        // THEN
+        expectedException.expect(ResourceFieldNotFoundException.class);
+        expectedException.expectMessage("Field was not found: projects");
+
+        // WHEN
+        sut.buildPath(path);
+    }
+
+    @Test
     public void onNestedWrongResourceRelationshipPathShouldThrowException() {
         // GIVEN
         String path = "/tasks/1/links/";
