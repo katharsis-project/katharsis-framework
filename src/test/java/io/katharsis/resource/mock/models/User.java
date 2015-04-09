@@ -2,6 +2,7 @@ package io.katharsis.resource.mock.models;
 
 import io.katharsis.resource.annotations.JsonApiId;
 import io.katharsis.resource.annotations.JsonApiResource;
+import io.katharsis.resource.annotations.JsonApiToMany;
 
 import java.util.List;
 
@@ -13,6 +14,7 @@ public class User {
 
     private String name;
 
+    @JsonApiToMany
     private List<Project> assignedProjects;
 
     public Long getId() {
