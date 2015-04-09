@@ -11,7 +11,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * A builder which creates ResourceInformation instances of a specific class.
+ * A builder which creates ResourceInformation instances of a specific class. It extracts information about a resource
+ * from annotations.
  */
 public class ResourceInformationBuilder {
 
