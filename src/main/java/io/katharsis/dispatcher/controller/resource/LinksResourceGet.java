@@ -20,11 +20,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-public class LinkResourceGet implements BaseController {
+public class LinksResourceGet implements BaseController {
 
     private ResourceRegistry resourceRegistry;
 
-    public LinkResourceGet(ResourceRegistry resourceRegistry) {
+    public LinksResourceGet(ResourceRegistry resourceRegistry) {
         this.resourceRegistry = resourceRegistry;
     }
 
@@ -40,7 +40,7 @@ public class LinkResourceGet implements BaseController {
         String resourceName = jsonPath.getResourceName();
         PathIds resourceIds = jsonPath.getIds();
         String resourceId = resourceIds.getIds().get(0);
-        RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
+        RegistryEntry<?> registryEntry = resourceRegistry.getEntry(resourceName);
         Set<Field> relationshipFields = registryEntry.getResourceInformation().getRelationshipFields();
 
         Class<?> baseRelationshipFieldClass = null;
@@ -58,7 +58,7 @@ public class LinkResourceGet implements BaseController {
         RegistryEntry relationshipFieldEntry = resourceRegistry.getEntry(relationshipFieldClass);
         BaseResponse target;
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
-            List dataList = new LinkedList<>();
+            List<LinkageContainer> dataList = new LinkedList<>();
 
             Iterable targetObjects = relationshipRepositoryForClass.findTargets(castIdValue(resourceId, Long.class), jsonPath.getElementName());
             if (targetObjects != null) {
