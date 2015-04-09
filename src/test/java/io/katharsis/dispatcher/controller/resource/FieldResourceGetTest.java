@@ -19,8 +19,7 @@ import org.junit.rules.ExpectedException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-public class LinkResourceGetTest {
-
+public class FieldResourceGetTest {
     private static final String REQUEST_TYPE = "GET";
 
     private PathBuilder pathBuilder;
@@ -39,9 +38,9 @@ public class LinkResourceGetTest {
     @Test
     public void onValidRequestShouldAcceptIt() {
         // GIVEN
-        JsonPath jsonPath = pathBuilder.buildPath("tasks/1/links/project");
+        JsonPath jsonPath = pathBuilder.buildPath("tasks/1/project");
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-        LinkResourceGet sut = new LinkResourceGet(resourceRegistry);
+        FieldResourceGet sut = new FieldResourceGet(resourceRegistry);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -55,7 +54,7 @@ public class LinkResourceGetTest {
         // GIVEN
         JsonPath jsonPath = new ResourcePath("tasks");
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-        LinkResourceGet sut = new LinkResourceGet(resourceRegistry);
+        FieldResourceGet sut = new FieldResourceGet(resourceRegistry);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -65,11 +64,11 @@ public class LinkResourceGetTest {
     }
 
     @Test
-    public void onGivenRequestLinkResourceGetShouldHandleIt() {
+    public void onGivenRequestFieldResourceGetShouldHandleIt() {
         // GIVEN
 
-        JsonPath jsonPath = pathBuilder.buildPath("/tasks/1/links/project");
-        LinkResourceGet sut = new LinkResourceGet(resourceRegistry);
+        JsonPath jsonPath = pathBuilder.buildPath("/tasks/1/project");
+        FieldResourceGet sut = new FieldResourceGet(resourceRegistry);
 
         // WHEN
         BaseResponse<?> response = sut.handle(jsonPath);
@@ -79,11 +78,11 @@ public class LinkResourceGetTest {
     }
 
     @Test
-    public void onGivenRequestLinkResourcesGetShouldHandleIt() {
+    public void onGivenRequestFieldResourcesGetShouldHandleIt() {
         // GIVEN
 
-        JsonPath jsonPath = pathBuilder.buildPath("/users/1/links/assignedProjects");
-        LinkResourceGet sut = new LinkResourceGet(resourceRegistry);
+        JsonPath jsonPath = pathBuilder.buildPath("/users/1/assignedProjects");
+        FieldResourceGet sut = new FieldResourceGet(resourceRegistry);
 
         // WHEN
         BaseResponse<?> response = sut.handle(jsonPath);
