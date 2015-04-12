@@ -1,5 +1,6 @@
 package io.katharsis.dispatcher.controller.resource;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.context.SampleJsonApplicationContext;
 import io.katharsis.path.JsonPath;
 import io.katharsis.path.PathBuilder;
@@ -87,7 +88,7 @@ public class LinkResourceGetTest {
         LinkResourceGet sut = new LinkResourceGet(resourceRegistry);
 
         // WHEN
-        BaseResponse<?> response = sut.handle(jsonPath, new RequestParams());
+        BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()));
 
         // THEN
         Assert.assertNotNull(response);

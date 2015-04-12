@@ -1,61 +1,74 @@
 package io.katharsis.queryParams;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.IOException;
 import java.util.List;
 
 public class RequestParams {
-    private List filters;
-    private List sorting;
-    private List grouping;
-    private List pagination;
-    private List includedFields;
-    private List includedRelations;
+    private JsonNode filters;
+    private JsonNode sorting;
+    private List<String> grouping;
+    private JsonNode pagination;
+    private List<String> includedFields;
+    private List<String> includedRelations;
+    private ObjectMapper objectMapper;
 
-    public List getFilters() {
+    public RequestParams(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
+
+    public JsonNode getFilters() {
         return filters;
     }
 
-    public void setFilters(List filters) {
-        this.filters = filters;
+    public void setFilters(String filters) throws IOException {
+        this.filters = objectMapper.readTree(filters);
     }
 
-    public List getSorting() {
+    public JsonNode getSorting() {
         return sorting;
     }
 
-    public void setSorting(List sorting) {
-        this.sorting = sorting;
+    public void setSorting(String sorting) throws IOException {
+        this.sorting = objectMapper.readTree(sorting);
     }
 
     public List getGrouping() {
         return grouping;
     }
 
-    public void setGrouping(List grouping) {
-        this.grouping = grouping;
+    public void setGrouping(String grouping) throws IOException {
+        this.grouping = objectMapper.readValue(grouping, new TypeReference<List<String>>() {
+        });
     }
 
-    public List getPagination() {
+    public JsonNode getPagination() {
         return pagination;
     }
 
-    public void setPagination(List pagination) {
-        this.pagination = pagination;
+    public void setPagination(String pagination) throws IOException {
+        this.pagination = objectMapper.readTree(pagination);
     }
 
     public List getIncludedFields() {
         return includedFields;
     }
 
-    public void setIncludedFields(List includedFields) {
-        this.includedFields = includedFields;
+    public void setIncludedFields(String includedFields) throws IOException {
+        this.includedFields = objectMapper.readValue(includedFields, new TypeReference<List<String>>() {
+        });
     }
 
     public List getIncludedRelations() {
         return includedRelations;
     }
 
-    public void setIncludedRelations(List includedRelations) {
-        this.includedRelations = includedRelations;
+    public void setIncludedRelations(String includedRelations) throws IOException {
+        this.includedRelations = objectMapper.readValue(includedRelations, new TypeReference<List<String>>() {
+        });
     }
 
 }

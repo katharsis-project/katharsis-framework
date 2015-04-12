@@ -1,8 +1,10 @@
 package io.katharsis.queryParams;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.katharsis.jackson.exception.JsonDeserializationException;
 import io.katharsis.resource.RestrictedQueryParamsMembers;
 
-import java.util.List;
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -10,33 +12,49 @@ import java.util.Map;
  */
 public class QueryParamsBuilder {
 
-    public RequestParams buildRequestParams(Map<String, List<Object>> queryParams) {
-        RequestParams params = new RequestParams();
+    /**
+     * Filters and groups query params
+     *
+     * @param queryParams Map of provided query params
+     * @return RequestParams containing filtered query params grouped by JSON:API standard
+     */
+    public RequestParams buildRequestParams(Map<String, String> queryParams) throws JsonDeserializationException {
+        RequestParams requestParams = new RequestParams(new ObjectMapper());
 
-        if (queryParams.containsKey(RestrictedQueryParamsMembers.filter.toString())) {
-            params.setFilters(queryParams.get(RestrictedQueryParamsMembers.filter.toString()));
+        try {
+            String filterKey = RestrictedQueryParamsMembers.filter.name();
+            if (queryParams.containsKey(filterKey)) {
+                requestParams.setFilters(queryParams.get(filterKey));
+            }
+
+            String sortingKey = RestrictedQueryParamsMembers.sort.name();
+            if (queryParams.containsKey(sortingKey)) {
+                requestParams.setSorting(queryParams.get(sortingKey));
+            }
+
+            String groupingKey = RestrictedQueryParamsMembers.group.name();
+            if (queryParams.containsKey(groupingKey)) {
+                requestParams.setGrouping(queryParams.get(groupingKey));
+            }
+
+            String pagingKey = RestrictedQueryParamsMembers.page.name();
+            if (queryParams.containsKey(pagingKey)) {
+                requestParams.setPagination(queryParams.get(pagingKey));
+            }
+
+            String fieldsKey = RestrictedQueryParamsMembers.fields.name();
+            if (queryParams.containsKey(fieldsKey)) {
+                requestParams.setIncludedFields(queryParams.get(fieldsKey));
+            }
+
+            String includeKey = RestrictedQueryParamsMembers.include.name();
+            if (queryParams.containsKey(includeKey)) {
+                requestParams.setIncludedRelations(queryParams.get(includeKey));
+            }
+        } catch (IOException e) {
+            throw new JsonDeserializationException("Exception while reading request parameters", e);
         }
 
-        if (queryParams.containsKey(RestrictedQueryParamsMembers.sort.toString())) {
-            params.setSorting(queryParams.get(RestrictedQueryParamsMembers.sort.toString()));
-        }
-
-        if (queryParams.containsKey(RestrictedQueryParamsMembers.group.toString())) {
-            params.setGrouping(queryParams.get(RestrictedQueryParamsMembers.group.toString()));
-        }
-
-        if (queryParams.containsKey(RestrictedQueryParamsMembers.page.toString())) {
-            params.setPagination(queryParams.get(RestrictedQueryParamsMembers.page.toString()));
-        }
-
-        if (queryParams.containsKey(RestrictedQueryParamsMembers.fields.toString())) {
-            params.setIncludedFields(queryParams.get(RestrictedQueryParamsMembers.fields.toString()));
-        }
-
-        if (queryParams.containsKey(RestrictedQueryParamsMembers.include.toString())) {
-            params.setIncludedRelations(queryParams.get(RestrictedQueryParamsMembers.include.toString()));
-        }
-
-        return params;
+        return requestParams;
     }
 }

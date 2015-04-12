@@ -1,5 +1,6 @@
 package io.katharsis.dispatcher;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.context.SampleJsonApplicationContext;
 import io.katharsis.dispatcher.controller.collection.CollectionGet;
 import io.katharsis.dispatcher.registry.ControllerRegistry;
@@ -41,7 +42,7 @@ public class RequestDispatcherTest {
         // WHEN
         when(collectionGet.isAcceptable(any(JsonPath.class), eq(requestType))).thenCallRealMethod();
         JsonPath jsonPath = pathBuilder.buildPath(path);
-        sut.dispatchRequest(jsonPath, requestType, new RequestParams());
+        sut.dispatchRequest(jsonPath, requestType, new RequestParams(new ObjectMapper()));
 
         // THEN
         verify(collectionGet, times(1)).handle(any(JsonPath.class), any(RequestParams.class));
