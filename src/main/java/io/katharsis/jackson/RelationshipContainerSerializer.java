@@ -18,6 +18,7 @@ import java.lang.reflect.InvocationTargetException;
 /**
  * Serializes a relationship inside of top-level links object
  * <a href="http://jsonapi.org/format/#document-structure-top-level-links">Top-level Links</a>.
+ * @see RelationshipContainer
  */
 public class RelationshipContainerSerializer extends JsonSerializer<RelationshipContainer> {
 

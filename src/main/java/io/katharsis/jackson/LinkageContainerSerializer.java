@@ -11,6 +11,11 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 
+/**
+ * Serializes a single linkage object.
+ *
+ * @see LinkageContainer
+ */
 public class LinkageContainerSerializer extends JsonSerializer<LinkageContainer> {
 
     private ResourceRegistry resourceRegistry;

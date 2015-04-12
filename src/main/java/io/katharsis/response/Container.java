@@ -1,7 +1,13 @@
 package io.katharsis.response;
 
+import io.katharsis.jackson.ContainerSerializer;
+
 import java.util.Objects;
 
+/**
+ * A class responsible for representing a single data filed within top-level JSON object returned by Katharsis. The
+ * resulting JSON is serialized using {@link ContainerSerializer}.
+ */
 public class Container<T> {
     T data;
 

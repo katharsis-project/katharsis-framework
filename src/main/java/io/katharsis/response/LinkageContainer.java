@@ -4,6 +4,20 @@ import io.katharsis.resource.registry.RegistryEntry;
 
 import java.util.Objects;
 
+/**
+ * A class responsible for storing information about the linkage information. The resulting JSON serialized using
+ * {@link io.katharsis.jackson.LinkageContainerSerializer} is show below:
+ * <pre>
+ * {@code
+ * {
+ *   type: "type of the resource",
+ *   id: "id of the resource"
+ * }
+ * }
+ * </pre>
+ *
+ * @see io.katharsis.jackson.LinkageContainerSerializer
+ */
 public class LinkageContainer {
 
     private Object objectItem;
