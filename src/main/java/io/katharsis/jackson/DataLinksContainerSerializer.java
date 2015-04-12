@@ -15,6 +15,7 @@ import java.lang.reflect.InvocationTargetException;
 
 /**
  * Serializes a <i>links</i> field of a resource in data field of JSON API response.
+ * @see DataLinksContainer
  */
 public class DataLinksContainerSerializer extends JsonSerializer<DataLinksContainer> {
 

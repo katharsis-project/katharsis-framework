@@ -4,6 +4,20 @@ import java.lang.reflect.Field;
 import java.util.Objects;
 import java.util.Set;
 
+/**
+ * A class responsible for storing information about links within resource object, that is link to the resource itself
+ * and relationships. The resulting JSON serialized using {@link io.katharsis.jackson.DataLinksContainerSerializer} is
+ * shown below:
+ * <pre>
+ * {@code
+ * {
+ *   self: "url to the resource"
+ * }
+ * }
+ * </pre>
+ *
+ * @see io.katharsis.jackson.DataLinksContainerSerializer
+ */
 public class DataLinksContainer {
     private final Object data;
     private final Set<Field> relationshipFields;

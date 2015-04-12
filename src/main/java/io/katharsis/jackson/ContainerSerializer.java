@@ -18,6 +18,7 @@ import java.util.Set;
 
 /**
  * This class serializes an single resource which can be included in <i>data</i> field of JSON API response.
+ * @see Container
  */
 public class ContainerSerializer extends JsonSerializer<Container> {
 

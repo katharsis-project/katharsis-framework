@@ -2,6 +2,17 @@ package io.katharsis.response;
 
 import java.util.Objects;
 
+/**
+ * A class responsible for representing top-level JSON object returned by Katharsis. The data value is a single object.
+ * The resulting JSON is shown below:
+ * <pre>
+ * {@code
+ * {
+ *   data: null,
+ * }
+ * }
+ * </pre>
+ */
 public class ResourceResponse implements BaseResponse {
     private Object data;
 
