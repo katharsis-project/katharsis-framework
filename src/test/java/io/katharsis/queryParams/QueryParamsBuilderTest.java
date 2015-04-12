@@ -1,5 +1,6 @@
 package io.katharsis.queryParams;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.jackson.exception.JsonDeserializationException;
 import io.katharsis.resource.RestrictedQueryParamsMembers;
 import org.junit.Before;
@@ -13,17 +14,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class QueryParamsBuilderTest {
 
     private Map<String, String> queryParams;
+    QueryParamsBuilder sut;
 
     @Before
     public void prepare() {
         queryParams = new HashMap<>();
+        sut = new QueryParamsBuilder(new ObjectMapper());
     }
 
     @Test
     public void onGivenFiltersBuilderShouldReturnRequestParamsWithFilters() throws JsonDeserializationException {
         // GIVEN
         queryParams.put(RestrictedQueryParamsMembers.filter.name(), "{\"name\": \"John\"}");
-        QueryParamsBuilder sut = new QueryParamsBuilder();
 
         // WHEN
         RequestParams result = sut.buildRequestParams(queryParams);
@@ -36,7 +38,6 @@ public class QueryParamsBuilderTest {
     public void onGivenSortingBuilderShouldReturnRequestParamsWithSorting() throws JsonDeserializationException {
         // GIVEN
         queryParams.put(RestrictedQueryParamsMembers.sort.name(), "{\"name\": \"asc\"}");
-        QueryParamsBuilder sut = new QueryParamsBuilder();
 
         // WHEN
         RequestParams result = sut.buildRequestParams(queryParams);
@@ -49,7 +50,6 @@ public class QueryParamsBuilderTest {
     public void onGivenGroupingBuilderShouldReturnRequestParamsWithGrouping() throws JsonDeserializationException {
         // GIVEN
         queryParams.put(RestrictedQueryParamsMembers.group.name(), "[\"name\"]");
-        QueryParamsBuilder sut = new QueryParamsBuilder();
 
         // WHEN
         RequestParams result = sut.buildRequestParams(queryParams);
@@ -63,7 +63,6 @@ public class QueryParamsBuilderTest {
     public void onGivenPaginationBuilderShouldReturnRequestParamsWithPagination() throws JsonDeserializationException {
         // GIVEN
         queryParams.put(RestrictedQueryParamsMembers.page.name(), "{\"page\": \"1\"}");
-        QueryParamsBuilder sut = new QueryParamsBuilder();
 
         // WHEN
         RequestParams result = sut.buildRequestParams(queryParams);
@@ -77,7 +76,6 @@ public class QueryParamsBuilderTest {
             JsonDeserializationException {
         // GIVEN
         queryParams.put(RestrictedQueryParamsMembers.fields.name(), "[\"name\"]");
-        QueryParamsBuilder sut = new QueryParamsBuilder();
 
         // WHEN
         RequestParams result = sut.buildRequestParams(queryParams);
@@ -91,7 +89,6 @@ public class QueryParamsBuilderTest {
             JsonDeserializationException {
         // GIVEN
         queryParams.put(RestrictedQueryParamsMembers.include.name(), "[\"friends\"]");
-        QueryParamsBuilder sut = new QueryParamsBuilder();
 
         // WHEN
         RequestParams result = sut.buildRequestParams(queryParams);

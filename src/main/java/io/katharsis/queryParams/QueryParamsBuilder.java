@@ -12,6 +12,12 @@ import java.util.Map;
  */
 public class QueryParamsBuilder {
 
+    private ObjectMapper objectMapper;
+
+    public QueryParamsBuilder(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
+
     /**
      * Filters and groups query params
      *
@@ -19,7 +25,7 @@ public class QueryParamsBuilder {
      * @return RequestParams containing filtered query params grouped by JSON:API standard
      */
     public RequestParams buildRequestParams(Map<String, String> queryParams) throws JsonDeserializationException {
-        RequestParams requestParams = new RequestParams(new ObjectMapper());
+        RequestParams requestParams = new RequestParams(objectMapper);
 
         try {
             String filterKey = RestrictedQueryParamsMembers.filter.name();
