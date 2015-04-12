@@ -1,5 +1,6 @@
 package io.katharsis.dispatcher.controller.collection;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.context.SampleJsonApplicationContext;
 import io.katharsis.path.JsonPath;
 import io.katharsis.path.PathBuilder;
@@ -62,7 +63,7 @@ public class CollectionGetTest {
         CollectionGet sut = new CollectionGet(resourceRegistry);
 
         // WHEN
-        BaseResponse<?> response = sut.handle(jsonPath, new RequestParams());
+        BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()));
 
         // THEN
         Assert.assertNotNull(response);
