@@ -1,4 +1,4 @@
-package io.katharsis.jackson;
+package io.katharsis.jackson.exception;
 
 import java.io.IOException;
 
