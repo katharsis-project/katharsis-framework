@@ -3,16 +3,14 @@ package io.katharsis.dispatcher.controller.resource;
 import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.path.JsonPath;
 import io.katharsis.path.LinksPath;
+import io.katharsis.path.PathBuilder;
 import io.katharsis.path.PathIds;
 import io.katharsis.queryParams.RequestParams;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.resource.exception.ResourceFieldNotFoundException;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.response.BaseResponse;
-import io.katharsis.response.CollectionResponse;
-import io.katharsis.response.LinkageContainer;
-import io.katharsis.response.ResourceResponse;
+import io.katharsis.response.*;
 import io.katharsis.utils.Generics;
 
 import java.io.Serializable;
@@ -24,9 +22,11 @@ import java.util.Set;
 public class LinksResourceGet implements BaseController {
 
     private ResourceRegistry resourceRegistry;
+    private PathBuilder pathBuilder;
 
-    public LinksResourceGet(ResourceRegistry resourceRegistry) {
+    public LinksResourceGet(ResourceRegistry resourceRegistry, PathBuilder pathBuilder) {
         this.resourceRegistry = resourceRegistry;
+        this.pathBuilder = pathBuilder;
     }
 
     @Override
@@ -58,6 +58,8 @@ public class LinksResourceGet implements BaseController {
         RelationshipRepository relationshipRepositoryForClass = registryEntry.getRelationshipRepositoryForClass(relationshipFieldClass);
         RegistryEntry relationshipFieldEntry = resourceRegistry.getEntry(relationshipFieldClass);
         BaseResponse target;
+        TopLevelLinks topLevelLinks = new TopLevelLinksLinks(pathBuilder.buildPath(jsonPath), pathBuilder.buildPath
+                (jsonPath, true));
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
             List<LinkageContainer> dataList = new LinkedList<>();
 
@@ -67,14 +69,14 @@ public class LinksResourceGet implements BaseController {
                     dataList.add(new LinkageContainer(targetObject, relationshipFieldClass, relationshipFieldEntry));
                 }
             }
-            target = new CollectionResponse(dataList);
+            target = new CollectionResponse(dataList, topLevelLinks);
         } else {
             Object targetObject = relationshipRepositoryForClass.findOneTarget(castIdValue(resourceId, Long.class), jsonPath.getElementName());
             if (targetObject != null) {
                 LinkageContainer linkageContainer = new LinkageContainer(targetObject, relationshipFieldClass, relationshipFieldEntry);
-                target = new ResourceResponse(linkageContainer);
+                target = new ResourceResponse(linkageContainer, topLevelLinks);
             } else {
-                target = new ResourceResponse(null);
+                target = new ResourceResponse(null, topLevelLinks);
             }
         }
 

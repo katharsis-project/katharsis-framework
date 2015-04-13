@@ -16,20 +16,20 @@ import java.util.Objects;
 public class CollectionResponse implements BaseResponse<Iterable> {
 
     private Iterable data;
+    private Object links;
 
-    public CollectionResponse() {
-    }
-
-    public CollectionResponse(Iterable data) {
+    public CollectionResponse(Iterable data, Object links) {
         this.data = data;
+        this.links = links;
     }
 
     public Iterable getData() {
         return data;
     }
 
-    public void setData(Iterable data) {
-        this.data = data;
+    @Override
+    public Object getLinks() {
+        return links;
     }
 
     @Override

@@ -2,6 +2,7 @@ package io.katharsis.dispatcher.controller.resource;
 
 import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.path.JsonPath;
+import io.katharsis.path.PathBuilder;
 import io.katharsis.path.PathIds;
 import io.katharsis.queryParams.RequestParams;
 import io.katharsis.resource.exception.ResourceNotFoundException;
@@ -10,15 +11,19 @@ import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
 import io.katharsis.response.Container;
 import io.katharsis.response.ResourceResponse;
+import io.katharsis.response.TopLevelLinks;
 
 import java.io.Serializable;
+import java.util.Collections;
 
 public class ResourcePost implements BaseController {
 
     private ResourceRegistry resourceRegistry;
+    private PathBuilder pathBuilder;
 
-    public ResourcePost(ResourceRegistry resourceRegistry) {
+    public ResourcePost(ResourceRegistry resourceRegistry, PathBuilder pathBuilder) {
         this.resourceRegistry = resourceRegistry;
+        this.pathBuilder = pathBuilder;
     }
 
     /**
@@ -45,7 +50,10 @@ public class ResourcePost implements BaseController {
         Serializable castedId = castIdValue(id, idType);
         Object entity = registryEntry.getResourceRepository().save(castedId);
 
-        return new ResourceResponse(new Container(entity));
+        jsonPath.setIds(new PathIds(Collections.singletonList(castedId.toString())));
+        TopLevelLinks topLevelLinks = new TopLevelLinks(pathBuilder.buildPath(jsonPath));
+
+        return new ResourceResponse(new Container(entity), topLevelLinks);
     }
 
     // @TODO add more customized casting of ids
