@@ -52,4 +52,8 @@ public class ResourceRegistry {
     public String getResourceUrl(Class clazz) {
         return serviceUrl + "/" + getResourceType(clazz);
     }
+
+    public String getServiceUrl() {
+        return serviceUrl;
+    }
 }

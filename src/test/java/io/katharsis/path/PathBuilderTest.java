@@ -16,10 +16,14 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.util.Arrays;
+import java.util.Collections;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PathBuilderTest {
 
     private ResourceRegistry resourceRegistry;
+    private PathBuilder sut;
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -28,13 +32,14 @@ public class PathBuilderTest {
     public void prepare() {
         ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonApplicationContext(), new ResourceInformationBuilder());
         resourceRegistry = registryBuilder.build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, ResourceRegistryTest.TEST_MODELS_URL);
+
+        sut = new PathBuilder(resourceRegistry);
     }
 
     @Test
     public void onEmptyPathShouldThrowException() {
         // GIVEN
         String path = "/";
-        PathBuilder sut = new PathBuilder(resourceRegistry);
 
         // THEN
         expectedException.expect(IllegalArgumentException.class);
@@ -48,7 +53,6 @@ public class PathBuilderTest {
     public void onFlatResourcePathShouldReturnFlatPath() {
         // GIVEN
         String path = "/tasks/";
-        PathBuilder sut = new PathBuilder(resourceRegistry);
 
         // WHEN
         JsonPath jsonPath = sut.buildPath(path);
@@ -63,7 +67,6 @@ public class PathBuilderTest {
     public void onFlatResourceInstancePathShouldReturnFlatPath() {
         // GIVEN
         String path = "/tasks/1";
-        PathBuilder sut = new PathBuilder(resourceRegistry);
 
         // WHEN
         JsonPath jsonPath = sut.buildPath(path);
@@ -78,7 +81,6 @@ public class PathBuilderTest {
     public void onNestedResourcePathShouldReturnNestedPath() {
         // GIVEN
         String path = "/tasks/1/project";
-        PathBuilder sut = new PathBuilder(resourceRegistry);
 
         // WHEN
         JsonPath jsonPath = sut.buildPath(path);
@@ -93,7 +95,6 @@ public class PathBuilderTest {
     public void onNestedResourceInstancePathShouldThrowException() {
         // GIVEN
         String path = "/tasks/1/project/2";
-        PathBuilder sut = new PathBuilder(resourceRegistry);
 
         // THEN
         expectedException.expect(ResourceException.class);
@@ -107,7 +108,6 @@ public class PathBuilderTest {
     public void onNestedResourceRelationshipPathShouldReturnNestedPath() {
         // GIVEN
         String path = "/tasks/1/links/project/";
-        PathBuilder sut = new PathBuilder(resourceRegistry);
 
         // WHEN
         JsonPath jsonPath = sut.buildPath(path);
@@ -122,7 +122,6 @@ public class PathBuilderTest {
     public void onNonRelationshipFieldShouldThrowException() {
         // GIVEN
         String path = "/tasks/1/links/name/";
-        PathBuilder sut = new PathBuilder(resourceRegistry);
 
         // THEN
         expectedException.expect(ResourceFieldNotFoundException.class);
@@ -136,7 +135,6 @@ public class PathBuilderTest {
     public void onRelationshipFieldInLinksShouldThrowException() {
         // GIVEN
         String path = "/users/1/links/projects";
-        PathBuilder sut = new PathBuilder(resourceRegistry);
 
         // THEN
         expectedException.expect(ResourceFieldNotFoundException.class);
@@ -150,7 +148,6 @@ public class PathBuilderTest {
     public void onNestedWrongResourceRelationshipPathShouldThrowException() {
         // GIVEN
         String path = "/tasks/1/links/";
-        PathBuilder sut = new PathBuilder(resourceRegistry);
 
         // THEN
         expectedException.expect(ResourceFieldNotFoundException.class);
@@ -164,7 +161,6 @@ public class PathBuilderTest {
     public void onLinksPathWithIdShouldThrowException() {
         // GIVEN
         String path = "/tasks/1/links/project/1";
-        PathBuilder sut = new PathBuilder(resourceRegistry);
 
         // THEN
         expectedException.expect(ResourceException.class);
@@ -178,7 +174,6 @@ public class PathBuilderTest {
     public void onNonExistingFieldShouldThrowException() {
         // GIVEN
         String path = "/tasks/1/nonExistingField/";
-        PathBuilder sut = new PathBuilder(resourceRegistry);
 
         // THEN
         expectedException.expect(ResourceFieldNotFoundException.class);
@@ -192,7 +187,6 @@ public class PathBuilderTest {
     public void onNonExistingResourceShouldThrowException() {
         // GIVEN
         String path = "/nonExistingResource";
-        PathBuilder sut = new PathBuilder(resourceRegistry);
 
         // THEN
         expectedException.expect(ResourceNotFoundException.class);
@@ -206,7 +200,6 @@ public class PathBuilderTest {
     public void onResourceStaringWithLinksShouldThrowException() {
         // GIVEN
         String path = "/links";
-        PathBuilder sut = new PathBuilder(resourceRegistry);
 
         // THEN
         expectedException.expect(ResourceNotFoundException.class);
@@ -220,7 +213,6 @@ public class PathBuilderTest {
     public void onMultipleResourceInstancesPathShouldReturnCollectionPath() {
         // GIVEN
         String path = "/tasks/1,2";
-        PathBuilder sut = new PathBuilder(resourceRegistry);
 
         // WHEN
         JsonPath jsonPath = sut.buildPath(path);
@@ -228,5 +220,57 @@ public class PathBuilderTest {
         // THEN
         Assert.assertTrue(jsonPath.isCollection());
         Assert.assertEquals(jsonPath.getIds().getIds(), Arrays.asList("1", "2"));
+    }
+
+    @Test
+    public void onSimpleResourcePathShouldReturnCorrectStringPath() {
+        // GIVEN
+        JsonPath jsonPath = new ResourcePath("tasks");
+
+        // WHEN
+        String result = sut.buildPath(jsonPath);
+
+        // THEN
+        assertThat(result).isEqualTo("/tasks/");
+    }
+
+    @Test
+    public void onResourcePathWithIdsShouldReturnCorrectStringPath() {
+        // GIVEN
+        JsonPath jsonPath = new ResourcePath("tasks", new PathIds(Arrays.asList("1", "2")));
+
+        // WHEN
+        String result = sut.buildPath(jsonPath);
+
+        // THEN
+        assertThat(result).isEqualTo("/tasks/1,2/");
+    }
+
+    @Test
+    public void onResourcePathWithIdsAndLinksPathShouldReturnCorrectStringPath() {
+        // GIVEN
+        JsonPath parentJsonPath = new ResourcePath("tasks", new PathIds(Collections.singletonList("1")));
+        JsonPath jsonPath = new LinksPath("project");
+        jsonPath.setParentResource(parentJsonPath);
+
+        // WHEN
+        String result = sut.buildPath(jsonPath);
+
+        // THEN
+        assertThat(result).isEqualTo("/tasks/1/links/project/");
+    }
+
+    @Test
+    public void onResourcePathWithIdsAndFieldPathShouldReturnCorrectStringPath() {
+        // GIVEN
+        JsonPath parentJsonPath = new ResourcePath("tasks", new PathIds(Collections.singletonList("1")));
+        JsonPath jsonPath = new FieldPath("project");
+        jsonPath.setParentResource(parentJsonPath);
+
+        // WHEN
+        String result = sut.buildPath(jsonPath);
+
+        // THEN
+        assertThat(result).isEqualTo("/tasks/1/project/");
     }
 }

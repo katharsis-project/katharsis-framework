@@ -7,9 +7,7 @@ import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 
 import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Builder responsible for parsing URL path.
@@ -24,6 +22,13 @@ public class PathBuilder {
         this.resourceRegistry = resourceRegistry;
     }
 
+    /**
+     * Parses path provided by the application. The path provided cannot contain neither hostname nor protocol. It
+     * can start or end with slash e.g. <i>/tasks/1/</i> or <i>tasks/1</i>.
+     *
+     * @param path Path to be parsed
+     * @return doubly-linked list which represents path given at the input
+     */
     public JsonPath buildPath(String path) {
         String[] strings = splitPath(path);
         if (strings.length == 0 || (strings.length == 1 && "".equals(strings[0]))) {
@@ -108,5 +113,44 @@ public class PathBuilder {
             path = path.substring(0, path.length());
         }
         return path.split(SEPARATOR);
+    }
+
+    /**
+     * Creates a path using the provided JsonPath structure.
+     *
+     * @param jsonPath JsonPath structure to be parsed
+     * @return String representing structure provided in the input
+     */
+    public String buildPath(JsonPath jsonPath) {
+        Deque<String> urlParts = new LinkedList<>();
+
+        JsonPath currentJsonPath = jsonPath;
+        String pathPart;
+        do {
+            if (currentJsonPath instanceof LinksPath) {
+                pathPart = RELATIONSHIP_MARK + SEPARATOR + currentJsonPath.getElementName();
+            } else if (currentJsonPath instanceof FieldPath) {
+                pathPart = currentJsonPath.getElementName();
+            } else {
+                pathPart = currentJsonPath.getElementName();
+                if (currentJsonPath.getIds() != null) {
+                    pathPart += SEPARATOR + mergeIds(currentJsonPath.getIds());
+                }
+            }
+            urlParts.add(pathPart);
+
+            currentJsonPath = currentJsonPath.getParentResource();
+        } while (currentJsonPath != null);
+
+        StringJoiner joiner = new StringJoiner(SEPARATOR, SEPARATOR, SEPARATOR);
+        Iterator<String> stringIterator = urlParts.descendingIterator();
+        while (stringIterator.hasNext()) {
+            joiner.add(stringIterator.next());
+        }
+        return joiner.toString();
+    }
+
+    private String mergeIds(PathIds ids) {
+        return String.join(PathIds.ID_SEPERATOR, ids.getIds());
     }
 }
