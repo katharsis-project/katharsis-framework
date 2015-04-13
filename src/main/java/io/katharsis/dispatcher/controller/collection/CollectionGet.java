@@ -3,6 +3,7 @@ package io.katharsis.dispatcher.controller.collection;
 import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.path.JsonPath;
 import io.katharsis.path.ResourcePath;
+import io.katharsis.queryParams.RequestParams;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -37,7 +38,8 @@ public class CollectionGet implements BaseController {
      * {@inheritDoc}
      */
     @Override
-    public BaseResponse<?> handle(JsonPath jsonPath) {
+    // @TODO handle request params
+    public BaseResponse<?> handle(JsonPath jsonPath, RequestParams requestParams) {
         String resourceName = jsonPath.getElementName();
         RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
         if (registryEntry == null) {
