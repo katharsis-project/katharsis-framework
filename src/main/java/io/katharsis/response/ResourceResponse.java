@@ -14,17 +14,22 @@ import java.util.Objects;
  * </pre>
  */
 public class ResourceResponse implements BaseResponse {
+
     private Object data;
+    private Object links;
 
-    public ResourceResponse() {
-    }
-
-    public ResourceResponse(Object data) {
+    public ResourceResponse(Object data, Object links) {
         this.data = data;
+        this.links = links;
     }
 
     public Object getData() {
         return data;
+    }
+
+    @Override
+    public Object getLinks() {
+        return links;
     }
 
     public void setData(Object data) {

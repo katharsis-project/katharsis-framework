@@ -19,13 +19,13 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class FieldResourceGetTest {
     private static final String REQUEST_TYPE = "GET";
 
     private PathBuilder pathBuilder;
     private ResourceRegistry resourceRegistry;
+    private FieldResourceGet sut;
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -35,14 +35,13 @@ public class FieldResourceGetTest {
         ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonApplicationContext(), new ResourceInformationBuilder());
         resourceRegistry = registryBuilder.build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, ResourceRegistryTest.TEST_MODELS_URL);
         pathBuilder = new PathBuilder(resourceRegistry);
+        sut = new FieldResourceGet(resourceRegistry, pathBuilder);
     }
 
     @Test
     public void onValidRequestShouldAcceptIt() {
         // GIVEN
         JsonPath jsonPath = pathBuilder.buildPath("tasks/1/project");
-        ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-        FieldResourceGet sut = new FieldResourceGet(resourceRegistry);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -55,8 +54,6 @@ public class FieldResourceGetTest {
     public void onNonRelationRequestShouldDenyIt() {
         // GIVEN
         JsonPath jsonPath = new ResourcePath("tasks");
-        ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-        FieldResourceGet sut = new FieldResourceGet(resourceRegistry);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -68,9 +65,7 @@ public class FieldResourceGetTest {
     @Test
     public void onGivenRequestFieldResourceGetShouldHandleIt() {
         // GIVEN
-
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/1/project");
-        FieldResourceGet sut = new FieldResourceGet(resourceRegistry);
 
         // WHEN
         BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()));
@@ -82,9 +77,7 @@ public class FieldResourceGetTest {
     @Test
     public void onGivenRequestFieldResourcesGetShouldHandleIt() {
         // GIVEN
-
         JsonPath jsonPath = pathBuilder.buildPath("/users/1/assignedProjects");
-        FieldResourceGet sut = new FieldResourceGet(resourceRegistry);
 
         // WHEN
         BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()));

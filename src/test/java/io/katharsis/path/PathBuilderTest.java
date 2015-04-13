@@ -261,6 +261,20 @@ public class PathBuilderTest {
     }
 
     @Test
+    public void onResourcePathWithIdsAndRelatedLinksPathShouldReturnCorrectStringPath() {
+        // GIVEN
+        JsonPath parentJsonPath = new ResourcePath("tasks", new PathIds(Collections.singletonList("1")));
+        JsonPath jsonPath = new LinksPath("project");
+        jsonPath.setParentResource(parentJsonPath);
+
+        // WHEN
+        String result = sut.buildPath(jsonPath, true);
+
+        // THEN
+        assertThat(result).isEqualTo("/tasks/1/project/");
+    }
+
+    @Test
     public void onResourcePathWithIdsAndFieldPathShouldReturnCorrectStringPath() {
         // GIVEN
         JsonPath parentJsonPath = new ResourcePath("tasks", new PathIds(Collections.singletonList("1")));

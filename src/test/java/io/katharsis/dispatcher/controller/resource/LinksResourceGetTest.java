@@ -19,7 +19,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class LinksResourceGetTest {
 
@@ -27,6 +26,7 @@ public class LinksResourceGetTest {
 
     private PathBuilder pathBuilder;
     private ResourceRegistry resourceRegistry;
+    private LinksResourceGet sut;
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -36,14 +36,13 @@ public class LinksResourceGetTest {
         ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonApplicationContext(), new ResourceInformationBuilder());
         resourceRegistry = registryBuilder.build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, ResourceRegistryTest.TEST_MODELS_URL);
         pathBuilder = new PathBuilder(resourceRegistry);
+        sut = new LinksResourceGet(resourceRegistry, pathBuilder);
     }
 
     @Test
     public void onValidRequestShouldAcceptIt() {
         // GIVEN
         JsonPath jsonPath = pathBuilder.buildPath("tasks/1/links/project");
-        ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-        LinksResourceGet sut = new LinksResourceGet(resourceRegistry);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -56,8 +55,6 @@ public class LinksResourceGetTest {
     public void onNonRelationRequestShouldDenyIt() {
         // GIVEN
         JsonPath jsonPath = new ResourcePath("tasks");
-        ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-        LinksResourceGet sut = new LinksResourceGet(resourceRegistry);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -69,9 +66,7 @@ public class LinksResourceGetTest {
     @Test
     public void onGivenRequestLinkResourceGetShouldHandleIt() {
         // GIVEN
-
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/1/links/project");
-        LinksResourceGet sut = new LinksResourceGet(resourceRegistry);
 
         // WHEN
         BaseResponse<?> response = sut.handle(jsonPath, null);
@@ -85,7 +80,6 @@ public class LinksResourceGetTest {
         // GIVEN
 
         JsonPath jsonPath = pathBuilder.buildPath("/users/1/links/assignedProjects");
-        LinksResourceGet sut = new LinksResourceGet(resourceRegistry);
 
         // WHEN
         BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()));

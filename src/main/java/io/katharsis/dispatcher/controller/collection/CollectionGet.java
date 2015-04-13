@@ -2,6 +2,7 @@ package io.katharsis.dispatcher.controller.collection;
 
 import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.path.JsonPath;
+import io.katharsis.path.PathBuilder;
 import io.katharsis.path.ResourcePath;
 import io.katharsis.queryParams.RequestParams;
 import io.katharsis.resource.exception.ResourceNotFoundException;
@@ -10,6 +11,7 @@ import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
 import io.katharsis.response.CollectionResponse;
 import io.katharsis.response.Container;
+import io.katharsis.response.TopLevelLinks;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -17,9 +19,11 @@ import java.util.List;
 public class CollectionGet implements BaseController {
 
     private ResourceRegistry resourceRegistry;
+    private PathBuilder pathBuilder;
 
-    public CollectionGet(ResourceRegistry resourceRegistry) {
+    public CollectionGet(ResourceRegistry resourceRegistry, PathBuilder pathBuilder) {
         this.resourceRegistry = resourceRegistry;
+        this.pathBuilder = pathBuilder;
     }
 
     /**
@@ -50,7 +54,8 @@ public class CollectionGet implements BaseController {
         for (Object element : iterable) {
             containers.add(new Container(element));
         }
+        TopLevelLinks topLevelLinks = new TopLevelLinks(pathBuilder.buildPath(jsonPath));
 
-        return new CollectionResponse(containers);
+        return new CollectionResponse(containers, topLevelLinks);
     }
 }
