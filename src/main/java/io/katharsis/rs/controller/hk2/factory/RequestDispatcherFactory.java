@@ -3,7 +3,6 @@ package io.katharsis.rs.controller.hk2.factory;
 import io.katharsis.dispatcher.RequestDispatcher;
 import io.katharsis.dispatcher.registry.ControllerRegistry;
 import io.katharsis.dispatcher.registry.ControllerRegistryBuilder;
-import io.katharsis.path.PathBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
 import org.glassfish.hk2.api.Factory;
 
@@ -22,7 +21,7 @@ public class RequestDispatcherFactory implements Factory<RequestDispatcher> {
     public RequestDispatcher provide() {
         ControllerRegistryBuilder controllerRegistryBuilder = new ControllerRegistryBuilder();
         ControllerRegistry controllerRegistry = controllerRegistryBuilder
-                .build(resourceRegistry, new PathBuilder(resourceRegistry));
+                .build(resourceRegistry);
         return new RequestDispatcher(controllerRegistry);
     }
 
