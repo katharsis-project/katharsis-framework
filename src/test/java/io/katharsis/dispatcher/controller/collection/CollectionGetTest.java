@@ -20,15 +20,12 @@ public class CollectionGetTest {
     private PathBuilder pathBuilder;
     private String requestType;
     private ResourceRegistry resourceRegistry;
-    private CollectionGet sut;
 
     @Before
     public void prepare() {
         ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonApplicationContext(), new ResourceInformationBuilder());
         resourceRegistry = registryBuilder.build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, ResourceRegistryTest.TEST_MODELS_URL);
         pathBuilder = new PathBuilder(resourceRegistry);
-        sut = new CollectionGet(resourceRegistry, pathBuilder);
-
         requestType = "GET";
     }
 
@@ -36,6 +33,7 @@ public class CollectionGetTest {
     public void onGivenRequestCollectionGetShouldAcceptIt() {
         // GIVEN
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/");
+        CollectionGet sut = new CollectionGet(resourceRegistry);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, requestType);
@@ -48,6 +46,7 @@ public class CollectionGetTest {
     public void onGivenRequestCollectionGetShouldDenyIt() {
         // GIVEN
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/2");
+        CollectionGet sut = new CollectionGet(resourceRegistry);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, requestType);
@@ -61,6 +60,7 @@ public class CollectionGetTest {
         // GIVEN
 
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/");
+        CollectionGet sut = new CollectionGet(resourceRegistry);
 
         // WHEN
         BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()));

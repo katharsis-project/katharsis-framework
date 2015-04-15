@@ -20,7 +20,6 @@ public class ResourceGetTest {
     private PathBuilder pathBuilder;
     private String requestType;
     private ResourceRegistry resourceRegistry;
-    private ResourceGet sut;
 
     @Before
     public void prepare() {
@@ -28,14 +27,13 @@ public class ResourceGetTest {
         resourceRegistry = registryBuilder.build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, ResourceRegistryTest.TEST_MODELS_URL);
         pathBuilder = new PathBuilder(resourceRegistry);
         requestType = "GET";
-
-        sut = new ResourceGet(resourceRegistry, pathBuilder);
     }
 
     @Test
     public void onGivenRequestCollectionGetShouldDenyIt() {
         // GIVEN
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/");
+        ResourceGet sut = new ResourceGet(resourceRegistry);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, requestType);
@@ -48,6 +46,7 @@ public class ResourceGetTest {
     public void onGivenRequestResourceGetShouldAcceptIt() {
         // GIVEN
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/2");
+        ResourceGet sut = new ResourceGet(resourceRegistry);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, requestType);
@@ -61,6 +60,7 @@ public class ResourceGetTest {
         // GIVEN
 
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/1");
+        ResourceGet sut = new ResourceGet(resourceRegistry);
 
         // WHEN
         BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()));

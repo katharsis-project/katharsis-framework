@@ -115,29 +115,20 @@ public class PathBuilder {
         return path.split(SEPARATOR);
     }
 
-    public String buildPath(JsonPath jsonPath) {
-        return buildPath(jsonPath, false);
-    }
-
     /**
      * Creates a path using the provided JsonPath structure.
      *
      * @param jsonPath JsonPath structure to be parsed
-     * @param isRelated if <i>true</i> LinksPath string representation does no have links element
      * @return String representing structure provided in the input
      */
-    public String buildPath(JsonPath jsonPath, boolean isRelated) {
+    public String buildPath(JsonPath jsonPath) {
         Deque<String> urlParts = new LinkedList<>();
 
         JsonPath currentJsonPath = jsonPath;
         String pathPart;
         do {
             if (currentJsonPath instanceof LinksPath) {
-                pathPart = "";
-                if (!isRelated) {
-                    pathPart = RELATIONSHIP_MARK + SEPARATOR;
-                }
-                pathPart += currentJsonPath.getElementName();
+                pathPart = RELATIONSHIP_MARK + SEPARATOR + currentJsonPath.getElementName();
             } else if (currentJsonPath instanceof FieldPath) {
                 pathPart = currentJsonPath.getElementName();
             } else {
