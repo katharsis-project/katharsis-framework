@@ -3,7 +3,6 @@ package io.katharsis.dispatcher.controller.resource;
 import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.path.FieldPath;
 import io.katharsis.path.JsonPath;
-import io.katharsis.path.PathBuilder;
 import io.katharsis.path.PathIds;
 import io.katharsis.queryParams.RequestParams;
 import io.katharsis.repository.RelationshipRepository;
@@ -13,7 +12,6 @@ import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
 import io.katharsis.response.CollectionResponse;
 import io.katharsis.response.ResourceResponse;
-import io.katharsis.response.TopLevelLinks;
 import io.katharsis.utils.Generics;
 
 import java.io.Serializable;
@@ -23,11 +21,9 @@ import java.util.Set;
 public class FieldResourceGet implements BaseController {
 
     private ResourceRegistry resourceRegistry;
-    private PathBuilder pathBuilder;
 
-    public FieldResourceGet(ResourceRegistry resourceRegistry, PathBuilder pathBuilder) {
+    public FieldResourceGet(ResourceRegistry resourceRegistry) {
         this.resourceRegistry = resourceRegistry;
-        this.pathBuilder = pathBuilder;
     }
 
     @Override
@@ -58,13 +54,12 @@ public class FieldResourceGet implements BaseController {
         }
         RelationshipRepository relationshipRepositoryForClass = registryEntry.getRelationshipRepositoryForClass(relationshipFieldClass);
         BaseResponse target;
-        TopLevelLinks topLevelLinks = new TopLevelLinks(pathBuilder.buildPath(jsonPath));
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
             Iterable targetObjects = relationshipRepositoryForClass.findTargets(castIdValue(resourceId, Long.class), jsonPath.getElementName());
-            target = new CollectionResponse(targetObjects, topLevelLinks);
+            target = new CollectionResponse(targetObjects);
         } else {
             Object targetObject = relationshipRepositoryForClass.findOneTarget(castIdValue(resourceId, Long.class), jsonPath.getElementName());
-            target = new ResourceResponse(targetObject, topLevelLinks);
+            target = new ResourceResponse(targetObject);
         }
 
         return target;
