@@ -5,7 +5,6 @@ import io.katharsis.dispatcher.controller.resource.FieldResourceGet;
 import io.katharsis.dispatcher.controller.resource.LinksResourceGet;
 import io.katharsis.dispatcher.controller.resource.ResourceGet;
 import io.katharsis.dispatcher.controller.resource.ResourcePost;
-import io.katharsis.path.PathBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
 
 /**
@@ -13,12 +12,12 @@ import io.katharsis.resource.registry.ResourceRegistry;
  */
 public class ControllerRegistryBuilder {
 
-    public ControllerRegistry build(ResourceRegistry resourceRegistry, PathBuilder pathBuilder) {
-        CollectionGet collectionGet = new CollectionGet(resourceRegistry, pathBuilder);
-        ResourceGet resourceGet = new ResourceGet(resourceRegistry, pathBuilder);
-        LinksResourceGet linksResourceGet = new LinksResourceGet(resourceRegistry, pathBuilder);
-        FieldResourceGet fieldResourceGet = new FieldResourceGet(resourceRegistry, pathBuilder);
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, pathBuilder);
+    public ControllerRegistry build(ResourceRegistry resourceRegistry) {
+        CollectionGet collectionGet = new CollectionGet(resourceRegistry);
+        ResourceGet resourceGet = new ResourceGet(resourceRegistry);
+        LinksResourceGet linksResourceGet = new LinksResourceGet(resourceRegistry);
+        FieldResourceGet fieldResourceGet = new FieldResourceGet(resourceRegistry);
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry);
         return new ControllerRegistry(collectionGet, resourceGet, linksResourceGet, fieldResourceGet, resourcePost);
     }
 }
