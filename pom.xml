@@ -12,7 +12,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <javaVersion>1.8</javaVersion>
-        <jackson.version>2.4.5</jackson.version>
+        <jackson.version>2.5.2</jackson.version>
     </properties>
 
     <build>
@@ -20,7 +20,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.2</version>
+                <version>3.3</version>
                 <configuration>
                     <source>${javaVersion}</source>
                     <target>${javaVersion}</target>
@@ -29,7 +29,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>cobertura-maven-plugin</artifactId>
-                <version>2.6</version>
+                <version>2.7</version>
                 <configuration>
                     <formats>
                         <format>xml</format>
@@ -48,7 +48,7 @@
             <plugin>
                 <groupId>org.eluder.coveralls</groupId>
                 <artifactId>coveralls-maven-plugin</artifactId>
-                <version>3.0.1</version>
+                <version>3.1.0</version>
                 <configuration>
                     <!--suppress MavenModelInspection -->
                     <repoToken>${env.coverallsToken}</repoToken>
@@ -136,13 +136,13 @@
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <version>2.0.0</version>
+            <version>3.0.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
-            <version>1.7.5</version>
+            <version>1.7.12</version>
             <scope>test</scope>
         </dependency>
         <dependency>
