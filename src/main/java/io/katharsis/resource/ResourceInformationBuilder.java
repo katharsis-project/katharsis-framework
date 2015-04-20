@@ -1,25 +1,20 @@
 package io.katharsis.resource;
 
 import io.katharsis.resource.annotations.JsonApiId;
+import io.katharsis.resource.annotations.JsonApiToMany;
+import io.katharsis.resource.annotations.JsonApiToOne;
 import io.katharsis.resource.exception.ResourceFieldException;
 import io.katharsis.resource.exception.ResourceIdNotFoundException;
 
 import java.lang.reflect.Field;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
- * A builder which creates ResourceInformation instances of a specific class.
+ * A builder which creates ResourceInformation instances of a specific class. It extracts information about a resource
+ * from annotations.
  */
 public class ResourceInformationBuilder {
-
-    /**
-     * Basic Java types' classes
-     */
-    private static final Class[] BASIC_TYPES = new Class[]{Boolean.TYPE, Boolean.class, Character.TYPE, Character.class,
-            Byte.TYPE, Byte.class, Short.TYPE, Short.class, Integer.TYPE, Integer.class, Long.TYPE, Long.class,
-            Float.TYPE, Float.class, Double.TYPE, Double.class, String.class};
 
     public <T> ResourceInformation<T> build(Class<T> resourceClass) {
 
@@ -44,7 +39,7 @@ public class ResourceInformationBuilder {
     private <T> Set<Field> getBasicFields(Class<T> resourceClass, Field idField) {
         Set<Field> fields = new HashSet<>();
         for (Field field : resourceClass.getDeclaredFields()) {
-            if (isBasicType(field.getType()) && !field.equals(idField)) {
+            if (!isRelationshipType(field) && !field.equals(idField)) {
                 fields.add(field);
                 if (isRestrictedMember(field.getName())) {
                     throw new ResourceFieldException("Field " + field.getName() + " of class "
@@ -58,7 +53,7 @@ public class ResourceInformationBuilder {
     private <T> Set<Field> getRelationshipFields(Class<T> resourceClass, Field idField) {
         Set<Field> fields = new HashSet<>();
         for (Field field : resourceClass.getDeclaredFields()) {
-            if (!isBasicType(field.getType()) && !field.equals(idField)) {
+            if (isRelationshipType(field) && !field.equals(idField)) {
                 if (isRestrictedMember(field.getName())) {
                     throw new ResourceFieldException("Field " + field.getName() + " of class "
                             + resourceClass.getCanonicalName() + "is restricted");
@@ -69,8 +64,8 @@ public class ResourceInformationBuilder {
         return fields;
     }
 
-    private boolean isBasicType(Class<?> type) {
-        return Arrays.asList(BASIC_TYPES).contains(type);
+    private boolean isRelationshipType(Field type) {
+        return type.isAnnotationPresent(JsonApiToMany.class) || type.isAnnotationPresent(JsonApiToOne.class);
     }
 
     private boolean isRestrictedMember(String fieldName) {

@@ -1,8 +1,10 @@
-package io.katharsis.dispatcher.controller;
+package io.katharsis.dispatcher.controller.collection;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.context.SampleJsonApplicationContext;
+import io.katharsis.path.JsonPath;
 import io.katharsis.path.PathBuilder;
-import io.katharsis.path.ResourcePath;
+import io.katharsis.queryParams.RequestParams;
 import io.katharsis.resource.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryBuilder;
@@ -13,7 +15,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ResourceGetTest {
+public class CollectionGetTest {
 
     private PathBuilder pathBuilder;
     private String requestType;
@@ -21,47 +23,47 @@ public class ResourceGetTest {
 
     @Before
     public void prepare() {
-        pathBuilder = new PathBuilder();
         ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonApplicationContext(), new ResourceInformationBuilder());
         resourceRegistry = registryBuilder.build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, ResourceRegistryTest.TEST_MODELS_URL);
+        pathBuilder = new PathBuilder(resourceRegistry);
         requestType = "GET";
     }
 
     @Test
-    public void onGivenRequestCollectionGetShouldDenyIt() {
+    public void onGivenRequestCollectionGetShouldAcceptIt() {
         // GIVEN
-        ResourcePath resourcePath = pathBuilder.buildPath("/resource/");
-        ResourceGet sut = new ResourceGet(resourceRegistry);
+        JsonPath jsonPath = pathBuilder.buildPath("/tasks/");
+        CollectionGet sut = new CollectionGet(resourceRegistry);
 
         // WHEN
-        boolean result = sut.isAcceptable(resourcePath, requestType);
-
-        // THEN
-        Assert.assertEquals(result, false);
-    }
-
-    @Test
-    public void onGivenRequestResourceGetShouldAcceptIt() {
-        // GIVEN
-        ResourcePath resourcePath = pathBuilder.buildPath("/resource/2");
-        ResourceGet sut = new ResourceGet(resourceRegistry);
-
-        // WHEN
-        boolean result = sut.isAcceptable(resourcePath, requestType);
+        boolean result = sut.isAcceptable(jsonPath, requestType);
 
         // THEN
         Assert.assertEquals(result, true);
     }
 
     @Test
-    public void onGivenRequestResourceGetShouldHandleIt() {
+    public void onGivenRequestCollectionGetShouldDenyIt() {
         // GIVEN
-
-        ResourcePath resourcePath = pathBuilder.buildPath("/tasks/1");
-        ResourceGet sut = new ResourceGet(resourceRegistry);
+        JsonPath jsonPath = pathBuilder.buildPath("/tasks/2");
+        CollectionGet sut = new CollectionGet(resourceRegistry);
 
         // WHEN
-        BaseResponse<?> response = sut.handle(resourcePath);
+        boolean result = sut.isAcceptable(jsonPath, requestType);
+
+        // THEN
+        Assert.assertEquals(result, false);
+    }
+
+    @Test
+    public void onGivenRequestCollectionGetShouldHandleIt() {
+        // GIVEN
+
+        JsonPath jsonPath = pathBuilder.buildPath("/tasks/");
+        CollectionGet sut = new CollectionGet(resourceRegistry);
+
+        // WHEN
+        BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()));
 
         // THEN
         Assert.assertNotNull(response);

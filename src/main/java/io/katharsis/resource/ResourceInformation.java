@@ -1,6 +1,7 @@
 package io.katharsis.resource;
 
 import java.lang.reflect.Field;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -16,12 +17,12 @@ public class ResourceInformation<T> {
     private Field idField;
 
     /**
-     * A set of fields that has basic Java types (String, Long, ...)
+     * A set of fields that has basic Java types (String, Long, ...).
      */
     private Set<Field> basicFields;
 
     /**
-     * A set of fields that contains non-standard Java types (List, Set, custom classes, ...)
+     * A set of fields that contains non-standard Java types (List, Set, custom classes, ...).
      */
     private Set<Field> relationshipFields;
 
@@ -53,22 +54,14 @@ public class ResourceInformation<T> {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
-        ResourceInformation that = (ResourceInformation) o;
-
-        if (basicFields != null ? !basicFields.equals(that.basicFields) : that.basicFields != null) return false;
-        if (idField != null ? !idField.equals(that.idField) : that.idField != null) return false;
-        if (relationshipFields != null ? !relationshipFields.equals(that.relationshipFields) : that.relationshipFields != null)
-            return false;
-
-        return true;
+        ResourceInformation<?> that = (ResourceInformation<?>) o;
+        return Objects.equals(idField, that.idField) &&
+                Objects.equals(basicFields, that.basicFields) &&
+                Objects.equals(relationshipFields, that.relationshipFields);
     }
 
     @Override
     public int hashCode() {
-        int result = idField != null ? idField.hashCode() : 0;
-        result = 31 * result + (basicFields != null ? basicFields.hashCode() : 0);
-        result = 31 * result + (relationshipFields != null ? relationshipFields.hashCode() : 0);
-        return result;
+        return Objects.hash(idField, basicFields, relationshipFields);
     }
 }

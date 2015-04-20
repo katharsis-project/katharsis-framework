@@ -2,6 +2,7 @@ package io.katharsis.resource.mock.models;
 
 import io.katharsis.resource.annotations.JsonApiId;
 import io.katharsis.resource.annotations.JsonApiResource;
+import io.katharsis.resource.annotations.JsonApiToOne;
 
 @JsonApiResource(type = "tasks")
 public class Task {
@@ -11,6 +12,7 @@ public class Task {
 
     private String name;
 
+    @JsonApiToOne
     private Project project;
 
     public Long getId() {
