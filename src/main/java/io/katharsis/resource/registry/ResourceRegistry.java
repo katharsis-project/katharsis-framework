@@ -20,13 +20,14 @@ public class ResourceRegistry {
     }
 
     public RegistryEntry getEntry(String searchType) {
+        RegistryEntry registryEntry = null;
         for (Map.Entry<Class, RegistryEntry> entry : resources.entrySet()) {
             String type = getResourceType(entry.getKey());
-            if (searchType.equals(type)) {
-                return entry.getValue();
+            if (type.equals(searchType)) {
+                registryEntry = entry.getValue();
             }
         }
-        throw new ResourceNotFoundException("Resource of type not found: " + searchType);
+        return registryEntry;
     }
 
     public RegistryEntry getEntry(Class clazz) {
@@ -50,5 +51,9 @@ public class ResourceRegistry {
 
     public String getResourceUrl(Class clazz) {
         return serviceUrl + "/" + getResourceType(clazz);
+    }
+
+    public String getServiceUrl() {
+        return serviceUrl;
     }
 }

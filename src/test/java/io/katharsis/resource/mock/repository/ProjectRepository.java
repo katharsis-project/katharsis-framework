@@ -1,13 +1,18 @@
 package io.katharsis.resource.mock.repository;
 
-import io.katharsis.repository.EntityRepository;
+import io.katharsis.repository.ResourceRepository;
 import io.katharsis.resource.mock.models.Project;
 
 import java.util.LinkedList;
 
-public class ProjectRepository implements EntityRepository<Project, Long> {
+public class ProjectRepository implements ResourceRepository<Project, Long> {
     @Override
     public <S extends Project> S save(S entity) {
+        return null;
+    }
+
+    @Override
+    public <S extends Project> S update(S entity) {
         return null;
     }
 

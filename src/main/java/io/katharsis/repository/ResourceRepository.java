@@ -8,13 +8,15 @@ import java.io.Serializable;
  * @param <T>  Type of an entity
  * @param <ID> Type of Identifier of an entity
  */
-public interface EntityRepository<T, ID extends Serializable> {
-
-    <S extends T> S save(S entity);
+public interface ResourceRepository<T, ID extends Serializable> {
 
     T findOne(ID id);
 
     Iterable<T> findAll();
+
+    <S extends T> S save(S entity);
+
+    <S extends T> S update(S entity);
 
     void delete(ID id);
 }
