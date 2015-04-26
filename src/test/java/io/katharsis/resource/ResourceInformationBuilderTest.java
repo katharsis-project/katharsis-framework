@@ -27,7 +27,6 @@ public class ResourceInformationBuilderTest {
         ResourceInformation<Task> resourceInformation = sut.build(Task.class);
 
         // THEN
-        System.out.println("AAAAAAAAAAA" + resourceInformation.getBasicFields());
         Assert.assertEquals("id", resourceInformation.getIdField().getName());
         Assert.assertEquals(1, resourceInformation.getBasicFields().size());
         Assert.assertEquals("name", resourceInformation.getBasicFields().iterator().next().getName());
