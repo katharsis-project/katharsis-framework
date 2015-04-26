@@ -39,7 +39,7 @@ public class ResourceInformationBuilder {
     private <T> Set<Field> getBasicFields(Class<T> resourceClass, Field idField) {
         Set<Field> fields = new HashSet<>();
         for (Field field : resourceClass.getDeclaredFields()) {
-            if (!isRelationshipType(field) && !field.equals(idField)) {
+            if (!isRelationshipType(field) && !field.equals(idField) && !field.isSynthetic()) {
                 fields.add(field);
                 if (isRestrictedMember(field.getName())) {
                     throw new ResourceFieldException("Field " + field.getName() + " of class "

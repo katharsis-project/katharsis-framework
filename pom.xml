@@ -15,6 +15,9 @@
     <name>katharsis-core</name>
 
     <properties>
+        <equalsverifier-version>1.7.2</equalsverifier-version>
+        <json-unit-fluent.version>1.5.3</json-unit-fluent.version>
+        <slf4j-simple.version>1.7.12</slf4j-simple.version>
         <jacoco-maven-plugin.version>0.7.4.201502262128</jacoco-maven-plugin.version>
     </properties>
 
@@ -115,19 +118,19 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
-            <version>1.7.12</version>
+            <version>${slf4j-simple.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>net.javacrumbs.json-unit</groupId>
             <artifactId>json-unit-fluent</artifactId>
-            <version>1.5.3</version>
+            <version>${json-unit-fluent.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>nl.jqno.equalsverifier</groupId>
             <artifactId>equalsverifier</artifactId>
-            <version>1.7.2</version>
+            <version>${equalsverifier-version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
