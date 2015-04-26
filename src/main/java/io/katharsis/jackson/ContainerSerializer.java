@@ -19,6 +19,7 @@ import java.util.Set;
 
 /**
  * This class serializes an single resource which can be included in <i>data</i> field of JSON API response.
+ *
  * @see Container
  */
 public class ContainerSerializer extends JsonSerializer<Container> {
@@ -78,8 +79,10 @@ public class ContainerSerializer extends JsonSerializer<Container> {
     private void writeBasicFields(JsonGenerator gen, Object data, Set<Field> basicFields)
             throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
         for (Field basicField : basicFields) {
-            Object basicFieldValue = PropertyUtils.getProperty(data, basicField.getName());
-            gen.writeObjectField(basicField.getName(), basicFieldValue);
+            if (!basicField.isSynthetic()) {
+                Object basicFieldValue = PropertyUtils.getProperty(data, basicField.getName());
+                gen.writeObjectField(basicField.getName(), basicFieldValue);
+            }
         }
     }
 
