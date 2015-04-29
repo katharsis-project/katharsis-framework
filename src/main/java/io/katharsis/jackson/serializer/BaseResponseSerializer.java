@@ -101,13 +101,20 @@ public class BaseResponseSerializer extends JsonSerializer<BaseResponse> {
         return includedFields;
     }
 
-    private List serializeResourceCollection(Iterable values, JsonGenerator gen) throws JsonSerializationException {
+    private List serializeResourceCollection(Iterable values, JsonGenerator gen) throws IOException {
         List includedFields = new LinkedList<>();
-        for (Object value : values) {
-            if (value instanceof Container) {
-                includedFields.addAll(extractIncludedResources(((Container) value).getData()));
+        if (values != null) {
+            for (Object value : values) {
+                if (value instanceof Container) {
+                    includedFields.addAll(extractIncludedResources(((Container) value).getData()));
+                }
             }
+        } else {
+            values = Collections.emptyList();
         }
+
+        gen.writeObjectField(DATA_FIELD_NAME, values);
+
         return includedFields;
     }
 
