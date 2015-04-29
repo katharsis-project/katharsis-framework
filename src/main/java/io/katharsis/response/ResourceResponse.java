@@ -14,6 +14,10 @@ import java.util.Objects;
  * </pre>
  */
 public class ResourceResponse implements BaseResponse {
+
+    /**
+     * The type of the field should be either {@link Container} or a list of {@link Container}
+     */
     private Object data;
 
     public ResourceResponse() {

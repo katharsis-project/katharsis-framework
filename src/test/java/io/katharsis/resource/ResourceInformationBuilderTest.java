@@ -24,7 +24,7 @@ public class ResourceInformationBuilderTest {
         ResourceInformationBuilder sut = new ResourceInformationBuilder();
 
         // WHEN
-        ResourceInformation<Task> resourceInformation = sut.build(Task.class);
+        ResourceInformation resourceInformation = sut.build(Task.class);
 
         // THEN
         Assert.assertEquals("id", resourceInformation.getIdField().getName());

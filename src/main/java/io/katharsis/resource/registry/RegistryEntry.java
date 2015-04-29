@@ -19,15 +19,15 @@ import java.util.Objects;
  * @param <T> resource type
  */
 public class RegistryEntry<T> {
-    private ResourceInformation<T> resourceInformation;
+    private ResourceInformation resourceInformation;
     private ResourceRepository<T, ?> resourceRepository;
     private List<RelationshipRepository<T, ?, ?>> relationshipRepositories;
 
-    public RegistryEntry(ResourceInformation<T> resourceInformation, ResourceRepository<T, ?> resourceRepository) {
+    public RegistryEntry(ResourceInformation resourceInformation, ResourceRepository<T, ?> resourceRepository) {
         this(resourceInformation, resourceRepository, new LinkedList<>());
     }
 
-    public RegistryEntry(ResourceInformation<T> resourceInformation, ResourceRepository<T, ?> resourceRepository,
+    public RegistryEntry(ResourceInformation resourceInformation, ResourceRepository<T, ?> resourceRepository,
                          List<RelationshipRepository<T, ?, ?>> relationshipRepositories) {
         this.resourceInformation = resourceInformation;
         this.resourceRepository = resourceRepository;
@@ -56,7 +56,7 @@ public class RegistryEntry<T> {
         return foundRelationshipRepository;
     }
 
-    public ResourceInformation<T> getResourceInformation() {
+    public ResourceInformation getResourceInformation() {
         return resourceInformation;
     }
 
