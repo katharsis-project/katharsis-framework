@@ -16,9 +16,9 @@ import java.util.Set;
  */
 public class ResourceInformationBuilder {
 
-    public <T> ResourceInformation<T> build(Class<T> resourceClass) {
+    public ResourceInformation build(Class<?> resourceClass) {
 
-        ResourceInformation<T> resourceInformation = new ResourceInformation<>();
+        ResourceInformation resourceInformation = new ResourceInformation();
         Field idField = getIdField(resourceClass);
         resourceInformation.setIdField(idField);
         resourceInformation.setBasicFields(getBasicFields(resourceClass, idField));
