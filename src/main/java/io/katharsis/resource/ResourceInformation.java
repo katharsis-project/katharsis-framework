@@ -6,10 +6,8 @@ import java.util.Set;
 
 /**
  * Holds information about the type of the resource.
- *
- * @param <T> Type of the resource
  */
-public class ResourceInformation<T> {
+public class ResourceInformation {
 
     /**
      * Found field of the id. Each resource has to contain a field marked by JsonApiId annotation.
@@ -54,7 +52,7 @@ public class ResourceInformation<T> {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ResourceInformation<?> that = (ResourceInformation<?>) o;
+        ResourceInformation that = (ResourceInformation) o;
         return Objects.equals(idField, that.idField) &&
                 Objects.equals(basicFields, that.basicFields) &&
                 Objects.equals(relationshipFields, that.relationshipFields);
