@@ -1,12 +1,14 @@
 package io.katharsis.response;
 
+import io.katharsis.jackson.serializer.DataLinksContainerSerializer;
+
 import java.lang.reflect.Field;
 import java.util.Objects;
 import java.util.Set;
 
 /**
  * A class responsible for storing information about links within resource object, that is link to the resource itself
- * and relationships. The resulting JSON serialized using {@link io.katharsis.jackson.DataLinksContainerSerializer} is
+ * and relationships. The resulting JSON serialized using {@link DataLinksContainerSerializer} is
  * shown below:
  * <pre>
  * {@code
@@ -16,7 +18,7 @@ import java.util.Set;
  * }
  * </pre>
  *
- * @see io.katharsis.jackson.DataLinksContainerSerializer
+ * @see DataLinksContainerSerializer
  */
 public class DataLinksContainer {
     private final Object data;
