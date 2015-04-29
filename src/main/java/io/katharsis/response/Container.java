@@ -1,6 +1,6 @@
 package io.katharsis.response;
 
-import io.katharsis.jackson.ContainerSerializer;
+import io.katharsis.jackson.serializer.ContainerSerializer;
 
 import java.util.Objects;
 

@@ -2,6 +2,10 @@ package io.katharsis.jackson;
 
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import io.katharsis.jackson.serializer.ContainerSerializer;
+import io.katharsis.jackson.serializer.DataLinksContainerSerializer;
+import io.katharsis.jackson.serializer.LinkageContainerSerializer;
+import io.katharsis.jackson.serializer.RelationshipContainerSerializer;
 import io.katharsis.resource.registry.ResourceRegistry;
 
 /**

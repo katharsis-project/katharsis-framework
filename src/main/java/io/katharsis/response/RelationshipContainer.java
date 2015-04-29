@@ -1,11 +1,13 @@
 package io.katharsis.response;
 
+import io.katharsis.jackson.serializer.RelationshipContainerSerializer;
+
 import java.lang.reflect.Field;
 import java.util.Objects;
 
 /**
  * A class responsible for storing information about a relationship between two resources. The resulting JSON
- * serialized using {@link io.katharsis.jackson.RelationshipContainerSerializer} is shown below:
+ * serialized using {@link RelationshipContainerSerializer} is shown below:
  * <pre>
  * {@code
  * {
@@ -16,7 +18,7 @@ import java.util.Objects;
  * }
  * </pre>
  *
- * @see io.katharsis.jackson.RelationshipContainerSerializer
+ * @see RelationshipContainerSerializer
  */
 public class RelationshipContainer {
     private final DataLinksContainer dataLinksContainer;
