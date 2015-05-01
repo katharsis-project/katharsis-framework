@@ -1,4 +1,4 @@
-package io.katharsis.context;
+package io.katharsis.locator;
 
 import org.junit.Assert;
 import org.junit.Rule;
@@ -7,7 +7,7 @@ import org.junit.rules.ExpectedException;
 
 import java.util.Arrays;
 
-public class SampleJsonApplicationContextTest {
+public class SampleJsonServiceLocatorTest {
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -15,7 +15,7 @@ public class SampleJsonApplicationContextTest {
     @Test
     public void onValidClassShouldReturnInstance() {
         // GIVEN
-        SampleJsonApplicationContext sut = new SampleJsonApplicationContext();
+        SampleJsonServiceLocator sut = new SampleJsonServiceLocator();
 
         // WHEN
         Object object = sut.getInstance(Object.class);
@@ -27,7 +27,7 @@ public class SampleJsonApplicationContextTest {
     @Test
     public void onClassWithPrivateConstructorShouldThrowException() {
         // GIVEN
-        SampleJsonApplicationContext sut = new SampleJsonApplicationContext();
+        SampleJsonServiceLocator sut = new SampleJsonServiceLocator();
 
         // THEN
         expectedException.expect(RuntimeException.class);

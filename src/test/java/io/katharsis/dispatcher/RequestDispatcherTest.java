@@ -1,9 +1,9 @@
 package io.katharsis.dispatcher;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.katharsis.context.SampleJsonApplicationContext;
 import io.katharsis.dispatcher.controller.collection.CollectionGet;
 import io.katharsis.dispatcher.registry.ControllerRegistry;
+import io.katharsis.locator.SampleJsonServiceLocator;
 import io.katharsis.path.JsonPath;
 import io.katharsis.path.PathBuilder;
 import io.katharsis.queryParams.RequestParams;
@@ -23,7 +23,7 @@ public class RequestDispatcherTest {
 
     @Before
     public void prepare() {
-        ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonApplicationContext(), new ResourceInformationBuilder());
+        ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonServiceLocator(), new ResourceInformationBuilder());
         resourceRegistry = registryBuilder.build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, ResourceRegistryTest.TEST_MODELS_URL);
     }
 
