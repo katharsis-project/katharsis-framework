@@ -9,38 +9,30 @@ import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
-import io.katharsis.response.Container;
-import io.katharsis.response.ResourceResponse;
 
 import java.io.Serializable;
 
-public class ResourceGet implements BaseController {
+public class ResourceDelete implements BaseController {
 
     private ResourceRegistry resourceRegistry;
 
-    public ResourceGet(ResourceRegistry resourceRegistry) {
+    public ResourceDelete(ResourceRegistry resourceRegistry) {
         this.resourceRegistry = resourceRegistry;
     }
 
     /**
      * {@inheritDoc}
      *
-     * Checks if requested resource method is acceptable - is a GET request for a resource.
+     * Checks if requested resource method is acceptable - is a DELETE request for a resource.
      */
     @Override
     public boolean isAcceptable(JsonPath jsonPath, String requestType) {
         return !jsonPath.isCollection()
                 && jsonPath instanceof ResourcePath
-                && "GET".equals(requestType);
+                && "DELETE".equals(requestType);
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * Passes the request to controller method.
-     */
     @Override
-    // @TODO handle request params
     public BaseResponse<?> handle(JsonPath jsonPath, RequestParams requestParams) {
         String resourceName = jsonPath.getElementName();
         PathIds resourceIds = jsonPath.getIds();
@@ -48,13 +40,13 @@ public class ResourceGet implements BaseController {
         if (registryEntry == null) {
             throw new ResourceNotFoundException("Resource of type not found: " + resourceName);
         }
-        String id = resourceIds.getIds().get(0);
+        for (String id : resourceIds.getIds()) {
+            Class<?> idType = registryEntry.getResourceInformation().getIdField().getType();
+            Serializable castedId = castIdValue(id, idType);
+            registryEntry.getResourceRepository().delete(castedId);
+        }
 
-        Class<?> idType = registryEntry.getResourceInformation().getIdField().getType();
-        Serializable castedId = castIdValue(id, idType);
-        Object entity = registryEntry.getResourceRepository().findOne(castedId);
-
-        return new ResourceResponse(new Container(entity));
+        return null;
     }
 
     // @TODO add more customized casting of ids
