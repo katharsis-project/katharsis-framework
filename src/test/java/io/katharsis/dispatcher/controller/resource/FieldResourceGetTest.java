@@ -52,7 +52,7 @@ public class FieldResourceGetTest extends BaseControllerTest {
         FieldResourceGet sut = new FieldResourceGet(resourceRegistry);
 
         // WHEN
-        BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()));
+        BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()), null);
 
         // THEN
         Assert.assertNotNull(response);
@@ -66,7 +66,7 @@ public class FieldResourceGetTest extends BaseControllerTest {
         FieldResourceGet sut = new FieldResourceGet(resourceRegistry);
 
         // WHEN
-        BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()));
+        BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()), null);
 
         // THEN
         Assert.assertNotNull(response);

@@ -2,16 +2,14 @@ package io.katharsis.dispatcher.controller.resource;
 
 import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.path.JsonPath;
-import io.katharsis.path.PathIds;
 import io.katharsis.queryParams.RequestParams;
+import io.katharsis.request.DataBody;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
 import io.katharsis.response.Container;
 import io.katharsis.response.ResourceResponse;
-
-import java.io.Serializable;
 
 public class ResourcePost implements BaseController {
 
@@ -28,31 +26,25 @@ public class ResourcePost implements BaseController {
      */
     @Override
     public boolean isAcceptable(JsonPath jsonPath, String requestType) {
-        return !jsonPath.isCollection() && "POST".equals(requestType);
+        return jsonPath.isCollection() &&
+                "POST".equals(requestType);
     }
 
     @Override
-    public BaseResponse<?> handle(JsonPath jsonPath, RequestParams requestParams) {
+    public BaseResponse<?> handle(JsonPath jsonPath, RequestParams requestParams, DataBody requestBody) {
         String resourceName = jsonPath.getResourceName();
-        PathIds resourceIds = jsonPath.getIds();
         RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
         if (registryEntry == null) {
             throw new ResourceNotFoundException("Resource of type not found: " + resourceName);
         }
-        String id = resourceIds.getIds().get(0);
 
-        Class<?> idType = registryEntry.getResourceInformation().getIdField().getType();
-        Serializable castedId = castIdValue(id, idType);
-        Object entity = registryEntry.getResourceRepository().save(castedId);
+        Object resource = buildNewResource(requestBody, registryEntry);
+        Object entityId = registryEntry.getResourceRepository().save(resource);
 
-        return new ResourceResponse(new Container(entity));
+        return new ResourceResponse(new Container(entityId));
     }
 
-    // @TODO add more customized casting of ids
-    private Serializable castIdValue(String id, Class<?> idType) {
-        if (Long.class == idType) {
-            return Long.valueOf(id);
-        }
-        return id;
+    private Object buildNewResource(DataBody requestBody, RegistryEntry registryEntry) {
+        return null;
     }
 }
