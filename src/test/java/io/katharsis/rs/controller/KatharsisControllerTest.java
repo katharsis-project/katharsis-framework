@@ -17,6 +17,7 @@ import org.junit.Test;
 import javax.ws.rs.ApplicationPath;
 import java.net.URLEncoder;
 
+import static io.katharsis.rs.type.JsonApiMediaType.APPLICATION_JSON_API_TYPE;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
@@ -37,7 +38,7 @@ public class KatharsisControllerTest extends JerseyTest {
     public void onSimpleCollectionGetShouldReturnCollectionOfResources() {
         // WHEN
         String taskCollectionResponse = target("tasks/")
-                .request()
+                .request(APPLICATION_JSON_API_TYPE)
                 .get(String.class);
 
         // THEN
@@ -49,7 +50,7 @@ public class KatharsisControllerTest extends JerseyTest {
         // WHEN
         String taskResourceResponse = target("tasks/1")
                 .queryParam("filter")
-                .request()
+                .request(APPLICATION_JSON_API_TYPE)
                 .get(String.class);
 
         // THEN
@@ -61,7 +62,7 @@ public class KatharsisControllerTest extends JerseyTest {
         // WHEN
         String taskResourceResponse = target("tasks")
                 .queryParam("filter", URLEncoder.encode("{\"name\":\"John\"}"))
-                .request()
+                .request(APPLICATION_JSON_API_TYPE)
                 .get(String.class);
 
         // THEN
@@ -84,9 +85,9 @@ public class KatharsisControllerTest extends JerseyTest {
         public MyApplication() {
             property(KatharsisProperties.RESOURCE_SEARCH_PACKAGE, "io.katharsis.rs.resource");
             property(KatharsisProperties.RESOURCE_DEFAULT_DOMAIN, "http://test.local");
+            register(SampleController.class);
             register(new KatharsisFeature(new ObjectMapper(), new SampleJsonServiceLocator()));
 
-            register(SampleController.class);
         }
     }
 }

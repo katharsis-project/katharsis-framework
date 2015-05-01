@@ -8,7 +8,6 @@ import io.katharsis.locator.JsonServiceLocator;
 import io.katharsis.resource.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryBuilder;
-import io.katharsis.rs.controller.KatharsisController;
 
 import javax.ws.rs.ConstrainedTo;
 import javax.ws.rs.RuntimeType;
@@ -43,19 +42,19 @@ public class KatharsisFeature implements Feature {
                 .getConfiguration()
                 .getProperty(KatharsisProperties.RESOURCE_DEFAULT_DOMAIN);
 
-        KatharsisController katharsisController = createJsonApiController(resourceSearchPackage, resourceDefaultDomain);
-        context.register(katharsisController);
+        KatharsisFilter katharsisFilter = createKatharsisFilter(resourceSearchPackage, resourceDefaultDomain);
+        context.register(katharsisFilter);
 
         return true;
     }
 
-    private KatharsisController createJsonApiController(String resourceSearchPackage, String resourceDefaultDomain) {
+    private KatharsisFilter createKatharsisFilter(String resourceSearchPackage, String resourceDefaultDomain) {
         ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(jsonServiceLocator, new ResourceInformationBuilder());
         ResourceRegistry resourceRegistry = registryBuilder.build(resourceSearchPackage, resourceDefaultDomain);
 
         RequestDispatcher requestDispatcher = createRequestDispatcher(resourceRegistry);
 
-        return new KatharsisController(objectMapper, resourceRegistry, requestDispatcher);
+        return new KatharsisFilter(objectMapper, resourceRegistry, requestDispatcher);
     }
 
     private RequestDispatcher createRequestDispatcher(ResourceRegistry resourceRegistry) {
