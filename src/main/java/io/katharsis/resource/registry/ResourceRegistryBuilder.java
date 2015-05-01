@@ -1,6 +1,6 @@
 package io.katharsis.resource.registry;
 
-import io.katharsis.context.JsonApplicationContext;
+import io.katharsis.locator.JsonServiceLocator;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.repository.RepositoryNotFoundException;
 import io.katharsis.repository.ResourceRepository;
@@ -20,10 +20,10 @@ import java.util.Set;
  */
 public class ResourceRegistryBuilder {
 
-    private JsonApplicationContext context;
+    private JsonServiceLocator context;
     private ResourceInformationBuilder resourceInformationBuilder;
 
-    public ResourceRegistryBuilder(JsonApplicationContext context, ResourceInformationBuilder resourceInformationBuilder) {
+    public ResourceRegistryBuilder(JsonServiceLocator context, ResourceInformationBuilder resourceInformationBuilder) {
         this.context = context;
         this.resourceInformationBuilder = resourceInformationBuilder;
     }
