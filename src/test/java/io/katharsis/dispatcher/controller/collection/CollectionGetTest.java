@@ -46,7 +46,7 @@ public class CollectionGetTest extends BaseControllerTest {
         CollectionGet sut = new CollectionGet(resourceRegistry);
 
         // WHEN
-        BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()));
+        BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()), null);
 
         // THEN
         Assert.assertNotNull(response);

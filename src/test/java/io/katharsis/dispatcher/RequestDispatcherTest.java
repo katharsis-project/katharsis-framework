@@ -42,9 +42,9 @@ public class RequestDispatcherTest {
         // WHEN
         when(collectionGet.isAcceptable(any(JsonPath.class), eq(requestType))).thenCallRealMethod();
         JsonPath jsonPath = pathBuilder.buildPath(path);
-        sut.dispatchRequest(jsonPath, requestType, new RequestParams(new ObjectMapper()));
+        sut.dispatchRequest(jsonPath, requestType, new RequestParams(new ObjectMapper()), null);
 
         // THEN
-        verify(collectionGet, times(1)).handle(any(JsonPath.class), any(RequestParams.class));
+        verify(collectionGet, times(1)).handle(any(JsonPath.class), any(RequestParams.class), null);
     }
 }

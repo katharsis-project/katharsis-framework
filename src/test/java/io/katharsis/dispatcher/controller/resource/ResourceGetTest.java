@@ -46,7 +46,7 @@ public class ResourceGetTest extends BaseControllerTest {
         ResourceGet sut = new ResourceGet(resourceRegistry);
 
         // WHEN
-        BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()));
+        BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()), null);
 
         // THEN
         Assert.assertNotNull(response);

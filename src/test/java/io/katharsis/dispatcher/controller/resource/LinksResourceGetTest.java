@@ -53,7 +53,7 @@ public class LinksResourceGetTest extends BaseControllerTest {
         LinksResourceGet sut = new LinksResourceGet(resourceRegistry);
 
         // WHEN
-        BaseResponse<?> response = sut.handle(jsonPath, null);
+        BaseResponse<?> response = sut.handle(jsonPath, null, null);
 
         // THEN
         Assert.assertNotNull(response);
@@ -67,7 +67,7 @@ public class LinksResourceGetTest extends BaseControllerTest {
         LinksResourceGet sut = new LinksResourceGet(resourceRegistry);
 
         // WHEN
-        BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()));
+        BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()), null);
 
         // THEN
         Assert.assertNotNull(response);
