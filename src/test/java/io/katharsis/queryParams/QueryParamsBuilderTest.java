@@ -37,13 +37,13 @@ public class QueryParamsBuilderTest {
     @Test
     public void onGivenSortingBuilderShouldReturnRequestParamsWithSorting() throws JsonDeserializationException {
         // GIVEN
-        queryParams.put(RestrictedQueryParamsMembers.sort.name(), "{\"name\": \"asc\"}");
+        queryParams.put(RestrictedQueryParamsMembers.sort.name(), "{\"name\": \"ASC\"}");
 
         // WHEN
         RequestParams result = sut.buildRequestParams(queryParams);
 
         // THEN
-        assertThat(result.getSorting().get("name").asText()).isEqualTo("asc");
+        assertThat(result.getSorting().get("name").toString()).isEqualTo("ASC");
     }
 
     @Test
