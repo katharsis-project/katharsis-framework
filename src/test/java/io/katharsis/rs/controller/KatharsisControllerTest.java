@@ -70,7 +70,7 @@ public class KatharsisControllerTest extends JerseyTest {
     }
 
     @Test
-    public void onCollectionRequestWithPadramsGetShouldReturnCollection() {
+    public void onNonJsonApiRequestShouldReturnOk() {
         // WHEN
         String response = target("tasks/sample")
                 .request()
