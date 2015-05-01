@@ -1,33 +1,16 @@
 package io.katharsis.dispatcher.controller.resource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.katharsis.context.SampleJsonApplicationContext;
+import io.katharsis.dispatcher.controller.BaseControllerTest;
 import io.katharsis.path.JsonPath;
-import io.katharsis.path.PathBuilder;
 import io.katharsis.queryParams.RequestParams;
-import io.katharsis.resource.ResourceInformationBuilder;
-import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.resource.registry.ResourceRegistryBuilder;
-import io.katharsis.resource.registry.ResourceRegistryBuilderTest;
-import io.katharsis.resource.registry.ResourceRegistryTest;
 import io.katharsis.response.BaseResponse;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
-public class ResourceGetTest {
+public class ResourceGetTest extends BaseControllerTest {
 
-    private PathBuilder pathBuilder;
-    private String requestType;
-    private ResourceRegistry resourceRegistry;
-
-    @Before
-    public void prepare() {
-        ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonApplicationContext(), new ResourceInformationBuilder());
-        resourceRegistry = registryBuilder.build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, ResourceRegistryTest.TEST_MODELS_URL);
-        pathBuilder = new PathBuilder(resourceRegistry);
-        requestType = "GET";
-    }
+    private static final String REQUEST_TYPE = "GET";
 
     @Test
     public void onGivenRequestCollectionGetShouldDenyIt() {
@@ -36,7 +19,7 @@ public class ResourceGetTest {
         ResourceGet sut = new ResourceGet(resourceRegistry);
 
         // WHEN
-        boolean result = sut.isAcceptable(jsonPath, requestType);
+        boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
 
         // THEN
         Assert.assertEquals(result, false);
@@ -49,7 +32,7 @@ public class ResourceGetTest {
         ResourceGet sut = new ResourceGet(resourceRegistry);
 
         // WHEN
-        boolean result = sut.isAcceptable(jsonPath, requestType);
+        boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
 
         // THEN
         Assert.assertEquals(result, true);

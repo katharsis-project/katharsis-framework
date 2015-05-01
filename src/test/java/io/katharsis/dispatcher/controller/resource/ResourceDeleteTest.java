@@ -7,21 +7,21 @@ import io.katharsis.path.ResourcePath;
 import io.katharsis.queryParams.RequestParams;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
-import org.junit.Assert;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-public class FieldResourceGetTest extends BaseControllerTest {
-    private static final String REQUEST_TYPE = "GET";
+public class ResourceDeleteTest extends BaseControllerTest {
+
+    private static final String REQUEST_TYPE = "DELETE";
 
     @Test
     public void onValidRequestShouldAcceptIt() {
         // GIVEN
-        JsonPath jsonPath = pathBuilder.buildPath("tasks/1/project");
+        JsonPath jsonPath = pathBuilder.buildPath("tasks/1");
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-        FieldResourceGet sut = new FieldResourceGet(resourceRegistry);
+        ResourceDelete sut = new ResourceDelete(resourceRegistry);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -33,9 +33,9 @@ public class FieldResourceGetTest extends BaseControllerTest {
     @Test
     public void onNonRelationRequestShouldDenyIt() {
         // GIVEN
-        JsonPath jsonPath = new ResourcePath("tasks");
+        JsonPath jsonPath = new ResourcePath("tasks/1/links/project");
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-        FieldResourceGet sut = new FieldResourceGet(resourceRegistry);
+        ResourceDelete sut = new ResourceDelete(resourceRegistry);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -45,30 +45,16 @@ public class FieldResourceGetTest extends BaseControllerTest {
     }
 
     @Test
-    public void onGivenRequestFieldResourceGetShouldHandleIt() {
+    public void onGivenRequestResourceGetShouldHandleIt() {
         // GIVEN
 
-        JsonPath jsonPath = pathBuilder.buildPath("/tasks/1/project");
-        FieldResourceGet sut = new FieldResourceGet(resourceRegistry);
+        JsonPath jsonPath = pathBuilder.buildPath("/tasks/1");
+        ResourceDelete sut = new ResourceDelete(resourceRegistry);
 
         // WHEN
         BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()));
 
         // THEN
-        Assert.assertNotNull(response);
-    }
-
-    @Test
-    public void onGivenRequestFieldResourcesGetShouldHandleIt() {
-        // GIVEN
-
-        JsonPath jsonPath = pathBuilder.buildPath("/users/1/assignedProjects");
-        FieldResourceGet sut = new FieldResourceGet(resourceRegistry);
-
-        // WHEN
-        BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()));
-
-        // THEN
-        Assert.assertNotNull(response);
+        assertThat(response).isNull();
     }
 }
