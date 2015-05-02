@@ -7,9 +7,9 @@ public enum SortingValues {
     /**
      * Ascending order
      */
-    ASC,
+    asc,
     /**
      * Descending
      */
-    DESC
+    desc
 }
