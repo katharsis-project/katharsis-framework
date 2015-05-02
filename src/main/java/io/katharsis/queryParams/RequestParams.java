@@ -13,18 +13,28 @@ public class RequestParams {
     private JsonNode filters;
     private Map<String, SortingValues> sorting;
     private List<String> grouping;
-    private JsonNode pagination;
+    private Map<PaginationKeys, Integer> pagination;
     private List<String> includedFields;
     private List<String> includedRelations;
+
     private ObjectMapper objectMapper;
 
     private static final TypeReference SORTING_TYPE_REFERENCE;
     private static final TypeReference GROUPING_TYPE_REFERENCE;
+    private static final TypeReference PAGINATION_TYPE_REFERENCE;
+    private static final TypeReference INCLUDED_FIELDS_TYPE_REFERENCE;
+    private static final TypeReference INCLUDED_RELATIONS_TYPE_REFERENCE;
 
     static {
         SORTING_TYPE_REFERENCE = new TypeReference<Map<String, SortingValues>>() {
         };
         GROUPING_TYPE_REFERENCE = new TypeReference<List<String>>() {
+        };
+        PAGINATION_TYPE_REFERENCE = new TypeReference<Map<PaginationKeys, Integer>>() {
+        };
+        INCLUDED_FIELDS_TYPE_REFERENCE = new TypeReference<List<String>>() {
+        };
+        INCLUDED_RELATIONS_TYPE_REFERENCE = new TypeReference<List<String>>() {
         };
     }
 
@@ -45,7 +55,9 @@ public class RequestParams {
     }
 
     public void setSorting(String sorting) throws IOException {
-        this.sorting = Collections.unmodifiableMap(objectMapper.readValue(sorting, SORTING_TYPE_REFERENCE));
+        this.sorting = Collections.unmodifiableMap(
+                objectMapper.readValue(sorting, SORTING_TYPE_REFERENCE)
+        );
     }
 
     public List getGrouping() {
@@ -53,15 +65,19 @@ public class RequestParams {
     }
 
     public void setGrouping(String grouping) throws IOException {
-        this.grouping = Collections.unmodifiableList(objectMapper.readValue(grouping, GROUPING_TYPE_REFERENCE));
+        this.grouping = Collections.unmodifiableList(
+                objectMapper.readValue(grouping, GROUPING_TYPE_REFERENCE)
+        );
     }
 
-    public JsonNode getPagination() {
+    public Map<PaginationKeys, Integer> getPagination() {
         return pagination;
     }
 
     public void setPagination(String pagination) throws IOException {
-        this.pagination = objectMapper.readTree(pagination);
+        this.pagination = Collections.unmodifiableMap(
+                objectMapper.readValue(pagination, PAGINATION_TYPE_REFERENCE)
+        );
     }
 
     public List getIncludedFields() {
@@ -69,8 +85,9 @@ public class RequestParams {
     }
 
     public void setIncludedFields(String includedFields) throws IOException {
-        this.includedFields = objectMapper.readValue(includedFields, new TypeReference<List<String>>() {
-        });
+        this.includedFields = Collections.unmodifiableList(
+                objectMapper.readValue(includedFields, INCLUDED_FIELDS_TYPE_REFERENCE)
+        );
     }
 
     public List getIncludedRelations() {
@@ -78,8 +95,9 @@ public class RequestParams {
     }
 
     public void setIncludedRelations(String includedRelations) throws IOException {
-        this.includedRelations = objectMapper.readValue(includedRelations, new TypeReference<List<String>>() {
-        });
+        this.includedRelations = Collections.unmodifiableList(
+                objectMapper.readValue(includedRelations, INCLUDED_RELATIONS_TYPE_REFERENCE)
+        );
     }
 
 }
