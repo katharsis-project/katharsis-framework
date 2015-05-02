@@ -6,7 +6,7 @@ import io.katharsis.dispatcher.registry.ControllerRegistry;
 import io.katharsis.locator.SampleJsonServiceLocator;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathBuilder;
-import io.katharsis.request.queryParams.RequestParams;
+import io.katharsis.queryParams.RequestParams;
 import io.katharsis.resource.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryBuilder;

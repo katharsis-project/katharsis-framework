@@ -3,7 +3,7 @@ package io.katharsis.dispatcher;
 import io.katharsis.dispatcher.registry.ControllerRegistry;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
-import io.katharsis.request.queryParams.RequestParams;
+import io.katharsis.queryParams.RequestParams;
 import io.katharsis.response.BaseResponse;
 
 public class RequestDispatcher {
