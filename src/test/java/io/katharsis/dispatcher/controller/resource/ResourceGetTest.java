@@ -2,8 +2,8 @@ package io.katharsis.dispatcher.controller.resource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
-import io.katharsis.path.JsonPath;
-import io.katharsis.queryParams.RequestParams;
+import io.katharsis.request.path.JsonPath;
+import io.katharsis.request.queryParams.RequestParams;
 import io.katharsis.response.BaseResponse;
 import org.junit.Assert;
 import org.junit.Test;

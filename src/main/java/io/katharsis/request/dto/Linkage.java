@@ -1,4 +1,4 @@
-package io.katharsis.request;
+package io.katharsis.request.dto;
 
 public class Linkage {
     private String type;

@@ -1,9 +1,9 @@
-package io.katharsis.request;
+package io.katharsis.request.dto;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 
-public class PostBodyTest {
+public class RequestBodyTest {
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
@@ -14,7 +14,7 @@ public class PostBodyTest {
                 "\"projects\", \"id\": \"123\"}}}}";
 
         // WHEN
-        PostBody result = objectMapper.readValue(body, PostBody.class);
+        RequestBody result = objectMapper.readValue(body, RequestBody.class);
 
         // THEN
         result.getData();

@@ -1,4 +1,4 @@
-package io.katharsis.request;
+package io.katharsis.request.dto;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
@@ -12,16 +12,16 @@ public class DataBody {
     private ResourceLinks links;
 
     @JsonIgnore
-    private Map<String, Object> fields = new HashMap<>();
+    private Map<String, Object> basicFields = new HashMap<>();
 
     @JsonAnyGetter
     public Map<String, Object> getAdditionalProperties() {
-        return this.fields;
+        return this.basicFields;
     }
 
     @JsonAnySetter
     public void setAdditionalProperty(String name, Object value) {
-        this.fields.put(name, value);
+        this.basicFields.put(name, value);
     }
 
     public String getType() {

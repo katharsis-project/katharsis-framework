@@ -1,4 +1,4 @@
-package io.katharsis.path;
+package io.katharsis.request.path;
 
 import org.junit.Test;
 

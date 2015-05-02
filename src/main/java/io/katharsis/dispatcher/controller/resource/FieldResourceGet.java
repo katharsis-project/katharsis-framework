@@ -1,12 +1,12 @@
 package io.katharsis.dispatcher.controller.resource;
 
 import io.katharsis.dispatcher.controller.BaseController;
-import io.katharsis.path.FieldPath;
-import io.katharsis.path.JsonPath;
-import io.katharsis.path.PathIds;
-import io.katharsis.queryParams.RequestParams;
 import io.katharsis.repository.RelationshipRepository;
-import io.katharsis.request.DataBody;
+import io.katharsis.request.dto.RequestBody;
+import io.katharsis.request.path.FieldPath;
+import io.katharsis.request.path.JsonPath;
+import io.katharsis.request.path.PathIds;
+import io.katharsis.request.queryParams.RequestParams;
 import io.katharsis.resource.exception.ResourceFieldNotFoundException;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -35,7 +35,7 @@ public class FieldResourceGet implements BaseController {
     }
 
     @Override
-    public BaseResponse handle(JsonPath jsonPath, RequestParams requestParams, DataBody requestBody) {
+    public BaseResponse handle(JsonPath jsonPath, RequestParams requestParams, RequestBody requestBody) {
         String resourceName = jsonPath.getResourceName();
         PathIds resourceIds = jsonPath.getIds();
         String resourceId = resourceIds.getIds().get(0);

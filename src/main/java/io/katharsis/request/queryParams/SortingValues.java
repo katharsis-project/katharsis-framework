@@ -1,4 +1,4 @@
-package io.katharsis.queryParams;
+package io.katharsis.request.queryParams;
 
 /**
  * Holds available sorting param values
