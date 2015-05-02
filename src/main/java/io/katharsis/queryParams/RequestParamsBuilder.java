@@ -1,4 +1,4 @@
-package io.katharsis.request.queryParams;
+package io.katharsis.queryParams;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.jackson.exception.JsonDeserializationException;
@@ -10,11 +10,11 @@ import java.util.Map;
 /**
  * Builder responsible for parsing queryParams
  */
-public class QueryParamsBuilder {
+public class RequestParamsBuilder {
 
     private ObjectMapper objectMapper;
 
-    public QueryParamsBuilder(ObjectMapper objectMapper) {
+    public RequestParamsBuilder(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 

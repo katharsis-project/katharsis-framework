@@ -1,4 +1,4 @@
-package io.katharsis.request.queryParams;
+package io.katharsis.queryParams;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.jackson.exception.JsonDeserializationException;
@@ -11,15 +11,15 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class QueryParamsBuilderTest {
+public class RequestParamsBuilderTest {
 
     private Map<String, String> queryParams;
-    QueryParamsBuilder sut;
+    RequestParamsBuilder sut;
 
     @Before
     public void prepare() {
         queryParams = new HashMap<>();
-        sut = new QueryParamsBuilder(new ObjectMapper());
+        sut = new RequestParamsBuilder(new ObjectMapper());
     }
 
     @Test
@@ -37,13 +37,13 @@ public class QueryParamsBuilderTest {
     @Test
     public void onGivenSortingBuilderShouldReturnRequestParamsWithSorting() throws JsonDeserializationException {
         // GIVEN
-        queryParams.put(RestrictedQueryParamsMembers.sort.name(), "{\"name\": \"ASC\"}");
+        queryParams.put(RestrictedQueryParamsMembers.sort.name(), "{\"name\": \"asc\"}");
 
         // WHEN
         RequestParams result = sut.buildRequestParams(queryParams);
 
         // THEN
-        assertThat(result.getSorting().get("name").toString()).isEqualTo("ASC");
+        assertThat(result.getSorting().get("name")).isEqualTo(SortingValues.asc);
     }
 
     @Test
@@ -62,13 +62,13 @@ public class QueryParamsBuilderTest {
     @Test
     public void onGivenPaginationBuilderShouldReturnRequestParamsWithPagination() throws JsonDeserializationException {
         // GIVEN
-        queryParams.put(RestrictedQueryParamsMembers.page.name(), "{\"page\": \"1\"}");
+        queryParams.put(RestrictedQueryParamsMembers.page.name(), "{ \"offset\" : 0, \"limit\": 10}");
 
         // WHEN
         RequestParams result = sut.buildRequestParams(queryParams);
 
         // THEN
-        assertThat(result.getPagination().get("page").asInt()).isEqualTo(1);
+        assertThat(result.getPagination().get(PaginationKeys.offset)).isEqualTo(0);
     }
 
     @Test
