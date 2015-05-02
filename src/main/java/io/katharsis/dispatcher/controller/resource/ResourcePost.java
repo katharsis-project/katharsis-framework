@@ -6,7 +6,7 @@ import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.Linkage;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
-import io.katharsis.request.queryParams.RequestParams;
+import io.katharsis.queryParams.RequestParams;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
