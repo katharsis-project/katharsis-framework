@@ -19,6 +19,7 @@ public class ResourceInformationBuilder {
     public ResourceInformation build(Class<?> resourceClass) {
 
         ResourceInformation resourceInformation = new ResourceInformation();
+        resourceInformation.setResourceClass(resourceClass);
         Field idField = getIdField(resourceClass);
         resourceInformation.setIdField(idField);
         resourceInformation.setBasicFields(getBasicFields(resourceClass, idField));

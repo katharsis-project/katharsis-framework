@@ -4,8 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.collection.CollectionGet;
 import io.katharsis.dispatcher.registry.ControllerRegistry;
 import io.katharsis.locator.SampleJsonServiceLocator;
-import io.katharsis.path.JsonPath;
-import io.katharsis.path.PathBuilder;
+import io.katharsis.request.path.JsonPath;
+import io.katharsis.request.path.PathBuilder;
 import io.katharsis.queryParams.RequestParams;
 import io.katharsis.resource.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -42,9 +42,9 @@ public class RequestDispatcherTest {
         // WHEN
         when(collectionGet.isAcceptable(any(JsonPath.class), eq(requestType))).thenCallRealMethod();
         JsonPath jsonPath = pathBuilder.buildPath(path);
-        sut.dispatchRequest(jsonPath, requestType, new RequestParams(new ObjectMapper()));
+        sut.dispatchRequest(jsonPath, requestType, new RequestParams(new ObjectMapper()), null);
 
         // THEN
-        verify(collectionGet, times(1)).handle(any(JsonPath.class), any(RequestParams.class));
+        verify(collectionGet, times(1)).handle(any(JsonPath.class), any(RequestParams.class), any());
     }
 }
