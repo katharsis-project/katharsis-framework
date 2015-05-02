@@ -1,4 +1,4 @@
-package io.katharsis.queryParams;
+package io.katharsis.request.queryParams;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;

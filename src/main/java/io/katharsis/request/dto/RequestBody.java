@@ -1,6 +1,6 @@
-package io.katharsis.request;
+package io.katharsis.request.dto;
 
-public class PostBody {
+public class RequestBody {
     private DataBody data;
 
     public DataBody getData() {

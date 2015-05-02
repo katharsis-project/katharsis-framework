@@ -1,4 +1,4 @@
-package io.katharsis.request;
+package io.katharsis.request.dto;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;

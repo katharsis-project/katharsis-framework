@@ -1,4 +1,4 @@
-package io.katharsis.path;
+package io.katharsis.request.path;
 
 import io.katharsis.resource.exception.ResourceException;
 import io.katharsis.resource.exception.ResourceFieldNotFoundException;

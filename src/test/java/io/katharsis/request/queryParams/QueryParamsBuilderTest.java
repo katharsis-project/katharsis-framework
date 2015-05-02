@@ -1,4 +1,4 @@
-package io.katharsis.queryParams;
+package io.katharsis.request.queryParams;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.jackson.exception.JsonDeserializationException;

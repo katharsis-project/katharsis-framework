@@ -1,9 +1,9 @@
 package io.katharsis.dispatcher;
 
 import io.katharsis.dispatcher.registry.ControllerRegistry;
-import io.katharsis.path.JsonPath;
-import io.katharsis.queryParams.RequestParams;
-import io.katharsis.request.DataBody;
+import io.katharsis.request.dto.RequestBody;
+import io.katharsis.request.path.JsonPath;
+import io.katharsis.request.queryParams.RequestParams;
 import io.katharsis.response.BaseResponse;
 
 public class RequestDispatcher {
@@ -15,7 +15,7 @@ public class RequestDispatcher {
     }
 
     public BaseResponse<?> dispatchRequest(JsonPath jsonPath, String requestType, RequestParams requestParams,
-                                           DataBody requestBody) {
+                                           RequestBody requestBody) throws Exception {
         return controllerRegistry
                 .getController(jsonPath, requestType)
                 .handle(jsonPath, requestParams, requestBody);
