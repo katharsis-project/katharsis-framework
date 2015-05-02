@@ -1,4 +1,4 @@
-package io.katharsis.request.queryParams;
+package io.katharsis.queryParams;
 
 /**
  * Holds available sorting param values
@@ -7,9 +7,9 @@ public enum SortingValues {
     /**
      * Ascending order
      */
-    ASC,
+    asc,
     /**
      * Descending
      */
-    DESC
+    desc
 }
