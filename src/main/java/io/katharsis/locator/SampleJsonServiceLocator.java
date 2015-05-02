@@ -1,9 +1,9 @@
-package io.katharsis.context;
+package io.katharsis.locator;
 
 /**
- * Sample implementation of JsonApplicationContext. It makes new instances for every method call.
+ * Sample implementation of {@link JsonServiceLocator}. It makes new instances for every method call.
  */
-public class SampleJsonApplicationContext implements JsonApplicationContext {
+public class SampleJsonServiceLocator implements JsonServiceLocator {
     @Override
     public <T> T getInstance(Class<T> clazz) {
         try {

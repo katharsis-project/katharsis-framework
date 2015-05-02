@@ -1,6 +1,6 @@
 package io.katharsis.dispatcher.controller;
 
-import io.katharsis.context.SampleJsonApplicationContext;
+import io.katharsis.locator.SampleJsonServiceLocator;
 import io.katharsis.path.PathBuilder;
 import io.katharsis.resource.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -21,7 +21,7 @@ public abstract class BaseControllerTest {
 
     @Before
     public void prepare() {
-        ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonApplicationContext(), new ResourceInformationBuilder());
+        ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonServiceLocator(), new ResourceInformationBuilder());
         resourceRegistry = registryBuilder.build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, ResourceRegistryTest.TEST_MODELS_URL);
         pathBuilder = new PathBuilder(resourceRegistry);
     }

@@ -1,6 +1,6 @@
 package io.katharsis.resource.registry;
 
-import io.katharsis.context.SampleJsonApplicationContext;
+import io.katharsis.locator.SampleJsonServiceLocator;
 import io.katharsis.repository.RepositoryNotFoundException;
 import io.katharsis.resource.ResourceInformationBuilder;
 import io.katharsis.resource.mock.models.Project;
@@ -27,7 +27,7 @@ public class ResourceRegistryBuilderTest {
     @Test
     public void onValidPackageShouldBuildRegistry() {
         // GIVEN
-        ResourceRegistryBuilder sut = new ResourceRegistryBuilder(new SampleJsonApplicationContext(), new ResourceInformationBuilder());
+        ResourceRegistryBuilder sut = new ResourceRegistryBuilder(new SampleJsonServiceLocator(), new ResourceInformationBuilder());
 
         // WHEN
         ResourceRegistry resourceRegistry = sut.build(TEST_MODELS_PACKAGE, TEST_MODELS_URL);
@@ -53,7 +53,7 @@ public class ResourceRegistryBuilderTest {
     @Test
     public void onNoEntityRepositoryInstanceShouldThrowException() {
         // GIVEN
-        ResourceRegistryBuilder sut = new ResourceRegistryBuilder(new SampleJsonApplicationContext() {
+        ResourceRegistryBuilder sut = new ResourceRegistryBuilder(new SampleJsonServiceLocator() {
             public <T> T getInstance(Class<T> clazz) {
                 if (clazz == TaskRepository.class) {
                     return null;
@@ -73,7 +73,7 @@ public class ResourceRegistryBuilderTest {
     @Test
     public void onNoRelationshipRepositoryInstanceShouldThrowException() {
         // GIVEN
-        ResourceRegistryBuilder sut = new ResourceRegistryBuilder(new SampleJsonApplicationContext() {
+        ResourceRegistryBuilder sut = new ResourceRegistryBuilder(new SampleJsonServiceLocator() {
             public <T> T getInstance(Class<T> clazz) {
                 if (clazz == TaskToProjectRepository.class) {
                     return null;
@@ -93,7 +93,7 @@ public class ResourceRegistryBuilderTest {
     @Test
     public void onNoRepositoryShouldThrowException() {
         // GIVEN
-        ResourceRegistryBuilder sut = new ResourceRegistryBuilder(new SampleJsonApplicationContext() {
+        ResourceRegistryBuilder sut = new ResourceRegistryBuilder(new SampleJsonServiceLocator() {
             public <T> T getInstance(Class<T> clazz) {
                 if (clazz == TaskToProjectRepository.class) {
                     return null;
