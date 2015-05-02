@@ -41,7 +41,6 @@ public class ResourceGetTest extends BaseControllerTest {
     @Test
     public void onGivenRequestResourceGetShouldHandleIt() {
         // GIVEN
-
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/1");
         ResourceGet sut = new ResourceGet(resourceRegistry);
 

@@ -9,7 +9,7 @@ import java.util.Map;
 public class ProjectRepository implements ResourceRepository<Project, Long> {
 
     // Used ThreadLocal in case of switching to TestNG and using concurrent tests
-    private static final ThreadLocal<Map<Long, Project>> repository = new ThreadLocal<Map<Long, Project>>() {
+    private static final ThreadLocal<Map<Long, Project>> THREAD_LOCAL_REPOSITORY = new ThreadLocal<Map<Long, Project>>() {
         @Override
         protected Map<Long, Project> initialValue() {
             return new HashMap<>();
@@ -18,30 +18,30 @@ public class ProjectRepository implements ResourceRepository<Project, Long> {
 
     @Override
     public <S extends Project> S save(S entity) {
-        entity.setId((long) (repository.get().size() + 1));
-        repository.get().put(entity.getId(), entity);
+        entity.setId((long) (THREAD_LOCAL_REPOSITORY.get().size() + 1));
+        THREAD_LOCAL_REPOSITORY.get().put(entity.getId(), entity);
 
         return entity;
     }
 
     @Override
     public <S extends Project> S update(S entity) {
-        repository.get().put(entity.getId(), entity);
+        THREAD_LOCAL_REPOSITORY.get().put(entity.getId(), entity);
         return entity;
     }
 
     @Override
     public Project findOne(Long aLong) {
-        return repository.get().get(aLong);
+        return THREAD_LOCAL_REPOSITORY.get().get(aLong);
     }
 
     @Override
     public Iterable<Project> findAll() {
-        return repository.get().values();
+        return THREAD_LOCAL_REPOSITORY.get().values();
     }
 
     @Override
     public void delete(Long aLong) {
-        repository.get().remove(aLong);
+        THREAD_LOCAL_REPOSITORY.get().remove(aLong);
     }
 }

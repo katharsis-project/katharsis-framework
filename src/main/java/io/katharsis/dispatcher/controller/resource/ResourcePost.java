@@ -10,7 +10,6 @@ import io.katharsis.request.queryParams.RequestParams;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.response.BaseResponse;
 import io.katharsis.response.Container;
 import io.katharsis.response.ResourceResponse;
 import org.apache.commons.beanutils.PropertyUtils;
@@ -39,7 +38,7 @@ public class ResourcePost implements BaseController {
     }
 
     @Override
-    public BaseResponse<?> handle(JsonPath jsonPath, RequestParams requestParams, RequestBody requestBody)
+    public ResourceResponse handle(JsonPath jsonPath, RequestParams requestParams, RequestBody requestBody)
             throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         String resourceName = jsonPath.getResourceName();
         RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
@@ -48,17 +47,16 @@ public class ResourcePost implements BaseController {
         }
 
         Object resource = buildNewResource(registryEntry, requestBody, resourceName);
-        Object entityId = registryEntry.getResourceRepository().save(resource);
-
-        Class<?> idType = registryEntry.getResourceInformation().getIdField().getType();
-        Serializable castedId = castIdValue(entityId, idType);
-
-        Object savedResource = registryEntry.getResourceRepository().findOne(castedId);
+        Object savedResource = registryEntry.getResourceRepository().save(resource);
 
         if (requestBody.getData().getLinks() != null) {
             addRelations(savedResource, registryEntry, requestBody);
         }
-        Object savedResourceWithRelations = registryEntry.getResourceRepository().findOne(castedId);
+
+        Serializable resourceId = (Serializable) PropertyUtils.getProperty(savedResource, registryEntry.getResourceInformation()
+                .getIdField().getName());
+
+        Object savedResourceWithRelations = registryEntry.getResourceRepository().findOne(resourceId);
 
         return new ResourceResponse(new Container(savedResourceWithRelations));
     }

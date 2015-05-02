@@ -4,6 +4,14 @@ public class Linkage {
     private String type;
     private String id;
 
+    public Linkage() {
+    }
+
+    public Linkage(String type, String id) {
+        this.type = type;
+        this.id = id;
+    }
+
     public String getType() {
         return type;
     }
