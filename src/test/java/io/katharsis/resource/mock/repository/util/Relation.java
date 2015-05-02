@@ -1,4 +1,4 @@
-package io.katharsis.resource.mock.repository;
+package io.katharsis.resource.mock.repository.util;
 
 import java.io.Serializable;
 import java.util.Objects;
