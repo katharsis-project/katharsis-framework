@@ -1,4 +1,4 @@
-package io.katharsis.path;
+package io.katharsis.request.path;
 
 /**
  * Represents a part of a path which relate a field of a resource e.g. for /resource/1/links/filed the first element

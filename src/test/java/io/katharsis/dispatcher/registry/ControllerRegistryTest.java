@@ -1,8 +1,8 @@
 package io.katharsis.dispatcher.registry;
 
 import io.katharsis.locator.SampleJsonServiceLocator;
-import io.katharsis.path.JsonPath;
-import io.katharsis.path.PathBuilder;
+import io.katharsis.request.path.JsonPath;
+import io.katharsis.request.path.PathBuilder;
 import io.katharsis.resource.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryBuilder;

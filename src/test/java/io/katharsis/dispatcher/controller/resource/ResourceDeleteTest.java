@@ -2,8 +2,8 @@ package io.katharsis.dispatcher.controller.resource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
-import io.katharsis.path.JsonPath;
-import io.katharsis.path.ResourcePath;
+import io.katharsis.request.path.JsonPath;
+import io.katharsis.request.path.ResourcePath;
 import io.katharsis.queryParams.RequestParams;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
@@ -52,7 +52,7 @@ public class ResourceDeleteTest extends BaseControllerTest {
         ResourceDelete sut = new ResourceDelete(resourceRegistry);
 
         // WHEN
-        BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()));
+        BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()), null);
 
         // THEN
         assertThat(response).isNull();

@@ -2,7 +2,7 @@ package io.katharsis.dispatcher.controller.resource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
-import io.katharsis.path.JsonPath;
+import io.katharsis.request.path.JsonPath;
 import io.katharsis.queryParams.RequestParams;
 import io.katharsis.response.BaseResponse;
 import org.junit.Assert;
@@ -41,12 +41,11 @@ public class ResourceGetTest extends BaseControllerTest {
     @Test
     public void onGivenRequestResourceGetShouldHandleIt() {
         // GIVEN
-
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/1");
         ResourceGet sut = new ResourceGet(resourceRegistry);
 
         // WHEN
-        BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()));
+        BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()), null);
 
         // THEN
         Assert.assertNotNull(response);
