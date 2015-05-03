@@ -6,10 +6,10 @@ import java.util.Set;
 
 /**
  * Holds information about the type of the resource.
- *
- * @param <T> Type of the resource
  */
-public class ResourceInformation<T> {
+public class ResourceInformation {
+
+    private Class<?> resourceClass;
 
     /**
      * Found field of the id. Each resource has to contain a field marked by JsonApiId annotation.
@@ -25,6 +25,14 @@ public class ResourceInformation<T> {
      * A set of fields that contains non-standard Java types (List, Set, custom classes, ...).
      */
     private Set<Field> relationshipFields;
+
+    public Class<?> getResourceClass() {
+        return resourceClass;
+    }
+
+    public void setResourceClass(Class<?> resourceClass) {
+        this.resourceClass = resourceClass;
+    }
 
     public Field getIdField() {
         return idField;
@@ -50,18 +58,29 @@ public class ResourceInformation<T> {
         this.relationshipFields = relationshipFields;
     }
 
+    public Field findRelationshipFieldByName(String name) {
+        Field foundField = null;
+        if (relationshipFields != null) {
+            for (Field field : relationshipFields) {
+                if (field.getName().equals(name)) {
+                    foundField = field;
+                    break;
+                }
+            }
+        }
+        return foundField;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ResourceInformation<?> that = (ResourceInformation<?>) o;
-        return Objects.equals(idField, that.idField) &&
-                Objects.equals(basicFields, that.basicFields) &&
-                Objects.equals(relationshipFields, that.relationshipFields);
+        if (!(o instanceof ResourceInformation)) return false;
+        ResourceInformation that = (ResourceInformation) o;
+        return Objects.equals(resourceClass, that.resourceClass);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(idField, basicFields, relationshipFields);
+        return Objects.hash(resourceClass);
     }
 }

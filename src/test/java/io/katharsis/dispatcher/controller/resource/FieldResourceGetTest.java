@@ -1,41 +1,20 @@
 package io.katharsis.dispatcher.controller.resource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.katharsis.context.SampleJsonApplicationContext;
-import io.katharsis.path.JsonPath;
-import io.katharsis.path.PathBuilder;
-import io.katharsis.path.ResourcePath;
+import io.katharsis.dispatcher.controller.BaseControllerTest;
+import io.katharsis.request.path.JsonPath;
+import io.katharsis.request.path.ResourcePath;
 import io.katharsis.queryParams.RequestParams;
-import io.katharsis.resource.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.resource.registry.ResourceRegistryBuilder;
-import io.katharsis.resource.registry.ResourceRegistryBuilderTest;
-import io.katharsis.resource.registry.ResourceRegistryTest;
 import io.katharsis.response.BaseResponse;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-public class FieldResourceGetTest {
+public class FieldResourceGetTest extends BaseControllerTest {
     private static final String REQUEST_TYPE = "GET";
-
-    private PathBuilder pathBuilder;
-    private ResourceRegistry resourceRegistry;
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
-    @Before
-    public void prepare() {
-        ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonApplicationContext(), new ResourceInformationBuilder());
-        resourceRegistry = registryBuilder.build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, ResourceRegistryTest.TEST_MODELS_URL);
-        pathBuilder = new PathBuilder(resourceRegistry);
-    }
 
     @Test
     public void onValidRequestShouldAcceptIt() {
@@ -73,7 +52,7 @@ public class FieldResourceGetTest {
         FieldResourceGet sut = new FieldResourceGet(resourceRegistry);
 
         // WHEN
-        BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()));
+        BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()), null);
 
         // THEN
         Assert.assertNotNull(response);
@@ -87,7 +66,7 @@ public class FieldResourceGetTest {
         FieldResourceGet sut = new FieldResourceGet(resourceRegistry);
 
         // WHEN
-        BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()));
+        BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()), null);
 
         // THEN
         Assert.assertNotNull(response);

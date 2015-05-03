@@ -13,6 +13,8 @@ import org.junit.rules.ExpectedException;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class ResourceInformationBuilderTest {
 
     @Rule
@@ -24,9 +26,10 @@ public class ResourceInformationBuilderTest {
         ResourceInformationBuilder sut = new ResourceInformationBuilder();
 
         // WHEN
-        ResourceInformation<Task> resourceInformation = sut.build(Task.class);
+        ResourceInformation resourceInformation = sut.build(Task.class);
 
         // THEN
+        assertThat(resourceInformation.getResourceClass()).isEqualTo(Task.class);
         Assert.assertEquals("id", resourceInformation.getIdField().getName());
         Assert.assertEquals(1, resourceInformation.getBasicFields().size());
         Assert.assertEquals("name", resourceInformation.getBasicFields().iterator().next().getName());

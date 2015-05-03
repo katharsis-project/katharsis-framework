@@ -1,7 +1,7 @@
 package io.katharsis.jackson;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.katharsis.context.SampleJsonApplicationContext;
+import io.katharsis.locator.SampleJsonServiceLocator;
 import io.katharsis.resource.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryBuilder;
@@ -15,7 +15,7 @@ public abstract class BaseSerializerTest {
 
     @Before
     public void setUp() throws Exception {
-        ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonApplicationContext(), new ResourceInformationBuilder());
+        ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonServiceLocator(), new ResourceInformationBuilder());
         ResourceRegistry resourceRegistry = registryBuilder.build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, ResourceRegistryTest.TEST_MODELS_URL);
 
         JsonApiModuleBuilder jsonApiModuleBuilder = new JsonApiModuleBuilder();

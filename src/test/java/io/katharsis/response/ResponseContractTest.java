@@ -39,9 +39,9 @@ public class ResponseContractTest {
     @Test
     public void LinkageContainerContainerEqualsContract() throws NoSuchFieldException {
         ResourceInformation resourceInformationRed = new ResourceInformation();
-        resourceInformationRed.setIdField(String.class.getDeclaredField("value"));
+        resourceInformationRed.setResourceClass(String.class);
         ResourceInformation resourceInformationBlack = new ResourceInformation();
-        resourceInformationBlack.setIdField(String.class.getDeclaredField("hash"));
+        resourceInformationBlack.setResourceClass(Integer.class);
 
         RegistryEntry registryEntryRed = new RegistryEntry(resourceInformationRed, null);
         RegistryEntry registryEntryBlack = new RegistryEntry(resourceInformationBlack, null);

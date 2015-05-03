@@ -9,8 +9,9 @@ import java.io.Serializable;
  * @param <T> source class type
  * @param <T_ID> T class id type
  * @param <D> target class type
+ * @param <D_ID> D class id type
  */
-public interface RelationshipRepository<T, T_ID extends Serializable, D> {
+public interface RelationshipRepository<T, T_ID extends Serializable, D, D_ID extends Serializable> {
 
     int TARGET_TYPE_GENERIC_PARAMETER_IDX = 2;
 
@@ -18,19 +19,19 @@ public interface RelationshipRepository<T, T_ID extends Serializable, D> {
      * Add relation from source to target
      *
      * @param source instance of a source class
-     * @param target instance of a target class
+     * @param targetId instance of a target class
      * @param fieldName name of source's filed
      */
-    void addRelation(T source, D target, String fieldName);
+    void addRelation(T source, D_ID targetId, String fieldName);
 
     /**
      * Remove relation from source to target
      *
      * @param source instance of a source class
-     * @param target instance of a target class
+     * @param targetId instance of a target class
      * @param fieldName name of source's filed
      */
-    void removeRelation(T source, D target, String fieldName);
+    void removeRelation(T source, D_ID targetId, String fieldName);
 
     /**
      * Find a relation's target identifier
