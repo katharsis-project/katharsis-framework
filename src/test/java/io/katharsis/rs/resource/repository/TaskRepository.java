@@ -2,11 +2,9 @@ package io.katharsis.rs.resource.repository;
 
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.rs.resource.model.Task;
-import org.jvnet.hk2.annotations.Service;
 
 import java.util.Arrays;
 
-@Service
 public class TaskRepository implements ResourceRepository<Task, Long> {
     @Override
     public <S extends Task> S save(S entity) {
