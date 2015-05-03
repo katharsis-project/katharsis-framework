@@ -32,7 +32,7 @@ public class ControllerRegistryTest {
         PathBuilder pathBuilder = new PathBuilder(resourceRegistry);
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/");
         String requestType = "PATCH";
-        ControllerRegistry sut = new ControllerRegistry();
+        ControllerRegistry sut = new ControllerRegistry(null);
 
         // THEN
         expectedException.expect(IllegalStateException.class);

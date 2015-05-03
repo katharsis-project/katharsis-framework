@@ -3,7 +3,6 @@ package io.katharsis.dispatcher.registry;
 import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.request.path.JsonPath;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -11,9 +10,9 @@ public class ControllerRegistry {
 
     private final List<BaseController> controllers = new LinkedList<>();
 
-    public ControllerRegistry(BaseController... baseControllers) {
+    public ControllerRegistry(List<BaseController> baseControllers) {
         if (baseControllers != null) {
-            controllers.addAll(Arrays.asList(baseControllers));
+            controllers.addAll(baseControllers);
         }
     }
 

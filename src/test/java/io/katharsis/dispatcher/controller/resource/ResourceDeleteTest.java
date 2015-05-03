@@ -2,9 +2,9 @@ package io.katharsis.dispatcher.controller.resource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
+import io.katharsis.queryParams.RequestParams;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
-import io.katharsis.queryParams.RequestParams;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
 import org.junit.Test;
@@ -45,7 +45,7 @@ public class ResourceDeleteTest extends BaseControllerTest {
     }
 
     @Test
-    public void onGivenRequestResourceGetShouldHandleIt() {
+    public void onGivenRequestResourceGetShouldHandleIt() throws Exception {
         // GIVEN
 
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/1");

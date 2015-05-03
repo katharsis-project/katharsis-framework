@@ -2,9 +2,9 @@ package io.katharsis.dispatcher.controller.resource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
+import io.katharsis.queryParams.RequestParams;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
-import io.katharsis.queryParams.RequestParams;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
 import org.junit.Assert;
@@ -46,7 +46,7 @@ public class LinksResourceGetTest extends BaseControllerTest {
     }
 
     @Test
-    public void onGivenRequestLinkResourceGetShouldHandleIt() {
+    public void onGivenRequestLinkResourceGetShouldHandleIt() throws Exception {
         // GIVEN
 
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/1/links/project");
@@ -60,7 +60,7 @@ public class LinksResourceGetTest extends BaseControllerTest {
     }
 
     @Test
-    public void onGivenRequestLinkResourcesGetShouldHandleIt() {
+    public void onGivenRequestLinkResourcesGetShouldHandleIt() throws Exception {
         // GIVEN
 
         JsonPath jsonPath = pathBuilder.buildPath("/users/1/links/assignedProjects");
