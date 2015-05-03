@@ -31,11 +31,14 @@ public class ContainerSerializer extends JsonSerializer<Container> {
 
     @Override
     public void serialize(Container value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-        gen.writeStartObject();
+
         if (value != null && value.getData() != null) {
+            gen.writeStartObject();
             writeData(gen, value.getData());
+            gen.writeEndObject();
+        } else {
+            gen.writeObject(null);
         }
-        gen.writeEndObject();
     }
 
     /**

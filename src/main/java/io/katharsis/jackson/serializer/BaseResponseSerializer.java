@@ -60,7 +60,7 @@ public class BaseResponseSerializer extends JsonSerializer<BaseResponse> {
     private List serializeSingle(Object value, JsonGenerator gen) throws IOException {
         gen.writeObjectField(DATA_FIELD_NAME, value);
 
-        if (value instanceof Container) {
+        if (value instanceof Container && ((Container) value).getData() != null) {
             return extractIncludedResources(((Container) value).getData());
         } else {
             return Collections.emptyList();
