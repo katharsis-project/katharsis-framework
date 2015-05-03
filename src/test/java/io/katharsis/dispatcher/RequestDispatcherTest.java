@@ -4,9 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.collection.CollectionGet;
 import io.katharsis.dispatcher.registry.ControllerRegistry;
 import io.katharsis.locator.SampleJsonServiceLocator;
+import io.katharsis.queryParams.RequestParams;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathBuilder;
-import io.katharsis.queryParams.RequestParams;
 import io.katharsis.resource.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryBuilder;
@@ -34,7 +34,7 @@ public class RequestDispatcherTest {
         String requestType = "GET";
 
         PathBuilder pathBuilder = new PathBuilder(resourceRegistry);
-        ControllerRegistry controllerRegistry = new ControllerRegistry();
+        ControllerRegistry controllerRegistry = new ControllerRegistry(null);
         CollectionGet collectionGet = mock(CollectionGet.class);
         controllerRegistry.addController(collectionGet);
         RequestDispatcher sut = new RequestDispatcher(controllerRegistry);

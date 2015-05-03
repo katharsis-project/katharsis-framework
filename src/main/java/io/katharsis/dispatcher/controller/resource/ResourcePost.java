@@ -1,17 +1,18 @@
 package io.katharsis.dispatcher.controller.resource;
 
 import io.katharsis.dispatcher.controller.BaseController;
+import io.katharsis.queryParams.RequestParams;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.Linkage;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
-import io.katharsis.queryParams.RequestParams;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.Container;
 import io.katharsis.response.ResourceResponse;
+import io.katharsis.utils.Generics;
 import org.apache.commons.beanutils.PropertyUtils;
 
 import java.io.Serializable;
@@ -86,7 +87,8 @@ public class ResourcePost implements BaseController {
         return newInstance;
     }
 
-    private void addRelations(Object savedResource, RegistryEntry registryEntry, RequestBody requestBody) {
+    private void addRelations(Object savedResource, RegistryEntry registryEntry, RequestBody requestBody)
+            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         Map<String, Linkage> additionalProperties = requestBody.getData().getLinks().getAdditionalProperties();
         for (Map.Entry<String, Linkage> property : additionalProperties.entrySet()) {
             RegistryEntry relationRegistryEntry = resourceRegistry.getEntry(property.getValue().getType());
@@ -97,24 +99,15 @@ public class ResourcePost implements BaseController {
         }
     }
 
-    private void addRelation(Object savedResource, RegistryEntry registryEntry, Map.Entry<String, Linkage> property, RegistryEntry relationRegistryEntry) {
+    private void addRelation(Object savedResource, RegistryEntry registryEntry, Map.Entry<String, Linkage> property, RegistryEntry relationRegistryEntry)
+            throws NoSuchMethodException, IllegalAccessException, InstantiationException, InvocationTargetException {
         Class<?> relationshipIdClass = relationRegistryEntry.getResourceInformation().getIdField().getType();
-        Serializable castedRelationshipId = castIdValue(property.getValue().getId(), relationshipIdClass);
+        Serializable castedRelationshipId = Generics.castIdValue(property.getValue().getId(), relationshipIdClass);
 
         Class<?> relationshipClass = relationRegistryEntry.getResourceInformation().getResourceClass();
         RelationshipRepository relationshipRepository = registryEntry.getRelationshipRepositoryForClass(relationshipClass);
         relationshipRepository.addRelation(savedResource, castedRelationshipId, property.getKey());
     }
 
-    // @TODO add more customized casting of ids
-    private Serializable castIdValue(Object id, Class<?> idType) {
-        if (id instanceof String) {
-            if (Long.class == idType) {
-                return Long.valueOf((String) id);
-            } else if (Integer.class == idType) {
-                return Integer.valueOf((String) id);
-            }
-        }
-        return (Serializable) id;
-    }
+
 }
