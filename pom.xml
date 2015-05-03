@@ -1,6 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+  <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>io.katharsis</groupId>
@@ -21,6 +21,7 @@
         <jersey-media-json-jackson.version>2.17</jersey-media-json-jackson.version>
         <javax.servlet-api.version>3.0.1</javax.servlet-api.version>
         <javax.ws.rs-api.version>2.0.1</javax.ws.rs-api.version>
+        <jersey.version>2.17</jersey.version>
     </properties>
 
     <build>
