@@ -12,6 +12,7 @@ import io.katharsis.resource.registry.ResourceRegistryBuilder;
 
 import javax.ws.rs.ConstrainedTo;
 import javax.ws.rs.RuntimeType;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.FeatureContext;
 import javax.ws.rs.ext.Provider;
@@ -48,8 +49,12 @@ public class KatharsisFeature implements Feature {
         JsonApiModuleBuilder jsonApiModuleBuilder = new JsonApiModuleBuilder();
         objectMapper.registerModule(jsonApiModuleBuilder.build(resourceRegistry));
 
-        KatharsisFilter katharsisFilter = createKatharsisFilter(resourceRegistry, resourceSearchPackage,
-                resourceDefaultDomain);
+        KatharsisFilter katharsisFilter;
+        try {
+            katharsisFilter = createKatharsisFilter(resourceRegistry);
+        } catch (Exception e) {
+            throw new WebApplicationException(e);
+        }
         context.register(katharsisFilter);
 
         return true;
@@ -60,15 +65,13 @@ public class KatharsisFeature implements Feature {
         return registryBuilder.build(resourceSearchPackage, resourceDefaultDomain);
     }
 
-    private KatharsisFilter createKatharsisFilter(ResourceRegistry resourceRegistry, String resourceSearchPackage, String resourceDefaultDomain) {
-
-
+    private KatharsisFilter createKatharsisFilter(ResourceRegistry resourceRegistry) throws Exception {
         RequestDispatcher requestDispatcher = createRequestDispatcher(resourceRegistry);
 
         return new KatharsisFilter(objectMapper, resourceRegistry, requestDispatcher);
     }
 
-    private RequestDispatcher createRequestDispatcher(ResourceRegistry resourceRegistry) {
+    private RequestDispatcher createRequestDispatcher(ResourceRegistry resourceRegistry) throws Exception {
         ControllerRegistryBuilder controllerRegistryBuilder = new ControllerRegistryBuilder();
         ControllerRegistry controllerRegistry = controllerRegistryBuilder
                 .build(resourceRegistry);
