@@ -3,14 +3,16 @@ package io.katharsis.rs;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.RequestDispatcher;
 import io.katharsis.jackson.exception.JsonDeserializationException;
-import io.katharsis.path.JsonPath;
-import io.katharsis.path.PathBuilder;
-import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.queryParams.RequestParams;
+import io.katharsis.queryParams.RequestParamsBuilder;
+import io.katharsis.request.dto.RequestBody;
+import io.katharsis.request.path.JsonPath;
+import io.katharsis.request.path.PathBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
 import io.katharsis.rs.type.JsonApiMediaType;
 
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.container.PreMatching;
@@ -19,8 +21,10 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 
 import static io.katharsis.rs.type.JsonApiMediaType.APPLICATION_JSON_API_TYPE;
 
@@ -52,16 +56,24 @@ public class KatharsisFilter implements ContainerRequestFilter {
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {
         if (isAcceptableMediaType(requestContext) && isAcceptableContentType(requestContext)) {
-            dispatchRequest(requestContext);
+            try {
+                dispatchRequest(requestContext);
+            } catch (Exception e) {
+                throw new WebApplicationException(e);
+            }
         }
     }
 
-    private void dispatchRequest(ContainerRequestContext requestContext) {
+    private void dispatchRequest(ContainerRequestContext requestContext) throws Exception {
         UriInfo uriInfo = requestContext.getUriInfo();
         JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath(uriInfo.getPath());
         RequestParams requestParams = createRequestParams(uriInfo);
 
-        BaseResponse<?> responseData = requestDispatcher.dispatchRequest(jsonPath, requestContext.getMethod(), requestParams);
+        String method = requestContext.getMethod();
+        RequestBody requestBody = inputStreamToBody(requestContext.getEntityStream());
+
+        BaseResponse<?> responseData = requestDispatcher
+                .dispatchRequest(jsonPath, method, requestParams, requestBody);
         Response response;
         if (responseData != null) {
             response = Response.ok(responseData, APPLICATION_JSON_API_TYPE).build();
@@ -88,7 +100,7 @@ public class KatharsisFilter implements ContainerRequestFilter {
     }
 
     private RequestParams createRequestParams(UriInfo uriInfo) {
-        QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder(objectMapper);
+        RequestParamsBuilder requestParamsBuilder = new RequestParamsBuilder(objectMapper);
 
         MultivaluedMap<String, String> queryParametersMultiMap = uriInfo.getQueryParameters();
         Map<String, String> queryParameters = new HashMap<>();
@@ -99,10 +111,22 @@ public class KatharsisFilter implements ContainerRequestFilter {
 
         RequestParams requestParams;
         try {
-            requestParams = queryParamsBuilder.buildRequestParams(queryParameters);
+            requestParams = requestParamsBuilder.buildRequestParams(queryParameters);
         } catch (JsonDeserializationException e) {
             throw new RuntimeException(e);
         }
         return requestParams;
+    }
+
+    public RequestBody inputStreamToBody(InputStream is) throws IOException {
+        if (is == null) {
+            return null;
+        }
+        Scanner s = new Scanner(is).useDelimiter("\\A");
+        String requestBody = s.hasNext() ? s.next() : "";
+        if (requestBody == null || requestBody.isEmpty()) {
+            return null;
+        }
+        return objectMapper.readValue(requestBody, RequestBody.class);
     }
 }

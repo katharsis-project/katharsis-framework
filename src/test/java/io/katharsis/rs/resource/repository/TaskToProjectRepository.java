@@ -6,15 +6,15 @@ import io.katharsis.rs.resource.model.Task;
 import org.jvnet.hk2.annotations.Service;
 
 @Service
-public class TaskToProjectRepository implements RelationshipRepository<Task, Long, Project> {
+public class TaskToProjectRepository implements RelationshipRepository<Task, Long, Project, Long> {
 
     @Override
-    public void addRelation(Task task, Project project, String fieldName) {
+    public void addRelation(Task task, Long projectId, String fieldName) {
 
     }
 
     @Override
-    public void removeRelation(Task task, Project project, String fieldName) {
+    public void removeRelation(Task task, Long projectId, String fieldName) {
 
     }
 
