@@ -48,8 +48,10 @@ public class CollectionGet implements BaseController {
         }
         Iterable iterable = registryEntry.getResourceRepository().findAll();
         List<Container> containers = new LinkedList<>();
-        for (Object element : iterable) {
-            containers.add(new Container(element));
+        if (iterable != null) {
+            for (Object element : iterable) {
+                containers.add(new Container(element));
+            }
         }
 
         return new CollectionResponse(containers);
