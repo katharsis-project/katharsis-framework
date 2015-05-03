@@ -2,30 +2,32 @@ package io.katharsis.example.dropwizard.domain.model;
 
 import io.katharsis.resource.annotations.JsonApiId;
 import io.katharsis.resource.annotations.JsonApiResource;
+import org.bson.types.ObjectId;
+import org.mongodb.morphia.annotations.Entity;
+import org.mongodb.morphia.annotations.Id;
+import org.mongodb.morphia.annotations.Reference;
 
+@Entity("tasks")
 @JsonApiResource(type = "tasks")
 public class Task {
 
+    @Id
     @JsonApiId
-    private Long id;
+    private ObjectId id;
 
     private String name;
 
+    @Reference
     private Project project;
 
     public Task() {
     }
 
-    public Task(Long id, String name) {
-        this.id = id;
-        this.name = name;
-    }
-
-    public Long getId() {
+    public ObjectId getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(ObjectId id) {
         this.id = id;
     }
 

@@ -14,7 +14,7 @@ server:
     port: 8080
 
 logging:
-  level: INFO
+  level: ALL
 
   appenders:
     - type: console

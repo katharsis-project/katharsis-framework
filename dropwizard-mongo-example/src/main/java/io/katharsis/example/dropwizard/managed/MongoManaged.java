@@ -1,33 +1,28 @@
 package io.katharsis.example.dropwizard.managed;
 
-import com.mongodb.DB;
-import com.mongodb.Mongo;
 import com.mongodb.MongoClient;
 import io.dropwizard.lifecycle.Managed;
 import io.katharsis.example.dropwizard.MongoConfiguration;
+import org.mongodb.morphia.Datastore;
+import org.mongodb.morphia.Morphia;
 
 public class MongoManaged implements Managed {
-    private final MongoClient mongo;
-    private final DB db;
+    private final MongoClient mongoClient;
+    private final Datastore datastore;
 
     public MongoManaged (MongoConfiguration mongoConfig) throws Exception {
-        mongo = new MongoClient(mongoConfig.host, mongoConfig.port);
-        db = mongo.getDB(mongoConfig.db);
+        mongoClient = new MongoClient(mongoConfig.host, mongoConfig.port);
+        datastore = new Morphia().createDatastore(mongoClient, mongoConfig.db);
     }
 
-    public Mongo getMongo() {
-        return mongo;
-    }
-
-    public DB getDb() {
-        return db;
+    public Datastore getDatastore() {
+        return datastore;
     }
 
     public void start() throws Exception {
-
     }
 
     public void stop() throws Exception {
-        mongo.close();
+        mongoClient.close();
     }
 }

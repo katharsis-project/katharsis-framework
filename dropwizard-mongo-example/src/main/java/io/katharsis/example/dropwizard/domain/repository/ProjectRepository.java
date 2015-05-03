@@ -1,25 +1,41 @@
 package io.katharsis.example.dropwizard.domain.repository;
 
 import io.katharsis.example.dropwizard.domain.model.Project;
+import io.katharsis.example.dropwizard.managed.MongoManaged;
 import io.katharsis.repository.ResourceRepository;
+import org.bson.types.ObjectId;
+import org.mongodb.morphia.Datastore;
+import org.mongodb.morphia.Key;
 
-public class ProjectRepository implements ResourceRepository<Project, Long> {
+import javax.inject.Inject;
+
+public class ProjectRepository implements ResourceRepository<Project, ObjectId> {
+
+    private Datastore datastore;
+
+    @Inject
+    public ProjectRepository(MongoManaged mongoManaged) {
+        datastore = mongoManaged.getDatastore();
+    }
+
     public <S extends Project> S save(S entity) {
-        return null;
+        Key<Project> saveKey = datastore.save(entity);
+        return (S) datastore.getByKey(Project.class, saveKey);
     }
 
-    public <S extends Project> S update(S s) {
-        return null;
+    public <S extends Project> S update(S entity) {
+        return save(entity);
     }
 
-    public Project findOne(Long aLong) {
-        return null;
+    public Project findOne(ObjectId id) {
+        return datastore.getByKey(Project.class, new Key<>(Project.class, id));
     }
 
     public Iterable<Project> findAll() {
-        return null;
+        return datastore.find(Project.class);
     }
 
-    public void delete(Long aLong) {
+    public void delete(ObjectId id) {
+        datastore.delete(Project.class, new Key<>(Project.class, id));
     }
 }
