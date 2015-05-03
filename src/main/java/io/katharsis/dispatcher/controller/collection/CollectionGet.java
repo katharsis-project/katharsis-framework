@@ -1,8 +1,9 @@
 package io.katharsis.dispatcher.controller.collection;
 
 import io.katharsis.dispatcher.controller.BaseController;
-import io.katharsis.path.JsonPath;
-import io.katharsis.path.ResourcePath;
+import io.katharsis.request.dto.RequestBody;
+import io.katharsis.request.path.JsonPath;
+import io.katharsis.request.path.ResourcePath;
 import io.katharsis.queryParams.RequestParams;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.registry.RegistryEntry;
@@ -39,7 +40,7 @@ public class CollectionGet implements BaseController {
      */
     @Override
     // @TODO handle request params
-    public BaseResponse<?> handle(JsonPath jsonPath, RequestParams requestParams) {
+    public BaseResponse<?> handle(JsonPath jsonPath, RequestParams requestParams, RequestBody requestBody) {
         String resourceName = jsonPath.getElementName();
         RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
         if (registryEntry == null) {
@@ -47,8 +48,10 @@ public class CollectionGet implements BaseController {
         }
         Iterable iterable = registryEntry.getResourceRepository().findAll();
         List<Container> containers = new LinkedList<>();
-        for (Object element : iterable) {
-            containers.add(new Container(element));
+        if (iterable != null) {
+            for (Object element : iterable) {
+                containers.add(new Container(element));
+            }
         }
 
         return new CollectionResponse(containers);

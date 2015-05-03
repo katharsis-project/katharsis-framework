@@ -1,7 +1,7 @@
 package io.katharsis.dispatcher.registry;
 
 import io.katharsis.dispatcher.controller.BaseController;
-import io.katharsis.path.JsonPath;
+import io.katharsis.request.path.JsonPath;
 
 import java.util.Arrays;
 import java.util.LinkedList;

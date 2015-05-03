@@ -1,12 +1,13 @@
 package io.katharsis.response;
 
+import io.katharsis.jackson.serializer.LinkageContainerSerializer;
 import io.katharsis.resource.registry.RegistryEntry;
 
 import java.util.Objects;
 
 /**
  * A class responsible for storing information about the linkage information. The resulting JSON serialized using
- * {@link io.katharsis.jackson.LinkageContainerSerializer} is show below:
+ * {@link LinkageContainerSerializer} is show below:
  * <pre>
  * {@code
  * {
@@ -16,7 +17,7 @@ import java.util.Objects;
  * }
  * </pre>
  *
- * @see io.katharsis.jackson.LinkageContainerSerializer
+ * @see LinkageContainerSerializer
  */
 public class LinkageContainer {
 

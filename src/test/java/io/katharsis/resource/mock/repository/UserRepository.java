@@ -3,29 +3,45 @@ package io.katharsis.resource.mock.repository;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.resource.mock.models.User;
 
-public class UserRepository implements ResourceRepository<User, Long> {
-    @Override
-    public User findOne(Long aLong) {
-        return null;
-    }
+import java.util.HashMap;
+import java.util.Map;
 
-    @Override
-    public Iterable<User> findAll() {
-        return null;
-    }
+public class UserRepository implements ResourceRepository<User, Long> {
+
+    // Used ThreadLocal in case of switching to TestNG and using concurrent tests
+    private static final ThreadLocal<Map<Long, User>> THREAD_LOCAL_REPOSITORY = new ThreadLocal<Map<Long, User>>() {
+        @Override
+        protected Map<Long, User> initialValue() {
+            return new HashMap<>();
+        }
+    };
 
     @Override
     public <S extends User> S save(S entity) {
-        return null;
+        entity.setId((long) (THREAD_LOCAL_REPOSITORY.get().size() + 1));
+        THREAD_LOCAL_REPOSITORY.get().put(entity.getId(), entity);
+
+        return entity;
     }
 
     @Override
     public <S extends User> S update(S entity) {
-        return null;
+        THREAD_LOCAL_REPOSITORY.get().put(entity.getId(), entity);
+        return entity;
+    }
+
+    @Override
+    public User findOne(Long aLong) {
+        return THREAD_LOCAL_REPOSITORY.get().get(aLong);
+    }
+
+    @Override
+    public Iterable<User> findAll() {
+        return THREAD_LOCAL_REPOSITORY.get().values();
     }
 
     @Override
     public void delete(Long aLong) {
-
+        THREAD_LOCAL_REPOSITORY.get().remove(aLong);
     }
 }

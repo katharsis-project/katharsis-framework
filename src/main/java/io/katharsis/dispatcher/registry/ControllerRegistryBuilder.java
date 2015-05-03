@@ -1,10 +1,7 @@
 package io.katharsis.dispatcher.registry;
 
 import io.katharsis.dispatcher.controller.collection.CollectionGet;
-import io.katharsis.dispatcher.controller.resource.FieldResourceGet;
-import io.katharsis.dispatcher.controller.resource.LinksResourceGet;
-import io.katharsis.dispatcher.controller.resource.ResourceGet;
-import io.katharsis.dispatcher.controller.resource.ResourcePost;
+import io.katharsis.dispatcher.controller.resource.*;
 import io.katharsis.resource.registry.ResourceRegistry;
 
 /**
@@ -18,6 +15,9 @@ public class ControllerRegistryBuilder {
         LinksResourceGet linksResourceGet = new LinksResourceGet(resourceRegistry);
         FieldResourceGet fieldResourceGet = new FieldResourceGet(resourceRegistry);
         ResourcePost resourcePost = new ResourcePost(resourceRegistry);
-        return new ControllerRegistry(collectionGet, resourceGet, linksResourceGet, fieldResourceGet, resourcePost);
+        ResourceDelete resourceDelete = new ResourceDelete(resourceRegistry);
+
+        return new ControllerRegistry(collectionGet, resourceGet, linksResourceGet, fieldResourceGet, resourcePost,
+                resourceDelete);
     }
 }

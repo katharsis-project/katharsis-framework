@@ -1,19 +1,25 @@
 package io.katharsis.resource;
 
-import nl.jqno.equalsverifier.EqualsVerifier;
-import nl.jqno.equalsverifier.Warning;
 import org.junit.Test;
 
 import java.lang.reflect.Field;
+import java.util.Collections;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ResourceInformationTest {
 
     @Test
-    public void equalsContract() throws NoSuchFieldException {
-        EqualsVerifier.forClass(ResourceInformation.class)
-                .withPrefabValues(Field.class, String.class.getDeclaredField("value"), String.class.getDeclaredField("hash"))
-                .usingGetClass()
-                .suppress(Warning.NONFINAL_FIELDS)
-                .verify();
+    public void onRelationshipFieldSearchShouldReturnExistingField() throws NoSuchFieldException {
+        // GIVEN
+        ResourceInformation sut = new ResourceInformation();
+        Field field = String.class.getDeclaredField("value");
+        sut.setRelationshipFields(Collections.singleton(field));
+
+        // WHEN
+        Field result = sut.findRelationshipFieldByName("value");
+
+        // THEN
+        assertThat(result).isEqualTo(field);
     }
 }
