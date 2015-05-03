@@ -7,7 +7,7 @@ import java.util.Set;
 /**
  * Holds information about the type of the resource.
  */
-public class ResourceInformation {
+public final class ResourceInformation {
 
     private Class<?> resourceClass;
 
@@ -76,11 +76,14 @@ public class ResourceInformation {
         if (this == o) return true;
         if (!(o instanceof ResourceInformation)) return false;
         ResourceInformation that = (ResourceInformation) o;
-        return Objects.equals(resourceClass, that.resourceClass);
+        return Objects.equals(resourceClass, that.resourceClass) &&
+                Objects.equals(idField, that.idField) &&
+                Objects.equals(basicFields, that.basicFields) &&
+                Objects.equals(relationshipFields, that.relationshipFields);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(resourceClass);
+        return Objects.hash(resourceClass, idField, basicFields, relationshipFields);
     }
 }
