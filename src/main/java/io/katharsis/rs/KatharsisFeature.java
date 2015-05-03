@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.RequestDispatcher;
 import io.katharsis.dispatcher.registry.ControllerRegistry;
 import io.katharsis.dispatcher.registry.ControllerRegistryBuilder;
+import io.katharsis.jackson.JsonApiModuleBuilder;
 import io.katharsis.locator.JsonServiceLocator;
 import io.katharsis.resource.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -42,15 +43,25 @@ public class KatharsisFeature implements Feature {
                 .getConfiguration()
                 .getProperty(KatharsisProperties.RESOURCE_DEFAULT_DOMAIN);
 
-        KatharsisFilter katharsisFilter = createKatharsisFilter(resourceSearchPackage, resourceDefaultDomain);
+        ResourceRegistry resourceRegistry = buildResourceRegistry(resourceSearchPackage, resourceDefaultDomain);
+
+        JsonApiModuleBuilder jsonApiModuleBuilder = new JsonApiModuleBuilder();
+        objectMapper.registerModule(jsonApiModuleBuilder.build(resourceRegistry));
+
+        KatharsisFilter katharsisFilter = createKatharsisFilter(resourceRegistry, resourceSearchPackage,
+                resourceDefaultDomain);
         context.register(katharsisFilter);
 
         return true;
     }
 
-    private KatharsisFilter createKatharsisFilter(String resourceSearchPackage, String resourceDefaultDomain) {
+    private ResourceRegistry buildResourceRegistry(String resourceSearchPackage, String resourceDefaultDomain) {
         ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(jsonServiceLocator, new ResourceInformationBuilder());
-        ResourceRegistry resourceRegistry = registryBuilder.build(resourceSearchPackage, resourceDefaultDomain);
+        return registryBuilder.build(resourceSearchPackage, resourceDefaultDomain);
+    }
+
+    private KatharsisFilter createKatharsisFilter(ResourceRegistry resourceRegistry, String resourceSearchPackage, String resourceDefaultDomain) {
+
 
         RequestDispatcher requestDispatcher = createRequestDispatcher(resourceRegistry);
 
