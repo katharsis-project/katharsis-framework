@@ -16,28 +16,30 @@ public interface RelationshipRepository<T, T_ID extends Serializable, D, D_ID ex
     int TARGET_TYPE_GENERIC_PARAMETER_IDX = 2;
 
     /**
-     * Add relation from source to target
+     * Set a relation defined by a field. targetId parameter can be either in a form of an object or null value,
+     * which means that if there's a relation, it should be removed.
      *
      * @param source instance of a source class
-     * @param targetId instance of a target class
-     * @param fieldName name of source's filed
+     * @param targetId id of a target resource
+     * @param fieldName name of target's filed
      */
-    void addRelation(T source, D_ID targetId, String fieldName);
+    void setRelation(T source, D_ID targetId, String fieldName);
 
     /**
-     * Remove relation from source to target
+     * Set a relation defined by a field. targetIds parameter can be either in a form of an object or null value,
+     * which means that if there's a relation, it should be removed.
      *
      * @param source instance of a source class
-     * @param targetId instance of a target class
-     * @param fieldName name of source's filed
+     * @param targetIds ids of a target resource
+     * @param fieldName name of target's filed
      */
-    void removeRelation(T source, D_ID targetId, String fieldName);
+    void setRelations(T source, Iterable<D_ID> targetIds, String fieldName);
 
     /**
      * Find a relation's target identifier
      *
      * @param sourceId an identifier of a source
-     * @param fieldName name of source's filed
+     * @param fieldName name of target's filed
      * @return an identifier of a target of a relation
      */
     D findOneTarget(T_ID sourceId, String fieldName);
@@ -46,7 +48,7 @@ public interface RelationshipRepository<T, T_ID extends Serializable, D, D_ID ex
      * Find a relation's target identifiers
      *
      * @param sourceId an identifier of a source
-     * @param fieldName name of source's filed
+     * @param fieldName name of target's filed
      * @return identifiers of targets of a relation
      */
     Iterable<D> findTargets(T_ID sourceId, String fieldName);

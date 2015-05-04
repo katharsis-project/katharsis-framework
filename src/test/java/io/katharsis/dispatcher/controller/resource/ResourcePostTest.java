@@ -2,21 +2,25 @@ package io.katharsis.dispatcher.controller.resource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
+import io.katharsis.queryParams.RequestParams;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.Linkage;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.dto.ResourceLinks;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
-import io.katharsis.queryParams.RequestParams;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
+import io.katharsis.resource.mock.models.User;
 import io.katharsis.resource.mock.repository.TaskToProjectRepository;
+import io.katharsis.resource.mock.repository.UserToProjectRepository;
 import io.katharsis.response.Container;
 import io.katharsis.response.ResourceResponse;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -123,11 +127,61 @@ public class ResourcePostTest extends BaseControllerTest {
         // THEN
         assertThat(taskResponse.getData()).isExactlyInstanceOf(Container.class);
         assertThat(((Container) taskResponse.getData()).getData()).isExactlyInstanceOf(Task.class);
-        assertThat(((Task) (((Container) taskResponse.getData()).getData())).getId()).isNotNull();
+        Long taskId = ((Task) (((Container) taskResponse.getData()).getData())).getId();
+        assertThat(taskId).isNotNull();
         assertThat(((Task) (((Container) taskResponse.getData()).getData())).getName()).isEqualTo("sample task");
 
         TaskToProjectRepository taskToProjectRepository = new TaskToProjectRepository();
-        Project project = taskToProjectRepository.findOneTarget(projectId, "project");
+        Project project = taskToProjectRepository.findOneTarget(taskId, "project");
+        assertThat(project.getId()).isEqualTo(projectId);
+    }
+
+    @Test
+    public void onNewResourcesAndRelationshipsShouldPersistThoseData() throws Exception {
+        // GIVEN
+        RequestBody newProjectBody = new RequestBody();
+        newProjectBody.setData(new DataBody());
+        newProjectBody.getData().setType("projects");
+        newProjectBody.getData().setAdditionalProperty("name", "sample project");
+
+        JsonPath projectPath = pathBuilder.buildPath("/projects");
+        ResourcePost sut = new ResourcePost(resourceRegistry);
+
+        // WHEN
+        ResourceResponse projectResponse = sut.handle(projectPath, new RequestParams(new ObjectMapper()), newProjectBody);
+
+        // THEN
+        assertThat(projectResponse.getData()).isExactlyInstanceOf(Container.class);
+        assertThat(((Container) projectResponse.getData()).getData()).isExactlyInstanceOf(Project.class);
+        assertThat(((Project) (((Container) projectResponse.getData()).getData())).getId()).isNotNull();
+        assertThat(((Project) (((Container) projectResponse.getData()).getData())).getName()).isEqualTo("sample project");
+        Long projectId = ((Project) (((Container) projectResponse.getData()).getData())).getId();
+
+        /* ------- */
+
+        // GIVEN
+        RequestBody newTaskBody = new RequestBody();
+        newTaskBody.setData(new DataBody());
+        newTaskBody.getData().setType("users");
+        newTaskBody.getData().setAdditionalProperty("name", "some user");
+        newTaskBody.getData().setLinks(new ResourceLinks());
+        newTaskBody.getData().getLinks().setAdditionalProperty("project", Arrays.asList(new Linkage("projects",
+                projectId.toString()), new Linkage("projects", projectId.toString())));
+
+        JsonPath taskPath = pathBuilder.buildPath("/users");
+
+        // WHEN
+        ResourceResponse taskResponse = sut.handle(taskPath, new RequestParams(new ObjectMapper()), newTaskBody);
+
+        // THEN
+        assertThat(taskResponse.getData()).isExactlyInstanceOf(Container.class);
+        assertThat(((Container) taskResponse.getData()).getData()).isExactlyInstanceOf(User.class);
+        Long userId = ((User) (((Container) taskResponse.getData()).getData())).getId();
+        assertThat(userId).isNotNull();
+        assertThat(((User) (((Container) taskResponse.getData()).getData())).getName()).isEqualTo("some user");
+
+        UserToProjectRepository userToProjectRepository = new UserToProjectRepository();
+        Project project = userToProjectRepository.findOneTarget(userId, "project");
         assertThat(project.getId()).isEqualTo(projectId);
     }
 }

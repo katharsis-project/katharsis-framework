@@ -3,12 +3,16 @@ package io.katharsis.request.dto;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import io.katharsis.jackson.deserializer.ResourceLinksDeserializer;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class DataBody {
     private String type;
+
+    @JsonDeserialize(using = ResourceLinksDeserializer.class)
     private ResourceLinks links;
 
     @JsonIgnore
