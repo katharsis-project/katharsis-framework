@@ -5,10 +5,7 @@ import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.User;
 import io.katharsis.resource.mock.repository.util.Relation;
 
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class UserToProjectRepository implements RelationshipRepository<User, Long, Project, Long> {
 
@@ -21,18 +18,37 @@ public class UserToProjectRepository implements RelationshipRepository<User, Lon
     };
 
     @Override
-    public void addRelation(User source, Long targetId, String fieldName) {
-        THREAD_LOCAL_REPOSITORY.get().add(new Relation<>(source, targetId, fieldName));
+    public void setRelation(User source, Long targetId, String fieldName) {
+        removeRelations(fieldName);
+        if (targetId != null) {
+            THREAD_LOCAL_REPOSITORY.get().add(new Relation<>(source, targetId, fieldName));
+        }
     }
 
     @Override
-    public void removeRelation(User source, Long targetId, String fieldName) {
-        THREAD_LOCAL_REPOSITORY.get().remove(new Relation<>(source, targetId, fieldName));
+    public void setRelations(User source, Iterable<Long> targetIds, String fieldName) {
+        removeRelations(fieldName);
+        if (targetIds != null) {
+            for (Long targetId : targetIds) {
+                THREAD_LOCAL_REPOSITORY.get().add(new Relation<>(source, targetId, fieldName));
+            }
+        }
+    }
+
+    private void removeRelations(String fieldName) {
+        Iterator<Relation<User>> iterator = THREAD_LOCAL_REPOSITORY.get().iterator();
+        while (iterator.hasNext()) {
+            Relation<User> next = iterator.next();
+            if (next.getFieldName().equals(fieldName)) {
+                iterator.remove();
+            }
+        }
     }
 
     @Override
     public Project findOneTarget(Long sourceId, String fieldName) {
-        for (Relation<User> relation : THREAD_LOCAL_REPOSITORY.get()) {
+        Set<Relation<User>> relations = THREAD_LOCAL_REPOSITORY.get();
+        for (Relation<User> relation : relations) {
             if (relation.getSource().getId().equals(sourceId) &&
                     relation.getFieldName().equals(fieldName)) {
                 Project project = new Project();

@@ -17,7 +17,10 @@ import org.apache.commons.beanutils.PropertyUtils;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class ResourcePost implements BaseController {
 
@@ -89,25 +92,69 @@ public class ResourcePost implements BaseController {
 
     private void addRelations(Object savedResource, RegistryEntry registryEntry, RequestBody requestBody)
             throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
-        Map<String, Linkage> additionalProperties = requestBody.getData().getLinks().getAdditionalProperties();
-        for (Map.Entry<String, Linkage> property : additionalProperties.entrySet()) {
-            RegistryEntry relationRegistryEntry = resourceRegistry.getEntry(property.getValue().getType());
-            if (relationRegistryEntry == null) {
-                throw new ResourceNotFoundException("Resource of type not found: " + property.getValue().getType());
+        Map<String, Object> additionalProperties = requestBody.getData().getLinks().getAdditionalProperties();
+        for (Map.Entry<String, Object> property : additionalProperties.entrySet()) {
+            if (Iterable.class.isAssignableFrom(property.getValue().getClass())) {
+                addRelationsField(savedResource, registryEntry, (Map.Entry) property);
+            } else {
+                addRelationField(savedResource, registryEntry, (Map.Entry) property);
             }
-            addRelation(savedResource, registryEntry, property, relationRegistryEntry);
+
         }
     }
 
-    private void addRelation(Object savedResource, RegistryEntry registryEntry, Map.Entry<String, Linkage> property, RegistryEntry relationRegistryEntry)
+    private void addRelationsField(Object savedResource, RegistryEntry registryEntry, Map.Entry<String,
+            Iterable<Linkage>> property) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+        if (!allTypesTheSame(property.getValue())) {
+            throw new RuntimeException("Not all types are the same for linkage: " + property.getKey());
+        }
+
+        String type = getLinkageType(property.getValue());
+        RegistryEntry relationRegistryEntry = getRelationRegistryEntry(type);
+        Class<?> relationshipIdClass = relationRegistryEntry.getResourceInformation().getIdField().getType();
+        List<Serializable> castedRelationIds = new LinkedList<>();
+
+        for (Linkage linkage : property.getValue()) {
+            Serializable castedRelationshipId = Generics.castIdValue(linkage.getId(), relationshipIdClass);
+            castedRelationIds.add(castedRelationshipId);
+        }
+
+        Class<?> relationshipClass = relationRegistryEntry.getResourceInformation().getResourceClass();
+        RelationshipRepository relationshipRepository = registryEntry.getRelationshipRepositoryForClass(relationshipClass);
+        relationshipRepository.setRelations(savedResource, castedRelationIds, property.getKey());
+    }
+
+    private boolean allTypesTheSame(Iterable<Linkage> linkages) {
+        String type = linkages.iterator().hasNext() ? linkages.iterator().next().getType() : null;
+        for (Linkage linkage : linkages) {
+            if (!Objects.equals(type, linkage.getType())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private String getLinkageType(Iterable<Linkage> linkages) {
+        return linkages.iterator().hasNext() ? linkages.iterator().next().getType() : null;
+    }
+
+    private void addRelationField(Object savedResource, RegistryEntry registryEntry, Map.Entry<String, Linkage> property)
             throws NoSuchMethodException, IllegalAccessException, InstantiationException, InvocationTargetException {
+        RegistryEntry relationRegistryEntry = getRelationRegistryEntry(property.getValue().getType());
+
         Class<?> relationshipIdClass = relationRegistryEntry.getResourceInformation().getIdField().getType();
         Serializable castedRelationshipId = Generics.castIdValue(property.getValue().getId(), relationshipIdClass);
 
         Class<?> relationshipClass = relationRegistryEntry.getResourceInformation().getResourceClass();
         RelationshipRepository relationshipRepository = registryEntry.getRelationshipRepositoryForClass(relationshipClass);
-        relationshipRepository.addRelation(savedResource, castedRelationshipId, property.getKey());
+        relationshipRepository.setRelation(savedResource, castedRelationshipId, property.getKey());
     }
 
-
+    private RegistryEntry getRelationRegistryEntry(String type) {
+        RegistryEntry relationRegistryEntry = resourceRegistry.getEntry(type);
+        if (relationRegistryEntry == null) {
+            throw new ResourceNotFoundException("Resource of type not found: " + type);
+        }
+        return relationRegistryEntry;
+    }
 }

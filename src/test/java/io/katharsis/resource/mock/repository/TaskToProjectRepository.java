@@ -5,10 +5,7 @@ import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.repository.util.Relation;
 
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class TaskToProjectRepository implements RelationshipRepository<Task, Long, Project, Long> {
 
@@ -21,13 +18,31 @@ public class TaskToProjectRepository implements RelationshipRepository<Task, Lon
     };
 
     @Override
-    public void addRelation(Task source, Long targetId, String fieldName) {
-        THREAD_LOCAL_REPOSITORY.get().add(new Relation<>(source, targetId, fieldName));
+    public void setRelation(Task source, Long targetId, String fieldName) {
+        removeRelations(fieldName);
+        if (targetId != null) {
+            THREAD_LOCAL_REPOSITORY.get().add(new Relation<>(source, targetId, fieldName));
+        }
     }
 
     @Override
-    public void removeRelation(Task source, Long targetId, String fieldName) {
-        THREAD_LOCAL_REPOSITORY.get().remove(new Relation<>(source, targetId, fieldName));
+    public void setRelations(Task source, Iterable<Long> targetIds, String fieldName) {
+        removeRelations(fieldName);
+        if (targetIds != null) {
+            for (Long targetId : targetIds) {
+                THREAD_LOCAL_REPOSITORY.get().add(new Relation<>(source, targetId, fieldName));
+            }
+        }
+    }
+
+    private void removeRelations(String fieldName) {
+        Iterator<Relation<Task>> iterator = THREAD_LOCAL_REPOSITORY.get().iterator();
+        while (iterator.hasNext()) {
+            Relation<Task> next = iterator.next();
+            if (next.getFieldName().equals(fieldName)) {
+                iterator.remove();
+            }
+        }
     }
 
     @Override
