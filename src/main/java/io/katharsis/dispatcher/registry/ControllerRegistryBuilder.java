@@ -6,6 +6,7 @@ import org.reflections.Reflections;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -25,8 +26,10 @@ public class ControllerRegistryBuilder {
 
         List<BaseController> controllers = new LinkedList<>();
         for (Class<? extends BaseController> controllerClass : controllerClasses) {
-            Constructor<? extends BaseController> declaredConstructor = controllerClass.getDeclaredConstructor(ResourceRegistry.class);
-            controllers.add(declaredConstructor.newInstance(resourceRegistry));
+            if ( !Modifier.isAbstract(controllerClass.getModifiers())) {
+                Constructor<? extends BaseController> declaredConstructor = controllerClass.getDeclaredConstructor(ResourceRegistry.class);
+                controllers.add(declaredConstructor.newInstance(resourceRegistry));
+            }
         }
 
         return new ControllerRegistry(controllers);

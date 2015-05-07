@@ -87,6 +87,18 @@ public class ResourcePostTest extends BaseControllerTest {
     }
 
     @Test
+    public void onNoBodyResourceShouldThrowException() throws Exception {
+        // GIVEN
+        ResourcePost sut = new ResourcePost(resourceRegistry);
+
+        // THEN
+        expectedException.expect(RuntimeException.class);
+
+        // WHEN
+        sut.handle(new ResourcePath("fridges"), new RequestParams(new ObjectMapper()), null);
+    }
+
+    @Test
     public void onNewResourcesAndRelationshipShouldPersistThoseData() throws Exception {
         // GIVEN
         RequestBody newProjectBody = new RequestBody();
