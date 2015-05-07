@@ -6,7 +6,7 @@ import org.junit.Test;
 import java.lang.reflect.Field;
 import java.util.Collections;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ResourceInformationTest {
 

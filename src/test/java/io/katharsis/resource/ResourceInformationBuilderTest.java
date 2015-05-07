@@ -3,18 +3,15 @@ package io.katharsis.resource;
 import io.katharsis.resource.annotations.JsonApiId;
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.exception.ResourceException;
-import io.katharsis.resource.exception.ResourceFieldException;
 import io.katharsis.resource.exception.ResourceIdNotFoundException;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.models.UnAnnotatedTask;
+import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.*;
 
 public class ResourceInformationBuilderTest {
 
@@ -23,12 +20,10 @@ public class ResourceInformationBuilderTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
-    private ResourceInformationBuilder resourceInformationBuilder = new ResourceInformationBuilder();
+    private ResourceInformationBuilder sut = new ResourceInformationBuilder();
 
     @Test
     public void shouldHaveResourceClassInfoForValidResource() throws Exception {
-        ResourceInformation resourceInformation = resourceInformationBuilder.build(Task.class);
-
         // WHEN
         ResourceInformation resourceInformation = sut.build(Task.class);
 
@@ -46,7 +41,7 @@ public class ResourceInformationBuilderTest {
 
     @Test
     public void shouldHaveIdFieldInfoForValidResource() throws Exception {
-        ResourceInformation resourceInformation = resourceInformationBuilder.build(Task.class);
+        ResourceInformation resourceInformation = sut.build(Task.class);
 
         assertThat(resourceInformation.getIdField().getName())
                 .isNotNull()
@@ -59,7 +54,7 @@ public class ResourceInformationBuilderTest {
 
         // WHEN
         sut.build(UnAnnotatedTask.class);
-        resourceInformationBuilder.build(UnAnnotatedTask.class);
+        sut.build(UnAnnotatedTask.class);
     }
 
     @Test
@@ -67,14 +62,14 @@ public class ResourceInformationBuilderTest {
         expectedException.expect(ResourceException.class);
         expectedException.expectMessage("Duplicated Id field found in class");
 
-        resourceInformationBuilder.build(DuplicatedIdResource.class);
+        sut.build(DuplicatedIdResource.class);
     }
 
     @Test
     public void shouldHaveProperBasicFieldInfoForValidResource() throws Exception {
-        ResourceInformation resourceInformation = resourceInformationBuilder.build(Task.class);
+        ResourceInformation resourceInformation = sut.build(Task.class);
 
-        assertThat(resourceInformation.getBasicFields())
+        assertThat(resourceInformation.getAttributeFields())
                 .isNotNull()
                 .hasSize(1)
                 .extracting(NAME_PROPERTY)
@@ -83,7 +78,7 @@ public class ResourceInformationBuilderTest {
 
     @Test
     public void shouldHaveProperRelationshipFieldInfoForValidResource() throws Exception {
-        ResourceInformation resourceInformation = resourceInformationBuilder.build(Task.class);
+        ResourceInformation resourceInformation = sut.build(Task.class);
 
         assertThat(resourceInformation.getRelationshipFields())
                 .isNotNull()

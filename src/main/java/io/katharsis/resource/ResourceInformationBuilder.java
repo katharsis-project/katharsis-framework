@@ -4,7 +4,6 @@ import io.katharsis.resource.annotations.JsonApiId;
 import io.katharsis.resource.annotations.JsonApiToMany;
 import io.katharsis.resource.annotations.JsonApiToOne;
 import io.katharsis.resource.exception.ResourceException;
-import io.katharsis.resource.exception.ResourceFieldException;
 import io.katharsis.resource.exception.ResourceIdNotFoundException;
 
 import java.lang.reflect.Field;
@@ -43,36 +42,17 @@ public final class ResourceInformationBuilder {
 
     private <T> Set<Field> getBasicFields(Class<T> resourceClass, Field idField) {
         return Arrays.stream(resourceClass.getDeclaredFields())
-                .filter(field -> !isRelationshipType(field) && !field.equals(idField) && !field.isSynthetic()
-                        && verifyNotRestrictedMember(resourceClass, field.getName()))
+                .filter(field -> !isRelationshipType(field) && !field.equals(idField) && !field.isSynthetic())
                 .collect(Collectors.toSet());
     }
 
     private <T> Set<Field> getRelationshipFields(Class<T> resourceClass, Field idField) {
         return Arrays.stream(resourceClass.getDeclaredFields())
-                .filter(field -> isRelationshipType(field) && !field.equals(idField) && verifyNotRestrictedMember(resourceClass, field.getName()))
+                .filter(field -> isRelationshipType(field) && !field.equals(idField))
                 .collect(Collectors.toSet());
     }
 
     private boolean isRelationshipType(Field type) {
         return type.isAnnotationPresent(JsonApiToMany.class) || type.isAnnotationPresent(JsonApiToOne.class);
-    }
-
-    private <T> boolean verifyNotRestrictedMember(Class<T> resourceClass, String fieldName) {
-        if (isRestrictedMember(fieldName)) {
-            throw new ResourceFieldException("Field " + fieldName + " of class "
-                    + resourceClass.getCanonicalName() + "is restricted");
-        }
-        return true;
-    }
-
-    private boolean isRestrictedMember(String fieldName) {
-        for (RestrictedMembers c : RestrictedMembers.values()) {
-            if (c.name().equals(fieldName)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

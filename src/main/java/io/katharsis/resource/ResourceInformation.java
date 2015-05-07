@@ -70,12 +70,12 @@ public final class ResourceInformation {
         ResourceInformation that = (ResourceInformation) o;
         return Objects.equals(resourceClass, that.resourceClass) &&
                 Objects.equals(idField, that.idField) &&
-                Objects.equals(basicFields, that.basicFields) &&
+                Objects.equals(attributeFields, that.attributeFields) &&
                 Objects.equals(relationshipFields, that.relationshipFields);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(resourceClass, idField, basicFields, relationshipFields);
+        return Objects.hash(resourceClass, idField, attributeFields, relationshipFields);
     }
 }
