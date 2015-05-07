@@ -18,6 +18,9 @@ import java.lang.reflect.InvocationTargetException;
  */
 public class LinkageContainerSerializer extends JsonSerializer<LinkageContainer> {
 
+    private static final String TYPE_FIELD_NAME = "type";
+    private static final String ID_FIELD_NAME = "id";
+
     private ResourceRegistry resourceRegistry;
 
     public LinkageContainerSerializer(ResourceRegistry resourceRegistry) {
@@ -38,14 +41,14 @@ public class LinkageContainerSerializer extends JsonSerializer<LinkageContainer>
 
     private void writeType(JsonGenerator gen, Class<?> relationshipClass) throws IOException {
         String resourceType = resourceRegistry.getResourceType(relationshipClass);
-        gen.writeObjectField("type", resourceType);
+        gen.writeObjectField(TYPE_FIELD_NAME, resourceType);
     }
 
     private void writeId(JsonGenerator gen, LinkageContainer linkageContainer)
             throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
         Field idField = linkageContainer.getRelationshipEntry().getResourceInformation().getIdField();
         String sourceId = BeanUtils.getProperty(linkageContainer.getObjectItem(), idField.getName());
-        gen.writeObjectField("id", sourceId);
+        gen.writeObjectField(ID_FIELD_NAME, sourceId);
     }
 
     public Class<LinkageContainer> handledType() {

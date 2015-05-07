@@ -1,13 +1,7 @@
 package io.katharsis.request.dto;
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import io.katharsis.jackson.deserializer.ResourceLinksDeserializer;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class DataBody {
     private String type;
@@ -15,18 +9,7 @@ public class DataBody {
     @JsonDeserialize(using = ResourceLinksDeserializer.class)
     private ResourceLinks links;
 
-    @JsonIgnore
-    private Map<String, Object> basicFields = new HashMap<>();
-
-    @JsonAnyGetter
-    public Map<String, Object> getAdditionalProperties() {
-        return this.basicFields;
-    }
-
-    @JsonAnySetter
-    public void setAdditionalProperty(String name, Object value) {
-        this.basicFields.put(name, value);
-    }
+    private Attributes attributes;
 
     public String getType() {
         return type;
@@ -42,5 +25,13 @@ public class DataBody {
 
     public void setLinks(ResourceLinks links) {
         this.links = links;
+    }
+
+    public Attributes getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(Attributes attributes) {
+        this.attributes = attributes;
     }
 }

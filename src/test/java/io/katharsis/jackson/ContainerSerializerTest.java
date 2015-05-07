@@ -34,7 +34,7 @@ public class ContainerSerializerTest extends BaseSerializerTest {
     }
 
     @Test
-    public void onSimpleObjectShouldIncludeBasicFields() throws Exception {
+    public void onSimpleObjectShouldIncludeAttributes() throws Exception {
         // GIVEN
         Project project = new Project();
         project.setName("name");
@@ -43,6 +43,6 @@ public class ContainerSerializerTest extends BaseSerializerTest {
         String result = sut.writeValueAsString(new Container<>(project));
 
         // THEN
-        assertThatJson(result).node("name").isEqualTo("name");
+        assertThatJson(result).node("attributes.name").isEqualTo("name");
     }
 }

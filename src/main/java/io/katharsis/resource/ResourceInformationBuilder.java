@@ -3,7 +3,6 @@ package io.katharsis.resource;
 import io.katharsis.resource.annotations.JsonApiId;
 import io.katharsis.resource.annotations.JsonApiToMany;
 import io.katharsis.resource.annotations.JsonApiToOne;
-import io.katharsis.resource.exception.ResourceFieldException;
 import io.katharsis.resource.exception.ResourceIdNotFoundException;
 
 import java.lang.reflect.Field;
@@ -22,7 +21,7 @@ public class ResourceInformationBuilder {
         resourceInformation.setResourceClass(resourceClass);
         Field idField = getIdField(resourceClass);
         resourceInformation.setIdField(idField);
-        resourceInformation.setBasicFields(getBasicFields(resourceClass, idField));
+        resourceInformation.setAttributeFields(getAttributes(resourceClass, idField));
         resourceInformation.setRelationshipFields(getRelationshipFields(resourceClass, idField));
 
         return resourceInformation;
@@ -37,15 +36,11 @@ public class ResourceInformationBuilder {
         throw new ResourceIdNotFoundException("Id field for class not found: " + resourceClass.getCanonicalName());
     }
 
-    private <T> Set<Field> getBasicFields(Class<T> resourceClass, Field idField) {
+    private <T> Set<Field> getAttributes(Class<T> resourceClass, Field idField) {
         Set<Field> fields = new HashSet<>();
         for (Field field : resourceClass.getDeclaredFields()) {
             if (!isRelationshipType(field) && !field.equals(idField) && !field.isSynthetic()) {
                 fields.add(field);
-                if (isRestrictedMember(field.getName())) {
-                    throw new ResourceFieldException("Field " + field.getName() + " of class "
-                            + resourceClass.getCanonicalName() + "is restricted");
-                }
             }
         }
         return fields;
@@ -55,10 +50,6 @@ public class ResourceInformationBuilder {
         Set<Field> fields = new HashSet<>();
         for (Field field : resourceClass.getDeclaredFields()) {
             if (isRelationshipType(field) && !field.equals(idField)) {
-                if (isRestrictedMember(field.getName())) {
-                    throw new ResourceFieldException("Field " + field.getName() + " of class "
-                            + resourceClass.getCanonicalName() + "is restricted");
-                }
                 fields.add(field);
             }
         }
@@ -67,15 +58,5 @@ public class ResourceInformationBuilder {
 
     private boolean isRelationshipType(Field type) {
         return type.isAnnotationPresent(JsonApiToMany.class) || type.isAnnotationPresent(JsonApiToOne.class);
-    }
-
-    private boolean isRestrictedMember(String fieldName) {
-        for (RestrictedMembers c : RestrictedMembers.values()) {
-            if (c.name().equals(fieldName)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

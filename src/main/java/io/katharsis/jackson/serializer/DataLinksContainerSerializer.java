@@ -20,6 +20,8 @@ import java.lang.reflect.InvocationTargetException;
  */
 public class DataLinksContainerSerializer extends JsonSerializer<DataLinksContainer> {
 
+    private static final String SELF_FIELD_NAME = "self";
+
     private ResourceRegistry resourceRegistry;
 
     public DataLinksContainerSerializer(ResourceRegistry resourceRegistry) {
@@ -48,7 +50,7 @@ public class DataLinksContainerSerializer extends JsonSerializer<DataLinksContai
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             throw new JsonSerializationException("Exception while writing links", e);
         }
-        gen.writeStringField("self", resourceUrl + "/" + sourceId);
+        gen.writeStringField(SELF_FIELD_NAME, resourceUrl + "/" + sourceId);
     }
 
     private void writeRelationshipFields(DataLinksContainer dataLinksContainer, JsonGenerator gen) throws IOException {

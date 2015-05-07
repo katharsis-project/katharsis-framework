@@ -10,7 +10,8 @@ public class RequestBodyTest {
     @Test
     public void onPostDataWithSingleLinkageShouldMapToObject() throws Exception {
         // GIVEN
-        String body = "{\"data\": {\"type\": \"tasks\", \"name\": \"asdasd\", \"links\": {\"project\": {\"type\": " +
+        String body = "{\"data\": {\"type\": \"tasks\", \"attributes\": {\"name\": \"asdasd\"}, \"links\": {\"project\": " +
+                "{\"type\": " +
                 "\"projects\", \"id\": \"123\"}}}}";
 
         // WHEN
@@ -23,7 +24,7 @@ public class RequestBodyTest {
     @Test
     public void onPostDataWithNullLinkageShouldMapToObject() throws Exception {
         // GIVEN
-        String body = "{\"data\": {\"type\": \"tasks\", \"name\": \"asdasd\", \"links\": {\"project\": null}}}";
+        String body = "{\"data\": {\"type\": \"tasks\", \"attributes\": {\"name\": \"asdasd\"}, \"links\": {\"project\": null}}}";
 
         // WHEN
         RequestBody result = objectMapper.readValue(body, RequestBody.class);
@@ -35,7 +36,7 @@ public class RequestBodyTest {
     @Test
     public void onPostDataWithListOfLinkageShouldMapToObject() throws Exception {
         // GIVEN
-        String body = "{\"data\": {\"type\": \"tasks\", \"name\": \"asdasd\", \"links\": {\"project\": [{\"type\": " +
+        String body = "{\"data\": {\"type\": \"tasks\", \"attributes\": {\"name\": \"asdasd\"}, \"links\": {\"project\": [{\"type\": " +
                 "\"projects\", \"id\": \"123\"}]}}}";
 
         // WHEN
@@ -48,7 +49,7 @@ public class RequestBodyTest {
     @Test
     public void onPostDataWithLifstOfLinkageShouldMapToObject() throws Exception {
         // GIVEN
-        String body = "{\"data\": {\"type\": \"tasks\", \"name\": \"asdasd\", \"links\": {\"project\": []}}}";
+        String body = "{\"data\": {\"type\": \"tasks\", \"attributes\": {\"name\": \"asdasd\"}, \"links\": {\"project\": []}}}";
 
         // WHEN
         RequestBody result = objectMapper.readValue(body, RequestBody.class);

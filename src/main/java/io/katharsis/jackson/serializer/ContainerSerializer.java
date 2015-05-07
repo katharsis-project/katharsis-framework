@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import io.katharsis.jackson.exception.JsonSerializationException;
+import io.katharsis.request.dto.Attributes;
 import io.katharsis.resource.ResourceInformation;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -23,6 +24,11 @@ import java.util.Set;
  * @see Container
  */
 public class ContainerSerializer extends JsonSerializer<Container> {
+
+    private static final String TYPE_FIELD_NAME = "type";
+    private static final String ID_FIELD_NAME = "id";
+    private static final String ATTRIBUTES_FIELD_NAME = "attributes";
+    private static final String LINKS_FIELD_NAME = "links";
 
     private ResourceRegistry resourceRegistry;
 
@@ -50,7 +56,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         Class<?> dataClass = data.getClass();
         String resourceType = resourceRegistry.getResourceType(dataClass);
 
-        gen.writeStringField("type", resourceType);
+        gen.writeStringField(TYPE_FIELD_NAME, resourceType);
 
         RegistryEntry entry = resourceRegistry.getEntry(dataClass);
         ResourceInformation resourceInformation = entry.getResourceInformation();
@@ -61,7 +67,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         }
 
         try {
-            writeBasicFields(gen, data, resourceInformation.getBasicFields());
+            writeAttributes(gen, data, resourceInformation.getAttributeFields());
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             throw new JsonSerializationException("Exception while writing basic fields", e);
         }
@@ -76,22 +82,25 @@ public class ContainerSerializer extends JsonSerializer<Container> {
     private void writeId(JsonGenerator gen, Object data, Field idField)
             throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
         String sourceId = BeanUtils.getProperty(data, idField.getName());
-        gen.writeObjectField("id", sourceId);
+        gen.writeObjectField(ID_FIELD_NAME, sourceId);
     }
 
-    private void writeBasicFields(JsonGenerator gen, Object data, Set<Field> basicFields)
+    private void writeAttributes(JsonGenerator gen, Object data, Set<Field> attributeFields)
             throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
-        for (Field basicField : basicFields) {
-            if (!basicField.isSynthetic()) {
-                Object basicFieldValue = PropertyUtils.getProperty(data, basicField.getName());
-                gen.writeObjectField(basicField.getName(), basicFieldValue);
+
+        Attributes attributesObject = new Attributes();
+        for (Field attributeField : attributeFields) {
+            if (!attributeField.isSynthetic()) {
+                Object basicFieldValue = PropertyUtils.getProperty(data, attributeField.getName());
+                attributesObject.addAttribute(attributeField.getName(), basicFieldValue);
             }
         }
+        gen.writeObjectField(ATTRIBUTES_FIELD_NAME, attributesObject);
     }
 
     private void writeRelationshipFields(JsonGenerator gen, Object data, Set<Field> relationshipFields) throws IOException {
         DataLinksContainer dataLinksContainer = new DataLinksContainer(data, relationshipFields);
-        gen.writeObjectField("links", dataLinksContainer);
+        gen.writeObjectField(LINKS_FIELD_NAME, dataLinksContainer);
     }
 
     public Class<Container> handledType() {
