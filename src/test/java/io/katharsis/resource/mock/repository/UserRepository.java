@@ -1,6 +1,7 @@
 package io.katharsis.resource.mock.repository;
 
 import io.katharsis.repository.ResourceRepository;
+import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.mock.models.User;
 
 import java.util.HashMap;
@@ -32,7 +33,11 @@ public class UserRepository implements ResourceRepository<User, Long> {
 
     @Override
     public User findOne(Long aLong) {
-        return THREAD_LOCAL_REPOSITORY.get().get(aLong);
+        User user = THREAD_LOCAL_REPOSITORY.get().get(aLong);
+        if (user == null) {
+            throw new ResourceNotFoundException("");
+        }
+        return user;
     }
 
     @Override
