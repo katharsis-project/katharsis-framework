@@ -83,7 +83,8 @@ public class ResourcePost implements BaseController {
             throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException {
         Object newInstance = registryEntry.getResourceInformation().getResourceClass().newInstance();
 
-        for (Map.Entry<String, Object> property : requestBody.getData().getAdditionalProperties().entrySet()) {
+
+        for (Map.Entry<String, Object> property : requestBody.getData().getAttributes().getAttributes().entrySet()) {
             PropertyUtils.setProperty(newInstance, property.getKey(), property.getValue());
         }
 

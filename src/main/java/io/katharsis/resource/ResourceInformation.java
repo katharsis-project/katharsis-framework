@@ -17,9 +17,9 @@ public class ResourceInformation {
     private Field idField;
 
     /**
-     * A set of fields that has basic Java types (String, Long, ...).
+     * A set of resource's attribute fields.
      */
-    private Set<Field> basicFields;
+    private Set<Field> attributeFields;
 
     /**
      * A set of fields that contains non-standard Java types (List, Set, custom classes, ...).
@@ -42,12 +42,12 @@ public class ResourceInformation {
         this.idField = idField;
     }
 
-    public Set<Field> getBasicFields() {
-        return basicFields;
+    public Set<Field> getAttributeFields() {
+        return attributeFields;
     }
 
-    public void setBasicFields(Set<Field> basicFields) {
-        this.basicFields = basicFields;
+    public void setAttributeFields(Set<Field> attributeFields) {
+        this.attributeFields = attributeFields;
     }
 
     public Set<Field> getRelationshipFields() {

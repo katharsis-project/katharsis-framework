@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import io.katharsis.jackson.exception.JsonSerializationException;
+import io.katharsis.request.path.PathBuilder;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.LinkageContainer;
@@ -23,6 +24,10 @@ import java.lang.reflect.InvocationTargetException;
  */
 public class RelationshipContainerSerializer extends JsonSerializer<RelationshipContainer> {
 
+    private static final String SELF_FIELD_NAME = "self";
+    private static final String RELATED_FIELD_NAME = "related";
+    private static final String LINKAGE_FIELD_NAME = "linkage";
+
     private ResourceRegistry resourceRegistry;
 
     public RelationshipContainerSerializer(ResourceRegistry resourceRegistry) {
@@ -32,8 +37,8 @@ public class RelationshipContainerSerializer extends JsonSerializer<Relationship
     @Override
     public void serialize(RelationshipContainer relationshipContainer, JsonGenerator gen, SerializerProvider provider) throws IOException {
         gen.writeStartObject();
-        writeLink(relationshipContainer, gen, "self", true);
-        writeLink(relationshipContainer, gen, "related", false);
+        writeLink(relationshipContainer, gen, SELF_FIELD_NAME, true);
+        writeLink(relationshipContainer, gen, RELATED_FIELD_NAME, false);
         writeLinkage(relationshipContainer, gen);
         gen.writeEndObject();
     }
@@ -50,8 +55,9 @@ public class RelationshipContainerSerializer extends JsonSerializer<Relationship
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             throw new JsonSerializationException("Exception while writing links", e);
         }
-        gen.writeStringField(fieldName, resourceUrl + "/" + sourceId + (addLinks ? "/links/" : "/")
-                + relationshipContainer.getRelationshipField().getName());
+        String url = resourceUrl + "/" + sourceId + (addLinks ? "/" + PathBuilder.RELATIONSHIP_MARK + "/" : "/")
+                + relationshipContainer.getRelationshipField().getName();
+        gen.writeStringField(fieldName, url);
     }
 
     /**
@@ -67,7 +73,7 @@ public class RelationshipContainerSerializer extends JsonSerializer<Relationship
         Class relationshipClass = Generics.getResourceClass(relationshipContainer.getRelationshipField(), baseClass);
         RegistryEntry relationshipEntry = resourceRegistry.getEntry(relationshipClass);
 
-        gen.writeFieldName("linkage");
+        gen.writeFieldName(LINKAGE_FIELD_NAME);
         writeLinkageField(relationshipContainer, gen, baseClass, relationshipClass, relationshipEntry);
     }
 

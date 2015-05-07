@@ -3,10 +3,7 @@ package io.katharsis.dispatcher.controller.resource;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
 import io.katharsis.queryParams.RequestParams;
-import io.katharsis.request.dto.DataBody;
-import io.katharsis.request.dto.Linkage;
-import io.katharsis.request.dto.RequestBody;
-import io.katharsis.request.dto.ResourceLinks;
+import io.katharsis.request.dto.*;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.exception.ResourceNotFoundException;
@@ -60,7 +57,8 @@ public class ResourcePostTest extends BaseControllerTest {
         RequestBody newProjectBody = new RequestBody();
         newProjectBody.setData(new DataBody());
         newProjectBody.getData().setType("projects");
-        newProjectBody.getData().setAdditionalProperty("name", "sample project");
+        newProjectBody.getData().setAttributes(new Attributes());
+        newProjectBody.getData().getAttributes().addAttribute("name", "sample project");
 
         JsonPath projectPath = pathBuilder.buildPath("/tasks");
         ResourcePost sut = new ResourcePost(resourceRegistry);
@@ -94,7 +92,8 @@ public class ResourcePostTest extends BaseControllerTest {
         RequestBody newProjectBody = new RequestBody();
         newProjectBody.setData(new DataBody());
         newProjectBody.getData().setType("projects");
-        newProjectBody.getData().setAdditionalProperty("name", "sample project");
+        newProjectBody.getData().setAttributes(new Attributes());
+        newProjectBody.getData().getAttributes().addAttribute("name", "sample project");
 
         JsonPath projectPath = pathBuilder.buildPath("/projects");
         ResourcePost sut = new ResourcePost(resourceRegistry);
@@ -115,7 +114,8 @@ public class ResourcePostTest extends BaseControllerTest {
         RequestBody newTaskBody = new RequestBody();
         newTaskBody.setData(new DataBody());
         newTaskBody.getData().setType("tasks");
-        newTaskBody.getData().setAdditionalProperty("name", "sample task");
+        newTaskBody.getData().setAttributes(new Attributes());
+        newTaskBody.getData().getAttributes().addAttribute("name", "sample task");
         newTaskBody.getData().setLinks(new ResourceLinks());
         newTaskBody.getData().getLinks().setAdditionalProperty("project", new Linkage("projects", projectId.toString()));
 
@@ -142,7 +142,8 @@ public class ResourcePostTest extends BaseControllerTest {
         RequestBody newProjectBody = new RequestBody();
         newProjectBody.setData(new DataBody());
         newProjectBody.getData().setType("projects");
-        newProjectBody.getData().setAdditionalProperty("name", "sample project");
+        newProjectBody.getData().setAttributes(new Attributes());
+        newProjectBody.getData().getAttributes().addAttribute("name", "sample project");
 
         JsonPath projectPath = pathBuilder.buildPath("/projects");
         ResourcePost sut = new ResourcePost(resourceRegistry);
@@ -163,7 +164,8 @@ public class ResourcePostTest extends BaseControllerTest {
         RequestBody newTaskBody = new RequestBody();
         newTaskBody.setData(new DataBody());
         newTaskBody.getData().setType("users");
-        newTaskBody.getData().setAdditionalProperty("name", "some user");
+        newTaskBody.getData().setAttributes(new Attributes());
+        newTaskBody.getData().getAttributes().addAttribute("name", "some user");
         newTaskBody.getData().setLinks(new ResourceLinks());
         newTaskBody.getData().getLinks().setAdditionalProperty("project", Arrays.asList(new Linkage("projects",
                 projectId.toString()), new Linkage("projects", projectId.toString())));
