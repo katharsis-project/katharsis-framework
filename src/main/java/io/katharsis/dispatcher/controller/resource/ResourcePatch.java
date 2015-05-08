@@ -11,14 +11,15 @@ import io.katharsis.response.BaseResponse;
 import io.katharsis.response.Container;
 import io.katharsis.response.ResourceResponse;
 import io.katharsis.utils.Generics;
+import io.katharsis.utils.parser.TypeParser;
 import org.apache.commons.beanutils.PropertyUtils;
 
 import java.io.Serializable;
 
 public class ResourcePatch extends ResourceUpsert {
 
-    public ResourcePatch(ResourceRegistry resourceRegistry) {
-        super(resourceRegistry);
+    public ResourcePatch(ResourceRegistry resourceRegistry, TypeParser typeParser) {
+        super(resourceRegistry, typeParser);
     }
 
     @Override
@@ -40,8 +41,12 @@ public class ResourcePatch extends ResourceUpsert {
         }
 
         String idString = jsonPath.getIds().getIds().get(0);
-        Serializable resourceId = Generics.castIdValue(idString, registryEntry
-                .getResourceInformation().getIdField().getType());
+
+        Class<? extends Serializable> idClass = (Class<? extends Serializable>) registryEntry
+                .getResourceInformation()
+                .getIdField()
+                .getType();
+        Serializable resourceId = typeParser.parse(idString, idClass);
 
         Object resource = registryEntry.getResourceRepository().findOne(resourceId);
         setAttributes(requestBody, resource);

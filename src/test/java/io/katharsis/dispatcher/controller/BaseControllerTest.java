@@ -7,6 +7,7 @@ import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryBuilder;
 import io.katharsis.resource.registry.ResourceRegistryBuilderTest;
 import io.katharsis.resource.registry.ResourceRegistryTest;
+import io.katharsis.utils.parser.TypeParser;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.ExpectedException;
@@ -15,6 +16,7 @@ public abstract class BaseControllerTest {
 
     protected PathBuilder pathBuilder;
     protected ResourceRegistry resourceRegistry;
+    protected TypeParser typeParser;
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -24,5 +26,6 @@ public abstract class BaseControllerTest {
         ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonServiceLocator(), new ResourceInformationBuilder());
         resourceRegistry = registryBuilder.build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, ResourceRegistryTest.TEST_MODELS_URL);
         pathBuilder = new PathBuilder(resourceRegistry);
+        typeParser = new TypeParser();
     }
 }

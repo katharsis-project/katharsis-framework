@@ -29,7 +29,7 @@ public class ResourcePostTest extends BaseControllerTest {
     public void onGivenRequestCollectionGetShouldDenyIt() {
         // GIVEN
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/1");
-        ResourcePost sut = new ResourcePost(resourceRegistry);
+        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -42,7 +42,7 @@ public class ResourcePostTest extends BaseControllerTest {
     public void onGivenRequestResourceGetShouldAcceptIt() {
         // GIVEN
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/");
-        ResourcePost sut = new ResourcePost(resourceRegistry);
+        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -61,7 +61,7 @@ public class ResourcePostTest extends BaseControllerTest {
         newProjectBody.getData().getAttributes().addAttribute("name", "sample project");
 
         JsonPath projectPath = pathBuilder.buildPath("/tasks");
-        ResourcePost sut = new ResourcePost(resourceRegistry);
+        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser);
 
         // THEN
         expectedException.expect(RuntimeException.class);
@@ -77,7 +77,7 @@ public class ResourcePostTest extends BaseControllerTest {
         newProjectBody.setData(new DataBody());
         newProjectBody.getData().setType("fridges");
 
-        ResourcePost sut = new ResourcePost(resourceRegistry);
+        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser);
 
         // THEN
         expectedException.expect(ResourceNotFoundException.class);
@@ -89,7 +89,7 @@ public class ResourcePostTest extends BaseControllerTest {
     @Test
     public void onNoBodyResourceShouldThrowException() throws Exception {
         // GIVEN
-        ResourcePost sut = new ResourcePost(resourceRegistry);
+        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser);
 
         // THEN
         expectedException.expect(RuntimeException.class);
@@ -108,7 +108,7 @@ public class ResourcePostTest extends BaseControllerTest {
         newProjectBody.getData().getAttributes().addAttribute("name", "sample project");
 
         JsonPath projectPath = pathBuilder.buildPath("/projects");
-        ResourcePost sut = new ResourcePost(resourceRegistry);
+        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser);
 
         // WHEN
         ResourceResponse projectResponse = sut.handle(projectPath, new RequestParams(new ObjectMapper()), newProjectBody);
@@ -158,7 +158,7 @@ public class ResourcePostTest extends BaseControllerTest {
         newProjectBody.getData().getAttributes().addAttribute("name", "sample project");
 
         JsonPath projectPath = pathBuilder.buildPath("/projects");
-        ResourcePost sut = new ResourcePost(resourceRegistry);
+        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser);
 
         // WHEN
         ResourceResponse projectResponse = sut.handle(projectPath, new RequestParams(new ObjectMapper()), newProjectBody);

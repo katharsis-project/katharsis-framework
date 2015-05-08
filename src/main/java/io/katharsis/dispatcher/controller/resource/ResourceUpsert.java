@@ -8,6 +8,7 @@ import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.utils.Generics;
+import io.katharsis.utils.parser.TypeParser;
 import org.apache.commons.beanutils.PropertyUtils;
 
 import java.io.Serializable;
@@ -19,9 +20,11 @@ import java.util.Objects;
 
 public abstract class ResourceUpsert implements BaseController {
     protected ResourceRegistry resourceRegistry;
+    protected TypeParser typeParser;
 
-    public ResourceUpsert(ResourceRegistry resourceRegistry) {
+    public ResourceUpsert(ResourceRegistry resourceRegistry, TypeParser typeParser) {
         this.resourceRegistry = resourceRegistry;
+        this.typeParser = typeParser;
     }
 
     protected void setAttributes(RequestBody requestBody, Object instance)
@@ -56,11 +59,14 @@ public abstract class ResourceUpsert implements BaseController {
 
         String type = getLinkageType(property.getValue());
         RegistryEntry relationRegistryEntry = getRelationRegistryEntry(type);
-        Class<?> relationshipIdClass = relationRegistryEntry.getResourceInformation().getIdField().getType();
+        Class<? extends Serializable> relationshipIdClass = (Class<? extends Serializable>) relationRegistryEntry
+                .getResourceInformation()
+                .getIdField()
+                .getType();
         List<Serializable> castedRelationIds = new LinkedList<>();
 
         for (Linkage linkage : property.getValue()) {
-            Serializable castedRelationshipId = Generics.castIdValue(linkage.getId(), relationshipIdClass);
+            Serializable castedRelationshipId = typeParser.parse(linkage.getId(), relationshipIdClass);
             castedRelationIds.add(castedRelationshipId);
         }
 
@@ -87,8 +93,11 @@ public abstract class ResourceUpsert implements BaseController {
             throws NoSuchMethodException, IllegalAccessException, InstantiationException, InvocationTargetException {
         RegistryEntry relationRegistryEntry = getRelationRegistryEntry(property.getValue().getType());
 
-        Class<?> relationshipIdClass = relationRegistryEntry.getResourceInformation().getIdField().getType();
-        Serializable castedRelationshipId = Generics.castIdValue(property.getValue().getId(), relationshipIdClass);
+        Class<? extends Serializable> relationshipIdClass = (Class<? extends Serializable>) relationRegistryEntry
+                .getResourceInformation()
+                .getIdField()
+                .getType();
+        Serializable castedRelationshipId = typeParser.parse(property.getValue().getId(), relationshipIdClass);
 
         Class<?> relationshipClass = relationRegistryEntry.getResourceInformation().getResourceClass();
         RelationshipRepository relationshipRepository = registryEntry.getRelationshipRepositoryForClass(relationshipClass);

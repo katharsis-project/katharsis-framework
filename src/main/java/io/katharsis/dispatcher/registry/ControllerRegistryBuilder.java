@@ -2,6 +2,7 @@ package io.katharsis.dispatcher.registry;
 
 import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.utils.parser.TypeParser;
 import org.reflections.Reflections;
 
 import java.lang.reflect.Constructor;
@@ -17,7 +18,8 @@ import java.util.Set;
  */
 public class ControllerRegistryBuilder {
 
-    public ControllerRegistry build(ResourceRegistry resourceRegistry) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    public ControllerRegistry build(ResourceRegistry resourceRegistry, TypeParser typeParser) throws NoSuchMethodException,
+            IllegalAccessException, InvocationTargetException, InstantiationException {
 
         Reflections reflections = new Reflections("io.katharsis.dispatcher.controller");
 
@@ -27,8 +29,9 @@ public class ControllerRegistryBuilder {
         List<BaseController> controllers = new LinkedList<>();
         for (Class<? extends BaseController> controllerClass : controllerClasses) {
             if ( !Modifier.isAbstract(controllerClass.getModifiers())) {
-                Constructor<? extends BaseController> declaredConstructor = controllerClass.getDeclaredConstructor(ResourceRegistry.class);
-                controllers.add(declaredConstructor.newInstance(resourceRegistry));
+                Constructor<? extends BaseController> declaredConstructor = controllerClass.getDeclaredConstructor
+                        (ResourceRegistry.class, TypeParser.class);
+                controllers.add(declaredConstructor.newInstance(resourceRegistry, typeParser));
             }
         }
 
