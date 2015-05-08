@@ -11,6 +11,7 @@ import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
 import io.katharsis.utils.Generics;
+import io.katharsis.utils.parser.TypeParser;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
@@ -18,9 +19,11 @@ import java.lang.reflect.InvocationTargetException;
 public class ResourceDelete implements BaseController {
 
     private ResourceRegistry resourceRegistry;
+    private TypeParser typeParser;
 
-    public ResourceDelete(ResourceRegistry resourceRegistry) {
+    public ResourceDelete(ResourceRegistry resourceRegistry, TypeParser typeParser) {
         this.resourceRegistry = resourceRegistry;
+        this.typeParser = typeParser;
     }
 
     /**
@@ -45,8 +48,11 @@ public class ResourceDelete implements BaseController {
             throw new ResourceNotFoundException("Resource of type not found: " + resourceName);
         }
         for (String id : resourceIds.getIds()) {
-            Class<?> idType = registryEntry.getResourceInformation().getIdField().getType();
-            Serializable castedId = Generics.castIdValue(id, idType);
+            Class<? extends Serializable> idClass = (Class<? extends Serializable>) registryEntry
+                    .getResourceInformation()
+                    .getIdField()
+                    .getType();
+            Serializable castedId = typeParser.parse(id, idClass);
             registryEntry.getResourceRepository().delete(castedId);
         }
 

@@ -1,32 +1,39 @@
 package io.katharsis.utils;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.io.Serializable;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class GenericsTest {
 
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
+
     @Test
-    public void onClassWithStringParameterShouldBuildNewInstance() throws Exception {
+    public void onGenericClassShouldReturnFirstParameter() throws Exception {
         // WHEN
-        Serializable serializable = Generics.castIdValue("1", ObjectId.class);
+        Class<?> clazz = Generics.getResourceClass(SampleGenericClass.class.getDeclaredField("strings"), List.class);
 
         // THEN
-        assertThat(serializable).isExactlyInstanceOf(ObjectId.class);
-        assertThat(((ObjectId) serializable).getId()).isEqualTo("1");
+        assertThat(clazz).isEqualTo(String.class);
     }
 
-    public static class ObjectId implements Serializable {
-        private String id;
+    @Test
+    public void onGenericWildcardClassShouldThrowException() throws Exception {
+        // THEN
+        expectedException.expect(RuntimeException.class);
 
-        public ObjectId(String id) {
-            this.id = id;
-        }
+        // WHEN
+        Generics.getResourceClass(SampleGenericClass.class.getDeclaredField("stringsWildcard"), List.class);
+    }
 
-        public String getId() {
-            return id;
-        }
+    public static class SampleGenericClass {
+        private List<String> strings;
+        private List<? extends String> stringsWildcard;
     }
 }

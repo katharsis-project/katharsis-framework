@@ -1,6 +1,5 @@
 package io.katharsis.utils;
 
-import java.io.Serializable;
 import java.lang.reflect.*;
 
 public class Generics {
@@ -22,22 +21,5 @@ public class Generics {
             }
         }
         return baseClass;
-    }
-
-    // TODO add more customized casting of ids
-    public static Serializable castIdValue(Object id, Class<?> idType)
-            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
-        if (id instanceof String) {
-            if (Long.class == idType) {
-                return Long.valueOf((String) id);
-            } else if (Integer.class == idType) {
-                return Integer.valueOf((String) id);
-            }
-            Constructor<?> declaredConstructor = idType.getDeclaredConstructor(String.class);
-            if (declaredConstructor != null) {
-                return (Serializable) declaredConstructor.newInstance(id);
-            }
-        }
-        return (Serializable) id;
     }
 }

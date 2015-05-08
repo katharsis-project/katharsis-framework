@@ -1,9 +1,7 @@
 package io.katharsis.dispatcher.controller.resource;
 
 import io.katharsis.queryParams.RequestParams;
-import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.request.dto.DataBody;
-import io.katharsis.request.dto.Linkage;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
@@ -12,20 +10,16 @@ import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.Container;
 import io.katharsis.response.ResourceResponse;
-import io.katharsis.utils.Generics;
+import io.katharsis.utils.parser.TypeParser;
 import org.apache.commons.beanutils.PropertyUtils;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
 public class ResourcePost extends ResourceUpsert {
 
-    public ResourcePost(ResourceRegistry resourceRegistry) {
-        super(resourceRegistry);
+    public ResourcePost(ResourceRegistry resourceRegistry, TypeParser typeParser) {
+        super(resourceRegistry, typeParser);
     }
 
     /**

@@ -14,7 +14,9 @@ import io.katharsis.response.BaseResponse;
 import io.katharsis.response.CollectionResponse;
 import io.katharsis.response.ResourceResponse;
 import io.katharsis.utils.Generics;
+import io.katharsis.utils.parser.TypeParser;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
@@ -22,9 +24,11 @@ import java.util.Set;
 public class FieldResourceGet implements BaseController {
 
     private ResourceRegistry resourceRegistry;
+    private TypeParser typeParser;
 
-    public FieldResourceGet(ResourceRegistry resourceRegistry) {
+    public FieldResourceGet(ResourceRegistry resourceRegistry, TypeParser typeParser) {
         this.resourceRegistry = resourceRegistry;
+        this.typeParser = typeParser;
     }
 
     @Override
@@ -39,8 +43,9 @@ public class FieldResourceGet implements BaseController {
             throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         String resourceName = jsonPath.getResourceName();
         PathIds resourceIds = jsonPath.getIds();
-        String resourceId = resourceIds.getIds().get(0);
+
         RegistryEntry<?> registryEntry = resourceRegistry.getEntry(resourceName);
+        Serializable castedResourceId = getResourceId(resourceIds, registryEntry);
         Set<Field> relationshipFields = registryEntry.getResourceInformation().getRelationshipFields();
 
         Class<?> baseRelationshipFieldClass = null;
@@ -57,13 +62,22 @@ public class FieldResourceGet implements BaseController {
         RelationshipRepository relationshipRepositoryForClass = registryEntry.getRelationshipRepositoryForClass(relationshipFieldClass);
         BaseResponse target;
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
-            Iterable targetObjects = relationshipRepositoryForClass.findTargets(Generics.castIdValue(resourceId, Long.class), jsonPath.getElementName());
+            Iterable targetObjects = relationshipRepositoryForClass.findTargets(castedResourceId, jsonPath.getElementName());
             target = new CollectionResponse(targetObjects);
         } else {
-            Object targetObject = relationshipRepositoryForClass.findOneTarget(Generics.castIdValue(resourceId, Long.class), jsonPath.getElementName());
+            Object targetObject = relationshipRepositoryForClass.findOneTarget(castedResourceId, jsonPath.getElementName());
             target = new ResourceResponse(targetObject);
         }
 
         return target;
+    }
+
+    private Serializable getResourceId(PathIds resourceIds, RegistryEntry<?> registryEntry) {
+        String resourceId = resourceIds.getIds().get(0);
+        Class<? extends Serializable> idClass = (Class<? extends Serializable>) registryEntry
+                .getResourceInformation()
+                .getIdField()
+                .getType();
+        return typeParser.parse(resourceId, idClass);
     }
 }

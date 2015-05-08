@@ -11,6 +11,7 @@ import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
 import io.katharsis.response.CollectionResponse;
 import io.katharsis.response.Container;
+import io.katharsis.utils.parser.TypeParser;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -18,9 +19,11 @@ import java.util.List;
 public class CollectionGet implements BaseController {
 
     private ResourceRegistry resourceRegistry;
+    private TypeParser typeParser;
 
-    public CollectionGet(ResourceRegistry resourceRegistry) {
+    public CollectionGet(ResourceRegistry resourceRegistry, TypeParser typeParser) {
         this.resourceRegistry = resourceRegistry;
+        this.typeParser = typeParser;
     }
 
     /**

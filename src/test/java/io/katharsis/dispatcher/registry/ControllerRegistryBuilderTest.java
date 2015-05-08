@@ -11,7 +11,7 @@ public class ControllerRegistryBuilderTest {
         ControllerRegistryBuilder sut = new ControllerRegistryBuilder();
 
         // WHEN
-        ControllerRegistry result = sut.build(null);
+        ControllerRegistry result = sut.build(null, null);
 
         // THEN
         result.getController(new ResourcePath("path"), "GET");

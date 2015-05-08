@@ -13,6 +13,7 @@ import io.katharsis.response.BaseResponse;
 import io.katharsis.response.Container;
 import io.katharsis.response.ResourceResponse;
 import io.katharsis.utils.Generics;
+import io.katharsis.utils.parser.TypeParser;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
@@ -20,9 +21,11 @@ import java.lang.reflect.InvocationTargetException;
 public class ResourceGet implements BaseController {
 
     private ResourceRegistry resourceRegistry;
+    private TypeParser typeParser;
 
-    public ResourceGet(ResourceRegistry resourceRegistry) {
+    public ResourceGet(ResourceRegistry resourceRegistry, TypeParser typeParser) {
         this.resourceRegistry = resourceRegistry;
+        this.typeParser = typeParser;
     }
 
     /**
@@ -54,8 +57,11 @@ public class ResourceGet implements BaseController {
         }
         String id = resourceIds.getIds().get(0);
 
-        Class<?> idType = registryEntry.getResourceInformation().getIdField().getType();
-        Serializable castedId = Generics.castIdValue(id, idType);
+        Class<? extends Serializable> idClass = (Class<? extends Serializable>) registryEntry
+                .getResourceInformation()
+                .getIdField()
+                .getType();
+        Serializable castedId = typeParser.parse(id, idClass);
         Object entity = registryEntry.getResourceRepository().findOne(castedId);
 
         return new ResourceResponse(new Container(entity));

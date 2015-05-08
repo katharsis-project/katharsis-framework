@@ -15,7 +15,9 @@ import io.katharsis.response.CollectionResponse;
 import io.katharsis.response.LinkageContainer;
 import io.katharsis.response.ResourceResponse;
 import io.katharsis.utils.Generics;
+import io.katharsis.utils.parser.TypeParser;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedList;
@@ -25,9 +27,11 @@ import java.util.Set;
 public class LinksResourceGet implements BaseController {
 
     private ResourceRegistry resourceRegistry;
+    private TypeParser typeParser;
 
-    public LinksResourceGet(ResourceRegistry resourceRegistry) {
+    public LinksResourceGet(ResourceRegistry resourceRegistry, TypeParser typeParser) {
         this.resourceRegistry = resourceRegistry;
+        this.typeParser = typeParser;
     }
 
     @Override
@@ -42,8 +46,9 @@ public class LinksResourceGet implements BaseController {
             throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         String resourceName = jsonPath.getResourceName();
         PathIds resourceIds = jsonPath.getIds();
-        String resourceId = resourceIds.getIds().get(0);
         RegistryEntry<?> registryEntry = resourceRegistry.getEntry(resourceName);
+
+        Serializable castedResourceId = getResourceId(resourceIds, registryEntry);
         Set<Field> relationshipFields = registryEntry.getResourceInformation().getRelationshipFields();
 
         Class<?> baseRelationshipFieldClass = null;
@@ -63,7 +68,7 @@ public class LinksResourceGet implements BaseController {
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
             List<LinkageContainer> dataList = new LinkedList<>();
 
-            Iterable targetObjects = relationshipRepositoryForClass.findTargets(Generics.castIdValue(resourceId, Long.class), jsonPath.getElementName());
+            Iterable targetObjects = relationshipRepositoryForClass.findTargets(castedResourceId, jsonPath.getElementName());
             if (targetObjects != null) {
                 for (Object targetObject : targetObjects) {
                     dataList.add(new LinkageContainer(targetObject, relationshipFieldClass, relationshipFieldEntry));
@@ -71,7 +76,7 @@ public class LinksResourceGet implements BaseController {
             }
             target = new CollectionResponse(dataList);
         } else {
-            Object targetObject = relationshipRepositoryForClass.findOneTarget(Generics.castIdValue(resourceId, Long.class), jsonPath.getElementName());
+            Object targetObject = relationshipRepositoryForClass.findOneTarget(castedResourceId, jsonPath.getElementName());
             if (targetObject != null) {
                 LinkageContainer linkageContainer = new LinkageContainer(targetObject, relationshipFieldClass, relationshipFieldEntry);
                 target = new ResourceResponse(linkageContainer);
@@ -81,5 +86,14 @@ public class LinksResourceGet implements BaseController {
         }
 
         return target;
+    }
+
+    private Serializable getResourceId(PathIds resourceIds, RegistryEntry<?> registryEntry) {
+        String resourceId = resourceIds.getIds().get(0);
+        Class<? extends Serializable> idClass = (Class<? extends Serializable>) registryEntry
+                .getResourceInformation()
+                .getIdField()
+                .getType();
+        return typeParser.parse(resourceId, idClass);
     }
 }
