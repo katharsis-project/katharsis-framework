@@ -9,6 +9,7 @@ import io.katharsis.locator.JsonServiceLocator;
 import io.katharsis.resource.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryBuilder;
+import io.katharsis.utils.parser.TypeParser;
 
 import javax.ws.rs.ConstrainedTo;
 import javax.ws.rs.RuntimeType;
@@ -73,8 +74,9 @@ public class KatharsisFeature implements Feature {
 
     private RequestDispatcher createRequestDispatcher(ResourceRegistry resourceRegistry) throws Exception {
         ControllerRegistryBuilder controllerRegistryBuilder = new ControllerRegistryBuilder();
+        TypeParser typeParser = new TypeParser();
         ControllerRegistry controllerRegistry = controllerRegistryBuilder
-                .build(resourceRegistry);
+                .build(resourceRegistry, typeParser);
         return new RequestDispatcher(controllerRegistry);
     }
 }
