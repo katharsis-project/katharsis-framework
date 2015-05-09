@@ -69,6 +69,7 @@ public class RequestParamsBuilderTest {
 
         // THEN
         assertThat(result.getPagination().get(PaginationKeys.offset)).isEqualTo(0);
+        assertThat(result.getPagination().get(PaginationKeys.limit)).isEqualTo(10);
     }
 
     @Test

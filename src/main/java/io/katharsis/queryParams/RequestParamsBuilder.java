@@ -8,7 +8,8 @@ import java.io.IOException;
 import java.util.Map;
 
 /**
- * Builder responsible for parsing queryParams
+ * Builder responsible for parsing queryParams. The created {@link RequestParams} object contains several fields
+ * where each of them is not-null only when this parameter has been passed with a request.
  */
 public class RequestParamsBuilder {
 
