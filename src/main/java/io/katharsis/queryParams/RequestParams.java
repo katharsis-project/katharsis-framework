@@ -9,6 +9,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Contains a set of parameters passed along with the request.
+ */
 public class RequestParams {
     private JsonNode filters;
     private Map<String, SortingValues> sorting;
@@ -26,16 +29,11 @@ public class RequestParams {
     private static final TypeReference INCLUDED_RELATIONS_TYPE_REFERENCE;
 
     static {
-        SORTING_TYPE_REFERENCE = new TypeReference<Map<String, SortingValues>>() {
-        };
-        GROUPING_TYPE_REFERENCE = new TypeReference<List<String>>() {
-        };
-        PAGINATION_TYPE_REFERENCE = new TypeReference<Map<PaginationKeys, Integer>>() {
-        };
-        INCLUDED_FIELDS_TYPE_REFERENCE = new TypeReference<List<String>>() {
-        };
-        INCLUDED_RELATIONS_TYPE_REFERENCE = new TypeReference<List<String>>() {
-        };
+        SORTING_TYPE_REFERENCE = new TypeReference<Map<String, SortingValues>>() {};
+        GROUPING_TYPE_REFERENCE = new TypeReference<List<String>>() {};
+        PAGINATION_TYPE_REFERENCE = new TypeReference<Map<PaginationKeys, Integer>>() {};
+        INCLUDED_FIELDS_TYPE_REFERENCE = new TypeReference<List<String>>() {};
+        INCLUDED_RELATIONS_TYPE_REFERENCE = new TypeReference<List<String>>() {};
     }
 
     public RequestParams(ObjectMapper objectMapper) {

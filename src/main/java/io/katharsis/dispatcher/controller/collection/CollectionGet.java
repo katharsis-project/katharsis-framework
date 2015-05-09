@@ -13,6 +13,7 @@ import io.katharsis.response.CollectionResponse;
 import io.katharsis.response.Container;
 import io.katharsis.utils.parser.TypeParser;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -27,8 +28,6 @@ public class CollectionGet implements BaseController {
     }
 
     /**
-     * {@inheritDoc}
-     *
      * Check if it is a GET request for a collection of resources.
      */
     @Override
@@ -38,18 +37,22 @@ public class CollectionGet implements BaseController {
                 && "GET".equals(requestType);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    // @TODO handle request params
     public BaseResponse<?> handle(JsonPath jsonPath, RequestParams requestParams, RequestBody requestBody) {
         String resourceName = jsonPath.getElementName();
         RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
         if (registryEntry == null) {
             throw new ResourceNotFoundException("Resource of type not found: " + resourceName);
         }
-        Iterable iterable = registryEntry.getResourceRepository().findAll();
+        Iterable iterable;
+        if (jsonPath.getIds() == null || !jsonPath.getIds().getIds().isEmpty()) {
+            iterable = registryEntry.getResourceRepository().findAll(requestParams);
+        } else {
+            Class<? extends Serializable> idType = (Class<? extends Serializable>)registryEntry
+                    .getResourceInformation().getIdField().getType();
+            typeParser.parse((Iterable<String>)jsonPath.getIds().getIds(), idType);
+            iterable = registryEntry.getResourceRepository().findAll(requestParams);
+        }
         List<Container> containers = new LinkedList<>();
         if (iterable != null) {
             for (Object element : iterable) {
