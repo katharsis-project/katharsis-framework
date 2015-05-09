@@ -1,7 +1,7 @@
 package io.katharsis.locator;
 
 /**
- * Sample implementation of {@link JsonServiceLocator}. It makes new instances for every method call.
+ * Sample implementation of {@link JsonServiceLocator}. It makes new instance for every method call.
  */
 public class SampleJsonServiceLocator implements JsonServiceLocator {
     @Override

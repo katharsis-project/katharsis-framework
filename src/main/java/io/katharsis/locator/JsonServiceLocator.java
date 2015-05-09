@@ -1,8 +1,8 @@
 package io.katharsis.locator;
 
 /**
- * Central interface to provide objects to the framework. Each repository and other framework services are fetched
- * from implementation of this locator.
+ * Central interface to provide domain repositories to the framework. Each repository is fetched from implementation
+ * of this locator.
  */
 public interface JsonServiceLocator {
 
