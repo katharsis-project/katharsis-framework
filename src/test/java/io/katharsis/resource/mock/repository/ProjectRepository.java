@@ -1,5 +1,6 @@
 package io.katharsis.resource.mock.repository;
 
+import io.katharsis.queryParams.RequestParams;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.mock.models.Project;
@@ -26,12 +27,6 @@ public class ProjectRepository implements ResourceRepository<Project, Long> {
     }
 
     @Override
-    public <S extends Project> S update(S entity) {
-        THREAD_LOCAL_REPOSITORY.get().put(entity.getId(), entity);
-        return entity;
-    }
-
-    @Override
     public Project findOne(Long aLong) {
         Project project = THREAD_LOCAL_REPOSITORY.get().get(aLong);
         if (project == null) {
@@ -41,8 +36,14 @@ public class ProjectRepository implements ResourceRepository<Project, Long> {
     }
 
     @Override
-    public Iterable<Project> findAll() {
+    public Iterable<Project> findAll(RequestParams requestParams) {
         return THREAD_LOCAL_REPOSITORY.get().values();
+    }
+
+
+    @Override
+    public Iterable<Project> findAll(Iterable<Long> longs, RequestParams requestParams) {
+        return null;
     }
 
     @Override

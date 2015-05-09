@@ -26,6 +26,7 @@ public interface BaseController {
      * @param requestParams Params specifying request
      * @param requestBody Top-level JSON object from method's body of the request passed as {@link RequestBody}
      * @return CollectionResponse object
+     * @throws Exception internal Katharsis exception
      */
     BaseResponse<?> handle(JsonPath jsonPath, RequestParams requestParams, RequestBody requestBody) throws Exception;
 }

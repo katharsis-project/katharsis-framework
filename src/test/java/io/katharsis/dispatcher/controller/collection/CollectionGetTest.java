@@ -51,4 +51,18 @@ public class CollectionGetTest extends BaseControllerTest {
         // THEN
         Assert.assertNotNull(response);
     }
+
+    @Test
+    public void onGivenRequestCollectionWithIdsGetShouldHandleIt() {
+        // GIVEN
+
+        JsonPath jsonPath = pathBuilder.buildPath("/tasks/1,2");
+        CollectionGet sut = new CollectionGet(resourceRegistry, typeParser);
+
+        // WHEN
+        BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()), null);
+
+        // THEN
+        Assert.assertNotNull(response);
+    }
 }

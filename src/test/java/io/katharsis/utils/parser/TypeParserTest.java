@@ -9,6 +9,7 @@ import org.junit.rules.ExpectedException;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Collections;
 import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,7 +30,7 @@ public class TypeParserTest {
 
     @Test
     public void onNullStringShouldReturnNullString() throws Exception {
-        String result = sut.parse(null, String.class);
+        String result = sut.parse((String)null, String.class);
         assertThat(result).isNull();
     }
 
@@ -213,6 +214,13 @@ public class TypeParserTest {
 
         // WHEN
         sut.parse("input", UnknownClass.class);
+    }
+
+    @Test
+    public void onListOfLongsShouldReturnListOfLongs() throws Exception {
+        Iterable<Long> result = sut.parse(Collections.singletonList("1"), Long.class);
+        assertThat(result).hasSize(1);
+        assertThat(result.iterator().next()).isEqualTo(1L);
     }
 
     private enum SampleEnum {

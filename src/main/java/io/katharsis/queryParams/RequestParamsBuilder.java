@@ -24,6 +24,7 @@ public class RequestParamsBuilder {
      *
      * @param queryParams Map of provided query params
      * @return RequestParams containing filtered query params grouped by JSON:API standard
+     * @throws JsonDeserializationException thrown when unsupported input format is detected
      */
     public RequestParams buildRequestParams(Map<String, String> queryParams) throws JsonDeserializationException {
         RequestParams requestParams = new RequestParams(objectMapper);
