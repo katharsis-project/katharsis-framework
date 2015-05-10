@@ -41,10 +41,10 @@ public class RequestParams {
     }
 
     public JsonNode getFilters() {
-        return filters;
+        return filters != null ? filters.deepCopy() : null;
     }
 
-    public void setFilters(String filters) throws IOException {
+    void setFilters(String filters) throws IOException {
         this.filters = objectMapper.readTree(filters);
     }
 
@@ -52,7 +52,7 @@ public class RequestParams {
         return sorting;
     }
 
-    public void setSorting(String sorting) throws IOException {
+    void setSorting(String sorting) throws IOException {
         this.sorting = Collections.unmodifiableMap(
                 objectMapper.readValue(sorting, SORTING_TYPE_REFERENCE)
         );
@@ -62,7 +62,7 @@ public class RequestParams {
         return grouping;
     }
 
-    public void setGrouping(String grouping) throws IOException {
+    void setGrouping(String grouping) throws IOException {
         this.grouping = Collections.unmodifiableList(
                 objectMapper.readValue(grouping, GROUPING_TYPE_REFERENCE)
         );
@@ -72,7 +72,7 @@ public class RequestParams {
         return pagination;
     }
 
-    public void setPagination(String pagination) throws IOException {
+    void setPagination(String pagination) throws IOException {
         this.pagination = Collections.unmodifiableMap(
                 objectMapper.readValue(pagination, PAGINATION_TYPE_REFERENCE)
         );
@@ -82,7 +82,7 @@ public class RequestParams {
         return includedFields;
     }
 
-    public void setIncludedFields(String includedFields) throws IOException {
+    void setIncludedFields(String includedFields) throws IOException {
         this.includedFields = Collections.unmodifiableList(
                 objectMapper.readValue(includedFields, INCLUDED_FIELDS_TYPE_REFERENCE)
         );
@@ -92,7 +92,7 @@ public class RequestParams {
         return includedRelations;
     }
 
-    public void setIncludedRelations(String includedRelations) throws IOException {
+    void setIncludedRelations(String includedRelations) throws IOException {
         this.includedRelations = Collections.unmodifiableList(
                 objectMapper.readValue(includedRelations, INCLUDED_RELATIONS_TYPE_REFERENCE)
         );
