@@ -2,6 +2,7 @@ package io.katharsis.example.dropwizard.domain.model;
 
 import io.katharsis.resource.annotations.JsonApiId;
 import io.katharsis.resource.annotations.JsonApiResource;
+import io.katharsis.resource.annotations.JsonApiToOne;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
@@ -18,10 +19,8 @@ public class Task {
     private String name;
 
     @Reference
+    @JsonApiToOne
     private Project project;
-
-    public Task() {
-    }
 
     public ObjectId getId() {
         return id;

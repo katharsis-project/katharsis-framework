@@ -2,6 +2,7 @@ package io.katharsis.example.dropwizard.domain.repository;
 
 import io.katharsis.example.dropwizard.domain.model.Task;
 import io.katharsis.example.dropwizard.managed.MongoManaged;
+import io.katharsis.queryParams.RequestParams;
 import io.katharsis.repository.ResourceRepository;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.Datastore;
@@ -30,8 +31,14 @@ public class TaskRepository implements ResourceRepository<Task, ObjectId> {
         return datastore.getByKey(Task.class, new Key<>(Task.class, id));
     }
 
-    public Iterable<Task> findAll() {
+    @Override
+    public Iterable<Task> findAll(RequestParams requestParams) {
         return datastore.find(Task.class);
+    }
+
+    @Override
+    public Iterable<Task> findAll(Iterable<ObjectId> iterable, RequestParams requestParams) {
+        return datastore.get(Task.class, iterable);
     }
 
     public void delete(ObjectId id) {
