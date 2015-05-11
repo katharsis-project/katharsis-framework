@@ -34,14 +34,16 @@ public class ResourceLinksDeserializer extends JsonDeserializer<ResourceLinks> {
             if (field.getValue() == null) {
                 value = null;
             } else if (field.getValue().isArray()) {
-                Iterator<Linkage> linkageIterator = jp.readValuesAs(Linkage.class);
+                Iterator<JsonNode> nodeIterator = field.getValue().iterator();
                 List<Linkage> linkages = new LinkedList<>();
-                while (linkageIterator.hasNext()) {
-                    linkages.add(linkageIterator.next());
+
+                while (nodeIterator.hasNext()) {
+                    Linkage newLinkage = jp.getCodec().treeToValue(nodeIterator.next(), Linkage.class);
+                    linkages.add(newLinkage);
                 }
                 value = linkages;
             } else {
-                value = jp.readValueAs(Linkage.class);
+                value = jp.getCodec().treeToValue(field.getValue(), Linkage.class);
             }
             resourceLinks.setAdditionalProperty(field.getKey(), value);
         }
