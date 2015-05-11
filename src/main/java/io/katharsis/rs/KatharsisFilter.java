@@ -20,8 +20,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -33,6 +32,10 @@ import static io.katharsis.rs.type.JsonApiMediaType.APPLICATION_JSON_API_TYPE;
  * <p>
  * Consumes: <i>null</i> | {@link JsonApiMediaType}
  * Produces: {@link JsonApiMediaType}
+ * </p>
+ * <p>
+ * Currently the response is sent using {@link ContainerRequestContext#abortWith(Response)} which might cause
+ * problems with Jackson, co the serialization is happening in this filter.
  * </p>
  * <p>
  * To be able to send a request to Katharsis it is necessary to provide full media type alongside the request.
@@ -76,7 +79,9 @@ public class KatharsisFilter implements ContainerRequestFilter {
                 .dispatchRequest(jsonPath, method, requestParams, requestBody);
         Response response;
         if (responseData != null) {
-            response = Response.ok(responseData, APPLICATION_JSON_API_TYPE).build();
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            objectMapper.writeValue(os, responseData);
+            response = Response.ok(new ByteArrayInputStream(os.toByteArray()), APPLICATION_JSON_API_TYPE).build();
         } else {
             response = Response.noContent().build();
         }

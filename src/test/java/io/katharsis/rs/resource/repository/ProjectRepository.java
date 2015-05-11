@@ -1,5 +1,6 @@
 package io.katharsis.rs.resource.repository;
 
+import io.katharsis.queryParams.RequestParams;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.rs.resource.model.Project;
 
@@ -10,17 +11,17 @@ public class ProjectRepository implements ResourceRepository<Project, Long> {
     }
 
     @Override
-    public <S extends Project> S update(S s) {
-        return null;
-    }
-
-    @Override
     public Project findOne(Long aLong) {
         return null;
     }
 
     @Override
-    public Iterable<Project> findAll() {
+    public Iterable<Project> findAll(RequestParams requestParams) {
+        return null;
+    }
+
+    @Override
+    public Iterable<Project> findAll(Iterable<Long> projectIds, RequestParams requestParams) {
         return null;
     }
 
