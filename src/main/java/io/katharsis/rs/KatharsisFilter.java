@@ -81,7 +81,11 @@ public class KatharsisFilter implements ContainerRequestFilter {
         if (responseData != null) {
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             objectMapper.writeValue(os, responseData);
-            response = Response.ok(new ByteArrayInputStream(os.toByteArray()), APPLICATION_JSON_API_TYPE).build();
+            response = Response
+                    .status(responseData.getStatus())
+                    .entity(new ByteArrayInputStream(os.toByteArray()))
+                    .type(APPLICATION_JSON_API_TYPE)
+                    .build();
         } else {
             response = Response.noContent().build();
         }
