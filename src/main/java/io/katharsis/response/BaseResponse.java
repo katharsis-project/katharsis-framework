@@ -7,5 +7,6 @@ package io.katharsis.response;
  */
 public interface BaseResponse<T> {
 
+    int getStatus();
     T getData();
 }

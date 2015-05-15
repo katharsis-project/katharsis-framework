@@ -1,5 +1,7 @@
 package io.katharsis.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.Objects;
 
 /**
@@ -24,6 +26,14 @@ public class CollectionResponse implements BaseResponse<Iterable> {
         this.data = data;
     }
 
+    @Override
+    @JsonIgnore
+    public int getStatus() {
+        //TODO: gather status constants
+        return 200;
+    }
+
+    @Override
     public Iterable getData() {
         return data;
     }

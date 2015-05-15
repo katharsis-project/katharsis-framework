@@ -37,7 +37,7 @@ public class RequestDispatcherTest {
         ControllerRegistry controllerRegistry = new ControllerRegistry(null);
         CollectionGet collectionGet = mock(CollectionGet.class);
         controllerRegistry.addController(collectionGet);
-        RequestDispatcher sut = new RequestDispatcher(controllerRegistry);
+        RequestDispatcher sut = new RequestDispatcher(controllerRegistry, null);
 
         // WHEN
         when(collectionGet.isAcceptable(any(JsonPath.class), eq(requestType))).thenCallRealMethod();
