@@ -11,7 +11,6 @@ import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.models.User;
 import io.katharsis.resource.mock.repository.TaskToProjectRepository;
-import io.katharsis.resource.mock.repository.UserToProjectRepository;
 import io.katharsis.response.Container;
 import io.katharsis.response.ResourceResponse;
 import org.junit.Assert;
@@ -179,8 +178,8 @@ public class ResourcePostTest extends BaseControllerTest {
         newTaskBody.getData().setAttributes(new Attributes());
         newTaskBody.getData().getAttributes().addAttribute("name", "some user");
         newTaskBody.getData().setLinks(new ResourceLinks());
-        newTaskBody.getData().getLinks().setAdditionalProperty("project", Arrays.asList(new Linkage("projects",
-                projectId.toString()), new Linkage("projects", projectId.toString())));
+        newTaskBody.getData().getLinks().setAdditionalProperty("assignedProjects", Arrays.asList(new Linkage("projects",
+                projectId.toString())));
 
         JsonPath taskPath = pathBuilder.buildPath("/users");
 
@@ -194,8 +193,7 @@ public class ResourcePostTest extends BaseControllerTest {
         assertThat(userId).isNotNull();
         assertThat(((User) (((Container) taskResponse.getData()).getData())).getName()).isEqualTo("some user");
 
-        UserToProjectRepository userToProjectRepository = new UserToProjectRepository();
-        Project project = userToProjectRepository.findOneTarget(userId, "project");
-        assertThat(project.getId()).isEqualTo(projectId);
+        assertThat(((User) (((Container) taskResponse.getData()).getData())).getAssignedProjects()).hasSize(1);
+        assertThat(((User) (((Container) taskResponse.getData()).getData())).getAssignedProjects().get(0).getId()).isEqualTo(projectId);
     }
 }

@@ -9,6 +9,8 @@ import java.util.Set;
  */
 public final class ResourceInformation {
 
+    private static final ResourceFieldNameTransformer RESOURCE_FIELD_NAME_TRANSFORMER = new ResourceFieldNameTransformer();
+
     private final Class<?> resourceClass;
 
     /**
@@ -50,14 +52,22 @@ public final class ResourceInformation {
         return relationshipFields;
     }
 
+    public Field findAttributeFieldByName(String name) {
+        return getField(name, attributeFields);
+    }
+
     public Field findRelationshipFieldByName(String name) {
+        return getField(name, relationshipFields);
+    }
+
+    private Field getField(String name, Set<Field> fields) {
         Field foundField = null;
-        if (relationshipFields != null) {
-            for (Field field : relationshipFields) {
-                if (field.getName().equals(name)) {
-                    foundField = field;
-                    break;
-                }
+        String fieldName;
+        for (Field field : fields) {
+            fieldName = RESOURCE_FIELD_NAME_TRANSFORMER.getName(field);
+            if (fieldName.equals(name)) {
+                foundField = field;
+                break;
             }
         }
         return foundField;
