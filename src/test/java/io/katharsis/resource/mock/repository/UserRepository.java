@@ -3,9 +3,12 @@ package io.katharsis.resource.mock.repository;
 import io.katharsis.queryParams.RequestParams;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.resource.exception.ResourceNotFoundException;
+import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.User;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 public class UserRepository implements ResourceRepository<User, Long> {
@@ -17,6 +20,8 @@ public class UserRepository implements ResourceRepository<User, Long> {
             return new HashMap<>();
         }
     };
+
+    private static final UserToProjectRepository USER_TO_PROJECT_REPOSITORY = new UserToProjectRepository();
 
     @Override
     public <S extends User> S save(S entity) {
@@ -32,6 +37,9 @@ public class UserRepository implements ResourceRepository<User, Long> {
         if (user == null) {
             throw new ResourceNotFoundException("");
         }
+        Iterable<Project> assignedProjects = USER_TO_PROJECT_REPOSITORY.findTargets(aLong, "assignedProjects");
+        user.setAssignedProjects(makeCollection(assignedProjects));
+
         return user;
     }
 
@@ -49,5 +57,13 @@ public class UserRepository implements ResourceRepository<User, Long> {
     @Override
     public void delete(Long aLong) {
         THREAD_LOCAL_REPOSITORY.get().remove(aLong);
+    }
+
+    public static <E> List<E> makeCollection(Iterable<E> iter) {
+        List<E> list = new LinkedList<>();
+        for (E item : iter) {
+            list.add(item);
+        }
+        return list;
     }
 }
