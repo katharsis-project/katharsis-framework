@@ -1,9 +1,10 @@
 package io.katharsis.errorHandling;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-public class ErrorObject {
+public final class ErrorData {
 
     /**
      * A unique identifier for this particular occurrence of the problem.
@@ -48,19 +49,19 @@ public class ErrorObject {
      */
     private final List<String> paths;
 
-    public ErrorObject(String id, String href, String status, String code, String title, String detail, List<String> links, List<String> paths) {
+    public ErrorData(String id, String href, String status, String code, String title, String detail, List<String> links, List<String> paths) {
         this.id = id;
         this.href = href;
         this.status = status;
         this.code = code;
         this.title = title;
         this.detail = detail;
-        this.links = links;
-        this.paths = paths;
+        this.links = links == null ? null : Collections.unmodifiableList(links);
+        this.paths = paths == null ? null : Collections.unmodifiableList(paths);
     }
 
-    public static ErrorObjectBuilder newBuilder() {
-        return new ErrorObjectBuilder();
+    public static ErrorDataBuilder newBuilder() {
+        return new ErrorDataBuilder();
     }
 
     public String getId() {
@@ -98,8 +99,8 @@ public class ErrorObject {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof ErrorObject)) return false;
-        ErrorObject that = (ErrorObject) o;
+        if (!(o instanceof ErrorData)) return false;
+        ErrorData that = (ErrorData) o;
         return Objects.equals(id, that.id) &&
                 Objects.equals(href, that.href) &&
                 Objects.equals(status, that.status) &&
@@ -117,7 +118,7 @@ public class ErrorObject {
 
     @Override
     public String toString() {
-        return "ErrorObject{" +
+        return "ErrorData{" +
                 "id='" + id + '\'' +
                 ", href='" + href + '\'' +
                 ", status='" + status + '\'' +
