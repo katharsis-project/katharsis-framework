@@ -1,6 +1,7 @@
 package io.katharsis.dispatcher.controller.resource;
 
 import io.katharsis.dispatcher.controller.BaseController;
+import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.RequestParams;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
@@ -12,7 +13,6 @@ import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
 import io.katharsis.response.Container;
 import io.katharsis.response.ResourceResponse;
-import io.katharsis.utils.Generics;
 import io.katharsis.utils.parser.TypeParser;
 
 import java.io.Serializable;
@@ -37,7 +37,7 @@ public class ResourceGet implements BaseController {
     public boolean isAcceptable(JsonPath jsonPath, String requestType) {
         return !jsonPath.isCollection()
                 && jsonPath instanceof ResourcePath
-                && "GET".equals(requestType);
+                && HttpMethod.GET.name().equals(requestType);
     }
 
     /**
@@ -53,7 +53,7 @@ public class ResourceGet implements BaseController {
         PathIds resourceIds = jsonPath.getIds();
         RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
         if (registryEntry == null) {
-            throw new ResourceNotFoundException("Resource of type not found: " + resourceName);
+            throw new ResourceNotFoundException(resourceName);
         }
         String id = resourceIds.getIds().get(0);
 
