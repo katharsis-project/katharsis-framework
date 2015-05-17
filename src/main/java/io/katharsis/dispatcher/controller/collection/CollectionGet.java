@@ -1,6 +1,7 @@
 package io.katharsis.dispatcher.controller.collection;
 
 import io.katharsis.dispatcher.controller.BaseController;
+import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
@@ -34,7 +35,7 @@ public class CollectionGet implements BaseController {
     public boolean isAcceptable(JsonPath jsonPath, String requestType) {
         return jsonPath.isCollection()
                 && jsonPath instanceof ResourcePath
-                && "GET".equals(requestType);
+                && HttpMethod.GET.name().equals(requestType);
     }
 
     @Override
@@ -42,7 +43,7 @@ public class CollectionGet implements BaseController {
         String resourceName = jsonPath.getElementName();
         RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
         if (registryEntry == null) {
-            throw new ResourceNotFoundException("Resource of type not found: " + resourceName);
+            throw new ResourceNotFoundException(resourceName);
         }
         Iterable iterable;
         if (jsonPath.getIds() == null || !jsonPath.getIds().getIds().isEmpty()) {
