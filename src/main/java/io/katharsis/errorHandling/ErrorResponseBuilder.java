@@ -4,17 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ErrorResponseBuilder {
-    private Iterable<ErrorObject> data;
+    private Iterable<ErrorData> data;
     private int status;
 
-    public ErrorResponseBuilder setErrorData(Iterable<ErrorObject> errorObjects) {
-        this.data = data;
+    public ErrorResponseBuilder setErrorData(Iterable<ErrorData> errorObjects) {
+        this.data = errorObjects;
         return this;
     }
-    public ErrorResponseBuilder setSingleErrorData(ErrorObject errorObject) {
-        List<ErrorObject> errorObjects = new ArrayList<>();
-        errorObjects.add(errorObject);
-        this.data = errorObjects;
+    public ErrorResponseBuilder setSingleErrorData(ErrorData errorData) {
+        List<ErrorData> errorDatas = new ArrayList<>();
+        errorDatas.add(errorData);
+        this.data = errorDatas;
         return this;
     }
 

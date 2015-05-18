@@ -60,7 +60,7 @@ public final class ErrorData {
         this.paths = paths == null ? null : Collections.unmodifiableList(paths);
     }
 
-    public static ErrorDataBuilder newBuilder() {
+    public static ErrorDataBuilder builder() {
         return new ErrorDataBuilder();
     }
 

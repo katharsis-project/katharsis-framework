@@ -1,35 +1,48 @@
 package io.katharsis.errorHandling;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.katharsis.response.BaseResponse;
 
+import java.util.Objects;
 
-public class ErrorResponse implements BaseResponse<Iterable<ErrorObject>> {
+public final class ErrorResponse implements BaseResponse<Iterable<ErrorData>> {
 
-    @JsonProperty("errors")
-    private final Iterable<ErrorObject> data;
-    @JsonIgnore
-    private final int status;
+    private static final String ERRORS = "errors";
 
-    public ErrorResponse(Iterable<ErrorObject> data, int status) {
+    private final Iterable<ErrorData> data;
+    private final int httpStatus;
+
+    public ErrorResponse(Iterable<ErrorData> data, int httpStatus) {
         this.data = data;
-        this.status = status;
+        this.httpStatus = httpStatus;
     }
 
-    public static ErrorResponseBuilder newBuilder() {
+    @Override
+    public int getHttpStatus() {
+        return httpStatus;
+    }
+
+    @Override
+    @JsonProperty(ERRORS)
+    public final Iterable<ErrorData> getData() {
+        return data;
+    }
+
+    public static ErrorResponseBuilder builder() {
         return new ErrorResponseBuilder();
     }
 
     @Override
-    public int getStatus() {
-        return status;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ErrorResponse)) return false;
+        ErrorResponse that = (ErrorResponse) o;
+        return Objects.equals(httpStatus, that.httpStatus) &&
+                Objects.equals(data, that.data);
     }
 
     @Override
-    public final Iterable<ErrorObject> getData() {
-        return data;
+    public int hashCode() {
+        return Objects.hash(data, httpStatus);
     }
-
-
 }

@@ -2,83 +2,71 @@ package io.katharsis.errorHandling;
 
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ErrorDataBuilderTest {
 
-    private static final String DETAIL = "detail";
-    private static final String CODE = "code";
-    private static final String HREF = "href";
-    private static final String ID = "id";
-    private static final String STATUS = "status";
-    private static final String TITLE = "title";
-    private static final List<String> LINKS = Arrays.asList("link1", "link2");
-    private static final List<String> PATHS = Arrays.asList("path1", "path2");
-
     @Test
     public void shouldSetDetail() throws Exception {
-        ErrorData error = ErrorData.newBuilder()
-                .setDetail(DETAIL)
+        ErrorData error = ErrorData.builder()
+                .setDetail(ErrorDataMother.DETAIL)
                 .build();
-        assertThat(error.getDetail()).isEqualTo(DETAIL);
+        assertThat(error.getDetail()).isEqualTo(ErrorDataMother.DETAIL);
     }
 
     @Test
     public void shouldSetCode() throws Exception {
-        ErrorData error = ErrorData.newBuilder()
-                .setCode(CODE)
+        ErrorData error = ErrorData.builder()
+                .setCode(ErrorDataMother.CODE)
                 .build();
-        assertThat(error.getCode()).isEqualTo(CODE);
+        assertThat(error.getCode()).isEqualTo(ErrorDataMother.CODE);
     }
 
     @Test
     public void shouldSetHref() throws Exception {
-        ErrorData error = ErrorData.newBuilder()
-                .setHref(HREF)
+        ErrorData error = ErrorData.builder()
+                .setHref(ErrorDataMother.HREF)
                 .build();
-        assertThat(error.getHref()).isEqualTo(HREF);
+        assertThat(error.getHref()).isEqualTo(ErrorDataMother.HREF);
     }
 
     @Test
     public void shouldSetId() throws Exception {
-        ErrorData error = ErrorData.newBuilder()
-                .setId(ID)
+        ErrorData error = ErrorData.builder()
+                .setId(ErrorDataMother.ID)
                 .build();
-        assertThat(error.getId()).isEqualTo(ID);
+        assertThat(error.getId()).isEqualTo(ErrorDataMother.ID);
     }
 
     @Test
     public void shouldSetStatus() throws Exception {
-        ErrorData error = ErrorData.newBuilder()
-                .setStatus(STATUS)
+        ErrorData error = ErrorData.builder()
+                .setStatus(ErrorDataMother.STATUS)
                 .build();
-        assertThat(error.getStatus()).isEqualTo(STATUS);
+        assertThat(error.getStatus()).isEqualTo(ErrorDataMother.STATUS);
     }
 
     @Test
     public void shouldSetTitle() throws Exception {
-        ErrorData error = ErrorData.newBuilder()
-                .setTitle(TITLE)
+        ErrorData error = ErrorData.builder()
+                .setTitle(ErrorDataMother.TITLE)
                 .build();
-        assertThat(error.getTitle()).isEqualTo(TITLE);
+        assertThat(error.getTitle()).isEqualTo(ErrorDataMother.TITLE);
     }
 
     @Test
     public void shouldSetLinks() throws Exception {
-        ErrorData error = ErrorData.newBuilder()
-                .setLinks(LINKS)
+        ErrorData error = ErrorData.builder()
+                .setLinks(ErrorDataMother.LINKS)
                 .build();
-        assertThat(error.getLinks()).isEqualTo(LINKS);
+        assertThat(error.getLinks()).isEqualTo(ErrorDataMother.LINKS);
     }
 
     @Test
     public void shouldSetPaths() throws Exception {
-        ErrorData error = ErrorData.newBuilder()
-                .setPaths(PATHS)
+        ErrorData error = ErrorData.builder()
+                .setPaths(ErrorDataMother.PATHS)
                 .build();
-        assertThat(error.getPaths()).isEqualTo(PATHS);
+        assertThat(error.getPaths()).isEqualTo(ErrorDataMother.PATHS);
     }
 }
