@@ -1,4 +1,4 @@
-package io.katharsis.errorHandling;
+package io.katharsis.errorHandling.mapper;
 
 import java.util.Optional;
 import java.util.Set;
@@ -7,8 +7,12 @@ public final class ExceptionMapperRegistry {
 
     private final Set<ExceptionMapperType> exceptionMappers;
 
-    public ExceptionMapperRegistry(Set<ExceptionMapperType> exceptionMappers) {
+    ExceptionMapperRegistry(Set<ExceptionMapperType> exceptionMappers) {
         this.exceptionMappers = exceptionMappers;
+    }
+
+    Set<ExceptionMapperType> getExceptionMappers() {
+        return exceptionMappers;
     }
 
     public Optional<JsonApiExceptionMapper> findMapperFor(Class<? extends Throwable> exceptionClass) {
