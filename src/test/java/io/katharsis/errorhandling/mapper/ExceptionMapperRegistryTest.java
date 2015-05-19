@@ -1,6 +1,7 @@
 package io.katharsis.errorhandling.mapper;
 
 import io.katharsis.errorhandling.ErrorResponse;
+import io.katharsis.response.HttpStatus;
 import org.junit.Test;
 
 import java.nio.file.ClosedFileSystemException;
@@ -12,7 +13,8 @@ import static org.assertj.core.api.Assertions.*;
 
 public class ExceptionMapperRegistryTest {
 
-    ExceptionMapperRegistry exceptionMapperRegistry = new ExceptionMapperRegistry(exceptionMapperTypeSet());
+    //Reused in RequestDispatcherTest
+    public static ExceptionMapperRegistry exceptionMapperRegistry = new ExceptionMapperRegistry(exceptionMapperTypeSet());
 
     @Test
     public void shouldReturnIntegerMAXForNotRelatedClasses() {
@@ -64,7 +66,7 @@ public class ExceptionMapperRegistryTest {
     public static class IllegalStateExceptionMapper implements JsonApiExceptionMapper<IllegalStateException> {
         @Override
         public ErrorResponse toErrorResponse(IllegalStateException exception) {
-            return ErrorResponse.builder().setStatus(400).build();
+            return ErrorResponse.builder().setStatus(HttpStatus.BAD_REQUEST_400).build();
         }
     }
 }
