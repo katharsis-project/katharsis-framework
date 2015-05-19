@@ -20,12 +20,12 @@ public class ExceptionMapperRegistryBuilderTest {
     @Test
     public void shouldThrowExceptionWhenAnnotatedClassIsNotImplementingJsonMapper() throws Exception {
         expectedException.expect(InvalidResourceException.class);
-        builder.build("io.katharsis.errorHandling.badhandler");
+        builder.build("io.katharsis.errorhandling.badhandler");
     }
 
     @Test
     public void shouldContainDefaultKatharsisExceptionMapper() throws Exception {
-        ExceptionMapperRegistry registry = builder.build("io.katharsis.errorHandling.handlers");
+        ExceptionMapperRegistry registry = builder.build("io.katharsis.errorhandling.handlers");
         assertThat(registry.getExceptionMappers())
                 .isNotNull()
                 .extracting("exceptionClass")
@@ -34,7 +34,7 @@ public class ExceptionMapperRegistryBuilderTest {
 
     @Test
     public void shouldContainScannedExceptionMapper() throws Exception {
-        ExceptionMapperRegistry registry = builder.build("io.katharsis.errorHandling.handlers");
+        ExceptionMapperRegistry registry = builder.build("io.katharsis.errorhandling.handlers");
         assertThat(registry.getExceptionMappers())
                 .isNotNull()
                 .extracting("exceptionClass")
@@ -43,7 +43,7 @@ public class ExceptionMapperRegistryBuilderTest {
 
     @Test
     public void shouldNotContainNotAnnotatedExceptionMapper() throws Exception {
-        ExceptionMapperRegistry registry = builder.build("io.katharsis.errorHandling.handlers");
+        ExceptionMapperRegistry registry = builder.build("io.katharsis.errorhandling.handlers");
         assertThat(registry.getExceptionMappers())
                 .isNotNull()
                 .extracting("exceptionClass")
