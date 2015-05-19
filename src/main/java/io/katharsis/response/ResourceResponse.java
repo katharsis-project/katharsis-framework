@@ -1,7 +1,5 @@
 package io.katharsis.response;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import java.util.Objects;
 
 /**
@@ -30,10 +28,8 @@ public class ResourceResponse implements BaseResponse {
     }
 
     @Override
-    @JsonIgnore //TODO: Is it necessary?
-    public int getStatus() {
-        //TODO: gather status constants
-        return 200;
+    public int getHttpStatus() {
+        return HttpStatus.OK_200;
     }
 
     @Override

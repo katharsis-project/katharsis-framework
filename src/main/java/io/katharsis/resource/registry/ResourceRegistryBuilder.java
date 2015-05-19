@@ -32,7 +32,7 @@ public class ResourceRegistryBuilder {
      * Scans all classes in provided package and finds all resources and repositories associated with found resource.
      *
      * @param packageName Package containing resources (models) and repositories.
-     * @param serviceUrl URL to the service
+     * @param serviceUrl  URL to the service
      * @return an instance of ResourceRegistry
      */
     public ResourceRegistry build(String packageName, String serviceUrl) {
@@ -64,7 +64,7 @@ public class ResourceRegistryBuilder {
                 return entityRepositoryClass;
             }
         }
-        throw new RepositoryNotFoundException("Repository for resource not found: " + resourceClass.getCanonicalName());
+        throw new RepositoryNotFoundException(resourceClass.getCanonicalName());
     }
 
     private Set<Class<? extends RelationshipRepository>> findRelationshipRepositories(Class resourceClass,
@@ -85,15 +85,13 @@ public class ResourceRegistryBuilder {
 
         ResourceRepository resourceRepository = context.getInstance(foundEntityRepositoryClass);
         if (resourceRepository == null) {
-            throw new RepositoryNotFoundException("Instance of the repository not found: " +
-                    foundEntityRepositoryClass.getCanonicalName());
+            throw new RepositoryNotFoundException(foundEntityRepositoryClass.getCanonicalName());
         }
         List<RelationshipRepository> relationshipRepositories = new LinkedList<>();
         for (Class<? extends RelationshipRepository> relationshipRepositoryClass : foundRelationshipRepositoriesClasses) {
             RelationshipRepository relationshipRepository = context.getInstance(relationshipRepositoryClass);
             if (relationshipRepository == null) {
-                throw new RepositoryNotFoundException("Instance of the repository not found: " +
-                        foundEntityRepositoryClass.getCanonicalName());
+                throw new RepositoryNotFoundException(foundEntityRepositoryClass.getCanonicalName());
             }
             relationshipRepositories.add(relationshipRepository);
         }

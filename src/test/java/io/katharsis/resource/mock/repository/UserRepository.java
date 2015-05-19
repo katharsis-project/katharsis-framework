@@ -30,7 +30,7 @@ public class UserRepository implements ResourceRepository<User, Long> {
     public User findOne(Long aLong) {
         User user = THREAD_LOCAL_REPOSITORY.get().get(aLong);
         if (user == null) {
-            throw new ResourceNotFoundException("");
+            throw new ResourceNotFoundException(User.class);
         }
         return user;
     }

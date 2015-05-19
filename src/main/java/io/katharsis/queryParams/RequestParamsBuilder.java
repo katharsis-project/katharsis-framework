@@ -1,7 +1,7 @@
 package io.katharsis.queryParams;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.katharsis.jackson.exception.JsonDeserializationException;
+import io.katharsis.jackson.exception.ParametersDeserializationException;
 import io.katharsis.resource.RestrictedQueryParamsMembers;
 
 import java.io.IOException;
@@ -24,9 +24,9 @@ public class RequestParamsBuilder {
      *
      * @param queryParams Map of provided query params
      * @return RequestParams containing filtered query params grouped by JSON:API standard
-     * @throws JsonDeserializationException thrown when unsupported input format is detected
+     * @throws ParametersDeserializationException thrown when unsupported input format is detected
      */
-    public RequestParams buildRequestParams(Map<String, String> queryParams) throws JsonDeserializationException {
+    public RequestParams buildRequestParams(Map<String, String> queryParams) {
         RequestParams requestParams = new RequestParams(objectMapper);
 
         try {
@@ -60,7 +60,7 @@ public class RequestParamsBuilder {
                 requestParams.setIncludedRelations(queryParams.get(includeKey));
             }
         } catch (IOException e) {
-            throw new JsonDeserializationException("Exception while reading request parameters", e);
+            throw new ParametersDeserializationException(e.getMessage());
         }
 
         return requestParams;

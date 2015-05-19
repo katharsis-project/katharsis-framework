@@ -1,7 +1,7 @@
 package io.katharsis.queryParams;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.katharsis.jackson.exception.JsonDeserializationException;
+import io.katharsis.jackson.exception.ParametersDeserializationException;
 import io.katharsis.resource.RestrictedQueryParamsMembers;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,7 +23,7 @@ public class RequestParamsBuilderTest {
     }
 
     @Test
-    public void onGivenFiltersBuilderShouldReturnRequestParamsWithFilters() throws JsonDeserializationException {
+    public void onGivenFiltersBuilderShouldReturnRequestParamsWithFilters() throws ParametersDeserializationException {
         // GIVEN
         queryParams.put(RestrictedQueryParamsMembers.filter.name(), "{\"name\": \"John\"}");
 
@@ -35,7 +35,7 @@ public class RequestParamsBuilderTest {
     }
 
     @Test
-    public void onGivenSortingBuilderShouldReturnRequestParamsWithSorting() throws JsonDeserializationException {
+    public void onGivenSortingBuilderShouldReturnRequestParamsWithSorting() throws ParametersDeserializationException {
         // GIVEN
         queryParams.put(RestrictedQueryParamsMembers.sort.name(), "{\"name\": \"asc\"}");
 
@@ -47,7 +47,7 @@ public class RequestParamsBuilderTest {
     }
 
     @Test
-    public void onGivenGroupingBuilderShouldReturnRequestParamsWithGrouping() throws JsonDeserializationException {
+    public void onGivenGroupingBuilderShouldReturnRequestParamsWithGrouping() throws ParametersDeserializationException {
         // GIVEN
         queryParams.put(RestrictedQueryParamsMembers.group.name(), "[\"name\"]");
 
@@ -60,7 +60,7 @@ public class RequestParamsBuilderTest {
 
 
     @Test
-    public void onGivenPaginationBuilderShouldReturnRequestParamsWithPagination() throws JsonDeserializationException {
+    public void onGivenPaginationBuilderShouldReturnRequestParamsWithPagination() throws ParametersDeserializationException {
         // GIVEN
         queryParams.put(RestrictedQueryParamsMembers.page.name(), "{ \"offset\" : 0, \"limit\": 10}");
 
@@ -74,7 +74,7 @@ public class RequestParamsBuilderTest {
 
     @Test
     public void onGivenIncludedFieldsBuilderShouldReturnRequestParamsWithIncludedFields() throws
-            JsonDeserializationException {
+            ParametersDeserializationException {
         // GIVEN
         queryParams.put(RestrictedQueryParamsMembers.fields.name(), "[\"name\"]");
 
@@ -87,7 +87,7 @@ public class RequestParamsBuilderTest {
 
     @Test
     public void onGivenIncludedRelationsBuilderShouldReturnRequestParamsWithIncludedRelations() throws
-            JsonDeserializationException {
+            ParametersDeserializationException {
         // GIVEN
         queryParams.put(RestrictedQueryParamsMembers.include.name(), "[\"friends\"]");
 

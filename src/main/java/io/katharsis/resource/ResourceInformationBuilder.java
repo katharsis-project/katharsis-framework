@@ -3,8 +3,8 @@ package io.katharsis.resource;
 import io.katharsis.resource.annotations.JsonApiId;
 import io.katharsis.resource.annotations.JsonApiToMany;
 import io.katharsis.resource.annotations.JsonApiToOne;
-import io.katharsis.resource.exception.ResourceException;
-import io.katharsis.resource.exception.ResourceIdNotFoundException;
+import io.katharsis.resource.exception.init.ResourceDuplicateIdException;
+import io.katharsis.resource.exception.init.ResourceIdNotFoundException;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
@@ -33,9 +33,9 @@ public final class ResourceInformationBuilder {
                 .collect(Collectors.toList());
 
         if (idFields.size() == 0) {
-            throw new ResourceIdNotFoundException("Id field for class not found: " + resourceClass.getCanonicalName());
+            throw new ResourceIdNotFoundException(resourceClass.getCanonicalName());
         } else if (idFields.size() > 1) {
-            throw new ResourceException("Duplicated Id field found in class: " + resourceClass.getCanonicalName());
+            throw new ResourceDuplicateIdException(resourceClass.getCanonicalName());
         }
         return idFields.get(0);
     }

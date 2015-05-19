@@ -57,7 +57,7 @@ public class TypeParser {
         } catch (InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException |
                 NumberFormatException | ParserException
                 e) {
-            throw new ParserException(e);
+            throw new ParserException(e.getMessage());
         }
     }
 
