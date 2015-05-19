@@ -45,6 +45,7 @@ public class ResourceDelete implements BaseController {
         PathIds resourceIds = jsonPath.getIds();
         RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
         if (registryEntry == null) {
+            //TODO: Add JsonPath toString and provide to exception?
             throw new ResourceNotFoundException(resourceName);
         }
         for (String id : resourceIds.getIds()) {

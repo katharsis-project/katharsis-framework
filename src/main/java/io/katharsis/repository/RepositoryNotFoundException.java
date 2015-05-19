@@ -1,11 +1,13 @@
 package io.katharsis.repository;
 
+import io.katharsis.errorHandling.exception.KatharsisInitalizationException;
+
 /**
  * Thrown when repository definition for a resource cannot be found in specified package.
  */
-public class RepositoryNotFoundException extends RuntimeException {
+public final class RepositoryNotFoundException extends KatharsisInitalizationException {
 
-    public RepositoryNotFoundException(String message) {
-        super(message);
+    public RepositoryNotFoundException(String missingRepositoryClassName) {
+        super("Instance of the repository not found: " + missingRepositoryClassName);
     }
 }

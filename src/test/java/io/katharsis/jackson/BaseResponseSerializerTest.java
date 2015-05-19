@@ -109,7 +109,7 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
         // WHEN
         sut.writeValueAsString(new BaseResponse<Object>() {
             @Override
-            public int getStatus() {
+            public int getHttpStatus() {
                 return 0;
             }
 

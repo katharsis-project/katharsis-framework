@@ -1,5 +1,7 @@
 package io.katharsis.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  * Top-level JSON container's interface, used to generalize single and collection responses.
  *
@@ -7,6 +9,8 @@ package io.katharsis.response;
  */
 public interface BaseResponse<T> {
 
-    int getStatus();
+    @JsonIgnore
+    int getHttpStatus();
+
     T getData();
 }

@@ -3,7 +3,7 @@ package io.katharsis.resource;
 import io.katharsis.resource.annotations.JsonApiId;
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.exception.ResourceException;
-import io.katharsis.resource.exception.ResourceIdNotFoundException;
+import io.katharsis.resource.exception.init.ResourceIdNotFoundException;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.models.UnAnnotatedTask;
 import org.junit.Assert;
