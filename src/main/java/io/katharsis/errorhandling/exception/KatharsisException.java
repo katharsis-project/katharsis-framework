@@ -12,6 +12,7 @@ public class KatharsisException extends RuntimeException {
     private final int httpStatus;
 
     protected KatharsisException(int httpStatus, ErrorData errorData) {
+        super(errorData.getDetail());
         this.httpStatus = httpStatus;
         this.errorData = errorData;
     }
