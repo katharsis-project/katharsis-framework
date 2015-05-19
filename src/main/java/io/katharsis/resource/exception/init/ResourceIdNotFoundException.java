@@ -1,6 +1,6 @@
 package io.katharsis.resource.exception.init;
 
-import io.katharsis.errorHandling.exception.KatharsisInitalizationException;
+import io.katharsis.errorhandling.exception.KatharsisInitalizationException;
 
 /**
  * A resource does not contain field annotated with JsonApiId annotation.

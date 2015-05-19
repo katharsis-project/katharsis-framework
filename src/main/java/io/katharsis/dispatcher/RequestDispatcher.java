@@ -1,8 +1,8 @@
 package io.katharsis.dispatcher;
 
 import io.katharsis.dispatcher.registry.ControllerRegistry;
-import io.katharsis.errorHandling.mapper.ExceptionMapperRegistry;
-import io.katharsis.errorHandling.mapper.JsonApiExceptionMapper;
+import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
+import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
 import io.katharsis.queryParams.RequestParams;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
