@@ -32,8 +32,7 @@ public class PathBuilder {
     public JsonPath buildPath(String path) {
         String[] strings = splitPath(path);
         if (strings.length == 0 || (strings.length == 1 && "".equals(strings[0]))) {
-            // TODO: HAndle exception
-            throw new IllegalArgumentException("Path is empty");
+            throw new ResourceException("Path is empty");
         }
 
         JsonPath previousJsonPath = null, currentJsonPath = null;
@@ -98,6 +97,7 @@ public class PathBuilder {
                 }
             }
         }
+        //TODO: Throw different exception? element name can be null..
         throw new ResourceFieldNotFoundException(elementName);
     }
 

@@ -46,7 +46,6 @@ public class ResourceRegistry {
                 return apiResource.type();
             }
         }
-
         // won't reach this
         return null;
     }
