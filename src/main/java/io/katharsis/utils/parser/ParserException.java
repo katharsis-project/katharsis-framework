@@ -1,7 +1,7 @@
 package io.katharsis.utils.parser;
 
-import io.katharsis.errorHandling.ErrorData;
-import io.katharsis.errorHandling.exception.KatharsisException;
+import io.katharsis.errorhandling.ErrorData;
+import io.katharsis.errorhandling.exception.KatharsisException;
 import io.katharsis.response.HttpStatus;
 
 /**
