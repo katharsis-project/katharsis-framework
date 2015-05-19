@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.RequestDispatcher;
 import io.katharsis.dispatcher.registry.ControllerRegistry;
 import io.katharsis.dispatcher.registry.ControllerRegistryBuilder;
+import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
+import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryBuilder;
 import io.katharsis.jackson.JsonApiModuleBuilder;
 import io.katharsis.locator.JsonServiceLocator;
 import io.katharsis.resource.ResourceInformationBuilder;
@@ -52,7 +54,8 @@ public class KatharsisFeature implements Feature {
 
         KatharsisFilter katharsisFilter;
         try {
-            katharsisFilter = createKatharsisFilter(resourceRegistry);
+            ExceptionMapperRegistry exceptionMapperRegistry = buildExceptionMapperRegistry(resourceSearchPackage);
+            katharsisFilter = createKatharsisFilter(resourceRegistry, exceptionMapperRegistry);
         } catch (Exception e) {
             throw new WebApplicationException(e);
         }
@@ -61,22 +64,27 @@ public class KatharsisFeature implements Feature {
         return true;
     }
 
+    private ExceptionMapperRegistry buildExceptionMapperRegistry(String resourceSearchPackage) throws Exception {
+        ExceptionMapperRegistryBuilder mapperRegistryBuilder = new ExceptionMapperRegistryBuilder();
+        return mapperRegistryBuilder.build(resourceSearchPackage);
+    }
+
     private ResourceRegistry buildResourceRegistry(String resourceSearchPackage, String resourceDefaultDomain) {
         ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(jsonServiceLocator, new ResourceInformationBuilder());
         return registryBuilder.build(resourceSearchPackage, resourceDefaultDomain);
     }
 
-    private KatharsisFilter createKatharsisFilter(ResourceRegistry resourceRegistry) throws Exception {
-        RequestDispatcher requestDispatcher = createRequestDispatcher(resourceRegistry);
+    private KatharsisFilter createKatharsisFilter(ResourceRegistry resourceRegistry, ExceptionMapperRegistry exceptionMapperRegistry) throws Exception {
+        RequestDispatcher requestDispatcher = createRequestDispatcher(resourceRegistry, exceptionMapperRegistry);
 
         return new KatharsisFilter(objectMapper, resourceRegistry, requestDispatcher);
     }
 
-    private RequestDispatcher createRequestDispatcher(ResourceRegistry resourceRegistry) throws Exception {
+    private RequestDispatcher createRequestDispatcher(ResourceRegistry resourceRegistry, ExceptionMapperRegistry exceptionMapperRegistry) throws Exception {
         ControllerRegistryBuilder controllerRegistryBuilder = new ControllerRegistryBuilder();
         TypeParser typeParser = new TypeParser();
         ControllerRegistry controllerRegistry = controllerRegistryBuilder
                 .build(resourceRegistry, typeParser);
-        return new RequestDispatcher(controllerRegistry);
+        return new RequestDispatcher(controllerRegistry, exceptionMapperRegistry);
     }
 }

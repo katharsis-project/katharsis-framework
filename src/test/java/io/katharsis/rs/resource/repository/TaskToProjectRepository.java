@@ -7,12 +7,12 @@ import io.katharsis.rs.resource.model.Task;
 public class TaskToProjectRepository implements RelationshipRepository<Task, Long, Project, Long> {
 
     @Override
-    public void addRelation(Task task, Long projectId, String fieldName) {
+    public void setRelation(Task task, Long projectId, String fieldName) {
 
     }
 
     @Override
-    public void removeRelation(Task task, Long projectId, String fieldName) {
+    public void setRelations(Task task, Iterable<Long> projectId, String fieldName) {
 
     }
 

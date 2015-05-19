@@ -2,7 +2,8 @@ package io.katharsis.rs;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.RequestDispatcher;
-import io.katharsis.jackson.exception.JsonDeserializationException;
+import io.katharsis.errorhandling.exception.KatharsisException;
+import io.katharsis.errorhandling.mapper.def.KatharsisExceptionMapper;
 import io.katharsis.queryParams.RequestParams;
 import io.katharsis.queryParams.RequestParamsBuilder;
 import io.katharsis.request.dto.RequestBody;
@@ -20,6 +21,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -33,6 +36,10 @@ import static io.katharsis.rs.type.JsonApiMediaType.APPLICATION_JSON_API_TYPE;
  * <p>
  * Consumes: <i>null</i> | {@link JsonApiMediaType}
  * Produces: {@link JsonApiMediaType}
+ * </p>
+ * <p>
+ * Currently the response is sent using {@link ContainerRequestContext#abortWith(Response)} which might cause
+ * problems with Jackson, co the serialization is happening in this filter.
  * </p>
  * <p>
  * To be able to send a request to Katharsis it is necessary to provide full media type alongside the request.
@@ -66,21 +73,35 @@ public class KatharsisFilter implements ContainerRequestFilter {
 
     private void dispatchRequest(ContainerRequestContext requestContext) throws Exception {
         UriInfo uriInfo = requestContext.getUriInfo();
-        JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath(uriInfo.getPath());
-        RequestParams requestParams = createRequestParams(uriInfo);
+        BaseResponse<?> katharsisResponse = null;
+        //TODO: Refactor
+        try {
+            JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath(uriInfo.getPath());
 
-        String method = requestContext.getMethod();
-        RequestBody requestBody = inputStreamToBody(requestContext.getEntityStream());
+            RequestParams requestParams = createRequestParams(uriInfo);
 
-        BaseResponse<?> responseData = requestDispatcher
-                .dispatchRequest(jsonPath, method, requestParams, requestBody);
-        Response response;
-        if (responseData != null) {
-            response = Response.ok(responseData, APPLICATION_JSON_API_TYPE).build();
-        } else {
-            response = Response.noContent().build();
+            String method = requestContext.getMethod();
+            RequestBody requestBody = inputStreamToBody(requestContext.getEntityStream());
+
+            katharsisResponse = requestDispatcher
+                    .dispatchRequest(jsonPath, method, requestParams, requestBody);
+        } catch (KatharsisException e) {
+            katharsisResponse = new KatharsisExceptionMapper().toErrorResponse(e);
+        } finally {
+            Response response;
+            if (katharsisResponse != null) {
+                ByteArrayOutputStream os = new ByteArrayOutputStream();
+                objectMapper.writeValue(os, katharsisResponse);
+                response = Response
+                        .status(katharsisResponse.getHttpStatus())
+                        .entity(new ByteArrayInputStream(os.toByteArray()))
+                        .type(APPLICATION_JSON_API_TYPE)
+                        .build();
+            } else {
+                response = Response.noContent().build();
+            }
+            requestContext.abortWith(response);
         }
-        requestContext.abortWith(response);
     }
 
     private boolean isAcceptableMediaType(ContainerRequestContext requestContext) {
@@ -109,13 +130,7 @@ public class KatharsisFilter implements ContainerRequestFilter {
             queryParameters.put(queryName, queryParametersMultiMap.getFirst(queryName));
         }
 
-        RequestParams requestParams;
-        try {
-            requestParams = requestParamsBuilder.buildRequestParams(queryParameters);
-        } catch (JsonDeserializationException e) {
-            throw new RuntimeException(e);
-        }
-        return requestParams;
+        return requestParamsBuilder.buildRequestParams(queryParameters);
     }
 
     public RequestBody inputStreamToBody(InputStream is) throws IOException {
