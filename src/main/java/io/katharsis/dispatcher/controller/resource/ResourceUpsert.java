@@ -4,6 +4,7 @@ import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.request.dto.Linkage;
 import io.katharsis.request.dto.RequestBody;
+import io.katharsis.resource.exception.ResourceException;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -53,8 +54,7 @@ public abstract class ResourceUpsert implements BaseController {
     private void saveRelationsField(Object savedResource, RegistryEntry registryEntry, Map.Entry<String,
             Iterable<Linkage>> property) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         if (!allTypesTheSame(property.getValue())) {
-            //TODO: Handle exception
-            throw new RuntimeException("Not all types are the same for linkage: " + property.getKey());
+            throw new ResourceException("Not all types are the same for linkage: " + property.getKey());
         }
 
         String type = getLinkageType(property.getValue());
