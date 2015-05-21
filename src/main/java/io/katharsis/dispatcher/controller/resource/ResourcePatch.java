@@ -10,9 +10,7 @@ import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
 import io.katharsis.response.Container;
 import io.katharsis.response.ResourceResponse;
-import io.katharsis.utils.Generics;
 import io.katharsis.utils.parser.TypeParser;
-import org.apache.commons.beanutils.PropertyUtils;
 
 import java.io.Serializable;
 
@@ -49,7 +47,7 @@ public class ResourcePatch extends ResourceUpsert {
         Serializable resourceId = typeParser.parse(idString, idClass);
 
         Object resource = registryEntry.getResourceRepository().findOne(resourceId);
-        setAttributes(requestBody, resource);
+        setAttributes(requestBody, resource, registryEntry.getResourceInformation());
         Object savedResource = registryEntry.getResourceRepository().save(resource);
         saveRelations(savedResource, registryEntry, requestBody);
 
