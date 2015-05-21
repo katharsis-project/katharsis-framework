@@ -47,7 +47,7 @@ public class ResourcePost extends ResourceUpsert {
         }
 
         Object resource = buildNewResource(registryEntry, requestBody, resourceName);
-        setAttributes(requestBody, resource);
+        setAttributes(requestBody, resource, registryEntry.getResourceInformation());
         Object savedResource = registryEntry.getResourceRepository().save(resource);
         saveRelations(savedResource, registryEntry, requestBody);
 

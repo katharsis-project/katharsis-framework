@@ -4,14 +4,15 @@ import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.request.dto.Linkage;
 import io.katharsis.request.dto.RequestBody;
+import io.katharsis.resource.ResourceInformation;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.utils.Generics;
 import io.katharsis.utils.parser.TypeParser;
 import org.apache.commons.beanutils.PropertyUtils;
 
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedList;
 import java.util.List;
@@ -27,11 +28,12 @@ public abstract class ResourceUpsert implements BaseController {
         this.typeParser = typeParser;
     }
 
-    protected void setAttributes(RequestBody requestBody, Object instance)
+    protected void setAttributes(RequestBody requestBody, Object instance, ResourceInformation resourceInformation)
             throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException {
         if (requestBody.getData().getAttributes() != null) {
             for (Map.Entry<String, Object> property : requestBody.getData().getAttributes().getAttributes().entrySet()) {
-                PropertyUtils.setProperty(instance, property.getKey(), property.getValue());
+                Field attributeField = resourceInformation.findAttributeFieldByName(property.getKey());
+                PropertyUtils.setProperty(instance, attributeField.getName(), property.getValue());
             }
         }
     }
@@ -42,9 +44,9 @@ public abstract class ResourceUpsert implements BaseController {
             Map<String, Object> additionalProperties = requestBody.getData().getLinks().getAdditionalProperties();
             for (Map.Entry<String, Object> property : additionalProperties.entrySet()) {
                 if (Iterable.class.isAssignableFrom(property.getValue().getClass())) {
-                    saveRelationsField(savedResource, registryEntry, (Map.Entry) property);
+                    saveRelationsField(savedResource, registryEntry, (Map.Entry) property, registryEntry.getResourceInformation());
                 } else {
-                    saveRelationField(savedResource, registryEntry, (Map.Entry) property);
+                    saveRelationField(savedResource, registryEntry, (Map.Entry) property, registryEntry.getResourceInformation());
                 }
 
             }
@@ -52,7 +54,8 @@ public abstract class ResourceUpsert implements BaseController {
     }
 
     private void saveRelationsField(Object savedResource, RegistryEntry registryEntry, Map.Entry<String,
-            Iterable<Linkage>> property) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+            Iterable<Linkage>> property, ResourceInformation resourceInformation)
+            throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         if (!allTypesTheSame(property.getValue())) {
             throw new RuntimeException("Not all types are the same for linkage: " + property.getKey());
         }
@@ -72,7 +75,8 @@ public abstract class ResourceUpsert implements BaseController {
 
         Class<?> relationshipClass = relationRegistryEntry.getResourceInformation().getResourceClass();
         RelationshipRepository relationshipRepository = registryEntry.getRelationshipRepositoryForClass(relationshipClass);
-        relationshipRepository.setRelations(savedResource, castedRelationIds, property.getKey());
+        Field relationshipField = resourceInformation.findRelationshipFieldByName(property.getKey());
+        relationshipRepository.setRelations(savedResource, castedRelationIds, relationshipField.getName());
     }
 
     private boolean allTypesTheSame(Iterable<Linkage> linkages) {
@@ -89,7 +93,8 @@ public abstract class ResourceUpsert implements BaseController {
         return linkages.iterator().hasNext() ? linkages.iterator().next().getType() : null;
     }
 
-    private void saveRelationField(Object savedResource, RegistryEntry registryEntry, Map.Entry<String, Linkage> property)
+    private void saveRelationField(Object savedResource, RegistryEntry registryEntry, Map.Entry<String, Linkage> property,
+                                   ResourceInformation resourceInformation)
             throws NoSuchMethodException, IllegalAccessException, InstantiationException, InvocationTargetException {
         RegistryEntry relationRegistryEntry = getRelationRegistryEntry(property.getValue().getType());
 
@@ -101,7 +106,8 @@ public abstract class ResourceUpsert implements BaseController {
 
         Class<?> relationshipClass = relationRegistryEntry.getResourceInformation().getResourceClass();
         RelationshipRepository relationshipRepository = registryEntry.getRelationshipRepositoryForClass(relationshipClass);
-        relationshipRepository.setRelation(savedResource, castedRelationshipId, property.getKey());
+        Field relationshipField = resourceInformation.findRelationshipFieldByName(property.getKey());
+        relationshipRepository.setRelation(savedResource, castedRelationshipId, relationshipField.getName());
     }
 
     private RegistryEntry getRelationRegistryEntry(String type) {

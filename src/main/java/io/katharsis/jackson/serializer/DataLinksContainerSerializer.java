@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import io.katharsis.jackson.exception.JsonSerializationException;
+import io.katharsis.resource.ResourceFieldNameTransformer;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.DataLinksContainer;
@@ -21,6 +22,7 @@ import java.lang.reflect.InvocationTargetException;
 public class DataLinksContainerSerializer extends JsonSerializer<DataLinksContainer> {
 
     private static final String SELF_FIELD_NAME = "self";
+    private static final ResourceFieldNameTransformer RESOURCE_FIELD_NAME_TRANSFORMER = new ResourceFieldNameTransformer();
 
     private ResourceRegistry resourceRegistry;
 
@@ -56,7 +58,7 @@ public class DataLinksContainerSerializer extends JsonSerializer<DataLinksContai
     private void writeRelationshipFields(DataLinksContainer dataLinksContainer, JsonGenerator gen) throws IOException {
         for (Field field : dataLinksContainer.getRelationshipFields()) {
             RelationshipContainer relationshipContainer = new RelationshipContainer(dataLinksContainer, field);
-            gen.writeObjectField(field.getName(), relationshipContainer);
+            gen.writeObjectField(RESOURCE_FIELD_NAME_TRANSFORMER.getName(field), relationshipContainer);
         }
     }
 
