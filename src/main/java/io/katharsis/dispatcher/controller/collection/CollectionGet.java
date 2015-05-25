@@ -1,10 +1,10 @@
 package io.katharsis.dispatcher.controller.collection;
 
 import io.katharsis.dispatcher.controller.BaseController;
+import io.katharsis.queryParams.RequestParams;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
-import io.katharsis.queryParams.RequestParams;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -38,6 +38,7 @@ public class CollectionGet implements BaseController {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public BaseResponse<?> handle(JsonPath jsonPath, RequestParams requestParams, RequestBody requestBody) {
         String resourceName = jsonPath.getElementName();
         RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
@@ -45,13 +46,14 @@ public class CollectionGet implements BaseController {
             throw new ResourceNotFoundException("Resource of type not found: " + resourceName);
         }
         Iterable iterable;
-        if (jsonPath.getIds() == null || !jsonPath.getIds().getIds().isEmpty()) {
+        if (jsonPath.getIds() == null || jsonPath.getIds().getIds().isEmpty()) {
             iterable = registryEntry.getResourceRepository().findAll(requestParams);
         } else {
             Class<? extends Serializable> idType = (Class<? extends Serializable>)registryEntry
                     .getResourceInformation().getIdField().getType();
-            typeParser.parse((Iterable<String>)jsonPath.getIds().getIds(), idType);
-            iterable = registryEntry.getResourceRepository().findAll(requestParams);
+            Iterable<? extends Serializable> parsedIds = typeParser.parse((Iterable<String>) jsonPath.getIds().getIds(),
+                    idType);
+            iterable = registryEntry.getResourceRepository().findAll(parsedIds, requestParams);
         }
         List<Container> containers = new LinkedList<>();
         if (iterable != null) {

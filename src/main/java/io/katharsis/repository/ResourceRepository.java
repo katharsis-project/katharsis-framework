@@ -53,7 +53,7 @@ public interface ResourceRepository<T, ID extends Serializable> {
     <S extends T> S save(S entity);
 
     /**
-     * Removed a resource.
+     * Removes a resource identified by id parameter.
      *
      * @param id identified of the resource to be removed
      */
