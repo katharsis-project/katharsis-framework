@@ -11,12 +11,11 @@
     <packaging>jar</packaging>
 
     <name>dropwizard-mongo-example</name>
-    <url>http://maven.apache.org</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <dropwizard.version>0.8.1</dropwizard.version>
-        <mongojack.version>2.3.0</mongojack.version>
+        <morphia.version>0.111</morphia.version>
+        <mongo-driver.version>2.13.0</mongo-driver.version>
     </properties>
 
     <dependencies>
@@ -33,7 +32,7 @@
         <dependency>
             <groupId>org.mongodb.morphia</groupId>
             <artifactId>morphia</artifactId>
-            <version>0.111</version>
+            <version>${morphia.version}</version>
         </dependency>
         <dependency>
             <groupId>io.dropwizard</groupId>
@@ -43,7 +42,7 @@
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongo-java-driver</artifactId>
-            <version>2.13.0</version>
+            <version>${mongo-driver.version}</version>
         </dependency>
     </dependencies>
 </project>

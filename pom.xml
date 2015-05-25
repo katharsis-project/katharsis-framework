@@ -8,6 +8,7 @@
     <modules>
         <module>dropwizard-mongo-example</module>
         <module>jersey-example</module>
+        <module>dropwizard-simple-example</module>
     </modules>
     <packaging>pom</packaging>
 
@@ -16,6 +17,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <dropwizard.version>0.8.1</dropwizard.version>
         <javaVersion>1.8</javaVersion>
     </properties>
 
