@@ -107,6 +107,16 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
         expectedException.expect(JsonMappingException.class);
 
         // WHEN
-        sut.writeValueAsString((BaseResponse) () -> null);
+        sut.writeValueAsString(new BaseResponse<Object>() {
+            @Override
+            public int getHttpStatus() {
+                return 0;
+            }
+
+            @Override
+            public Object getData() {
+                return null;
+            }
+        });
     }
 }

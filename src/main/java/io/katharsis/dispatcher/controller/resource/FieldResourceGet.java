@@ -1,6 +1,7 @@
 package io.katharsis.dispatcher.controller.resource;
 
 import io.katharsis.dispatcher.controller.BaseController;
+import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.RequestParams;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.request.dto.RequestBody;
@@ -35,7 +36,7 @@ public class FieldResourceGet implements BaseController {
     public boolean isAcceptable(JsonPath jsonPath, String requestType) {
         return !jsonPath.isCollection()
                 && jsonPath instanceof FieldPath
-                && "GET".equals(requestType);
+                && HttpMethod.GET.name().equals(requestType);
     }
 
     @Override
@@ -57,7 +58,7 @@ public class FieldResourceGet implements BaseController {
             }
         }
         if (relationshipFieldClass == null) {
-            throw new ResourceFieldNotFoundException("Resource field not found: " + jsonPath.getElementName());
+            throw new ResourceFieldNotFoundException(jsonPath.getElementName());
         }
         RelationshipRepository relationshipRepositoryForClass = registryEntry.getRelationshipRepositoryForClass(relationshipFieldClass);
         BaseResponse target;

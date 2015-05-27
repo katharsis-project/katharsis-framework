@@ -27,6 +27,12 @@ public class ResourceResponse implements BaseResponse {
         this.data = data;
     }
 
+    @Override
+    public int getHttpStatus() {
+        return HttpStatus.OK_200;
+    }
+
+    @Override
     public Object getData() {
         return data;
     }

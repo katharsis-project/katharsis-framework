@@ -32,7 +32,7 @@ public class PathBuilder {
     public JsonPath buildPath(String path) {
         String[] strings = splitPath(path);
         if (strings.length == 0 || (strings.length == 1 && "".equals(strings[0]))) {
-            throw new IllegalArgumentException("Path is empty");
+            throw new ResourceException("Path is empty");
         }
 
         JsonPath previousJsonPath = null, currentJsonPath = null;
@@ -68,7 +68,7 @@ public class PathBuilder {
                     throw new ResourceException("LinksPath and FieldPath cannot contain ids");
                 }
             } else {
-                throw new ResourceNotFoundException("Invalid path: " + path);
+                throw new ResourceNotFoundException(null, path);
             }
 
             if (pathIds != null) {
@@ -97,7 +97,8 @@ public class PathBuilder {
                 }
             }
         }
-        throw new ResourceFieldNotFoundException("Field was not found: " + elementName);
+        //TODO: Throw different exception? element name can be null..
+        throw new ResourceFieldNotFoundException(elementName);
     }
 
     private PathIds createPathIds(String idsString) {

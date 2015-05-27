@@ -1,81 +1,56 @@
 package io.katharsis.resource.registry;
 
-import io.katharsis.resource.exception.ResourceNotFoundException;
+import io.katharsis.resource.exception.init.ResourceNotFoundInitalizationException;
 import io.katharsis.resource.mock.models.Task;
-import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 
 public class ResourceRegistryTest {
 
     public static final String TEST_MODELS_URL = "https://service.local";
-
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
+    private ResourceRegistry resourceRegisty;
+
+    @Before
+    public void resetResourceRegistry() {
+        resourceRegisty = new ResourceRegistry(TEST_MODELS_URL);
+    }
 
     @Test
     public void onExistingTypeShouldReturnEntry() {
-        // GIVEN
-        ResourceRegistry sut = new ResourceRegistry(TEST_MODELS_URL);
-        sut.addEntry(Task.class, new RegistryEntry<>(null, null));
-
-        // WHEN
-        RegistryEntry tasksEntry = sut.getEntry("tasks");
-
-        // THEN
-        Assert.assertNotNull(tasksEntry);
+        resourceRegisty.addEntry(Task.class, new RegistryEntry<>(null, null));
+        RegistryEntry tasksEntry = resourceRegisty.getEntry("tasks");
+        assertThat(tasksEntry).isNotNull();
     }
 
     @Test
     public void onExistingClassShouldReturnEntry() {
-        // GIVEN
-        ResourceRegistry sut = new ResourceRegistry(TEST_MODELS_URL);
-        sut.addEntry(Task.class, new RegistryEntry<>(null, null));
-
-        // WHEN
-        RegistryEntry tasksEntry = sut.getEntry(Task.class);
-
-        // THEN
-        Assert.assertNotNull(tasksEntry);
+        resourceRegisty.addEntry(Task.class, new RegistryEntry<>(null, null));
+        RegistryEntry tasksEntry = resourceRegisty.getEntry(Task.class);
+        assertThat(tasksEntry).isNotNull();
     }
 
     @Test
     public void onExistingTypeShouldReturnUrl() {
-        // GIVEN
-        ResourceRegistry sut = new ResourceRegistry(TEST_MODELS_URL);
-        sut.addEntry(Task.class, new RegistryEntry<>(null, null));
-
-        // WHEN
-        String resourceUrl = sut.getResourceUrl(Task.class);
-
-        // THEN
-        Assert.assertEquals(TEST_MODELS_URL + "/tasks", resourceUrl);
+        resourceRegisty.addEntry(Task.class, new RegistryEntry<>(null, null));
+        String resourceUrl = resourceRegisty.getResourceUrl(Task.class);
+        assertThat(resourceUrl).isEqualTo(TEST_MODELS_URL + "/tasks");
     }
 
     @Test
     public void onNonExistingTypeShouldReturnNull() {
-        // GIVEN
-        ResourceRegistry sut = new ResourceRegistry(TEST_MODELS_URL);
-
-        // WHEN
-        RegistryEntry entry = sut.getEntry("nonExistingType");
-
-        // THEN
+        RegistryEntry entry = resourceRegisty.getEntry("nonExistingType");
         assertThat(entry).isNull();
     }
 
     @Test
     public void onNonExistingClassShouldThrowException() {
-        // GIVEN
-        ResourceRegistry sut = new ResourceRegistry(TEST_MODELS_URL);
-
-        // THEN
-        expectedException.expect(ResourceNotFoundException.class);
-
-        // WHEN
-        sut.getEntry(Long.class);
+        expectedException.expect(ResourceNotFoundInitalizationException.class);
+        resourceRegisty.getEntry(Long.class);
     }
 }

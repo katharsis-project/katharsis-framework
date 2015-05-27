@@ -1,7 +1,7 @@
 package io.katharsis.resource.registry;
 
 import io.katharsis.resource.annotations.JsonApiResource;
-import io.katharsis.resource.exception.ResourceNotFoundException;
+import io.katharsis.resource.exception.init.ResourceNotFoundInitalizationException;
 
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
@@ -35,7 +35,7 @@ public class ResourceRegistry {
         if (registryEntry != null) {
             return registryEntry;
         }
-        throw new ResourceNotFoundException("Resource of class not found: " + clazz.getCanonicalName());
+        throw new ResourceNotFoundInitalizationException(clazz.getCanonicalName());
     }
 
     public String getResourceType(Class clazz) {
@@ -46,7 +46,8 @@ public class ResourceRegistry {
                 return apiResource.type();
             }
         }
-        throw new RuntimeException("Class has no JsonApiResource annotation: " + clazz.getCanonicalName());
+        // won't reach this
+        return null;
     }
 
     public String getResourceUrl(Class clazz) {

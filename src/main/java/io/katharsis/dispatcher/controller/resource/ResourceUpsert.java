@@ -5,6 +5,7 @@ import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.request.dto.Linkage;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.resource.ResourceInformation;
+import io.katharsis.resource.exception.ResourceException;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -57,7 +58,7 @@ public abstract class ResourceUpsert implements BaseController {
             Iterable<Linkage>> property, ResourceInformation resourceInformation)
             throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         if (!allTypesTheSame(property.getValue())) {
-            throw new RuntimeException("Not all types are the same for linkage: " + property.getKey());
+            throw new ResourceException("Not all types are the same for linkage: " + property.getKey());
         }
 
         String type = getLinkageType(property.getValue());
@@ -113,7 +114,7 @@ public abstract class ResourceUpsert implements BaseController {
     private RegistryEntry getRelationRegistryEntry(String type) {
         RegistryEntry relationRegistryEntry = resourceRegistry.getEntry(type);
         if (relationRegistryEntry == null) {
-            throw new ResourceNotFoundException("Resource of type not found: " + type);
+            throw new ResourceNotFoundException(type);
         }
         return relationRegistryEntry;
     }

@@ -24,6 +24,12 @@ public class CollectionResponse implements BaseResponse<Iterable> {
         this.data = data;
     }
 
+    @Override
+    public int getHttpStatus() {
+        return HttpStatus.OK_200;
+    }
+
+    @Override
     public Iterable getData() {
         return data;
     }

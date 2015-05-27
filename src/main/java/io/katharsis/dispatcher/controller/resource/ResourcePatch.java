@@ -1,9 +1,11 @@
 package io.katharsis.dispatcher.controller.resource;
 
+import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.RequestParams;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
+import io.katharsis.resource.exception.RequestBodyNotFoundException;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -24,7 +26,7 @@ public class ResourcePatch extends ResourceUpsert {
     public boolean isAcceptable(JsonPath jsonPath, String requestType) {
         return !jsonPath.isCollection() &&
                 jsonPath instanceof ResourcePath &&
-                "PATCH".equals(requestType);
+                HttpMethod.PATCH.name().equals(requestType);
     }
 
     @Override
@@ -32,10 +34,10 @@ public class ResourcePatch extends ResourceUpsert {
         String resourceName = jsonPath.getResourceName();
         RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
         if (registryEntry == null) {
-            throw new ResourceNotFoundException("Resource of type not found: " + resourceName);
+            throw new ResourceNotFoundException(resourceName);
         }
         if (requestBody == null) {
-            throw new RuntimeException("No body provided");
+            throw new RequestBodyNotFoundException(HttpMethod.PATCH, resourceName);
         }
 
         String idString = jsonPath.getIds().getIds().get(0);
