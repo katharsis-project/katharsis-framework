@@ -40,6 +40,11 @@ public class RequestParams {
         this.objectMapper = objectMapper;
     }
 
+    /**
+     * Contains a set of filters assigned to a request. <a href="http://jsonapi.org/format/#fetching-filtering">Filtering</a>
+     *
+     * @return set of filters sent along with the request
+     */
     public JsonNode getFilters() {
         return filters != null ? filters.deepCopy() : null;
     }
@@ -48,6 +53,10 @@ public class RequestParams {
         this.filters = objectMapper.readTree(filters);
     }
 
+    /**
+     * Contains a map of sorting values. <a href="http://jsonapi.org/format/#fetching-sorting">Sorting</a>
+     * @return set of sorting fields assigned to a request
+     */
     public Map<String, SortingValues> getSorting() {
         return sorting;
     }
@@ -88,6 +97,10 @@ public class RequestParams {
         );
     }
 
+    /**
+     * Get a set of included fields which should be included in the resource
+     * @return included relationships
+     */
     public List getIncludedRelations() {
         return includedRelations;
     }

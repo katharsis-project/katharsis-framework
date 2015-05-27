@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import io.katharsis.jackson.exception.JsonSerializationException;
 import io.katharsis.request.dto.Attributes;
+import io.katharsis.resource.ResourceFieldNameTransformer;
 import io.katharsis.resource.ResourceInformation;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -29,6 +30,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
     private static final String ID_FIELD_NAME = "id";
     private static final String ATTRIBUTES_FIELD_NAME = "attributes";
     private static final String LINKS_FIELD_NAME = "links";
+    private static final ResourceFieldNameTransformer RESOURCE_FIELD_NAME_TRANSFORMER = new ResourceFieldNameTransformer();
 
     private ResourceRegistry resourceRegistry;
 
@@ -92,7 +94,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         for (Field attributeField : attributeFields) {
             if (!attributeField.isSynthetic()) {
                 Object basicFieldValue = PropertyUtils.getProperty(data, attributeField.getName());
-                attributesObject.addAttribute(attributeField.getName(), basicFieldValue);
+                attributesObject.addAttribute(RESOURCE_FIELD_NAME_TRANSFORMER.getName(attributeField), basicFieldValue);
             }
         }
         gen.writeObjectField(ATTRIBUTES_FIELD_NAME, attributesObject);
