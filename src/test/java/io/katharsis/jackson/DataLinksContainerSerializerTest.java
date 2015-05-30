@@ -9,7 +9,7 @@ import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 public class DataLinksContainerSerializerTest extends BaseSerializerTest {
 
     @Test
-    public void onSimpleObjectShouldIncludeLinksField() throws Exception {
+    public void onSimpleObjectShouldIncludeRelationshipsField() throws Exception {
         // GIVEN
         Project project = new Project();
 
@@ -17,11 +17,11 @@ public class DataLinksContainerSerializerTest extends BaseSerializerTest {
         String result = sut.writeValueAsString(new Container<>(project));
 
         // THEN
-        assertThatJson(result).node("links").isPresent();
+        assertThatJson(result).node("relationships").isPresent();
     }
 
     @Test
-    public void onSimpleResourceLinksToDataShouldHaveSelfLink() throws Exception {
+    public void onSimpleResourceRelationshipsToDataShouldHaveSelfLink() throws Exception {
         // GIVEN
         Project project = new Project();
         project.setId(1L);
@@ -30,6 +30,6 @@ public class DataLinksContainerSerializerTest extends BaseSerializerTest {
         String result = sut.writeValueAsString(new Container<>(project));
 
         // THEN
-        assertThatJson(result).node("links.self").isEqualTo("https://service.local/projects/1");
+        assertThatJson(result).node("relationships.self").isEqualTo("https://service.local/projects/1");
     }
 }

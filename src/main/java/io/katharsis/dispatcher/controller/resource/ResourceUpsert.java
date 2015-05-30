@@ -41,8 +41,8 @@ public abstract class ResourceUpsert implements BaseController {
 
     protected void saveRelations(Object savedResource, RegistryEntry registryEntry, RequestBody requestBody)
             throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
-        if (requestBody.getData().getLinks() != null) {
-            Map<String, Object> additionalProperties = requestBody.getData().getLinks().getAdditionalProperties();
+        if (requestBody.getData().getRelationships() != null) {
+            Map<String, Object> additionalProperties = requestBody.getData().getRelationships().getAdditionalProperties();
             for (Map.Entry<String, Object> property : additionalProperties.entrySet()) {
                 if (Iterable.class.isAssignableFrom(property.getValue().getClass())) {
                     saveRelationsField(savedResource, registryEntry, (Map.Entry) property, registryEntry.getResourceInformation());

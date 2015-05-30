@@ -3,7 +3,10 @@ package io.katharsis.dispatcher.controller.resource;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
 import io.katharsis.queryParams.RequestParams;
-import io.katharsis.request.dto.*;
+import io.katharsis.request.dto.Attributes;
+import io.katharsis.request.dto.DataBody;
+import io.katharsis.request.dto.RequestBody;
+import io.katharsis.request.dto.ResourceLinks;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.response.BaseResponse;
@@ -52,7 +55,7 @@ public class ResourceGetTest extends BaseControllerTest {
         newTaskBody.getData().setType("tasks");
         newTaskBody.getData().setAttributes(new Attributes());
         newTaskBody.getData().getAttributes().addAttribute("name", "sample task");
-        newTaskBody.getData().setLinks(new ResourceLinks());
+        newTaskBody.getData().setRelationships(new ResourceLinks());
 
         JsonPath taskPath = pathBuilder.buildPath("/tasks");
 

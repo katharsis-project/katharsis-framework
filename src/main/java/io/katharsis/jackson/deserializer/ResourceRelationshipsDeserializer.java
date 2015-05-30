@@ -18,7 +18,7 @@ import java.util.Map;
  *
  * @see Linkage
  */
-public class ResourceLinksDeserializer extends JsonDeserializer<ResourceLinks> {
+public class ResourceRelationshipsDeserializer extends JsonDeserializer<ResourceLinks> {
     @Override
     public ResourceLinks deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
         JsonNode node = jp.readValueAsTree();

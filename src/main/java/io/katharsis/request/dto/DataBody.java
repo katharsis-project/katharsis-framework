@@ -1,13 +1,13 @@
 package io.katharsis.request.dto;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import io.katharsis.jackson.deserializer.ResourceLinksDeserializer;
+import io.katharsis.jackson.deserializer.ResourceRelationshipsDeserializer;
 
 public class DataBody {
     private String type;
 
-    @JsonDeserialize(using = ResourceLinksDeserializer.class)
-    private ResourceLinks links;
+    @JsonDeserialize(using = ResourceRelationshipsDeserializer.class)
+    private ResourceLinks relationships;
 
     private Attributes attributes;
 
@@ -19,12 +19,12 @@ public class DataBody {
         this.type = type;
     }
 
-    public ResourceLinks getLinks() {
-        return links;
+    public ResourceLinks getRelationships() {
+        return relationships;
     }
 
-    public void setLinks(ResourceLinks links) {
-        this.links = links;
+    public void setRelationships(ResourceLinks relationships) {
+        this.relationships = relationships;
     }
 
     public Attributes getAttributes() {

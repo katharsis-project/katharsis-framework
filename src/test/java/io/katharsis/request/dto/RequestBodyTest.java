@@ -12,7 +12,7 @@ public class RequestBodyTest {
     @Test
     public void onPostDataWithSingleLinkageShouldMapToObject() throws Exception {
         // GIVEN
-        String body = "{\"data\": {\"type\": \"tasks\", \"attributes\": {\"name\": \"asdasd\"}, \"links\": {\"project\": " +
+        String body = "{\"data\": {\"type\": \"tasks\", \"attributes\": {\"name\": \"asdasd\"}, \"relationships\": {\"project\": " +
                 "{\"type\": \"projects\", \"id\": \"123\"}}}}";
 
         // WHEN
@@ -25,19 +25,19 @@ public class RequestBodyTest {
         assertThat(result.getData().getAttributes()).isNotNull();
         assertThat(result.getData().getAttributes().getAttributes()).containsOnlyKeys("name");
         assertThat(result.getData().getAttributes().getAttributes().get("name")).isEqualTo("asdasd");
-        assertThat(result.getData().getLinks()).isNotNull();
-        assertThat(result.getData().getLinks().getAdditionalProperties()).containsOnlyKeys("project");
-        assertThat(result.getData().getLinks().getAdditionalProperties().get("project")).isInstanceOf(Linkage.class);
-        assertThat(((Linkage) (result.getData().getLinks().getAdditionalProperties().get("project")))
+        assertThat(result.getData().getRelationships()).isNotNull();
+        assertThat(result.getData().getRelationships().getAdditionalProperties()).containsOnlyKeys("project");
+        assertThat(result.getData().getRelationships().getAdditionalProperties().get("project")).isInstanceOf(Linkage.class);
+        assertThat(((Linkage) (result.getData().getRelationships().getAdditionalProperties().get("project")))
                 .getType()).isEqualTo("projects");
-        assertThat(((Linkage) (result.getData().getLinks().getAdditionalProperties().get("project")))
+        assertThat(((Linkage) (result.getData().getRelationships().getAdditionalProperties().get("project")))
                 .getId()).isEqualTo("123");
     }
 
     @Test
     public void onPostDataWithNullLinkageShouldMapToObject() throws Exception {
         // GIVEN
-        String body = "{\"data\": {\"type\": \"tasks\", \"attributes\": {\"name\": \"asdasd\"}, \"links\": {\"project\": null}}}";
+        String body = "{\"data\": {\"type\": \"tasks\", \"attributes\": {\"name\": \"asdasd\"}, \"relationships\": {\"project\": null}}}";
 
         // WHEN
         RequestBody result = objectMapper.readValue(body, RequestBody.class);
@@ -49,15 +49,15 @@ public class RequestBodyTest {
         assertThat(result.getData().getAttributes()).isNotNull();
         assertThat(result.getData().getAttributes().getAttributes()).containsOnlyKeys("name");
         assertThat(result.getData().getAttributes().getAttributes().get("name")).isEqualTo("asdasd");
-        assertThat(result.getData().getLinks()).isNotNull();
-        assertThat(result.getData().getLinks().getAdditionalProperties()).containsOnlyKeys("project");
-        assertThat(result.getData().getLinks().getAdditionalProperties().get("project")).isNull();
+        assertThat(result.getData().getRelationships()).isNotNull();
+        assertThat(result.getData().getRelationships().getAdditionalProperties()).containsOnlyKeys("project");
+        assertThat(result.getData().getRelationships().getAdditionalProperties().get("project")).isNull();
     }
 
     @Test
     public void onPostDataWithListOfLinkageShouldMapToObject() throws Exception {
         // GIVEN
-        String body = "{\"data\": {\"type\": \"tasks\", \"attributes\": {\"name\": \"asdasd\"}, \"links\": {\"project\":" +
+        String body = "{\"data\": {\"type\": \"tasks\", \"attributes\": {\"name\": \"asdasd\"}, \"relationships\": {\"project\":" +
                 " [{\"type\": \"projects\", \"id\": \"123\"}]}}}";
 
         // WHEN
@@ -70,23 +70,23 @@ public class RequestBodyTest {
         assertThat(result.getData().getAttributes()).isNotNull();
         assertThat(result.getData().getAttributes().getAttributes()).containsOnlyKeys("name");
         assertThat(result.getData().getAttributes().getAttributes().get("name")).isEqualTo("asdasd");
-        assertThat(result.getData().getLinks()).isNotNull();
-        assertThat(result.getData().getLinks().getAdditionalProperties()).containsOnlyKeys("project");
-        assertThat(result.getData().getLinks().getAdditionalProperties().get("project")).isInstanceOf(Iterable.class);
-        assertThat(((Iterable<Linkage>) (result.getData().getLinks().getAdditionalProperties().get("project"))))
+        assertThat(result.getData().getRelationships()).isNotNull();
+        assertThat(result.getData().getRelationships().getAdditionalProperties()).containsOnlyKeys("project");
+        assertThat(result.getData().getRelationships().getAdditionalProperties().get("project")).isInstanceOf(Iterable.class);
+        assertThat(((Iterable<Linkage>) (result.getData().getRelationships().getAdditionalProperties().get("project"))))
                 .hasSize(1);
-        assertThat(((Iterable<Linkage>) (result.getData().getLinks().getAdditionalProperties().get("project")))
+        assertThat(((Iterable<Linkage>) (result.getData().getRelationships().getAdditionalProperties().get("project")))
                 .iterator().next()).isInstanceOf(Linkage.class);
-        assertThat(((Iterable<Linkage>) (result.getData().getLinks().getAdditionalProperties().get("project")))
+        assertThat(((Iterable<Linkage>) (result.getData().getRelationships().getAdditionalProperties().get("project")))
                 .iterator().next().getType()).isEqualTo("projects");
-        assertThat(((Iterable<Linkage>) (result.getData().getLinks().getAdditionalProperties().get("project")))
+        assertThat(((Iterable<Linkage>) (result.getData().getRelationships().getAdditionalProperties().get("project")))
                 .iterator().next().getId()).isEqualTo("123");
     }
 
     @Test
     public void onPostDataWithLifstOfLinkageShouldMapToObject() throws Exception {
         // GIVEN
-        String body = "{\"data\": {\"type\": \"tasks\", \"attributes\": {\"name\": \"asdasd\"}, \"links\": {\"project\": []}}}";
+        String body = "{\"data\": {\"type\": \"tasks\", \"attributes\": {\"name\": \"asdasd\"}, \"relationships\": {\"project\": []}}}";
 
         // WHEN
         RequestBody result = objectMapper.readValue(body, RequestBody.class);
@@ -98,10 +98,10 @@ public class RequestBodyTest {
         assertThat(result.getData().getAttributes()).isNotNull();
         assertThat(result.getData().getAttributes().getAttributes()).containsOnlyKeys("name");
         assertThat(result.getData().getAttributes().getAttributes().get("name")).isEqualTo("asdasd");
-        assertThat(result.getData().getLinks()).isNotNull();
-        assertThat(result.getData().getLinks().getAdditionalProperties()).containsOnlyKeys("project");
-        assertThat(result.getData().getLinks().getAdditionalProperties().get("project")).isInstanceOf(Iterable.class);
-        assertThat(((Iterable<Linkage>) (result.getData().getLinks().getAdditionalProperties().get("project"))))
+        assertThat(result.getData().getRelationships()).isNotNull();
+        assertThat(result.getData().getRelationships().getAdditionalProperties()).containsOnlyKeys("project");
+        assertThat(result.getData().getRelationships().getAdditionalProperties().get("project")).isInstanceOf(Iterable.class);
+        assertThat(((Iterable<Linkage>) (result.getData().getRelationships().getAdditionalProperties().get("project"))))
                 .hasSize(0);
     }
 }

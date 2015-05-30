@@ -127,8 +127,8 @@ public class ResourcePostTest extends BaseControllerTest {
         newTaskBody.getData().setType("tasks");
         newTaskBody.getData().setAttributes(new Attributes());
         newTaskBody.getData().getAttributes().addAttribute("name", "sample task");
-        newTaskBody.getData().setLinks(new ResourceLinks());
-        newTaskBody.getData().getLinks().setAdditionalProperty("project", new Linkage("projects", projectId.toString()));
+        newTaskBody.getData().setRelationships(new ResourceLinks());
+        newTaskBody.getData().getRelationships().setAdditionalProperty("project", new Linkage("projects", projectId.toString()));
 
         JsonPath taskPath = pathBuilder.buildPath("/tasks");
 
@@ -177,8 +177,8 @@ public class ResourcePostTest extends BaseControllerTest {
         newTaskBody.getData().setType("users");
         newTaskBody.getData().setAttributes(new Attributes());
         newTaskBody.getData().getAttributes().addAttribute("name", "some user");
-        newTaskBody.getData().setLinks(new ResourceLinks());
-        newTaskBody.getData().getLinks().setAdditionalProperty("assignedProjects", Arrays.asList(new Linkage("projects",
+        newTaskBody.getData().setRelationships(new ResourceLinks());
+        newTaskBody.getData().getRelationships().setAdditionalProperty("assignedProjects", Arrays.asList(new Linkage("projects",
                 projectId.toString())));
 
         JsonPath taskPath = pathBuilder.buildPath("/users");

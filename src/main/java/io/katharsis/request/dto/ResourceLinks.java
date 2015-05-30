@@ -3,12 +3,13 @@ package io.katharsis.request.dto;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.katharsis.jackson.deserializer.ResourceRelationshipsDeserializer;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @see io.katharsis.jackson.deserializer.ResourceLinksDeserializer
+ * @see ResourceRelationshipsDeserializer
  */
 public class ResourceLinks {
 

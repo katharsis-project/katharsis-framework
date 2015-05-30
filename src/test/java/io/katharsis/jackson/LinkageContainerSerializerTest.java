@@ -22,7 +22,7 @@ public class LinkageContainerSerializerTest extends BaseSerializerTest {
         String result = sut.writeValueAsString(new Container<>(task));
 
         // THEN
-        assertThatJson(result).node("links.project.linkage.type").isEqualTo("projects");
-        assertThatJson(result).node("links.project.linkage.id").isEqualTo("\"2\"");
+        assertThatJson(result).node("relationships.project.linkage.type").isEqualTo("projects");
+        assertThatJson(result).node("relationships.project.linkage.id").isEqualTo("\"2\"");
     }
 }
