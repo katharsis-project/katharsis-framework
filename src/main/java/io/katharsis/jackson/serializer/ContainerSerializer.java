@@ -29,7 +29,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
     private static final String TYPE_FIELD_NAME = "type";
     private static final String ID_FIELD_NAME = "id";
     private static final String ATTRIBUTES_FIELD_NAME = "attributes";
-    private static final String LINKS_FIELD_NAME = "links";
+    private static final String RELATIONSHIPS_FIELD_NAME = "relationships";
     private static final ResourceFieldNameTransformer RESOURCE_FIELD_NAME_TRANSFORMER = new ResourceFieldNameTransformer();
 
     private ResourceRegistry resourceRegistry;
@@ -102,7 +102,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
 
     private void writeRelationshipFields(JsonGenerator gen, Object data, Set<Field> relationshipFields) throws IOException {
         DataLinksContainer dataLinksContainer = new DataLinksContainer(data, relationshipFields);
-        gen.writeObjectField(LINKS_FIELD_NAME, dataLinksContainer);
+        gen.writeObjectField(RELATIONSHIPS_FIELD_NAME, dataLinksContainer);
     }
 
     public Class<Container> handledType() {
