@@ -4,11 +4,11 @@
 
     <groupId>io.katharsis</groupId>
     <artifactId>katharsis-parent</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>1.0.0</version>
     <packaging>pom</packaging>
 
 	<name>Katharsis parent POM</name>
-	<url>https://github.com/masterspambot/katharsis-parent</url>
+	<url>https://github.com/katharsis-project/katharsis-parent</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
