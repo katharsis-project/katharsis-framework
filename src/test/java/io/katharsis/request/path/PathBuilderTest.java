@@ -96,7 +96,7 @@ public class PathBuilderTest {
 
         // THEN
         expectedException.expect(ResourceException.class);
-        expectedException.expectMessage("LinksPath and FieldPath cannot contain ids");
+        expectedException.expectMessage("RelationshipsPath and FieldPath cannot contain ids");
 
         // WHEN
         pathBuilder.buildPath(path);
@@ -105,13 +105,13 @@ public class PathBuilderTest {
     @Test
     public void onNestedResourceRelationshipPathShouldReturnNestedPath() {
         // GIVEN
-        String path = "/tasks/1/links/project/";
+        String path = "/tasks/1/relationships/project/";
 
         // WHEN
         JsonPath jsonPath = pathBuilder.buildPath(path);
 
         // THEN
-        JsonPath expectedPath = new LinksPath("project");
+        JsonPath expectedPath = new RelationshipsPath("project");
         expectedPath.setParentResource(new ResourcePath("tasks", new PathIds("1")));
 
         assertThat(jsonPath).isEqualTo(expectedPath);
@@ -120,7 +120,7 @@ public class PathBuilderTest {
     @Test
     public void onNonRelationshipFieldShouldThrowException() {
         // GIVEN
-        String path = "/tasks/1/links/name/";
+        String path = "/tasks/1/relationships/name/";
 
         // THEN
         expectedException.expect(ResourceFieldNotFoundException.class);
@@ -131,9 +131,9 @@ public class PathBuilderTest {
     }
 
     @Test
-    public void onRelationshipFieldInLinksShouldThrowException() {
+    public void onRelationshipFieldInRelationshipsShouldThrowException() {
         // GIVEN
-        String path = "/users/1/links/projects";
+        String path = "/users/1/relationships/projects";
 
         // THEN
         expectedException.expect(ResourceFieldNotFoundException.class);
@@ -146,7 +146,7 @@ public class PathBuilderTest {
     @Test
     public void onNestedWrongResourceRelationshipPathShouldThrowException() {
         // GIVEN
-        String path = "/tasks/1/links/";
+        String path = "/tasks/1/relationships/";
 
         // THEN
         expectedException.expect(ResourceFieldNotFoundException.class);
@@ -156,13 +156,13 @@ public class PathBuilderTest {
     }
 
     @Test
-    public void onLinksPathWithIdShouldThrowException() {
+    public void onRelationshipsPathWithIdShouldThrowException() {
         // GIVEN
-        String path = "/tasks/1/links/project/1";
+        String path = "/tasks/1/relationships/project/1";
 
         // THEN
         expectedException.expect(ResourceException.class);
-        expectedException.expectMessage("LinksPath and FieldPath cannot contain ids");
+        expectedException.expectMessage("RelationshipsPath and FieldPath cannot contain ids");
 
         // WHEN
         pathBuilder.buildPath(path);
@@ -194,9 +194,9 @@ public class PathBuilderTest {
     }
 
     @Test
-    public void onResourceStaringWithLinksShouldThrowException() {
+    public void onResourceStaringWithRelationshipsShouldThrowException() {
         // GIVEN
-        String path = "/links";
+        String path = "/relationships";
 
         // THEN
         expectedException.expect(ResourceNotFoundException.class);
@@ -243,17 +243,17 @@ public class PathBuilderTest {
     }
 
     @Test
-    public void onResourcePathWithIdsAndLinksPathShouldReturnCorrectStringPath() {
+    public void onResourcePathWithIdsAndRelationshipsPathShouldReturnCorrectStringPath() {
         // GIVEN
         JsonPath parentJsonPath = new ResourcePath("tasks", new PathIds(Collections.singletonList("1")));
-        JsonPath jsonPath = new LinksPath("project");
+        JsonPath jsonPath = new RelationshipsPath("project");
         jsonPath.setParentResource(parentJsonPath);
 
         // WHEN
         String result = pathBuilder.buildPath(jsonPath);
 
         // THEN
-        assertThat(result).isEqualTo("/tasks/1/links/project/");
+        assertThat(result).isEqualTo("/tasks/1/relationships/project/");
     }
 
     @Test

@@ -60,18 +60,4 @@ public class ResourcePost extends ResourceUpsert {
 
         return new ResourceResponse(new Container(savedResourceWithRelations));
     }
-
-    private Object buildNewResource(RegistryEntry registryEntry, RequestBody requestBody, String resourceName)
-            throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException {
-        DataBody data = requestBody.getData();
-        if (data == null) {
-            throw new RuntimeException("No data field in the body.");
-        }
-        if (!resourceName.equals(data.getType())) {
-            throw new RuntimeException(String.format("Inconsistent type definition between path and body: body type: " +
-                    "%s, request type: %s", data.getType(), resourceName));
-        }
-        Object resource = registryEntry.getResourceInformation().getResourceClass().newInstance();
-        return resource;
-    }
 }

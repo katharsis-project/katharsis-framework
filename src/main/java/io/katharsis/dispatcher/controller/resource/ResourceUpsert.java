@@ -2,6 +2,7 @@ package io.katharsis.dispatcher.controller.resource;
 
 import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.repository.RelationshipRepository;
+import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.Linkage;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.resource.ResourceInformation;
@@ -94,7 +95,8 @@ public abstract class ResourceUpsert implements BaseController {
         return linkages.iterator().hasNext() ? linkages.iterator().next().getType() : null;
     }
 
-    private void saveRelationField(Object savedResource, RegistryEntry registryEntry, Map.Entry<String, Linkage> property,
+    protected void saveRelationField(Object savedResource, RegistryEntry registryEntry, Map.Entry<String, Linkage>
+            property,
                                    ResourceInformation resourceInformation)
             throws NoSuchMethodException, IllegalAccessException, InstantiationException, InvocationTargetException {
         RegistryEntry relationRegistryEntry = getRelationRegistryEntry(property.getValue().getType());
@@ -117,5 +119,19 @@ public abstract class ResourceUpsert implements BaseController {
             throw new ResourceNotFoundException(type);
         }
         return relationRegistryEntry;
+    }
+
+    protected Object buildNewResource(RegistryEntry registryEntry, RequestBody requestBody, String resourceName)
+            throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException {
+        DataBody data = requestBody.getData();
+        if (data == null) {
+            throw new RuntimeException("No data field in the body.");
+        }
+        if (!resourceName.equals(data.getType())) {
+            throw new RuntimeException(String.format("Inconsistent type definition between path and body: body type: " +
+                    "%s, request type: %s", data.getType(), resourceName));
+        }
+        Object resource = registryEntry.getResourceInformation().getResourceClass().newInstance();
+        return resource;
     }
 }

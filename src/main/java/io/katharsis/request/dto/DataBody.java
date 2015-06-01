@@ -7,7 +7,7 @@ public class DataBody {
     private String type;
 
     @JsonDeserialize(using = ResourceRelationshipsDeserializer.class)
-    private ResourceLinks relationships;
+    private ResourceRelationships relationships;
 
     private Attributes attributes;
 
@@ -19,11 +19,11 @@ public class DataBody {
         this.type = type;
     }
 
-    public ResourceLinks getRelationships() {
+    public ResourceRelationships getRelationships() {
         return relationships;
     }
 
-    public void setRelationships(ResourceLinks relationships) {
+    public void setRelationships(ResourceRelationships relationships) {
         this.relationships = relationships;
     }
 

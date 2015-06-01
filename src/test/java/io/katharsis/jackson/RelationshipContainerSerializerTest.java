@@ -39,7 +39,7 @@ public class RelationshipContainerSerializerTest extends BaseSerializerTest {
         String result = sut.writeValueAsString(new Container<>(task));
 
         // THEN
-        assertThatJson(result).node("relationships.project.self").isEqualTo("https://service.local/tasks/1/links/project");
+        assertThatJson(result).node("relationships.project.self").isEqualTo("https://service.local/tasks/1/relationships/project");
     }
 
     @Test

@@ -33,7 +33,7 @@ public class ResourceDeleteTest extends BaseControllerTest {
     @Test
     public void onNonRelationRequestShouldDenyIt() {
         // GIVEN
-        JsonPath jsonPath = new ResourcePath("tasks/1/links/project");
+        JsonPath jsonPath = new ResourcePath("tasks/1/relationships/project");
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
         ResourceDelete sut = new ResourceDelete(resourceRegistry, typeParser);
 

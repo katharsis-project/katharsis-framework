@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.katharsis.request.dto.Linkage;
-import io.katharsis.request.dto.ResourceLinks;
+import io.katharsis.request.dto.ResourceRelationships;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -18,14 +18,14 @@ import java.util.Map;
  *
  * @see Linkage
  */
-public class ResourceRelationshipsDeserializer extends JsonDeserializer<ResourceLinks> {
+public class ResourceRelationshipsDeserializer extends JsonDeserializer<ResourceRelationships> {
     @Override
-    public ResourceLinks deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
+    public ResourceRelationships deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
         JsonNode node = jp.readValueAsTree();
         if (node == null) {
             return null;
         }
-        ResourceLinks resourceLinks = new ResourceLinks();
+        ResourceRelationships resourceRelationships = new ResourceRelationships();
 
         Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
         while (fields.hasNext()) {
@@ -45,9 +45,9 @@ public class ResourceRelationshipsDeserializer extends JsonDeserializer<Resource
             } else {
                 value = jp.getCodec().treeToValue(field.getValue(), Linkage.class);
             }
-            resourceLinks.setAdditionalProperty(field.getKey(), value);
+            resourceRelationships.setAdditionalProperty(field.getKey(), value);
         }
 
-        return resourceLinks;
+        return resourceRelationships;
     }
 }

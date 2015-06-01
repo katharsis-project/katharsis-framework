@@ -14,7 +14,7 @@ import java.util.*;
  */
 public class PathBuilder {
     public static final String SEPARATOR = "/";
-    public static final String RELATIONSHIP_MARK = "links";
+    public static final String RELATIONSHIP_MARK = "relationships";
 
     private ResourceRegistry resourceRegistry;
 
@@ -65,7 +65,7 @@ public class PathBuilder {
             } else if (previousJsonPath != null) {
                 currentJsonPath = getNonResourcePath(previousJsonPath, elementName, relationshipMark);
                 if (pathIds != null) {
-                    throw new ResourceException("LinksPath and FieldPath cannot contain ids");
+                    throw new ResourceException("RelationshipsPath and FieldPath cannot contain ids");
                 }
             } else {
                 throw new ResourceNotFoundException(null, path);
@@ -91,7 +91,7 @@ public class PathBuilder {
         for (Field field : resourceFields) {
             if (field.getName().equals(elementName)) {
                 if (relationshipMark) {
-                    return new LinksPath(elementName);
+                    return new RelationshipsPath(elementName);
                 } else {
                     return new FieldPath(elementName);
                 }
@@ -128,7 +128,7 @@ public class PathBuilder {
         JsonPath currentJsonPath = jsonPath;
         String pathPart;
         do {
-            if (currentJsonPath instanceof LinksPath) {
+            if (currentJsonPath instanceof RelationshipsPath) {
                 pathPart = RELATIONSHIP_MARK + SEPARATOR + currentJsonPath.getElementName();
             } else if (currentJsonPath instanceof FieldPath) {
                 pathPart = currentJsonPath.getElementName();

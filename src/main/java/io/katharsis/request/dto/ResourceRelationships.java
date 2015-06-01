@@ -11,7 +11,7 @@ import java.util.Map;
 /**
  * @see ResourceRelationshipsDeserializer
  */
-public class ResourceLinks {
+public class ResourceRelationships {
 
     @JsonIgnore
     private Map<String, Object> linkageList = new HashMap<>();

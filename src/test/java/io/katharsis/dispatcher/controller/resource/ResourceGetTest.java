@@ -6,7 +6,7 @@ import io.katharsis.queryParams.RequestParams;
 import io.katharsis.request.dto.Attributes;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.RequestBody;
-import io.katharsis.request.dto.ResourceLinks;
+import io.katharsis.request.dto.ResourceRelationships;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.response.BaseResponse;
@@ -55,7 +55,7 @@ public class ResourceGetTest extends BaseControllerTest {
         newTaskBody.getData().setType("tasks");
         newTaskBody.getData().setAttributes(new Attributes());
         newTaskBody.getData().getAttributes().addAttribute("name", "sample task");
-        newTaskBody.getData().setRelationships(new ResourceLinks());
+        newTaskBody.getData().setRelationships(new ResourceRelationships());
 
         JsonPath taskPath = pathBuilder.buildPath("/tasks");
 

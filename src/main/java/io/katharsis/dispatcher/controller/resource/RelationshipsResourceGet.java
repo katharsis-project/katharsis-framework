@@ -6,7 +6,7 @@ import io.katharsis.queryParams.RequestParams;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
-import io.katharsis.request.path.LinksPath;
+import io.katharsis.request.path.RelationshipsPath;
 import io.katharsis.request.path.PathIds;
 import io.katharsis.resource.exception.ResourceFieldNotFoundException;
 import io.katharsis.resource.registry.RegistryEntry;
@@ -25,12 +25,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-public class LinksResourceGet implements BaseController {
+public class RelationshipsResourceGet implements BaseController {
 
     private ResourceRegistry resourceRegistry;
     private TypeParser typeParser;
 
-    public LinksResourceGet(ResourceRegistry resourceRegistry, TypeParser typeParser) {
+    public RelationshipsResourceGet(ResourceRegistry resourceRegistry, TypeParser typeParser) {
         this.resourceRegistry = resourceRegistry;
         this.typeParser = typeParser;
     }
@@ -38,7 +38,7 @@ public class LinksResourceGet implements BaseController {
     @Override
     public boolean isAcceptable(JsonPath jsonPath, String requestType) {
         return !jsonPath.isCollection()
-                && jsonPath instanceof LinksPath
+                && jsonPath instanceof RelationshipsPath
                 && HttpMethod.GET.name().equals(requestType);
     }
 
