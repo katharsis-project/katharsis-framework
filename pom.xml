@@ -60,8 +60,12 @@
 
     <repositories>
         <repository>
-            <id>oss-jfrog-artifactory</id>
+            <id>oss-jfrog-artifactory-snapshot</id>
             <url>http://oss.jfrog.org/artifactory/oss-snapshot-local</url>
+        </repository>
+        <repository>
+            <id>oss-jfrog-artifactory</id>
+            <url>http://oss.jfrog.org/artifactory/oss-release-local</url>
         </repository>
     </repositories>
 </project>
