@@ -4,7 +4,7 @@
 [![Build Status](https://travis-ci.org/katharsis-project/katharsis-core.svg?branch=development)](https://travis-ci.org/katharsis-project/katharsis-core)
 [![Coverage Status](https://coveralls.io/repos/katharsis-project/katharsis-core/badge.svg?branch=development)](https://coveralls.io/r/katharsis-project/katharsis-core?branch=development)
 [![Dependency Status](https://www.versioneye.com/user/projects/5530cfa410e714f9e5000dc3/badge.svg?style=flat)](https://www.versioneye.com/user/projects/5530cfa410e714f9e5000dc3)
-[ ![Download](https://api.bintray.com/packages/katharsis-project/maven/katharsis/images/download.svg) ](https://bintray.com/katharsis-project/maven/katharsis/_latestVersion)
+[ ![Download](https://api.bintray.com/packages/katharsis/maven/katharsis/images/download.svg) ](https://bintray.com/katharsis/maven/katharsis/_latestVersion)
 
 
 Core Java JSON:API library
