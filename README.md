@@ -10,5 +10,4 @@
 Core Java JSON:API library
 
 #Implementation status
-[![Stories Ready](https://badge.waffle.io/katharsis-project/katharsis-core.svg?label=ready&title=Ready)]()
-[![Stories In Progress](https://badge.waffle.io/katharsis-project/katharsis-core.svg?label=in progress&title=In Progress)]()
+[![Stories in Ready](https://badge.waffle.io/katharsis-project/katharsis-core.svg?label=ready&title=Ready)](http://waffle.io/katharsis-project/katharsis-core)
