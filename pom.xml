@@ -32,6 +32,25 @@
                         <target>${javaVersion}</target>
                     </configuration>
                 </plugin>
+              <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-shade-plugin</artifactId>
+                  <version>2.3</version>
+                  <configuration>
+                      <createDependencyReducedPom>true
+                      </createDependencyReducedPom>
+                      <filters>
+                          <filter>
+                              <artifact>*:*</artifact>
+                              <excludes>
+                                  <exclude>META-INF/*.SF</exclude>
+                                  <exclude>META-INF/*.DSA</exclude>
+                                  <exclude>META-INF/*.RSA</exclude>
+                              </excludes>
+                          </filter>
+                      </filters>
+                  </configuration>
+              </plugin>
             </plugins>
         </pluginManagement>
     </build>
