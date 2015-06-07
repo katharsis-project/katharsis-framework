@@ -86,27 +86,18 @@
         </dependency>
     </dependencies>
 
-    <distributionManagement>
-        <snapshotRepository>
-            <id>oss-jfrog-artifactory-snapshot</id>
-            <name>oss-jfrog-artifactory-snapshots</name>
-            <url>http://oss.jfrog.org/artifactory/oss-snapshot-local</url>
-        </snapshotRepository>
-        <repository>
-            <id>oss-jfrog-artifactory</id>
-            <name>oss-jfrog-artifactory</name>
-            <url>http://oss.jfrog.org/artifactory/oss-release-local</url>
-        </repository>
-    </distributionManagement>
-
     <repositories>
         <repository>
-            <id>oss-jfrog-artifactory-snapshot</id>
-            <url>http://oss.jfrog.org/artifactory/oss-snapshot-local</url>
-        </repository>
-        <repository>
-            <id>oss-jfrog-artifactory</id>
-            <url>http://oss.jfrog.org/artifactory/oss-release-local</url>
+            <id>sonatype-nexus-snapshots</id>
+            <name>Sonatype Nexus Snapshots</name>
+            <url>http://oss.sonatype.org/content/repositories/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
         </repository>
     </repositories>
+
 </project>
