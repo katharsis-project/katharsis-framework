@@ -3,8 +3,29 @@ package io.katharsis.repository;
 import java.io.Serializable;
 
 /**
+ * <p>
  * Base unidirectional repository responsible for operations on relations. All of the methods in this interface have
  * fieldName field as last parameter. It solves a problem of many relationships between the same resources.
+ * </p>
+ * <p>
+ * There are two methods that are used for To-One relationships:
+ * <ul>
+ *     <li>setRelation</li>
+ *     <li>findOneTarget</li>
+ * </ul>
+ * </p>
+ * <p>
+ * There are two methods that are used for To-One relationships:
+ * <ul>
+ *     <li>setRelations</li>
+ *     <li>addRelation</li>
+ *     <li>removeRelation</li>
+ *     <li>findManyTargets</li>
+ * </ul>
+ * </p>
+ * <p>The reason why there is more than one method for To-Many relationships manipulation is to prevent
+ * <a href="https://en.wikipedia.org/wiki/Race_condition">race condition</a> situations in which a field could be
+ * changed concurrently by another request.</p>
  *
  * @param <T> source class type
  * @param <T_ID> T class id type
@@ -17,7 +38,7 @@ public interface RelationshipRepository<T, T_ID extends Serializable, D, D_ID ex
 
     /**
      * Set a relation defined by a field. targetId parameter can be either in a form of an object or null value,
-     * which means that if there's a relation, it should be removed.
+     * which means that if there's a relation, it should be removed. It is used only for To-One relationship.
      *
      * @param source instance of a source class
      * @param targetId id of a target resource
@@ -26,14 +47,33 @@ public interface RelationshipRepository<T, T_ID extends Serializable, D, D_ID ex
     void setRelation(T source, D_ID targetId, String fieldName);
 
     /**
-     * Set a relation defined by a field. targetIds parameter can be either in a form of an object or null value,
-     * which means that if there's a relation, it should be removed.
+     * Set a relation defined by a field. TargetIds parameter can be either in a form of an object or null value,
+     * which means that if there's a relation, it should be removed. It is used only for To-Many relationship.
      *
      * @param source instance of a source class
      * @param targetIds ids of a target resource
      * @param fieldName name of target's filed
      */
     void setRelations(T source, Iterable<D_ID> targetIds, String fieldName);
+
+    /**
+     * Add a relation to a field. It is used only for To-Many relationship, that is if this method is called, a new
+     * relationship should be added to the set of the relationships.
+     *
+     * @param source    instance of source class
+     * @param targetId  id of the target resource
+     * @param fieldName name of target's field
+     */
+    void addRelation(T source, D_ID targetId, String fieldName);
+
+    /**
+     * Removes a relationship from a set of relationships. It is used only for To-Many relationship.
+     *
+     * @param source    instance of source class
+     * @param targetId  id of the target resource
+     * @param fieldName name of target's field
+     */
+    void removeRelation(T source, D_ID targetId, String fieldName);
 
     /**
      * Find a relation's target identifier
@@ -51,5 +91,5 @@ public interface RelationshipRepository<T, T_ID extends Serializable, D, D_ID ex
      * @param fieldName name of target's filed
      * @return identifiers of targets of a relation
      */
-    Iterable<D> findTargets(T_ID sourceId, String fieldName);
+    Iterable<D> findManyTargets(T_ID sourceId, String fieldName);
 }

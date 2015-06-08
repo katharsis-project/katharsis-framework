@@ -37,7 +37,7 @@ public class UserRepository implements ResourceRepository<User, Long> {
         if (user == null) {
             throw new ResourceNotFoundException(User.class);
         }
-        Iterable<Project> assignedProjects = USER_TO_PROJECT_REPOSITORY.findTargets(aLong, "assignedProjects");
+        Iterable<Project> assignedProjects = USER_TO_PROJECT_REPOSITORY.findManyTargets(aLong, "assignedProjects");
         user.setAssignedProjects(makeCollection(assignedProjects));
 
         return user;

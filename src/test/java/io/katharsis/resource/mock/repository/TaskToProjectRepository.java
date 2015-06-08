@@ -35,6 +35,22 @@ public class TaskToProjectRepository implements RelationshipRepository<Task, Lon
         }
     }
 
+    @Override
+    public void addRelation(Task source, Long targetId, String fieldName) {
+        THREAD_LOCAL_REPOSITORY.get().add(new Relation<>(source, targetId, fieldName));
+    }
+
+    @Override
+    public void removeRelation(Task source, Long targetId, String fieldName) {
+        Iterator<Relation<Task>> iterator = THREAD_LOCAL_REPOSITORY.get().iterator();
+        while (iterator.hasNext()) {
+            Relation<Task> next = iterator.next();
+            if (next.getFieldName().equals(fieldName) && next.getTargetId().equals(targetId)) {
+                iterator.remove();
+            }
+        }
+    }
+
     private void removeRelations(String fieldName) {
         Iterator<Relation<Task>> iterator = THREAD_LOCAL_REPOSITORY.get().iterator();
         while (iterator.hasNext()) {
@@ -59,7 +75,7 @@ public class TaskToProjectRepository implements RelationshipRepository<Task, Lon
     }
 
     @Override
-    public Iterable<Project> findTargets(Long sourceId, String fieldName) {
+    public Iterable<Project> findManyTargets(Long sourceId, String fieldName) {
         List<Project> projects = new LinkedList<>();
         for (Relation<Task> relation : THREAD_LOCAL_REPOSITORY.get()) {
             if (relation.getSource().getId().equals(sourceId) &&

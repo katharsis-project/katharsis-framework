@@ -12,7 +12,6 @@ import io.katharsis.resource.exception.ResourceFieldNotFoundException;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.response.BaseResponse;
 import io.katharsis.response.Container;
 import io.katharsis.response.ResourceResponse;
 import io.katharsis.utils.Generics;
@@ -22,8 +21,6 @@ import org.apache.commons.beanutils.PropertyUtils;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -86,15 +83,7 @@ public class FieldResourcePost extends ResourceUpsert {
         RelationshipRepository relationshipRepositoryForClass = registryEntry.getRelationshipRepositoryForClass(relationshipFieldClass);
         Object parent = registryEntry.getResourceRepository().findOne(castedResourceId);
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
-            Iterable targetObjects = relationshipRepositoryForClass.findTargets(castedResourceId, jsonPath.getElementName());
-            List newRelationships = new LinkedList<>();
-            if (targetObjects != null) {
-                for (Object targetObject : targetObjects) {
-                    newRelationships.add(PropertyUtils.getProperty(targetObject, relationshipResourceIdName));
-                }
-            }
-            newRelationships.add(resourceId);
-            relationshipRepositoryForClass.setRelations(parent, newRelationships, jsonPath.getElementName());
+            relationshipRepositoryForClass.addRelation(parent, resourceId, jsonPath.getElementName());
         } else {
             relationshipRepositoryForClass.setRelation(parent, resourceId, jsonPath.getElementName());
         }

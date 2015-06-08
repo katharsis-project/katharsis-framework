@@ -63,7 +63,7 @@ public class FieldResourceGet implements BaseController {
         RelationshipRepository relationshipRepositoryForClass = registryEntry.getRelationshipRepositoryForClass(relationshipFieldClass);
         BaseResponse target;
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
-            Iterable targetObjects = relationshipRepositoryForClass.findTargets(castedResourceId, jsonPath.getElementName());
+            Iterable targetObjects = relationshipRepositoryForClass.findManyTargets(castedResourceId, jsonPath.getElementName());
             target = new CollectionResponse(targetObjects);
         } else {
             Object targetObject = relationshipRepositoryForClass.findOneTarget(castedResourceId, jsonPath.getElementName());

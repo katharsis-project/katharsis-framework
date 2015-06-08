@@ -6,8 +6,8 @@ import io.katharsis.queryParams.RequestParams;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
-import io.katharsis.request.path.RelationshipsPath;
 import io.katharsis.request.path.PathIds;
+import io.katharsis.request.path.RelationshipsPath;
 import io.katharsis.resource.exception.ResourceFieldNotFoundException;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -69,7 +69,7 @@ public class RelationshipsResourceGet implements BaseController {
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
             List<LinkageContainer> dataList = new LinkedList<>();
 
-            Iterable targetObjects = relationshipRepositoryForClass.findTargets(castedResourceId, jsonPath.getElementName());
+            Iterable targetObjects = relationshipRepositoryForClass.findManyTargets(castedResourceId, jsonPath.getElementName());
             if (targetObjects != null) {
                 for (Object targetObject : targetObjects) {
                     dataList.add(new LinkageContainer(targetObject, relationshipFieldClass, relationshipFieldEntry));
