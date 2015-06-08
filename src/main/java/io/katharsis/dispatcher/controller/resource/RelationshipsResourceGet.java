@@ -23,7 +23,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 public class RelationshipsResourceGet implements BaseController {
 
@@ -50,19 +49,14 @@ public class RelationshipsResourceGet implements BaseController {
         RegistryEntry<?> registryEntry = resourceRegistry.getEntry(resourceName);
 
         Serializable castedResourceId = getResourceId(resourceIds, registryEntry);
-        Set<Field> relationshipFields = registryEntry.getResourceInformation().getRelationshipFields();
-
-        Class<?> baseRelationshipFieldClass = null;
-        Class<?> relationshipFieldClass = null;
-        for (Field relationshipField : relationshipFields) {
-            if (relationshipField.getName().equals(jsonPath.getElementName())) {
-                baseRelationshipFieldClass = relationshipField.getType();
-                relationshipFieldClass = Generics.getResourceClass(relationshipField, baseRelationshipFieldClass);
-            }
-        }
-        if (relationshipFieldClass == null) {
+        Field relationshipField = registryEntry.getResourceInformation().findRelationshipFieldByName(jsonPath.getElementName());
+        if (relationshipField == null) {
             throw new ResourceFieldNotFoundException(jsonPath.getElementName());
         }
+
+        Class<?> baseRelationshipFieldClass = relationshipField.getType();
+        Class<?> relationshipFieldClass = Generics.getResourceClass(relationshipField, baseRelationshipFieldClass);
+
         RelationshipRepository relationshipRepositoryForClass = registryEntry.getRelationshipRepositoryForClass(relationshipFieldClass);
         RegistryEntry relationshipFieldEntry = resourceRegistry.getEntry(relationshipFieldClass);
         BaseResponse target;

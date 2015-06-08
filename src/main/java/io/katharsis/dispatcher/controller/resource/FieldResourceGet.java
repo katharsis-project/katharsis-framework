@@ -20,7 +20,6 @@ import io.katharsis.utils.parser.TypeParser;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Set;
 
 public class FieldResourceGet implements BaseController {
 
@@ -47,19 +46,14 @@ public class FieldResourceGet implements BaseController {
 
         RegistryEntry<?> registryEntry = resourceRegistry.getEntry(resourceName);
         Serializable castedResourceId = getResourceId(resourceIds, registryEntry);
-        Set<Field> relationshipFields = registryEntry.getResourceInformation().getRelationshipFields();
-
-        Class<?> baseRelationshipFieldClass = null;
-        Class<?> relationshipFieldClass = null;
-        for (Field relationshipField : relationshipFields) {
-            if (relationshipField.getName().equals(jsonPath.getElementName())) {
-                baseRelationshipFieldClass = relationshipField.getType();
-                relationshipFieldClass = Generics.getResourceClass(relationshipField, baseRelationshipFieldClass);
-            }
-        }
-        if (relationshipFieldClass == null) {
+        Field relationshipField = registryEntry.getResourceInformation().findRelationshipFieldByName(jsonPath.getElementName());
+        if (relationshipField == null) {
             throw new ResourceFieldNotFoundException(jsonPath.getElementName());
         }
+
+        Class<?> baseRelationshipFieldClass = relationshipField.getType();
+        Class<?> relationshipFieldClass = Generics.getResourceClass(relationshipField, baseRelationshipFieldClass);
+
         RelationshipRepository relationshipRepositoryForClass = registryEntry.getRelationshipRepositoryForClass(relationshipFieldClass);
         BaseResponse target;
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {

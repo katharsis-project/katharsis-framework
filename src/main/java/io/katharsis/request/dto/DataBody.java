@@ -4,12 +4,22 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import io.katharsis.jackson.deserializer.ResourceRelationshipsDeserializer;
 
 public class DataBody {
+    private String id;
     private String type;
 
     @JsonDeserialize(using = ResourceRelationshipsDeserializer.class)
     private ResourceRelationships relationships;
 
     private Attributes attributes;
+
+    public String getId() {
+        return id;
+    }
+
+    public DataBody setId(String id) {
+        this.id = id;
+        return this;
+    }
 
     public String getType() {
         return type;

@@ -21,7 +21,6 @@ import org.apache.commons.beanutils.PropertyUtils;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Set;
 
 /**
  * Creates a new post in a similar manner as in {@link ResourcePost}, but additionally adds a relation to a field.
@@ -54,19 +53,14 @@ public class FieldResourcePost extends ResourceUpsert {
         }
 
         Serializable castedResourceId = getResourceId(resourceIds, registryEntry);
-        Set<Field> relationshipFields = registryEntry.getResourceInformation().getRelationshipFields();
-
-        Class<?> baseRelationshipFieldClass = null;
-        Class<?> relationshipFieldClass = null;
-        for (Field relationshipField : relationshipFields) {
-            if (relationshipField.getName().equals(jsonPath.getElementName())) {
-                baseRelationshipFieldClass = relationshipField.getType();
-                relationshipFieldClass = Generics.getResourceClass(relationshipField, baseRelationshipFieldClass);
-            }
-        }
-        if (relationshipFieldClass == null) {
+        Field relationshipField = registryEntry.getResourceInformation().findRelationshipFieldByName(jsonPath.getElementName());
+        if (relationshipField == null) {
             throw new ResourceFieldNotFoundException(jsonPath.getElementName());
         }
+
+        Class<?> baseRelationshipFieldClass = relationshipField.getType();
+        Class<?> relationshipFieldClass = Generics.getResourceClass(relationshipField, baseRelationshipFieldClass);
+
         RegistryEntry relationshipRegistryEntry = resourceRegistry.getEntry(relationshipFieldClass);
         String relationshipResourceType = resourceRegistry.getResourceType(baseRelationshipFieldClass);
 
