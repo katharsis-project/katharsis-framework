@@ -6,7 +6,6 @@ The Katharsis library adds an additional layer on top of RESTful endpoint to pro
 [![Coverage Status](https://coveralls.io/repos/katharsis-project/katharsis-core/badge.svg?branch=development)](https://coveralls.io/r/katharsis-project/katharsis-core?branch=development)
 [![Dependency Status](https://www.versioneye.com/user/projects/5530cfa410e714f9e5000dc3/badge.svg?style=flat)](https://www.versioneye.com/user/projects/5530cfa410e714f9e5000dc3)
 
----
 
 Systems nowadays utilize data from various systems to leverage the business needs. To achieve that, many of them provide usually inconsistent REST interface.
 
@@ -42,12 +41,13 @@ Add dependency to your `pom.xml`:
 
 ```
 
+## Documentation
+Documentation, along with example projects and project details are available on project website  [katharsis.io](http://katharsis.io) 
+
 ## Chat
 Need to directly talk to us? Write on gitter: 
 
 [![Join the chat at https://gitter.im/katharsis-project/katharsis-core](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/katharsis-project/katharsis-core?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
-
 
 ## Development status
 [![Stories in Ready](https://badge.waffle.io/katharsis-project/katharsis-core.svg?label=ready&title=Ready)](http://waffle.io/katharsis-project/katharsis-core)
