@@ -4,7 +4,7 @@
 
     <groupId>io.katharsis</groupId>
     <artifactId>katharsis-examples</artifactId>
-    <version>0.9.1-SNAPSHOT</version>
+    <version>0.9.1</version>
     <modules>
         <module>dropwizard-mongo-example</module>
         <module>jersey-example</module>
@@ -13,7 +13,7 @@
     <packaging>pom</packaging>
 
     <name>katharsis-examples</name>
-    <url>http://maven.apache.org</url>
+    <url>http://katharsis.io</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -79,12 +79,15 @@
 
     <repositories>
         <repository>
-            <id>oss-jfrog-artifactory-snapshot</id>
-            <url>http://oss.jfrog.org/artifactory/oss-snapshot-local</url>
-        </repository>
-        <repository>
-            <id>oss-jfrog-artifactory</id>
-            <url>http://oss.jfrog.org/artifactory/oss-release-local</url>
+            <id>sonatype-nexus-snapshots</id>
+            <name>Sonatype Nexus Snapshots</name>
+            <url>http://oss.sonatype.org/content/repositories/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
         </repository>
     </repositories>
 </project>

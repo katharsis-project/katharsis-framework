@@ -17,12 +17,22 @@ public class TaskToProjectRepository implements RelationshipRepository<Task, Lon
     }
 
     @Override
+    public void addRelations(Task task, Iterable<Long> projectIds, String fieldName) {
+
+    }
+
+    @Override
+    public void removeRelations(Task task, Iterable<Long> projectIds, String fieldName) {
+
+    }
+
+    @Override
     public Project findOneTarget(Long sourceId, String fieldName) {
         return null;
     }
 
     @Override
-    public Iterable<Project> findTargets(Long sourceId, String fieldName) {
+    public Iterable<Project> findManyTargets(Long sourceId, String fieldName) {
         return null;
     }
 }
