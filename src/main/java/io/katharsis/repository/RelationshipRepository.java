@@ -6,14 +6,12 @@ import java.io.Serializable;
  * <p>
  * Base unidirectional repository responsible for operations on relations. All of the methods in this interface have
  * fieldName field as last parameter. It solves a problem of many relationships between the same resources.
- * </p>
  * <p>
  * There are two methods that are used for To-One relationships:
  * <ul>
  *     <li>setRelation</li>
  *     <li>findOneTarget</li>
  * </ul>
- * </p>
  * <p>
  * There are two methods that are used for To-One relationships:
  * <ul>
@@ -22,10 +20,10 @@ import java.io.Serializable;
  *     <li>removeRelation</li>
  *     <li>findManyTargets</li>
  * </ul>
- * </p>
- * <p>The reason why there is more than one method for To-Many relationships manipulation is to prevent
+ * <p>
+ * The reason why there is more than one method for To-Many relationships manipulation is to prevent
  * <a href="https://en.wikipedia.org/wiki/Race_condition">race condition</a> situations in which a field could be
- * changed concurrently by another request.</p>
+ * changed concurrently by another request.
  *
  * @param <T> source class type
  * @param <T_ID> T class id type
