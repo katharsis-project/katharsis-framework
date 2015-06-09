@@ -63,10 +63,11 @@ public class ResourcePatchTest extends BaseControllerTest {
     public void onGivenRequestResourceGetShouldHandleIt() throws Exception {
         // GIVEN
         RequestBody newTaskBody = new RequestBody();
-        newTaskBody.setData(new DataBody());
-        newTaskBody.getData().setType("tasks");
-        newTaskBody.getData().setAttributes(new Attributes());
-        newTaskBody.getData().getAttributes().addAttribute("name", "sample task");
+        DataBody data = new DataBody();
+        newTaskBody.setData(data);
+        data.setType("tasks");
+        data.setAttributes(new Attributes());
+        data.getAttributes().addAttribute("name", "sample task");
 
         JsonPath taskPath = pathBuilder.buildPath("/tasks");
 
@@ -80,10 +81,11 @@ public class ResourcePatchTest extends BaseControllerTest {
 
         // GIVEN
         RequestBody taskPatch = new RequestBody();
-        taskPatch.setData(new DataBody());
-        taskPatch.getData().setType("tasks");
-        taskPatch.getData().setAttributes(new Attributes());
-        taskPatch.getData().getAttributes().addAttribute("name", "task updated");
+        data = new DataBody();
+        taskPatch.setData(data);
+        data.setType("tasks");
+        data.setAttributes(new Attributes());
+        data.getAttributes().addAttribute("name", "task updated");
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/" + taskId);
         ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser);
 

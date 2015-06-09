@@ -4,7 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.RequestParams;
-import io.katharsis.request.dto.*;
+import io.katharsis.request.dto.Attributes;
+import io.katharsis.request.dto.DataBody;
+import io.katharsis.request.dto.RequestBody;
+import io.katharsis.request.dto.ResourceRelationships;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.exception.ResourceNotFoundException;
@@ -56,10 +59,11 @@ public class FieldResourcePostTest extends BaseControllerTest {
     public void onNonExistentParentResourceShouldThrowException() throws Exception {
         // GIVEN
         RequestBody newProjectBody = new RequestBody();
-        newProjectBody.setData(new DataBody());
-        newProjectBody.getData().setType("projects");
-        newProjectBody.getData().setAttributes(new Attributes());
-        newProjectBody.getData().getAttributes().addAttribute("name", "sample project");
+        DataBody data = new DataBody();
+        newProjectBody.setData(data);
+        data.setType("projects");
+        data.setAttributes(new Attributes());
+        data.getAttributes().addAttribute("name", "sample project");
 
         JsonPath projectPath = pathBuilder.buildPath("/tasks/-1/project");
         FieldResourcePost sut = new FieldResourcePost(resourceRegistry, typeParser);
@@ -75,11 +79,12 @@ public class FieldResourcePostTest extends BaseControllerTest {
     public void onExistingParentResourceShouldSaveIt() throws Exception {
         // GIVEN
         RequestBody newTaskBody = new RequestBody();
-        newTaskBody.setData(new DataBody());
-        newTaskBody.getData().setType("tasks");
-        newTaskBody.getData().setAttributes(new Attributes());
-        newTaskBody.getData().getAttributes().addAttribute("name", "sample task");
-        newTaskBody.getData().setRelationships(new ResourceRelationships());
+        DataBody data = new DataBody();
+        newTaskBody.setData(data);
+        data.setType("tasks");
+        data.setAttributes(new Attributes());
+        data.getAttributes().addAttribute("name", "sample task");
+        data.setRelationships(new ResourceRelationships());
 
         JsonPath taskPath = pathBuilder.buildPath("/tasks");
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser);
@@ -97,10 +102,11 @@ public class FieldResourcePostTest extends BaseControllerTest {
 
         // GIVEN
         RequestBody newProjectBody = new RequestBody();
-        newProjectBody.setData(new DataBody());
-        newProjectBody.getData().setType("projects");
-        newProjectBody.getData().setAttributes(new Attributes());
-        newProjectBody.getData().getAttributes().addAttribute("name", "sample project");
+        data = new DataBody();
+        newProjectBody.setData(data);
+        data.setType("projects");
+        data.setAttributes(new Attributes());
+        data.getAttributes().addAttribute("name", "sample project");
 
         JsonPath projectPath = pathBuilder.buildPath("/tasks/" + taskId + "/project");
         FieldResourcePost sut = new FieldResourcePost(resourceRegistry, typeParser);

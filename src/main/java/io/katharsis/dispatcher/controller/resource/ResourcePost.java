@@ -6,6 +6,7 @@ import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
+import io.katharsis.resource.exception.RequestBodyException;
 import io.katharsis.resource.exception.RequestBodyNotFoundException;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.registry.RegistryEntry;
@@ -47,11 +48,16 @@ public class ResourcePost extends ResourceUpsert {
         if (requestBody == null) {
             throw new RequestBodyNotFoundException(HttpMethod.POST, resourceName);
         }
+        if (requestBody.isMultiple()) {
+            throw new RequestBodyException(HttpMethod.POST, resourceName, "Multiple data in body");
+        }
 
-        Object resource = buildNewResource(registryEntry, requestBody, resourceName);
-        setAttributes(requestBody, resource, registryEntry.getResourceInformation());
+        DataBody dataBody = requestBody.getSingleData();
+        Object resource = buildNewResource(registryEntry, dataBody, resourceName);
+
+        setAttributes(dataBody, resource, registryEntry.getResourceInformation());
         Object savedResource = registryEntry.getResourceRepository().save(resource);
-        saveRelations(savedResource, registryEntry, requestBody);
+        saveRelations(savedResource, registryEntry, dataBody);
 
         Serializable resourceId = (Serializable) PropertyUtils.getProperty(savedResource, registryEntry.getResourceInformation()
                 .getIdField().getName());

@@ -26,9 +26,9 @@ import java.util.Collections;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-public class RelationshipsResourcePostTest extends BaseControllerTest {
+public class RelationshipsResourcePatchTest extends BaseControllerTest {
 
-    private static final String REQUEST_TYPE = HttpMethod.POST.name();
+    private static final String REQUEST_TYPE = HttpMethod.PATCH.name();
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     @Test
@@ -36,7 +36,7 @@ public class RelationshipsResourcePostTest extends BaseControllerTest {
         // GIVEN
         JsonPath jsonPath = pathBuilder.buildPath("tasks/1/relationships/project");
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-        RelationshipsResourcePost sut = new RelationshipsResourcePost(resourceRegistry, typeParser);
+        RelationshipsResourcePatch sut = new RelationshipsResourcePatch(resourceRegistry, typeParser);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -50,7 +50,7 @@ public class RelationshipsResourcePostTest extends BaseControllerTest {
         // GIVEN
         JsonPath jsonPath = new ResourcePath("tasks");
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-        RelationshipsResourcePost sut = new RelationshipsResourcePost(resourceRegistry, typeParser);
+        RelationshipsResourcePatch sut = new RelationshipsResourcePatch(resourceRegistry, typeParser);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -115,7 +115,7 @@ public class RelationshipsResourcePostTest extends BaseControllerTest {
         data.setId(projectId.toString());
 
         JsonPath savedTaskPath = pathBuilder.buildPath("/tasks/" + taskId + "/relationships/project");
-        RelationshipsResourcePost sut = new RelationshipsResourcePost(resourceRegistry, typeParser);
+        RelationshipsResourcePatch sut = new RelationshipsResourcePatch(resourceRegistry, typeParser);
 
         // WHEN -- adding a relation between task and project
         BaseResponse projectRelationshipResponse = sut.handle(savedTaskPath, new RequestParams(OBJECT_MAPPER), newTaskToProjectBody);
@@ -183,7 +183,7 @@ public class RelationshipsResourcePostTest extends BaseControllerTest {
         data.setId(projectId.toString());
 
         JsonPath savedTaskPath = pathBuilder.buildPath("/users/" + userId + "/relationships/assignedProjects");
-        RelationshipsResourcePost sut = new RelationshipsResourcePost(resourceRegistry, typeParser);
+        RelationshipsResourcePatch sut = new RelationshipsResourcePatch(resourceRegistry, typeParser);
 
         // WHEN -- adding a relation between user and project
         BaseResponse projectRelationshipResponse = sut.handle(savedTaskPath, new RequestParams(OBJECT_MAPPER), newTaskToProjectBody);

@@ -2,9 +2,11 @@ package io.katharsis.dispatcher.controller.resource;
 
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.RequestParams;
+import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
+import io.katharsis.resource.exception.RequestBodyException;
 import io.katharsis.resource.exception.RequestBodyNotFoundException;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.registry.RegistryEntry;
@@ -39,6 +41,10 @@ public class ResourcePatch extends ResourceUpsert {
         if (requestBody == null) {
             throw new RequestBodyNotFoundException(HttpMethod.PATCH, resourceName);
         }
+        if (requestBody.isMultiple()) {
+            throw new RequestBodyException(HttpMethod.POST, resourceName, "Multiple data in body");
+        }
+
 
         String idString = jsonPath.getIds().getIds().get(0);
 
@@ -49,9 +55,11 @@ public class ResourcePatch extends ResourceUpsert {
         Serializable resourceId = typeParser.parse(idString, idClass);
 
         Object resource = registryEntry.getResourceRepository().findOne(resourceId);
-        setAttributes(requestBody, resource, registryEntry.getResourceInformation());
+        DataBody dataBody = requestBody.getSingleData();
+
+        setAttributes(dataBody, resource, registryEntry.getResourceInformation());
         Object savedResource = registryEntry.getResourceRepository().save(resource);
-        saveRelations(savedResource, registryEntry, requestBody);
+        saveRelations(savedResource, registryEntry, dataBody);
 
         Object savedResourceWithRelations = registryEntry.getResourceRepository().findOne(resourceId);
 

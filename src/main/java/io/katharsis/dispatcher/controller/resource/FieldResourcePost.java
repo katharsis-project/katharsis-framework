@@ -3,10 +3,12 @@ package io.katharsis.dispatcher.controller.resource;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.RequestParams;
 import io.katharsis.repository.RelationshipRepository;
+import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.FieldPath;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathIds;
+import io.katharsis.resource.exception.RequestBodyException;
 import io.katharsis.resource.exception.RequestBodyNotFoundException;
 import io.katharsis.resource.exception.ResourceFieldNotFoundException;
 import io.katharsis.resource.exception.ResourceNotFoundException;
@@ -21,6 +23,7 @@ import org.apache.commons.beanutils.PropertyUtils;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Collections;
 
 /**
  * Creates a new post in a similar manner as in {@link ResourcePost}, but additionally adds a relation to a field.
@@ -51,6 +54,9 @@ public class FieldResourcePost extends ResourceUpsert {
         if (requestBody == null) {
             throw new RequestBodyNotFoundException(HttpMethod.POST, resourceName);
         }
+        if (requestBody.isMultiple()) {
+            throw new RequestBodyException(HttpMethod.POST, resourceName, "Multiple data in body");
+        }
 
         Serializable castedResourceId = getResourceId(resourceIds, registryEntry);
         Field relationshipField = registryEntry.getResourceInformation().findRelationshipFieldByName(jsonPath.getElementName());
@@ -64,10 +70,11 @@ public class FieldResourcePost extends ResourceUpsert {
         RegistryEntry relationshipRegistryEntry = resourceRegistry.getEntry(relationshipFieldClass);
         String relationshipResourceType = resourceRegistry.getResourceType(baseRelationshipFieldClass);
 
-        Object resource = buildNewResource(relationshipRegistryEntry, requestBody, relationshipResourceType);
-        setAttributes(requestBody, resource, relationshipRegistryEntry.getResourceInformation());
+        DataBody dataBody = requestBody.getSingleData();
+        Object resource = buildNewResource(relationshipRegistryEntry, dataBody, relationshipResourceType);
+        setAttributes(dataBody, resource, relationshipRegistryEntry.getResourceInformation());
         Object savedResource = relationshipRegistryEntry.getResourceRepository().save(resource);
-        saveRelations(savedResource, relationshipRegistryEntry, requestBody);
+        saveRelations(savedResource, relationshipRegistryEntry, dataBody);
 
         String relationshipResourceIdName = relationshipRegistryEntry.getResourceInformation().getIdField().getName();
         Serializable resourceId = (Serializable) PropertyUtils.getProperty(savedResource, relationshipResourceIdName);
@@ -77,7 +84,7 @@ public class FieldResourcePost extends ResourceUpsert {
         RelationshipRepository relationshipRepositoryForClass = registryEntry.getRelationshipRepositoryForClass(relationshipFieldClass);
         Object parent = registryEntry.getResourceRepository().findOne(castedResourceId);
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
-            relationshipRepositoryForClass.addRelation(parent, resourceId, jsonPath.getElementName());
+            relationshipRepositoryForClass.addRelations(parent, Collections.singletonList(resourceId), jsonPath.getElementName());
         } else {
             relationshipRepositoryForClass.setRelation(parent, resourceId, jsonPath.getElementName());
         }

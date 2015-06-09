@@ -10,27 +10,26 @@ import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
-public class RelationshipsResourcePost extends RelationshipsResourceUpsert {
+public class RelationshipsResourcePatch extends RelationshipsResourceUpsert {
 
-    public RelationshipsResourcePost(ResourceRegistry resourceRegistry, TypeParser typeParser) {
+    public RelationshipsResourcePatch(ResourceRegistry resourceRegistry, TypeParser typeParser) {
         super(resourceRegistry, typeParser);
     }
 
     @Override
     public HttpMethod method() {
-        return HttpMethod.POST;
+        return HttpMethod.PATCH;
     }
 
     @Override
     public void processToManyRelationship(Object resource, Class<? extends Serializable> relationshipIdType, String elementName,
                                           Iterable<DataBody> dataBodies, RelationshipRepository relationshipRepositoryForClass) {
         List<Serializable> parsedIds = new LinkedList<>();
-
         dataBodies.forEach(dataBody -> {
             Serializable parsedId = typeParser.parse(dataBody.getId(), relationshipIdType);
             parsedIds.add(parsedId);
         });
-        relationshipRepositoryForClass.addRelations(resource, parsedIds, elementName);
+        relationshipRepositoryForClass.setRelations(resource, parsedIds, elementName);
     }
 
     @Override

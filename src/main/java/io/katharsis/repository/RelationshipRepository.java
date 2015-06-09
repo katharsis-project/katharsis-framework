@@ -61,22 +61,22 @@ public interface RelationshipRepository<T, T_ID extends Serializable, D, D_ID ex
      * relationship should be added to the set of the relationships.
      *
      * @param source    instance of source class
-     * @param targetId  id of the target resource
+     * @param targetIds  ids of the target resource
      * @param fieldName name of target's field
      */
-    void addRelation(T source, D_ID targetId, String fieldName);
+    void addRelations(T source, Iterable<D_ID> targetIds, String fieldName);
 
     /**
      * Removes a relationship from a set of relationships. It is used only for To-Many relationship.
      *
      * @param source    instance of source class
-     * @param targetId  id of the target resource
+     * @param targetIds  ids of the target resource
      * @param fieldName name of target's field
      */
-    void removeRelation(T source, D_ID targetId, String fieldName);
+    void removeRelations(T source, Iterable<D_ID> targetIds, String fieldName);
 
     /**
-     * Find a relation's target identifier
+     * Find a relation's target identifier. It is used only for To-One relationship.
      *
      * @param sourceId an identifier of a source
      * @param fieldName name of target's filed
@@ -85,7 +85,7 @@ public interface RelationshipRepository<T, T_ID extends Serializable, D, D_ID ex
     D findOneTarget(T_ID sourceId, String fieldName);
 
     /**
-     * Find a relation's target identifiers
+     * Find a relation's target identifiers. It is used only for To-Many relationship.
      *
      * @param sourceId an identifier of a source
      * @param fieldName name of target's filed

@@ -54,10 +54,11 @@ public class ResourcePostTest extends BaseControllerTest {
     public void onInconsistentResourceTypesShouldThrowException() throws Exception {
         // GIVEN
         RequestBody newProjectBody = new RequestBody();
-        newProjectBody.setData(new DataBody());
-        newProjectBody.getData().setType("projects");
-        newProjectBody.getData().setAttributes(new Attributes());
-        newProjectBody.getData().getAttributes().addAttribute("name", "sample project");
+        DataBody data = new DataBody();
+        newProjectBody.setData(data);
+        data.setType("projects");
+        data.setAttributes(new Attributes());
+        data.getAttributes().addAttribute("name", "sample project");
 
         JsonPath projectPath = pathBuilder.buildPath("/tasks");
         ResourcePost sut = new ResourcePost(resourceRegistry, typeParser);
@@ -73,8 +74,9 @@ public class ResourcePostTest extends BaseControllerTest {
     public void onNonExistentResourceShouldThrowException() throws Exception {
         // GIVEN
         RequestBody newProjectBody = new RequestBody();
-        newProjectBody.setData(new DataBody());
-        newProjectBody.getData().setType("fridges");
+        DataBody data = new DataBody();
+        newProjectBody.setData(data);
+        data.setType("fridges");
 
         ResourcePost sut = new ResourcePost(resourceRegistry, typeParser);
 
@@ -101,10 +103,11 @@ public class ResourcePostTest extends BaseControllerTest {
     public void onNewResourcesAndRelationshipShouldPersistThoseData() throws Exception {
         // GIVEN
         RequestBody newProjectBody = new RequestBody();
-        newProjectBody.setData(new DataBody());
-        newProjectBody.getData().setType("projects");
-        newProjectBody.getData().setAttributes(new Attributes());
-        newProjectBody.getData().getAttributes().addAttribute("name", "sample project");
+        DataBody data = new DataBody();
+        newProjectBody.setData(data);
+        data.setType("projects");
+        data.setAttributes(new Attributes());
+        data.getAttributes().addAttribute("name", "sample project");
 
         JsonPath projectPath = pathBuilder.buildPath("/projects");
         ResourcePost sut = new ResourcePost(resourceRegistry, typeParser);
@@ -123,12 +126,13 @@ public class ResourcePostTest extends BaseControllerTest {
 
         // GIVEN
         RequestBody newTaskBody = new RequestBody();
-        newTaskBody.setData(new DataBody());
-        newTaskBody.getData().setType("tasks");
-        newTaskBody.getData().setAttributes(new Attributes());
-        newTaskBody.getData().getAttributes().addAttribute("name", "sample task");
-        newTaskBody.getData().setRelationships(new ResourceRelationships());
-        newTaskBody.getData().getRelationships().setAdditionalProperty("project", new Linkage("projects", projectId.toString()));
+        data = new DataBody();
+        newTaskBody.setData(data);
+        data.setType("tasks");
+        data.setAttributes(new Attributes());
+        data.getAttributes().addAttribute("name", "sample task");
+        data.setRelationships(new ResourceRelationships());
+        data.getRelationships().setAdditionalProperty("project", new Linkage("projects", projectId.toString()));
 
         JsonPath taskPath = pathBuilder.buildPath("/tasks");
 
@@ -151,10 +155,11 @@ public class ResourcePostTest extends BaseControllerTest {
     public void onNewResourcesAndRelationshipsShouldPersistThoseData() throws Exception {
         // GIVEN
         RequestBody newProjectBody = new RequestBody();
-        newProjectBody.setData(new DataBody());
-        newProjectBody.getData().setType("projects");
-        newProjectBody.getData().setAttributes(new Attributes());
-        newProjectBody.getData().getAttributes().addAttribute("name", "sample project");
+        DataBody data = new DataBody();
+        newProjectBody.setData(data);
+        data.setType("projects");
+        data.setAttributes(new Attributes());
+        data.getAttributes().addAttribute("name", "sample project");
 
         JsonPath projectPath = pathBuilder.buildPath("/projects");
         ResourcePost sut = new ResourcePost(resourceRegistry, typeParser);
@@ -172,19 +177,20 @@ public class ResourcePostTest extends BaseControllerTest {
         /* ------- */
 
         // GIVEN
-        RequestBody newTaskBody = new RequestBody();
-        newTaskBody.setData(new DataBody());
-        newTaskBody.getData().setType("users");
-        newTaskBody.getData().setAttributes(new Attributes());
-        newTaskBody.getData().getAttributes().addAttribute("name", "some user");
-        newTaskBody.getData().setRelationships(new ResourceRelationships());
-        newTaskBody.getData().getRelationships().setAdditionalProperty("assignedProjects", Arrays.asList(new Linkage("projects",
+        RequestBody newUserBody = new RequestBody();
+        data = new DataBody();
+        newUserBody.setData(data);
+        data.setType("users");
+        data.setAttributes(new Attributes());
+        data.getAttributes().addAttribute("name", "some user");
+        data.setRelationships(new ResourceRelationships());
+        data.getRelationships().setAdditionalProperty("assignedProjects", Arrays.asList(new Linkage("projects",
                 projectId.toString())));
 
         JsonPath taskPath = pathBuilder.buildPath("/users");
 
         // WHEN
-        ResourceResponse taskResponse = sut.handle(taskPath, new RequestParams(new ObjectMapper()), newTaskBody);
+        ResourceResponse taskResponse = sut.handle(taskPath, new RequestParams(new ObjectMapper()), newUserBody);
 
         // THEN
         assertThat(taskResponse.getData()).isExactlyInstanceOf(Container.class);

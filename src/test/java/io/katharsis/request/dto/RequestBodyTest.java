@@ -21,16 +21,18 @@ public class RequestBodyTest {
         // THEN
         assertThat(result).isNotNull();
         assertThat(result.getData()).isNotNull();
-        assertThat(result.getData().getType()).isEqualTo("tasks");
-        assertThat(result.getData().getAttributes()).isNotNull();
-        assertThat(result.getData().getAttributes().getAttributes()).containsOnlyKeys("name");
-        assertThat(result.getData().getAttributes().getAttributes().get("name")).isEqualTo("asdasd");
-        assertThat(result.getData().getRelationships()).isNotNull();
-        assertThat(result.getData().getRelationships().getAdditionalProperties()).containsOnlyKeys("project");
-        assertThat(result.getData().getRelationships().getAdditionalProperties().get("project")).isInstanceOf(Linkage.class);
-        assertThat(((Linkage) (result.getData().getRelationships().getAdditionalProperties().get("project")))
+        assertThat(result.getData()).isExactlyInstanceOf(DataBody.class);
+        DataBody data = result.getSingleData();
+        assertThat(data.getType()).isEqualTo("tasks");
+        assertThat(data.getAttributes()).isNotNull();
+        assertThat(data.getAttributes().getAttributes()).containsOnlyKeys("name");
+        assertThat(data.getAttributes().getAttributes().get("name")).isEqualTo("asdasd");
+        assertThat(data.getRelationships()).isNotNull();
+        assertThat(data.getRelationships().getAdditionalProperties()).containsOnlyKeys("project");
+        assertThat(data.getRelationships().getAdditionalProperties().get("project")).isInstanceOf(Linkage.class);
+        assertThat(((Linkage) (data.getRelationships().getAdditionalProperties().get("project")))
                 .getType()).isEqualTo("projects");
-        assertThat(((Linkage) (result.getData().getRelationships().getAdditionalProperties().get("project")))
+        assertThat(((Linkage) (data.getRelationships().getAdditionalProperties().get("project")))
                 .getId()).isEqualTo("123");
     }
 
@@ -45,13 +47,15 @@ public class RequestBodyTest {
         // THEN
         assertThat(result).isNotNull();
         assertThat(result.getData()).isNotNull();
-        assertThat(result.getData().getType()).isEqualTo("tasks");
-        assertThat(result.getData().getAttributes()).isNotNull();
-        assertThat(result.getData().getAttributes().getAttributes()).containsOnlyKeys("name");
-        assertThat(result.getData().getAttributes().getAttributes().get("name")).isEqualTo("asdasd");
-        assertThat(result.getData().getRelationships()).isNotNull();
-        assertThat(result.getData().getRelationships().getAdditionalProperties()).containsOnlyKeys("project");
-        assertThat(result.getData().getRelationships().getAdditionalProperties().get("project")).isNull();
+        assertThat(result.getData()).isExactlyInstanceOf(DataBody.class);
+        DataBody data = result.getSingleData();
+        assertThat(data.getType()).isEqualTo("tasks");
+        assertThat(data.getAttributes()).isNotNull();
+        assertThat(data.getAttributes().getAttributes()).containsOnlyKeys("name");
+        assertThat(data.getAttributes().getAttributes().get("name")).isEqualTo("asdasd");
+        assertThat(data.getRelationships()).isNotNull();
+        assertThat(data.getRelationships().getAdditionalProperties()).containsOnlyKeys("project");
+        assertThat(data.getRelationships().getAdditionalProperties().get("project")).isNull();
     }
 
     @Test
@@ -66,20 +70,22 @@ public class RequestBodyTest {
         // THEN
         assertThat(result).isNotNull();
         assertThat(result.getData()).isNotNull();
-        assertThat(result.getData().getType()).isEqualTo("tasks");
-        assertThat(result.getData().getAttributes()).isNotNull();
-        assertThat(result.getData().getAttributes().getAttributes()).containsOnlyKeys("name");
-        assertThat(result.getData().getAttributes().getAttributes().get("name")).isEqualTo("asdasd");
-        assertThat(result.getData().getRelationships()).isNotNull();
-        assertThat(result.getData().getRelationships().getAdditionalProperties()).containsOnlyKeys("project");
-        assertThat(result.getData().getRelationships().getAdditionalProperties().get("project")).isInstanceOf(Iterable.class);
-        assertThat(((Iterable<Linkage>) (result.getData().getRelationships().getAdditionalProperties().get("project"))))
+        assertThat(result.getData()).isExactlyInstanceOf(DataBody.class);
+        DataBody data = result.getSingleData();
+        assertThat(data.getType()).isEqualTo("tasks");
+        assertThat(data.getAttributes()).isNotNull();
+        assertThat(data.getAttributes().getAttributes()).containsOnlyKeys("name");
+        assertThat(data.getAttributes().getAttributes().get("name")).isEqualTo("asdasd");
+        assertThat(data.getRelationships()).isNotNull();
+        assertThat(data.getRelationships().getAdditionalProperties()).containsOnlyKeys("project");
+        assertThat(data.getRelationships().getAdditionalProperties().get("project")).isInstanceOf(Iterable.class);
+        assertThat(((Iterable<Linkage>) (data.getRelationships().getAdditionalProperties().get("project"))))
                 .hasSize(1);
-        assertThat(((Iterable<Linkage>) (result.getData().getRelationships().getAdditionalProperties().get("project")))
+        assertThat(((Iterable<Linkage>) (data.getRelationships().getAdditionalProperties().get("project")))
                 .iterator().next()).isInstanceOf(Linkage.class);
-        assertThat(((Iterable<Linkage>) (result.getData().getRelationships().getAdditionalProperties().get("project")))
+        assertThat(((Iterable<Linkage>) (data.getRelationships().getAdditionalProperties().get("project")))
                 .iterator().next().getType()).isEqualTo("projects");
-        assertThat(((Iterable<Linkage>) (result.getData().getRelationships().getAdditionalProperties().get("project")))
+        assertThat(((Iterable<Linkage>) (data.getRelationships().getAdditionalProperties().get("project")))
                 .iterator().next().getId()).isEqualTo("123");
     }
 
@@ -94,14 +100,16 @@ public class RequestBodyTest {
         // THEN
         assertThat(result).isNotNull();
         assertThat(result.getData()).isNotNull();
-        assertThat(result.getData().getType()).isEqualTo("tasks");
-        assertThat(result.getData().getAttributes()).isNotNull();
-        assertThat(result.getData().getAttributes().getAttributes()).containsOnlyKeys("name");
-        assertThat(result.getData().getAttributes().getAttributes().get("name")).isEqualTo("asdasd");
-        assertThat(result.getData().getRelationships()).isNotNull();
-        assertThat(result.getData().getRelationships().getAdditionalProperties()).containsOnlyKeys("project");
-        assertThat(result.getData().getRelationships().getAdditionalProperties().get("project")).isInstanceOf(Iterable.class);
-        assertThat(((Iterable<Linkage>) (result.getData().getRelationships().getAdditionalProperties().get("project"))))
+        assertThat(result.getData()).isExactlyInstanceOf(DataBody.class);
+        DataBody data = result.getSingleData();
+        assertThat(data.getType()).isEqualTo("tasks");
+        assertThat(data.getAttributes()).isNotNull();
+        assertThat(data.getAttributes().getAttributes()).containsOnlyKeys("name");
+        assertThat(data.getAttributes().getAttributes().get("name")).isEqualTo("asdasd");
+        assertThat(data.getRelationships()).isNotNull();
+        assertThat(data.getRelationships().getAdditionalProperties()).containsOnlyKeys("project");
+        assertThat(data.getRelationships().getAdditionalProperties().get("project")).isInstanceOf(Iterable.class);
+        assertThat(((Iterable<Linkage>) (data.getRelationships().getAdditionalProperties().get("project"))))
                 .hasSize(0);
     }
 }

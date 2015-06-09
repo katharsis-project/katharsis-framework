@@ -51,11 +51,12 @@ public class ResourceGetTest extends BaseControllerTest {
     public void onGivenRequestResourceGetShouldHandleIt() throws Exception {
         // GIVEN
         RequestBody newTaskBody = new RequestBody();
-        newTaskBody.setData(new DataBody());
-        newTaskBody.getData().setType("tasks");
-        newTaskBody.getData().setAttributes(new Attributes());
-        newTaskBody.getData().getAttributes().addAttribute("name", "sample task");
-        newTaskBody.getData().setRelationships(new ResourceRelationships());
+        DataBody data = new DataBody();
+        newTaskBody.setData(data);
+        data.setType("tasks");
+        data.setAttributes(new Attributes());
+        data.getAttributes().addAttribute("name", "sample task");
+        data.setRelationships(new ResourceRelationships());
 
         JsonPath taskPath = pathBuilder.buildPath("/tasks");
 

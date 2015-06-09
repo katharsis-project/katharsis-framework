@@ -10,34 +10,32 @@ import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
-public class RelationshipsResourcePost extends RelationshipsResourceUpsert {
+public class RelationshipsResourceDelete extends RelationshipsResourceUpsert {
 
-    public RelationshipsResourcePost(ResourceRegistry resourceRegistry, TypeParser typeParser) {
+    public RelationshipsResourceDelete(ResourceRegistry resourceRegistry, TypeParser typeParser) {
         super(resourceRegistry, typeParser);
     }
 
     @Override
     public HttpMethod method() {
-        return HttpMethod.POST;
+        return HttpMethod.DELETE;
     }
 
     @Override
     public void processToManyRelationship(Object resource, Class<? extends Serializable> relationshipIdType, String elementName,
                                           Iterable<DataBody> dataBodies, RelationshipRepository relationshipRepositoryForClass) {
         List<Serializable> parsedIds = new LinkedList<>();
-
         dataBodies.forEach(dataBody -> {
             Serializable parsedId = typeParser.parse(dataBody.getId(), relationshipIdType);
             parsedIds.add(parsedId);
         });
-        relationshipRepositoryForClass.addRelations(resource, parsedIds, elementName);
+        relationshipRepositoryForClass.removeRelations(resource, parsedIds, elementName);
     }
 
     @Override
     protected void processToOneRelationship(Object resource, Class<? extends Serializable> relationshipIdType,
                                             String elementName, DataBody dataBody, RelationshipRepository relationshipRepositoryForClass) {
-        Serializable parsedId = typeParser.parse(dataBody.getId(), relationshipIdType);
-        relationshipRepositoryForClass.setRelation(resource, parsedId, elementName);
+        relationshipRepositoryForClass.setRelation(resource, null, elementName);
     }
 
 }

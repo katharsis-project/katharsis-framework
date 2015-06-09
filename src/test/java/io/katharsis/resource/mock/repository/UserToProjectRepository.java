@@ -36,19 +36,23 @@ public class UserToProjectRepository implements RelationshipRepository<User, Lon
     }
 
     @Override
-    public void addRelation(User source, Long targetId, String fieldName) {
-        THREAD_LOCAL_REPOSITORY.get().add(new Relation<>(source, targetId, fieldName));
+    public void addRelations(User source, Iterable<Long> targetIds, String fieldName) {
+        targetIds.forEach(targetId ->
+                        THREAD_LOCAL_REPOSITORY.get().add(new Relation<>(source, targetId, fieldName))
+        );
     }
 
     @Override
-    public void removeRelation(User source, Long targetId, String fieldName) {
-        Iterator<Relation<User>> iterator = THREAD_LOCAL_REPOSITORY.get().iterator();
-        while (iterator.hasNext()) {
-            Relation<User> next = iterator.next();
-            if (next.getFieldName().equals(fieldName) && next.getTargetId().equals(targetId)) {
-                iterator.remove();
+    public void removeRelations(User source, Iterable<Long> targetIds, String fieldName) {
+        targetIds.forEach(targetId -> {
+            Iterator<Relation<User>> iterator = THREAD_LOCAL_REPOSITORY.get().iterator();
+            while (iterator.hasNext()) {
+                Relation<User> next = iterator.next();
+                if (next.getFieldName().equals(fieldName) && next.getTargetId().equals(targetId)) {
+                    iterator.remove();
+                }
             }
-        }
+        });
     }
 
     private void removeRelations(String fieldName) {

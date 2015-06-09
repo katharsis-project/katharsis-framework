@@ -4,7 +4,6 @@ import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.Linkage;
-import io.katharsis.request.dto.RequestBody;
 import io.katharsis.resource.ResourceInformation;
 import io.katharsis.resource.exception.ResourceException;
 import io.katharsis.resource.exception.ResourceNotFoundException;
@@ -30,20 +29,20 @@ public abstract class ResourceUpsert implements BaseController {
         this.typeParser = typeParser;
     }
 
-    protected void setAttributes(RequestBody requestBody, Object instance, ResourceInformation resourceInformation)
+    protected void setAttributes(DataBody dataBody, Object instance, ResourceInformation resourceInformation)
             throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException {
-        if (requestBody.getData().getAttributes() != null) {
-            for (Map.Entry<String, Object> property : requestBody.getData().getAttributes().getAttributes().entrySet()) {
+        if (dataBody.getAttributes() != null) {
+            for (Map.Entry<String, Object> property : dataBody.getAttributes().getAttributes().entrySet()) {
                 Field attributeField = resourceInformation.findAttributeFieldByName(property.getKey());
                 PropertyUtils.setProperty(instance, attributeField.getName(), property.getValue());
             }
         }
     }
 
-    protected void saveRelations(Object savedResource, RegistryEntry registryEntry, RequestBody requestBody)
+    protected void saveRelations(Object savedResource, RegistryEntry registryEntry, DataBody dataBody)
             throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
-        if (requestBody.getData().getRelationships() != null) {
-            Map<String, Object> additionalProperties = requestBody.getData().getRelationships().getAdditionalProperties();
+        if (dataBody.getRelationships() != null) {
+            Map<String, Object> additionalProperties = dataBody.getRelationships().getAdditionalProperties();
             for (Map.Entry<String, Object> property : additionalProperties.entrySet()) {
                 if (Iterable.class.isAssignableFrom(property.getValue().getClass())) {
                     saveRelationsField(savedResource, registryEntry, (Map.Entry) property, registryEntry.getResourceInformation());
@@ -121,15 +120,14 @@ public abstract class ResourceUpsert implements BaseController {
         return relationRegistryEntry;
     }
 
-    protected Object buildNewResource(RegistryEntry registryEntry, RequestBody requestBody, String resourceName)
+    protected Object buildNewResource(RegistryEntry registryEntry, DataBody dataBody, String resourceName)
             throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException {
-        DataBody data = requestBody.getData();
-        if (data == null) {
+        if (dataBody == null) {
             throw new RuntimeException("No data field in the body.");
         }
-        if (!resourceName.equals(data.getType())) {
+        if (!resourceName.equals(dataBody.getType())) {
             throw new RuntimeException(String.format("Inconsistent type definition between path and body: body type: " +
-                    "%s, request type: %s", data.getType(), resourceName));
+                    "%s, request type: %s", dataBody.getType(), resourceName));
         }
         Object resource = registryEntry.getResourceInformation().getResourceClass().newInstance();
         return resource;
