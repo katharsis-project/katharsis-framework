@@ -58,6 +58,8 @@ abstract public class AbstractKatharsisFilter implements Filter {
 
     private static Logger log = LoggerFactory.getLogger(AbstractKatharsisFilter.class);
 
+    public static final String INIT_PARAM_FILTER_BASE_PATH = "filterBasePath";
+
     private ServletContext servletContext;
     private KatharsisInvoker katharsisInvoker;
 
@@ -65,7 +67,7 @@ abstract public class AbstractKatharsisFilter implements Filter {
 
     public void init(FilterConfig filterConfig) throws ServletException {
         servletContext = filterConfig.getServletContext();
-        filterBasePath = filterConfig.getInitParameter("filterBasePath");
+        filterBasePath = filterConfig.getInitParameter(INIT_PARAM_FILTER_BASE_PATH);
     }
 
     public void destroy() {

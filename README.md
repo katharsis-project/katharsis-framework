@@ -17,9 +17,7 @@ This module provides an abstract class, [AbstractKatharsisServlet.java](src/main
 
     abstract protected KatharsisInvoker createKatharsisInvoker();
 
-See [KatharsisServletTest.java](src/test/java/com/github/woonsan/katharsis/servlet/KatharsisServletTest.java)
-for detail on how to create the KatharsisInvoker using the builder object
-and how it works in servlet environment.
+Or even simpler, you can simply use or extend [SimpleKatharsisServlet.java](src/main/java/com/github/woonsan/katharsis/servlet/SimpleKatharsisServlet.java) instead.
 
 How to use this in my Servlet Filter?
 =====================================
@@ -28,6 +26,13 @@ This module provides an abstract class, [AbstractKatharsisFilter.java](src/main/
 
     abstract protected KatharsisInvoker createKatharsisInvoker();
 
-See [KatharsisFilterTest.java](src/test/java/com/github/woonsan/katharsis/servlet/KatharsisFilterTest.java)
-for detail on how to create the KatharsisInvoker using the builder object
-and how it works in servlet environment.
+Or even simpler, you can simply use or extend [SimpleKatharsisFilter.java](src/main/java/com/github/woonsan/katharsis/servlet/SimpleKatharsisFilter.java) instead.
+
+Demo in a Web Application?
+==========================
+
+Please run the following command in this project root folder:
+
+    $ mvn -Prun clean verify
+
+Visit [http://localhost:8080/katharsis/](http://localhost:8080/katharsis/) and test out each JSON API link.

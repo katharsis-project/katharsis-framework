@@ -35,8 +35,6 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockServletContext;
 
 import com.github.woonsan.katharsis.invoker.JsonApiMediaType;
-import com.github.woonsan.katharsis.invoker.KatharsisInvoker;
-import com.github.woonsan.katharsis.invoker.KatharsisInvokerBuilder;
 
 /**
  * Test for {@link AbstractKatharsisFilter}.
@@ -49,8 +47,6 @@ public class KatharsisFilterTest {
 
     private static final String RESOURCE_DEFAULT_DOMAIN = "http://test.local";
 
-    private KatharsisInvoker katharsisInvoker;
-
     private ServletContext servletContext;
 
     private FilterConfig filterConfig;
@@ -59,22 +55,16 @@ public class KatharsisFilterTest {
 
     @Before
     public void before() throws Exception {
-        katharsisInvoker = new KatharsisInvokerBuilder()
-            .resourceSearchPackage(RESOURCE_SEARCH_PACKAGE)
-            .resourceDefaultDomain(RESOURCE_DEFAULT_DOMAIN)
-            .build();
-
-        katharsisFilter = new AbstractKatharsisFilter() {
-            @Override
-            protected KatharsisInvoker createKatharsisInvoker() {
-                return katharsisInvoker;
-            }
-        };
+        katharsisFilter = new SimpleKatharsisFilter();
 
         servletContext = new MockServletContext();
         ((MockServletContext) servletContext).setContextPath("");
         filterConfig = new MockFilterConfig(servletContext);
         ((MockFilterConfig) filterConfig).addInitParameter("filterBasePath", "/api");
+        ((MockFilterConfig) filterConfig).addInitParameter(SimpleKatharsisFilter.INIT_PARAM_RESOURCE_SEARCH_PACKAGE,
+                                                           RESOURCE_SEARCH_PACKAGE);
+        ((MockFilterConfig) filterConfig).addInitParameter(SimpleKatharsisFilter.INIT_PARAM_RESOURCE_DEFAULT_DOMAIN,
+                                                           RESOURCE_DEFAULT_DOMAIN);
 
         katharsisFilter.init(filterConfig);
     }
