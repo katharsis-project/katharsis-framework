@@ -3,11 +3,13 @@ package io.katharsis.queryParams;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.katharsis.queryParams.include.Inclusion;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Contains a set of parameters passed along with the request.
@@ -18,7 +20,7 @@ public class RequestParams {
     private List<String> grouping;
     private Map<PaginationKeys, Integer> pagination;
     private List<String> includedFields;
-    private List<String> includedRelations;
+    private List<Inclusion> includedRelations;
 
     private ObjectMapper objectMapper;
 
@@ -101,14 +103,17 @@ public class RequestParams {
      * Get a set of included fields which should be included in the resource
      * @return included relationships
      */
-    public List getIncludedRelations() {
+    public List<Inclusion> getIncludedRelations() {
         return includedRelations;
     }
 
     void setIncludedRelations(String includedRelations) throws IOException {
-        this.includedRelations = Collections.unmodifiableList(
-                objectMapper.readValue(includedRelations, INCLUDED_RELATIONS_TYPE_REFERENCE)
-        );
+        List<? extends String> list = objectMapper.readValue(includedRelations, INCLUDED_RELATIONS_TYPE_REFERENCE);
+        List<Inclusion> inclusions = list
+                .stream()
+                .map(Inclusion::new)
+                .collect(Collectors.toList());
+        this.includedRelations = Collections.unmodifiableList(inclusions);
     }
 
 }

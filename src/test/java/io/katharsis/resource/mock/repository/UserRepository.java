@@ -13,6 +13,8 @@ import java.util.Map;
 
 public class UserRepository implements ResourceRepository<User, Long> {
 
+    private static final RequestParams REQUEST_PARAMS = new RequestParams(null);
+
     // Used ThreadLocal in case of switching to TestNG and using concurrent tests
     private static final ThreadLocal<Map<Long, User>> THREAD_LOCAL_REPOSITORY = new ThreadLocal<Map<Long, User>>() {
         @Override
@@ -32,12 +34,12 @@ public class UserRepository implements ResourceRepository<User, Long> {
     }
 
     @Override
-    public User findOne(Long aLong) {
+    public User findOne(Long aLong, RequestParams requestParams) {
         User user = THREAD_LOCAL_REPOSITORY.get().get(aLong);
         if (user == null) {
             throw new ResourceNotFoundException(User.class);
         }
-        Iterable<Project> assignedProjects = USER_TO_PROJECT_REPOSITORY.findManyTargets(aLong, "assignedProjects");
+        Iterable<Project> assignedProjects = USER_TO_PROJECT_REPOSITORY.findManyTargets(aLong, "assignedProjects", REQUEST_PARAMS);
         user.setAssignedProjects(makeCollection(assignedProjects));
 
         return user;

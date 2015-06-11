@@ -1,5 +1,8 @@
 package io.katharsis.response;
 
+import io.katharsis.queryParams.RequestParams;
+import io.katharsis.request.path.JsonPath;
+
 import java.util.Objects;
 
 /**
@@ -17,11 +20,17 @@ public class CollectionResponse implements BaseResponse<Iterable> {
 
     private Iterable data;
 
+    private JsonPath jsonPath;
+
+    private RequestParams requestParams;
+
     public CollectionResponse() {
     }
 
-    public CollectionResponse(Iterable data) {
+    public CollectionResponse(Iterable data, JsonPath jsonPath, RequestParams requestParams) {
         this.data = data;
+        this.jsonPath = jsonPath;
+        this.requestParams = requestParams;
     }
 
     @Override
@@ -32,6 +41,16 @@ public class CollectionResponse implements BaseResponse<Iterable> {
     @Override
     public Iterable getData() {
         return data;
+    }
+
+    @Override
+    public JsonPath getJsonPath() {
+        return jsonPath;
+    }
+
+    @Override
+    public RequestParams getRequestParams() {
+        return requestParams;
     }
 
     public void setData(Iterable data) {

@@ -1,5 +1,7 @@
 package io.katharsis.repository;
 
+import io.katharsis.queryParams.RequestParams;
+
 import java.io.Serializable;
 
 /**
@@ -78,16 +80,18 @@ public interface RelationshipRepository<T, T_ID extends Serializable, D, D_ID ex
      *
      * @param sourceId an identifier of a source
      * @param fieldName name of target's filed
+     * @param requestParams parameters sent along with the request
      * @return an identifier of a target of a relation
      */
-    D findOneTarget(T_ID sourceId, String fieldName);
+    D findOneTarget(T_ID sourceId, String fieldName, RequestParams requestParams);
 
     /**
      * Find a relation's target identifiers. It is used only for To-Many relationship.
      *
      * @param sourceId an identifier of a source
      * @param fieldName name of target's filed
+     * @param requestParams parameters sent along with the request
      * @return identifiers of targets of a relation
      */
-    Iterable<D> findManyTargets(T_ID sourceId, String fieldName);
+    Iterable<D> findManyTargets(T_ID sourceId, String fieldName, RequestParams requestParams);
 }

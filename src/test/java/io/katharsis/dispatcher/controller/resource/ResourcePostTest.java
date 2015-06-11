@@ -23,6 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ResourcePostTest extends BaseControllerTest {
 
     private static final String REQUEST_TYPE = "POST";
+    private static final RequestParams REQUEST_PARAMS = new RequestParams(null);
 
     @Test
     public void onGivenRequestCollectionGetShouldDenyIt() {
@@ -147,7 +148,7 @@ public class ResourcePostTest extends BaseControllerTest {
         assertThat(((Task) (((Container) taskResponse.getData()).getData())).getName()).isEqualTo("sample task");
 
         TaskToProjectRepository taskToProjectRepository = new TaskToProjectRepository();
-        Project project = taskToProjectRepository.findOneTarget(taskId, "project");
+        Project project = taskToProjectRepository.findOneTarget(taskId, "project", REQUEST_PARAMS);
         assertThat(project.getId()).isEqualTo(projectId);
     }
 

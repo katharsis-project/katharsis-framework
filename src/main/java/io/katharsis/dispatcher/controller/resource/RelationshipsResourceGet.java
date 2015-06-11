@@ -49,9 +49,10 @@ public class RelationshipsResourceGet implements BaseController {
         RegistryEntry<?> registryEntry = resourceRegistry.getEntry(resourceName);
 
         Serializable castedResourceId = getResourceId(resourceIds, registryEntry);
-        Field relationshipField = registryEntry.getResourceInformation().findRelationshipFieldByName(jsonPath.getElementName());
+        String elementName = jsonPath.getElementName();
+        Field relationshipField = registryEntry.getResourceInformation().findRelationshipFieldByName(elementName);
         if (relationshipField == null) {
-            throw new ResourceFieldNotFoundException(jsonPath.getElementName());
+            throw new ResourceFieldNotFoundException(elementName);
         }
 
         Class<?> baseRelationshipFieldClass = relationshipField.getType();
@@ -63,20 +64,20 @@ public class RelationshipsResourceGet implements BaseController {
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
             List<LinkageContainer> dataList = new LinkedList<>();
 
-            Iterable targetObjects = relationshipRepositoryForClass.findManyTargets(castedResourceId, jsonPath.getElementName());
+            Iterable targetObjects = relationshipRepositoryForClass.findManyTargets(castedResourceId, elementName, requestParams);
             if (targetObjects != null) {
                 for (Object targetObject : targetObjects) {
                     dataList.add(new LinkageContainer(targetObject, relationshipFieldClass, relationshipFieldEntry));
                 }
             }
-            target = new CollectionResponse(dataList);
+            target = new CollectionResponse(dataList, jsonPath, requestParams);
         } else {
-            Object targetObject = relationshipRepositoryForClass.findOneTarget(castedResourceId, jsonPath.getElementName());
+            Object targetObject = relationshipRepositoryForClass.findOneTarget(castedResourceId, elementName, requestParams);
             if (targetObject != null) {
                 LinkageContainer linkageContainer = new LinkageContainer(targetObject, relationshipFieldClass, relationshipFieldEntry);
-                target = new ResourceResponse(linkageContainer);
+                target = new ResourceResponse(linkageContainer, jsonPath, requestParams);
             } else {
-                target = new ResourceResponse(null);
+                target = new ResourceResponse(null, jsonPath, requestParams);
             }
         }
 

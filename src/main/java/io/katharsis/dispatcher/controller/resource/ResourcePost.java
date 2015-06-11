@@ -62,8 +62,8 @@ public class ResourcePost extends ResourceUpsert {
         Serializable resourceId = (Serializable) PropertyUtils.getProperty(savedResource, registryEntry.getResourceInformation()
                 .getIdField().getName());
 
-        Object savedResourceWithRelations = registryEntry.getResourceRepository().findOne(resourceId);
+        Object savedResourceWithRelations = registryEntry.getResourceRepository().findOne(resourceId, requestParams);
 
-        return new ResourceResponse(new Container(savedResourceWithRelations));
+        return new ResourceResponse(new Container(savedResourceWithRelations), jsonPath, requestParams);
     }
 }

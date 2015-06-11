@@ -1,6 +1,8 @@
 package io.katharsis.errorhandling;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.katharsis.queryParams.RequestParams;
+import io.katharsis.request.path.JsonPath;
 import io.katharsis.response.BaseResponse;
 
 import java.util.Objects;
@@ -26,6 +28,16 @@ public final class ErrorResponse implements BaseResponse<Iterable<ErrorData>> {
     @JsonProperty(ERRORS)
     public final Iterable<ErrorData> getData() {
         return data;
+    }
+
+    @Override
+    public JsonPath getJsonPath() {
+        return null;
+    }
+
+    @Override
+    public RequestParams getRequestParams() {
+        return null;
     }
 
     public static ErrorResponseBuilder builder() {

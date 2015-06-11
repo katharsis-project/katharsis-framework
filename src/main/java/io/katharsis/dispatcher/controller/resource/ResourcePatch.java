@@ -54,15 +54,15 @@ public class ResourcePatch extends ResourceUpsert {
                 .getType();
         Serializable resourceId = typeParser.parse(idString, idClass);
 
-        Object resource = registryEntry.getResourceRepository().findOne(resourceId);
+        Object resource = registryEntry.getResourceRepository().findOne(resourceId, requestParams);
         DataBody dataBody = requestBody.getSingleData();
 
         setAttributes(dataBody, resource, registryEntry.getResourceInformation());
         Object savedResource = registryEntry.getResourceRepository().save(resource);
         saveRelations(savedResource, registryEntry, dataBody);
 
-        Object savedResourceWithRelations = registryEntry.getResourceRepository().findOne(resourceId);
+        Object savedResourceWithRelations = registryEntry.getResourceRepository().findOne(resourceId, requestParams);
 
-        return new ResourceResponse(new Container(savedResourceWithRelations));
+        return new ResourceResponse(new Container(savedResourceWithRelations), jsonPath, requestParams);
     }
 }

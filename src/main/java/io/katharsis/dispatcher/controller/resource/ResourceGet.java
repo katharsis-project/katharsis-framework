@@ -62,8 +62,8 @@ public class ResourceGet implements BaseController {
                 .getIdField()
                 .getType();
         Serializable castedId = typeParser.parse(id, idClass);
-        Object entity = registryEntry.getResourceRepository().findOne(castedId);
+        Object entity = registryEntry.getResourceRepository().findOne(castedId, requestParams);
 
-        return new ResourceResponse(new Container(entity));
+        return new ResourceResponse(new Container(entity), jsonPath, requestParams);
     }
 }

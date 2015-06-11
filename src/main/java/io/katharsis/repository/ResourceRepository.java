@@ -19,9 +19,10 @@ public interface ResourceRepository<T, ID extends Serializable> {
      * exception should be thrown.
      *
      * @param id an identifier of the resource
+     * @param requestParams parameters sent along with the request
      * @return an instance of the resource
      */
-    T findOne(ID id);
+    T findOne(ID id, RequestParams requestParams);
 
     /**
      * Search for all of the resources. An instance of {@link RequestParams} can be used if necessary. If no

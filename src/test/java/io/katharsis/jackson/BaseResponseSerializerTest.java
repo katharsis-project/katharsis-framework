@@ -1,6 +1,9 @@
 package io.katharsis.jackson;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
+import io.katharsis.queryParams.RequestParams;
+import io.katharsis.request.path.JsonPath;
+import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.models.User;
@@ -18,6 +21,8 @@ import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 
 public class BaseResponseSerializerTest extends BaseSerializerTest {
 
+    private static final RequestParams REQUEST_PARAMS = new RequestParams(null);
+
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
@@ -33,7 +38,8 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
         task.setProject(project);
 
         // WHEN
-        String result = sut.writeValueAsString(new ResourceResponse(new Container<>(task)));
+
+        String result = sut.writeValueAsString(new ResourceResponse(new Container<>(task), new ResourcePath("projects"), REQUEST_PARAMS));
 
         // THEN
         assertThatJson(result).node("data").isPresent();
@@ -57,7 +63,7 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
         user.setAssignedProjects(Arrays.asList(project1, project2));
 
         // WHEN
-        String result = sut.writeValueAsString(new ResourceResponse(new Container<>(user)));
+        String result = sut.writeValueAsString(new ResourceResponse(new Container<>(user), new ResourcePath("projects"), REQUEST_PARAMS));
 
         // THEN
         assertThatJson(result).node("data").isPresent();
@@ -77,7 +83,7 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
 
         // WHEN
         String result = sut.writeValueAsString(new CollectionResponse(Arrays.asList(new Container<>(task1), new
-                Container<>(task2))));
+                Container<>(task2)), new ResourcePath("tasks"), REQUEST_PARAMS));
 
         // THEN
         assertThatJson(result).node("data").isArray().ofLength(2);
@@ -86,7 +92,7 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
     @Test
     public void onSingleResponseWithNoResourcesShouldReturnEmptyArray() throws Exception {
         // WHEN
-        String result = sut.writeValueAsString(new CollectionResponse(null));
+        String result = sut.writeValueAsString(new CollectionResponse(null, new ResourcePath("projects"), REQUEST_PARAMS));
 
         // THEN
         assertThatJson(result).node("data").isArray().ofLength(0);
@@ -95,7 +101,7 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
     @Test
     public void onSingleResponseWithNoResourceShouldReturnNull() throws Exception {
         // WHEN
-        String result = sut.writeValueAsString(new ResourceResponse(null));
+        String result = sut.writeValueAsString(new ResourceResponse(null, new ResourcePath("projects"), REQUEST_PARAMS));
 
         // THEN
         assertThatJson(result).node("data").isEqualTo(null);
@@ -115,6 +121,16 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
 
             @Override
             public Object getData() {
+                return null;
+            }
+
+            @Override
+            public JsonPath getJsonPath() {
+                return null;
+            }
+
+            @Override
+            public RequestParams getRequestParams() {
                 return null;
             }
         });

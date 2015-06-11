@@ -30,6 +30,7 @@ public class RelationshipsResourceDeleteTest extends BaseControllerTest {
 
     private static final String REQUEST_TYPE = HttpMethod.DELETE.name();
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final RequestParams REQUEST_PARAMS = new RequestParams(OBJECT_MAPPER);
 
     @Test
     public void onValidRequestShouldAcceptIt() {
@@ -123,7 +124,7 @@ public class RelationshipsResourceDeleteTest extends BaseControllerTest {
 
         // THEN
         TaskToProjectRepository taskToProjectRepository = new TaskToProjectRepository();
-        Project project = taskToProjectRepository.findOneTarget(taskId, "project");
+        Project project = taskToProjectRepository.findOneTarget(taskId, "project", REQUEST_PARAMS);
         assertThat(project.getId()).isEqualTo(projectId);
 
         /* ------- */
@@ -136,7 +137,7 @@ public class RelationshipsResourceDeleteTest extends BaseControllerTest {
         assertThat(result).isNotNull();
 
         // THEN
-        Project nullProject = taskToProjectRepository.findOneTarget(taskId, "project");
+        Project nullProject = taskToProjectRepository.findOneTarget(taskId, "project", REQUEST_PARAMS);
         assertThat(nullProject).isNull();
     }
 
@@ -204,7 +205,7 @@ public class RelationshipsResourceDeleteTest extends BaseControllerTest {
 
         // THEN
         UserToProjectRepository userToProjectRepository = new UserToProjectRepository();
-        Project project = userToProjectRepository.findOneTarget(userId, "assignedProjects");
+        Project project = userToProjectRepository.findOneTarget(userId, "assignedProjects", REQUEST_PARAMS);
         assertThat(project.getId()).isEqualTo(projectId);
 
         /* ------- */
@@ -217,7 +218,7 @@ public class RelationshipsResourceDeleteTest extends BaseControllerTest {
         assertThat(result).isNotNull();
 
         // THEN
-        Project nullProject = userToProjectRepository.findOneTarget(userId, "assignedProjects");
+        Project nullProject = userToProjectRepository.findOneTarget(userId, "assignedProjects", REQUEST_PARAMS);
         assertThat(nullProject).isNull();
     }
 }

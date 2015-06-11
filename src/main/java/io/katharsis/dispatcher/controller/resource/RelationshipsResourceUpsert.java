@@ -89,7 +89,7 @@ public abstract class RelationshipsResourceUpsert implements BaseController {
         if (relationshipField == null) {
             throw new ResourceFieldNotFoundException(jsonPath.getElementName());
         }
-        Object resource = registryEntry.getResourceRepository().findOne(castedResourceId);
+        Object resource = registryEntry.getResourceRepository().findOne(castedResourceId, requestParams);
 
         Class<?> baseRelationshipFieldClass = relationshipField.getType();
         Class<?> relationshipFieldClass = Generics.getResourceClass(relationshipField, baseRelationshipFieldClass);

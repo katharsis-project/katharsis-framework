@@ -26,6 +26,7 @@ import static org.mockito.Mockito.mock;
 public class FieldResourcePostTest extends BaseControllerTest {
     private static final String REQUEST_TYPE = HttpMethod.POST.name();
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final RequestParams REQUEST_PARAMS = new RequestParams(OBJECT_MAPPER);
 
     @Test
     public void onValidRequestShouldAcceptIt() {
@@ -122,7 +123,7 @@ public class FieldResourcePostTest extends BaseControllerTest {
         assertThat(projectId).isNotNull();
 
         TaskToProjectRepository taskToProjectRepository = new TaskToProjectRepository();
-        Project project = taskToProjectRepository.findOneTarget(taskId, "project");
+        Project project = taskToProjectRepository.findOneTarget(taskId, "project", REQUEST_PARAMS);
         assertThat(project.getId()).isEqualTo(projectId);
     }
 }

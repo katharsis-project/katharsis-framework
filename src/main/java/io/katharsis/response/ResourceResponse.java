@@ -1,5 +1,8 @@
 package io.katharsis.response;
 
+import io.katharsis.queryParams.RequestParams;
+import io.katharsis.request.path.JsonPath;
+
 import java.util.Objects;
 
 /**
@@ -20,11 +23,17 @@ public class ResourceResponse implements BaseResponse {
      */
     private Object data;
 
+    private JsonPath jsonPath;
+
+    private RequestParams requestParams;
+
     public ResourceResponse() {
     }
 
-    public ResourceResponse(Object data) {
+    public ResourceResponse(Object data, JsonPath jsonPath, RequestParams requestParams) {
         this.data = data;
+        this.jsonPath = jsonPath;
+        this.requestParams = requestParams;
     }
 
     @Override
@@ -35,6 +44,16 @@ public class ResourceResponse implements BaseResponse {
     @Override
     public Object getData() {
         return data;
+    }
+
+    @Override
+    public JsonPath getJsonPath() {
+        return jsonPath;
+    }
+
+    @Override
+    public RequestParams getRequestParams() {
+        return requestParams;
     }
 
     public void setData(Object data) {

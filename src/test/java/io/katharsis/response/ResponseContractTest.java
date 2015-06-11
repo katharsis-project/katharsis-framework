@@ -11,15 +11,6 @@ import java.lang.reflect.Field;
 public class ResponseContractTest {
 
     @Test
-    public void CollectionResponseEqualsContract() throws NoSuchFieldException {
-        EqualsVerifier.forClass(CollectionResponse.class)
-                .withPrefabValues(Field.class, String.class.getDeclaredField("value"), String.class.getDeclaredField("hash"))
-                .usingGetClass()
-                .suppress(Warning.NONFINAL_FIELDS)
-                .verify();
-    }
-
-    @Test
     public void ContainerEqualsContract() throws NoSuchFieldException {
         EqualsVerifier.forClass(Container.class)
                 .usingGetClass()
@@ -57,14 +48,6 @@ public class ResponseContractTest {
     public void RelationshipContainerContainerEqualsContract() throws NoSuchFieldException {
         EqualsVerifier.forClass(RelationshipContainer.class)
                 .withPrefabValues(Field.class, String.class.getDeclaredField("value"), String.class.getDeclaredField("hash"))
-                .usingGetClass()
-                .suppress(Warning.NONFINAL_FIELDS)
-                .verify();
-    }
-
-    @Test
-    public void ResourceResponseContainerEqualsContract() throws NoSuchFieldException {
-        EqualsVerifier.forClass(ResourceResponse.class)
                 .usingGetClass()
                 .suppress(Warning.NONFINAL_FIELDS)
                 .verify();

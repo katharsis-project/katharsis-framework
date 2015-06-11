@@ -46,9 +46,10 @@ public class FieldResourceGet implements BaseController {
 
         RegistryEntry<?> registryEntry = resourceRegistry.getEntry(resourceName);
         Serializable castedResourceId = getResourceId(resourceIds, registryEntry);
-        Field relationshipField = registryEntry.getResourceInformation().findRelationshipFieldByName(jsonPath.getElementName());
+        String elementName = jsonPath.getElementName();
+        Field relationshipField = registryEntry.getResourceInformation().findRelationshipFieldByName(elementName);
         if (relationshipField == null) {
-            throw new ResourceFieldNotFoundException(jsonPath.getElementName());
+            throw new ResourceFieldNotFoundException(elementName);
         }
 
         Class<?> baseRelationshipFieldClass = relationshipField.getType();
@@ -57,11 +58,11 @@ public class FieldResourceGet implements BaseController {
         RelationshipRepository relationshipRepositoryForClass = registryEntry.getRelationshipRepositoryForClass(relationshipFieldClass);
         BaseResponse target;
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
-            Iterable targetObjects = relationshipRepositoryForClass.findManyTargets(castedResourceId, jsonPath.getElementName());
-            target = new CollectionResponse(targetObjects);
+            Iterable targetObjects = relationshipRepositoryForClass.findManyTargets(castedResourceId, elementName, requestParams);
+            target = new CollectionResponse(targetObjects, jsonPath, requestParams);
         } else {
-            Object targetObject = relationshipRepositoryForClass.findOneTarget(castedResourceId, jsonPath.getElementName());
-            target = new ResourceResponse(targetObject);
+            Object targetObject = relationshipRepositoryForClass.findOneTarget(castedResourceId, elementName, requestParams);
+            target = new ResourceResponse(targetObject, jsonPath, requestParams);
         }
 
         return target;

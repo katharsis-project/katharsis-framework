@@ -2,6 +2,7 @@ package io.katharsis.queryParams;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.jackson.exception.ParametersDeserializationException;
+import io.katharsis.queryParams.include.Inclusion;
 import io.katharsis.resource.RestrictedQueryParamsMembers;
 import org.junit.Before;
 import org.junit.Test;
@@ -95,6 +96,6 @@ public class RequestParamsBuilderTest {
         RequestParams result = sut.buildRequestParams(queryParams);
 
         // THEN
-        assertThat(result.getIncludedRelations().contains("friends")).isTrue();
+        assertThat(result.getIncludedRelations().contains(new Inclusion("friends"))).isTrue();
     }
 }

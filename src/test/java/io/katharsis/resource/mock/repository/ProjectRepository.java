@@ -27,7 +27,7 @@ public class ProjectRepository implements ResourceRepository<Project, Long> {
     }
 
     @Override
-    public Project findOne(Long aLong) {
+    public Project findOne(Long aLong, RequestParams requestParams) {
         Project project = THREAD_LOCAL_REPOSITORY.get().get(aLong);
         if (project == null) {
             throw new ResourceNotFoundException(Project.class);

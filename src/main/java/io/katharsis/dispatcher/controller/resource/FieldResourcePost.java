@@ -79,10 +79,10 @@ public class FieldResourcePost extends ResourceUpsert {
         String relationshipResourceIdName = relationshipRegistryEntry.getResourceInformation().getIdField().getName();
         Serializable resourceId = (Serializable) PropertyUtils.getProperty(savedResource, relationshipResourceIdName);
 
-        Object savedResourceWithRelations = relationshipRegistryEntry.getResourceRepository().findOne(resourceId);
+        Object savedResourceWithRelations = relationshipRegistryEntry.getResourceRepository().findOne(resourceId, requestParams);
 
         RelationshipRepository relationshipRepositoryForClass = registryEntry.getRelationshipRepositoryForClass(relationshipFieldClass);
-        Object parent = registryEntry.getResourceRepository().findOne(castedResourceId);
+        Object parent = registryEntry.getResourceRepository().findOne(castedResourceId, requestParams);
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
             relationshipRepositoryForClass.addRelations(parent, Collections.singletonList(resourceId), jsonPath.getElementName());
         } else {
@@ -90,7 +90,7 @@ public class FieldResourcePost extends ResourceUpsert {
         }
 
 
-        return new ResourceResponse(new Container(savedResourceWithRelations));
+        return new ResourceResponse(new Container(savedResourceWithRelations), jsonPath, requestParams);
     }
 
     private Serializable getResourceId(PathIds resourceIds, RegistryEntry<?> registryEntry) {

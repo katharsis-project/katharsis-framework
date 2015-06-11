@@ -27,7 +27,7 @@ public class TaskRepository implements ResourceRepository<Task, Long> {
     }
 
     @Override
-    public Task findOne(Long aLong) {
+    public Task findOne(Long aLong, RequestParams requestParams) {
         Task task = THREAD_LOCAL_REPOSITORY.get().get(aLong);
         if (task == null) {
             throw new ResourceNotFoundException("");
