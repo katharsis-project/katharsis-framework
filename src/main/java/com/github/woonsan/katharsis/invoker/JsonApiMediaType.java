@@ -30,8 +30,6 @@ public class JsonApiMediaType {
      */
     public static final MediaType APPLICATION_JSON_API_TYPE = MediaType.create("application", "vnd.api+json");
 
-    private static final String ALL_MEDIA_TYPE = "*/*";
-
     private static final String WILDCARD = "*";
 
     public static boolean isCompatibleMediaType(MediaType mediaType) {
@@ -39,13 +37,21 @@ public class JsonApiMediaType {
             return false;
         }
 
-        if (ALL_MEDIA_TYPE.equals(mediaType)) {
+        if (WILDCARD.equals(mediaType.type())) {
             return true;
         }
 
-        return WILDCARD.equals(mediaType.type()) ||
-            (APPLICATION_JSON_API_TYPE.type().equalsIgnoreCase(mediaType.type()) &&
-                (WILDCARD.equals(mediaType.subtype()) || APPLICATION_JSON_API_TYPE.subtype().equalsIgnoreCase(mediaType.subtype())));
+        if (MediaType.ANY_APPLICATION_TYPE.type().equalsIgnoreCase(mediaType.type())) {
+            if (WILDCARD.equals(mediaType.subtype())) {
+                return true;
+            }
+
+            if (APPLICATION_JSON_API_TYPE.subtype().equalsIgnoreCase(mediaType.subtype())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private JsonApiMediaType() {

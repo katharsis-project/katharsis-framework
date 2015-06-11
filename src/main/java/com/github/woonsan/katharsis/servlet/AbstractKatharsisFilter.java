@@ -80,9 +80,9 @@ abstract public class AbstractKatharsisFilter implements Filter {
 
             KatharsisInvokerContext invokerContext = createKatharsisInvokerContext(request, response);
             getKatharsisInvoker().invoke(invokerContext);
+        } else {
+            chain.doFilter(req, res);
         }
-
-        chain.doFilter(req, res);
     }
 
     public KatharsisInvoker getKatharsisInvoker() {

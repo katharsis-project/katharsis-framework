@@ -63,7 +63,7 @@ public class KatharsisInvoker {
     }
 
     public void invoke(KatharsisInvokerContext invokerContext) throws ServletException, IOException {
-        if (isAcceptableMediaType(invokerContext) && isAcceptableContentType(invokerContext)) {
+        if (isAcceptableMediaType(invokerContext)) {
             try {
                 dispatchRequest(invokerContext);
             } catch (Exception e) {
@@ -99,6 +99,7 @@ public class KatharsisInvoker {
                     os = invokerContext.getResponseOutputStream();
                     bos = new BufferedOutputStream(os);
                     objectMapper.writeValue(bos, katharsisResponse);
+                    bos.flush();
                 } finally {
                     if (bos != null) {
                         try {
@@ -133,16 +134,6 @@ public class KatharsisInvoker {
                     return true;
                 }
             }
-        }
-
-        return false;
-    }
-
-    private boolean isAcceptableContentType(KatharsisInvokerContext invokerContext) {
-        String contentType = invokerContext.getRequestHeader("Content-Type");
-
-        if (contentType != null) {
-            return JsonApiMediaType.isCompatibleMediaType(MediaType.parse(contentType));
         }
 
         return false;
