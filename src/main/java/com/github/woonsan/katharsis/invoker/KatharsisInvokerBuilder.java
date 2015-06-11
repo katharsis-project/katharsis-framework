@@ -39,6 +39,10 @@ public class KatharsisInvokerBuilder {
     private ResourceRegistry resourceRegistry;
     private RequestDispatcher requestDispatcher;
 
+    // FIXME: meshuga: "SampleJsonServiceLocator - this class was created more
+    //                 for testing purposes and something more advanced should be used
+    //                 to provide DI for the repositories"
+    //        Thanks for the review!
     private JsonServiceLocator jsonServiceLocator = new SampleJsonServiceLocator();
     private ExceptionMapperRegistry exceptionMapperRegistry;
 

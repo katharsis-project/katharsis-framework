@@ -61,7 +61,7 @@ abstract public class AbstractKatharsisFilter implements Filter {
     public static final String INIT_PARAM_FILTER_BASE_PATH = "filterBasePath";
 
     private ServletContext servletContext;
-    private KatharsisInvoker katharsisInvoker;
+    private volatile KatharsisInvoker katharsisInvoker;
 
     private String filterBasePath;
 
@@ -88,11 +88,21 @@ abstract public class AbstractKatharsisFilter implements Filter {
     }
 
     public KatharsisInvoker getKatharsisInvoker() {
-        if (katharsisInvoker == null) {
-            katharsisInvoker = createKatharsisInvoker();
+        // Double-checked locking..
+        KatharsisInvoker invoker = katharsisInvoker;
+
+        if (invoker == null) {
+            synchronized (this) {
+                invoker = katharsisInvoker;
+
+                if (invoker == null) {
+                    invoker = createKatharsisInvoker();
+                    katharsisInvoker = invoker;
+                }
+            }
         }
 
-        return katharsisInvoker;
+        return invoker;
     }
 
     public void setKatharsisInvoker(KatharsisInvoker katharsisInvoker) {
