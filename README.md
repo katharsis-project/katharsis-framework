@@ -1,6 +1,6 @@
 # katharsis-servlet
 
-Servlet Adapter of Katharsis JSON:API middleware library.
+Generic Servlet Adapter of Katharsis JSON:API middleware library.
 
 Introduction
 ============
@@ -8,7 +8,7 @@ This module aims to provide a generic invoker module for
 Katharsis JSON:API middleware library (https://github.com/katharsis-project/katharsis-core).
 This module can be used in simple servlet or filter,
 servlet-based application framework such as Spring Framework,
-non-ServletAPI-based frameworks such as Portal/Portlet, Wicket, etc.
+or even non-ServletAPI-based frameworks such as Portal/Portlet, Wicket, etc.
 
 How to use this in my Servlet?
 ==============================
