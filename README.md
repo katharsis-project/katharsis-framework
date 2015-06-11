@@ -13,21 +13,21 @@ or even non-ServletAPI-based frameworks such as Portal/Portlet, Wicket, etc.
 How to use this in my Servlet?
 ==============================
 
-This module provides an abstract class, [AbstractKatharsisServlet](src/main/java/com/github/woonsan/katharsis/servlet/AbstractKatharsisServlet.java). Basically you need to override the following method at least:
+This module provides an abstract class, [AbstractKatharsisServlet.java](src/main/java/com/github/woonsan/katharsis/servlet/AbstractKatharsisServlet.java). Basically you need to override the following method at least:
 
     abstract protected KatharsisInvoker createKatharsisInvoker();
 
-See [KatharsisServletTest](src/test/java/com/github/woonsan/katharsis/servlet/KatharsisServletTest.java)
+See [KatharsisServletTest.java](src/test/java/com/github/woonsan/katharsis/servlet/KatharsisServletTest.java)
 for detail on how to create the KatharsisInvoker using the builder object
 and how it works in servlet environment.
 
 How to use this in my Servlet Filter?
 =====================================
 
-This module provides an abstract class, [AbstractKatharsisFilter](src/main/java/com/github/woonsan/katharsis/servlet/AbstractKatharsisFilter.java). Basically you need to override the following method at least as well:
+This module provides an abstract class, [AbstractKatharsisFilter.java](src/main/java/com/github/woonsan/katharsis/servlet/AbstractKatharsisFilter.java). Basically you need to override the following method at least as well:
 
     abstract protected KatharsisInvoker createKatharsisInvoker();
 
-See [KatharsisServletTest](src/test/java/com/github/woonsan/katharsis/servlet/KatharsisFilterTest.java)
+See [KatharsisFilterTest.java](src/test/java/com/github/woonsan/katharsis/servlet/KatharsisFilterTest.java)
 for detail on how to create the KatharsisInvoker using the builder object
 and how it works in servlet environment.
