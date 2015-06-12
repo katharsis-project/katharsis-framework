@@ -16,7 +16,7 @@
  */
 package com.github.woonsan.katharsis.servlet;
 
-import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
+import static net.javacrumbs.jsonunit.JsonAssert.assertJsonPartEquals;
 import static org.junit.Assert.assertNotNull;
 
 import javax.servlet.Filter;
@@ -45,7 +45,7 @@ public class KatharsisFilterTest {
 
     private static final String RESOURCE_SEARCH_PACKAGE = "com.github.woonsan.katharsis.resource";
 
-    private static final String RESOURCE_DEFAULT_DOMAIN = "http://test.local";
+    private static final String RESOURCE_DEFAULT_DOMAIN = "http://localhost:8080/api/v1";
 
     private ServletContext servletContext;
 
@@ -96,7 +96,11 @@ public class KatharsisFilterTest {
         log.debug("responseContent: {}", responseContent);
         assertNotNull(responseContent);
 
-        assertJsonEquals("{\"data\":[{\"data\":{\"id\":1,\"name\":\"First task\",\"project\":null}}]}", responseContent);
+        assertJsonPartEquals("tasks", responseContent, "data[0].type");
+        assertJsonPartEquals("\"1\"", responseContent, "data[0].id");
+        assertJsonPartEquals("{\"name\":\"First task\",\"project\":null}", responseContent, "data[0].attributes");
+        assertJsonPartEquals("{\"self\":\"http://localhost:8080/api/v1/tasks/1\"}", responseContent, "data[0].relationships");
+        assertJsonPartEquals("[]", responseContent, "included");
     }
 
     @Test
@@ -122,7 +126,11 @@ public class KatharsisFilterTest {
         log.debug("responseContent: {}", responseContent);
         assertNotNull(responseContent);
 
-        assertJsonEquals("{\"data\":{\"data\":{\"id\":1,\"name\":\"Some task\",\"project\":null}}}", responseContent);
+        assertJsonPartEquals("tasks", responseContent, "data.type");
+        assertJsonPartEquals("\"1\"", responseContent, "data.id");
+        assertJsonPartEquals("{\"name\":\"Some task\",\"project\":null}", responseContent, "data.attributes");
+        assertJsonPartEquals("{\"self\":\"http://localhost:8080/api/v1/tasks/1\"}", responseContent, "data.relationships");
+        assertJsonPartEquals("[]", responseContent, "included");
     }
 
     @Test
@@ -148,7 +156,11 @@ public class KatharsisFilterTest {
         log.debug("responseContent: {}", responseContent);
         assertNotNull(responseContent);
 
-        assertJsonEquals("{\"data\":[{\"data\":{\"id\":1,\"name\":\"First task\",\"project\":null}}]}", responseContent);
+        assertJsonPartEquals("tasks", responseContent, "data[0].type");
+        assertJsonPartEquals("\"1\"", responseContent, "data[0].id");
+        assertJsonPartEquals("{\"name\":\"First task\",\"project\":null}", responseContent, "data[0].attributes");
+        assertJsonPartEquals("{\"self\":\"http://localhost:8080/api/v1/tasks/1\"}", responseContent, "data[0].relationships");
+        assertJsonPartEquals("[]", responseContent, "included");
     }
 
 }

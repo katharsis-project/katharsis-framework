@@ -21,6 +21,7 @@ import io.katharsis.dispatcher.registry.ControllerRegistry;
 import io.katharsis.dispatcher.registry.ControllerRegistryBuilder;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryBuilder;
+import io.katharsis.jackson.JsonApiModuleBuilder;
 import io.katharsis.locator.JsonServiceLocator;
 import io.katharsis.resource.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -34,7 +35,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 public class KatharsisInvokerBuilder {
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private ObjectMapper objectMapper;
     private ResourceRegistry resourceRegistry;
     private RequestDispatcher requestDispatcher;
     private JsonServiceLocator jsonServiceLocator;
@@ -105,6 +106,10 @@ public class KatharsisInvokerBuilder {
             requestDispatcher = createRequestDispatcher(resourceRegistry, exceptionMapperRegistry);
         }
 
+        if (objectMapper == null) {
+            objectMapper = createObjectMapper(resourceRegistry);
+        }
+
         return new KatharsisInvoker(objectMapper, resourceRegistry, requestDispatcher);
     }
 
@@ -126,4 +131,10 @@ public class KatharsisInvokerBuilder {
         return new RequestDispatcher(controllerRegistry, exceptionMapperRegistry);
     }
 
+    private ObjectMapper createObjectMapper(ResourceRegistry resourceRegistry) {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonApiModuleBuilder jsonApiModuleBuilder = new JsonApiModuleBuilder();
+        mapper.registerModule(jsonApiModuleBuilder.build(resourceRegistry));
+        return mapper;
+    }
 }
