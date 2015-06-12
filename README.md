@@ -15,18 +15,18 @@ How to use this in my Servlet?
 
 This module provides an abstract class, [AbstractKatharsisServlet.java](src/main/java/com/github/woonsan/katharsis/servlet/AbstractKatharsisServlet.java). Basically you need to override the following method at least:
 
-    abstract protected KatharsisInvoker createKatharsisInvoker();
+    abstract protected KatharsisInvokerBuilder createKatharsisInvokerBuilder();
 
-Or even simpler, you can simply use or extend [SimpleKatharsisServlet.java](src/main/java/com/github/woonsan/katharsis/servlet/SimpleKatharsisServlet.java) instead.
+Also see [SampleKatharsisServlet.java](src/main/java/com/github/woonsan/katharsis/servlet/SampleKatharsisServlet.java) as an example.
 
 How to use this in my Servlet Filter?
 =====================================
 
 This module provides an abstract class, [AbstractKatharsisFilter.java](src/main/java/com/github/woonsan/katharsis/servlet/AbstractKatharsisFilter.java). Basically you need to override the following method at least as well:
 
-    abstract protected KatharsisInvoker createKatharsisInvoker();
+    abstract protected KatharsisInvokerBuilder createKatharsisInvokerBuilder();
 
-Or even simpler, you can simply use or extend [SimpleKatharsisFilter.java](src/main/java/com/github/woonsan/katharsis/servlet/SimpleKatharsisFilter.java) instead.
+Also see [SampleKatharsisFilter.java](src/main/java/com/github/woonsan/katharsis/servlet/SampleKatharsisFilter.java) as an example.
 
 Demo in a Web Application?
 ==========================
