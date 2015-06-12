@@ -22,8 +22,8 @@
   <description>Katharsis-Servlet Integration Example Application</description>
 
   <filter>
-    <filter-name>SimpleKatharsisFilter</filter-name>
-    <filter-class>com.github.woonsan.katharsis.servlet.SimpleKatharsisFilter</filter-class>
+    <filter-name>SampleKatharsisFilter</filter-name>
+    <filter-class>com.github.woonsan.katharsis.servlet.SampleKatharsisFilter</filter-class>
     <init-param>
       <param-name>filterBasePath</param-name>
       <param-value>/api/v1a</param-value>
@@ -39,13 +39,13 @@
   </filter>
 
   <filter-mapping>
-    <filter-name>SimpleKatharsisFilter</filter-name>
+    <filter-name>SampleKatharsisFilter</filter-name>
     <url-pattern>/api/v1a/*</url-pattern>
   </filter-mapping>
 
   <servlet>
-    <servlet-name>SimpleKatharsisServlet</servlet-name>
-    <servlet-class>com.github.woonsan.katharsis.servlet.SimpleKatharsisServlet</servlet-class>
+    <servlet-name>SampleKatharsisServlet</servlet-name>
+    <servlet-class>com.github.woonsan.katharsis.servlet.SampleKatharsisServlet</servlet-class>
     <init-param>
       <param-name>resourceSearchPackage</param-name>
       <param-value>com.github.woonsan.katharsis.resource</param-value>
@@ -57,7 +57,7 @@
   </servlet>
 
   <servlet-mapping>
-    <servlet-name>SimpleKatharsisServlet</servlet-name>
+    <servlet-name>SampleKatharsisServlet</servlet-name>
     <url-pattern>/api/v1b/*</url-pattern>
   </servlet-mapping>
 

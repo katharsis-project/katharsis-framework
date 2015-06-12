@@ -16,21 +16,23 @@
  */
 package com.github.woonsan.katharsis.servlet;
 
-import javax.servlet.ServletConfig;
+import io.katharsis.locator.JsonServiceLocator;
+import io.katharsis.locator.SampleJsonServiceLocator;
+
+import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.woonsan.katharsis.invoker.KatharsisInvoker;
 import com.github.woonsan.katharsis.invoker.KatharsisInvokerBuilder;
 
 /**
- * Simple Katharsis integration servlet class.
+ * (Testing purpose) Sample Katharsis integration servlet filter.
  */
-public class SimpleKatharsisServlet extends AbstractKatharsisServlet {
+public class SampleKatharsisFilter extends AbstractKatharsisFilter {
 
-    private static Logger log = LoggerFactory.getLogger(SimpleKatharsisServlet.class);
+    private static Logger log = LoggerFactory.getLogger(SampleKatharsisFilter.class);
 
     public static final String INIT_PARAM_RESOURCE_SEARCH_PACKAGE = "resourceSearchPackage";
 
@@ -39,11 +41,10 @@ public class SimpleKatharsisServlet extends AbstractKatharsisServlet {
     private String resourceSearchPackage;
     private String resourceDefaultDomain;
 
-    @Override
-    public void init(ServletConfig servletConfig) throws ServletException {
-        super.init(servletConfig);
-        resourceSearchPackage = servletConfig.getInitParameter(INIT_PARAM_RESOURCE_SEARCH_PACKAGE);
-        resourceDefaultDomain = servletConfig.getInitParameter(INIT_PARAM_RESOURCE_DEFAULT_DOMAIN);
+    public void init(FilterConfig filterConfig) throws ServletException {
+        super.init(filterConfig);
+        resourceSearchPackage = filterConfig.getInitParameter(INIT_PARAM_RESOURCE_SEARCH_PACKAGE);
+        resourceDefaultDomain = filterConfig.getInitParameter(INIT_PARAM_RESOURCE_DEFAULT_DOMAIN);
     }
 
     public String getResourceSearchPackage() {
@@ -62,20 +63,17 @@ public class SimpleKatharsisServlet extends AbstractKatharsisServlet {
         this.resourceDefaultDomain = resourceDefaultDomain;
     }
 
+    /**
+     * NOTE: A class extending this must provide a platform specific {@link JsonServiceLocator}
+     *       instead of the (testing-purpose) {@link SampleJsonServiceLocator} below
+     *       in order to provide advanced dependency injections for the repositories.
+     */
     @Override
-    protected KatharsisInvoker createKatharsisInvoker() {
-        KatharsisInvoker katharsisInvoker = null;
-
-        try {
-            katharsisInvoker = new KatharsisInvokerBuilder()
+    protected KatharsisInvokerBuilder createKatharsisInvokerBuilder() {
+        return new KatharsisInvokerBuilder()
                 .resourceSearchPackage(getResourceSearchPackage())
                 .resourceDefaultDomain(getResourceDefaultDomain())
-                .build();
-        } catch (Exception e) {
-            log.error("Failed to create katharsis invoker.", e);
-        }
-
-        return katharsisInvoker;
+                .jsonServiceLocator(new SampleJsonServiceLocator());
     }
 
 }

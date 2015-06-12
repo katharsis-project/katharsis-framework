@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.woonsan.katharsis.invoker.KatharsisInvoker;
+import com.github.woonsan.katharsis.invoker.KatharsisInvokerBuilder;
 import com.github.woonsan.katharsis.invoker.KatharsisInvokerContext;
 
 /**
@@ -81,13 +82,20 @@ abstract public class AbstractKatharsisFilter implements Filter {
             HttpServletResponse response = (HttpServletResponse) res;
 
             KatharsisInvokerContext invokerContext = createKatharsisInvokerContext(request, response);
-            getKatharsisInvoker().invoke(invokerContext);
+
+            try {
+                getKatharsisInvoker().invoke(invokerContext);
+            } catch (IOException e) {
+                throw e;
+            } catch (Exception e) {
+                throw new ServletException("Katharsis invocation failed.", e);
+            }
         } else {
             chain.doFilter(req, res);
         }
     }
 
-    public KatharsisInvoker getKatharsisInvoker() {
+    public KatharsisInvoker getKatharsisInvoker() throws Exception {
         // Double-checked locking..
         KatharsisInvoker invoker = katharsisInvoker;
 
@@ -137,6 +145,10 @@ abstract public class AbstractKatharsisFilter implements Filter {
         };
     }
 
-    abstract protected KatharsisInvoker createKatharsisInvoker();
+    protected KatharsisInvoker createKatharsisInvoker() throws Exception {
+        return createKatharsisInvokerBuilder().build();
+    }
+
+    abstract protected KatharsisInvokerBuilder createKatharsisInvokerBuilder();
 
 }

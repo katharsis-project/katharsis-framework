@@ -22,7 +22,6 @@ import io.katharsis.dispatcher.registry.ControllerRegistryBuilder;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryBuilder;
 import io.katharsis.locator.JsonServiceLocator;
-import io.katharsis.locator.SampleJsonServiceLocator;
 import io.katharsis.resource.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryBuilder;
@@ -38,12 +37,7 @@ public class KatharsisInvokerBuilder {
     private ObjectMapper objectMapper = new ObjectMapper();
     private ResourceRegistry resourceRegistry;
     private RequestDispatcher requestDispatcher;
-
-    // FIXME: meshuga: "SampleJsonServiceLocator - this class was created more
-    //                 for testing purposes and something more advanced should be used
-    //                 to provide DI for the repositories"
-    //        Thanks for the review!
-    private JsonServiceLocator jsonServiceLocator = new SampleJsonServiceLocator();
+    private JsonServiceLocator jsonServiceLocator;
     private ExceptionMapperRegistry exceptionMapperRegistry;
 
     private String resourceSearchPackage;
@@ -96,6 +90,10 @@ public class KatharsisInvokerBuilder {
         }
 
         if (resourceRegistry == null) {
+            if (jsonServiceLocator == null) {
+                throw new IllegalArgumentException("JsonServiceLocator should be provided!");
+            }
+
             resourceRegistry = buildResourceRegistry(jsonServiceLocator, resourceSearchPackage, resourceDefaultDomain);
         }
 

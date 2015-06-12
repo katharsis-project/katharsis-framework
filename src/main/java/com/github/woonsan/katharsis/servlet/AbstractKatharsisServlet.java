@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.woonsan.katharsis.invoker.KatharsisInvoker;
+import com.github.woonsan.katharsis.invoker.KatharsisInvokerBuilder;
 import com.github.woonsan.katharsis.invoker.KatharsisInvokerContext;
 
 /**
@@ -44,7 +45,7 @@ abstract public class AbstractKatharsisServlet extends HttpServlet {
 
     private static Logger log = LoggerFactory.getLogger(AbstractKatharsisServlet.class);
 
-    private KatharsisInvoker katharsisInvoker;
+    private volatile KatharsisInvoker katharsisInvoker;
 
     /**
      * {@inheritDoc}
@@ -54,16 +55,32 @@ abstract public class AbstractKatharsisServlet extends HttpServlet {
         throws ServletException, IOException {
 
         KatharsisInvokerContext invokerContext = createKatharsisInvokerContext(request, response);
-        getKatharsisInvoker().invoke(invokerContext);
 
+        try {
+            getKatharsisInvoker().invoke(invokerContext);
+        } catch (IOException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new ServletException("Katharsis invocation failed.", e);
+        }
     }
 
-    public KatharsisInvoker getKatharsisInvoker() {
-        if (katharsisInvoker == null) {
-            katharsisInvoker = createKatharsisInvoker();
+    public KatharsisInvoker getKatharsisInvoker() throws Exception {
+        // Double-checked locking..
+        KatharsisInvoker invoker = katharsisInvoker;
+
+        if (invoker == null) {
+            synchronized (this) {
+                invoker = katharsisInvoker;
+
+                if (invoker == null) {
+                    invoker = createKatharsisInvoker();
+                    katharsisInvoker = invoker;
+                }
+            }
         }
 
-        return katharsisInvoker;
+        return invoker;
     }
 
     public void setKatharsisInvoker(KatharsisInvoker katharsisInvoker) {
@@ -74,5 +91,9 @@ abstract public class AbstractKatharsisServlet extends HttpServlet {
         return new ServletKatharsisInvokerContext(getServletContext(), request, response);
     }
 
-    abstract protected KatharsisInvoker createKatharsisInvoker();
+    protected KatharsisInvoker createKatharsisInvoker() throws Exception {
+        return createKatharsisInvokerBuilder().build();
+    }
+
+    abstract protected KatharsisInvokerBuilder createKatharsisInvokerBuilder();
 }

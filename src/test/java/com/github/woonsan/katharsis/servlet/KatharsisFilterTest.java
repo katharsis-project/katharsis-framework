@@ -55,15 +55,15 @@ public class KatharsisFilterTest {
 
     @Before
     public void before() throws Exception {
-        katharsisFilter = new SimpleKatharsisFilter();
+        katharsisFilter = new SampleKatharsisFilter();
 
         servletContext = new MockServletContext();
         ((MockServletContext) servletContext).setContextPath("");
         filterConfig = new MockFilterConfig(servletContext);
         ((MockFilterConfig) filterConfig).addInitParameter("filterBasePath", "/api");
-        ((MockFilterConfig) filterConfig).addInitParameter(SimpleKatharsisFilter.INIT_PARAM_RESOURCE_SEARCH_PACKAGE,
+        ((MockFilterConfig) filterConfig).addInitParameter(SampleKatharsisFilter.INIT_PARAM_RESOURCE_SEARCH_PACKAGE,
                                                            RESOURCE_SEARCH_PACKAGE);
-        ((MockFilterConfig) filterConfig).addInitParameter(SimpleKatharsisFilter.INIT_PARAM_RESOURCE_DEFAULT_DOMAIN,
+        ((MockFilterConfig) filterConfig).addInitParameter(SampleKatharsisFilter.INIT_PARAM_RESOURCE_DEFAULT_DOMAIN,
                                                            RESOURCE_DEFAULT_DOMAIN);
 
         katharsisFilter.init(filterConfig);

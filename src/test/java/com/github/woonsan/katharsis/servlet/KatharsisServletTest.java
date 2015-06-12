@@ -54,14 +54,14 @@ public class KatharsisServletTest {
 
     @Before
     public void before() throws Exception {
-        katharsisServlet = new SimpleKatharsisServlet();
+        katharsisServlet = new SampleKatharsisServlet();
 
         servletContext = new MockServletContext();
         ((MockServletContext) servletContext).setContextPath("");
         servletConfig = new MockServletConfig(servletContext);
-        ((MockServletConfig) servletConfig).addInitParameter(SimpleKatharsisFilter.INIT_PARAM_RESOURCE_SEARCH_PACKAGE,
+        ((MockServletConfig) servletConfig).addInitParameter(SampleKatharsisFilter.INIT_PARAM_RESOURCE_SEARCH_PACKAGE,
                                                              RESOURCE_SEARCH_PACKAGE);
-        ((MockServletConfig) servletConfig).addInitParameter(SimpleKatharsisFilter.INIT_PARAM_RESOURCE_DEFAULT_DOMAIN,
+        ((MockServletConfig) servletConfig).addInitParameter(SampleKatharsisFilter.INIT_PARAM_RESOURCE_DEFAULT_DOMAIN,
                                                              RESOURCE_DEFAULT_DOMAIN);
 
         katharsisServlet.init(servletConfig);
