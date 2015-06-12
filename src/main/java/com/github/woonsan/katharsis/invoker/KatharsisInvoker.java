@@ -27,7 +27,8 @@ import io.katharsis.request.path.PathBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
 
-import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -50,6 +51,8 @@ import com.google.common.net.MediaType;
 public class KatharsisInvoker {
 
     private static Logger log = LoggerFactory.getLogger(KatharsisInvoker.class);
+
+    private static int BUFFER_SIZE = 4096;
 
     private ObjectMapper objectMapper;
     private ResourceRegistry resourceRegistry;
@@ -92,27 +95,20 @@ public class KatharsisInvoker {
                 invokerContext.setResponseStatus(katharsisResponse.getHttpStatus());
                 invokerContext.setResponseContentType(JsonApiMediaType.APPLICATION_JSON_API);
 
-                OutputStream os = null;
-                BufferedOutputStream bos = null;
+                ByteArrayOutputStream baos = null;
+                OutputStream out = null;
 
                 try {
-                    os = invokerContext.getResponseOutputStream();
-                    bos = new BufferedOutputStream(os);
-                    objectMapper.writeValue(bos, katharsisResponse);
-                    bos.flush();
+                    // first write to a buffer first because objectMapper may fail while writing.
+                    baos = new ByteArrayOutputStream(BUFFER_SIZE);
+                    objectMapper.writeValue(baos, katharsisResponse);
+
+                    out = invokerContext.getResponseOutputStream();
+                    out.write(baos.toByteArray());
+                    out.flush();
                 } finally {
-                    if (bos != null) {
-                        try {
-                            bos.close();
-                        } catch (IOException ignore) {
-                        }
-                    }
-                    if (os != null) {
-                        try {
-                            os.close();
-                        } catch (IOException ignore) {
-                        }
-                    }
+                    closeQuietly(baos);
+                    closeQuietly(out);
                 }
             } else {
                 invokerContext.setResponseStatus(HttpServletResponse.SC_NO_CONTENT);
@@ -161,4 +157,12 @@ public class KatharsisInvoker {
         return objectMapper.readValue(requestBody, RequestBody.class);
     }
 
+    private void closeQuietly(Closeable closeable) {
+        if (closeable != null) {
+            try {
+                closeable.close();
+            } catch (IOException ignore) {
+            }
+        }
+    }
 }
