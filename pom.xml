@@ -31,8 +31,36 @@
   <version>0.1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>katharsis-servlet</name>
+  <name>${project.groupId}:${project.artifactId}</name>
+  <description>Generic Servlet Adapter of Katharsis JSON:API middleware library</description>
   <url>https://github.com/woonsan/katharsis-servlet</url>
+
+  <licenses>
+    <license>
+      <name>The Apache License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <id>woonsan</id>
+      <name>Woonsan Ko</name>
+      <email>woonsan@apache.org</email>
+      <url>https://github.com/woonsan</url>
+      <roles>
+        <role>architect</role>
+        <role>developer</role>
+      </roles>
+      <timezone>America/New_York</timezone>
+    </developer>
+  </developers>
+
+  <scm>
+    <connection>scm:git:git@github.com:woonsan/katharsis-servlet.git</connection>
+    <developerConnection>scm:git:git@github.com:woonsan/katharsis-servlet.git</developerConnection>
+    <url>git@github.com:woonsan/katharsis-servlet.git</url>
+  </scm>
 
   <properties>
 
@@ -53,26 +81,6 @@
     <maven-jetty-plugin.version>6.1.10</maven-jetty-plugin.version>
 
   </properties>
-
-  <licenses>
-    <license>
-      <name>The Apache Software License, Version 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-      <distribution>repo</distribution>
-    </license>
-  </licenses>
-
-  <developers>
-    <developer>
-      <name>Woonsan Ko</name>
-      <id>woonsan</id>
-      <roles>
-        <role>Project Lead</role>
-        <role>Java Developer</role>
-      </roles>
-      <timezone>-5</timezone>
-    </developer>
-  </developers>
 
   <dependencies>
 
@@ -150,23 +158,6 @@
     </dependency>
 
   </dependencies>
-
-  <build>
-
-    <plugins>
-
-      <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>${maven-compiler-plugin.version}</version>
-        <configuration>
-          <source>${javaVersion}</source>
-          <target>${javaVersion}</target>
-        </configuration>
-      </plugin>
-
-    </plugins>
-
-  </build>
 
   <profiles>
 
