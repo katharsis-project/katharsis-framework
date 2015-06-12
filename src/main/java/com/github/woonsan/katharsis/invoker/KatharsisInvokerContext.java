@@ -23,14 +23,12 @@ import java.io.OutputStream;
 /**
  * Platform / Framework neutral invoker context abstraction
  * hiding underlying request/response contexts.
- * <p>
  * Hopefully, this abstraction can help wider adoptions. For example,
  * <ul>
  * <li>Simple Servlet or Filter deployments</li>
  * <li>Spring Framework integration with DelegatingFilterProxy</li>
  * <li>Hierarchical aggregation frameworks such as Portlet/Portlet, Wicket, etc.</li>
  * </ul>
- * </p>
  */
 public interface KatharsisInvokerContext {
 
