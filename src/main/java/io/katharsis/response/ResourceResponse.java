@@ -56,10 +56,6 @@ public class ResourceResponse implements BaseResponse {
         return requestParams;
     }
 
-    public void setData(Object data) {
-        this.data = data;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

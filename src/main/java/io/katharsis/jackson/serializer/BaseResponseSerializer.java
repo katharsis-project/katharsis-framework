@@ -3,23 +3,18 @@ package io.katharsis.jackson.serializer;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import io.katharsis.jackson.exception.JsonSerializationException;
 import io.katharsis.resource.ResourceInformation;
-import io.katharsis.resource.annotations.JsonApiIncludeByDefault;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
 import io.katharsis.response.CollectionResponse;
 import io.katharsis.response.Container;
 import io.katharsis.response.ResourceResponse;
-import org.apache.commons.beanutils.PropertyUtils;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -31,21 +26,24 @@ public class BaseResponseSerializer extends JsonSerializer<BaseResponse> {
     private static final String DATA_FIELD_NAME = "data";
 
     private ResourceRegistry resourceRegistry;
+    private IncludedRelationshipExtractor includedRelationshipExtractor;
 
     public BaseResponseSerializer(ResourceRegistry resourceRegistry) {
         this.resourceRegistry = resourceRegistry;
+
+        includedRelationshipExtractor = new IncludedRelationshipExtractor();
     }
 
     @Override
     public void serialize(BaseResponse value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-        List<?> includedResources = new LinkedList<>();
+        Set<?> includedResources = new HashSet<>();
 
         gen.writeStartObject();
         if (value instanceof ResourceResponse) {
-            List included = serializeSingle(value.getData(), gen);
+            Set included = serializeSingle((ResourceResponse) value, gen);
             includedResources.addAll(included);
         } else if (value instanceof CollectionResponse) {
-            List included = serializeResourceCollection(((CollectionResponse) value).getData(), gen);
+            Set included = serializeResourceCollection((CollectionResponse) value, gen);
             includedResources.addAll(included);
         } else {
             throw new IllegalArgumentException(String.format("Response can be either %s or %s. Got %s",
@@ -57,56 +55,36 @@ public class BaseResponseSerializer extends JsonSerializer<BaseResponse> {
         gen.writeEndObject();
     }
 
-    private List serializeSingle(Object value, JsonGenerator gen) throws IOException {
+    private Set serializeSingle(ResourceResponse resourceResponse, JsonGenerator gen) throws IOException {
+        Object value = resourceResponse.getData();
         gen.writeObjectField(DATA_FIELD_NAME, value);
 
         if (value instanceof Container && ((Container) value).getData() != null) {
-            return extractIncludedResources(((Container) value).getData());
+            Object resource = ((Container) value).getData();
+            Set<Field> relationshipFields = getRelationshipFields(resource);
+
+            return includedRelationshipExtractor.extractIncludedResources(resource, relationshipFields, resourceResponse);
         } else {
-            return Collections.emptyList();
+            return Collections.EMPTY_SET;
         }
     }
 
-    private List<?> extractIncludedResources(Object resource) throws JsonSerializationException {
+    private Set<Field> getRelationshipFields(Object resource) {
         Class<?> dataClass = resource.getClass();
         RegistryEntry entry = resourceRegistry.getEntry(dataClass);
         ResourceInformation resourceInformation = entry.getResourceInformation();
-        Set<Field> relationshipFields = resourceInformation.getRelationshipFields();
-
-        List<?> includedFields = new LinkedList<>();
-        for (Field relationshipField : relationshipFields) {
-            if (relationshipField.isAnnotationPresent(JsonApiIncludeByDefault.class)) {
-                includedFields.addAll(getIncludedFromRelation(relationshipField, resource));
-            }
-        }
-        return includedFields;
+        return resourceInformation.getRelationshipFields();
     }
 
-    private List getIncludedFromRelation(Field relationshipField, Object resource) throws JsonSerializationException {
-        List<Container> includedFields = new LinkedList<>();
-        try {
-            Object targetDataObj = PropertyUtils.getProperty(resource, relationshipField.getName());
-            if (targetDataObj != null) {
-                if (Iterable.class.isAssignableFrom(targetDataObj.getClass())) {
-                    for (Object objectItem : (Iterable) targetDataObj) {
-                        includedFields.add(new Container(objectItem));
-                    }
-                } else {
-                    includedFields.add(new Container(targetDataObj));
-                }
-            }
-        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            throw new JsonSerializationException("Exception while writing id field", e);
-        }
-        return includedFields;
-    }
-
-    private List serializeResourceCollection(Iterable values, JsonGenerator gen) throws IOException {
-        List includedFields = new LinkedList<>();
+    private Set serializeResourceCollection(CollectionResponse collectionResponse, JsonGenerator gen) throws IOException {
+        Iterable values = collectionResponse.getData();
+        Set includedFields = new HashSet<>();
         if (values != null) {
             for (Object value : values) {
                 if (value instanceof Container) {
-                    includedFields.addAll(extractIncludedResources(((Container) value).getData()));
+                    Object resource = ((Container) value).getData();
+                    Set<Field> relationshipFields = getRelationshipFields(resource);
+                    includedFields.addAll(includedRelationshipExtractor.extractIncludedResources(resource, relationshipFields, collectionResponse));
                 }
             }
         } else {
