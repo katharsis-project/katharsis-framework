@@ -20,6 +20,12 @@
 
   <modelVersion>4.0.0</modelVersion>
 
+  <parent>
+    <groupId>io.katharsis</groupId>
+    <artifactId>katharsis-parent</artifactId>
+    <version>1.0.1</version>
+  </parent>
+
   <groupId>com.github.woonsan</groupId>
   <artifactId>katharsis-servlet</artifactId>
   <version>0.1.0-SNAPSHOT</version>
@@ -30,14 +36,10 @@
 
   <properties>
 
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <javaVersion>1.8</javaVersion>
-
     <javax.servlet-api.version>3.0.1</javax.servlet-api.version>
     <katharsis-core.version>0.9.1</katharsis-core.version>
     <guava.version>15.0</guava.version>
 
-    <lib.junit.version>4.8.2</lib.junit.version>
     <lib.slf4j.version>1.7.6</lib.slf4j.version>
     <lib.log4j.version>1.2.17</lib.log4j.version>
 
@@ -124,13 +126,6 @@
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
       <version>${lib.log4j.version}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>${lib.junit.version}</version>
       <scope>test</scope>
     </dependency>
 
