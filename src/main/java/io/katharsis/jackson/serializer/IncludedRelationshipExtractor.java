@@ -65,36 +65,32 @@ public class IncludedRelationshipExtractor {
             }
         }
         return getElements(resource, pathList);
-//        if (Iterable.class.isAssignableFrom(property.getClass())) {
-//            Set includedResources = new HashSet<>();
-//            ((Iterable)property).forEach(propertyItem -> includedResources.add(new Container<>(propertyItem)));
-//            return includedResources;
-//        } else {
-//            return Collections.singleton(new Container<>(property));
-//        }
     }
 
-    private Set getElements(Object resource, List<String> pathList) {
+    private Set getElements(Object resource, List<String> pathList)
+            throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         Set elements = new HashSet();
-//        if (pathList.isEmpty()) {
-//            if (resource != null) {
-//                return Collections.singleton(resource);
-//            } else {
-//                return Collections.emptySet();
-//            }
-//        }
-//        for (String propertyName : pathList) {
-//            property = PropertyUtils.getProperty(property, propertyName);
-//            if (property == null) {
-//                return Collections.EMPTY_SET;
-//            }
-//            if (Iterable.class.isAssignableFrom(property.getClass())) {
-//                ((Iterable)property).forEach( propertyItem -> {
-//                    elements.addAll(getElements(propertyItem, pathList.subList(1, pathList.size())));
-//                });
-//            }
-//
-//        }
+        if (pathList.isEmpty()) {
+            if (resource != null) {
+                return Collections.singleton(new Container(resource));
+            } else {
+                return Collections.emptySet();
+            }
+        }
+        Object property = PropertyUtils.getProperty(resource, pathList.get(0));
+        if (property != null) {
+            List<String> subPathList = pathList.subList(1, pathList.size());
+            if (Iterable.class.isAssignableFrom(property.getClass())) {
+                Iterator iterator = ((Iterable) property).iterator();
+                while (iterator.hasNext()) {
+                    elements.addAll(getElements(iterator.next(), subPathList));
+                }
+            } else {
+                elements.addAll(getElements(property, subPathList));
+            }
+        } else {
+            return Collections.emptySet();
+        }
         return elements;
     }
 

@@ -28,7 +28,6 @@ public class IncludedRelationshipExtractorTest {
     @Before
     public void setUp() throws Exception {
         sut = new IncludedRelationshipExtractor();
-
     }
 
     @Test
@@ -152,7 +151,7 @@ public class IncludedRelationshipExtractorTest {
         return requestParamsBuilder.buildRequestParams(Collections.singletonMap(RestrictedQueryParamsMembers.include.name(), project1));
     }
 
-    private static class ClassA {
+    public static class ClassA {
         private List<ClassB> classBs;
 
         public ClassA(ClassB classBs) {
@@ -164,7 +163,7 @@ public class IncludedRelationshipExtractorTest {
         }
     }
 
-    private static class ClassB {
+    public static class ClassB {
         private List<ClassC> classCs;
 
         public ClassB(ClassC classCs) {
@@ -176,6 +175,6 @@ public class IncludedRelationshipExtractorTest {
         }
     }
 
-    private static class ClassC {
+    public static class ClassC {
     }
 }
