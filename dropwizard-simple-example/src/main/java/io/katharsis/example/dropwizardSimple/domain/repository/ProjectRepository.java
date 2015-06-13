@@ -24,7 +24,7 @@ public class ProjectRepository implements ResourceRepository<Project, Long> {
         return entity;
     }
 
-    public Project findOne(Long id) {
+    public Project findOne(Long id, RequestParams requestParams) {
         Project project = REPOSITORY.get(id);
         if (project == null) {
             throw new ResourceNotFoundException("Project not found");

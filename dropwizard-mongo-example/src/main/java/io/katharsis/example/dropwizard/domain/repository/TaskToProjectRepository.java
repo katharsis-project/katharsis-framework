@@ -2,6 +2,7 @@ package io.katharsis.example.dropwizard.domain.repository;
 
 import io.katharsis.example.dropwizard.domain.model.Project;
 import io.katharsis.example.dropwizard.domain.model.Task;
+import io.katharsis.queryParams.RequestParams;
 import io.katharsis.repository.RelationshipRepository;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.bson.types.ObjectId;
@@ -24,7 +25,7 @@ public class TaskToProjectRepository implements RelationshipRepository<Task, Obj
 
     @Override
     public void setRelation(Task task, ObjectId projectId, String fieldName) {
-        Project project = projectRepository.findOne(projectId);
+        Project project = projectRepository.findOne(projectId, null);
         try {
             PropertyUtils.setProperty(task, fieldName, project);
         } catch (Exception e) {
@@ -110,8 +111,8 @@ public class TaskToProjectRepository implements RelationshipRepository<Task, Obj
     }
 
     @Override
-    public Project findOneTarget(ObjectId objectId, String fieldName) {
-        Task task = taskRepository.findOne(objectId);
+    public Project findOneTarget(ObjectId objectId, String fieldName, RequestParams requestParams) {
+        Task task = taskRepository.findOne(objectId, requestParams);
         try {
             return (Project) PropertyUtils.getProperty(task, fieldName);
         } catch (Exception e) {
@@ -120,8 +121,8 @@ public class TaskToProjectRepository implements RelationshipRepository<Task, Obj
     }
 
     @Override
-    public Iterable<Project> findManyTargets(ObjectId objectId, String fieldName) {
-        Task task = taskRepository.findOne(objectId);
+    public Iterable<Project> findManyTargets(ObjectId objectId, String fieldName, RequestParams requestParams) {
+        Task task = taskRepository.findOne(objectId, requestParams);
         try {
             return (Iterable<Project>) PropertyUtils.getProperty(task, fieldName);
         } catch (Exception e) {

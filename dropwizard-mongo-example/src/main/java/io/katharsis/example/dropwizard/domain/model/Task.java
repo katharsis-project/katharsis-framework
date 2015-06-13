@@ -1,7 +1,6 @@
 package io.katharsis.example.dropwizard.domain.model;
 
 import io.katharsis.resource.annotations.JsonApiId;
-import io.katharsis.resource.annotations.JsonApiIncludeByDefault;
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.annotations.JsonApiToOne;
 import org.bson.types.ObjectId;
@@ -21,7 +20,6 @@ public class Task {
 
     @Reference
     @JsonApiToOne
-    @JsonApiIncludeByDefault
     private Project project;
 
     public ObjectId getId() {

@@ -28,7 +28,7 @@ public class ProjectRepository implements ResourceRepository<Project, ObjectId> 
         return save(entity);
     }
 
-    public Project findOne(ObjectId id) {
+    public Project findOne(ObjectId id, RequestParams requestParams) {
         return datastore.getByKey(Project.class, new Key<>(Project.class, id));
     }
 

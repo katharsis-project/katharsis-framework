@@ -27,7 +27,7 @@ public class TaskRepository implements ResourceRepository<Task, ObjectId> {
         return save(entity);
     }
 
-    public Task findOne(ObjectId id) {
+    public Task findOne(ObjectId id, RequestParams requestParams) {
         return datastore.getByKey(Task.class, new Key<>(Task.class, id));
     }
 
