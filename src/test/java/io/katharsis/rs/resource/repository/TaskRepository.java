@@ -13,7 +13,7 @@ public class TaskRepository implements ResourceRepository<Task, Long> {
     }
 
     @Override
-    public Task findOne(Long aLong) {
+    public Task findOne(Long aLong, RequestParams requestParams) {
         Task task = new Task(aLong, "Some task");
         return task;
     }
