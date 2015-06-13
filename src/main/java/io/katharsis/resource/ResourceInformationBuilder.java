@@ -1,5 +1,6 @@
 package io.katharsis.resource;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.katharsis.resource.annotations.JsonApiId;
 import io.katharsis.resource.annotations.JsonApiToMany;
 import io.katharsis.resource.annotations.JsonApiToOne;
@@ -7,6 +8,7 @@ import io.katharsis.resource.exception.init.ResourceDuplicateIdException;
 import io.katharsis.resource.exception.init.ResourceIdNotFoundException;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -29,7 +31,7 @@ public final class ResourceInformationBuilder {
 
     private <T> Field getIdField(Class<T> resourceClass) {
         List<Field> idFields = Arrays.stream(resourceClass.getDeclaredFields())
-                .filter(field -> field.isAnnotationPresent(JsonApiId.class))
+                .filter(this::isIdField)
                 .collect(Collectors.toList());
 
         if (idFields.size() == 0) {
@@ -40,9 +42,17 @@ public final class ResourceInformationBuilder {
         return idFields.get(0);
     }
 
+    private boolean isIdField(Field field) {
+        return field.isAnnotationPresent(JsonApiId.class) && !isIgnorable(field);
+    }
+
+    private boolean isIgnorable(Field field) {
+        return field.isAnnotationPresent(JsonIgnore.class) || Modifier.isTransient(field.getModifiers()) || field.isSynthetic();
+    }
+
     private <T> Set<Field> getBasicFields(Class<T> resourceClass, Field idField) {
         return Arrays.stream(resourceClass.getDeclaredFields())
-                .filter(field -> !isRelationshipType(field) && !field.equals(idField) && !field.isSynthetic())
+                .filter(field -> !isRelationshipType(field) && !field.equals(idField) && !isIgnorable(field))
                 .collect(Collectors.toSet());
     }
 

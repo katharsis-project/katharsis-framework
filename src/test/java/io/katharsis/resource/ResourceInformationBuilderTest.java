@@ -1,5 +1,6 @@
 package io.katharsis.resource;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.katharsis.resource.annotations.JsonApiId;
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.exception.init.ResourceDuplicateIdException;
@@ -10,7 +11,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ResourceInformationBuilderTest {
 
@@ -76,6 +77,28 @@ public class ResourceInformationBuilderTest {
                 .containsOnly("project");
     }
 
+    @Test
+    public void shouldThrowExceptionWhenResourceWithIgnoredIdAnnotation() {
+        expectedException.expect(ResourceIdNotFoundException.class);
+
+        resourceInformationBuilder.build(IgnoredIdResource.class);
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenResourceWithTransientIdAnnotation() {
+        expectedException.expect(ResourceIdNotFoundException.class);
+
+        resourceInformationBuilder.build(TransientIdResource.class);
+    }
+
+    @Test
+    public void shouldHaveNoAttributesInfoForIgnoredField() throws Exception {
+        ResourceInformation resourceInformation = resourceInformationBuilder.build(IgnoredAttributeResource.class);
+
+        assertThat(resourceInformation.getAttributeFields())
+                .isNotNull()
+                .isEmpty();
+    }
 
     @JsonApiResource(type = "duplicatedIdAnnotationResources")
     private static class DuplicatedIdResource {
@@ -84,5 +107,27 @@ public class ResourceInformationBuilderTest {
 
         @JsonApiId
         private Long id2;
+    }
+
+    @JsonApiResource(type = "ignoredId")
+    private static class IgnoredIdResource {
+        @JsonApiId
+        @JsonIgnore
+        private Long id;
+    }
+
+    @JsonApiResource(type = "transientId")
+    private static class TransientIdResource {
+        @JsonApiId
+        private transient Long id;
+    }
+
+    @JsonApiResource(type = "ignoredAttribute")
+    private static class IgnoredAttributeResource {
+        @JsonApiId
+        private Long id;
+
+        @JsonIgnore
+        private String attribute;
     }
 }
