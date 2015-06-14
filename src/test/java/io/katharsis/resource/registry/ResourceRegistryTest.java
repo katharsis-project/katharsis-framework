@@ -1,6 +1,6 @@
 package io.katharsis.resource.registry;
 
-import io.katharsis.resource.exception.init.ResourceNotFoundInitalizationException;
+import io.katharsis.resource.exception.init.ResourceNotFoundInitializationException;
 import io.katharsis.resource.mock.models.Task;
 import org.junit.Before;
 import org.junit.Rule;
@@ -50,7 +50,7 @@ public class ResourceRegistryTest {
 
     @Test
     public void onNonExistingClassShouldThrowException() {
-        expectedException.expect(ResourceNotFoundInitalizationException.class);
+        expectedException.expect(ResourceNotFoundInitializationException.class);
         resourceRegisty.getEntry(Long.class);
     }
 }

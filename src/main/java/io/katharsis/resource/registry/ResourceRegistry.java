@@ -1,7 +1,7 @@
 package io.katharsis.resource.registry;
 
 import io.katharsis.resource.annotations.JsonApiResource;
-import io.katharsis.resource.exception.init.ResourceNotFoundInitalizationException;
+import io.katharsis.resource.exception.init.ResourceNotFoundInitializationException;
 
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
@@ -35,7 +35,7 @@ public class ResourceRegistry {
         if (registryEntry != null) {
             return registryEntry;
         }
-        throw new ResourceNotFoundInitalizationException(clazz.getCanonicalName());
+        throw new ResourceNotFoundInitializationException(clazz.getCanonicalName());
     }
 
     public String getResourceType(Class clazz) {
