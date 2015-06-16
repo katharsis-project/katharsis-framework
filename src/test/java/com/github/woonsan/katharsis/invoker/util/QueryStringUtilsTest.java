@@ -1,6 +1,7 @@
 package com.github.woonsan.katharsis.invoker.util;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Map;
@@ -22,18 +23,21 @@ public class QueryStringUtilsTest {
     private static final String [] FOO_PARAM_VALUES = {"bar", "foo"};
     private static final String [] LUX_PARAM_VALUES = {"bar"};
 
-    KatharsisInvokerContext invokerContext;
+    private KatharsisInvokerContext invokerContext;
+    private ServletContext servletContext;
+    private MockHttpServletRequest request;
+    private MockHttpServletResponse response;
 
     @Before
     public void before() throws Exception {
         ServletContext servletContext = new MockServletContext();
 
-        MockHttpServletRequest request = new MockHttpServletRequest();
+        request = new MockHttpServletRequest();
         request.setQueryString(QUERY_STRING);
         request.setParameter("foo", FOO_PARAM_VALUES);
         request.setParameter("lux", LUX_PARAM_VALUES);
 
-        MockHttpServletResponse response = new MockHttpServletResponse();
+        response = new MockHttpServletResponse();
 
         invokerContext = new ServletKatharsisInvokerContext(servletContext, request, response);
     }
@@ -52,11 +56,37 @@ public class QueryStringUtilsTest {
 
     @Test
     public void testParseQueryStringAsSingleValueMap() throws Exception {
-        Map<String, String> parsedQueryStringMap =  QueryStringUtils.parseQueryStringAsSingleValueMap(invokerContext);
+        Map<String, String> parsedQueryStringMap = QueryStringUtils.parseQueryStringAsSingleValueMap(invokerContext);
         assertTrue("parsedQueryStringMap must contain foo.", parsedQueryStringMap.containsKey("foo"));
         assertEquals(FOO_PARAM_VALUES[0], parsedQueryStringMap.get("foo"));
         assertTrue("parsedQueryStringMap must contain lux.", parsedQueryStringMap.containsKey("lux"));
         assertEquals(LUX_PARAM_VALUES[0], parsedQueryStringMap.get("lux"));
     }
 
+    @Test
+    public void testParseQueryStringWithBlankQueryString() throws Exception {
+        request.setQueryString(null);
+        Map<String, String> parsedQueryStringMap = QueryStringUtils.parseQueryStringAsSingleValueMap(invokerContext);
+        assertNotNull(parsedQueryStringMap);
+        assertTrue("parsedQueryStringMap must be empty: " + parsedQueryStringMap, parsedQueryStringMap.isEmpty());
+        Map<String, String[]> parsedQueryStringsMap = QueryStringUtils.parseQueryStringAsMultiValuesMap(invokerContext);
+        assertNotNull(parsedQueryStringsMap);
+        assertTrue("parsedQueryStringMap must be empty: " + parsedQueryStringMap, parsedQueryStringMap.isEmpty());
+
+        request.setQueryString("");
+        parsedQueryStringMap = QueryStringUtils.parseQueryStringAsSingleValueMap(invokerContext);
+        assertNotNull(parsedQueryStringMap);
+        assertTrue("parsedQueryStringMap must be empty: " + parsedQueryStringMap, parsedQueryStringMap.isEmpty());
+        parsedQueryStringsMap = QueryStringUtils.parseQueryStringAsMultiValuesMap(invokerContext);
+        assertNotNull(parsedQueryStringsMap);
+        assertTrue("parsedQueryStringMap must be empty: " + parsedQueryStringMap, parsedQueryStringMap.isEmpty());
+
+        request.setQueryString("    ");
+        parsedQueryStringMap = QueryStringUtils.parseQueryStringAsSingleValueMap(invokerContext);
+        assertNotNull(parsedQueryStringMap);
+        assertTrue("parsedQueryStringMap must be empty: " + parsedQueryStringMap, parsedQueryStringMap.isEmpty());
+        parsedQueryStringsMap = QueryStringUtils.parseQueryStringAsMultiValuesMap(invokerContext);
+        assertNotNull(parsedQueryStringsMap);
+        assertTrue("parsedQueryStringMap must be empty: " + parsedQueryStringMap, parsedQueryStringMap.isEmpty());
+    }
 }
