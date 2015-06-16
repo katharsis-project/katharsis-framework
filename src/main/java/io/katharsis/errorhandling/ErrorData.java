@@ -1,7 +1,7 @@
 package io.katharsis.errorhandling;
 
 import java.util.Collections;
-import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public final class ErrorData {
@@ -12,9 +12,11 @@ public final class ErrorData {
     private final String id;
 
     /**
-     * A URI that MAY yield further details about this particular occurrence of the problem.
+     * A link that leads to further details about this particular occurrence of the problem.
+     *
+     * Wrapped in "links" object.
      */
-    private final String href;
+    private final String aboutLink;
 
     /**
      * The HTTP status code applicable to this problem, expressed as a string value.
@@ -38,26 +40,36 @@ public final class ErrorData {
     private final String detail;
 
     /**
-     * An array of JSON Pointers [RFC6901] to the associated resource(s) within the request document [e.g. ["/data"] for a primary data object].
+     * A JSON Pointer [RFC6901] to the associated entity in the request document
+     * [e.g. "/data" for a primary data object, or "/data/attributes/title" for a specific attribute].
+     *
+     * Wrapped in "source" object.
      */
-    private final List<String> links;
+    private final String sourcePointer;
 
     /**
-     * An array of JSON Pointers to the relevant attribute(s) within the associated resource(s) in the request document.
-     * Each path MUST be relative to the resource path(s) expressed in the error object's "links" member
-     * [e.g. ["/first-name", "/last-name"] to reference a couple attributes].
+     * A string indicating which query parameter caused the error.
+     *
+     * Wrapped in "source" object.
      */
-    private final List<String> paths;
+    private final String sourceParameter;
 
-    public ErrorData(String id, String href, String status, String code, String title, String detail, List<String> links, List<String> paths) {
+    /**
+     * A meta object containing non-standard meta-information about the error.
+     */
+    private final Map<String, Object> meta;
+
+    public ErrorData(String id, String aboutLink, String status, String code, String title, String detail,
+                     String sourcePointer, String sourceParameter, Map<String,Object> meta) {
         this.id = id;
-        this.href = href;
+        this.aboutLink = aboutLink;
         this.status = status;
         this.code = code;
         this.title = title;
         this.detail = detail;
-        this.links = links == null ? null : Collections.unmodifiableList(links);
-        this.paths = paths == null ? null : Collections.unmodifiableList(paths);
+        this.sourcePointer = sourcePointer;
+        this.sourceParameter = sourceParameter;
+        this.meta = meta == null ? null : Collections.unmodifiableMap(meta);
     }
 
     public static ErrorDataBuilder builder() {
@@ -68,8 +80,8 @@ public final class ErrorData {
         return id;
     }
 
-    public String getHref() {
-        return href;
+    public String getAboutLink() {
+        return aboutLink;
     }
 
     public String getStatus() {
@@ -88,12 +100,16 @@ public final class ErrorData {
         return detail;
     }
 
-    public List<String> getLinks() {
-        return links;
+    public String getSourcePointer() {
+        return sourcePointer;
     }
 
-    public List<String> getPaths() {
-        return paths;
+    public String getSourceParameter() {
+        return sourceParameter;
+    }
+
+    public Map<String, Object> getMeta() {
+        return meta;
     }
 
     @Override
@@ -102,31 +118,33 @@ public final class ErrorData {
         if (!(o instanceof ErrorData)) return false;
         ErrorData that = (ErrorData) o;
         return Objects.equals(id, that.id) &&
-                Objects.equals(href, that.href) &&
+                Objects.equals(aboutLink, that.aboutLink) &&
                 Objects.equals(status, that.status) &&
                 Objects.equals(code, that.code) &&
                 Objects.equals(title, that.title) &&
                 Objects.equals(detail, that.detail) &&
-                Objects.equals(links, that.links) &&
-                Objects.equals(paths, that.paths);
+                Objects.equals(sourceParameter, that.sourceParameter) &&
+                Objects.equals(sourcePointer, that.sourcePointer) &&
+                Objects.equals(meta, that.meta);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, href, status, code, title, detail, links, paths);
+        return Objects.hash(id, aboutLink, status, code, title, detail, sourceParameter, sourcePointer, meta);
     }
 
     @Override
     public String toString() {
         return "ErrorData{" +
                 "id='" + id + '\'' +
-                ", href='" + href + '\'' +
+                ", aboutLink='" + aboutLink + '\'' +
                 ", status='" + status + '\'' +
                 ", code='" + code + '\'' +
                 ", title='" + title + '\'' +
                 ", detail='" + detail + '\'' +
-                ", links=" + links +
-                ", paths=" + paths +
+                ", sourcePointer='" + sourcePointer + '\'' +
+                ", sourceParameter='" + sourceParameter + '\'' +
+                ", meta=" + meta +
                 '}';
     }
 }

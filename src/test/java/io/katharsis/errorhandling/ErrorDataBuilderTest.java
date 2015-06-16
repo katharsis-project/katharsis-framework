@@ -1,5 +1,6 @@
 package io.katharsis.errorhandling;
 
+import org.assertj.core.data.MapEntry;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,11 +24,11 @@ public class ErrorDataBuilderTest {
     }
 
     @Test
-    public void shouldSetHref() throws Exception {
+    public void shouldSetAboutLink() throws Exception {
         ErrorData error = ErrorData.builder()
-                .setHref(ErrorDataMother.HREF)
+                .setAboutLink(ErrorDataMother.ABOUT_LINK)
                 .build();
-        assertThat(error.getHref()).isEqualTo(ErrorDataMother.HREF);
+        assertThat(error.getAboutLink()).isEqualTo(ErrorDataMother.ABOUT_LINK);
     }
 
     @Test
@@ -55,18 +56,26 @@ public class ErrorDataBuilderTest {
     }
 
     @Test
-    public void shouldSetLinks() throws Exception {
+    public void shouldSetSourcePointer() throws Exception {
         ErrorData error = ErrorData.builder()
-                .setLinks(ErrorDataMother.LINKS)
+                .setSourcePointer(ErrorDataMother.POINTER)
                 .build();
-        assertThat(error.getLinks()).isEqualTo(ErrorDataMother.LINKS);
+        assertThat(error.getSourcePointer()).isEqualTo(ErrorDataMother.POINTER);
     }
 
     @Test
     public void shouldSetPaths() throws Exception {
         ErrorData error = ErrorData.builder()
-                .setPaths(ErrorDataMother.PATHS)
+                .setSourceParameter(ErrorDataMother.PARAMETER)
                 .build();
-        assertThat(error.getPaths()).isEqualTo(ErrorDataMother.PATHS);
+        assertThat(error.getSourceParameter()).isEqualTo(ErrorDataMother.PARAMETER);
+    }
+
+    @Test
+    public void shouldSetMeta() throws Exception {
+        ErrorData error = ErrorData.builder()
+                .setMeta(ErrorDataMother.META)
+                .build();
+        assertThat(error.getMeta()).contains(MapEntry.entry(ErrorDataMother.META_KEY, ErrorDataMother.META_VALUE));
     }
 }
