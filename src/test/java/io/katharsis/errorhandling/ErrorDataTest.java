@@ -7,7 +7,7 @@ public class ErrorDataTest {
 
     @Test
     public void shouldFulfillEqualsHashCodeContract() throws Exception {
-        EqualsVerifier.forClass(ErrorData.class).verify();
+        EqualsVerifier.forClass(ErrorData.class).allFieldsShouldBeUsed().verify();
     }
 
 }

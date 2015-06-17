@@ -9,7 +9,7 @@ import java.util.Objects;
 
 public final class ErrorResponse implements BaseResponse<Iterable<ErrorData>> {
 
-    private static final String ERRORS = "errors";
+    public static final String ERRORS = "errors";
 
     private final Iterable<ErrorData> data;
     private final int httpStatus;

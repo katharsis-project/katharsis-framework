@@ -1,18 +1,29 @@
 package io.katharsis.errorhandling;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ErrorDataMother {
 
     public static final String DETAIL = "detail";
     public static final String CODE = "code";
-    public static final String HREF = "href";
+    public static final String ABOUT_LINK = "href";
     public static final String ID = "id";
     public static final String STATUS = "status";
     public static final String TITLE = "title";
-    public static final List<String> LINKS = Arrays.asList("link1", "link2");
-    public static final List<String> PATHS = Arrays.asList("path1", "path2");
+    public static final String POINTER = "pointer";
+    public static final String PARAMETER = "parameter";
+    public static final Map<String, Object> META = new HashMap<>();
+
+    public static final String META_KEY = "key";
+
+    public static final String META_VALUE = "value";
+
+    static {
+        META.put(META_KEY, META_VALUE);
+    }
 
     public static ErrorDataBuilder fullyPopulatedErrorDataBuilder() {
         return ErrorData.builder()
@@ -20,10 +31,11 @@ public class ErrorDataMother {
                 .setStatus(STATUS)
                 .setId(ID)
                 .setCode(CODE)
-                .setHref(HREF)
+                .setAboutLink(ABOUT_LINK)
                 .setTitle(TITLE)
-                .setLinks(LINKS)
-                .setPaths(PATHS);
+                .setSourcePointer(POINTER)
+                .setSourceParameter(PARAMETER)
+                .setMeta(META);
     }
 
     public static ErrorData fullyPopulatedErrorData() {

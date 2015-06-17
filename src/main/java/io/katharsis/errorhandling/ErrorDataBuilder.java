@@ -1,16 +1,18 @@
 package io.katharsis.errorhandling;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ErrorDataBuilder {
     private String id;
-    private String href;
+    private String aboutLink;
     private String status;
     private String code;
     private String title;
     private String detail;
-    private List<String> links;
-    private List<String> paths;
+    private String sourcePointer;
+    private String sourceParameter;
+    private Map<String, Object> meta;
 
     /**
      * A unique identifier for this particular occurrence of the problem.
@@ -21,10 +23,12 @@ public class ErrorDataBuilder {
     }
 
     /**
-     * A URI that MAY yield further details about this particular occurrence of the problem.
+     * A link that leads to further details about this particular occurrence of the problem.
+     *
+     * Wrapped in "links" object.
      */
-    public ErrorDataBuilder setHref(String href) {
-        this.href = href;
+    public ErrorDataBuilder setAboutLink(String aboutLink) {
+        this.aboutLink = aboutLink;
         return this;
     }
 
@@ -62,24 +66,43 @@ public class ErrorDataBuilder {
     }
 
     /**
-     * An array of JSON Pointers [RFC6901] to the associated resource(s) within the request document [e.g. ["/data"] for a primary data object].
+     * A JSON Pointer [RFC6901] to the associated entity in the request document
+     * [e.g. "/data" for a primary data object, or "/data/attributes/title" for a specific attribute].
+     *
+     * Wrapped in "source" object.
      */
-    public ErrorDataBuilder setLinks(List<String> links) {
-        this.links = links;
+    public ErrorDataBuilder setSourcePointer(String sourcePointer) {
+        this.sourcePointer = sourcePointer;
         return this;
     }
 
     /**
-     * An array of JSON Pointers to the relevant attribute(s) within the associated resource(s) in the request document.
-     * Each path MUST be relative to the resource path(s) expressed in the error object's "links" member
-     * [e.g. ["/first-name", "/last-name"] to reference a couple attributes].
+     * A string indicating which query parameter caused the error.
+     *
+     * Wrapped in "source" object.
      */
-    public ErrorDataBuilder setPaths(List<String> paths) {
-        this.paths = paths;
+    public ErrorDataBuilder setSourceParameter(String sourceParameter) {
+        this.sourceParameter = sourceParameter;
+        return this;
+    }
+
+    /**
+     * A meta object containing non-standard meta-information about the error.
+     */
+    public ErrorDataBuilder setMeta(Map<String, Object> meta) {
+        this.meta = meta;
+        return this;
+    }
+
+    public ErrorDataBuilder addMetaField(String key, Object value) {
+        if (meta == null) {
+            meta = new HashMap<>();
+        }
+        meta.put(key, value);
         return this;
     }
 
     public ErrorData build() {
-        return new ErrorData(id, href, status, code, title, detail, links, paths);
+        return new ErrorData(id, aboutLink, status, code, title, detail, sourcePointer, sourceParameter, meta);
     }
 }
