@@ -2,6 +2,7 @@ package io.katharsis.rs.resource.repository;
 
 import io.katharsis.queryParams.RequestParams;
 import io.katharsis.repository.ResourceRepository;
+import io.katharsis.rs.resource.exception.ExampleException;
 import io.katharsis.rs.resource.model.Task;
 
 import java.util.Arrays;
@@ -14,6 +15,9 @@ public class TaskRepository implements ResourceRepository<Task, Long> {
 
     @Override
     public Task findOne(Long aLong, RequestParams requestParams) {
+        if (aLong == 5) {
+            throw new ExampleException("id123", "title");
+        }
         Task task = new Task(aLong, "Some task");
         return task;
     }

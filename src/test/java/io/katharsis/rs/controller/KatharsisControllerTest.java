@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.locator.SampleJsonServiceLocator;
 import io.katharsis.rs.KatharsisFeature;
 import io.katharsis.rs.KatharsisProperties;
+import jodd.http.HttpRequest;
+import jodd.http.HttpResponse;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.glassfish.jersey.test.DeploymentContext;
@@ -15,10 +17,12 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import javax.ws.rs.ApplicationPath;
+import java.io.IOException;
 import java.net.URLEncoder;
 
+import static io.katharsis.rs.type.JsonApiMediaType.APPLICATION_JSON_API;
 import static io.katharsis.rs.type.JsonApiMediaType.APPLICATION_JSON_API_TYPE;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 
 
 public class KatharsisControllerTest extends JerseyTest {
@@ -53,7 +57,6 @@ public class KatharsisControllerTest extends JerseyTest {
                 .request(APPLICATION_JSON_API_TYPE)
                 .get(String.class);
 
-        // THEN
         Assert.assertNotNull(taskResourceResponse);
     }
 
@@ -67,6 +70,20 @@ public class KatharsisControllerTest extends JerseyTest {
 
         // THEN
         Assert.assertNotNull(taskResourceResponse);
+    }
+
+    @Test
+    public void shouldReturnErrorResponseWhenMappedExceptionThrown() throws IOException {
+
+        HttpResponse response = HttpRequest.get("http://localhost:9998/tasks/5")
+                .contentType(APPLICATION_JSON_API)
+                .header("Accept", APPLICATION_JSON_API)
+                .send();
+
+        System.out.println(response);
+
+        // THEN
+        Assert.assertNotNull(response);
     }
 
     @Test

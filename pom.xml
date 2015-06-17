@@ -21,6 +21,7 @@
         <javax.servlet-api.version>3.0.1</javax.servlet-api.version>
         <javax.ws.rs-api.version>2.0.1</javax.ws.rs-api.version>
         <jersey.version>2.17</jersey.version>
+        <jodd-http.version>3.6.6</jodd-http.version>
     </properties>
 
     <build>
@@ -57,6 +58,13 @@
             <artifactId>javax.servlet-api</artifactId>
             <version>${javax.servlet-api.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.jodd</groupId>
+            <artifactId>jodd-http</artifactId>
+            <version>${jodd-http.version}</version>
+            <scope>test</scope>
+        </dependency>
+
 
         <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
