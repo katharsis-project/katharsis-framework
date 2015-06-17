@@ -15,8 +15,9 @@ public class TaskRepository implements ResourceRepository<Task, Long> {
 
     @Override
     public Task findOne(Long aLong, RequestParams requestParams) {
+        // Simulates error and throws an Exception to test exception handling.
         if (aLong == 5) {
-            throw new ExampleException("id123", "title");
+            throw new ExampleException(ExampleException.ERROR_ID, ExampleException.ERROR_TITLE);
         }
         Task task = new Task(aLong, "Some task");
         return task;

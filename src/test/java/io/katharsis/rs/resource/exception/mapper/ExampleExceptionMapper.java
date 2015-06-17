@@ -12,7 +12,7 @@ public class ExampleExceptionMapper implements JsonApiExceptionMapper<ExampleExc
     @Override
     public ErrorResponse toErrorResponse(ExampleException exception) {
         return ErrorResponse.builder()
-                .setStatus(HttpStatus.BAD_REQUEST_400)
+                .setStatus(HttpStatus.INTERNAL_SERVER_ERROR_500)
                 .setSingleErrorData(ErrorData.builder()
                         .setTitle(exception.getTitle())
                         .setId(exception.getId())

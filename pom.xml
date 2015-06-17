@@ -21,7 +21,7 @@
         <javax.servlet-api.version>3.0.1</javax.servlet-api.version>
         <javax.ws.rs-api.version>2.0.1</javax.ws.rs-api.version>
         <jersey.version>2.17</jersey.version>
-        <jodd-http.version>3.6.6</jodd-http.version>
+        <json-unit-fluent.version>1.5.3</json-unit-fluent.version>
     </properties>
 
     <build>
@@ -58,14 +58,14 @@
             <artifactId>javax.servlet-api</artifactId>
             <version>${javax.servlet-api.version}</version>
         </dependency>
+
+
         <dependency>
-            <groupId>org.jodd</groupId>
-            <artifactId>jodd-http</artifactId>
-            <version>${jodd-http.version}</version>
+            <groupId>net.javacrumbs.json-unit</groupId>
+            <artifactId>json-unit-fluent</artifactId>
+            <version>${json-unit-fluent.version}</version>
             <scope>test</scope>
         </dependency>
-
-
         <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-json-jackson</artifactId>
@@ -87,7 +87,7 @@
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.test-framework.providers</groupId>
-            <artifactId>jersey-test-framework-provider-grizzly2</artifactId>
+            <artifactId>jersey-test-framework-provider-jetty</artifactId>
             <version>2.17</version>
             <scope>test</scope>
             <exclusions>

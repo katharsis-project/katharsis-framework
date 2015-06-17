@@ -2,6 +2,9 @@ package io.katharsis.rs.resource.exception;
 
 public class ExampleException extends RuntimeException {
 
+    public static final String ERROR_ID = "testId";
+    public static final String ERROR_TITLE = "errorTitle";
+
     private final String id;
     private final String title;
 
