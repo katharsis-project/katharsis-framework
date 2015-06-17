@@ -13,9 +13,7 @@ import io.katharsis.response.ResourceResponse;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Serializes top-level JSON object and provides ability to include compound documents
@@ -57,13 +55,11 @@ public class BaseResponseSerializer extends JsonSerializer<BaseResponse> {
 
     private Set serializeSingle(ResourceResponse resourceResponse, JsonGenerator gen) throws IOException {
         Object value = resourceResponse.getData();
-        gen.writeObjectField(DATA_FIELD_NAME, value);
+        gen.writeObjectField(DATA_FIELD_NAME, new Container(value));
 
-        if (value instanceof Container && ((Container) value).getData() != null) {
-            Object resource = ((Container) value).getData();
-            Set<Field> relationshipFields = getRelationshipFields(resource);
-
-            return includedRelationshipExtractor.extractIncludedResources(resource, relationshipFields, resourceResponse);
+        if (value != null) {
+            Set<Field> relationshipFields = getRelationshipFields(value);
+            return includedRelationshipExtractor.extractIncludedResources(value, relationshipFields, resourceResponse);
         } else {
             return Collections.EMPTY_SET;
         }
@@ -81,17 +77,19 @@ public class BaseResponseSerializer extends JsonSerializer<BaseResponse> {
         Set includedFields = new HashSet<>();
         if (values != null) {
             for (Object value : values) {
-                if (value instanceof Container) {
-                    Object resource = ((Container) value).getData();
-                    Set<Field> relationshipFields = getRelationshipFields(resource);
-                    includedFields.addAll(includedRelationshipExtractor.extractIncludedResources(resource, relationshipFields, collectionResponse));
-                }
+                Set<Field> relationshipFields = getRelationshipFields(value);
+                includedFields.addAll(includedRelationshipExtractor.extractIncludedResources(value, relationshipFields, collectionResponse));
             }
         } else {
             values = Collections.emptyList();
         }
 
-        gen.writeObjectField(DATA_FIELD_NAME, values);
+        List<Container> containers = new LinkedList<>();
+        for (Object value : values) {
+            containers.add(new Container(value));
+        }
+
+        gen.writeObjectField(DATA_FIELD_NAME, containers);
 
         return includedFields;
     }

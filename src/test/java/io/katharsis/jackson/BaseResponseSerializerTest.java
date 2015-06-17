@@ -9,7 +9,6 @@ import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.models.User;
 import io.katharsis.response.BaseResponse;
 import io.katharsis.response.CollectionResponse;
-import io.katharsis.response.Container;
 import io.katharsis.response.ResourceResponse;
 import org.junit.Rule;
 import org.junit.Test;
@@ -39,7 +38,7 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
 
         // WHEN
 
-        String result = sut.writeValueAsString(new ResourceResponse(new Container<>(task), new ResourcePath("projects"), REQUEST_PARAMS));
+        String result = sut.writeValueAsString(new ResourceResponse(task, new ResourcePath("projects"), REQUEST_PARAMS));
 
         // THEN
         assertThatJson(result).node("data").isPresent();
@@ -63,7 +62,7 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
         user.setAssignedProjects(Arrays.asList(project1, project2));
 
         // WHEN
-        String result = sut.writeValueAsString(new ResourceResponse(new Container<>(user), new ResourcePath("projects"), REQUEST_PARAMS));
+        String result = sut.writeValueAsString(new ResourceResponse(user, new ResourcePath("projects"), REQUEST_PARAMS));
 
         // THEN
         assertThatJson(result).node("data").isPresent();
@@ -82,8 +81,8 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
         task2.setName("Sample task");
 
         // WHEN
-        String result = sut.writeValueAsString(new CollectionResponse(Arrays.asList(new Container<>(task1), new
-                Container<>(task2)), new ResourcePath("tasks"), REQUEST_PARAMS));
+        String result = sut.writeValueAsString(new CollectionResponse(Arrays.asList(task1, task2),
+                new ResourcePath("tasks"), REQUEST_PARAMS));
 
         // THEN
         assertThatJson(result).node("data").isArray().ofLength(2);

@@ -12,7 +12,6 @@ import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
-import io.katharsis.response.Container;
 import io.katharsis.response.ResourceResponse;
 import io.katharsis.utils.parser.TypeParser;
 
@@ -63,6 +62,6 @@ public class ResourcePatch extends ResourceUpsert {
 
         Object savedResourceWithRelations = registryEntry.getResourceRepository().findOne(resourceId, requestParams);
 
-        return new ResourceResponse(new Container(savedResourceWithRelations), jsonPath, requestParams);
+        return new ResourceResponse(savedResourceWithRelations, jsonPath, requestParams);
     }
 }

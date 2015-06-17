@@ -10,7 +10,6 @@ import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.response.BaseResponse;
-import io.katharsis.response.Container;
 import io.katharsis.response.ResourceResponse;
 import org.junit.Assert;
 import org.junit.Test;
@@ -74,9 +73,8 @@ public class ResourcePatchTest extends BaseControllerTest {
         // WHEN
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser);
         ResourceResponse taskResponse = resourcePost.handle(taskPath, new RequestParams(new ObjectMapper()), newTaskBody);
-        assertThat(taskResponse.getData()).isExactlyInstanceOf(Container.class);
-        assertThat(((Container) taskResponse.getData()).getData()).isExactlyInstanceOf(Task.class);
-        Long taskId = ((Task) (((Container) taskResponse.getData()).getData())).getId();
+        assertThat(taskResponse.getData()).isExactlyInstanceOf(Task.class);
+        Long taskId = ((Task) (taskResponse.getData())).getId();
         assertThat(taskId).isNotNull();
 
         // GIVEN
@@ -94,8 +92,7 @@ public class ResourcePatchTest extends BaseControllerTest {
 
         // THEN
         Assert.assertNotNull(response);
-        assertThat(response.getData()).isExactlyInstanceOf(Container.class);
-        assertThat(((Container) response.getData()).getData()).isExactlyInstanceOf(Task.class);
-        assertThat(((Task) (((Container) response.getData()).getData())).getName()).isEqualTo("task updated");
+        assertThat(response.getData()).isExactlyInstanceOf(Task.class);
+        assertThat(((Task) (response.getData())).getName()).isEqualTo("task updated");
     }
 }

@@ -11,7 +11,6 @@ import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
 import io.katharsis.response.CollectionResponse;
-import io.katharsis.response.Container;
 import io.katharsis.utils.parser.TypeParser;
 
 import java.io.Serializable;
@@ -56,10 +55,10 @@ public class CollectionGet implements BaseController {
                     idType);
             iterable = registryEntry.getResourceRepository().findAll(parsedIds, requestParams);
         }
-        List<Container> containers = new LinkedList<>();
+        List containers = new LinkedList();
         if (iterable != null) {
             for (Object element : iterable) {
-                containers.add(new Container(element));
+                containers.add(element);
             }
         }
 

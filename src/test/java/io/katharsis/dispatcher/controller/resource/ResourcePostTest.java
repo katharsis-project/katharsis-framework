@@ -11,7 +11,6 @@ import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.models.User;
 import io.katharsis.resource.mock.repository.TaskToProjectRepository;
-import io.katharsis.response.Container;
 import io.katharsis.response.ResourceResponse;
 import org.junit.Assert;
 import org.junit.Test;
@@ -117,11 +116,10 @@ public class ResourcePostTest extends BaseControllerTest {
         ResourceResponse projectResponse = sut.handle(projectPath, new RequestParams(new ObjectMapper()), newProjectBody);
 
         // THEN
-        assertThat(projectResponse.getData()).isExactlyInstanceOf(Container.class);
-        assertThat(((Container) projectResponse.getData()).getData()).isExactlyInstanceOf(Project.class);
-        assertThat(((Project) (((Container) projectResponse.getData()).getData())).getId()).isNotNull();
-        assertThat(((Project) (((Container) projectResponse.getData()).getData())).getName()).isEqualTo("sample project");
-        Long projectId = ((Project) (((Container) projectResponse.getData()).getData())).getId();
+        assertThat(projectResponse.getData()).isExactlyInstanceOf(Project.class);
+        assertThat(((Project) (projectResponse.getData())).getId()).isNotNull();
+        assertThat(((Project) (projectResponse.getData())).getName()).isEqualTo("sample project");
+        Long projectId = ((Project) (projectResponse.getData())).getId();
 
         /* ------- */
 
@@ -141,11 +139,10 @@ public class ResourcePostTest extends BaseControllerTest {
         ResourceResponse taskResponse = sut.handle(taskPath, new RequestParams(new ObjectMapper()), newTaskBody);
 
         // THEN
-        assertThat(taskResponse.getData()).isExactlyInstanceOf(Container.class);
-        assertThat(((Container) taskResponse.getData()).getData()).isExactlyInstanceOf(Task.class);
-        Long taskId = ((Task) (((Container) taskResponse.getData()).getData())).getId();
+        assertThat(taskResponse.getData()).isExactlyInstanceOf(Task.class);
+        Long taskId = ((Task) (taskResponse.getData())).getId();
         assertThat(taskId).isNotNull();
-        assertThat(((Task) (((Container) taskResponse.getData()).getData())).getName()).isEqualTo("sample task");
+        assertThat(((Task) (taskResponse.getData())).getName()).isEqualTo("sample task");
 
         TaskToProjectRepository taskToProjectRepository = new TaskToProjectRepository();
         Project project = taskToProjectRepository.findOneTarget(taskId, "project", REQUEST_PARAMS);
@@ -169,11 +166,10 @@ public class ResourcePostTest extends BaseControllerTest {
         ResourceResponse projectResponse = sut.handle(projectPath, new RequestParams(new ObjectMapper()), newProjectBody);
 
         // THEN
-        assertThat(projectResponse.getData()).isExactlyInstanceOf(Container.class);
-        assertThat(((Container) projectResponse.getData()).getData()).isExactlyInstanceOf(Project.class);
-        assertThat(((Project) (((Container) projectResponse.getData()).getData())).getId()).isNotNull();
-        assertThat(((Project) (((Container) projectResponse.getData()).getData())).getName()).isEqualTo("sample project");
-        Long projectId = ((Project) (((Container) projectResponse.getData()).getData())).getId();
+        assertThat(projectResponse.getData()).isExactlyInstanceOf(Project.class);
+        assertThat(((Project) (projectResponse.getData())).getId()).isNotNull();
+        assertThat(((Project) (projectResponse.getData())).getName()).isEqualTo("sample project");
+        Long projectId = ((Project) (projectResponse.getData())).getId();
 
         /* ------- */
 
@@ -194,13 +190,12 @@ public class ResourcePostTest extends BaseControllerTest {
         ResourceResponse taskResponse = sut.handle(taskPath, new RequestParams(new ObjectMapper()), newUserBody);
 
         // THEN
-        assertThat(taskResponse.getData()).isExactlyInstanceOf(Container.class);
-        assertThat(((Container) taskResponse.getData()).getData()).isExactlyInstanceOf(User.class);
-        Long userId = ((User) (((Container) taskResponse.getData()).getData())).getId();
+        assertThat(taskResponse.getData()).isExactlyInstanceOf(User.class);
+        Long userId = ((User) (taskResponse.getData())).getId();
         assertThat(userId).isNotNull();
-        assertThat(((User) (((Container) taskResponse.getData()).getData())).getName()).isEqualTo("some user");
+        assertThat(((User) (taskResponse.getData())).getName()).isEqualTo("some user");
 
-        assertThat(((User) (((Container) taskResponse.getData()).getData())).getAssignedProjects()).hasSize(1);
-        assertThat(((User) (((Container) taskResponse.getData()).getData())).getAssignedProjects().get(0).getId()).isEqualTo(projectId);
+        assertThat(((User) (taskResponse.getData())).getAssignedProjects()).hasSize(1);
+        assertThat(((User) (taskResponse.getData())).getAssignedProjects().get(0).getId()).isEqualTo(projectId);
     }
 }

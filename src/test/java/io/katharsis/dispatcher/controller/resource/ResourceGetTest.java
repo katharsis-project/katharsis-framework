@@ -10,7 +10,6 @@ import io.katharsis.request.dto.ResourceRelationships;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.response.BaseResponse;
-import io.katharsis.response.Container;
 import io.katharsis.response.ResourceResponse;
 import org.junit.Assert;
 import org.junit.Test;
@@ -63,9 +62,8 @@ public class ResourceGetTest extends BaseControllerTest {
         // WHEN
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser);
         ResourceResponse taskResponse = resourcePost.handle(taskPath, new RequestParams(new ObjectMapper()), newTaskBody);
-        assertThat(taskResponse.getData()).isExactlyInstanceOf(Container.class);
-        assertThat(((Container) taskResponse.getData()).getData()).isExactlyInstanceOf(Task.class);
-        Long taskId = ((Task) (((Container) taskResponse.getData()).getData())).getId();
+        assertThat(taskResponse.getData()).isExactlyInstanceOf(Task.class);
+        Long taskId = ((Task) (taskResponse.getData())).getId();
         assertThat(taskId).isNotNull();
 
         // GIVEN

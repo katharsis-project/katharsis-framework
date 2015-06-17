@@ -16,7 +16,6 @@ import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.repository.TaskToProjectRepository;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
-import io.katharsis.response.Container;
 import io.katharsis.response.ResourceResponse;
 import org.junit.Test;
 
@@ -94,9 +93,8 @@ public class FieldResourcePostTest extends BaseControllerTest {
         BaseResponse taskResponse = resourcePost.handle(taskPath, new RequestParams(new ObjectMapper()), newTaskBody);
 
         // THEN
-        assertThat(taskResponse.getData()).isExactlyInstanceOf(Container.class);
-        assertThat(((Container) taskResponse.getData()).getData()).isExactlyInstanceOf(Task.class);
-        Long taskId = ((Task) (((Container) taskResponse.getData()).getData())).getId();
+        assertThat(taskResponse.getData()).isExactlyInstanceOf(Task.class);
+        Long taskId = ((Task) (taskResponse.getData())).getId();
         assertThat(taskId).isNotNull();
 
         /* ------- */
@@ -115,11 +113,10 @@ public class FieldResourcePostTest extends BaseControllerTest {
         // WHEN
         ResourceResponse projectResponse = sut.handle(projectPath, new RequestParams(OBJECT_MAPPER), newProjectBody);
 
-        assertThat(projectResponse.getData()).isExactlyInstanceOf(Container.class);
-        assertThat(((Container) projectResponse.getData()).getData()).isExactlyInstanceOf(Project.class);
-        assertThat(((Project) (((Container) projectResponse.getData()).getData())).getId()).isNotNull();
-        assertThat(((Project) (((Container) projectResponse.getData()).getData())).getName()).isEqualTo("sample project");
-        Long projectId = ((Project) (((Container) projectResponse.getData()).getData())).getId();
+        assertThat(projectResponse.getData()).isExactlyInstanceOf(Project.class);
+        assertThat(((Project) (projectResponse.getData())).getId()).isNotNull();
+        assertThat(((Project) (projectResponse.getData())).getName()).isEqualTo("sample project");
+        Long projectId = ((Project) (projectResponse.getData())).getId();
         assertThat(projectId).isNotNull();
 
         TaskToProjectRepository taskToProjectRepository = new TaskToProjectRepository();

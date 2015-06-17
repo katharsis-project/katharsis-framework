@@ -14,7 +14,6 @@ import io.katharsis.resource.exception.ResourceFieldNotFoundException;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.response.Container;
 import io.katharsis.response.ResourceResponse;
 import io.katharsis.utils.Generics;
 import io.katharsis.utils.parser.TypeParser;
@@ -90,7 +89,7 @@ public class FieldResourcePost extends ResourceUpsert {
         }
 
 
-        return new ResourceResponse(new Container(savedResourceWithRelations), jsonPath, requestParams);
+        return new ResourceResponse(savedResourceWithRelations, jsonPath, requestParams);
     }
 
     private Serializable getResourceId(PathIds resourceIds, RegistryEntry<?> registryEntry) {

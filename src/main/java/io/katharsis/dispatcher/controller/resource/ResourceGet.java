@@ -11,7 +11,6 @@ import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
-import io.katharsis.response.Container;
 import io.katharsis.response.ResourceResponse;
 import io.katharsis.utils.parser.TypeParser;
 
@@ -64,6 +63,6 @@ public class ResourceGet implements BaseController {
         Serializable castedId = typeParser.parse(id, idClass);
         Object entity = registryEntry.getResourceRepository().findOne(castedId, requestParams);
 
-        return new ResourceResponse(new Container(entity), jsonPath, requestParams);
+        return new ResourceResponse(entity, jsonPath, requestParams);
     }
 }

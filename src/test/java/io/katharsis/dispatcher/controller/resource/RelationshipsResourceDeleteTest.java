@@ -17,7 +17,6 @@ import io.katharsis.resource.mock.repository.TaskToProjectRepository;
 import io.katharsis.resource.mock.repository.UserToProjectRepository;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
-import io.katharsis.response.Container;
 import io.katharsis.response.ResourceResponse;
 import org.junit.Test;
 
@@ -78,9 +77,8 @@ public class RelationshipsResourceDeleteTest extends BaseControllerTest {
         BaseResponse taskResponse = resourcePost.handle(taskPath, new RequestParams(new ObjectMapper()), newTaskBody);
 
         // THEN
-        assertThat(taskResponse.getData()).isExactlyInstanceOf(Container.class);
-        assertThat(((Container) taskResponse.getData()).getData()).isExactlyInstanceOf(Task.class);
-        Long taskId = ((Task) (((Container) taskResponse.getData()).getData())).getId();
+        assertThat(taskResponse.getData()).isExactlyInstanceOf(Task.class);
+        Long taskId = ((Task) (taskResponse.getData())).getId();
         assertThat(taskId).isNotNull();
 
         /* ------- */
@@ -99,11 +97,10 @@ public class RelationshipsResourceDeleteTest extends BaseControllerTest {
         ResourceResponse projectResponse = resourcePost.handle(projectPath, new RequestParams(OBJECT_MAPPER), newProjectBody);
 
         // THEN
-        assertThat(projectResponse.getData()).isExactlyInstanceOf(Container.class);
-        assertThat(((Container) projectResponse.getData()).getData()).isExactlyInstanceOf(Project.class);
-        assertThat(((Project) (((Container) projectResponse.getData()).getData())).getId()).isNotNull();
-        assertThat(((Project) (((Container) projectResponse.getData()).getData())).getName()).isEqualTo("sample project");
-        Long projectId = ((Project) (((Container) projectResponse.getData()).getData())).getId();
+        assertThat(projectResponse.getData()).isExactlyInstanceOf(Project.class);
+        assertThat(((Project) (projectResponse.getData())).getId()).isNotNull();
+        assertThat(((Project) (projectResponse.getData())).getName()).isEqualTo("sample project");
+        Long projectId = ((Project) (projectResponse.getData())).getId();
         assertThat(projectId).isNotNull();
 
         /* ------- */
@@ -159,9 +156,8 @@ public class RelationshipsResourceDeleteTest extends BaseControllerTest {
         BaseResponse taskResponse = resourcePost.handle(taskPath, new RequestParams(new ObjectMapper()), newUserBody);
 
         // THEN
-        assertThat(taskResponse.getData()).isExactlyInstanceOf(Container.class);
-        assertThat(((Container) taskResponse.getData()).getData()).isExactlyInstanceOf(User.class);
-        Long userId = ((User) (((Container) taskResponse.getData()).getData())).getId();
+        assertThat(taskResponse.getData()).isExactlyInstanceOf(User.class);
+        Long userId = ((User) (taskResponse.getData())).getId();
         assertThat(userId).isNotNull();
 
         /* ------- */
@@ -180,11 +176,10 @@ public class RelationshipsResourceDeleteTest extends BaseControllerTest {
         ResourceResponse projectResponse = resourcePost.handle(projectPath, new RequestParams(OBJECT_MAPPER), newProjectBody);
 
         // THEN
-        assertThat(projectResponse.getData()).isExactlyInstanceOf(Container.class);
-        assertThat(((Container) projectResponse.getData()).getData()).isExactlyInstanceOf(Project.class);
-        assertThat(((Project) (((Container) projectResponse.getData()).getData())).getId()).isNotNull();
-        assertThat(((Project) (((Container) projectResponse.getData()).getData())).getName()).isEqualTo("sample project");
-        Long projectId = ((Project) (((Container) projectResponse.getData()).getData())).getId();
+        assertThat(projectResponse.getData()).isExactlyInstanceOf(Project.class);
+        assertThat(((Project) (projectResponse.getData())).getId()).isNotNull();
+        assertThat(((Project) (projectResponse.getData())).getName()).isEqualTo("sample project");
+        Long projectId = ((Project) (projectResponse.getData())).getId();
         assertThat(projectId).isNotNull();
 
         /* ------- */
