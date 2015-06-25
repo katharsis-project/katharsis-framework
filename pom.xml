@@ -9,7 +9,7 @@
     </parent>
 
     <artifactId>katharsis-core</artifactId>
-    <version>0.9.2-SNAPSHOT</version>
+    <version>0.9.2</version>
     <packaging>jar</packaging>
 
     <name>katharsis-core</name>
