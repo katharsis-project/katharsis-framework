@@ -14,7 +14,7 @@ public class ContainerSerializerTest extends BaseSerializerTest {
         Project project = new Project();
 
         // WHEN
-        String result = sut.writeValueAsString(new Container<>(project));
+        String result = sut.writeValueAsString(new Container(project));
 
         // THEN
         assertThatJson(result).node("type").isEqualTo("projects");
@@ -27,7 +27,7 @@ public class ContainerSerializerTest extends BaseSerializerTest {
         project.setId(1L);
 
         // WHEN
-        String result = sut.writeValueAsString(new Container<>(project));
+        String result = sut.writeValueAsString(new Container(project));
 
         // THEN
         assertThatJson(result).node("id").isEqualTo("\"1\"");
@@ -40,7 +40,7 @@ public class ContainerSerializerTest extends BaseSerializerTest {
         project.setName("name");
 
         // WHEN
-        String result = sut.writeValueAsString(new Container<>(project));
+        String result = sut.writeValueAsString(new Container(project));
 
         // THEN
         assertThatJson(result).node("attributes.name").isEqualTo("name");

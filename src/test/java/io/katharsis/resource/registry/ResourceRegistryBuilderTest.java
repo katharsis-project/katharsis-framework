@@ -51,6 +51,20 @@ public class ResourceRegistryBuilderTest {
     }
 
     @Test
+    public void onValidPackagesShouldBuildRegistry() {
+        // GIVEN
+        ResourceRegistryBuilder sut = new ResourceRegistryBuilder(new SampleJsonServiceLocator(), new ResourceInformationBuilder());
+        String packageNames = String.format("java.lang,%s,io.katharsis.locator", TEST_MODELS_PACKAGE);
+
+        // WHEN
+        ResourceRegistry resourceRegistry = sut.build(packageNames, TEST_MODELS_URL);
+
+        // THEN
+        RegistryEntry tasksEntry = resourceRegistry.getEntry("tasks");
+        Assert.assertNotNull(tasksEntry);
+    }
+
+    @Test
     public void onNoEntityRepositoryInstanceShouldThrowException() {
         // GIVEN
         ResourceRegistryBuilder sut = new ResourceRegistryBuilder(new SampleJsonServiceLocator() {

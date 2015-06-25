@@ -8,21 +8,21 @@ import java.util.Objects;
  * A class responsible for representing a single data filed within top-level JSON object returned by Katharsis. The
  * resulting JSON is serialized using {@link ContainerSerializer}.
  */
-public class Container<T> {
-    T data;
+public class Container {
+    Object data;
 
     public Container() {
     }
 
-    public Container(T data) {
+    public Container(Object data) {
         this.data = data;
     }
 
-    public T getData() {
+    public Object getData() {
         return data;
     }
 
-    public void setData(T data) {
+    public void setData(Object data) {
         this.data = data;
     }
 
@@ -30,7 +30,7 @@ public class Container<T> {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Container<?> container = (Container<?>) o;
+        Container container = (Container) o;
         return Objects.equals(data, container.data);
     }
 

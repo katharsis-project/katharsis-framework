@@ -53,7 +53,7 @@ public class BaseResponseSerializer extends JsonSerializer<BaseResponse> {
         gen.writeEndObject();
     }
 
-    private Set serializeSingle(ResourceResponse resourceResponse, JsonGenerator gen) throws IOException {
+    private Set<?> serializeSingle(ResourceResponse resourceResponse, JsonGenerator gen) throws IOException {
         Object value = resourceResponse.getData();
         gen.writeObjectField(DATA_FIELD_NAME, new Container(value));
 

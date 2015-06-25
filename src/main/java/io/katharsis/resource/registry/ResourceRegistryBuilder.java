@@ -36,7 +36,14 @@ public class ResourceRegistryBuilder {
      * @return an instance of ResourceRegistry
      */
     public ResourceRegistry build(String packageName, String serviceUrl) {
-        Reflections reflections = new Reflections(packageName);
+        Reflections reflections;
+        if (packageName != null) {
+            String[] packageNames = packageName.split(",");
+            reflections = new Reflections(packageNames);
+        } else {
+            reflections = new Reflections(packageName);
+        }
+
 
         Set<Class<?>> jsonApiResources = reflections.getTypesAnnotatedWith(JsonApiResource.class);
         Set<Class<? extends ResourceRepository>> entityRepositoryClasses = reflections.getSubTypesOf(ResourceRepository.class);

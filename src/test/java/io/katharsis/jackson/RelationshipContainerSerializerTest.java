@@ -21,7 +21,7 @@ public class RelationshipContainerSerializerTest extends BaseSerializerTest {
         task.setProject(project);
 
         // WHEN
-        String result = sut.writeValueAsString(new Container<>(task));
+        String result = sut.writeValueAsString(new Container(task));
 
         // THEN
         assertThatJson(result).node("relationships.project").isPresent();
@@ -36,7 +36,7 @@ public class RelationshipContainerSerializerTest extends BaseSerializerTest {
         task.setProject(project);
 
         // WHEN
-        String result = sut.writeValueAsString(new Container<>(task));
+        String result = sut.writeValueAsString(new Container(task));
 
         // THEN
         assertThatJson(result).node("relationships.project.self").isEqualTo("https://service.local/tasks/1/relationships/project");
@@ -51,7 +51,7 @@ public class RelationshipContainerSerializerTest extends BaseSerializerTest {
         task.setProject(project);
 
         // WHEN
-        String result = sut.writeValueAsString(new Container<>(task));
+        String result = sut.writeValueAsString(new Container(task));
 
         // THEN
         assertThatJson(result).node("relationships.project.related").isEqualTo("https://service.local/tasks/1/project");
@@ -67,7 +67,7 @@ public class RelationshipContainerSerializerTest extends BaseSerializerTest {
         task.setProject(project);
 
         // WHEN
-        String result = sut.writeValueAsString(new Container<>(task));
+        String result = sut.writeValueAsString(new Container(task));
 
         // THEN
         assertThatJson(result).node("relationships.project.linkage").isPresent();
@@ -80,7 +80,7 @@ public class RelationshipContainerSerializerTest extends BaseSerializerTest {
         task.setId(1L);
 
         // WHEN
-        String result = sut.writeValueAsString(new Container<>(task));
+        String result = sut.writeValueAsString(new Container(task));
 
         // THEN
         assertThatJson(result).node("relationships.project.linkage").isEqualTo("null");
@@ -96,7 +96,7 @@ public class RelationshipContainerSerializerTest extends BaseSerializerTest {
         user.setAssignedProjects(Collections.singletonList(project));
 
         // WHEN
-        String result = sut.writeValueAsString(new Container<>(user));
+        String result = sut.writeValueAsString(new Container(user));
 
         // THEN
         assertThatJson(result).node("relationships.assignedProjects.linkage").isArray().ofLength(1);
@@ -109,7 +109,7 @@ public class RelationshipContainerSerializerTest extends BaseSerializerTest {
         user.setId(1L);
 
         // WHEN
-        String result = sut.writeValueAsString(new Container<>(user));
+        String result = sut.writeValueAsString(new Container(user));
 
         // THEN
         assertThatJson(result).node("relationships.assignedProjects.linkage").isArray().ofLength(0);

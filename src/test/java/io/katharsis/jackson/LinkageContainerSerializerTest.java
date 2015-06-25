@@ -19,7 +19,7 @@ public class LinkageContainerSerializerTest extends BaseSerializerTest {
         task.setProject(project);
 
         // WHEN
-        String result = sut.writeValueAsString(new Container<>(task));
+        String result = sut.writeValueAsString(new Container(task));
 
         // THEN
         assertThatJson(result).node("relationships.project.linkage.type").isEqualTo("projects");
