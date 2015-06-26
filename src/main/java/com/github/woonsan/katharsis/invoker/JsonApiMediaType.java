@@ -16,9 +16,14 @@
  */
 package com.github.woonsan.katharsis.invoker;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.net.MediaType;
 
 public class JsonApiMediaType {
+
+    private static Logger log = LoggerFactory.getLogger(JsonApiMediaType.class);
 
     /**
      * A {@code String} constant representing {@value #APPLICATION_JSON_API} media type.
@@ -42,11 +47,13 @@ public class JsonApiMediaType {
         }
 
         if (MediaType.ANY_APPLICATION_TYPE.type().equalsIgnoreCase(mediaType.type())) {
+            log.debug("application mediaType : {}", mediaType);
             if (WILDCARD.equals(mediaType.subtype())) {
                 return true;
             }
 
             if (APPLICATION_JSON_API_TYPE.subtype().equalsIgnoreCase(mediaType.subtype())) {
+                log.debug("application mediaType having json api subtype : {}", mediaType);
                 return true;
             }
         }
