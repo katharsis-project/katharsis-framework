@@ -16,12 +16,43 @@
  */
 package com.github.woonsan.katharsis.invoker;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import javax.servlet.http.HttpServletResponse;
+
 import org.junit.Test;
 
 public class KatharsisInvokerExceptionTest {
 
     @Test
     public void testExceptions() throws Exception {
-        
+        KatharsisInvokerException ex = new KatharsisInvokerException(HttpServletResponse.SC_BAD_REQUEST);
+        assertTrue(ex instanceof RuntimeException);
+        assertEquals(HttpServletResponse.SC_BAD_REQUEST, ex.getStatusCode());
+        assertNull(ex.getCause());
+        assertNull(ex.getMessage());
+        assertNotNull(ex.toString());
+
+        ex = new KatharsisInvokerException(HttpServletResponse.SC_BAD_REQUEST, "Invocation failed.");
+        assertEquals(HttpServletResponse.SC_BAD_REQUEST, ex.getStatusCode());
+        assertNull(ex.getCause());
+        assertEquals("Invocation failed.", ex.getMessage());
+        assertNotNull(ex.toString());
+
+        ex = new KatharsisInvokerException(HttpServletResponse.SC_BAD_REQUEST, new Exception("Root cause."));
+        assertEquals(HttpServletResponse.SC_BAD_REQUEST, ex.getStatusCode());
+        assertNotNull(ex.getCause());
+        assertEquals("Root cause.", ex.getCause().getMessage());
+        assertNotNull(ex.toString());
+
+        ex = new KatharsisInvokerException(HttpServletResponse.SC_BAD_REQUEST, "Invocation failed.", new Exception("Root cause."));
+        assertEquals(HttpServletResponse.SC_BAD_REQUEST, ex.getStatusCode());
+        assertNotNull(ex.getCause());
+        assertEquals("Root cause.", ex.getCause().getMessage());
+        assertEquals("Invocation failed.", ex.getMessage());
+        assertNotNull(ex.toString());
     }
 }

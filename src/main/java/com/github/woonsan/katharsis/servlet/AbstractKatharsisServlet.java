@@ -33,6 +33,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.woonsan.katharsis.invoker.KatharsisInvoker;
 import com.github.woonsan.katharsis.invoker.KatharsisInvokerBuilder;
 import com.github.woonsan.katharsis.invoker.KatharsisInvokerContext;
+import com.github.woonsan.katharsis.invoker.KatharsisInvokerException;
 
 /**
  * Abstract base servlet class to integrate with Katharsis-core.
@@ -58,8 +59,14 @@ abstract public class AbstractKatharsisServlet extends HttpServlet {
 
         try {
             getKatharsisInvoker().invoke(invokerContext);
-        } catch (IOException e) {
-            throw e;
+        } catch (KatharsisInvokerException e) {
+            if (log.isDebugEnabled()) {
+                log.warn("Katharsis Invoker exception.", e);
+            } else {
+                log.warn("Katharsis Invoker exception. {}", e.toString());
+            }
+
+            response.setStatus(e.getStatusCode());
         } catch (Exception e) {
             throw new ServletException("Katharsis invocation failed.", e);
         }

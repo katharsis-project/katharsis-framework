@@ -17,11 +17,14 @@
 package com.github.woonsan.katharsis.servlet;
 
 import static net.javacrumbs.jsonunit.JsonAssert.assertJsonPartEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletResponse;
 
 import org.junit.After;
 import org.junit.Before;
@@ -59,9 +62,9 @@ public class KatharsisServletTest {
         servletContext = new MockServletContext();
         ((MockServletContext) servletContext).setContextPath("");
         servletConfig = new MockServletConfig(servletContext);
-        ((MockServletConfig) servletConfig).addInitParameter(SampleKatharsisFilter.INIT_PARAM_RESOURCE_SEARCH_PACKAGE,
+        ((MockServletConfig) servletConfig).addInitParameter(SampleKatharsisServlet.INIT_PARAM_RESOURCE_SEARCH_PACKAGE,
                                                              RESOURCE_SEARCH_PACKAGE);
-        ((MockServletConfig) servletConfig).addInitParameter(SampleKatharsisFilter.INIT_PARAM_RESOURCE_DEFAULT_DOMAIN,
+        ((MockServletConfig) servletConfig).addInitParameter(SampleKatharsisServlet.INIT_PARAM_RESOURCE_DEFAULT_DOMAIN,
                                                              RESOURCE_DEFAULT_DOMAIN);
 
         katharsisServlet.init(servletConfig);
@@ -153,6 +156,27 @@ public class KatharsisServletTest {
         assertJsonPartEquals("{\"name\":\"First task\",\"project\":null}", responseContent, "data[0].attributes");
         assertJsonPartEquals("{\"self\":\"http://localhost:8080/api/v1/tasks/1\"}", responseContent, "data[0].relationships");
         assertJsonPartEquals("[]", responseContent, "included");
+    }
+
+    @Test
+    public void testUnacceptableRequestContentType() throws Exception {
+        MockHttpServletRequest request = new MockHttpServletRequest(servletContext);
+        request.setMethod("GET");
+        request.setContextPath("");
+        request.setServletPath("/api");
+        request.setPathInfo("/tasks");
+        request.setRequestURI("/api/tasks");
+        request.setContentType(JsonApiMediaType.APPLICATION_JSON_API);
+        request.addHeader("Accept", "application/xml");
+        request.addParameter("filter", "{\"name\":\"John\"}");
+
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        katharsisServlet.service(request, response);
+
+        assertEquals(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE, response.getStatus());
+        String responseContent = response.getContentAsString();
+        assertTrue(responseContent == null || "".equals(responseContent.trim()));
     }
 
 }
