@@ -131,7 +131,7 @@ public class ResourcePostTest extends BaseControllerTest {
         data.setAttributes(new Attributes());
         data.getAttributes().addAttribute("name", "sample task");
         data.setRelationships(new ResourceRelationships());
-        data.getRelationships().setAdditionalProperty("project", new Linkage("projects", projectId.toString()));
+        data.getRelationships().setAdditionalProperty("project", new LinkageData("projects", projectId.toString()));
 
         JsonPath taskPath = pathBuilder.buildPath("/tasks");
 
@@ -181,7 +181,7 @@ public class ResourcePostTest extends BaseControllerTest {
         data.setAttributes(new Attributes());
         data.getAttributes().addAttribute("name", "some user");
         data.setRelationships(new ResourceRelationships());
-        data.getRelationships().setAdditionalProperty("assignedProjects", Arrays.asList(new Linkage("projects",
+        data.getRelationships().setAdditionalProperty("assignedProjects", Arrays.asList(new LinkageData("projects",
                 projectId.toString())));
 
         JsonPath taskPath = pathBuilder.buildPath("/users");

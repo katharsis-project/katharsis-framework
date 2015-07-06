@@ -26,7 +26,8 @@ public class RelationshipContainerSerializer extends JsonSerializer<Relationship
 
     private static final String SELF_FIELD_NAME = "self";
     private static final String RELATED_FIELD_NAME = "related";
-    private static final String LINKAGE_FIELD_NAME = "linkage";
+    private static final String DATA_FIELD_NAME = "data";
+    private static final String LINKS_FIELD_NAME = "links";
 
     private ResourceRegistry resourceRegistry;
 
@@ -37,9 +38,16 @@ public class RelationshipContainerSerializer extends JsonSerializer<Relationship
     @Override
     public void serialize(RelationshipContainer relationshipContainer, JsonGenerator gen, SerializerProvider provider) throws IOException {
         gen.writeStartObject();
+        writeLinks(relationshipContainer, gen);
+        writeLinkage(relationshipContainer, gen);
+        gen.writeEndObject();
+    }
+
+    private void writeLinks(RelationshipContainer relationshipContainer, JsonGenerator gen) throws IOException {
+        gen.writeFieldName(LINKS_FIELD_NAME);
+        gen.writeStartObject();
         writeLink(relationshipContainer, gen, SELF_FIELD_NAME, true);
         writeLink(relationshipContainer, gen, RELATED_FIELD_NAME, false);
-        writeLinkage(relationshipContainer, gen);
         gen.writeEndObject();
     }
 
@@ -73,7 +81,7 @@ public class RelationshipContainerSerializer extends JsonSerializer<Relationship
         Class relationshipClass = Generics.getResourceClass(relationshipContainer.getRelationshipField(), baseClass);
         RegistryEntry relationshipEntry = resourceRegistry.getEntry(relationshipClass);
 
-        gen.writeFieldName(LINKAGE_FIELD_NAME);
+        gen.writeFieldName(DATA_FIELD_NAME);
         writeLinkageField(relationshipContainer, gen, baseClass, relationshipClass, relationshipEntry);
     }
 

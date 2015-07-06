@@ -7,7 +7,7 @@ import org.junit.Test;
 
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 
-public class LinkageContainerSerializerTest extends BaseSerializerTest {
+public class LinkageDataContainerSerializerTest extends BaseSerializerTest {
 
     @Test
     public void onRelationshipShouldIncludeRelationshipLinkage() throws Exception {
@@ -22,7 +22,7 @@ public class LinkageContainerSerializerTest extends BaseSerializerTest {
         String result = sut.writeValueAsString(new Container(task));
 
         // THEN
-        assertThatJson(result).node("relationships.project.linkage.type").isEqualTo("projects");
-        assertThatJson(result).node("relationships.project.linkage.id").isEqualTo("\"2\"");
+        assertThatJson(result).node("relationships.project.data.type").isEqualTo("projects");
+        assertThatJson(result).node("relationships.project.data.id").isEqualTo("\"2\"");
     }
 }
