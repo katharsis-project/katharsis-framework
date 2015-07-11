@@ -9,7 +9,7 @@
         <module>dropwizard-mongo-example</module>
         <module>jersey-example</module>
         <module>dropwizard-simple-example</module>
-        <module>katharsis-wildfly-example</module>
+        <module>wildfly-example</module>
     </modules>
     <packaging>pom</packaging>
 
