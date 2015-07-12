@@ -3,7 +3,7 @@ package io.katharsis.dispatcher.controller.resource;
 import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.request.dto.DataBody;
-import io.katharsis.request.dto.Linkage;
+import io.katharsis.request.dto.LinkageData;
 import io.katharsis.resource.ResourceInformation;
 import io.katharsis.resource.exception.ResourceException;
 import io.katharsis.resource.exception.ResourceNotFoundException;
@@ -55,7 +55,7 @@ public abstract class ResourceUpsert implements BaseController {
     }
 
     private void saveRelationsField(Object savedResource, RegistryEntry registryEntry, Map.Entry<String,
-            Iterable<Linkage>> property, ResourceInformation resourceInformation)
+            Iterable<LinkageData>> property, ResourceInformation resourceInformation)
             throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         if (!allTypesTheSame(property.getValue())) {
             throw new ResourceException("Not all types are the same for linkage: " + property.getKey());
@@ -69,8 +69,8 @@ public abstract class ResourceUpsert implements BaseController {
                 .getType();
         List<Serializable> castedRelationIds = new LinkedList<>();
 
-        for (Linkage linkage : property.getValue()) {
-            Serializable castedRelationshipId = typeParser.parse(linkage.getId(), relationshipIdClass);
+        for (LinkageData linkageData : property.getValue()) {
+            Serializable castedRelationshipId = typeParser.parse(linkageData.getId(), relationshipIdClass);
             castedRelationIds.add(castedRelationshipId);
         }
 
@@ -80,21 +80,21 @@ public abstract class ResourceUpsert implements BaseController {
         relationshipRepository.setRelations(savedResource, castedRelationIds, relationshipField.getName());
     }
 
-    private boolean allTypesTheSame(Iterable<Linkage> linkages) {
+    private boolean allTypesTheSame(Iterable<LinkageData> linkages) {
         String type = linkages.iterator().hasNext() ? linkages.iterator().next().getType() : null;
-        for (Linkage linkage : linkages) {
-            if (!Objects.equals(type, linkage.getType())) {
+        for (LinkageData linkageData : linkages) {
+            if (!Objects.equals(type, linkageData.getType())) {
                 return false;
             }
         }
         return true;
     }
 
-    private String getLinkageType(Iterable<Linkage> linkages) {
+    private String getLinkageType(Iterable<LinkageData> linkages) {
         return linkages.iterator().hasNext() ? linkages.iterator().next().getType() : null;
     }
 
-    protected void saveRelationField(Object savedResource, RegistryEntry registryEntry, Map.Entry<String, Linkage>
+    protected void saveRelationField(Object savedResource, RegistryEntry registryEntry, Map.Entry<String, LinkageData>
             property,
                                    ResourceInformation resourceInformation)
             throws NoSuchMethodException, IllegalAccessException, InstantiationException, InvocationTargetException {

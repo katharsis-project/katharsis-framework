@@ -31,6 +31,8 @@ public class ContainerSerializer extends JsonSerializer<Container> {
     private static final String ID_FIELD_NAME = "id";
     private static final String ATTRIBUTES_FIELD_NAME = "attributes";
     private static final String RELATIONSHIPS_FIELD_NAME = "relationships";
+    private static final String LINKS_FIELD_NAME = "links";
+    private static final String SELF_FIELD_NAME = "self";
     private static final ResourceFieldNameTransformer RESOURCE_FIELD_NAME_TRANSFORMER = new ResourceFieldNameTransformer();
 
     private ResourceRegistry resourceRegistry;
@@ -77,6 +79,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         }
 
         writeRelationshipFields(gen, data, resourceInformation.getRelationshipFields());
+        writeLinksField(gen, data);
     }
 
     /**
@@ -105,6 +108,28 @@ public class ContainerSerializer extends JsonSerializer<Container> {
     private void writeRelationshipFields(JsonGenerator gen, Object data, Set<Field> relationshipFields) throws IOException {
         DataLinksContainer dataLinksContainer = new DataLinksContainer(data, relationshipFields);
         gen.writeObjectField(RELATIONSHIPS_FIELD_NAME, dataLinksContainer);
+    }
+
+    private void writeLinksField(JsonGenerator gen, Object data) throws IOException {
+        gen.writeFieldName(LINKS_FIELD_NAME);
+        gen.writeStartObject();
+        writeSelfLink(gen, data);
+        gen.writeEndObject();
+    }
+
+    private void writeSelfLink(JsonGenerator gen, Object data) throws IOException {
+        Class<?> sourceClass = data.getClass();
+        String resourceUrl = resourceRegistry.getResourceUrl(sourceClass);
+        RegistryEntry entry = resourceRegistry.getEntry(sourceClass);
+        Field idField = entry.getResourceInformation().getIdField();
+
+        String sourceId;
+        try {
+            sourceId = BeanUtils.getProperty(data, idField.getName());
+        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            throw new JsonSerializationException("Exception while writing links", e);
+        }
+        gen.writeStringField(SELF_FIELD_NAME, resourceUrl + "/" + sourceId);
     }
 
     public Class<Container> handledType() {

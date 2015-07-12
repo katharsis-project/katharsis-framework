@@ -52,3 +52,10 @@ Need to directly talk to us? Write on gitter:
 ## Development status
 [![Stories in Ready](https://badge.waffle.io/katharsis-project/katharsis-core.svg?label=ready&title=Ready)](http://waffle.io/katharsis-project/katharsis-core)
 [![Stories in In Progress](https://badge.waffle.io/katharsis-project/katharsis-core.svg?label=in progress&title=In Progress)](http://waffle.io/katharsis-project/katharsis-core)
+
+## Donations
+This library is created and maintained by spending weekends and late nights for free without any company behind it. If you love it and simply wanna support us in our project you can do it via Pledgie, by clicking on the badge below.
+
+[![donation](http://forthebadge.com/images/badges/built-with-love.svg)](https://pledgie.com/campaigns/29704)
+
+

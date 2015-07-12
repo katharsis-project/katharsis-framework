@@ -17,7 +17,7 @@ public class DataLinksContainerSerializerTest extends BaseSerializerTest {
         String result = sut.writeValueAsString(new Container(project));
 
         // THEN
-        assertThatJson(result).node("relationships").isPresent();
+        assertThatJson(result).node("links").isPresent();
     }
 
     @Test
@@ -30,6 +30,6 @@ public class DataLinksContainerSerializerTest extends BaseSerializerTest {
         String result = sut.writeValueAsString(new Container(project));
 
         // THEN
-        assertThatJson(result).node("relationships.self").isEqualTo("https://service.local/projects/1");
+        assertThatJson(result).node("links.self").isEqualTo("https://service.local/projects/1");
     }
 }

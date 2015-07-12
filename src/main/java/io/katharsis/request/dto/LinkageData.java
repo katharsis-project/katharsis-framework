@@ -1,13 +1,13 @@
 package io.katharsis.request.dto;
 
-public class Linkage {
+public class LinkageData {
     private String type;
     private String id;
 
-    public Linkage() {
+    public LinkageData() {
     }
 
-    public Linkage(String type, String id) {
+    public LinkageData(String type, String id) {
         this.type = type;
         this.id = id;
     }
