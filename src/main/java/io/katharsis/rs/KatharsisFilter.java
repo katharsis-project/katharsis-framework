@@ -3,7 +3,7 @@ package io.katharsis.rs;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.RequestDispatcher;
 import io.katharsis.errorhandling.exception.KatharsisException;
-import io.katharsis.errorhandling.mapper.def.KatharsisExceptionMapper;
+import io.katharsis.errorhandling.mapper.KatharsisExceptionMapper;
 import io.katharsis.queryParams.RequestParams;
 import io.katharsis.queryParams.RequestParamsBuilder;
 import io.katharsis.request.dto.RequestBody;
