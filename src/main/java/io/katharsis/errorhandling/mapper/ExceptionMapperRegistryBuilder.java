@@ -1,6 +1,5 @@
 package io.katharsis.errorhandling.mapper;
 
-import io.katharsis.errorhandling.mapper.def.KatharsisExceptionMapper;
 import io.katharsis.resource.exception.init.InvalidResourceException;
 import org.reflections.Reflections;
 

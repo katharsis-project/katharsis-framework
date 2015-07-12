@@ -1,13 +1,12 @@
-package io.katharsis.errorhandling.mapper.def;
+package io.katharsis.errorhandling.exception;
 
 import io.katharsis.errorhandling.ErrorData;
 import io.katharsis.errorhandling.ErrorResponse;
-import io.katharsis.errorhandling.exception.KatharsisException;
+import io.katharsis.errorhandling.mapper.KatharsisExceptionMapper;
 import io.katharsis.response.HttpStatus;
 import org.junit.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
+import static org.assertj.core.api.Assertions.*;
 
 public class KatharsisExceptionMapperTest {
 

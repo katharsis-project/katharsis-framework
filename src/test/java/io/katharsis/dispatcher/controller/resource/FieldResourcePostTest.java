@@ -19,7 +19,7 @@ import io.katharsis.response.BaseResponse;
 import io.katharsis.response.ResourceResponse;
 import org.junit.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 
 public class FieldResourcePostTest extends BaseControllerTest {
