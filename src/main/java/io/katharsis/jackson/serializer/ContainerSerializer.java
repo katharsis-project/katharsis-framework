@@ -127,7 +127,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         try {
             sourceId = BeanUtils.getProperty(data, idField.getName());
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            throw new JsonSerializationException("Exception while writing links", e);
+            throw new JsonSerializationException("Exception while writing links");
         }
         gen.writeStringField(SELF_FIELD_NAME, resourceUrl + "/" + sourceId);
     }
