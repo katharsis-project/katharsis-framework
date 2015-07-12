@@ -53,7 +53,7 @@ public class RelationshipContainerSerializer extends JsonSerializer<Relationship
         try {
             sourceId = BeanUtils.getProperty(relationshipContainer.getDataLinksContainer().getData(), idField.getName());
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            throw new JsonSerializationException("Exception while writing links", e);
+            throw new JsonSerializationException("Error writing links");
         }
         String url = resourceUrl + "/" + sourceId + (addLinks ? "/" + PathBuilder.RELATIONSHIP_MARK + "/" : "/")
                 + relationshipContainer.getRelationshipField().getName();
@@ -88,7 +88,7 @@ public class RelationshipContainerSerializer extends JsonSerializer<Relationship
                 writeToOneLinkage(relationshipContainer, gen, relationshipClass, relationshipEntry);
             }
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            throw new JsonSerializationException("Exception while writing id field", e);
+            throw new JsonSerializationException("Error writing linkage field");
         }
     }
 

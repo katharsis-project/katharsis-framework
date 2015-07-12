@@ -50,7 +50,7 @@ public class DataLinksContainerSerializer extends JsonSerializer<DataLinksContai
         try {
             sourceId = BeanUtils.getProperty(dataLinksContainer.getData(), idField.getName());
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            throw new JsonSerializationException("Exception while writing links", e);
+            throw new JsonSerializationException("Error writing self link.");
         }
         gen.writeStringField(SELF_FIELD_NAME, resourceUrl + "/" + sourceId);
     }
