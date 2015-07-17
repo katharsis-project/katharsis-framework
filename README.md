@@ -1,5 +1,7 @@
 # katharsis-servlet
 
+[![Build Status](https://api.travis-ci.org/woonsan/katharsis-servlet.svg?branch=development)](https://api.travis-ci.org/woonsan/katharsis-servlet.svg?branch=development)
+
 Generic Servlet Adapter of Katharsis JSON:API middleware library.
 
 Introduction
