@@ -14,6 +14,15 @@ This module can be used in simple servlet or filter,
 servlet-based application framework such as Spring Framework,
 or even non-ServletAPI-based frameworks such as Portal/Portlet, Wicket, etc.
 
+How to use this in my Servlet Filter?
+=====================================
+
+This module provides an abstract class, [AbstractKatharsisFilter.java](src/main/java/com/github/woonsan/katharsis/servlet/AbstractKatharsisFilter.java). Basically you need to override the following method at least as well:
+
+    abstract protected KatharsisInvokerBuilder createKatharsisInvokerBuilder();
+
+Also see [SampleKatharsisFilter.java](src/main/java/com/github/woonsan/katharsis/servlet/SampleKatharsisFilter.java) as an example.
+
 How to use this in my Servlet?
 ==============================
 
@@ -23,14 +32,38 @@ This module provides an abstract class, [AbstractKatharsisServlet.java](src/main
 
 Also see [SampleKatharsisServlet.java](src/main/java/com/github/woonsan/katharsis/servlet/SampleKatharsisServlet.java) as an example.
 
-How to use this in my Servlet Filter?
-=====================================
+How to integrate with my IoC?
+=============================
 
-This module provides an abstract class, [AbstractKatharsisFilter.java](src/main/java/com/github/woonsan/katharsis/servlet/AbstractKatharsisFilter.java). Basically you need to override the following method at least as well:
+You can override #createKatharsisInvokerBuilder() method in
+either [SampleKatharsisFilter.java](src/main/java/com/github/woonsan/katharsis/servlet/SampleKatharsisFilter.java)
+or [SampleKatharsisServlet.java](src/main/java/com/github/woonsan/katharsis/servlet/SampleKatharsisServlet.java)
+to use your own JsonServiceLocator component.
 
-    abstract protected KatharsisInvokerBuilder createKatharsisInvokerBuilder();
+For example, you can create a new JsonServiceLocator to get a bean (singleton or prototype)
+from Spring Web Application Context like the following example:
 
-Also see [SampleKatharsisFilter.java](src/main/java/com/github/woonsan/katharsis/servlet/SampleKatharsisFilter.java) as an example.
+
+            /**
+             * NOTE: A class extending this must provide a platform specific {@link JsonServiceLocator}
+             *       instead of the (testing-purpose) {@link SampleJsonServiceLocator} below
+             *       in order to provide advanced dependency injections for the repositories.
+             */
+            @Override
+            protected KatharsisInvokerBuilder createKatharsisInvokerBuilder() {
+                return new KatharsisInvokerBuilder()
+                        .resourceSearchPackage(getResourceSearchPackage())
+                        .resourceDefaultDomain(getResourceDefaultDomain())
+                        .jsonServiceLocator(new JsonServiceLocator() {
+                            @Override
+                            public <T> T getInstance(Class<T> clazz) {
+                                // assuming the repository beans can be retrieved from the WebApplicationContext and are identified by the FQCN in this exmaple.
+                                return WebApplicationContextUtils.getWebApplicationContext(getServletContext()).getBean(clazz.getName());
+                            }
+                        });
+            }
+
+You will probably get the idea on how to integrate with other containers as well from the example.
 
 Demo in a Web Application?
 ==========================
