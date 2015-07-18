@@ -28,7 +28,7 @@ public class ProjectRepository implements ResourceRepository<Project, Long> {
     }
 
     @Override
-    public Project findOne(Long aLong) {
+    public Project findOne(Long aLong, RequestParams requestParams) {
         return null;
     }
 

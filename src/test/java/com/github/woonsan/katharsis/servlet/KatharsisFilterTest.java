@@ -17,11 +17,14 @@
 package com.github.woonsan.katharsis.servlet;
 
 import static net.javacrumbs.jsonunit.JsonAssert.assertJsonPartEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletResponse;
 
 import org.junit.After;
 import org.junit.Before;
@@ -163,4 +166,25 @@ public class KatharsisFilterTest {
         assertJsonPartEquals("[]", responseContent, "included");
     }
 
+    @Test
+    public void testUnacceptableRequestContentType() throws Exception {
+        MockFilterChain filterChain = new MockFilterChain();
+
+        MockHttpServletRequest request = new MockHttpServletRequest(servletContext);
+        request.setMethod("GET");
+        request.setContextPath("");
+        request.setServletPath(null);
+        request.setPathInfo(null);
+        request.setRequestURI("/api/tasks/");
+        request.setContentType(JsonApiMediaType.APPLICATION_JSON_API);
+        request.addHeader("Accept", "application/xml");
+
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        katharsisFilter.doFilter(request, response, filterChain);
+
+        assertEquals(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE, response.getStatus());
+        String responseContent = response.getContentAsString();
+        assertTrue(responseContent == null || "".equals(responseContent.trim()));
+    }
 }

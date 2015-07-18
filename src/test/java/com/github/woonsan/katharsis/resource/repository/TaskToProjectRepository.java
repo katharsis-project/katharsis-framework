@@ -16,6 +16,7 @@
  */
 package com.github.woonsan.katharsis.resource.repository;
 
+import io.katharsis.queryParams.RequestParams;
 import io.katharsis.repository.RelationshipRepository;
 
 import com.github.woonsan.katharsis.resource.model.Project;
@@ -42,12 +43,12 @@ public class TaskToProjectRepository implements RelationshipRepository<Task, Lon
     }
 
     @Override
-    public Project findOneTarget(Long sourceId, String fieldName) {
+    public Project findOneTarget(Long sourceId, String fieldName, RequestParams requestParams) {
         return null;
     }
 
     @Override
-    public Iterable<Project> findManyTargets(Long sourceId, String fieldName) {
+    public Iterable<Project> findManyTargets(Long sourceId, String fieldName, RequestParams requestParams) {
         return null;
     }
 }

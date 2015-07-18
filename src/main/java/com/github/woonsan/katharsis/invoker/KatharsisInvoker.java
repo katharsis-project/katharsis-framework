@@ -35,11 +35,7 @@ import java.io.OutputStream;
 import java.util.Map;
 import java.util.Scanner;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.woonsan.katharsis.invoker.util.QueryStringUtils;
@@ -49,8 +45,6 @@ import com.google.common.net.MediaType;
  * Katharsis dispatcher invoker.
  */
 public class KatharsisInvoker {
-
-    private static Logger log = LoggerFactory.getLogger(KatharsisInvoker.class);
 
     private static int BUFFER_SIZE = 4096;
 
@@ -65,13 +59,15 @@ public class KatharsisInvoker {
         this.requestDispatcher = requestDispatcher;
     }
 
-    public void invoke(KatharsisInvokerContext invokerContext) throws ServletException, IOException {
+    public void invoke(KatharsisInvokerContext invokerContext) throws KatharsisInvokerException {
         if (isAcceptableMediaType(invokerContext)) {
             try {
                 dispatchRequest(invokerContext);
             } catch (Exception e) {
-                throw new ServletException(e);
+                throw new KatharsisInvokerException(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e);
             }
+        } else {
+            throw new KatharsisInvokerException(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE, "Unsupported Media Type");
         }
     }
 
