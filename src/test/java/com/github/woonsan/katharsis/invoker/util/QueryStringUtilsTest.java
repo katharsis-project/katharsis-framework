@@ -1,6 +1,7 @@
 package com.github.woonsan.katharsis.invoker.util;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -19,12 +20,11 @@ import com.github.woonsan.katharsis.servlet.ServletKatharsisInvokerContext;
 
 public class QueryStringUtilsTest {
 
-    private static final String QUERY_STRING = "foo=bar&lux=bar&foo=foo";
+    private static final String QUERY_STRING = "foo=bar&lux=bar&foo=foo&nameonly&& &=";
     private static final String [] FOO_PARAM_VALUES = {"bar", "foo"};
     private static final String [] LUX_PARAM_VALUES = {"bar"};
 
     private KatharsisInvokerContext invokerContext;
-    private ServletContext servletContext;
     private MockHttpServletRequest request;
     private MockHttpServletResponse response;
 
@@ -52,6 +52,7 @@ public class QueryStringUtilsTest {
         assertTrue("parsedQueryStringMap must contain lux.", parsedQueryStringMap.containsKey("lux"));
         assertTrue("parsedQueryStringMap must have 1 value for lux.", parsedQueryStringMap.get("lux").length == 1);
         assertEquals(LUX_PARAM_VALUES[0], parsedQueryStringMap.get("lux")[0]);
+        assertFalse(parsedQueryStringMap.containsKey("nameonly"));
     }
 
     @Test
@@ -61,6 +62,7 @@ public class QueryStringUtilsTest {
         assertEquals(FOO_PARAM_VALUES[0], parsedQueryStringMap.get("foo"));
         assertTrue("parsedQueryStringMap must contain lux.", parsedQueryStringMap.containsKey("lux"));
         assertEquals(LUX_PARAM_VALUES[0], parsedQueryStringMap.get("lux"));
+        assertFalse(parsedQueryStringMap.containsKey("nameonly"));
     }
 
     @Test
@@ -72,6 +74,7 @@ public class QueryStringUtilsTest {
         Map<String, String[]> parsedQueryStringsMap = QueryStringUtils.parseQueryStringAsMultiValuesMap(invokerContext);
         assertNotNull(parsedQueryStringsMap);
         assertTrue("parsedQueryStringMap must be empty: " + parsedQueryStringMap, parsedQueryStringMap.isEmpty());
+        assertFalse(parsedQueryStringMap.containsKey("nameonly"));
 
         request.setQueryString("");
         parsedQueryStringMap = QueryStringUtils.parseQueryStringAsSingleValueMap(invokerContext);
