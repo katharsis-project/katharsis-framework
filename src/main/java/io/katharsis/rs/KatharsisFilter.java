@@ -2,7 +2,8 @@ package io.katharsis.rs;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.RequestDispatcher;
-import io.katharsis.errorhandling.exception.KatharsisException;
+import io.katharsis.errorhandling.exception.KatharsisMappableException;
+import io.katharsis.errorhandling.exception.KatharsisMatchingException;
 import io.katharsis.errorhandling.mapper.KatharsisExceptionMapper;
 import io.katharsis.queryParams.RequestParams;
 import io.katharsis.queryParams.RequestParamsBuilder;
@@ -17,7 +18,6 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.container.PreMatching;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -54,7 +54,7 @@ public class KatharsisFilter implements ContainerRequestFilter {
     private RequestDispatcher requestDispatcher;
 
     public KatharsisFilter(ObjectMapper objectMapper, ResourceRegistry resourceRegistry, RequestDispatcher
-            requestDispatcher) {
+        requestDispatcher) {
         this.objectMapper = objectMapper;
         this.resourceRegistry = resourceRegistry;
         this.requestDispatcher = requestDispatcher;
@@ -62,18 +62,17 @@ public class KatharsisFilter implements ContainerRequestFilter {
 
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {
-        if (isAcceptableMediaType(requestContext) && isAcceptableContentType(requestContext)) {
-            try {
-                dispatchRequest(requestContext);
-            } catch (Exception e) {
-                throw new WebApplicationException(e);
-            }
+        try {
+            dispatchRequest(requestContext);
+        } catch (Exception e) {
+            throw new WebApplicationException(e);
         }
     }
 
     private void dispatchRequest(ContainerRequestContext requestContext) throws Exception {
         UriInfo uriInfo = requestContext.getUriInfo();
         BaseResponse<?> katharsisResponse = null;
+        boolean passToMethodMatcher = false;
         //TODO: Refactor
         try {
             JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath(uriInfo.getPath());
@@ -84,40 +83,33 @@ public class KatharsisFilter implements ContainerRequestFilter {
             RequestBody requestBody = inputStreamToBody(requestContext.getEntityStream());
 
             katharsisResponse = requestDispatcher
-                    .dispatchRequest(jsonPath, method, requestParams, requestBody);
-        } catch (KatharsisException e) {
+                .dispatchRequest(jsonPath, method, requestParams, requestBody);
+        } catch (KatharsisMappableException e) {
             katharsisResponse = new KatharsisExceptionMapper().toErrorResponse(e);
+        } catch (KatharsisMatchingException e) {
+            passToMethodMatcher = true;
         } finally {
-            Response response;
-            if (katharsisResponse != null) {
-                ByteArrayOutputStream os = new ByteArrayOutputStream();
-                objectMapper.writeValue(os, katharsisResponse);
-                response = Response
-                        .status(katharsisResponse.getHttpStatus())
-                        .entity(new ByteArrayInputStream(os.toByteArray()))
-                        .type(APPLICATION_JSON_API_TYPE)
-                        .build();
-            } else {
-                response = Response.noContent().build();
+            if ( !passToMethodMatcher) {
+                abortWithResponse(requestContext, katharsisResponse);
             }
-            requestContext.abortWith(response);
         }
     }
 
-    private boolean isAcceptableMediaType(ContainerRequestContext requestContext) {
-        boolean result = false;
-        for (MediaType acceptableType : requestContext.getAcceptableMediaTypes()) {
-            if (APPLICATION_JSON_API_TYPE.getType().equalsIgnoreCase(acceptableType.getType()) &&
-                    APPLICATION_JSON_API_TYPE.getSubtype().equalsIgnoreCase(acceptableType.getSubtype())) {
-                result = true;
-            }
+    private void abortWithResponse(ContainerRequestContext requestContext, BaseResponse<?> katharsisResponse)
+        throws IOException {
+        Response response;
+        if (katharsisResponse != null) {
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            objectMapper.writeValue(os, katharsisResponse);
+            response = Response
+                .status(katharsisResponse.getHttpStatus())
+                .entity(new ByteArrayInputStream(os.toByteArray()))
+                .type(APPLICATION_JSON_API_TYPE)
+                .build();
+        } else {
+            response = Response.noContent().build();
         }
-        return result;
-    }
-
-    private boolean isAcceptableContentType(ContainerRequestContext requestContext) {
-        MediaType contentType = requestContext.getMediaType();
-        return contentType == null || APPLICATION_JSON_API_TYPE.isCompatible(contentType);
+        requestContext.abortWith(response);
     }
 
     private RequestParams createRequestParams(UriInfo uriInfo) {
