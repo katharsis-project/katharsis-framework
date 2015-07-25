@@ -1,21 +1,13 @@
 package io.katharsis.utils.parser;
 
-import io.katharsis.errorhandling.ErrorData;
-import io.katharsis.errorhandling.exception.KatharsisMappableException;
-import io.katharsis.response.HttpStatus;
+import io.katharsis.errorhandling.exception.KatharsisMatchingException;
 
 /**
  * Thrown when parser exception occurs.
  */
-public class ParserException extends KatharsisMappableException {
-
-    public static final String TITLE = "Type parser error";
+public class ParserException extends KatharsisMatchingException {
 
     public ParserException(String message) {
-        super(HttpStatus.INTERNAL_SERVER_ERROR_500, ErrorData.builder()
-                .setTitle(TITLE)
-                .setDetail(message)
-                .setStatus(String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR_500))
-                .build());
+        super(message);
     }
 }
