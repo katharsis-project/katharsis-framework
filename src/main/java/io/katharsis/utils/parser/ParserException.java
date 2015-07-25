@@ -1,13 +1,13 @@
 package io.katharsis.utils.parser;
 
 import io.katharsis.errorhandling.ErrorData;
-import io.katharsis.errorhandling.exception.KatharsisException;
+import io.katharsis.errorhandling.exception.KatharsisMappableException;
 import io.katharsis.response.HttpStatus;
 
 /**
  * Thrown when parser exception occurs.
  */
-public class ParserException extends KatharsisException {
+public class ParserException extends KatharsisMappableException {
 
     public static final String TITLE = "Type parser error";
 

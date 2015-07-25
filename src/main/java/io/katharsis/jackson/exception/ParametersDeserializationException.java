@@ -1,13 +1,13 @@
 package io.katharsis.jackson.exception;
 
 import io.katharsis.errorhandling.ErrorData;
-import io.katharsis.errorhandling.exception.KatharsisException;
+import io.katharsis.errorhandling.exception.KatharsisMappableException;
 import io.katharsis.response.HttpStatus;
 
 /**
  * Thrown, when is unable to read request parameters
  */
-public class ParametersDeserializationException extends KatharsisException {
+public class ParametersDeserializationException extends KatharsisMappableException {
 public static final String TITLE = "Request parameters error";
 
     public ParametersDeserializationException(String message) {

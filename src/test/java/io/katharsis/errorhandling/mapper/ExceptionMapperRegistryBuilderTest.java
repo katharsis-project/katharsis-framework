@@ -1,6 +1,6 @@
 package io.katharsis.errorhandling.mapper;
 
-import io.katharsis.errorhandling.exception.KatharsisException;
+import io.katharsis.errorhandling.exception.KatharsisMappableException;
 import io.katharsis.errorhandling.handlers.NoAnnotationExceptionMapper;
 import io.katharsis.errorhandling.handlers.SomeExceptionMapper;
 import io.katharsis.resource.exception.init.InvalidResourceException;
@@ -8,7 +8,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ExceptionMapperRegistryBuilderTest {
 
@@ -29,7 +29,7 @@ public class ExceptionMapperRegistryBuilderTest {
         assertThat(registry.getExceptionMappers())
                 .isNotNull()
                 .extracting("exceptionClass")
-                .contains(KatharsisException.class);
+            .contains(KatharsisMappableException.class);
     }
 
     @Test

@@ -2,7 +2,7 @@ package io.katharsis.errorhandling.mapper.def;
 
 import io.katharsis.errorhandling.ErrorData;
 import io.katharsis.errorhandling.ErrorResponse;
-import io.katharsis.errorhandling.exception.KatharsisException;
+import io.katharsis.errorhandling.exception.KatharsisMappableException;
 import io.katharsis.response.HttpStatus;
 import org.junit.Test;
 
@@ -26,7 +26,7 @@ public class KatharsisExceptionMapperTest {
                 .containsExactly(tuple(TITLE1, DETAIL1));
     }
 
-    private static class SampleKatharsisException extends KatharsisException {
+    private static class SampleKatharsisException extends KatharsisMappableException {
 
         protected SampleKatharsisException() {
             super(HttpStatus.INTERNAL_SERVER_ERROR_500, ErrorData.builder()

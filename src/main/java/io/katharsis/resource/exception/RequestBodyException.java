@@ -2,10 +2,10 @@ package io.katharsis.resource.exception;
 
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.errorhandling.ErrorData;
-import io.katharsis.errorhandling.exception.KatharsisException;
+import io.katharsis.errorhandling.exception.KatharsisMappableException;
 import io.katharsis.response.HttpStatus;
 
-public class RequestBodyException extends KatharsisException {
+public class RequestBodyException extends KatharsisMappableException {
 
     private static final String TITLE = "Request body error";
 

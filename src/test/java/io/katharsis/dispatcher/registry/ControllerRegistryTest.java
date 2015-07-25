@@ -35,7 +35,7 @@ public class ControllerRegistryTest {
         ControllerRegistry sut = new ControllerRegistry(null);
 
         // THEN
-        expectedException.expect(IllegalStateException.class);
+        expectedException.expect(MethodNotFoundException.class);
 
         // WHEN
         sut.getController(jsonPath, requestType);
