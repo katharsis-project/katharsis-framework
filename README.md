@@ -5,6 +5,6 @@
 [![Coverage Status](https://coveralls.io/repos/katharsis-project/katharsis-rs/badge.svg?branch=development)](https://coveralls.io/r/katharsis-project/katharsis-rs?branch=development)
 [![Stories in Ready](https://badge.waffle.io/katharsis-project/katharsis-rs.png?label=ready&title=Ready)](https://waffle.io/katharsis-project/katharsis-rs)
 [![Dependency Status](https://www.versioneye.com/user/projects/55325de010e714f9e5001279/badge.svg?style=flat)](https://www.versioneye.com/user/projects/55325de010e714f9e5001279)
-[ ![Download](https://api.bintray.com/packages/katharsis/maven/katharsis-rs/images/download.svg) ](https://bintray.com/katharsis/maven/katharsis-rs/_latestVersion)
+[![Maven Central](https://img.shields.io/maven-central/v/io.katharsis/katharsis-rs.svg)]()
 
 JAX-RS Adapter of Katharsis JSON:API middleware library.
