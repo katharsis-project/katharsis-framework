@@ -6,7 +6,7 @@ package io.katharsis.errorhandling.exception;
  * <p>
  * Exceptions of this kind should be logged and the request processing should be continued.
  */
-public class KatharsisMatchingException extends KatharsisException {
+public abstract class KatharsisMatchingException extends KatharsisException {
 
     public KatharsisMatchingException(String message) {
         super(message);
