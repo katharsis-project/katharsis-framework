@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * This class serializes an single resource which can be included in <i>data</i> field of JSON API response.
@@ -67,13 +68,14 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         try {
             writeId(gen, data, resourceInformation.getIdField());
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            throw new JsonSerializationException("Exception while writing id field", e);
+            throw new JsonSerializationException("Error writing id field: " + resourceInformation.getIdField().getName());
         }
 
         try {
             writeAttributes(gen, data, resourceInformation.getAttributeFields());
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            throw new JsonSerializationException("Exception while writing basic fields", e);
+            throw new JsonSerializationException("Error writing basic fields: " +
+                    resourceInformation.getAttributeFields().stream().map(Field::getName).collect(Collectors.toSet()));
         }
 
         writeRelationshipFields(gen, data, resourceInformation.getRelationshipFields());
@@ -125,7 +127,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         try {
             sourceId = BeanUtils.getProperty(data, idField.getName());
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            throw new JsonSerializationException("Exception while writing links", e);
+            throw new JsonSerializationException("Exception while writing links");
         }
         gen.writeStringField(SELF_FIELD_NAME, resourceUrl + "/" + sourceId);
     }

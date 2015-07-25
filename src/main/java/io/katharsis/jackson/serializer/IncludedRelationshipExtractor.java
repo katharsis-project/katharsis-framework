@@ -17,7 +17,7 @@ import java.util.*;
  */
 public class IncludedRelationshipExtractor {
 
-    public Set<?> extractIncludedResources(Object resource, Set<Field> relationshipFields, BaseResponse response) throws JsonSerializationException {
+    public Set<?> extractIncludedResources(Object resource, Set<Field> relationshipFields, BaseResponse response) {
         Set includedResources = new HashSet<>();
         includedResources.addAll(extractDefaultIncludedFields(resource, relationshipFields));
         try {
@@ -29,7 +29,7 @@ public class IncludedRelationshipExtractor {
         return includedResources;
     }
 
-    private List<?> extractDefaultIncludedFields(Object resource, Set<Field> relationshipFields) throws JsonSerializationException {
+    private List<?> extractDefaultIncludedFields(Object resource, Set<Field> relationshipFields) {
         List<?> includedResources = new LinkedList<>();
         for (Field relationshipField : relationshipFields) {
             if (relationshipField.isAnnotationPresent(JsonApiIncludeByDefault.class)) {
@@ -94,7 +94,7 @@ public class IncludedRelationshipExtractor {
         return elements;
     }
 
-    private List getIncludedFromRelation(Field relationshipField, Object resource) throws JsonSerializationException {
+    private List getIncludedFromRelation(Field relationshipField, Object resource) {
         List<Container> includedFields = new LinkedList<>();
         try {
             Object targetDataObj = PropertyUtils.getProperty(resource, relationshipField.getName());
@@ -108,7 +108,7 @@ public class IncludedRelationshipExtractor {
                 }
             }
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            throw new JsonSerializationException("Exception while writing id field", e);
+            throw new JsonSerializationException("Error writing included fields");
         }
         return includedFields;
     }

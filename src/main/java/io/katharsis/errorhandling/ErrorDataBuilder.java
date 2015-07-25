@@ -15,7 +15,8 @@ public class ErrorDataBuilder {
     private Map<String, Object> meta;
 
     /**
-     * A unique identifier for this particular occurrence of the problem.
+     * @param id A unique identifier for this particular occurrence of the problem.
+     * @return ErrorDataBuilder
      */
     public ErrorDataBuilder setId(String id) {
         this.id = id;
@@ -70,6 +71,7 @@ public class ErrorDataBuilder {
      * [e.g. "/data" for a primary data object, or "/data/attributes/title" for a specific attribute].
      *
      * Wrapped in "source" object.
+     *
      */
     public ErrorDataBuilder setSourcePointer(String sourcePointer) {
         this.sourcePointer = sourcePointer;

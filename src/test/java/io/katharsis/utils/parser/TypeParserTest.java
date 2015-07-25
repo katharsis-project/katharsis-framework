@@ -1,7 +1,5 @@
 package io.katharsis.utils.parser;
 
-import io.katharsis.utils.parser.ParserException;
-import io.katharsis.utils.parser.TypeParser;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
