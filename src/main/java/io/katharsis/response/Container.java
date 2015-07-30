@@ -1,6 +1,7 @@
 package io.katharsis.response;
 
 import io.katharsis.jackson.serializer.ContainerSerializer;
+import io.katharsis.queryParams.RequestParams;
 
 import java.util.Objects;
 
@@ -9,13 +10,23 @@ import java.util.Objects;
  * resulting JSON is serialized using {@link ContainerSerializer}.
  */
 public class Container {
-    Object data;
+    private Object data;
+    private RequestParams requestParams;
 
     public Container() {
     }
 
-    public Container(Object data) {
+    public Container(Object data, RequestParams requestParams) {
         this.data = data;
+        this.requestParams = requestParams;
+    }
+
+    public RequestParams getRequestParams() {
+        return requestParams;
+    }
+
+    public void setRequestParams(RequestParams requestParams) {
+        this.requestParams = requestParams;
     }
 
     public Object getData() {

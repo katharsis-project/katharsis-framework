@@ -17,6 +17,7 @@ import org.apache.commons.beanutils.PropertyUtils;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -46,7 +47,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
 
         if (value != null && value.getData() != null) {
             gen.writeStartObject();
-            writeData(gen, value.getData());
+            writeData(gen, value.getData(), value.getRequestParams().getIncludedFields());
             gen.writeEndObject();
         } else {
             gen.writeObject(null);
@@ -57,7 +58,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
      * Writes a value. Each serialized container must contain type field whose value is string
      * <a href="http://jsonapi.org/format/#document-structure-resource-types"></a>.
      */
-    private void writeData(JsonGenerator gen, Object data) throws IOException {
+    private void writeData(JsonGenerator gen, Object data, List includedFields) throws IOException {
         Class<?> dataClass = data.getClass();
         String resourceType = resourceRegistry.getResourceType(dataClass);
 
@@ -72,14 +73,28 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         }
 
         try {
-            writeAttributes(gen, data, resourceInformation.getAttributeFields());
+            writeAttributes(gen, data, resourceInformation.getAttributeFields(), includedFields);
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             throw new JsonSerializationException("Error writing basic fields: " +
                     resourceInformation.getAttributeFields().stream().map(Field::getName).collect(Collectors.toSet()));
         }
 
-        writeRelationshipFields(gen, data, resourceInformation.getRelationshipFields());
+        Set<Field> relationshipFields = getRelationshipFields(resourceInformation, includedFields);
+        writeRelationshipFields(gen, data, relationshipFields);
         writeLinksField(gen, data);
+    }
+
+    private Set<Field> getRelationshipFields(ResourceInformation resourceInformation, List includedFields) {
+        Set<Field> relationshipFields = resourceInformation.getRelationshipFields();
+
+        if (includedFields == null || includedFields.isEmpty()) {
+            return relationshipFields;
+        } else {
+            return relationshipFields
+                    .stream()
+                    .filter(field -> includedFields.contains(field.getName()))
+                    .collect(Collectors.toSet());
+        }
     }
 
     /**
@@ -92,17 +107,29 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         gen.writeObjectField(ID_FIELD_NAME, sourceId);
     }
 
-    private void writeAttributes(JsonGenerator gen, Object data, Set<Field> attributeFields)
+    private void writeAttributes(JsonGenerator gen, Object data, Set<Field> attributeFields, List includedFields)
             throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
 
         Attributes attributesObject = new Attributes();
         for (Field attributeField : attributeFields) {
-            if (!attributeField.isSynthetic()) {
+            if (!attributeField.isSynthetic() && isIncluded(includedFields, attributeField)) {
                 Object basicFieldValue = PropertyUtils.getProperty(data, attributeField.getName());
                 attributesObject.addAttribute(RESOURCE_FIELD_NAME_TRANSFORMER.getName(attributeField), basicFieldValue);
             }
         }
         gen.writeObjectField(ATTRIBUTES_FIELD_NAME, attributesObject);
+    }
+
+    private boolean isIncluded(List includedFields, Field attributeField) {
+        if (includedFields == null || includedFields.isEmpty()) {
+            return true;
+        } else {
+            String fieldName = RESOURCE_FIELD_NAME_TRANSFORMER.getName(attributeField);
+            if (includedFields.contains(fieldName)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void writeRelationshipFields(JsonGenerator gen, Object data, Set<Field> relationshipFields) throws IOException {

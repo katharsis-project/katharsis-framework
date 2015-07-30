@@ -66,7 +66,7 @@ public class IncludedRelationshipExtractorTest {
         Set result = sut.extractIncludedResources(resource, Collections.singleton(Task.class.getDeclaredField("project")), response);
 
         // THEN
-        assertThat(result).containsExactly(new Container(project));
+        assertThat(result).containsExactly(new Container(project, new RequestParams(null)));
     }
 
     @Test
@@ -83,7 +83,7 @@ public class IncludedRelationshipExtractorTest {
         Set result = sut.extractIncludedResources(resource, Collections.emptySet(), response);
 
         // THEN
-        assertThat(result).containsExactly(new Container(project));
+        assertThat(result).containsExactly(new Container(project, new RequestParams(null)));
     }
 
     @Test
@@ -113,7 +113,7 @@ public class IncludedRelationshipExtractorTest {
         Set result = sut.extractIncludedResources(resource, Collections.emptySet(), response);
 
         // THEN
-        assertThat(result).containsExactly(new Container(project));
+        assertThat(result).containsExactly(new Container(project, new RequestParams(null)));
     }
 
     @Test
@@ -129,7 +129,7 @@ public class IncludedRelationshipExtractorTest {
         Set result = sut.extractIncludedResources(classA, Collections.emptySet(), response);
 
         // THEN
-        assertThat(result).containsExactly(new Container(classC));
+        assertThat(result).containsExactly(new Container(classC, new RequestParams(null)));
     }
 
     @Test

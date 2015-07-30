@@ -19,7 +19,7 @@ public class IncludedRelationshipExtractor {
 
     public Set<?> extractIncludedResources(Object resource, Set<Field> relationshipFields, BaseResponse response) {
         Set includedResources = new HashSet<>();
-        includedResources.addAll(extractDefaultIncludedFields(resource, relationshipFields));
+        includedResources.addAll(extractDefaultIncludedFields(resource, relationshipFields, response));
         try {
             includedResources.addAll(extractIncludedRelationships(resource, response));
         } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
@@ -29,11 +29,11 @@ public class IncludedRelationshipExtractor {
         return includedResources;
     }
 
-    private List<?> extractDefaultIncludedFields(Object resource, Set<Field> relationshipFields) {
+    private List<?> extractDefaultIncludedFields(Object resource, Set<Field> relationshipFields, BaseResponse response) {
         List<?> includedResources = new LinkedList<>();
         for (Field relationshipField : relationshipFields) {
             if (relationshipField.isAnnotationPresent(JsonApiIncludeByDefault.class)) {
-                includedResources.addAll(getIncludedFromRelation(relationshipField, resource));
+                includedResources.addAll(getIncludedFromRelation(relationshipField, resource, response));
             }
         }
 
@@ -64,15 +64,15 @@ public class IncludedRelationshipExtractor {
                 return Collections.EMPTY_SET;
             }
         }
-        return getElements(resource, pathList);
+        return getElements(resource, pathList, response);
     }
 
-    private Set getElements(Object resource, List<String> pathList)
+    private Set getElements(Object resource, List<String> pathList, BaseResponse response)
             throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         Set elements = new HashSet();
         if (pathList.isEmpty()) {
             if (resource != null) {
-                return Collections.singleton(new Container(resource));
+                return Collections.singleton(new Container(resource, response.getRequestParams()));
             } else {
                 return Collections.emptySet();
             }
@@ -83,10 +83,10 @@ public class IncludedRelationshipExtractor {
             if (Iterable.class.isAssignableFrom(property.getClass())) {
                 Iterator iterator = ((Iterable) property).iterator();
                 while (iterator.hasNext()) {
-                    elements.addAll(getElements(iterator.next(), subPathList));
+                    elements.addAll(getElements(iterator.next(), subPathList, response));
                 }
             } else {
-                elements.addAll(getElements(property, subPathList));
+                elements.addAll(getElements(property, subPathList, response));
             }
         } else {
             return Collections.emptySet();
@@ -94,17 +94,17 @@ public class IncludedRelationshipExtractor {
         return elements;
     }
 
-    private List getIncludedFromRelation(Field relationshipField, Object resource) {
+    private List getIncludedFromRelation(Field relationshipField, Object resource, BaseResponse response) {
         List<Container> includedFields = new LinkedList<>();
         try {
             Object targetDataObj = PropertyUtils.getProperty(resource, relationshipField.getName());
             if (targetDataObj != null) {
                 if (Iterable.class.isAssignableFrom(targetDataObj.getClass())) {
                     for (Object objectItem : (Iterable) targetDataObj) {
-                        includedFields.add(new Container(objectItem));
+                        includedFields.add(new Container(objectItem, response.getRequestParams()));
                     }
                 } else {
-                    includedFields.add(new Container(targetDataObj));
+                    includedFields.add(new Container(targetDataObj, response.getRequestParams()));
                 }
             }
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
