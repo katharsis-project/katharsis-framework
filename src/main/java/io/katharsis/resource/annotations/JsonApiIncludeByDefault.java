@@ -1,6 +1,7 @@
 package io.katharsis.resource.annotations;
 
 import io.katharsis.resource.exception.ResourceException;
+
 import java.lang.annotation.*;
 
 /**

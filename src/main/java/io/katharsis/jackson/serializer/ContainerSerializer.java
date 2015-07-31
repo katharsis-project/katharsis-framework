@@ -69,14 +69,15 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         try {
             writeId(gen, data, resourceInformation.getIdField());
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            throw new JsonSerializationException("Error writing id field: " + resourceInformation.getIdField().getName());
+            throw new JsonSerializationException(
+                "Error writing id field: " + resourceInformation.getIdField().getName());
         }
 
         try {
             writeAttributes(gen, data, resourceInformation.getAttributeFields(), includedFields);
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             throw new JsonSerializationException("Error writing basic fields: " +
-                    resourceInformation.getAttributeFields().stream().map(Field::getName).collect(Collectors.toSet()));
+                resourceInformation.getAttributeFields().stream().map(Field::getName).collect(Collectors.toSet()));
         }
 
         Set<Field> relationshipFields = getRelationshipFields(resourceInformation, includedFields);

@@ -1,21 +1,13 @@
 package io.katharsis.resource.exception;
 
-import io.katharsis.errorhandling.ErrorData;
-import io.katharsis.errorhandling.exception.KatharsisException;
-import io.katharsis.response.HttpStatus;
+import io.katharsis.errorhandling.exception.KatharsisMatchingException;
 
 /**
  * A field within a resource was not found
  */
-public final class ResourceFieldNotFoundException extends KatharsisException {
+public final class ResourceFieldNotFoundException extends KatharsisMatchingException {
 
-    public static final String TITLE = "Field was not found";
-
-    public ResourceFieldNotFoundException(String fieldName) {
-        super(HttpStatus.NOT_FOUND_404, ErrorData.builder()
-                .setTitle(TITLE)
-                .setDetail(fieldName)
-                .setStatus(String.valueOf(HttpStatus.NOT_FOUND_404))
-                .build());
+    public ResourceFieldNotFoundException(String message) {
+        super(message);
     }
 }

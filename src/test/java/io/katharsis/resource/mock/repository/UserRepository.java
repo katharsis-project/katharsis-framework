@@ -37,7 +37,7 @@ public class UserRepository implements ResourceRepository<User, Long> {
     public User findOne(Long aLong, RequestParams requestParams) {
         User user = THREAD_LOCAL_REPOSITORY.get().get(aLong);
         if (user == null) {
-            throw new ResourceNotFoundException(User.class);
+            throw new ResourceNotFoundException(User.class.getCanonicalName());
         }
         Iterable<Project> assignedProjects = USER_TO_PROJECT_REPOSITORY.findManyTargets(aLong, "assignedProjects", REQUEST_PARAMS);
         user.setAssignedProjects(makeCollection(assignedProjects));

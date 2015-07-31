@@ -68,7 +68,7 @@ public class PathBuilder {
                     throw new ResourceException("RelationshipsPath and FieldPath cannot contain ids");
                 }
             } else {
-                throw new ResourceNotFoundException(null, path);
+                throw new ResourceNotFoundException(path);
             }
 
             if (pathIds != null) {
@@ -122,7 +122,7 @@ public class PathBuilder {
      * @param jsonPath JsonPath structure to be parsed
      * @return String representing structure provided in the input
      */
-    public String buildPath(JsonPath jsonPath) {
+    public static String buildPath(JsonPath jsonPath) {
         Deque<String> urlParts = new LinkedList<>();
 
         JsonPath currentJsonPath = jsonPath;
@@ -151,7 +151,7 @@ public class PathBuilder {
         return joiner.toString();
     }
 
-    private String mergeIds(PathIds ids) {
+    private static String mergeIds(PathIds ids) {
         return String.join(PathIds.ID_SEPERATOR, ids.getIds());
     }
 }

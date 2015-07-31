@@ -6,7 +6,8 @@ import io.katharsis.errorhandling.mapper.KatharsisExceptionMapper;
 import io.katharsis.response.HttpStatus;
 import org.junit.Test;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 public class KatharsisExceptionMapperTest {
 
@@ -25,7 +26,7 @@ public class KatharsisExceptionMapperTest {
                 .containsExactly(tuple(TITLE1, DETAIL1));
     }
 
-    private static class SampleKatharsisException extends KatharsisException {
+    private static class SampleKatharsisException extends KatharsisMappableException {
 
         protected SampleKatharsisException() {
             super(HttpStatus.INTERNAL_SERVER_ERROR_500, ErrorData.builder()

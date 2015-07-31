@@ -2,6 +2,7 @@ package io.katharsis.dispatcher.registry;
 
 import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.request.path.JsonPath;
+import io.katharsis.request.path.PathBuilder;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -37,7 +38,6 @@ public class ControllerRegistry {
                 return controller;
             }
         }
-        // @todo Create custom exception
-        throw new IllegalStateException("Matching controller not found");
+        throw new MethodNotFoundException(PathBuilder.buildPath(jsonPath), requestType);
     }
 }

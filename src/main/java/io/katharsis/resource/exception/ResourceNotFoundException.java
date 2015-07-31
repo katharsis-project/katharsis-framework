@@ -1,39 +1,13 @@
 package io.katharsis.resource.exception;
 
-import io.katharsis.errorhandling.ErrorData;
-import io.katharsis.errorhandling.exception.KatharsisException;
-import io.katharsis.response.HttpStatus;
+import io.katharsis.errorhandling.exception.KatharsisMatchingException;
 
 /**
  * Thrown when resource for a type cannot be found.
- * This exception should be handled by an exception mapper and corresponding 404 HTTP response should be generated.
  */
-public final class ResourceNotFoundException extends KatharsisException {
+public final class ResourceNotFoundException extends KatharsisMatchingException {
 
-    public static final String TITLE = "Resource not found";
-
-    public ResourceNotFoundException(String resourceName) {
-        super(HttpStatus.NOT_FOUND_404, ErrorData.builder()
-                .setTitle(TITLE)
-                .setDetail(resourceName)
-                .setStatus(String.valueOf(HttpStatus.NOT_FOUND_404))
-                .build());
-    }
-
-    public ResourceNotFoundException(Class<?> resourceClass) {
-        super(HttpStatus.NOT_FOUND_404, ErrorData.builder()
-                .setTitle(TITLE)
-                .setDetail(resourceClass.getCanonicalName())
-                .setStatus(String.valueOf(HttpStatus.NOT_FOUND_404))
-                .build());
-    }
-
-    public ResourceNotFoundException(String resourceName, String sourcePointer) {
-        super(HttpStatus.NOT_FOUND_404, ErrorData.builder()
-                .setTitle(TITLE)
-                .setSourcePointer(sourcePointer)
-                .setDetail(resourceName)
-                .setStatus(String.valueOf(HttpStatus.NOT_FOUND_404))
-                .build());
+    public ResourceNotFoundException(String path) {
+        super(path);
     }
 }

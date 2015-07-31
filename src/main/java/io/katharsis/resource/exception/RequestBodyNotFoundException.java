@@ -2,10 +2,10 @@ package io.katharsis.resource.exception;
 
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.errorhandling.ErrorData;
-import io.katharsis.errorhandling.exception.KatharsisException;
+import io.katharsis.errorhandling.exception.KatharsisMappableException;
 import io.katharsis.response.HttpStatus;
 
-public class RequestBodyNotFoundException extends KatharsisException {
+public class RequestBodyNotFoundException extends KatharsisMappableException {
 
     private static final String TITLE = "Request body not found";
 

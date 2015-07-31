@@ -30,7 +30,7 @@ public class ProjectRepository implements ResourceRepository<Project, Long> {
     public Project findOne(Long aLong, RequestParams requestParams) {
         Project project = THREAD_LOCAL_REPOSITORY.get().get(aLong);
         if (project == null) {
-            throw new ResourceNotFoundException(Project.class);
+            throw new ResourceNotFoundException(Project.class.getCanonicalName());
         }
         return project;
     }
