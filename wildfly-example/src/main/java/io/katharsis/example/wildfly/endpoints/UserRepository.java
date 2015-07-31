@@ -27,7 +27,7 @@ public class UserRepository implements ResourceRepository<User, String> {
         return users.stream()
                 .filter(u -> u.getId().equals(id))
                 .findFirst()
-                .orElseThrow(() -> new ResourceNotFoundException("users", "users/" + id));
+            .orElseThrow(() -> new ResourceNotFoundException("users/" + id));
     }
 
     @Override
