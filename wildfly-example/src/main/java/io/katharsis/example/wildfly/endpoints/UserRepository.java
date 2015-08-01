@@ -23,7 +23,7 @@ public class UserRepository implements ResourceRepository<User, String> {
     }
 
     @Override
-    public User findOne(String id, RequestParams requestParams) {
+    public synchronized User findOne(String id, RequestParams requestParams) {
         return users.stream()
                 .filter(u -> u.getId().equals(id))
                 .findFirst()
@@ -31,12 +31,12 @@ public class UserRepository implements ResourceRepository<User, String> {
     }
 
     @Override
-    public Iterable<User> findAll(RequestParams requestParams) {
+    public synchronized Iterable<User> findAll(RequestParams requestParams) {
         return users;
     }
 
     @Override
-    public Iterable<User> findAll(Iterable<String> ids, RequestParams requestParams) {
+    public synchronized Iterable<User> findAll(Iterable<String> ids, RequestParams requestParams) {
         return users.stream()
                 .filter(u ->
                         StreamSupport.stream(ids.spliterator(), false)
@@ -47,7 +47,7 @@ public class UserRepository implements ResourceRepository<User, String> {
     }
 
     @Override
-    public void delete(String id) {
+    public synchronized void delete(String id) {
         Iterator<User> usersIterator = users.iterator();
 
         while (usersIterator.hasNext()) {
@@ -58,7 +58,7 @@ public class UserRepository implements ResourceRepository<User, String> {
     }
 
     @Override
-    public User save(User user) {
+    public synchronized <S extends User> S save(S user) {
         if (user.getId() == null) {
             user.setId(UUID.randomUUID().toString());
         }
