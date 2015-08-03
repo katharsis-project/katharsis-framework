@@ -11,7 +11,7 @@ import javax.ws.rs.core.Response;
 @Consumes(JsonApiMediaType.APPLICATION_JSON_API)
 @Produces(JsonApiMediaType.APPLICATION_JSON_API)
 @Path("tasks")
-public class SampleController {
+public class SampleControllerWithoutPrefix {
 
     public static final String NON_KATHARSIS_RESOURCE_RESPONSE = "NON_KATHARSIS_RESOURCE_RESPONSE";
 

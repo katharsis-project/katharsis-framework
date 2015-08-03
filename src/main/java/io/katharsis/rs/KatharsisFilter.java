@@ -52,12 +52,22 @@ public class KatharsisFilter implements ContainerRequestFilter {
     private ObjectMapper objectMapper;
     private ResourceRegistry resourceRegistry;
     private RequestDispatcher requestDispatcher;
+    private String webPathPrefix;
 
     public KatharsisFilter(ObjectMapper objectMapper, ResourceRegistry resourceRegistry, RequestDispatcher
-        requestDispatcher) {
+        requestDispatcher, String webPathPrefix) {
         this.objectMapper = objectMapper;
         this.resourceRegistry = resourceRegistry;
         this.requestDispatcher = requestDispatcher;
+        this.webPathPrefix = parsePrefix(webPathPrefix);
+    }
+
+    private String parsePrefix(String webPathPrefix) {
+        if (webPathPrefix != null && webPathPrefix.startsWith(PathBuilder.SEPARATOR)) {
+            return webPathPrefix.substring(1);
+        } else {
+            return webPathPrefix;
+        }
     }
 
     @Override
@@ -75,7 +85,8 @@ public class KatharsisFilter implements ContainerRequestFilter {
         boolean passToMethodMatcher = false;
         //TODO: Refactor
         try {
-            JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath(uriInfo.getPath());
+            String path = buildPath(uriInfo);
+            JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath(path);
 
             RequestParams requestParams = createRequestParams(uriInfo);
 
@@ -92,6 +103,15 @@ public class KatharsisFilter implements ContainerRequestFilter {
             if ( !passToMethodMatcher) {
                 abortWithResponse(requestContext, katharsisResponse);
             }
+        }
+    }
+
+    private String buildPath(UriInfo uriInfo) {
+        String basePath = uriInfo.getPath();
+        if (webPathPrefix != null && basePath.startsWith(webPathPrefix)) {
+            return basePath.substring(webPathPrefix.length());
+        } else {
+            return basePath;
         }
     }
 

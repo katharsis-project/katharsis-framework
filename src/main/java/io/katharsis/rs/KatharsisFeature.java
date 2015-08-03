@@ -46,8 +46,12 @@ public class KatharsisFeature implements Feature {
         String resourceDefaultDomain = (String) context
                 .getConfiguration()
                 .getProperty(KatharsisProperties.RESOURCE_DEFAULT_DOMAIN);
+        String webPathPrefix = (String) context
+                .getConfiguration()
+                .getProperty(KatharsisProperties.WEB_PATH_PREFIX);
 
-        ResourceRegistry resourceRegistry = buildResourceRegistry(resourceSearchPackage, resourceDefaultDomain);
+        String serviceUrl = buildServiceUrl(resourceDefaultDomain, webPathPrefix);
+        ResourceRegistry resourceRegistry = buildResourceRegistry(resourceSearchPackage, serviceUrl);
 
         JsonApiModuleBuilder jsonApiModuleBuilder = new JsonApiModuleBuilder();
         objectMapper.registerModule(jsonApiModuleBuilder.build(resourceRegistry));
@@ -55,7 +59,7 @@ public class KatharsisFeature implements Feature {
         KatharsisFilter katharsisFilter;
         try {
             ExceptionMapperRegistry exceptionMapperRegistry = buildExceptionMapperRegistry(resourceSearchPackage);
-            katharsisFilter = createKatharsisFilter(resourceRegistry, exceptionMapperRegistry);
+            katharsisFilter = createKatharsisFilter(resourceRegistry, exceptionMapperRegistry, webPathPrefix);
         } catch (Exception e) {
             throw new WebApplicationException(e);
         }
@@ -64,20 +68,25 @@ public class KatharsisFeature implements Feature {
         return true;
     }
 
+    private String buildServiceUrl(String resourceDefaultDomain, String webPathPrefix) {
+        return resourceDefaultDomain + (webPathPrefix != null ? webPathPrefix : "");
+    }
+
     private ExceptionMapperRegistry buildExceptionMapperRegistry(String resourceSearchPackage) throws Exception {
         ExceptionMapperRegistryBuilder mapperRegistryBuilder = new ExceptionMapperRegistryBuilder();
         return mapperRegistryBuilder.build(resourceSearchPackage);
     }
 
-    private ResourceRegistry buildResourceRegistry(String resourceSearchPackage, String resourceDefaultDomain) {
+    private ResourceRegistry buildResourceRegistry(String resourceSearchPackage, String serviceUrl) {
         ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(jsonServiceLocator, new ResourceInformationBuilder());
-        return registryBuilder.build(resourceSearchPackage, resourceDefaultDomain);
+        return registryBuilder.build(resourceSearchPackage, serviceUrl);
     }
 
-    private KatharsisFilter createKatharsisFilter(ResourceRegistry resourceRegistry, ExceptionMapperRegistry exceptionMapperRegistry) throws Exception {
+    private KatharsisFilter createKatharsisFilter(ResourceRegistry resourceRegistry,
+        ExceptionMapperRegistry exceptionMapperRegistry, String webPathPrefix) throws Exception {
         RequestDispatcher requestDispatcher = createRequestDispatcher(resourceRegistry, exceptionMapperRegistry);
 
-        return new KatharsisFilter(objectMapper, resourceRegistry, requestDispatcher);
+        return new KatharsisFilter(objectMapper, resourceRegistry, requestDispatcher, webPathPrefix);
     }
 
     private RequestDispatcher createRequestDispatcher(ResourceRegistry resourceRegistry, ExceptionMapperRegistry exceptionMapperRegistry) throws Exception {
