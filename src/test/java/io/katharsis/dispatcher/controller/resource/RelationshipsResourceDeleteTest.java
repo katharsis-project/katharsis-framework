@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.RequestParams;
-import io.katharsis.request.dto.Attributes;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.dto.ResourceRelationships;
@@ -66,12 +65,11 @@ public class RelationshipsResourceDeleteTest extends BaseControllerTest {
         DataBody data = new DataBody();
         newTaskBody.setData(data);
         data.setType("tasks");
-        data.setAttributes(new Attributes());
-        data.getAttributes().addAttribute("name", "sample task");
+        data.setAttributes(OBJECT_MAPPER.createObjectNode().put("name", "sample task"));
         data.setRelationships(new ResourceRelationships());
 
         JsonPath taskPath = pathBuilder.buildPath("/tasks");
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser);
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
 
         // WHEN -- adding a task
         BaseResponse taskResponse = resourcePost.handle(taskPath, new RequestParams(new ObjectMapper()), newTaskBody);
@@ -88,8 +86,7 @@ public class RelationshipsResourceDeleteTest extends BaseControllerTest {
         data = new DataBody();
         newProjectBody.setData(data);
         data.setType("projects");
-        data.setAttributes(new Attributes());
-        data.getAttributes().addAttribute("name", "sample project");
+        data.setAttributes(OBJECT_MAPPER.createObjectNode().put("name", "sample project"));
 
         JsonPath projectPath = pathBuilder.buildPath("/projects");
 
@@ -145,12 +142,11 @@ public class RelationshipsResourceDeleteTest extends BaseControllerTest {
         DataBody data = new DataBody();
         newUserBody.setData(data);
         data.setType("users");
-        data.setAttributes(new Attributes());
-        data.getAttributes().addAttribute("name", "sample user");
+        data.setAttributes(OBJECT_MAPPER.createObjectNode().put("name", "sample task"));
         data.setRelationships(new ResourceRelationships());
 
         JsonPath taskPath = pathBuilder.buildPath("/users");
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser);
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
 
         // WHEN -- adding a user
         BaseResponse taskResponse = resourcePost.handle(taskPath, new RequestParams(new ObjectMapper()), newUserBody);
@@ -167,8 +163,7 @@ public class RelationshipsResourceDeleteTest extends BaseControllerTest {
         data = new DataBody();
         newProjectBody.setData(data);
         data.setType("projects");
-        data.setAttributes(new Attributes());
-        data.getAttributes().addAttribute("name", "sample project");
+        data.setAttributes(OBJECT_MAPPER.createObjectNode().put("name", "sample project"));
 
         JsonPath projectPath = pathBuilder.buildPath("/projects");
 

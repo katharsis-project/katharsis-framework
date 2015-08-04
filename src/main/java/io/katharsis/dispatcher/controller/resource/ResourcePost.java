@@ -1,5 +1,6 @@
 package io.katharsis.dispatcher.controller.resource;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.RequestParams;
 import io.katharsis.request.dto.DataBody;
@@ -15,13 +16,14 @@ import io.katharsis.response.ResourceResponse;
 import io.katharsis.utils.parser.TypeParser;
 import org.apache.commons.beanutils.PropertyUtils;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 
 public class ResourcePost extends ResourceUpsert {
 
-    public ResourcePost(ResourceRegistry resourceRegistry, TypeParser typeParser) {
-        super(resourceRegistry, typeParser);
+    public ResourcePost(ResourceRegistry resourceRegistry, TypeParser typeParser, ObjectMapper objectMapper) {
+        super(resourceRegistry, typeParser, objectMapper);
     }
 
     /**
@@ -38,7 +40,8 @@ public class ResourcePost extends ResourceUpsert {
 
     @Override
     public ResourceResponse handle(JsonPath jsonPath, RequestParams requestParams, RequestBody requestBody)
-            throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+        throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException,
+        IOException {
         String resourceName = jsonPath.getResourceName();
         RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
         if (registryEntry == null) {

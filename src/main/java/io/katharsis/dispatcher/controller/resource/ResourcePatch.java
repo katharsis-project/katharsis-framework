@@ -1,5 +1,6 @@
 package io.katharsis.dispatcher.controller.resource;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.RequestParams;
 import io.katharsis.request.dto.DataBody;
@@ -19,8 +20,8 @@ import java.io.Serializable;
 
 public class ResourcePatch extends ResourceUpsert {
 
-    public ResourcePatch(ResourceRegistry resourceRegistry, TypeParser typeParser) {
-        super(resourceRegistry, typeParser);
+    public ResourcePatch(ResourceRegistry resourceRegistry, TypeParser typeParser, ObjectMapper objectMapper) {
+        super(resourceRegistry, typeParser, objectMapper);
     }
 
     @Override
