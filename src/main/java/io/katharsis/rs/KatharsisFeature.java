@@ -23,7 +23,7 @@ import javax.ws.rs.ext.Provider;
 /**
  * Basic Katharsis feature that initializes core classes and provides a starting point to use the framework in
  * another projects.
- *
+ * <p>
  * This feature has NO {@link Provider} annotation, thus it require to provide an instance of  {@link ObjectMapper} and
  * {@link JsonServiceLocator} to provide instances of resources.
  */
@@ -41,14 +41,14 @@ public class KatharsisFeature implements Feature {
     @Override
     public boolean configure(FeatureContext context) {
         String resourceSearchPackage = (String) context
-                .getConfiguration()
-                .getProperty(KatharsisProperties.RESOURCE_SEARCH_PACKAGE);
+            .getConfiguration()
+            .getProperty(KatharsisProperties.RESOURCE_SEARCH_PACKAGE);
         String resourceDefaultDomain = (String) context
-                .getConfiguration()
-                .getProperty(KatharsisProperties.RESOURCE_DEFAULT_DOMAIN);
+            .getConfiguration()
+            .getProperty(KatharsisProperties.RESOURCE_DEFAULT_DOMAIN);
         String webPathPrefix = (String) context
-                .getConfiguration()
-                .getProperty(KatharsisProperties.WEB_PATH_PREFIX);
+            .getConfiguration()
+            .getProperty(KatharsisProperties.WEB_PATH_PREFIX);
 
         String serviceUrl = buildServiceUrl(resourceDefaultDomain, webPathPrefix);
         ResourceRegistry resourceRegistry = buildResourceRegistry(resourceSearchPackage, serviceUrl);
@@ -78,7 +78,8 @@ public class KatharsisFeature implements Feature {
     }
 
     private ResourceRegistry buildResourceRegistry(String resourceSearchPackage, String serviceUrl) {
-        ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(jsonServiceLocator, new ResourceInformationBuilder());
+        ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(jsonServiceLocator,
+            new ResourceInformationBuilder());
         return registryBuilder.build(resourceSearchPackage, serviceUrl);
     }
 
@@ -89,11 +90,12 @@ public class KatharsisFeature implements Feature {
         return new KatharsisFilter(objectMapper, resourceRegistry, requestDispatcher, webPathPrefix);
     }
 
-    private RequestDispatcher createRequestDispatcher(ResourceRegistry resourceRegistry, ExceptionMapperRegistry exceptionMapperRegistry) throws Exception {
-        ControllerRegistryBuilder controllerRegistryBuilder = new ControllerRegistryBuilder();
+    private RequestDispatcher createRequestDispatcher(ResourceRegistry resourceRegistry,
+        ExceptionMapperRegistry exceptionMapperRegistry) throws Exception {
         TypeParser typeParser = new TypeParser();
-        ControllerRegistry controllerRegistry = controllerRegistryBuilder
-                .build(resourceRegistry, typeParser);
+        ControllerRegistryBuilder controllerRegistryBuilder = new ControllerRegistryBuilder(resourceRegistry,
+            typeParser, objectMapper);
+        ControllerRegistry controllerRegistry = controllerRegistryBuilder.build();
         return new RequestDispatcher(controllerRegistry, exceptionMapperRegistry);
     }
 }
