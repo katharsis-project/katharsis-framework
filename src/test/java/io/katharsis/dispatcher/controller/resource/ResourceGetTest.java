@@ -3,7 +3,6 @@ package io.katharsis.dispatcher.controller.resource;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
 import io.katharsis.queryParams.RequestParams;
-import io.katharsis.request.dto.Attributes;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.dto.ResourceRelationships;
@@ -53,14 +52,13 @@ public class ResourceGetTest extends BaseControllerTest {
         DataBody data = new DataBody();
         newTaskBody.setData(data);
         data.setType("tasks");
-        data.setAttributes(new Attributes());
-        data.getAttributes().addAttribute("name", "sample task");
+        data.setAttributes(OBJECT_MAPPER.createObjectNode().put("name", "sample task"));
         data.setRelationships(new ResourceRelationships());
 
         JsonPath taskPath = pathBuilder.buildPath("/tasks");
 
         // WHEN
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser);
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
         ResourceResponse taskResponse = resourcePost.handle(taskPath, new RequestParams(new ObjectMapper()), newTaskBody);
         assertThat(taskResponse.getData()).isExactlyInstanceOf(Task.class);
         Long taskId = ((Task) (taskResponse.getData())).getId();

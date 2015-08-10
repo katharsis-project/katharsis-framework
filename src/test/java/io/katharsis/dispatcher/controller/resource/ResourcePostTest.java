@@ -3,7 +3,10 @@ package io.katharsis.dispatcher.controller.resource;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
 import io.katharsis.queryParams.RequestParams;
-import io.katharsis.request.dto.*;
+import io.katharsis.request.dto.DataBody;
+import io.katharsis.request.dto.LinkageData;
+import io.katharsis.request.dto.RequestBody;
+import io.katharsis.request.dto.ResourceRelationships;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.exception.ResourceNotFoundException;
@@ -28,7 +31,7 @@ public class ResourcePostTest extends BaseControllerTest {
     public void onGivenRequestCollectionGetShouldDenyIt() {
         // GIVEN
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/1");
-        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser);
+        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -41,7 +44,7 @@ public class ResourcePostTest extends BaseControllerTest {
     public void onGivenRequestResourceGetShouldAcceptIt() {
         // GIVEN
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/");
-        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser);
+        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -57,11 +60,10 @@ public class ResourcePostTest extends BaseControllerTest {
         DataBody data = new DataBody();
         newProjectBody.setData(data);
         data.setType("projects");
-        data.setAttributes(new Attributes());
-        data.getAttributes().addAttribute("name", "sample project");
+        data.setAttributes(OBJECT_MAPPER.createObjectNode().put("name", "sample task"));
 
         JsonPath projectPath = pathBuilder.buildPath("/tasks");
-        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser);
+        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
 
         // THEN
         expectedException.expect(RuntimeException.class);
@@ -78,7 +80,7 @@ public class ResourcePostTest extends BaseControllerTest {
         newProjectBody.setData(data);
         data.setType("fridges");
 
-        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser);
+        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
 
         // THEN
         expectedException.expect(ResourceNotFoundException.class);
@@ -90,7 +92,7 @@ public class ResourcePostTest extends BaseControllerTest {
     @Test
     public void onNoBodyResourceShouldThrowException() throws Exception {
         // GIVEN
-        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser);
+        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
 
         // THEN
         expectedException.expect(RuntimeException.class);
@@ -106,11 +108,10 @@ public class ResourcePostTest extends BaseControllerTest {
         DataBody data = new DataBody();
         newProjectBody.setData(data);
         data.setType("projects");
-        data.setAttributes(new Attributes());
-        data.getAttributes().addAttribute("name", "sample project");
+        data.setAttributes(OBJECT_MAPPER.createObjectNode().put("name", "sample project"));
 
         JsonPath projectPath = pathBuilder.buildPath("/projects");
-        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser);
+        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
 
         // WHEN
         ResourceResponse projectResponse = sut.handle(projectPath, new RequestParams(new ObjectMapper()), newProjectBody);
@@ -128,8 +129,7 @@ public class ResourcePostTest extends BaseControllerTest {
         data = new DataBody();
         newTaskBody.setData(data);
         data.setType("tasks");
-        data.setAttributes(new Attributes());
-        data.getAttributes().addAttribute("name", "sample task");
+        data.setAttributes(OBJECT_MAPPER.createObjectNode().put("name", "sample task"));
         data.setRelationships(new ResourceRelationships());
         data.getRelationships().setAdditionalProperty("project", new LinkageData("projects", projectId.toString()));
 
@@ -156,11 +156,10 @@ public class ResourcePostTest extends BaseControllerTest {
         DataBody data = new DataBody();
         newProjectBody.setData(data);
         data.setType("projects");
-        data.setAttributes(new Attributes());
-        data.getAttributes().addAttribute("name", "sample project");
+        data.setAttributes(OBJECT_MAPPER.createObjectNode().put("name", "sample project"));
 
         JsonPath projectPath = pathBuilder.buildPath("/projects");
-        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser);
+        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
 
         // WHEN
         ResourceResponse projectResponse = sut.handle(projectPath, new RequestParams(new ObjectMapper()), newProjectBody);
@@ -178,8 +177,7 @@ public class ResourcePostTest extends BaseControllerTest {
         data = new DataBody();
         newUserBody.setData(data);
         data.setType("users");
-        data.setAttributes(new Attributes());
-        data.getAttributes().addAttribute("name", "some user");
+        data.setAttributes(OBJECT_MAPPER.createObjectNode().put("name", "some user"));
         data.setRelationships(new ResourceRelationships());
         data.getRelationships().setAdditionalProperty("assignedProjects", Arrays.asList(new LinkageData("projects",
                 projectId.toString())));

@@ -3,7 +3,6 @@ package io.katharsis.dispatcher.controller.resource;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
 import io.katharsis.queryParams.RequestParams;
-import io.katharsis.request.dto.Attributes;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
@@ -24,7 +23,7 @@ public class ResourcePatchTest extends BaseControllerTest {
     public void onGivenRequestCollectionGetShouldDenyIt() {
         // GIVEN
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/");
-        ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser);
+        ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser, OBJECT_MAPPER);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -37,7 +36,7 @@ public class ResourcePatchTest extends BaseControllerTest {
     public void onGivenRequestResourceGetShouldAcceptIt() {
         // GIVEN
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/1");
-        ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser);
+        ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser, OBJECT_MAPPER);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -49,7 +48,7 @@ public class ResourcePatchTest extends BaseControllerTest {
     @Test
     public void onNoBodyResourceShouldThrowException() throws Exception {
         // GIVEN
-        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser);
+        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
 
         // THEN
         expectedException.expect(RuntimeException.class);
@@ -65,13 +64,12 @@ public class ResourcePatchTest extends BaseControllerTest {
         DataBody data = new DataBody();
         newTaskBody.setData(data);
         data.setType("tasks");
-        data.setAttributes(new Attributes());
-        data.getAttributes().addAttribute("name", "sample task");
+        data.setAttributes(OBJECT_MAPPER.createObjectNode().put("name", "sample task"));
 
         JsonPath taskPath = pathBuilder.buildPath("/tasks");
 
         // WHEN
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser);
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
         ResourceResponse taskResponse = resourcePost.handle(taskPath, new RequestParams(new ObjectMapper()), newTaskBody);
         assertThat(taskResponse.getData()).isExactlyInstanceOf(Task.class);
         Long taskId = ((Task) (taskResponse.getData())).getId();
@@ -82,10 +80,9 @@ public class ResourcePatchTest extends BaseControllerTest {
         data = new DataBody();
         taskPatch.setData(data);
         data.setType("tasks");
-        data.setAttributes(new Attributes());
-        data.getAttributes().addAttribute("name", "task updated");
+        data.setAttributes(OBJECT_MAPPER.createObjectNode().put("name", "task updated"));
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/" + taskId);
-        ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser);
+        ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser, OBJECT_MAPPER);
 
         // WHEN
         BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()), taskPatch);

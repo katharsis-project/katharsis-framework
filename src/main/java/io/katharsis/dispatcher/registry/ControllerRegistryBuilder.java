@@ -1,6 +1,8 @@
 package io.katharsis.dispatcher.registry;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.BaseController;
+import io.katharsis.dispatcher.controller.resource.ResourceUpsert;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.utils.parser.TypeParser;
 import org.reflections.Reflections;
@@ -18,23 +20,48 @@ import java.util.Set;
  */
 public class ControllerRegistryBuilder {
 
-    public ControllerRegistry build(ResourceRegistry resourceRegistry, TypeParser typeParser) throws NoSuchMethodException,
-            IllegalAccessException, InvocationTargetException, InstantiationException {
+    private ResourceRegistry resourceRegistry;
+    private TypeParser typeParser;
+    private ObjectMapper objectMapper;
+
+    public ControllerRegistryBuilder(ResourceRegistry resourceRegistry, TypeParser typeParser,
+        ObjectMapper objectMapper) {
+        this.resourceRegistry = resourceRegistry;
+        this.typeParser = typeParser;
+        this.objectMapper = objectMapper;
+    }
+
+    public ControllerRegistry build()
+        throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
 
         Reflections reflections = new Reflections("io.katharsis.dispatcher.controller");
 
         Set<Class<? extends BaseController>> controllerClasses =
-                reflections.getSubTypesOf(BaseController.class);
+            reflections.getSubTypesOf(BaseController.class);
 
         List<BaseController> controllers = new LinkedList<>();
         for (Class<? extends BaseController> controllerClass : controllerClasses) {
-            if ( !Modifier.isAbstract(controllerClass.getModifiers())) {
-                Constructor<? extends BaseController> declaredConstructor = controllerClass.getDeclaredConstructor
-                        (ResourceRegistry.class, TypeParser.class);
-                controllers.add(declaredConstructor.newInstance(resourceRegistry, typeParser));
+            if (!Modifier.isAbstract(controllerClass.getModifiers())) {
+                BaseController controller = getController(controllerClass);
+                controllers.add(controller);
             }
         }
 
         return new ControllerRegistry(controllers);
+    }
+
+    private BaseController getController(Class<? extends BaseController> controllerClass)
+        throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+        BaseController controller;
+        if (ResourceUpsert.class.isAssignableFrom(controllerClass)) {
+            Constructor<? extends BaseController> declaredConstructor = controllerClass
+                .getDeclaredConstructor(ResourceRegistry.class, TypeParser.class, ObjectMapper.class);
+            controller = declaredConstructor.newInstance(resourceRegistry, typeParser, objectMapper);
+        } else {
+            Constructor<? extends BaseController> declaredConstructor = controllerClass
+                .getDeclaredConstructor(ResourceRegistry.class, TypeParser.class);
+            controller = declaredConstructor.newInstance(resourceRegistry, typeParser);
+        }
+        return controller;
     }
 }

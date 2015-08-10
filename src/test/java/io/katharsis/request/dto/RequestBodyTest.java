@@ -3,6 +3,10 @@ package io.katharsis.request.dto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class RequestBodyTest {
@@ -25,8 +29,8 @@ public class RequestBodyTest {
         DataBody data = result.getSingleData();
         assertThat(data.getType()).isEqualTo("tasks");
         assertThat(data.getAttributes()).isNotNull();
-        assertThat(data.getAttributes().getAttributes()).containsOnlyKeys("name");
-        assertThat(data.getAttributes().getAttributes().get("name")).isEqualTo("asdasd");
+        assertThat(getList(data.getAttributes().fieldNames())).containsOnly("name");
+        assertThat(data.getAttributes().get("name").asText()).isEqualTo("asdasd");
         assertThat(data.getRelationships()).isNotNull();
         assertThat(data.getRelationships().getAdditionalProperties()).containsOnlyKeys("project");
         assertThat(data.getRelationships().getAdditionalProperties().get("project")).isInstanceOf(LinkageData.class);
@@ -52,8 +56,8 @@ public class RequestBodyTest {
         DataBody data = result.getSingleData();
         assertThat(data.getType()).isEqualTo("tasks");
         assertThat(data.getAttributes()).isNotNull();
-        assertThat(data.getAttributes().getAttributes()).containsOnlyKeys("name");
-        assertThat(data.getAttributes().getAttributes().get("name")).isEqualTo("asdasd");
+        assertThat(getList(data.getAttributes().fieldNames())).containsOnly("name");
+        assertThat(data.getAttributes().get("name").asText()).isEqualTo("asdasd");
         assertThat(data.getRelationships()).isNotNull();
         assertThat(data.getRelationships().getAdditionalProperties()).containsOnlyKeys("project");
         assertThat(data.getRelationships().getAdditionalProperties().get("project")).isNull();
@@ -75,8 +79,8 @@ public class RequestBodyTest {
         DataBody data = result.getSingleData();
         assertThat(data.getType()).isEqualTo("tasks");
         assertThat(data.getAttributes()).isNotNull();
-        assertThat(data.getAttributes().getAttributes()).containsOnlyKeys("name");
-        assertThat(data.getAttributes().getAttributes().get("name")).isEqualTo("asdasd");
+        assertThat(getList(data.getAttributes().fieldNames())).containsOnly("name");
+        assertThat(data.getAttributes().get("name").asText()).isEqualTo("asdasd");
         assertThat(data.getRelationships()).isNotNull();
         assertThat(data.getRelationships().getAdditionalProperties()).containsOnlyKeys("project");
         assertThat(data.getRelationships().getAdditionalProperties().get("project")).isInstanceOf(Iterable.class);
@@ -106,12 +110,19 @@ public class RequestBodyTest {
         DataBody data = result.getSingleData();
         assertThat(data.getType()).isEqualTo("tasks");
         assertThat(data.getAttributes()).isNotNull();
-        assertThat(data.getAttributes().getAttributes()).containsOnlyKeys("name");
-        assertThat(data.getAttributes().getAttributes().get("name")).isEqualTo("asdasd");
+        assertThat(getList(data.getAttributes().fieldNames())).containsOnly("name");
+        assertThat(data.getAttributes().get("name").asText()).isEqualTo("asdasd");
         assertThat(data.getRelationships()).isNotNull();
         assertThat(data.getRelationships().getAdditionalProperties()).containsOnlyKeys("project");
         assertThat(data.getRelationships().getAdditionalProperties().get("project")).isInstanceOf(Iterable.class);
         assertThat(((Iterable<LinkageData>) (data.getRelationships().getAdditionalProperties().get("project"))))
                 .hasSize(0);
+    }
+
+    private List<String> getList(Iterator<String> iter) {
+        List<String> copy = new LinkedList<>();
+        while (iter.hasNext())
+            copy.add(iter.next());
+        return copy;
     }
 }

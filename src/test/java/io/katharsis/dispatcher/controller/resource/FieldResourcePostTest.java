@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.RequestParams;
-import io.katharsis.request.dto.Attributes;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.dto.ResourceRelationships;
@@ -24,7 +23,6 @@ import static org.mockito.Mockito.mock;
 
 public class FieldResourcePostTest extends BaseControllerTest {
     private static final String REQUEST_TYPE = HttpMethod.POST.name();
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final RequestParams REQUEST_PARAMS = new RequestParams(OBJECT_MAPPER);
 
     @Test
@@ -32,7 +30,7 @@ public class FieldResourcePostTest extends BaseControllerTest {
         // GIVEN
         JsonPath jsonPath = pathBuilder.buildPath("tasks/1/project");
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-        FieldResourcePost sut = new FieldResourcePost(resourceRegistry, typeParser);
+        FieldResourcePost sut = new FieldResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -46,7 +44,7 @@ public class FieldResourcePostTest extends BaseControllerTest {
         // GIVEN
         JsonPath jsonPath = new ResourcePath("tasks");
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-        FieldResourcePost sut = new FieldResourcePost(resourceRegistry, typeParser);
+        FieldResourcePost sut = new FieldResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -62,11 +60,10 @@ public class FieldResourcePostTest extends BaseControllerTest {
         DataBody data = new DataBody();
         newProjectBody.setData(data);
         data.setType("projects");
-        data.setAttributes(new Attributes());
-        data.getAttributes().addAttribute("name", "sample project");
+        data.setAttributes(OBJECT_MAPPER.createObjectNode().put("name", "sample project"));
 
         JsonPath projectPath = pathBuilder.buildPath("/tasks/-1/project");
-        FieldResourcePost sut = new FieldResourcePost(resourceRegistry, typeParser);
+        FieldResourcePost sut = new FieldResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
 
         // THEN
         expectedException.expect(ResourceNotFoundException.class);
@@ -82,12 +79,11 @@ public class FieldResourcePostTest extends BaseControllerTest {
         DataBody data = new DataBody();
         newTaskBody.setData(data);
         data.setType("tasks");
-        data.setAttributes(new Attributes());
-        data.getAttributes().addAttribute("name", "sample task");
+        data.setAttributes(OBJECT_MAPPER.createObjectNode().put("name", "sample task"));
         data.setRelationships(new ResourceRelationships());
 
         JsonPath taskPath = pathBuilder.buildPath("/tasks");
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser);
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
 
         // WHEN
         BaseResponse taskResponse = resourcePost.handle(taskPath, new RequestParams(new ObjectMapper()), newTaskBody);
@@ -104,11 +100,10 @@ public class FieldResourcePostTest extends BaseControllerTest {
         data = new DataBody();
         newProjectBody.setData(data);
         data.setType("projects");
-        data.setAttributes(new Attributes());
-        data.getAttributes().addAttribute("name", "sample project");
+        data.setAttributes(OBJECT_MAPPER.createObjectNode().put("name", "sample project"));
 
         JsonPath projectPath = pathBuilder.buildPath("/tasks/" + taskId + "/project");
-        FieldResourcePost sut = new FieldResourcePost(resourceRegistry, typeParser);
+        FieldResourcePost sut = new FieldResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
 
         // WHEN
         ResourceResponse projectResponse = sut.handle(projectPath, new RequestParams(OBJECT_MAPPER), newProjectBody);

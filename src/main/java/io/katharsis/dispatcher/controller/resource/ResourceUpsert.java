@@ -1,5 +1,7 @@
 package io.katharsis.dispatcher.controller.resource;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.request.dto.DataBody;
@@ -12,29 +14,35 @@ import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.utils.parser.TypeParser;
 import org.apache.commons.beanutils.PropertyUtils;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public abstract class ResourceUpsert implements BaseController {
     protected ResourceRegistry resourceRegistry;
     protected TypeParser typeParser;
+    protected ObjectMapper objectMapper;
 
-    public ResourceUpsert(ResourceRegistry resourceRegistry, TypeParser typeParser) {
+    public ResourceUpsert(ResourceRegistry resourceRegistry, TypeParser typeParser, ObjectMapper objectMapper) {
         this.resourceRegistry = resourceRegistry;
         this.typeParser = typeParser;
+        this.objectMapper = objectMapper;
     }
 
     protected void setAttributes(DataBody dataBody, Object instance, ResourceInformation resourceInformation)
-            throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException {
+        throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException,
+        IOException {
         if (dataBody.getAttributes() != null) {
-            for (Map.Entry<String, Object> property : dataBody.getAttributes().getAttributes().entrySet()) {
-                Field attributeField = resourceInformation.findAttributeFieldByName(property.getKey());
-                PropertyUtils.setProperty(instance, attributeField.getName(), property.getValue());
+            ObjectReader reader = objectMapper.reader(instance.getClass());
+            Object instanceWithNewFields = reader.readValue(dataBody.getAttributes());
+            Iterator<String> propertyNameIterator = dataBody.getAttributes().fieldNames();
+            while (propertyNameIterator.hasNext()) {
+                String propertyName = propertyNameIterator.next();
+                Field attributeField = resourceInformation.findAttributeFieldByName(propertyName);
+                Object property = PropertyUtils.getProperty(instanceWithNewFields, attributeField.getName());
+                PropertyUtils.setProperty(instance, attributeField.getName(), property);
             }
         }
     }

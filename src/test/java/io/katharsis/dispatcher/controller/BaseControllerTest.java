@@ -1,5 +1,6 @@
 package io.katharsis.dispatcher.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.locator.SampleJsonServiceLocator;
 import io.katharsis.request.path.PathBuilder;
 import io.katharsis.resource.ResourceInformationBuilder;
@@ -13,6 +14,8 @@ import org.junit.Rule;
 import org.junit.rules.ExpectedException;
 
 public abstract class BaseControllerTest {
+
+    protected static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     protected PathBuilder pathBuilder;
     protected ResourceRegistry resourceRegistry;

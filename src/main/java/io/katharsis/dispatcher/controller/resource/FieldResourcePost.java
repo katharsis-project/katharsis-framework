@@ -1,5 +1,6 @@
 package io.katharsis.dispatcher.controller.resource;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.RequestParams;
 import io.katharsis.repository.RelationshipRepository;
@@ -19,6 +20,7 @@ import io.katharsis.utils.Generics;
 import io.katharsis.utils.parser.TypeParser;
 import org.apache.commons.beanutils.PropertyUtils;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -29,8 +31,8 @@ import java.util.Collections;
  */
 public class FieldResourcePost extends ResourceUpsert {
 
-    public FieldResourcePost(ResourceRegistry resourceRegistry, TypeParser typeParser) {
-        super(resourceRegistry, typeParser);
+    public FieldResourcePost(ResourceRegistry resourceRegistry, TypeParser typeParser, ObjectMapper objectMapper) {
+        super(resourceRegistry, typeParser, objectMapper);
     }
 
     @Override
@@ -42,7 +44,8 @@ public class FieldResourcePost extends ResourceUpsert {
 
     @Override
     public ResourceResponse handle(JsonPath jsonPath, RequestParams requestParams, RequestBody requestBody)
-            throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+        throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException,
+        IOException {
         String resourceName = jsonPath.getResourceName();
         PathIds resourceIds = jsonPath.getIds();
         RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);

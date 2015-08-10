@@ -1,5 +1,6 @@
 package io.katharsis.request.dto;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import io.katharsis.jackson.deserializer.ResourceRelationshipsDeserializer;
 
@@ -10,7 +11,7 @@ public class DataBody {
     @JsonDeserialize(using = ResourceRelationshipsDeserializer.class)
     private ResourceRelationships relationships;
 
-    private Attributes attributes;
+    private JsonNode attributes;
 
     public String getId() {
         return id;
@@ -37,11 +38,11 @@ public class DataBody {
         this.relationships = relationships;
     }
 
-    public Attributes getAttributes() {
+    public JsonNode getAttributes() {
         return attributes;
     }
 
-    public void setAttributes(Attributes attributes) {
+    public void setAttributes(JsonNode attributes) {
         this.attributes = attributes;
     }
 }
