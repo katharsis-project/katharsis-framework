@@ -13,6 +13,8 @@ public class Project {
 
     private String description;
 
+    private ProjectData data;
+
     public Long getId() {
         return id;
     }
@@ -35,5 +37,13 @@ public class Project {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public ProjectData getData() {
+        return data;
+    }
+
+    public void setData(ProjectData data) {
+        this.data = data;
     }
 }

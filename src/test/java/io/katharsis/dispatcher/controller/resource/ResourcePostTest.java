@@ -1,6 +1,7 @@
 package io.katharsis.dispatcher.controller.resource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
 import io.katharsis.queryParams.RequestParams;
 import io.katharsis.request.dto.DataBody;
@@ -11,6 +12,7 @@ import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.mock.models.Project;
+import io.katharsis.resource.mock.models.ProjectData;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.models.User;
 import io.katharsis.resource.mock.repository.TaskToProjectRepository;
@@ -108,7 +110,11 @@ public class ResourcePostTest extends BaseControllerTest {
         DataBody data = new DataBody();
         newProjectBody.setData(data);
         data.setType("projects");
-        data.setAttributes(OBJECT_MAPPER.createObjectNode().put("name", "sample project"));
+        ObjectNode attributes = OBJECT_MAPPER.createObjectNode()
+            .put("name", "sample project");
+        attributes.putObject("data")
+            .put("data", "asd");
+        data.setAttributes(attributes);
 
         JsonPath projectPath = pathBuilder.buildPath("/projects");
         ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
@@ -118,8 +124,10 @@ public class ResourcePostTest extends BaseControllerTest {
 
         // THEN
         assertThat(projectResponse.getData()).isExactlyInstanceOf(Project.class);
-        assertThat(((Project) (projectResponse.getData())).getId()).isNotNull();
-        assertThat(((Project) (projectResponse.getData())).getName()).isEqualTo("sample project");
+        Project persistedProject = (Project) (projectResponse.getData());
+        assertThat(persistedProject.getId()).isNotNull();
+        assertThat(persistedProject.getName()).isEqualTo("sample project");
+        assertThat(persistedProject.getData()).isEqualToComparingFieldByField(new ProjectData().setData("asd"));
         Long projectId = ((Project) (projectResponse.getData())).getId();
 
         /* ------- */
