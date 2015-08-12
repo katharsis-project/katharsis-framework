@@ -269,4 +269,18 @@ public class PathBuilderTest {
         // THEN
         assertThat(result).isEqualTo("/tasks/1/project/");
     }
+
+    @Test
+    public void onFieldNameAsSameAsResourceShouldBuildCorrectPath() {
+        // GIVEN
+        String path = "/tasks/1/projects";
+
+        // WHEN
+        JsonPath jsonPath = pathBuilder.buildPath(path);
+
+        // THEN
+        JsonPath expectedPath = new FieldPath("projects");
+        expectedPath.setParentResource(new ResourcePath("tasks", new PathIds("1")));
+        assertThat(jsonPath).isEqualTo(expectedPath);
+    }
 }

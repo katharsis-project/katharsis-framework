@@ -60,13 +60,13 @@ public class PathBuilder {
                 currentElementIdx++;
             }
             RegistryEntry entry = resourceRegistry.getEntry(elementName);
-            if (entry != null && !relationshipMark) {
-                currentJsonPath = new ResourcePath(elementName);
-            } else if (previousJsonPath != null) {
+            if (previousJsonPath != null) {
                 currentJsonPath = getNonResourcePath(previousJsonPath, elementName, relationshipMark);
                 if (pathIds != null) {
                     throw new ResourceException("RelationshipsPath and FieldPath cannot contain ids");
                 }
+            } else if (entry != null && !relationshipMark) {
+                currentJsonPath = new ResourcePath(elementName);
             } else {
                 throw new ResourceNotFoundException(path);
             }
