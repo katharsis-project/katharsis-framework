@@ -85,11 +85,11 @@ public class KatharsisInvokerBuilder {
     public KatharsisInvoker build() throws Exception {
         if (resourceRegistry == null || requestDispatcher == null || exceptionMapperRegistry == null) {
             if (resourceSearchPackage == null) {
-                throw new IllegalArgumentException("Resrouce Search Package should not be null.");
+                throw new IllegalArgumentException("Resource Search Package should not be null.");
             }
 
             if (resourceDefaultDomain == null) {
-                throw new IllegalArgumentException("Resrouce Default Domain should not be null.");
+                throw new IllegalArgumentException("Resource Default Domain should not be null.");
             }
         }
 
