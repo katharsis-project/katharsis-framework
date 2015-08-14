@@ -11,8 +11,8 @@ import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.Container;
 import io.katharsis.response.DataLinksContainer;
-import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.beanutils.PropertyUtils;
+import io.katharsis.utils.BeanUtils;
+import io.katharsis.utils.PropertyUtils;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -104,7 +104,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
      */
     private void writeId(JsonGenerator gen, Object data, Field idField)
             throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
-        String sourceId = BeanUtils.getProperty(data, idField.getName());
+        String sourceId = BeanUtils.getProperty(data, idField);
         gen.writeObjectField(ID_FIELD_NAME, sourceId);
     }
 
@@ -114,7 +114,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         Attributes attributesObject = new Attributes();
         for (Field attributeField : attributeFields) {
             if (!attributeField.isSynthetic() && isIncluded(includedFields, attributeField)) {
-                Object basicFieldValue = PropertyUtils.getProperty(data, attributeField.getName());
+                Object basicFieldValue = PropertyUtils.getProperty(data, attributeField);
                 attributesObject.addAttribute(RESOURCE_FIELD_NAME_TRANSFORMER.getName(attributeField), basicFieldValue);
             }
         }
@@ -151,12 +151,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         RegistryEntry entry = resourceRegistry.getEntry(sourceClass);
         Field idField = entry.getResourceInformation().getIdField();
 
-        String sourceId;
-        try {
-            sourceId = BeanUtils.getProperty(data, idField.getName());
-        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            throw new JsonSerializationException("Exception while writing links");
-        }
+        Object sourceId = PropertyUtils.getProperty(data, idField);
         gen.writeStringField(SELF_FIELD_NAME, resourceUrl + "/" + sourceId);
     }
 

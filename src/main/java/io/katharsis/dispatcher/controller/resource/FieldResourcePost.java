@@ -17,8 +17,8 @@ import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.ResourceResponse;
 import io.katharsis.utils.Generics;
+import io.katharsis.utils.PropertyUtils;
 import io.katharsis.utils.parser.TypeParser;
-import org.apache.commons.beanutils.PropertyUtils;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -78,8 +78,8 @@ public class FieldResourcePost extends ResourceUpsert {
         Object savedResource = relationshipRegistryEntry.getResourceRepository().save(resource);
         saveRelations(savedResource, relationshipRegistryEntry, dataBody);
 
-        String relationshipResourceIdName = relationshipRegistryEntry.getResourceInformation().getIdField().getName();
-        Serializable resourceId = (Serializable) PropertyUtils.getProperty(savedResource, relationshipResourceIdName);
+        Serializable resourceId = (Serializable) PropertyUtils
+            .getProperty(savedResource, relationshipRegistryEntry.getResourceInformation().getIdField());
 
         Object savedResourceWithRelations = relationshipRegistryEntry.getResourceRepository().findOne(resourceId, requestParams);
 

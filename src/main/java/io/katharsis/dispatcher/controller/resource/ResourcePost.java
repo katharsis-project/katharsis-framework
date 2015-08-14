@@ -13,8 +13,8 @@ import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.ResourceResponse;
+import io.katharsis.utils.PropertyUtils;
 import io.katharsis.utils.parser.TypeParser;
-import org.apache.commons.beanutils.PropertyUtils;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -61,8 +61,8 @@ public class ResourcePost extends ResourceUpsert {
         Object savedResource = registryEntry.getResourceRepository().save(resource);
         saveRelations(savedResource, registryEntry, dataBody);
 
-        Serializable resourceId = (Serializable) PropertyUtils.getProperty(savedResource, registryEntry.getResourceInformation()
-                .getIdField().getName());
+        Serializable resourceId = (Serializable) PropertyUtils
+            .getProperty(savedResource, registryEntry.getResourceInformation().getIdField());
 
         Object savedResourceWithRelations = registryEntry.getResourceRepository().findOne(resourceId, requestParams);
 

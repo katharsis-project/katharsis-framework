@@ -11,8 +11,8 @@ import io.katharsis.resource.exception.ResourceException;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.utils.PropertyUtils;
 import io.katharsis.utils.parser.TypeParser;
-import org.apache.commons.beanutils.PropertyUtils;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -41,8 +41,8 @@ public abstract class ResourceUpsert implements BaseController {
             while (propertyNameIterator.hasNext()) {
                 String propertyName = propertyNameIterator.next();
                 Field attributeField = resourceInformation.findAttributeFieldByName(propertyName);
-                Object property = PropertyUtils.getProperty(instanceWithNewFields, attributeField.getName());
-                PropertyUtils.setProperty(instance, attributeField.getName(), property);
+                Object property = PropertyUtils.getProperty(instanceWithNewFields, attributeField);
+                PropertyUtils.setProperty(instance, attributeField, property);
             }
         }
     }
