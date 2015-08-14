@@ -18,7 +18,8 @@ package com.github.woonsan.katharsis.invoker;
 
 import io.katharsis.dispatcher.RequestDispatcher;
 import io.katharsis.errorhandling.exception.KatharsisException;
-import io.katharsis.errorhandling.mapper.def.KatharsisExceptionMapper;
+import io.katharsis.errorhandling.mapper.KatharsisExceptionMapper;
+import io.katharsis.jackson.exception.JsonSerializationException;
 import io.katharsis.queryParams.RequestParams;
 import io.katharsis.queryParams.RequestParamsBuilder;
 import io.katharsis.request.dto.RequestBody;
@@ -37,6 +38,9 @@ import java.util.Scanner;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.woonsan.katharsis.invoker.util.QueryStringUtils;
 import com.google.common.net.MediaType;
@@ -45,6 +49,8 @@ import com.google.common.net.MediaType;
  * Katharsis dispatcher invoker.
  */
 public class KatharsisInvoker {
+
+    private static Logger log = LoggerFactory.getLogger(KatharsisInvoker.class);
 
     private static int BUFFER_SIZE = 4096;
 
@@ -74,19 +80,26 @@ public class KatharsisInvoker {
     private void dispatchRequest(KatharsisInvokerContext invokerContext) throws Exception {
         BaseResponse<?> katharsisResponse = null;
 
+        InputStream in = null;
+
         try {
             JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath(invokerContext.getRequestPath());
 
             RequestParams requestParams = createRequestParams(invokerContext);
 
-            String method = invokerContext.getRequestMethod();
-            RequestBody requestBody = inputStreamToBody(invokerContext.getRequestEntityStream());
+            in = invokerContext.getRequestEntityStream();
+            RequestBody requestBody = inputStreamToBody(in);
 
+            String method = invokerContext.getRequestMethod();
             katharsisResponse = requestDispatcher.dispatchRequest(jsonPath, method, requestParams,
                                                                   requestBody);
         } catch (KatharsisException e) {
-            katharsisResponse = new KatharsisExceptionMapper().toErrorResponse(e);
+            log.error("Error occurred while dispatching katharsis request. " + e, e);
+            katharsisResponse = new KatharsisExceptionMapper()
+                .toErrorResponse(new JsonSerializationException(e.getLocalizedMessage()));
         } finally {
+            closeQuietly(in);
+
             if (katharsisResponse != null) {
                 invokerContext.setResponseStatus(katharsisResponse.getHttpStatus());
                 invokerContext.setResponseContentType(JsonApiMediaType.APPLICATION_JSON_API);
