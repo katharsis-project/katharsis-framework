@@ -17,9 +17,9 @@
 package com.github.woonsan.katharsis.invoker;
 
 import io.katharsis.dispatcher.RequestDispatcher;
-import io.katharsis.errorhandling.exception.KatharsisException;
+import io.katharsis.errorhandling.exception.KatharsisMappableException;
+import io.katharsis.errorhandling.exception.KatharsisMatchingException;
 import io.katharsis.errorhandling.mapper.KatharsisExceptionMapper;
-import io.katharsis.jackson.exception.JsonSerializationException;
 import io.katharsis.queryParams.RequestParams;
 import io.katharsis.queryParams.RequestParamsBuilder;
 import io.katharsis.request.dto.RequestBody;
@@ -80,6 +80,8 @@ public class KatharsisInvoker {
     private void dispatchRequest(KatharsisInvokerContext invokerContext) throws Exception {
         BaseResponse<?> katharsisResponse = null;
 
+        boolean passToMethodMatcher = false;
+
         InputStream in = null;
 
         try {
@@ -93,10 +95,15 @@ public class KatharsisInvoker {
             String method = invokerContext.getRequestMethod();
             katharsisResponse = requestDispatcher.dispatchRequest(jsonPath, method, requestParams,
                                                                   requestBody);
-        } catch (KatharsisException e) {
-            log.error("Error occurred while dispatching katharsis request. " + e, e);
-            katharsisResponse = new KatharsisExceptionMapper()
-                .toErrorResponse(new JsonSerializationException(e.getLocalizedMessage()));
+        } catch (KatharsisMappableException e) {
+            if (log.isDebugEnabled()) {
+                log.warn("Error occurred while dispatching katharsis request. " + e, e);
+            } else {
+                log.warn("Error occurred while dispatching katharsis request. " + e);
+            }
+            katharsisResponse = new KatharsisExceptionMapper().toErrorResponse(e);
+        } catch (KatharsisMatchingException e) {
+            passToMethodMatcher = true;
         } finally {
             closeQuietly(in);
 
