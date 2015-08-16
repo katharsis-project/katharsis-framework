@@ -7,16 +7,15 @@
 
 Generic Servlet Adapter of Katharsis JSON:API middleware library.
 
-Introduction
-============
+# Introduction
+
 This module aims to provide a generic invoker module for
 Katharsis JSON:API middleware library (https://github.com/katharsis-project/katharsis-core).
 This module can be used in simple servlet or filter,
 servlet-based application framework such as Spring Framework,
 or even non-ServletAPI-based frameworks such as Portal/Portlet, Wicket, etc.
 
-How to use this in my Servlet Filter
-====================================
+# How to use this in my Servlet Filter
 
 This module provides an abstract class, [AbstractKatharsisFilter.java](src/main/java/com/github/woonsan/katharsis/servlet/AbstractKatharsisFilter.java). Basically you need to override the following method at least as well:
 
@@ -24,8 +23,7 @@ This module provides an abstract class, [AbstractKatharsisFilter.java](src/main/
 
 Also see [SampleKatharsisFilter.java](src/main/java/com/github/woonsan/katharsis/servlet/SampleKatharsisFilter.java) as a servlet filter implementation example, and [web.xml](src/test/webapp/WEB-INF/web.xml) as a configuration example.
 
-How to use this in my Servlet
-=============================
+# How to use this in my Servlet
 
 This module provides an abstract class, [AbstractKatharsisServlet.java](src/main/java/com/github/woonsan/katharsis/servlet/AbstractKatharsisServlet.java). Basically you need to override the following method at least:
 
@@ -33,8 +31,7 @@ This module provides an abstract class, [AbstractKatharsisServlet.java](src/main
 
 Also see [SampleKatharsisServlet.java](src/main/java/com/github/woonsan/katharsis/servlet/SampleKatharsisServlet.java) as a servlet implementation example, and [web.xml](src/test/webapp/WEB-INF/web.xml) as a configuration example.
 
-How to integrate with my IoC (Dependency Injection) Container
-=============================================================
+# How to integrate with my IoC (Dependency Injection) Container
 
 You can override #createKatharsisInvokerBuilder() method in
 either [SampleKatharsisFilter.java](src/main/java/com/github/woonsan/katharsis/servlet/SampleKatharsisFilter.java)
@@ -66,8 +63,24 @@ from Spring Web Application Context like the following example:
 
 You will probably get the idea on how to integrate with other containers as well from the example.
 
-Demo in a Web Application
-=========================
+# How to Add this module in my Project
+
+Add the following dependency:
+
+            <dependency>
+                <groupId>com.github.woonsan</groupId>
+                <artifactId>katharsis-servlet</artifactId>
+                <version>${katharsis-servlet.version}</version>
+            </dependency>
+
+## Version Compatibility
+
+| katharsis-servlet  | katharsis-core |
+| ------------------ | -------------- |
+| 0.1.1              | 0.9.3          |
+| 0.1.0              | 0.9.2          |
+
+# Demo in a Web Application
 
 Please run the following command in this project root folder:
 
