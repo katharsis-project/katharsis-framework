@@ -28,7 +28,7 @@
 
   <groupId>com.github.woonsan</groupId>
   <artifactId>katharsis-servlet</artifactId>
-  <version>0.1.1</version>
+  <version>0.1.2-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>${project.groupId}:${project.artifactId}</name>
