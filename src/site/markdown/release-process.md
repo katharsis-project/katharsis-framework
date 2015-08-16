@@ -49,6 +49,11 @@ NOTE: The develop branch MUST have '-SNAPSHOT' version!!!
         (After inspecting the staging repository content at https://oss.sonatype.org/)
         $ mvn -Possrh-release nexus-staging:release
 
+If you find something went wrong you can drop the staging repository with
+
+        $ mvn nexus-staging:drop
+
+
 You should add the following repository configuration in other projects to use the snapshot dependency:
 
         <repository>
