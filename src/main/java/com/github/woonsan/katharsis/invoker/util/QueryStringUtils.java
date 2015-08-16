@@ -46,10 +46,13 @@ public class QueryStringUtils {
 
             for (String paramPair : paramPairs) {
                 String[] paramNameAndValue = paramPair.split("=");
-                paramName = paramNameAndValue[0].trim();
 
-                if (paramName.length() != 0) {
-                    queryParamMap.put(paramName, null);
+                if (paramNameAndValue != null && paramNameAndValue.length > 1) {
+                    paramName = paramNameAndValue[0].trim();
+
+                    if (paramName.length() != 0) {
+                        queryParamMap.put(paramName, null);
+                    }
                 }
             }
 
@@ -77,10 +80,13 @@ public class QueryStringUtils {
 
             for (String paramPair : paramPairs) {
                 String[] paramNameAndValue = paramPair.split("=");
-                paramName = paramNameAndValue[0].trim();
 
-                if (paramName.length() != 0) {
-                    queryParamMap.put(paramName, null);
+                if (paramNameAndValue != null && paramNameAndValue.length > 1) {
+                    paramName = paramNameAndValue[0].trim();
+
+                    if (paramName.length() != 0) {
+                        queryParamMap.put(paramName, null);
+                    }
                 }
             }
 

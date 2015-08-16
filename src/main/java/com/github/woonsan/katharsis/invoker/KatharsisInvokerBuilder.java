@@ -22,7 +22,6 @@ import io.katharsis.dispatcher.registry.ControllerRegistryBuilder;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryBuilder;
 import io.katharsis.jackson.JsonApiModuleBuilder;
-import io.katharsis.jackson.serializer.BaseResponseSerializer;
 import io.katharsis.locator.JsonServiceLocator;
 import io.katharsis.resource.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -143,7 +142,6 @@ public class KatharsisInvokerBuilder {
     protected Module createDataBindingModule(ResourceRegistry resourceRegistry) {
         JsonApiModuleBuilder jsonApiModuleBuilder = new JsonApiModuleBuilder();
         SimpleModule simpleModule = jsonApiModuleBuilder.build(resourceRegistry);
-        simpleModule.addSerializer(new BaseResponseSerializer(resourceRegistry));
         return simpleModule;
     }
 }

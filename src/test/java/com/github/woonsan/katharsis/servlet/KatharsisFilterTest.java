@@ -44,6 +44,14 @@ import com.github.woonsan.katharsis.invoker.JsonApiMediaType;
  */
 public class KatharsisFilterTest {
 
+    private static final String FIRST_TASK_ATTRIBUTES = "{\"name\":\"First task\"}";
+
+    private static final String SOME_TASK_ATTRIBUTES = "{\"name\":\"Some task\"}";
+
+    private static final String FIRST_TASK_LINKS = "{\"self\":\"http://localhost:8080/api/v1/tasks/1\"}";
+
+    private static final String PROJECT1_RELATIONSHIP_LINKS = "{\"self\":\"http://localhost:8080/api/v1/tasks/1/relationships/project\",\"related\":\"http://localhost:8080/api/v1/tasks/1/project\"}";
+
     private static Logger log = LoggerFactory.getLogger(KatharsisFilterTest.class);
 
     private static final String RESOURCE_SEARCH_PACKAGE = "com.github.woonsan.katharsis.resource";
@@ -101,8 +109,9 @@ public class KatharsisFilterTest {
 
         assertJsonPartEquals("tasks", responseContent, "data[0].type");
         assertJsonPartEquals("\"1\"", responseContent, "data[0].id");
-        assertJsonPartEquals("{\"name\":\"First task\",\"project\":null}", responseContent, "data[0].attributes");
-        assertJsonPartEquals("{\"self\":\"http://localhost:8080/api/v1/tasks/1\"}", responseContent, "data[0].relationships");
+        assertJsonPartEquals(FIRST_TASK_ATTRIBUTES, responseContent, "data[0].attributes");
+        assertJsonPartEquals(FIRST_TASK_LINKS, responseContent, "data[0].links");
+        assertJsonPartEquals(PROJECT1_RELATIONSHIP_LINKS, responseContent, "data[0].relationships.project.links");
         assertJsonPartEquals("[]", responseContent, "included");
     }
 
@@ -131,8 +140,9 @@ public class KatharsisFilterTest {
 
         assertJsonPartEquals("tasks", responseContent, "data.type");
         assertJsonPartEquals("\"1\"", responseContent, "data.id");
-        assertJsonPartEquals("{\"name\":\"Some task\",\"project\":null}", responseContent, "data.attributes");
-        assertJsonPartEquals("{\"self\":\"http://localhost:8080/api/v1/tasks/1\"}", responseContent, "data.relationships");
+        assertJsonPartEquals(SOME_TASK_ATTRIBUTES, responseContent, "data.attributes");
+        assertJsonPartEquals(FIRST_TASK_LINKS, responseContent, "data.links");
+        assertJsonPartEquals(PROJECT1_RELATIONSHIP_LINKS, responseContent, "data.relationships.project.links");
         assertJsonPartEquals("[]", responseContent, "included");
     }
 
@@ -161,8 +171,9 @@ public class KatharsisFilterTest {
 
         assertJsonPartEquals("tasks", responseContent, "data[0].type");
         assertJsonPartEquals("\"1\"", responseContent, "data[0].id");
-        assertJsonPartEquals("{\"name\":\"First task\",\"project\":null}", responseContent, "data[0].attributes");
-        assertJsonPartEquals("{\"self\":\"http://localhost:8080/api/v1/tasks/1\"}", responseContent, "data[0].relationships");
+        assertJsonPartEquals(FIRST_TASK_ATTRIBUTES, responseContent, "data[0].attributes");
+        assertJsonPartEquals(FIRST_TASK_LINKS, responseContent, "data[0].links");
+        assertJsonPartEquals(PROJECT1_RELATIONSHIP_LINKS, responseContent, "data[0].relationships.project.links");
         assertJsonPartEquals("[]", responseContent, "included");
     }
 

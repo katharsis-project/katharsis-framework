@@ -60,12 +60,7 @@ abstract public class AbstractKatharsisServlet extends HttpServlet {
         try {
             getKatharsisInvoker().invoke(invokerContext);
         } catch (KatharsisInvokerException e) {
-            if (log.isDebugEnabled()) {
-                log.warn("Katharsis Invoker exception.", e);
-            } else {
-                log.warn("Katharsis Invoker exception. {}", e.toString());
-            }
-
+            log.warn("Katharsis Invoker exception.", e);
             response.setStatus(e.getStatusCode());
         } catch (Exception e) {
             throw new ServletException("Katharsis invocation failed.", e);

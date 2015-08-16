@@ -17,7 +17,9 @@
 package com.github.woonsan.katharsis.resource.model;
 
 import io.katharsis.resource.annotations.JsonApiId;
+import io.katharsis.resource.annotations.JsonApiIncludeByDefault;
 import io.katharsis.resource.annotations.JsonApiResource;
+import io.katharsis.resource.annotations.JsonApiToOne;
 
 @JsonApiResource(type = "tasks")
 public class Task {
@@ -27,6 +29,8 @@ public class Task {
 
     private String name;
 
+    @JsonApiToOne
+    @JsonApiIncludeByDefault
     private Project project;
 
     public Task() {
