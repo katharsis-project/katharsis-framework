@@ -1,5 +1,16 @@
 # Release Process
 
+## Creating a release branch
+
+Create a release branch from the develop branch.
+
+        $ git checkout -b release-0.1.1 develop
+        Switched to a new branch "release-0.1.1"
+        $ mvn versions:set -DnewVersion="0.1.1"
+        $ git commit -a -m "Bumped version number to 0.1.1"
+        [release-0.1.1 74d9424] Bumped version number to 0.1.1
+        1 files changed, 1 insertions(+), 1 deletions(-)
+
 ## Finishing a release branch
 
         $ git checkout master
@@ -17,7 +28,7 @@ Need to merge those back into develop to merge hardening changes:
         Merge made by recursive.
         (Summary of changes)
 
-Done and the release branch may be removed:
+## Deleting the release branch
 
         $ git branch -d release-1.2
         Deleted branch release-1.2 (was ff452fe)
@@ -35,7 +46,7 @@ NOTE: The develop branch MUST have '-SNAPSHOT' version!!!
 
         $ git checkout develop
         $ mvn -Possrh-release clean deploy
-        (After inspecting the staging repository content...)
+        (After inspecting the staging repository content at https://oss.sonatype.org/)
         $ mvn -Possrh-release nexus-staging:release
 
 You should add the following repository configuration in other projects to use the snapshot dependency:
