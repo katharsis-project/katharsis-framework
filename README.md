@@ -83,10 +83,10 @@ Add the following dependency:
 
 ## Version Compatibility
 
-| katharsis-servlet  | katharsis-core |
-| ------------------ | -------------- |
-| 0.1.1              | 0.9.3          |
-| 0.1.0              | 0.9.2          |
+| katharsis-servlet.version | katharsis-core.version |
+| :-----------------------: | :--------------------: |
+|          0.1.1            |         0.9.3          |
+|          0.1.0            |         0.9.2          |
 
 # Demo in a Web Application
 
