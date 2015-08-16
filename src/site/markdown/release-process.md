@@ -30,8 +30,8 @@ Need to merge those back into develop to merge hardening changes:
 
 ## Deleting the release branch
 
-        $ git branch -d release-1.2
-        Deleted branch release-1.2 (was ff452fe)
+        $ git branch -d release-0.1.1
+        Deleted branch release-0.1.1 (was ff452fe)
 
 
 ## Deploying to Maven Central
