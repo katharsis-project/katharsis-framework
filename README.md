@@ -73,12 +73,14 @@ Add the following dependency:
                 <version>${katharsis-servlet.version}</version>
             </dependency>
 
-## Version Compatibility
+# Releases and Version Compatibility
 
 | katharsis-servlet  | katharsis-core |
 | ------------------ | -------------- |
 | 0.1.1              | 0.9.3          |
 | 0.1.0              | 0.9.2          |
+
+See [changes.xml](changes.xml) for details.
 
 # Demo in a Web Application
 
