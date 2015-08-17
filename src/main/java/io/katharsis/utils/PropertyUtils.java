@@ -88,7 +88,7 @@ public class PropertyUtils {
         return foundField;
     }
 
-    private List<Field> getClassFields(Class<?> beanClass) {
+    public static List<Field> getClassFields(Class<?> beanClass) {
         Map<String, Field> result = new HashMap<>();
 
         Class<?> currentClass = beanClass;

@@ -5,6 +5,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.lang.reflect.Field;
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class PropertyUtilsTest {
@@ -101,7 +104,7 @@ public class PropertyUtilsTest {
     @Test
     public void onJacksonPropertyWithMutatorsShouldReturnValue() throws Exception {
         // GIVEN
-        Bean bean = new ChildBean();
+        Bean bean = new Bean();
         bean.setJacksonProperty("value");
 
         // WHEN
@@ -195,13 +198,22 @@ public class PropertyUtilsTest {
     @Test
     public void onJacksonPropertyWithMutatorsShouldSetValue() throws Exception {
         // GIVEN
-        Bean bean = new ChildBean();
+        Bean bean = new Bean();
 
         // WHEN
         PropertyUtils.setProperty(bean, "annotatedJacksonProperty", "value");
 
         // THEN
         assertThat(bean.getJacksonProperty()).isEqualTo("value");
+    }
+
+    @Test
+    public void onClassInheritanceShouldReturnInheritedClasses() throws Exception {
+        // WHEN
+        List<Field> result = PropertyUtils.getClassFields(ChildClass.class);
+
+        // THEN
+        assertThat(result).hasSize(2);
     }
 
     public static class Bean {
@@ -248,5 +260,13 @@ public class PropertyUtilsTest {
 
     public static class ChildBean extends Bean {
 
+    }
+
+    public static class ParentClass {
+        private String parentField;
+    }
+
+    public static class ChildClass extends ParentClass {
+        private String childField;
     }
 }
