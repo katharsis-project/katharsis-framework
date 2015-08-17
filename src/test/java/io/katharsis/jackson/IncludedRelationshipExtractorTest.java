@@ -6,6 +6,7 @@ import io.katharsis.queryParams.RequestParams;
 import io.katharsis.queryParams.RequestParamsBuilder;
 import io.katharsis.request.path.FieldPath;
 import io.katharsis.request.path.ResourcePath;
+import io.katharsis.resource.ResourceField;
 import io.katharsis.resource.RestrictedQueryParamsMembers;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
@@ -14,7 +15,9 @@ import io.katharsis.response.ResourceResponse;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -24,10 +27,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class IncludedRelationshipExtractorTest {
 
     private IncludedRelationshipExtractor sut;
+    private ResourceField resourceField;
 
     @Before
     public void setUp() throws Exception {
         sut = new IncludedRelationshipExtractor();
+        Field someField = Task.class.getDeclaredField("project");
+        List<Annotation> declaredAnnotations = Arrays.asList(someField.getDeclaredAnnotations());
+        resourceField = new ResourceField(someField.getName(), someField.getType(), someField.getGenericType(),
+            declaredAnnotations);
     }
 
     @Test
@@ -36,7 +44,7 @@ public class IncludedRelationshipExtractorTest {
         ResourceResponse response = new ResourceResponse(null, null, new RequestParams(null));
 
         // WHEN
-        Set result = sut.extractIncludedResources(new Project(), Collections.<Field>emptySet(), response);
+        Set result = sut.extractIncludedResources(new Project(), Collections.<ResourceField>emptySet(), response);
 
         // THEN
         assertThat(result).isEmpty();
@@ -48,7 +56,7 @@ public class IncludedRelationshipExtractorTest {
         ResourceResponse response = new ResourceResponse(null, null, new RequestParams(null));
 
         // WHEN
-        Set result = sut.extractIncludedResources(new Task(), Collections.singleton(Task.class.getDeclaredField("project")), response);
+        Set result = sut.extractIncludedResources(new Task(), Collections.singleton(resourceField), response);
 
         // THEN
         assertThat(result).isEmpty();
@@ -63,7 +71,7 @@ public class IncludedRelationshipExtractorTest {
         resource.setProject(project);
 
         // WHEN
-        Set result = sut.extractIncludedResources(resource, Collections.singleton(Task.class.getDeclaredField("project")), response);
+        Set<?> result = sut.extractIncludedResources(resource, Collections.singleton(resourceField), response);
 
         // THEN
         assertThat(result).containsExactly(new Container(project, new RequestParams(null)));
@@ -80,7 +88,7 @@ public class IncludedRelationshipExtractorTest {
         resource.setProject(project);
 
         // WHEN
-        Set result = sut.extractIncludedResources(resource, Collections.emptySet(), response);
+        Set<?> result = sut.extractIncludedResources(resource, Collections.emptySet(), response);
 
         // THEN
         assertThat(result).containsExactly(new Container(project, new RequestParams(null)));
@@ -93,7 +101,7 @@ public class IncludedRelationshipExtractorTest {
         ResourceResponse response = new ResourceResponse(null, new ResourcePath("tasks"), requestParams);
 
         // WHEN
-        Set result = sut.extractIncludedResources(null, Collections.emptySet(), response);
+        Set<?> result = sut.extractIncludedResources(null, Collections.emptySet(), response);
 
         // THEN
         assertThat(result).isEmpty();
@@ -110,7 +118,7 @@ public class IncludedRelationshipExtractorTest {
         resource.setProject(project);
 
         // WHEN
-        Set result = sut.extractIncludedResources(resource, Collections.emptySet(), response);
+        Set<?> result = sut.extractIncludedResources(resource, Collections.emptySet(), response);
 
         // THEN
         assertThat(result).containsExactly(new Container(project, new RequestParams(null)));
@@ -126,7 +134,7 @@ public class IncludedRelationshipExtractorTest {
         ClassA classA = new ClassA(new ClassB(classC));
 
         // WHEN
-        Set result = sut.extractIncludedResources(classA, Collections.emptySet(), response);
+        Set<?> result = sut.extractIncludedResources(classA, Collections.emptySet(), response);
 
         // THEN
         assertThat(result).containsExactly(new Container(classC, new RequestParams(null)));
@@ -140,7 +148,7 @@ public class IncludedRelationshipExtractorTest {
         Task resource = new Task();
 
         // WHEN
-        Set result = sut.extractIncludedResources(resource, Collections.emptySet(), response);
+        Set<?> result = sut.extractIncludedResources(resource, Collections.emptySet(), response);
 
         // THEN
         assertThat(result).isEmpty();

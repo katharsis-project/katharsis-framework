@@ -2,12 +2,14 @@ package io.katharsis.resource.registry;
 
 import io.katharsis.locator.SampleJsonServiceLocator;
 import io.katharsis.repository.RepositoryNotFoundException;
+import io.katharsis.resource.ResourceFieldNameTransformer;
 import io.katharsis.resource.ResourceInformationBuilder;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.repository.TaskRepository;
 import io.katharsis.resource.mock.repository.TaskToProjectRepository;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -19,15 +21,21 @@ import static io.katharsis.resource.registry.ResourceRegistryTest.TEST_MODELS_UR
 public class ResourceRegistryBuilderTest {
 
     public static final String TEST_MODELS_PACKAGE = "io.katharsis.resource.mock";
-
+    private ResourceInformationBuilder resourceInformationBuilder;
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
+    @Before
+    public void setUp() throws Exception {
+        resourceInformationBuilder = new ResourceInformationBuilder(new ResourceFieldNameTransformer());
+    }
+
     @Test
     public void onValidPackageShouldBuildRegistry() {
         // GIVEN
-        ResourceRegistryBuilder sut = new ResourceRegistryBuilder(new SampleJsonServiceLocator(), new ResourceInformationBuilder());
+        ResourceRegistryBuilder sut = new ResourceRegistryBuilder(new SampleJsonServiceLocator(),
+            resourceInformationBuilder);
 
         // WHEN
         ResourceRegistry resourceRegistry = sut.build(TEST_MODELS_PACKAGE, TEST_MODELS_URL);
@@ -53,7 +61,8 @@ public class ResourceRegistryBuilderTest {
     @Test
     public void onValidPackagesShouldBuildRegistry() {
         // GIVEN
-        ResourceRegistryBuilder sut = new ResourceRegistryBuilder(new SampleJsonServiceLocator(), new ResourceInformationBuilder());
+        ResourceRegistryBuilder sut = new ResourceRegistryBuilder(new SampleJsonServiceLocator(),
+            resourceInformationBuilder);
         String packageNames = String.format("java.lang,%s,io.katharsis.locator", TEST_MODELS_PACKAGE);
 
         // WHEN
@@ -75,7 +84,7 @@ public class ResourceRegistryBuilderTest {
                     return super.getInstance(clazz);
                 }
             }
-        }, new ResourceInformationBuilder());
+        }, resourceInformationBuilder);
 
         // THEN
         expectedException.expect(RepositoryNotFoundException.class);
@@ -95,7 +104,7 @@ public class ResourceRegistryBuilderTest {
                     return super.getInstance(clazz);
                 }
             }
-        }, new ResourceInformationBuilder());
+        }, resourceInformationBuilder);
 
         // THEN
         expectedException.expect(RepositoryNotFoundException.class);
@@ -115,7 +124,7 @@ public class ResourceRegistryBuilderTest {
                     return super.getInstance(clazz);
                 }
             }
-        }, new ResourceInformationBuilder());
+        }, resourceInformationBuilder);
 
         // THEN
         expectedException.expect(RepositoryNotFoundException.class);

@@ -1,14 +1,14 @@
 package io.katharsis.utils;
 
-import java.lang.reflect.*;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 
 public class Generics {
 
-    public static Class<?> getResourceClass(Field relationshipField, Class baseClass) {
+    public static Class<?> getResourceClass(Type genericType, Class baseClass) {
         if (Iterable.class.isAssignableFrom(baseClass)) {
-            Type genericFieldType = relationshipField.getGenericType();
-            if (genericFieldType instanceof ParameterizedType) {
-                ParameterizedType aType = (ParameterizedType) genericFieldType;
+            if (genericType instanceof ParameterizedType) {
+                ParameterizedType aType = (ParameterizedType) genericType;
                 Type[] fieldArgTypes = aType.getActualTypeArguments();
                 if (fieldArgTypes.length == 1 && fieldArgTypes[0] instanceof Class<?>) {
                     return (Class) fieldArgTypes[0];
@@ -17,7 +17,7 @@ public class Generics {
                 }
             } else {
                 throw new RuntimeException("The relationship must be parametrized (cannot be wildcard or array): "
-                        + genericFieldType);
+                    + genericType);
             }
         }
         return baseClass;

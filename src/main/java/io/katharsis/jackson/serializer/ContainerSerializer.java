@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import io.katharsis.jackson.exception.JsonSerializationException;
 import io.katharsis.request.dto.Attributes;
-import io.katharsis.resource.ResourceFieldNameTransformer;
+import io.katharsis.resource.ResourceField;
 import io.katharsis.resource.ResourceInformation;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -15,7 +15,6 @@ import io.katharsis.utils.BeanUtils;
 import io.katharsis.utils.PropertyUtils;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Set;
@@ -34,7 +33,6 @@ public class ContainerSerializer extends JsonSerializer<Container> {
     private static final String RELATIONSHIPS_FIELD_NAME = "relationships";
     private static final String LINKS_FIELD_NAME = "links";
     private static final String SELF_FIELD_NAME = "self";
-    private static final ResourceFieldNameTransformer RESOURCE_FIELD_NAME_TRANSFORMER = new ResourceFieldNameTransformer();
 
     private ResourceRegistry resourceRegistry;
 
@@ -58,7 +56,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
      * Writes a value. Each serialized container must contain type field whose value is string
      * <a href="http://jsonapi.org/format/#document-structure-resource-types"></a>.
      */
-    private void writeData(JsonGenerator gen, Object data, List includedFields) throws IOException {
+    private void writeData(JsonGenerator gen, Object data, List<String> includedFields) throws IOException {
         Class<?> dataClass = data.getClass();
         String resourceType = resourceRegistry.getResourceType(dataClass);
 
@@ -77,24 +75,25 @@ public class ContainerSerializer extends JsonSerializer<Container> {
             writeAttributes(gen, data, resourceInformation.getAttributeFields(), includedFields);
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             throw new JsonSerializationException("Error writing basic fields: " +
-                resourceInformation.getAttributeFields().stream().map(Field::getName).collect(Collectors.toSet()));
+                resourceInformation.getAttributeFields().stream().map(ResourceField::getName)
+                    .collect(Collectors.toSet()));
         }
 
-        Set<Field> relationshipFields = getRelationshipFields(resourceInformation, includedFields);
+        Set<ResourceField> relationshipFields = getRelationshipFields(resourceInformation, includedFields);
         writeRelationshipFields(gen, data, relationshipFields);
         writeLinksField(gen, data);
     }
 
-    private Set<Field> getRelationshipFields(ResourceInformation resourceInformation, List includedFields) {
-        Set<Field> relationshipFields = resourceInformation.getRelationshipFields();
+    private Set<ResourceField> getRelationshipFields(ResourceInformation resourceInformation, List includedFields) {
+        Set<ResourceField> relationshipFields = resourceInformation.getRelationshipFields();
 
         if (includedFields == null || includedFields.isEmpty()) {
             return relationshipFields;
         } else {
             return relationshipFields
-                    .stream()
-                    .filter(field -> includedFields.contains(field.getName()))
-                    .collect(Collectors.toSet());
+                .stream()
+                .filter(field -> includedFields.contains(field.getName()))
+                .collect(Collectors.toSet());
         }
     }
 
@@ -102,38 +101,32 @@ public class ContainerSerializer extends JsonSerializer<Container> {
      * The id MUST be written as a string
      * <a href="http://jsonapi.org/format/#document-structure-resource-ids">Resource IDs</a>.
      */
-    private void writeId(JsonGenerator gen, Object data, Field idField)
-            throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
-        String sourceId = BeanUtils.getProperty(data, idField);
+    private void writeId(JsonGenerator gen, Object data, ResourceField idField)
+        throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
+        String sourceId = BeanUtils.getProperty(data, idField.getName());
         gen.writeObjectField(ID_FIELD_NAME, sourceId);
     }
 
-    private void writeAttributes(JsonGenerator gen, Object data, Set<Field> attributeFields, List includedFields)
-            throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
+    private void writeAttributes(JsonGenerator gen, Object data, Set<ResourceField> attributeFields,
+        List<String> includedFields)
+        throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
 
         Attributes attributesObject = new Attributes();
-        for (Field attributeField : attributeFields) {
-            if (!attributeField.isSynthetic() && isIncluded(includedFields, attributeField)) {
-                Object basicFieldValue = PropertyUtils.getProperty(data, attributeField);
-                attributesObject.addAttribute(RESOURCE_FIELD_NAME_TRANSFORMER.getName(attributeField), basicFieldValue);
+        for (ResourceField attributeField : attributeFields) {
+            if (isIncluded(includedFields, attributeField)) {
+                Object basicFieldValue = PropertyUtils.getProperty(data, attributeField.getName());
+                attributesObject.addAttribute(attributeField.getName(), basicFieldValue);
             }
         }
         gen.writeObjectField(ATTRIBUTES_FIELD_NAME, attributesObject);
     }
 
-    private boolean isIncluded(List includedFields, Field attributeField) {
-        if (includedFields == null || includedFields.isEmpty()) {
-            return true;
-        } else {
-            String fieldName = RESOURCE_FIELD_NAME_TRANSFORMER.getName(attributeField);
-            if (includedFields.contains(fieldName)) {
-                return true;
-            }
-        }
-        return false;
+    private boolean isIncluded(List<String> includedFields, ResourceField attributeField) {
+        return includedFields == null || includedFields.isEmpty() || includedFields.contains(attributeField.getName());
     }
 
-    private void writeRelationshipFields(JsonGenerator gen, Object data, Set<Field> relationshipFields) throws IOException {
+    private void writeRelationshipFields(JsonGenerator gen, Object data, Set<ResourceField> relationshipFields)
+        throws IOException {
         DataLinksContainer dataLinksContainer = new DataLinksContainer(data, relationshipFields);
         gen.writeObjectField(RELATIONSHIPS_FIELD_NAME, dataLinksContainer);
     }
@@ -149,9 +142,9 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         Class<?> sourceClass = data.getClass();
         String resourceUrl = resourceRegistry.getResourceUrl(sourceClass);
         RegistryEntry entry = resourceRegistry.getEntry(sourceClass);
-        Field idField = entry.getResourceInformation().getIdField();
+        ResourceField idField = entry.getResourceInformation().getIdField();
 
-        Object sourceId = PropertyUtils.getProperty(data, idField);
+        Object sourceId = PropertyUtils.getProperty(data, idField.getName());
         gen.writeStringField(SELF_FIELD_NAME, resourceUrl + "/" + sourceId);
     }
 

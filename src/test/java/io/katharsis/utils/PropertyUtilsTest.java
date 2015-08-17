@@ -1,5 +1,6 @@
 package io.katharsis.utils;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -17,7 +18,7 @@ public class PropertyUtilsTest {
         expectedException.expect(IllegalArgumentException.class);
 
         // WHEN
-        PropertyUtils.getProperty(null, Bean.class.getDeclaredField("privatePropertyWithMutators"));
+        PropertyUtils.getProperty(null, "privatePropertyWithMutators");
     }
 
     @Test
@@ -40,7 +41,7 @@ public class PropertyUtilsTest {
 
         // WHEN
         Object result = PropertyUtils
-            .getProperty(bean, Bean.class.getDeclaredField("booleanPrimitivePropertyWithMutators"));
+            .getProperty(bean, "booleanPrimitivePropertyWithMutators");
 
         // THEN
         assertThat(result).isEqualTo(true);
@@ -53,7 +54,7 @@ public class PropertyUtilsTest {
         bean.setBooleanPropertyWithMutators(true);
 
         // WHEN
-        Object result = PropertyUtils.getProperty(bean, Bean.class.getDeclaredField("booleanPropertyWithMutators"));
+        Object result = PropertyUtils.getProperty(bean, "booleanPropertyWithMutators");
 
         // THEN
         assertThat(result).isEqualTo(true);
@@ -66,7 +67,7 @@ public class PropertyUtilsTest {
         bean.publicProperty = "value";
 
         // WHEN
-        Object result = PropertyUtils.getProperty(bean, Bean.class.getDeclaredField("publicProperty"));
+        Object result = PropertyUtils.getProperty(bean, "publicProperty");
 
         // THEN
         assertThat(result).isEqualTo("value");
@@ -81,7 +82,7 @@ public class PropertyUtilsTest {
         expectedException.expect(RuntimeException.class);
 
         // WHEN
-        PropertyUtils.getProperty(bean, Bean.class.getDeclaredField("protectedProperty"));
+        PropertyUtils.getProperty(bean, "protectedProperty");
     }
 
     @Test
@@ -91,7 +92,20 @@ public class PropertyUtilsTest {
         bean.setPrivatePropertyWithMutators("value");
 
         // WHEN
-        Object result = PropertyUtils.getProperty(bean, Bean.class.getDeclaredField("privatePropertyWithMutators"));
+        Object result = PropertyUtils.getProperty(bean, "privatePropertyWithMutators");
+
+        // THEN
+        assertThat(result).isEqualTo("value");
+    }
+
+    @Test
+    public void onJacksonPropertyWithMutatorsShouldReturnValue() throws Exception {
+        // GIVEN
+        Bean bean = new ChildBean();
+        bean.setJacksonProperty("value");
+
+        // WHEN
+        Object result = PropertyUtils.getProperty(bean, "annotatedJacksonProperty");
 
         // THEN
         assertThat(result).isEqualTo("value");
@@ -103,7 +117,7 @@ public class PropertyUtilsTest {
         expectedException.expect(IllegalArgumentException.class);
 
         // WHEN
-        PropertyUtils.setProperty(null, Bean.class.getDeclaredField("privatePropertyWithMutators"), null);
+        PropertyUtils.setProperty(null, "privatePropertyWithMutators", null);
     }
 
     @Test
@@ -124,7 +138,7 @@ public class PropertyUtilsTest {
         Bean bean = new Bean();
 
         // WHEN
-        PropertyUtils.setProperty(bean, Bean.class.getDeclaredField("booleanPrimitivePropertyWithMutators"), true);
+        PropertyUtils.setProperty(bean, "booleanPrimitivePropertyWithMutators", true);
 
         // THEN
         assertThat(bean.isBooleanPrimitivePropertyWithMutators()).isEqualTo(true);
@@ -136,7 +150,7 @@ public class PropertyUtilsTest {
         Bean bean = new Bean();
 
         // WHEN
-        PropertyUtils.setProperty(bean, Bean.class.getDeclaredField("booleanPropertyWithMutators"), true);
+        PropertyUtils.setProperty(bean, "booleanPropertyWithMutators", true);
 
         // THEN
         assertThat(bean.getBooleanPropertyWithMutators()).isEqualTo(true);
@@ -148,7 +162,7 @@ public class PropertyUtilsTest {
         Bean bean = new Bean();
 
         // WHEN
-        PropertyUtils.setProperty(bean, Bean.class.getDeclaredField("publicProperty"), "value");
+        PropertyUtils.setProperty(bean, "publicProperty", "value");
 
         // THEN
         assertThat(bean.publicProperty).isEqualTo("value");
@@ -163,7 +177,7 @@ public class PropertyUtilsTest {
         expectedException.expect(RuntimeException.class);
 
         // WHEN
-        PropertyUtils.setProperty(bean, Bean.class.getDeclaredField("protectedProperty"), null);
+        PropertyUtils.setProperty(bean, "protectedProperty", null);
     }
 
     @Test
@@ -172,10 +186,22 @@ public class PropertyUtilsTest {
         Bean bean = new ChildBean();
 
         // WHEN
-        PropertyUtils.setProperty(bean, Bean.class.getDeclaredField("privatePropertyWithMutators"), "value");
+        PropertyUtils.setProperty(bean, "privatePropertyWithMutators", "value");
 
         // THEN
         assertThat(bean.getPrivatePropertyWithMutators()).isEqualTo("value");
+    }
+
+    @Test
+    public void onJacksonPropertyWithMutatorsShouldSetValue() throws Exception {
+        // GIVEN
+        Bean bean = new ChildBean();
+
+        // WHEN
+        PropertyUtils.setProperty(bean, "annotatedJacksonProperty", "value");
+
+        // THEN
+        assertThat(bean.getJacksonProperty()).isEqualTo("value");
     }
 
     public static class Bean {
@@ -184,6 +210,8 @@ public class PropertyUtilsTest {
         private Boolean booleanPropertyWithMutators;
         public String publicProperty;
         protected String protectedProperty;
+        @JsonProperty("annotatedJacksonProperty")
+        private String jacksonProperty;
 
         public String getPrivatePropertyWithMutators() {
             return privatePropertyWithMutators;
@@ -207,6 +235,14 @@ public class PropertyUtilsTest {
 
         public void setBooleanPropertyWithMutators(Boolean booleanPropertyWithMutators) {
             this.booleanPropertyWithMutators = booleanPropertyWithMutators;
+        }
+
+        public String getJacksonProperty() {
+            return jacksonProperty;
+        }
+
+        public void setJacksonProperty(String jacksonProperty) {
+            this.jacksonProperty = jacksonProperty;
         }
     }
 

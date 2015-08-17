@@ -2,6 +2,7 @@ package io.katharsis.jackson.serializer;
 
 import io.katharsis.queryParams.include.Inclusion;
 import io.katharsis.request.path.ResourcePath;
+import io.katharsis.resource.ResourceField;
 import io.katharsis.resource.annotations.JsonApiIncludeByDefault;
 import io.katharsis.response.BaseResponse;
 import io.katharsis.response.Container;
@@ -16,7 +17,8 @@ import java.util.*;
  */
 public class IncludedRelationshipExtractor {
 
-    public Set<?> extractIncludedResources(Object resource, Set<Field> relationshipFields, BaseResponse response) {
+    public Set<?> extractIncludedResources(Object resource, Set<ResourceField> relationshipFields,
+        BaseResponse response) {
         Set includedResources = new HashSet<>();
         includedResources.addAll(extractDefaultIncludedFields(resource, relationshipFields, response));
         try {
@@ -28,9 +30,10 @@ public class IncludedRelationshipExtractor {
         return includedResources;
     }
 
-    private List<?> extractDefaultIncludedFields(Object resource, Set<Field> relationshipFields, BaseResponse response) {
+    private List<?> extractDefaultIncludedFields(Object resource, Set<ResourceField> relationshipFields,
+        BaseResponse response) {
         List<?> includedResources = new LinkedList<>();
-        for (Field relationshipField : relationshipFields) {
+        for (ResourceField relationshipField : relationshipFields) {
             if (relationshipField.isAnnotationPresent(JsonApiIncludeByDefault.class)) {
                 includedResources.addAll(getIncludedFromRelation(relationshipField, resource, response));
             }
@@ -76,8 +79,8 @@ public class IncludedRelationshipExtractor {
                 return Collections.emptySet();
             }
         }
-        Field field = resource.getClass().getField(pathList.get(0));
-        Object property = PropertyUtils.getProperty(resource, field);
+        Field field = resource.getClass().getDeclaredField(pathList.get(0));
+        Object property = PropertyUtils.getProperty(resource, field.getName());
         if (property != null) {
             List<String> subPathList = pathList.subList(1, pathList.size());
             if (Iterable.class.isAssignableFrom(property.getClass())) {
@@ -94,9 +97,9 @@ public class IncludedRelationshipExtractor {
         return elements;
     }
 
-    private List getIncludedFromRelation(Field relationshipField, Object resource, BaseResponse response) {
+    private List getIncludedFromRelation(ResourceField relationshipField, Object resource, BaseResponse response) {
         List<Container> includedFields = new LinkedList<>();
-        Object targetDataObj = PropertyUtils.getProperty(resource, relationshipField);
+        Object targetDataObj = PropertyUtils.getProperty(resource, relationshipField.getName());
         if (targetDataObj != null) {
             if (Iterable.class.isAssignableFrom(targetDataObj.getClass())) {
                 for (Object objectItem : (Iterable) targetDataObj) {

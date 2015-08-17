@@ -1,8 +1,8 @@
 package io.katharsis.response;
 
 import io.katharsis.jackson.serializer.RelationshipContainerSerializer;
+import io.katharsis.resource.ResourceField;
 
-import java.lang.reflect.Field;
 import java.util.Objects;
 
 /**
@@ -22,14 +22,14 @@ import java.util.Objects;
  */
 public class RelationshipContainer {
     private final DataLinksContainer dataLinksContainer;
-    private final Field relationshipField;
+    private final ResourceField relationshipField;
 
-    public RelationshipContainer(DataLinksContainer dataLinksContainer, Field relationshipField) {
+    public RelationshipContainer(DataLinksContainer dataLinksContainer, ResourceField relationshipField) {
         this.dataLinksContainer = dataLinksContainer;
         this.relationshipField = relationshipField;
     }
 
-    public Field getRelationshipField() {
+    public ResourceField getRelationshipField() {
         return relationshipField;
     }
 

@@ -62,7 +62,7 @@ public class ResourcePost extends ResourceUpsert {
         saveRelations(savedResource, registryEntry, dataBody);
 
         Serializable resourceId = (Serializable) PropertyUtils
-            .getProperty(savedResource, registryEntry.getResourceInformation().getIdField());
+            .getProperty(savedResource, registryEntry.getResourceInformation().getIdField().getName());
 
         Object savedResourceWithRelations = registryEntry.getResourceRepository().findOne(resourceId, requestParams);
 

@@ -12,7 +12,7 @@ public class BeanUtilsTest {
         PropertyUtilsTest.Bean bean = new PropertyUtilsTest.Bean();
 
         // WHEN
-        Object result = BeanUtils.getProperty(bean, PropertyUtilsTest.Bean.class.getDeclaredField("publicProperty"));
+        Object result = BeanUtils.getProperty(bean, "publicProperty");
 
         // THEN
         assertThat(result).isEqualTo("null");
@@ -25,8 +25,7 @@ public class BeanUtilsTest {
         bean.setBooleanPrimitivePropertyWithMutators(true);
 
         // WHEN
-        Object result = BeanUtils.
-            getProperty(bean, PropertyUtilsTest.Bean.class.getDeclaredField("booleanPrimitivePropertyWithMutators"));
+        Object result = BeanUtils.getProperty(bean, "booleanPrimitivePropertyWithMutators");
 
         // THEN
         assertThat(result).isEqualTo("true");

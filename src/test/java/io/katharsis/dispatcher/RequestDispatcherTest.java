@@ -9,6 +9,7 @@ import io.katharsis.locator.SampleJsonServiceLocator;
 import io.katharsis.queryParams.RequestParams;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathBuilder;
+import io.katharsis.resource.ResourceFieldNameTransformer;
 import io.katharsis.resource.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryBuilder;
@@ -33,8 +34,12 @@ public class RequestDispatcherTest {
 
     @Before
     public void prepare() {
-        ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonServiceLocator(), new ResourceInformationBuilder());
-        resourceRegistry = registryBuilder.build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, ResourceRegistryTest.TEST_MODELS_URL);
+        ResourceInformationBuilder resourceInformationBuilder = new ResourceInformationBuilder(
+            new ResourceFieldNameTransformer());
+        ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonServiceLocator(),
+            resourceInformationBuilder);
+        resourceRegistry = registryBuilder
+            .build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, ResourceRegistryTest.TEST_MODELS_URL);
     }
 
     @Test
@@ -64,14 +69,15 @@ public class RequestDispatcherTest {
         ControllerRegistry controllerRegistry = mock(ControllerRegistry.class);
         when(controllerRegistry.getController(any(JsonPath.class), anyString())).thenThrow(IllegalStateException.class);
 
-        RequestDispatcher requestDispatcher = new RequestDispatcher(controllerRegistry, ExceptionMapperRegistryTest.exceptionMapperRegistry);
+        RequestDispatcher requestDispatcher = new RequestDispatcher(controllerRegistry,
+            ExceptionMapperRegistryTest.exceptionMapperRegistry);
 
         BaseResponse<?> response = requestDispatcher.dispatchRequest(null, null, null, null);
         assertThat(response)
-                .isNotNull()
-                .isExactlyInstanceOf(ErrorResponse.class);
+            .isNotNull()
+            .isExactlyInstanceOf(ErrorResponse.class);
 
-        ErrorResponse errorResponse = (ErrorResponse)response;
+        ErrorResponse errorResponse = (ErrorResponse) response;
         assertThat(errorResponse.getHttpStatus()).isEqualTo(HttpStatus.BAD_REQUEST_400);
 
     }
@@ -81,7 +87,8 @@ public class RequestDispatcherTest {
         ControllerRegistry controllerRegistry = mock(ControllerRegistry.class);
         when(controllerRegistry.getController(any(JsonPath.class), anyString())).thenThrow(ArithmeticException.class);
 
-        RequestDispatcher requestDispatcher = new RequestDispatcher(controllerRegistry, ExceptionMapperRegistryTest.exceptionMapperRegistry);
+        RequestDispatcher requestDispatcher = new RequestDispatcher(controllerRegistry,
+            ExceptionMapperRegistryTest.exceptionMapperRegistry);
 
         expectedException.expect(ArithmeticException.class);
 

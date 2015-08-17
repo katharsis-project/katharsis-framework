@@ -8,6 +8,7 @@ import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathIds;
 import io.katharsis.request.path.RelationshipsPath;
+import io.katharsis.resource.ResourceField;
 import io.katharsis.resource.exception.ResourceFieldNotFoundException;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -19,7 +20,6 @@ import io.katharsis.utils.Generics;
 import io.katharsis.utils.parser.TypeParser;
 
 import java.io.Serializable;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedList;
 import java.util.List;
@@ -50,13 +50,15 @@ public class RelationshipsResourceGet implements BaseController {
 
         Serializable castedResourceId = getResourceId(resourceIds, registryEntry);
         String elementName = jsonPath.getElementName();
-        Field relationshipField = registryEntry.getResourceInformation().findRelationshipFieldByName(elementName);
+        ResourceField relationshipField = registryEntry.getResourceInformation()
+            .findRelationshipFieldByName(elementName);
         if (relationshipField == null) {
             throw new ResourceFieldNotFoundException(elementName);
         }
 
         Class<?> baseRelationshipFieldClass = relationshipField.getType();
-        Class<?> relationshipFieldClass = Generics.getResourceClass(relationshipField, baseRelationshipFieldClass);
+        Class<?> relationshipFieldClass = Generics
+            .getResourceClass(relationshipField.getGenericType(), baseRelationshipFieldClass);
 
         RelationshipRepository relationshipRepositoryForClass = registryEntry.getRelationshipRepositoryForClass(relationshipFieldClass);
         RegistryEntry relationshipFieldEntry = resourceRegistry.getEntry(relationshipFieldClass);
