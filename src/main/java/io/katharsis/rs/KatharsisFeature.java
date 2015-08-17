@@ -8,6 +8,7 @@ import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryBuilder;
 import io.katharsis.jackson.JsonApiModuleBuilder;
 import io.katharsis.locator.JsonServiceLocator;
+import io.katharsis.resource.ResourceFieldNameTransformer;
 import io.katharsis.resource.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryBuilder;
@@ -79,7 +80,7 @@ public class KatharsisFeature implements Feature {
 
     private ResourceRegistry buildResourceRegistry(String resourceSearchPackage, String serviceUrl) {
         ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(jsonServiceLocator,
-            new ResourceInformationBuilder());
+            new ResourceInformationBuilder(new ResourceFieldNameTransformer()));
         return registryBuilder.build(resourceSearchPackage, serviceUrl);
     }
 
