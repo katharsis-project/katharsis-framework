@@ -30,8 +30,8 @@ Need to merge those back into develop to merge hardening changes:
 
 ## Deleting the release branch
 
-        $ git branch -d release-1.2
-        Deleted branch release-1.2 (was ff452fe)
+        $ git branch -d release-0.1.1
+        Deleted branch release-0.1.1 (was ff452fe)
 
 
 ## Deploying to Maven Central
@@ -48,6 +48,11 @@ NOTE: The develop branch MUST have '-SNAPSHOT' version!!!
         $ mvn -Possrh-release clean deploy
         (After inspecting the staging repository content at https://oss.sonatype.org/)
         $ mvn -Possrh-release nexus-staging:release
+
+If you find something went wrong you can drop the staging repository with
+
+        $ mvn nexus-staging:drop
+
 
 You should add the following repository configuration in other projects to use the snapshot dependency:
 

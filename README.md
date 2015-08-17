@@ -19,7 +19,9 @@ or even non-ServletAPI-based frameworks such as Portal/Portlet, Wicket, etc.
 
 This module provides an abstract class, [AbstractKatharsisFilter.java](src/main/java/com/github/woonsan/katharsis/servlet/AbstractKatharsisFilter.java). Basically you need to override the following method at least as well:
 
+```java
     abstract protected KatharsisInvokerBuilder createKatharsisInvokerBuilder();
+```
 
 Also see [SampleKatharsisFilter.java](src/main/java/com/github/woonsan/katharsis/servlet/SampleKatharsisFilter.java) as a servlet filter implementation example, and [web.xml](src/test/webapp/WEB-INF/web.xml) as a configuration example.
 
@@ -27,7 +29,9 @@ Also see [SampleKatharsisFilter.java](src/main/java/com/github/woonsan/katharsis
 
 This module provides an abstract class, [AbstractKatharsisServlet.java](src/main/java/com/github/woonsan/katharsis/servlet/AbstractKatharsisServlet.java). Basically you need to override the following method at least:
 
+```java
     abstract protected KatharsisInvokerBuilder createKatharsisInvokerBuilder();
+```
 
 Also see [SampleKatharsisServlet.java](src/main/java/com/github/woonsan/katharsis/servlet/SampleKatharsisServlet.java) as a servlet implementation example, and [web.xml](src/test/webapp/WEB-INF/web.xml) as a configuration example.
 
@@ -42,6 +46,7 @@ For example, you can create a new JsonServiceLocator to get a bean (singleton or
 from Spring Web Application Context like the following example:
 
 
+```java
             /**
              * NOTE: A class extending this must provide a platform specific {@link JsonServiceLocator}
              *       instead of the (testing-purpose) {@link SampleJsonServiceLocator} below
@@ -60,6 +65,7 @@ from Spring Web Application Context like the following example:
                             }
                         });
             }
+```
 
 You will probably get the idea on how to integrate with other containers as well from the example.
 
@@ -67,18 +73,20 @@ You will probably get the idea on how to integrate with other containers as well
 
 Add the following dependency:
 
+```xml
             <dependency>
                 <groupId>com.github.woonsan</groupId>
                 <artifactId>katharsis-servlet</artifactId>
                 <version>${katharsis-servlet.version}</version>
             </dependency>
+```
 
 # Releases and Version Compatibility
 
-| katharsis-servlet  | katharsis-core |
-| ------------------ | -------------- |
-| 0.1.1              | 0.9.3          |
-| 0.1.0              | 0.9.2          |
+| katharsis-servlet.version | katharsis-core.version |
+| :-----------------------: | :--------------------: |
+|          0.1.1            |         0.9.3          |
+|          0.1.0            |         0.9.2          |
 
 See [changes.xml](changes.xml) for details.
 
@@ -86,6 +94,8 @@ See [changes.xml](changes.xml) for details.
 
 Please run the following command in this project root folder:
 
+```bash
     $ mvn -Prun clean verify
+```
 
 Visit [http://localhost:8080/katharsis/](http://localhost:8080/katharsis/) and test out each JSON API link.
