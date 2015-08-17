@@ -6,6 +6,7 @@ import io.katharsis.resource.annotations.JsonApiToMany;
 import io.katharsis.resource.annotations.JsonApiToOne;
 import io.katharsis.resource.exception.init.ResourceDuplicateIdException;
 import io.katharsis.resource.exception.init.ResourceIdNotFoundException;
+import io.katharsis.utils.PropertyUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -28,16 +29,21 @@ public final class ResourceInformationBuilder {
     }
 
     public ResourceInformation build(Class<?> resourceClass) {
-        ResourceField idField = getIdField(resourceClass);
+        List<Field> classFields = PropertyUtils.getClassFields(resourceClass);
+
+        ResourceField idField = getIdField(resourceClass, classFields);
+        Set<ResourceField> basicFields = getBasicFields(classFields, idField);
+        Set<ResourceField> relationshipFields = getRelationshipFields(classFields, idField);
+
         return new ResourceInformation(
             resourceClass,
             idField,
-            getBasicFields(resourceClass, idField),
-            getRelationshipFields(resourceClass, idField));
+            basicFields,
+            relationshipFields);
     }
 
-    private <T> ResourceField getIdField(Class<T> resourceClass) {
-        List<Field> idFields = Arrays.stream(resourceClass.getDeclaredFields())
+    private <T> ResourceField getIdField(Class<T> resourceClass, List<Field> classFields) {
+        List<Field> idFields = classFields.stream()
             .filter(this::isIdField)
             .collect(Collectors.toList());
 
@@ -61,8 +67,8 @@ public final class ResourceInformationBuilder {
             .isSynthetic();
     }
 
-    private <T> Set<ResourceField> getBasicFields(Class<T> resourceClass, ResourceField idField) {
-        return Arrays.stream(resourceClass.getDeclaredFields())
+    private <T> Set<ResourceField> getBasicFields(List<Field> classFields, ResourceField idField) {
+        return classFields.stream()
             .filter(field -> !isRelationshipType(field) && !isIgnorable(field))
             .map(field -> {
                 String name = resourceFieldNameTransformer.getName(field);
@@ -73,8 +79,8 @@ public final class ResourceInformationBuilder {
             .collect(Collectors.toSet());
     }
 
-    private <T> Set<ResourceField> getRelationshipFields(Class<T> resourceClass, ResourceField idField) {
-        return Arrays.stream(resourceClass.getDeclaredFields())
+    private <T> Set<ResourceField> getRelationshipFields(List<Field> classFields, ResourceField idField) {
+        return classFields.stream()
             .filter(this::isRelationshipType)
             .map(field -> {
                 String name = resourceFieldNameTransformer.getName(field);
