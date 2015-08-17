@@ -81,7 +81,7 @@ Add the following dependency:
     </dependency>
 ```
 
-# Releases and Version Compatibility
+# Releases and Compatibility
 
 | katharsis-servlet.version | katharsis-core.version |
 | :-----------------------: | :--------------------: |
