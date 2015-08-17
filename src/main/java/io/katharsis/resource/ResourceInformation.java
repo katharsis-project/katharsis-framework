@@ -7,9 +7,6 @@ import java.util.Set;
  * Holds information about the type of the resource.
  */
 public final class ResourceInformation {
-
-    private static final ResourceFieldNameTransformer RESOURCE_FIELD_NAME_TRANSFORMER = new ResourceFieldNameTransformer();
-
     private final Class<?> resourceClass;
 
     /**

@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 /**
  * A builder which creates ResourceInformation instances of a specific class. It extracts information about a resource
- * from annotations.
+ * from annotations and information about fields.
  */
 public final class ResourceInformationBuilder {
 
