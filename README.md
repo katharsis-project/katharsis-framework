@@ -47,24 +47,24 @@ from Spring Web Application Context like the following example:
 
 
 ```java
-            /**
-             * NOTE: A class extending this must provide a platform specific {@link JsonServiceLocator}
-             *       instead of the (testing-purpose) {@link SampleJsonServiceLocator} below
-             *       in order to provide advanced dependency injections for the repositories.
-             */
-            @Override
-            protected KatharsisInvokerBuilder createKatharsisInvokerBuilder() {
-                return new KatharsisInvokerBuilder()
-                        .resourceSearchPackage(getResourceSearchPackage())
-                        .resourceDefaultDomain(getResourceDefaultDomain())
-                        .jsonServiceLocator(new JsonServiceLocator() {
-                            @Override
-                            public <T> T getInstance(Class<T> clazz) {
-                                // assuming the repository beans can be retrieved from the WebApplicationContext and are identified by the FQCN in this exmaple.
-                                return WebApplicationContextUtils.getWebApplicationContext(getServletContext()).getBean(clazz.getName());
-                            }
-                        });
-            }
+    /**
+     * NOTE: A class extending this must provide a platform specific {@link JsonServiceLocator}
+     *       instead of the (testing-purpose) {@link SampleJsonServiceLocator} below
+     *       in order to provide advanced dependency injections for the repositories.
+     */
+    @Override
+    protected KatharsisInvokerBuilder createKatharsisInvokerBuilder() {
+        return new KatharsisInvokerBuilder()
+                .resourceSearchPackage(getResourceSearchPackage())
+                .resourceDefaultDomain(getResourceDefaultDomain())
+                .jsonServiceLocator(new JsonServiceLocator() {
+                    @Override
+                    public <T> T getInstance(Class<T> clazz) {
+                        // assuming the repository beans can be retrieved from the WebApplicationContext and are identified by the FQCN in this exmaple.
+                        return WebApplicationContextUtils.getWebApplicationContext(getServletContext()).getBean(clazz.getName());
+                    }
+                });
+    }
 ```
 
 You will probably get the idea on how to integrate with other containers as well from the example.
@@ -74,11 +74,11 @@ You will probably get the idea on how to integrate with other containers as well
 Add the following dependency:
 
 ```xml
-            <dependency>
-                <groupId>com.github.woonsan</groupId>
-                <artifactId>katharsis-servlet</artifactId>
-                <version>${katharsis-servlet.version}</version>
-            </dependency>
+    <dependency>
+      <groupId>com.github.woonsan</groupId>
+      <artifactId>katharsis-servlet</artifactId>
+      <version>${katharsis-servlet.version}</version>
+    </dependency>
 ```
 
 # Releases and Version Compatibility
