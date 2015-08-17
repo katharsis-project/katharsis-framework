@@ -5,7 +5,7 @@
     <parent>
         <groupId>io.katharsis</groupId>
         <artifactId>katharsis-parent</artifactId>
-        <version>1.0.1</version>
+        <version>1.0.2</version>
     </parent>
 
     <artifactId>katharsis-core</artifactId>
@@ -17,7 +17,6 @@
     <properties>
         <equalsverifier-version>1.7.2</equalsverifier-version>
         <json-unit-fluent.version>1.5.3</json-unit-fluent.version>
-        <slf4j-simple.version>1.7.12</slf4j-simple.version>
     </properties>
 
     <build>
@@ -52,6 +51,10 @@
             <artifactId>typetools</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>${jackson.version}</version>
@@ -65,7 +68,7 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
-            <version>${slf4j-simple.version}</version>
+            <version>${slf4j.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
