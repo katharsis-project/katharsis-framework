@@ -14,12 +14,13 @@ public class ResourceInformationTest {
     public void onRelationshipFieldSearchShouldReturnExistingField() throws NoSuchFieldException {
         // GIVEN
         Field field = String.class.getDeclaredField("value");
-        ResourceInformation sut = new ResourceInformation(Task.class, null, null, Collections.singleton(field));
+        ResourceField resourceField = new ResourceField("value", field.getType(), field.getGenericType());
+        ResourceInformation sut = new ResourceInformation(Task.class, null, null, Collections.singleton(resourceField));
 
         // WHEN
-        Field result = sut.findRelationshipFieldByName("value");
+        ResourceField result = sut.findRelationshipFieldByName("value");
 
         // THEN
-        assertThat(result).isEqualTo(field);
+        assertThat(result.getName()).isEqualTo(field.getName());
     }
 }

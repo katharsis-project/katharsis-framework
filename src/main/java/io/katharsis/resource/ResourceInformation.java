@@ -1,6 +1,5 @@
 package io.katharsis.resource;
 
-import java.lang.reflect.Field;
 import java.util.Objects;
 import java.util.Set;
 
@@ -8,27 +7,25 @@ import java.util.Set;
  * Holds information about the type of the resource.
  */
 public final class ResourceInformation {
-
-    private static final ResourceFieldNameTransformer RESOURCE_FIELD_NAME_TRANSFORMER = new ResourceFieldNameTransformer();
-
     private final Class<?> resourceClass;
 
     /**
      * Found field of the id. Each resource has to contain a field marked by JsonApiId annotation.
      */
-    private final Field idField;
+    private final ResourceField idField;
 
     /**
      * A set of resource's attribute fields.
      */
-    private final Set<Field> attributeFields;
+    private final Set<ResourceField> attributeFields;
 
     /**
      * A set of fields that contains non-standard Java types (List, Set, custom classes, ...).
      */
-    private final Set<Field> relationshipFields;
+    private final Set<ResourceField> relationshipFields;
 
-    public ResourceInformation(Class<?> resourceClass, Field idField, Set<Field> attributeFields, Set<Field> relationshipFields) {
+    public ResourceInformation(Class<?> resourceClass, ResourceField idField, Set<ResourceField> attributeFields,
+        Set<ResourceField> relationshipFields) {
         this.resourceClass = resourceClass;
         this.idField = idField;
         this.attributeFields = attributeFields;
@@ -39,33 +36,30 @@ public final class ResourceInformation {
         return resourceClass;
     }
 
-    public Field getIdField() {
+    public ResourceField getIdField() {
         return idField;
     }
 
-
-    public Set<Field> getAttributeFields() {
+    public Set<ResourceField> getAttributeFields() {
         return attributeFields;
     }
 
-    public Set<Field> getRelationshipFields() {
+    public Set<ResourceField> getRelationshipFields() {
         return relationshipFields;
     }
 
-    public Field findAttributeFieldByName(String name) {
+    public ResourceField findAttributeFieldByName(String name) {
         return getField(name, attributeFields);
     }
 
-    public Field findRelationshipFieldByName(String name) {
+    public ResourceField findRelationshipFieldByName(String name) {
         return getField(name, relationshipFields);
     }
 
-    private Field getField(String name, Set<Field> fields) {
-        Field foundField = null;
-        String fieldName;
-        for (Field field : fields) {
-            fieldName = RESOURCE_FIELD_NAME_TRANSFORMER.getName(field);
-            if (fieldName.equals(name)) {
+    private ResourceField getField(String name, Set<ResourceField> fields) {
+        ResourceField foundField = null;
+        for (ResourceField field : fields) {
+            if (field.getName().equals(name)) {
                 foundField = field;
                 break;
             }
@@ -75,13 +69,15 @@ public final class ResourceInformation {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ResourceInformation)) return false;
+        if (this == o)
+            return true;
+        if (!(o instanceof ResourceInformation))
+            return false;
         ResourceInformation that = (ResourceInformation) o;
         return Objects.equals(resourceClass, that.resourceClass) &&
-                Objects.equals(idField, that.idField) &&
-                Objects.equals(attributeFields, that.attributeFields) &&
-                Objects.equals(relationshipFields, that.relationshipFields);
+            Objects.equals(idField, that.idField) &&
+            Objects.equals(attributeFields, that.attributeFields) &&
+            Objects.equals(relationshipFields, that.relationshipFields);
     }
 
     @Override

@@ -9,6 +9,7 @@ import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.FieldPath;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathIds;
+import io.katharsis.resource.ResourceField;
 import io.katharsis.resource.exception.RequestBodyException;
 import io.katharsis.resource.exception.RequestBodyNotFoundException;
 import io.katharsis.resource.exception.ResourceFieldNotFoundException;
@@ -17,12 +18,11 @@ import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.ResourceResponse;
 import io.katharsis.utils.Generics;
+import io.katharsis.utils.PropertyUtils;
 import io.katharsis.utils.parser.TypeParser;
-import org.apache.commons.beanutils.PropertyUtils;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 
@@ -61,13 +61,15 @@ public class FieldResourcePost extends ResourceUpsert {
         }
 
         Serializable castedResourceId = getResourceId(resourceIds, registryEntry);
-        Field relationshipField = registryEntry.getResourceInformation().findRelationshipFieldByName(jsonPath.getElementName());
+        ResourceField relationshipField = registryEntry.getResourceInformation()
+            .findRelationshipFieldByName(jsonPath.getElementName());
         if (relationshipField == null) {
             throw new ResourceFieldNotFoundException(jsonPath.getElementName());
         }
 
         Class<?> baseRelationshipFieldClass = relationshipField.getType();
-        Class<?> relationshipFieldClass = Generics.getResourceClass(relationshipField, baseRelationshipFieldClass);
+        Class<?> relationshipFieldClass = Generics
+            .getResourceClass(relationshipField.getGenericType(), baseRelationshipFieldClass);
 
         RegistryEntry relationshipRegistryEntry = resourceRegistry.getEntry(relationshipFieldClass);
         String relationshipResourceType = resourceRegistry.getResourceType(baseRelationshipFieldClass);
@@ -78,8 +80,8 @@ public class FieldResourcePost extends ResourceUpsert {
         Object savedResource = relationshipRegistryEntry.getResourceRepository().save(resource);
         saveRelations(savedResource, relationshipRegistryEntry, dataBody);
 
-        String relationshipResourceIdName = relationshipRegistryEntry.getResourceInformation().getIdField().getName();
-        Serializable resourceId = (Serializable) PropertyUtils.getProperty(savedResource, relationshipResourceIdName);
+        Serializable resourceId = (Serializable) PropertyUtils
+            .getProperty(savedResource, relationshipRegistryEntry.getResourceInformation().getIdField().getName());
 
         Object savedResourceWithRelations = relationshipRegistryEntry.getResourceRepository().findOne(resourceId, requestParams);
 

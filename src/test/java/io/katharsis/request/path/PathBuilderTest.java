@@ -1,6 +1,7 @@
 package io.katharsis.request.path;
 
 import io.katharsis.locator.SampleJsonServiceLocator;
+import io.katharsis.resource.ResourceFieldNameTransformer;
 import io.katharsis.resource.ResourceInformationBuilder;
 import io.katharsis.resource.exception.ResourceException;
 import io.katharsis.resource.exception.ResourceFieldNotFoundException;
@@ -30,8 +31,12 @@ public class PathBuilderTest {
 
     @Before
     public void prepare() {
-        ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonServiceLocator(), new ResourceInformationBuilder());
-        resourceRegistry = registryBuilder.build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, ResourceRegistryTest.TEST_MODELS_URL);
+        ResourceInformationBuilder resourceInformationBuilder = new ResourceInformationBuilder(
+            new ResourceFieldNameTransformer());
+        ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonServiceLocator(),
+            resourceInformationBuilder);
+        resourceRegistry = registryBuilder
+            .build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, ResourceRegistryTest.TEST_MODELS_URL);
 
         pathBuilder = new PathBuilder(resourceRegistry);
     }

@@ -3,12 +3,12 @@ package io.katharsis.jackson.serializer;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import io.katharsis.resource.ResourceField;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.LinkageContainer;
-import org.apache.commons.beanutils.BeanUtils;
+import io.katharsis.utils.BeanUtils;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 
 /**
@@ -46,7 +46,7 @@ public class LinkageContainerSerializer extends JsonSerializer<LinkageContainer>
 
     private void writeId(JsonGenerator gen, LinkageContainer linkageContainer)
             throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
-        Field idField = linkageContainer.getRelationshipEntry().getResourceInformation().getIdField();
+        ResourceField idField = linkageContainer.getRelationshipEntry().getResourceInformation().getIdField();
         String sourceId = BeanUtils.getProperty(linkageContainer.getObjectItem(), idField.getName());
         gen.writeObjectField(ID_FIELD_NAME, sourceId);
     }

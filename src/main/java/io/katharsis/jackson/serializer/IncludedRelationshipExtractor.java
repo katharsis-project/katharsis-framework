@@ -1,12 +1,12 @@
 package io.katharsis.jackson.serializer;
 
-import io.katharsis.jackson.exception.JsonSerializationException;
 import io.katharsis.queryParams.include.Inclusion;
 import io.katharsis.request.path.ResourcePath;
+import io.katharsis.resource.ResourceField;
 import io.katharsis.resource.annotations.JsonApiIncludeByDefault;
 import io.katharsis.response.BaseResponse;
 import io.katharsis.response.Container;
-import org.apache.commons.beanutils.PropertyUtils;
+import io.katharsis.utils.PropertyUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -17,21 +17,23 @@ import java.util.*;
  */
 public class IncludedRelationshipExtractor {
 
-    public Set<?> extractIncludedResources(Object resource, Set<Field> relationshipFields, BaseResponse response) {
+    public Set<?> extractIncludedResources(Object resource, Set<ResourceField> relationshipFields,
+        BaseResponse response) {
         Set includedResources = new HashSet<>();
         includedResources.addAll(extractDefaultIncludedFields(resource, relationshipFields, response));
         try {
             includedResources.addAll(extractIncludedRelationships(resource, response));
-        } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+        } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException | NoSuchFieldException e) {
             // TODO log suppressed exception
         }
 
         return includedResources;
     }
 
-    private List<?> extractDefaultIncludedFields(Object resource, Set<Field> relationshipFields, BaseResponse response) {
+    private List<?> extractDefaultIncludedFields(Object resource, Set<ResourceField> relationshipFields,
+        BaseResponse response) {
         List<?> includedResources = new LinkedList<>();
-        for (Field relationshipField : relationshipFields) {
+        for (ResourceField relationshipField : relationshipFields) {
             if (relationshipField.isAnnotationPresent(JsonApiIncludeByDefault.class)) {
                 includedResources.addAll(getIncludedFromRelation(relationshipField, resource, response));
             }
@@ -41,7 +43,7 @@ public class IncludedRelationshipExtractor {
     }
 
     private List<?> extractIncludedRelationships(Object resource, BaseResponse response)
-            throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+        throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
         List<?> includedResources = new LinkedList<>();
         List<Inclusion> includedRelations = response.getRequestParams().getIncludedRelations();
         if (includedRelations != null) {
@@ -53,7 +55,7 @@ public class IncludedRelationshipExtractor {
     }
 
     private Set extractIncludedRelationship(Object resource, Inclusion inclusion, BaseResponse response)
-            throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+        throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
         List<String> pathList = inclusion.getPathList();
         if (resource == null || pathList.isEmpty()) {
             return Collections.EMPTY_SET;
@@ -68,7 +70,7 @@ public class IncludedRelationshipExtractor {
     }
 
     private Set getElements(Object resource, List<String> pathList, BaseResponse response)
-            throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+        throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
         Set elements = new HashSet();
         if (pathList.isEmpty()) {
             if (resource != null) {
@@ -77,7 +79,8 @@ public class IncludedRelationshipExtractor {
                 return Collections.emptySet();
             }
         }
-        Object property = PropertyUtils.getProperty(resource, pathList.get(0));
+        Field field = resource.getClass().getDeclaredField(pathList.get(0));
+        Object property = PropertyUtils.getProperty(resource, field.getName());
         if (property != null) {
             List<String> subPathList = pathList.subList(1, pathList.size());
             if (Iterable.class.isAssignableFrom(property.getClass())) {
@@ -94,21 +97,17 @@ public class IncludedRelationshipExtractor {
         return elements;
     }
 
-    private List getIncludedFromRelation(Field relationshipField, Object resource, BaseResponse response) {
+    private List getIncludedFromRelation(ResourceField relationshipField, Object resource, BaseResponse response) {
         List<Container> includedFields = new LinkedList<>();
-        try {
-            Object targetDataObj = PropertyUtils.getProperty(resource, relationshipField.getName());
-            if (targetDataObj != null) {
-                if (Iterable.class.isAssignableFrom(targetDataObj.getClass())) {
-                    for (Object objectItem : (Iterable) targetDataObj) {
-                        includedFields.add(new Container(objectItem, response.getRequestParams()));
-                    }
-                } else {
-                    includedFields.add(new Container(targetDataObj, response.getRequestParams()));
+        Object targetDataObj = PropertyUtils.getProperty(resource, relationshipField.getName());
+        if (targetDataObj != null) {
+            if (Iterable.class.isAssignableFrom(targetDataObj.getClass())) {
+                for (Object objectItem : (Iterable) targetDataObj) {
+                    includedFields.add(new Container(objectItem, response.getRequestParams()));
                 }
+            } else {
+                includedFields.add(new Container(targetDataObj, response.getRequestParams()));
             }
-        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            throw new JsonSerializationException("Error writing included fields");
         }
         return includedFields;
     }

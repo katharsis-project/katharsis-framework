@@ -7,6 +7,7 @@ import io.katharsis.resource.annotations.JsonApiToOne;
 import io.katharsis.resource.exception.init.ResourceDuplicateIdException;
 import io.katharsis.resource.exception.init.ResourceIdNotFoundException;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
@@ -16,30 +17,39 @@ import java.util.stream.Collectors;
 
 /**
  * A builder which creates ResourceInformation instances of a specific class. It extracts information about a resource
- * from annotations.
+ * from annotations and information about fields.
  */
 public final class ResourceInformationBuilder {
 
-    public ResourceInformation build(Class<?> resourceClass) {
-        Field idField = getIdField(resourceClass);
-        return new ResourceInformation(
-                resourceClass,
-                idField,
-                getBasicFields(resourceClass, idField),
-                getRelationshipFields(resourceClass, idField));
+    private final ResourceFieldNameTransformer resourceFieldNameTransformer;
+
+    public ResourceInformationBuilder(ResourceFieldNameTransformer resourceFieldNameTransformer) {
+        this.resourceFieldNameTransformer = resourceFieldNameTransformer;
     }
 
-    private <T> Field getIdField(Class<T> resourceClass) {
+    public ResourceInformation build(Class<?> resourceClass) {
+        ResourceField idField = getIdField(resourceClass);
+        return new ResourceInformation(
+            resourceClass,
+            idField,
+            getBasicFields(resourceClass, idField),
+            getRelationshipFields(resourceClass, idField));
+    }
+
+    private <T> ResourceField getIdField(Class<T> resourceClass) {
         List<Field> idFields = Arrays.stream(resourceClass.getDeclaredFields())
-                .filter(this::isIdField)
-                .collect(Collectors.toList());
+            .filter(this::isIdField)
+            .collect(Collectors.toList());
 
         if (idFields.size() == 0) {
             throw new ResourceIdNotFoundException(resourceClass.getCanonicalName());
         } else if (idFields.size() > 1) {
             throw new ResourceDuplicateIdException(resourceClass.getCanonicalName());
         }
-        return idFields.get(0);
+        Field javaField = idFields.get(0);
+        String fieldName = resourceFieldNameTransformer.getName(javaField);
+        List<Annotation> annotations = Arrays.asList(javaField.getAnnotations());
+        return new ResourceField(fieldName, javaField.getType(), javaField.getGenericType(), annotations);
     }
 
     private boolean isIdField(Field field) {
@@ -47,19 +57,32 @@ public final class ResourceInformationBuilder {
     }
 
     private boolean isIgnorable(Field field) {
-        return field.isAnnotationPresent(JsonIgnore.class) || Modifier.isTransient(field.getModifiers()) || field.isSynthetic();
+        return field.isAnnotationPresent(JsonIgnore.class) || Modifier.isTransient(field.getModifiers()) || field
+            .isSynthetic();
     }
 
-    private <T> Set<Field> getBasicFields(Class<T> resourceClass, Field idField) {
+    private <T> Set<ResourceField> getBasicFields(Class<T> resourceClass, ResourceField idField) {
         return Arrays.stream(resourceClass.getDeclaredFields())
-                .filter(field -> !isRelationshipType(field) && !field.equals(idField) && !isIgnorable(field))
-                .collect(Collectors.toSet());
+            .filter(field -> !isRelationshipType(field) && !isIgnorable(field))
+            .map(field -> {
+                String name = resourceFieldNameTransformer.getName(field);
+                List<Annotation> annotations = Arrays.asList(field.getAnnotations());
+                return new ResourceField(name, field.getType(), field.getGenericType(), annotations);
+            })
+            .filter(field -> !field.equals(idField))
+            .collect(Collectors.toSet());
     }
 
-    private <T> Set<Field> getRelationshipFields(Class<T> resourceClass, Field idField) {
+    private <T> Set<ResourceField> getRelationshipFields(Class<T> resourceClass, ResourceField idField) {
         return Arrays.stream(resourceClass.getDeclaredFields())
-                .filter(field -> isRelationshipType(field) && !field.equals(idField))
-                .collect(Collectors.toSet());
+            .filter(this::isRelationshipType)
+            .map(field -> {
+                String name = resourceFieldNameTransformer.getName(field);
+                List<Annotation> annotations = Arrays.asList(field.getAnnotations());
+                return new ResourceField(name, field.getType(), field.getGenericType(), annotations);
+            })
+            .filter(field -> !field.equals(idField))
+            .collect(Collectors.toSet());
     }
 
     private boolean isRelationshipType(Field type) {

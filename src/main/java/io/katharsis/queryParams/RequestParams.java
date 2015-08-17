@@ -89,7 +89,7 @@ public class RequestParams {
         );
     }
 
-    public List getIncludedFields() {
+    public List<String> getIncludedFields() {
         return includedFields;
     }
 

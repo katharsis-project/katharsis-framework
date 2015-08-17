@@ -6,17 +6,17 @@ import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.LinkageData;
+import io.katharsis.resource.ResourceField;
 import io.katharsis.resource.ResourceInformation;
 import io.katharsis.resource.exception.ResourceException;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.utils.PropertyUtils;
 import io.katharsis.utils.parser.TypeParser;
-import org.apache.commons.beanutils.PropertyUtils;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
@@ -40,7 +40,7 @@ public abstract class ResourceUpsert implements BaseController {
             Iterator<String> propertyNameIterator = dataBody.getAttributes().fieldNames();
             while (propertyNameIterator.hasNext()) {
                 String propertyName = propertyNameIterator.next();
-                Field attributeField = resourceInformation.findAttributeFieldByName(propertyName);
+                ResourceField attributeField = resourceInformation.findAttributeFieldByName(propertyName);
                 Object property = PropertyUtils.getProperty(instanceWithNewFields, attributeField.getName());
                 PropertyUtils.setProperty(instance, attributeField.getName(), property);
             }
@@ -71,6 +71,7 @@ public abstract class ResourceUpsert implements BaseController {
 
         String type = getLinkageType(property.getValue());
         RegistryEntry relationRegistryEntry = getRelationRegistryEntry(type);
+        @SuppressWarnings("unchecked")
         Class<? extends Serializable> relationshipIdClass = (Class<? extends Serializable>) relationRegistryEntry
                 .getResourceInformation()
                 .getIdField()
@@ -84,7 +85,7 @@ public abstract class ResourceUpsert implements BaseController {
 
         Class<?> relationshipClass = relationRegistryEntry.getResourceInformation().getResourceClass();
         RelationshipRepository relationshipRepository = registryEntry.getRelationshipRepositoryForClass(relationshipClass);
-        Field relationshipField = resourceInformation.findRelationshipFieldByName(property.getKey());
+        ResourceField relationshipField = resourceInformation.findRelationshipFieldByName(property.getKey());
         relationshipRepository.setRelations(savedResource, castedRelationIds, relationshipField.getName());
     }
 
@@ -108,6 +109,7 @@ public abstract class ResourceUpsert implements BaseController {
             throws NoSuchMethodException, IllegalAccessException, InstantiationException, InvocationTargetException {
         RegistryEntry relationRegistryEntry = getRelationRegistryEntry(property.getValue().getType());
 
+        @SuppressWarnings("unchecked")
         Class<? extends Serializable> relationshipIdClass = (Class<? extends Serializable>) relationRegistryEntry
                 .getResourceInformation()
                 .getIdField()
@@ -116,7 +118,7 @@ public abstract class ResourceUpsert implements BaseController {
 
         Class<?> relationshipClass = relationRegistryEntry.getResourceInformation().getResourceClass();
         RelationshipRepository relationshipRepository = registryEntry.getRelationshipRepositoryForClass(relationshipClass);
-        Field relationshipField = resourceInformation.findRelationshipFieldByName(property.getKey());
+        ResourceField relationshipField = resourceInformation.findRelationshipFieldByName(property.getKey());
         relationshipRepository.setRelation(savedResource, castedRelationshipId, relationshipField.getName());
     }
 

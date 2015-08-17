@@ -1,8 +1,8 @@
 package io.katharsis.response;
 
 import io.katharsis.jackson.serializer.DataLinksContainerSerializer;
+import io.katharsis.resource.ResourceField;
 
-import java.lang.reflect.Field;
 import java.util.Objects;
 import java.util.Set;
 
@@ -22,9 +22,9 @@ import java.util.Set;
  */
 public class DataLinksContainer {
     private final Object data;
-    private final Set<Field> relationshipFields;
+    private final Set<ResourceField> relationshipFields;
 
-    public DataLinksContainer(Object data, Set<Field> relationshipFields) {
+    public DataLinksContainer(Object data, Set<ResourceField> relationshipFields) {
         this.data = data;
         this.relationshipFields = relationshipFields;
     }
@@ -33,7 +33,7 @@ public class DataLinksContainer {
         return data;
     }
 
-    public Set<Field> getRelationshipFields() {
+    public Set<ResourceField> getRelationshipFields() {
         return relationshipFields;
     }
 

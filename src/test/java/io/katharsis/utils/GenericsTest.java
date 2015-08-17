@@ -4,7 +4,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.io.Serializable;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -17,7 +16,8 @@ public class GenericsTest {
     @Test
     public void onGenericClassShouldReturnFirstParameter() throws Exception {
         // WHEN
-        Class<?> clazz = Generics.getResourceClass(SampleGenericClass.class.getDeclaredField("strings"), List.class);
+        Class<?> clazz = Generics
+            .getResourceClass(SampleGenericClass.class.getDeclaredField("strings").getGenericType(), List.class);
 
         // THEN
         assertThat(clazz).isEqualTo(String.class);
@@ -29,7 +29,8 @@ public class GenericsTest {
         expectedException.expect(RuntimeException.class);
 
         // WHEN
-        Generics.getResourceClass(SampleGenericClass.class.getDeclaredField("stringsWildcard"), List.class);
+        Generics.getResourceClass(SampleGenericClass.class.getDeclaredField("stringsWildcard").getGenericType(),
+            List.class);
     }
 
     public static class SampleGenericClass {

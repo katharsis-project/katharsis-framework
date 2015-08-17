@@ -9,6 +9,7 @@ import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathIds;
 import io.katharsis.request.path.RelationshipsPath;
+import io.katharsis.resource.ResourceField;
 import io.katharsis.resource.exception.RequestBodyException;
 import io.katharsis.resource.exception.RequestBodyNotFoundException;
 import io.katharsis.resource.exception.ResourceFieldNotFoundException;
@@ -21,7 +22,6 @@ import io.katharsis.utils.Generics;
 import io.katharsis.utils.parser.TypeParser;
 
 import java.io.Serializable;
-import java.lang.reflect.Field;
 
 public abstract class RelationshipsResourceUpsert implements BaseController {
 
@@ -85,14 +85,16 @@ public abstract class RelationshipsResourceUpsert implements BaseController {
         }
 
         Serializable castedResourceId = getResourceId(resourceIds, registryEntry);
-        Field relationshipField = registryEntry.getResourceInformation().findRelationshipFieldByName(jsonPath.getElementName());
+        ResourceField relationshipField = registryEntry.getResourceInformation().findRelationshipFieldByName(jsonPath
+            .getElementName());
         if (relationshipField == null) {
             throw new ResourceFieldNotFoundException(jsonPath.getElementName());
         }
         Object resource = registryEntry.getResourceRepository().findOne(castedResourceId, requestParams);
 
         Class<?> baseRelationshipFieldClass = relationshipField.getType();
-        Class<?> relationshipFieldClass = Generics.getResourceClass(relationshipField, baseRelationshipFieldClass);
+        Class<?> relationshipFieldClass = Generics
+            .getResourceClass(relationshipField.getGenericType(), baseRelationshipFieldClass);
         Class<? extends Serializable> relationshipIdType = (Class<? extends Serializable>) resourceRegistry
                 .getEntry(relationshipFieldClass).getResourceInformation().getIdField().getType();
 
@@ -108,9 +110,7 @@ public abstract class RelationshipsResourceUpsert implements BaseController {
                 throw new RequestBodyException(HttpMethod.POST, resourceName, "Multiple data in body");
             }
             DataBody dataBody = requestBody.getSingleData();
-            Serializable parsedId = typeParser.parse(dataBody.getId(), relationshipIdType);
             processToOneRelationship(resource, relationshipIdType, jsonPath.getElementName(), dataBody, relationshipRepositoryForClass);
-//            relationshipRepositoryForClass.setRelation(resource, parsedId, jsonPath.getElementName());
         }
 
         return new ResourceResponse();

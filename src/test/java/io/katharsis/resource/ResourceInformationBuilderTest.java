@@ -20,15 +20,16 @@ public class ResourceInformationBuilderTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
-    private ResourceInformationBuilder resourceInformationBuilder = new ResourceInformationBuilder();
+    private ResourceInformationBuilder resourceInformationBuilder = new ResourceInformationBuilder(
+        new ResourceFieldNameTransformer());
 
     @Test
     public void shouldHaveResourceClassInfoForValidResource() throws Exception {
         ResourceInformation resourceInformation = resourceInformationBuilder.build(Task.class);
 
         assertThat(resourceInformation.getResourceClass())
-                .isNotNull()
-                .isEqualTo(Task.class);
+            .isNotNull()
+            .isEqualTo(Task.class);
     }
 
     @Test
@@ -36,8 +37,8 @@ public class ResourceInformationBuilderTest {
         ResourceInformation resourceInformation = resourceInformationBuilder.build(Task.class);
 
         assertThat(resourceInformation.getIdField().getName())
-                .isNotNull()
-                .isEqualTo("id");
+            .isNotNull()
+            .isEqualTo("id");
     }
 
     @Test
@@ -60,10 +61,10 @@ public class ResourceInformationBuilderTest {
         ResourceInformation resourceInformation = resourceInformationBuilder.build(Task.class);
 
         assertThat(resourceInformation.getAttributeFields())
-                .isNotNull()
-                .hasSize(1)
-                .extracting(NAME_PROPERTY)
-                .containsOnly("name");
+            .isNotNull()
+            .hasSize(1)
+            .extracting(NAME_PROPERTY)
+            .containsOnly("name");
     }
 
     @Test
@@ -71,9 +72,9 @@ public class ResourceInformationBuilderTest {
         ResourceInformation resourceInformation = resourceInformationBuilder.build(Task.class);
 
         assertThat(resourceInformation.getRelationshipFields())
-                .isNotNull()
+            .isNotNull()
             .hasSize(2)
-                .extracting(NAME_PROPERTY)
+            .extracting(NAME_PROPERTY)
             .contains("project", "projects");
     }
 
@@ -96,8 +97,8 @@ public class ResourceInformationBuilderTest {
         ResourceInformation resourceInformation = resourceInformationBuilder.build(IgnoredAttributeResource.class);
 
         assertThat(resourceInformation.getAttributeFields())
-                .isNotNull()
-                .isEmpty();
+            .isNotNull()
+            .isEmpty();
     }
 
     @JsonApiResource(type = "duplicatedIdAnnotationResources")

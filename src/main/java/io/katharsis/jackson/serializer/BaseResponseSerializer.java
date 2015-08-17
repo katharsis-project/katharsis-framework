@@ -3,6 +3,7 @@ package io.katharsis.jackson.serializer;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import io.katharsis.resource.ResourceField;
 import io.katharsis.resource.ResourceInformation;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -12,7 +13,6 @@ import io.katharsis.response.Container;
 import io.katharsis.response.ResourceResponse;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.*;
 
 /**
@@ -58,14 +58,14 @@ public class BaseResponseSerializer extends JsonSerializer<BaseResponse> {
         gen.writeObjectField(DATA_FIELD_NAME, new Container(value, resourceResponse.getRequestParams()));
 
         if (value != null) {
-            Set<Field> relationshipFields = getRelationshipFields(value);
+            Set<ResourceField> relationshipFields = getRelationshipFields(value);
             return includedRelationshipExtractor.extractIncludedResources(value, relationshipFields, resourceResponse);
         } else {
             return Collections.EMPTY_SET;
         }
     }
 
-    private Set<Field> getRelationshipFields(Object resource) {
+    private Set<ResourceField> getRelationshipFields(Object resource) {
         Class<?> dataClass = resource.getClass();
         RegistryEntry entry = resourceRegistry.getEntry(dataClass);
         ResourceInformation resourceInformation = entry.getResourceInformation();
@@ -77,7 +77,7 @@ public class BaseResponseSerializer extends JsonSerializer<BaseResponse> {
         Set includedFields = new HashSet<>();
         if (values != null) {
             for (Object value : values) {
-                Set<Field> relationshipFields = getRelationshipFields(value);
+                Set<ResourceField> relationshipFields = getRelationshipFields(value);
                 includedFields.addAll(includedRelationshipExtractor.extractIncludedResources(value, relationshipFields, collectionResponse));
             }
         } else {

@@ -1,12 +1,12 @@
 package io.katharsis.request.path;
 
+import io.katharsis.resource.ResourceField;
 import io.katharsis.resource.exception.ResourceException;
 import io.katharsis.resource.exception.ResourceFieldNotFoundException;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 
-import java.lang.reflect.Field;
 import java.util.*;
 
 /**
@@ -87,8 +87,8 @@ public class PathBuilder {
     private JsonPath getNonResourcePath(JsonPath previousJsonPath, String elementName, boolean relationshipMark) {
         String previousElementName = previousJsonPath.getElementName();
         RegistryEntry previousEntry = resourceRegistry.getEntry(previousElementName);
-        Set<Field> resourceFields = previousEntry.getResourceInformation().getRelationshipFields();
-        for (Field field : resourceFields) {
+        Set<ResourceField> resourceFields = previousEntry.getResourceInformation().getRelationshipFields();
+        for (ResourceField field : resourceFields) {
             if (field.getName().equals(elementName)) {
                 if (relationshipMark) {
                     return new RelationshipsPath(elementName);
