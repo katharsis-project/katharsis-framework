@@ -1,8 +1,9 @@
 package io.katharsis.resource.registry;
 
 import io.katharsis.locator.JsonServiceLocator;
+import io.katharsis.repository.NotFoundRepository;
 import io.katharsis.repository.RelationshipRepository;
-import io.katharsis.repository.RepositoryNotFoundException;
+import io.katharsis.repository.RepositoryInstanceNotFoundException;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.resource.ResourceInformation;
 import io.katharsis.resource.ResourceInformationBuilder;
@@ -10,10 +11,7 @@ import io.katharsis.resource.annotations.JsonApiResource;
 import net.jodah.typetools.TypeResolver;
 import org.reflections.Reflections;
 
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Builder responsible for building an instance of ResourceRegistry.
@@ -52,15 +50,29 @@ public class ResourceRegistryBuilder {
 
         ResourceRegistry resourceRegistry = new ResourceRegistry(serviceUrl);
         for (Class resourceClass : jsonApiResources) {
-            Class<? extends ResourceRepository> foundEntityRepositoryClass = findEntityRepository(resourceClass, entityRepositoryClasses);
+            Class<? extends ResourceRepository> foundEntityRepositoryClass = findEntityRepository(resourceClass,
+                entityRepositoryClasses);
             Set<Class<? extends RelationshipRepository>> foundRelationshipRepositoriesClasses =
                     findRelationshipRepositories(resourceClass, relationshipRepositoryClasses);
 
-            RegistryEntry registryEntry = createEntry(resourceClass, foundEntityRepositoryClass, foundRelationshipRepositoriesClasses);
+            RegistryEntry registryEntry;
+            if (foundEntityRepositoryClass == null) {
+                registryEntry = createNotFoundEntry(resourceClass);
+            } else {
+                registryEntry = createEntry(resourceClass, foundEntityRepositoryClass,
+                    foundRelationshipRepositoriesClasses);
+            }
+
             resourceRegistry.addEntry(resourceClass, registryEntry);
         }
 
         return resourceRegistry;
+    }
+
+    private RegistryEntry createNotFoundEntry(Class resourceClass) {
+        ResourceInformation resourceInformation = resourceInformationBuilder.build(resourceClass);
+        ResourceRepository resourceRepository = new NotFoundRepository(resourceClass);
+        return new RegistryEntry(resourceInformation, resourceRepository, Collections.emptyList());
     }
 
     private Class<? extends ResourceRepository> findEntityRepository(Class resourceClass,
@@ -71,7 +83,8 @@ public class ResourceRegistryBuilder {
                 return entityRepositoryClass;
             }
         }
-        throw new RepositoryNotFoundException(resourceClass.getCanonicalName());
+
+        return null;
     }
 
     private Set<Class<? extends RelationshipRepository>> findRelationshipRepositories(Class resourceClass,
@@ -92,13 +105,13 @@ public class ResourceRegistryBuilder {
 
         ResourceRepository resourceRepository = context.getInstance(foundEntityRepositoryClass);
         if (resourceRepository == null) {
-            throw new RepositoryNotFoundException(foundEntityRepositoryClass.getCanonicalName());
+            throw new RepositoryInstanceNotFoundException(foundEntityRepositoryClass.getCanonicalName());
         }
         List<RelationshipRepository> relationshipRepositories = new LinkedList<>();
         for (Class<? extends RelationshipRepository> relationshipRepositoryClass : foundRelationshipRepositoriesClasses) {
             RelationshipRepository relationshipRepository = context.getInstance(relationshipRepositoryClass);
             if (relationshipRepository == null) {
-                throw new RepositoryNotFoundException(foundEntityRepositoryClass.getCanonicalName());
+                throw new RepositoryInstanceNotFoundException(foundEntityRepositoryClass.getCanonicalName());
             }
             relationshipRepositories.add(relationshipRepository);
         }

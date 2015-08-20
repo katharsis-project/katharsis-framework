@@ -1,6 +1,7 @@
 package io.katharsis.resource.registry;
 
 import io.katharsis.repository.RelationshipRepository;
+import io.katharsis.repository.RelationshipRepositoryNotFoundException;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.resource.ResourceInformation;
 import net.jodah.typetools.TypeResolver;
@@ -51,6 +52,9 @@ public class RegistryEntry<T> {
             if (clazz == typeArgs[RelationshipRepository.TARGET_TYPE_GENERIC_PARAMETER_IDX]) {
                 foundRelationshipRepository = relationshipRepository;
             }
+        }
+        if (foundRelationshipRepository == null) {
+            throw new RelationshipRepositoryNotFoundException(resourceInformation.getResourceClass(), clazz);
         }
 
         return foundRelationshipRepository;

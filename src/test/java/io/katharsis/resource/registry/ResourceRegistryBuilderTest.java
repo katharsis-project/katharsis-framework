@@ -1,10 +1,12 @@
 package io.katharsis.resource.registry;
 
 import io.katharsis.locator.SampleJsonServiceLocator;
-import io.katharsis.repository.RepositoryNotFoundException;
+import io.katharsis.repository.NotFoundRepository;
+import io.katharsis.repository.RepositoryInstanceNotFoundException;
 import io.katharsis.resource.ResourceFieldNameTransformer;
 import io.katharsis.resource.ResourceInformationBuilder;
 import io.katharsis.resource.mock.models.Project;
+import io.katharsis.resource.mock.models.ResourceWithoutRepository;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.repository.TaskRepository;
 import io.katharsis.resource.mock.repository.TaskToProjectRepository;
@@ -17,6 +19,7 @@ import org.junit.rules.ExpectedException;
 import java.util.List;
 
 import static io.katharsis.resource.registry.ResourceRegistryTest.TEST_MODELS_URL;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ResourceRegistryBuilderTest {
 
@@ -87,7 +90,7 @@ public class ResourceRegistryBuilderTest {
         }, resourceInformationBuilder);
 
         // THEN
-        expectedException.expect(RepositoryNotFoundException.class);
+        expectedException.expect(RepositoryInstanceNotFoundException.class);
 
         // WHEN
         sut.build(TEST_MODELS_PACKAGE, TEST_MODELS_URL);
@@ -107,29 +110,24 @@ public class ResourceRegistryBuilderTest {
         }, resourceInformationBuilder);
 
         // THEN
-        expectedException.expect(RepositoryNotFoundException.class);
+        expectedException.expect(RepositoryInstanceNotFoundException.class);
 
         // WHEN
         sut.build(TEST_MODELS_PACKAGE, TEST_MODELS_URL);
     }
 
     @Test
-    public void onNoRepositoryShouldThrowException() {
+    public void onNoRepositoryShouldCreateNotFoundRepository() {
         // GIVEN
-        ResourceRegistryBuilder sut = new ResourceRegistryBuilder(new SampleJsonServiceLocator() {
-            public <T> T getInstance(Class<T> clazz) {
-                if (clazz == TaskToProjectRepository.class) {
-                    return null;
-                } else {
-                    return super.getInstance(clazz);
-                }
-            }
-        }, resourceInformationBuilder);
-
-        // THEN
-        expectedException.expect(RepositoryNotFoundException.class);
+        ResourceRegistryBuilder sut =
+            new ResourceRegistryBuilder(new SampleJsonServiceLocator(), resourceInformationBuilder);
 
         // WHEN
-        sut.build(TEST_MODELS_PACKAGE, TEST_MODELS_URL);
+        ResourceRegistry result = sut.build(TEST_MODELS_PACKAGE, TEST_MODELS_URL);
+
+        // THEN
+        RegistryEntry entry = result.getEntry(ResourceWithoutRepository.class);
+
+        assertThat(entry.getResourceRepository()).isExactlyInstanceOf(NotFoundRepository.class);
     }
 }
