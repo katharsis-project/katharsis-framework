@@ -1,13 +1,17 @@
 package io.katharsis.resource.registry;
 
 import io.katharsis.repository.RelationshipRepository;
+import io.katharsis.repository.RelationshipRepositoryNotFoundException;
+import io.katharsis.resource.ResourceInformation;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.models.User;
 import io.katharsis.resource.mock.repository.TaskToProjectRepository;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.lang.reflect.Field;
 import java.util.Collections;
@@ -15,6 +19,9 @@ import java.util.Collections;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class RegistryEntryTest {
+
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
 
     @Test
     public void onValidRelationshipClassShouldReturnRelationshipRepository() throws Exception {
@@ -29,15 +36,17 @@ public class RegistryEntryTest {
     }
 
     @Test
-    public void onInvalidRelationshipClassShouldReturnNull() throws Exception {
+    public void onInvalidRelationshipClassShouldThrowException() throws Exception {
         // GIVEN
-        RegistryEntry<Task> sut = new RegistryEntry<>(null, null, Collections.singletonList(new TaskToProjectRepository()));
-
-        // WHEN
-        RelationshipRepository<Task, ?, ?, ?> relationshipRepository = sut.getRelationshipRepositoryForClass(User.class);
+        ResourceInformation resourceInformation = new ResourceInformation(Task.class, null, null, null);
+        RegistryEntry<Task> sut = new RegistryEntry<>(resourceInformation, null,
+            Collections.singletonList(new TaskToProjectRepository()));
 
         // THEN
-        assertThat(relationshipRepository).isNull();
+        expectedException.expect(RelationshipRepositoryNotFoundException.class);
+
+        // WHEN
+        sut.getRelationshipRepositoryForClass(User.class);
     }
 
     @Test
