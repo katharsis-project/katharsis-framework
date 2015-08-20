@@ -112,6 +112,17 @@ public class ResourceInformationBuilderTest {
             .isEmpty();
     }
 
+    @Test
+    public void shouldReturnFieldBasedOnFieldOnlyAndIgnoreGetter() throws Exception {
+        ResourceInformation resourceInformation = resourceInformationBuilder.build(FieldWithAccessorGetterResource.class);
+
+        assertThat(resourceInformation.getAttributeFields())
+            .isNotNull()
+            .hasSize(1)
+            .extracting(NAME_PROPERTY)
+            .containsOnly("accessorField");
+    }
+
     @JsonApiResource(type = "duplicatedIdAnnotationResources")
     private static class DuplicatedIdResource {
         @JsonApiId
@@ -162,5 +173,17 @@ public class ResourceInformationBuilderTest {
         private String getAccessorField() {
             return null;
         }
+    }
+
+    @JsonApiResource(type = "fieldWithAccessorGetterResource")
+    private static class FieldWithAccessorGetterResource {
+        @JsonApiId
+        private Long id;
+
+        public String getAccessorField() {
+            return accessorField;
+        }
+
+        private String accessorField;
     }
 }
