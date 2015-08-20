@@ -6,10 +6,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * <p>
@@ -71,7 +68,7 @@ public class PropertyUtils {
 
     private Field findField(Object bean, String fieldName) {
         Field foundField = null;
-        List<Field> classFields = getClassFields(bean.getClass());
+        List<Field> classFields = ClassUtils.getClassFields(bean.getClass());
         for (Field field : classFields) { // The first loop tries to get name from annotation
             if (field.isAnnotationPresent(JsonProperty.class)
                 && fieldName.equals(field.getAnnotation(JsonProperty.class).value())) {
@@ -86,22 +83,6 @@ public class PropertyUtils {
             }
         }
         return foundField;
-    }
-
-    public static List<Field> getClassFields(Class<?> beanClass) {
-        Map<String, Field> result = new HashMap<>();
-
-        Class<?> currentClass = beanClass;
-        while (currentClass != null && currentClass != Object.class) {
-            for (Field field : currentClass.getDeclaredFields()) {
-                if (!field.isSynthetic()) {
-                    result.putIfAbsent(field.getName(), field);
-                }
-            }
-            currentClass = currentClass.getSuperclass();
-        }
-
-        return new LinkedList<>(result.values());
     }
 
     private Method getGetter(Object bean, Field field) throws NoSuchMethodException {

@@ -94,7 +94,18 @@ public class ResourceInformationBuilderTest {
 
     @Test
     public void shouldHaveNoAttributesInfoForIgnoredField() throws Exception {
-        ResourceInformation resourceInformation = resourceInformationBuilder.build(IgnoredAttributeResource.class);
+        ResourceInformation resourceInformation = resourceInformationBuilder.build(AccessorGetterResource.class);
+
+        assertThat(resourceInformation.getAttributeFields())
+            .isNotNull()
+            .hasSize(1)
+            .extracting(NAME_PROPERTY)
+            .containsOnly("accessorField");
+    }
+
+    @Test
+    public void shouldNotReturnFieldBasedOnAccessorGetterWhenGetterIsIgnored() throws Exception {
+        ResourceInformation resourceInformation = resourceInformationBuilder.build(IgnoredAccessorGetterResource.class);
 
         assertThat(resourceInformation.getAttributeFields())
             .isNotNull()
@@ -130,5 +141,26 @@ public class ResourceInformationBuilderTest {
 
         @JsonIgnore
         private String attribute;
+    }
+
+    @JsonApiResource(type = "accessorGetter")
+    private static class AccessorGetterResource {
+        @JsonApiId
+        private Long id;
+
+        private String getAccessorField() {
+            return null;
+        }
+    }
+
+    @JsonApiResource(type = "ignoredAccessorGetter")
+    private static class IgnoredAccessorGetterResource {
+        @JsonApiId
+        private Long id;
+
+        @JsonIgnore
+        private String getAccessorField() {
+            return null;
+        }
     }
 }

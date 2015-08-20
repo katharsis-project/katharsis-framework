@@ -5,6 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -53,9 +54,42 @@ public class ResourceFieldNameTransformerTest {
         assertThat(name).isEqualTo("fieldWithDefaultJsonProperty");
     }
 
+    @Test
+    public void onWrappedFieldShouldReturnFieldNameBasedOnGetter() throws Exception {
+        // GIVEN
+        Method method = TestClass.class.getDeclaredMethod("getAccessorField");
+
+        // WHEN
+        String name = sut.getName(method);
+
+        // THEN
+        assertThat(name).isEqualTo("accessorField");
+    }
+
+    @Test
+    public void onAnnotatedWrappedFieldShouldReturnFieldNameBasedOnAnnotation() throws Exception {
+        // GIVEN
+        Method method = TestClass.class.getDeclaredMethod("getAccessorFieldWithAnnotation");
+
+        // WHEN
+        String name = sut.getName(method);
+
+        // THEN
+        assertThat(name).isEqualTo("wrappedCustomName");
+    }
+
     public static class TestClass {
 
         private String field;
+
+        public String getAccessorField() {
+            return null;
+        }
+
+        @JsonProperty("wrappedCustomName")
+        public String getAccessorFieldWithAnnotation() {
+            return null;
+        }
 
         @JsonProperty("customName")
         private String fieldWithJsonProperty;
