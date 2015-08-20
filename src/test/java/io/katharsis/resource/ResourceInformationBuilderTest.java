@@ -123,6 +123,14 @@ public class ResourceInformationBuilderTest {
             .containsOnly("accessorField");
     }
 
+    @Test
+    public void shouldReturnIdFieldBasedOnFieldGetter() throws Exception {
+        ResourceInformation resourceInformation = resourceInformationBuilder.build(IdFieldWithAccessorGetterResource.class);
+
+        assertThat(resourceInformation.getIdField())
+            .isNotNull();
+    }
+
     @JsonApiResource(type = "duplicatedIdAnnotationResources")
     private static class DuplicatedIdResource {
         @JsonApiId
@@ -185,5 +193,14 @@ public class ResourceInformationBuilderTest {
         }
 
         private String accessorField;
+    }
+
+    @JsonApiResource(type = "idFieldWithAccessorGetterResource")
+    private static class IdFieldWithAccessorGetterResource {
+
+        @JsonApiId
+        public Long getId() {
+            return null;
+        }
     }
 }
