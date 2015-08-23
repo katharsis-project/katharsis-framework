@@ -1,12 +1,15 @@
 package io.katharsis.dispatcher.controller;
 
+import io.katharsis.queryParams.RequestParams;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
-import io.katharsis.queryParams.RequestParams;
 import io.katharsis.response.BaseResponse;
 
 /**
- * Represents a controller contract which all of the implementations must implements.
+ * Represents a controller contract. There can be many kinds of requests that can be send to the framework. The
+ * initial process of checking if a request is acceptable is managed by
+ * {@link BaseController#isAcceptable(io.katharsis.request.path.JsonPath, String)} method. If the method returns
+ * true, the matched controller is used to handle the request.
  */
 public interface BaseController {
 

@@ -3,7 +3,7 @@ package io.katharsis.dispatcher.registry;
 import io.katharsis.errorhandling.exception.KatharsisMatchingException;
 
 /**
- * Indicates that no corresponding controller for a request had been found.
+ * Indicates that no corresponding controller for a request had not been found.
  */
 public class MethodNotFoundException extends KatharsisMatchingException {
 

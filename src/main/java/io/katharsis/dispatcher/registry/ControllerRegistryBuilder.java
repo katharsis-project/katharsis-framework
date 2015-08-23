@@ -31,6 +31,15 @@ public class ControllerRegistryBuilder {
         this.objectMapper = objectMapper;
     }
 
+    /**
+     * Scans an internal Katharsis package for controllers and then instantiates them.
+     *
+     * @return an instance of {@link ControllerRegistry} with initialized controllers
+     * @throws NoSuchMethodException
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     * @throws InstantiationException
+     */
     public ControllerRegistry build()
         throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
 

@@ -7,6 +7,11 @@ import io.katharsis.request.path.PathBuilder;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Stores a list of controllers which are used to process the incoming requests.
+ *
+ * @see io.katharsis.dispatcher.RequestDispatcher
+ */
 public class ControllerRegistry {
 
     private final List<BaseController> controllers = new LinkedList<>();
@@ -18,7 +23,7 @@ public class ControllerRegistry {
     }
 
     /**
-     * Adds Katharsis controller to the registry.
+     * Adds Katharsis controller to the registry. Should be called at initialization time.
      *
      * @param controller a controller to be added
      */

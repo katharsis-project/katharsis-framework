@@ -45,7 +45,7 @@ public class TypeParser {
     }
 
     /**
-     *Parses a {@link String} to an instance of passed {@link Class}
+     * Parses a {@link String} to an instance of passed {@link Class}
      * @param input String value
      * @param clazz type to be parsed to
      * @param <T> type of class
