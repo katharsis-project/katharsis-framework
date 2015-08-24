@@ -22,7 +22,19 @@ public class PropertyUtils {
     }
 
     /**
-     * Get bean's property value
+     * Get bean's property value. The sequence of searches for getting a value is as follows:
+     * <ol>
+     *    <li>All class fields are found using {@link ClassUtils#getClassFields(Class)}</li>
+     *    <li>Search for a field annotated with {@link JsonProperty} and value of the desired one is made</li>
+     *    <li>Search for a field with the name of the desired one is made</li>
+     *    <li>If a field is found and it's a public field, the value is returned using the public field</li>
+     *    <li>If a field is found and it's a non-public field, the value is returned using the accompanying getter</li>
+     *    <li>If a field is not found, a search for a getter is made - all class getters are found using
+     *    {@link ClassUtils#getClassFields(Class)}</li>
+     *    <li>From class getters, an appropriate getter with {@link JsonProperty} and having value of the desired one
+     *    is used</li>
+     *    <li>From class getters, an appropriate getter with name of the desired one is used</li>
+     * </ol>
      *
      * @param bean  bean to be accessed
      * @param field bean's fieldName
@@ -53,7 +65,7 @@ public class PropertyUtils {
         Field foundField = findField(bean, fieldName);
         if (foundField != null) {
             if (Modifier.isPrivate(foundField.getModifiers())) {
-                Method getter = getGetter(bean, foundField);
+                Method getter = getGetter(bean, foundField.getName());
                 return getter.invoke(bean);
             } else if (Modifier.isPublic(foundField.getModifiers())) {
                 return foundField.get(bean);
@@ -61,35 +73,66 @@ public class PropertyUtils {
                 throw new RuntimeException(
                     String.format("Couldn't access a field %s.%s", bean.getClass().getCanonicalName(), fieldName));
             }
+        } else {
+            Method getter = findGetter(bean, fieldName);
+            if (getter == null) {
+                throw new RuntimeException(
+                    String.format("Cannot find an getter for %s.%s", bean.getClass().getCanonicalName(), fieldName));
+            }
+            return getter.invoke(bean);
         }
-        throw new RuntimeException(
-            String.format("Couldn't find a field %s.%s", bean.getClass().getCanonicalName(), fieldName));
+    }
+
+    private Method findGetter(Object bean, String fieldName) {
+        List<Method> classGetters = ClassUtils.getClassGetters(bean.getClass());
+
+        for (Method getter : classGetters) { // The first loop tries to get name from annotation
+            if (getter.isAnnotationPresent(JsonProperty.class)
+                && fieldName.equals(getter.getAnnotation(JsonProperty.class).value())) {
+                return getter;
+            }
+        }
+        for (Method getter : classGetters) { // The second just tries to get by internal name
+            String getterFieldName = getGetterFieldName(getter);
+            if (getterFieldName.equals(fieldName)) {
+                return getter;
+            }
+        }
+        return null;
+    }
+
+    private String getGetterFieldName(Method getter) {
+        if (isBoolean(getter.getReturnType())) {
+            return getter.getName().substring(2, 3).toLowerCase() + getter.getName().substring(3);
+        } else {
+            return getter.getName().substring(3, 4).toLowerCase() + getter.getName().substring(4);
+        }
+    }
+
+    private boolean isBoolean(Class<?> returnType) {
+        return boolean.class.equals(returnType) || Boolean.class.equals(returnType);
     }
 
     private Field findField(Object bean, String fieldName) {
-        Field foundField = null;
         List<Field> classFields = ClassUtils.getClassFields(bean.getClass());
         for (Field field : classFields) { // The first loop tries to get name from annotation
             if (field.isAnnotationPresent(JsonProperty.class)
                 && fieldName.equals(field.getAnnotation(JsonProperty.class).value())) {
-                foundField = field;
-                break;
+                return field;
             }
         }
         for (Field field : classFields) { // The second just tries to get by internal name
             if (field.getName().equals(fieldName)) {
-                foundField = field;
-                break;
+                return field;
             }
         }
-        return foundField;
+        return null;
     }
 
-    private Method getGetter(Object bean, Field field) throws NoSuchMethodException {
+    private Method getGetter(Object bean, String fieldName) throws NoSuchMethodException {
         Class<?> beanClass = bean.getClass();
 
-        String name = field.getName();
-        String upperCaseName = name.substring(0, 1).toUpperCase() + name.substring(1);
+        String upperCaseName = fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
 
         try {
             return beanClass.getMethod("get" + upperCaseName);
@@ -112,9 +155,9 @@ public class PropertyUtils {
         throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         Field foundField = findField(bean, fieldName);
 
-        if (fieldName != null) {
+        if (foundField != null) {
             if (Modifier.isPrivate(foundField.getModifiers())) {
-                Method setter = getSetter(bean, foundField);
+                Method setter = getSetter(bean, foundField.getName(), foundField.getType());
                 setter.invoke(bean, value);
             } else if (Modifier.isPublic(foundField.getModifiers())) {
                 foundField.set(bean, value);
@@ -123,17 +166,22 @@ public class PropertyUtils {
                     String.format("Couldn't access a field %s.%s", bean.getClass().getCanonicalName(), fieldName));
             }
         } else {
-            throw new RuntimeException(
-                String.format("Couldn't find a field %s.%s", bean.getClass().getCanonicalName(), fieldName));
+            Method getter = findGetter(bean, fieldName);
+            if (getter == null) {
+                throw new RuntimeException(
+                    String.format("Cannot find an getter for %s.%s", bean.getClass().getCanonicalName(), fieldName));
+            }
+            String getterFieldName = getGetterFieldName(getter);
+            Method setter = getSetter(bean, getterFieldName, getter.getReturnType());
+            setter.invoke(bean, value);
         }
     }
 
-    private Method getSetter(Object bean, Field field) throws NoSuchMethodException {
+    private Method getSetter(Object bean, String fieldName, Class<?> fieldType) throws NoSuchMethodException {
         Class<?> beanClass = bean.getClass();
 
-        String name = field.getName();
-        String upperCaseName = name.substring(0, 1).toUpperCase() + name.substring(1);
+        String upperCaseName = fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
 
-        return beanClass.getMethod("set" + upperCaseName, field.getType());
+        return beanClass.getMethod("set" + upperCaseName, fieldType);
     }
 }
