@@ -8,6 +8,8 @@ public class BeanUtils {
     /**
      * Get bean's property value and maps to String
      *
+     * @see io.katharsis.utils.PropertyUtils#getProperty(Object, String)
+     *
      * @param bean  bean to be accessed
      * @param field bean's field
      * @return bean's property value

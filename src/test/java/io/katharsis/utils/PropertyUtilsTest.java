@@ -112,6 +112,30 @@ public class PropertyUtilsTest {
     }
 
     @Test
+    public void onMethodAccessorOnlyShouldReturnValue() throws Exception {
+        // GIVEN
+        GetterTest bean = new GetterTest();
+
+        // WHEN
+        Object result = PropertyUtils.getProperty(bean, "property");
+
+        // THEN
+        assertThat(result).isEqualTo("valueProperty");
+    }
+
+    @Test
+    public void onJacksonPropertyWithAccessorOnlyShouldReturnValue() throws Exception {
+        // GIVEN
+        GetterTest bean = new GetterTest();
+
+        // WHEN
+        Object result = PropertyUtils.getProperty(bean, "jacksonProperty");
+
+        // THEN
+        assertThat(result).isEqualTo("valueJackson");
+    }
+
+    @Test
     public void onNullBeanSetShouldThrowException() throws Exception {
         // THEN
         expectedException.expect(IllegalArgumentException.class);
@@ -204,6 +228,29 @@ public class PropertyUtilsTest {
         assertThat(bean.getJacksonProperty()).isEqualTo("value");
     }
 
+    @Test
+    public void onDifferentFieldAndMutatorNamesShouldSetValue() throws Exception {
+        // GIVEN
+        SetterTest bean = new SetterTest();
+
+        // WHEN
+        PropertyUtils.setProperty(bean, "property", "value");
+
+        // THEN
+        assertThat(bean.getProperty()).isEqualTo("value");
+    }
+
+    @Test
+    public void onNonExistingPropertyShouldThrowException() throws Exception {
+        // GIVEN
+        Bean bean = new Bean();
+
+        // THEN
+        expectedException.expect(RuntimeException.class);
+
+        // WHEN
+        PropertyUtils.getProperty(bean, "nonExistingProperty");
+    }
 
     public static class Bean {
         private String privatePropertyWithMutators;
@@ -248,5 +295,28 @@ public class PropertyUtilsTest {
 
     public static class ChildBean extends Bean {
 
+    }
+
+    public static class GetterTest {
+        public String getProperty() {
+            return "valueProperty";
+        }
+
+        @JsonProperty("jacksonProperty")
+        public String getAnnotatedProperty() {
+            return "valueJackson";
+        }
+    }
+
+    public static class SetterTest {
+        public String anotherProperty;
+
+        public String getProperty() {
+            return anotherProperty;
+        }
+
+        public void setProperty(String property) {
+            anotherProperty = property;
+        }
     }
 }
