@@ -27,8 +27,8 @@ public class PropertyUtils {
      *    <li>All class fields are found using {@link ClassUtils#getClassFields(Class)}</li>
      *    <li>Search for a field annotated with {@link JsonProperty} and value of the desired one is made</li>
      *    <li>Search for a field with the name of the desired one is made</li>
-     *    <li>If a field is found and it's a public field, the value is returned using the public field</li>
      *    <li>If a field is found and it's a non-public field, the value is returned using the accompanying getter</li>
+     *    <li>If a field is found and it's a public field, the value is returned using the public field</li>
      *    <li>If a field is not found, a search for a getter is made - all class getters are found using
      *    {@link ClassUtils#getClassFields(Class)}</li>
      *    <li>From class getters, an appropriate getter with {@link JsonProperty} and having value of the desired one
@@ -64,14 +64,11 @@ public class PropertyUtils {
 
         Field foundField = findField(bean, fieldName);
         if (foundField != null) {
-            if (Modifier.isPrivate(foundField.getModifiers())) {
+            if (!Modifier.isPublic(foundField.getModifiers())) {
                 Method getter = getGetter(bean, foundField.getName());
                 return getter.invoke(bean);
-            } else if (Modifier.isPublic(foundField.getModifiers())) {
-                return foundField.get(bean);
             } else {
-                throw new RuntimeException(
-                    String.format("Couldn't access a field %s.%s", bean.getClass().getCanonicalName(), fieldName));
+                return foundField.get(bean);
             }
         } else {
             Method getter = findGetter(bean, fieldName);
@@ -141,6 +138,29 @@ public class PropertyUtils {
         }
     }
 
+    /**
+     * Set bean's property value. The sequence of searches for setting a value is as follows:
+     * <ol>
+     * <li>All class fields are found using {@link ClassUtils#getClassFields(Class)}</li>
+     * <li>Search for a field annotated with {@link JsonProperty} and value of the desired one is made</li>
+     * <li>Search for a field with the name of the desired one is made</li>
+     * <li>If a field is found and it's a non-public field, the value is assigned using the accompanying setter</li>
+     * <li>If a field is found and it's a public field, the value is assigned using the public field</li>
+     * <li>If a field is not found, a search for a getter is made - all class getters are found using
+     * {@link ClassUtils#getClassFields(Class)}</li>
+     * <li>From class getters, an appropriate getter with {@link JsonProperty} and having value of the desired one
+     * is searched</li>
+     * <li>From class getters, an appropriate getter with name of the desired one is searched</li>
+     * <li>Using the found getter, an accompanying setter is being used to assign the value</li>
+     * </ol>
+     * <p>
+     * <b>Important</b> Each setter should have accompanying getter.
+     * </p>
+     *
+     * @param bean  bean to be accessed
+     * @param field bean's fieldName
+     * @param value value to be set
+     */
     public static void setProperty(Object bean, String field, Object value) {
         INSTANCE.checkParameters(bean, field);
 
@@ -156,14 +176,11 @@ public class PropertyUtils {
         Field foundField = findField(bean, fieldName);
 
         if (foundField != null) {
-            if (Modifier.isPrivate(foundField.getModifiers())) {
+            if ( !Modifier.isPublic(foundField.getModifiers())) {
                 Method setter = getSetter(bean, foundField.getName(), foundField.getType());
                 setter.invoke(bean, value);
-            } else if (Modifier.isPublic(foundField.getModifiers())) {
-                foundField.set(bean, value);
             } else {
-                throw new RuntimeException(
-                    String.format("Couldn't access a field %s.%s", bean.getClass().getCanonicalName(), fieldName));
+                foundField.set(bean, value);
             }
         } else {
             Method getter = findGetter(bean, fieldName);

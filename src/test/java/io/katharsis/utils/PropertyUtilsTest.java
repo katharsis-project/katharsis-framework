@@ -112,7 +112,7 @@ public class PropertyUtilsTest {
     }
 
     @Test
-    public void onJacksonPropertyWithAccessorOnlyShouldReturnValue() throws Exception {
+    public void onMethodAccessorOnlyShouldReturnValue() throws Exception {
         // GIVEN
         GetterTest bean = new GetterTest();
 
@@ -120,7 +120,19 @@ public class PropertyUtilsTest {
         Object result = PropertyUtils.getProperty(bean, "property");
 
         // THEN
-        assertThat(result).isEqualTo("value");
+        assertThat(result).isEqualTo("valueProperty");
+    }
+
+    @Test
+    public void onJacksonPropertyWithAccessorOnlyShouldReturnValue() throws Exception {
+        // GIVEN
+        GetterTest bean = new GetterTest();
+
+        // WHEN
+        Object result = PropertyUtils.getProperty(bean, "jacksonProperty");
+
+        // THEN
+        assertThat(result).isEqualTo("valueJackson");
     }
 
     @Test
@@ -217,6 +229,18 @@ public class PropertyUtilsTest {
     }
 
     @Test
+    public void onDifferentFieldAndMutatorNamesShouldSetValue() throws Exception {
+        // GIVEN
+        SetterTest bean = new SetterTest();
+
+        // WHEN
+        PropertyUtils.setProperty(bean, "property", "value");
+
+        // THEN
+        assertThat(bean.getProperty()).isEqualTo("value");
+    }
+
+    @Test
     public void onNonExistingPropertyShouldThrowException() throws Exception {
         // GIVEN
         Bean bean = new Bean();
@@ -275,7 +299,12 @@ public class PropertyUtilsTest {
 
     public static class GetterTest {
         public String getProperty() {
-            return "value";
+            return "valueProperty";
+        }
+
+        @JsonProperty("jacksonProperty")
+        public String getAnnotatedProperty() {
+            return "valueJackson";
         }
     }
 
