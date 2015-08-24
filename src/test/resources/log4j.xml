@@ -27,7 +27,7 @@
     </layout>
   </appender>
 
-  <category additivity="false" name="com.github.woonsan.katharsis">
+  <category additivity="false" name="io.katharsis.servlet">
     <level value="debug"/>
     <appender-ref ref="console"/>
   </category>

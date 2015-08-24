@@ -1,9 +1,10 @@
 # katharsis-servlet
 
-[![Build Status](https://api.travis-ci.org/woonsan/katharsis-servlet.svg?branch=develop)](https://api.travis-ci.org/woonsan/katharsis-servlet.svg?branch=develop)
-[![Coverage Status](https://coveralls.io/repos/woonsan/katharsis-servlet/badge.svg?branch=master&service=github)](https://coveralls.io/github/woonsan/katharsis-servlet?branch=master)
-[![Maven Central](https://img.shields.io/maven-central/v/com.github.woonsan/katharsis-servlet.svg)]()
-
+[![Join the chat at https://gitter.im/katharsis-project/katharsis-servlet](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/katharsis-project/katharsis-servlet?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Build Status](https://travis-ci.org/katharsis-project/katharsis-servlet.svg?branch=development)](https://travis-ci.org/katharsis-project/katharsis-servlet)
+[![Coverage Status](https://coveralls.io/repos/katharsis-project/katharsis-servlet/badge.svg?branch=development)](https://coveralls.io/r/katharsis-project/katharsis-servlet?branch=development)
+[![Stories in Ready](https://badge.waffle.io/katharsis-project/katharsis-servlet.png?label=ready&title=Ready)](https://waffle.io/katharsis-project/katharsis-servlet)
+[![Maven Central](https://img.shields.io/maven-central/v/io.katharsis/katharsis-servlet.svg)](http://mvnrepository.com/artifact/io.katharsis/katharsis-servlet)
 
 Generic Servlet Adapter of Katharsis JSON:API middleware library.
 
@@ -17,29 +18,29 @@ or even non-ServletAPI-based frameworks such as Portal/Portlet, Wicket, etc.
 
 # How to use this in my Servlet Filter
 
-This module provides an abstract class, [AbstractKatharsisFilter.java](src/main/java/com/github/woonsan/katharsis/servlet/AbstractKatharsisFilter.java). Basically you need to override the following method at least as well:
+This module provides an abstract class, [AbstractKatharsisFilter.java](src/main/java/io/katharsis/servlet/AbstractKatharsisFilter.java). Basically you need to override the following method at least as well:
 
 ```java
     abstract protected KatharsisInvokerBuilder createKatharsisInvokerBuilder();
 ```
 
-Also see [SampleKatharsisFilter.java](src/main/java/com/github/woonsan/katharsis/servlet/SampleKatharsisFilter.java) as a servlet filter implementation example, and [web.xml](src/test/webapp/WEB-INF/web.xml) as a configuration example.
+Also see [SampleKatharsisFilter.java](src/main/java/io/katharsis/servlet/SampleKatharsisFilter.java) as a servlet filter implementation example, and [web.xml](src/test/webapp/WEB-INF/web.xml) as a configuration example.
 
 # How to use this in my Servlet
 
-This module provides an abstract class, [AbstractKatharsisServlet.java](src/main/java/com/github/woonsan/katharsis/servlet/AbstractKatharsisServlet.java). Basically you need to override the following method at least:
+This module provides an abstract class, [AbstractKatharsisServlet.java](src/main/java/io/katharsis/servlet/AbstractKatharsisServlet.java). Basically you need to override the following method at least:
 
 ```java
     abstract protected KatharsisInvokerBuilder createKatharsisInvokerBuilder();
 ```
 
-Also see [SampleKatharsisServlet.java](src/main/java/com/github/woonsan/katharsis/servlet/SampleKatharsisServlet.java) as a servlet implementation example, and [web.xml](src/test/webapp/WEB-INF/web.xml) as a configuration example.
+Also see [SampleKatharsisServlet.java](src/main/java/io/katharsis/servlet/SampleKatharsisServlet.java) as a servlet implementation example, and [web.xml](src/test/webapp/WEB-INF/web.xml) as a configuration example.
 
 # How to integrate with my IoC (Dependency Injection) Container
 
 You can override #createKatharsisInvokerBuilder() method in
-either [SampleKatharsisFilter.java](src/main/java/com/github/woonsan/katharsis/servlet/SampleKatharsisFilter.java)
-or [SampleKatharsisServlet.java](src/main/java/com/github/woonsan/katharsis/servlet/SampleKatharsisServlet.java)
+either [SampleKatharsisFilter.java](src/main/java/io/katharsis/servlet/SampleKatharsisFilter.java)
+or [SampleKatharsisServlet.java](src/main/java/io/katharsis/servlet/SampleKatharsisServlet.java)
 to use your own JsonServiceLocator component.
 
 For example, you can create a new JsonServiceLocator to get a bean (singleton or prototype)
@@ -75,18 +76,11 @@ Add the following dependency:
 
 ```xml
     <dependency>
-      <groupId>com.github.woonsan</groupId>
+      <groupId>io.katharsis</groupId>
       <artifactId>katharsis-servlet</artifactId>
       <version>${katharsis-servlet.version}</version>
     </dependency>
 ```
-
-# Releases and Compatibility
-
-| katharsis-servlet.version | katharsis-core.version |
-| :-----------------------: | :--------------------: |
-|          0.1.1            |         0.9.3          |
-|          0.1.0            |         0.9.2          |
 
 See [changes.xml](changes.xml) for details.
 
