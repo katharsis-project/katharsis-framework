@@ -11,7 +11,10 @@ import io.katharsis.resource.annotations.JsonApiResource;
 import net.jodah.typetools.TypeResolver;
 import org.reflections.Reflections;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Builder responsible for building an instance of ResourceRegistry.
@@ -57,7 +60,7 @@ public class ResourceRegistryBuilder {
 
             RegistryEntry registryEntry;
             if (foundEntityRepositoryClass == null) {
-                registryEntry = createNotFoundEntry(resourceClass);
+                registryEntry = createNotFoundEntry(resourceClass, foundRelationshipRepositoriesClasses);
             } else {
                 registryEntry = createEntry(resourceClass, foundEntityRepositoryClass,
                     foundRelationshipRepositoriesClasses);
@@ -69,10 +72,13 @@ public class ResourceRegistryBuilder {
         return resourceRegistry;
     }
 
-    private RegistryEntry createNotFoundEntry(Class resourceClass) {
+    private RegistryEntry createNotFoundEntry(Class resourceClass,
+        Set<Class<? extends RelationshipRepository>> foundRelationshipRepositoriesClasses) {
         ResourceInformation resourceInformation = resourceInformationBuilder.build(resourceClass);
         ResourceRepository resourceRepository = new NotFoundRepository(resourceClass);
-        return new RegistryEntry(resourceInformation, resourceRepository, Collections.emptyList());
+        List<RelationshipRepository> relationshipRepositories = initializeRelationshipRepositories(
+            foundRelationshipRepositoriesClasses);
+        return new RegistryEntry(resourceInformation, resourceRepository, relationshipRepositories);
     }
 
     private Class<? extends ResourceRepository> findEntityRepository(Class resourceClass,
@@ -107,14 +113,21 @@ public class ResourceRegistryBuilder {
         if (resourceRepository == null) {
             throw new RepositoryInstanceNotFoundException(foundEntityRepositoryClass.getCanonicalName());
         }
+        List<RelationshipRepository> relationshipRepositories =
+            initializeRelationshipRepositories(foundRelationshipRepositoriesClasses);
+        return new RegistryEntry(resourceInformation, resourceRepository, relationshipRepositories);
+    }
+
+    private List<RelationshipRepository> initializeRelationshipRepositories(
+        Set<Class<? extends RelationshipRepository>> foundRelationshipRepositoriesClasses) {
         List<RelationshipRepository> relationshipRepositories = new LinkedList<>();
         for (Class<? extends RelationshipRepository> relationshipRepositoryClass : foundRelationshipRepositoriesClasses) {
             RelationshipRepository relationshipRepository = context.getInstance(relationshipRepositoryClass);
             if (relationshipRepository == null) {
-                throw new RepositoryInstanceNotFoundException(foundEntityRepositoryClass.getCanonicalName());
+                throw new RepositoryInstanceNotFoundException(relationshipRepositoryClass.getCanonicalName());
             }
             relationshipRepositories.add(relationshipRepository);
         }
-        return new RegistryEntry(resourceInformation, resourceRepository, relationshipRepositories);
+        return relationshipRepositories;
     }
 }

@@ -8,6 +8,7 @@ import io.katharsis.resource.ResourceInformationBuilder;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.ResourceWithoutRepository;
 import io.katharsis.resource.mock.models.Task;
+import io.katharsis.resource.mock.repository.ResourceWithoutRepositoryToProjectRepository;
 import io.katharsis.resource.mock.repository.TaskRepository;
 import io.katharsis.resource.mock.repository.TaskToProjectRepository;
 import org.junit.Assert;
@@ -128,6 +129,9 @@ public class ResourceRegistryBuilderTest {
         // THEN
         RegistryEntry entry = result.getEntry(ResourceWithoutRepository.class);
 
+        assertThat(entry.getResourceInformation().getResourceClass()).isEqualTo(ResourceWithoutRepository.class);
         assertThat(entry.getResourceRepository()).isExactlyInstanceOf(NotFoundRepository.class);
+        assertThat(entry.getRelationshipRepositoryForClass(Project.class))
+            .isExactlyInstanceOf(ResourceWithoutRepositoryToProjectRepository.class);
     }
 }
