@@ -23,6 +23,7 @@ import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryBuilder;
 import io.katharsis.jackson.JsonApiModuleBuilder;
 import io.katharsis.locator.JsonServiceLocator;
+import io.katharsis.resource.ResourceFieldNameTransformer;
 import io.katharsis.resource.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryBuilder;
@@ -100,16 +101,16 @@ public class KatharsisInvokerBuilder {
             resourceRegistry = buildResourceRegistry(jsonServiceLocator, resourceSearchPackage, resourceDefaultDomain);
         }
 
+        if (objectMapper == null) {
+            objectMapper = createObjectMapper(resourceRegistry);
+        }
+
         if (requestDispatcher == null) {
             if (exceptionMapperRegistry == null) {
                 exceptionMapperRegistry = buildExceptionMapperRegistry(resourceSearchPackage);
             }
 
-            requestDispatcher = createRequestDispatcher(resourceRegistry, exceptionMapperRegistry);
-        }
-
-        if (objectMapper == null) {
-            objectMapper = createObjectMapper(resourceRegistry);
+            requestDispatcher = createRequestDispatcher(resourceRegistry, objectMapper, exceptionMapperRegistry);
         }
 
         return new KatharsisInvoker(objectMapper, resourceRegistry, requestDispatcher);
@@ -121,15 +122,22 @@ public class KatharsisInvokerBuilder {
     }
 
     protected ResourceRegistry buildResourceRegistry(JsonServiceLocator jsonServiceLocator, String resourceSearchPackage, String resourceDefaultDomain) {
-        ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(jsonServiceLocator, new ResourceInformationBuilder());
+        ResourceRegistryBuilder registryBuilder =
+            new ResourceRegistryBuilder(jsonServiceLocator,
+                                        new ResourceInformationBuilder(new ResourceFieldNameTransformer()));
+
         return registryBuilder.build(resourceSearchPackage, resourceDefaultDomain);
     }
 
-    protected RequestDispatcher createRequestDispatcher(ResourceRegistry resourceRegistry, ExceptionMapperRegistry exceptionMapperRegistry) throws Exception {
-        ControllerRegistryBuilder controllerRegistryBuilder = new ControllerRegistryBuilder();
+    protected RequestDispatcher createRequestDispatcher(ResourceRegistry resourceRegistry,
+                                                        ObjectMapper objectMapper,
+                                                        ExceptionMapperRegistry exceptionMapperRegistry)
+        throws Exception {
+
         TypeParser typeParser = new TypeParser();
-        ControllerRegistry controllerRegistry = controllerRegistryBuilder
-                .build(resourceRegistry, typeParser);
+        ControllerRegistryBuilder controllerRegistryBuilder = new ControllerRegistryBuilder(resourceRegistry, typeParser, objectMapper);
+        ControllerRegistry controllerRegistry = controllerRegistryBuilder.build();
+
         return new RequestDispatcher(controllerRegistry, exceptionMapperRegistry);
     }
 
