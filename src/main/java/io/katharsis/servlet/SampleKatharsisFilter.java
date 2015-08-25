@@ -28,17 +28,13 @@ import javax.servlet.ServletException;
  */
 public class SampleKatharsisFilter extends AbstractKatharsisFilter {
 
-    public static final String INIT_PARAM_RESOURCE_SEARCH_PACKAGE = "resourceSearchPackage";
-
-    public static final String INIT_PARAM_RESOURCE_DEFAULT_DOMAIN = "resourceDefaultDomain";
-
     private String resourceSearchPackage;
     private String resourceDefaultDomain;
 
     public void init(FilterConfig filterConfig) throws ServletException {
         super.init(filterConfig);
-        resourceSearchPackage = filterConfig.getInitParameter(INIT_PARAM_RESOURCE_SEARCH_PACKAGE);
-        resourceDefaultDomain = filterConfig.getInitParameter(INIT_PARAM_RESOURCE_DEFAULT_DOMAIN);
+        resourceSearchPackage = filterConfig.getInitParameter(KatharsisProperties.RESOURCE_SEARCH_PACKAGE);
+        resourceDefaultDomain = filterConfig.getInitParameter(KatharsisProperties.RESOURCE_DEFAULT_DOMAIN);
     }
 
     public String getResourceSearchPackage() {

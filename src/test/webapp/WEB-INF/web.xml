@@ -25,15 +25,15 @@
     <filter-name>SampleKatharsisFilter</filter-name>
     <filter-class>io.katharsis.servlet.SampleKatharsisFilter</filter-class>
     <init-param>
-      <param-name>filterBasePath</param-name>
+      <param-name>katharsis.config.web.path.prefix</param-name>
       <param-value>/api/v1a</param-value>
     </init-param>
     <init-param>
-      <param-name>resourceSearchPackage</param-name>
+      <param-name>katharsis.config.core.resource.package</param-name>
       <param-value>io.katharsis.servlet.resource</param-value>
     </init-param>
     <init-param>
-      <param-name>resourceDefaultDomain</param-name>
+      <param-name>katharsis.config.core.resource.domain</param-name>
       <param-value>http://localhost:8080</param-value>
     </init-param>
   </filter>
@@ -47,11 +47,11 @@
     <servlet-name>SampleKatharsisServlet</servlet-name>
     <servlet-class>io.katharsis.servlet.SampleKatharsisServlet</servlet-class>
     <init-param>
-      <param-name>resourceSearchPackage</param-name>
+      <param-name>katharsis.config.core.resource.package</param-name>
       <param-value>io.katharsis.servlet.resource</param-value>
     </init-param>
     <init-param>
-      <param-name>resourceDefaultDomain</param-name>
+      <param-name>katharsis.config.core.resource.domain</param-name>
       <param-value>http://localhost:8080</param-value>
     </init-param>
   </servlet>

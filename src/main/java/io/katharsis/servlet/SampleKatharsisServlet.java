@@ -28,18 +28,14 @@ import javax.servlet.ServletException;
  */
 public class SampleKatharsisServlet extends AbstractKatharsisServlet {
 
-    public static final String INIT_PARAM_RESOURCE_SEARCH_PACKAGE = "resourceSearchPackage";
-
-    public static final String INIT_PARAM_RESOURCE_DEFAULT_DOMAIN = "resourceDefaultDomain";
-
     private String resourceSearchPackage;
     private String resourceDefaultDomain;
 
     @Override
     public void init(ServletConfig servletConfig) throws ServletException {
         super.init(servletConfig);
-        resourceSearchPackage = servletConfig.getInitParameter(INIT_PARAM_RESOURCE_SEARCH_PACKAGE);
-        resourceDefaultDomain = servletConfig.getInitParameter(INIT_PARAM_RESOURCE_DEFAULT_DOMAIN);
+        resourceSearchPackage = servletConfig.getInitParameter(KatharsisProperties.RESOURCE_SEARCH_PACKAGE);
+        resourceDefaultDomain = servletConfig.getInitParameter(KatharsisProperties.RESOURCE_DEFAULT_DOMAIN);
     }
 
     public String getResourceSearchPackage() {

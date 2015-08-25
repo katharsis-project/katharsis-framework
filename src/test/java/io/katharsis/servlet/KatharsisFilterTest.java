@@ -70,10 +70,10 @@ public class KatharsisFilterTest {
         servletContext = new MockServletContext();
         ((MockServletContext) servletContext).setContextPath("");
         filterConfig = new MockFilterConfig(servletContext);
-        ((MockFilterConfig) filterConfig).addInitParameter("filterBasePath", "/api");
-        ((MockFilterConfig) filterConfig).addInitParameter(SampleKatharsisFilter.INIT_PARAM_RESOURCE_SEARCH_PACKAGE,
+        ((MockFilterConfig) filterConfig).addInitParameter(KatharsisProperties.WEB_PATH_PREFIX, "/api");
+        ((MockFilterConfig) filterConfig).addInitParameter(KatharsisProperties.RESOURCE_SEARCH_PACKAGE,
                                                            RESOURCE_SEARCH_PACKAGE);
-        ((MockFilterConfig) filterConfig).addInitParameter(SampleKatharsisFilter.INIT_PARAM_RESOURCE_DEFAULT_DOMAIN,
+        ((MockFilterConfig) filterConfig).addInitParameter(KatharsisProperties.RESOURCE_DEFAULT_DOMAIN,
                                                            RESOURCE_DEFAULT_DOMAIN);
 
         katharsisFilter.init(filterConfig);

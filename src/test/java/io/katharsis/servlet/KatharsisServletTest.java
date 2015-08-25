@@ -69,9 +69,9 @@ public class KatharsisServletTest {
         servletContext = new MockServletContext();
         ((MockServletContext) servletContext).setContextPath("");
         servletConfig = new MockServletConfig(servletContext);
-        ((MockServletConfig) servletConfig).addInitParameter(SampleKatharsisServlet.INIT_PARAM_RESOURCE_SEARCH_PACKAGE,
+        ((MockServletConfig) servletConfig).addInitParameter(KatharsisProperties.RESOURCE_SEARCH_PACKAGE,
                                                              RESOURCE_SEARCH_PACKAGE);
-        ((MockServletConfig) servletConfig).addInitParameter(SampleKatharsisServlet.INIT_PARAM_RESOURCE_DEFAULT_DOMAIN,
+        ((MockServletConfig) servletConfig).addInitParameter(KatharsisProperties.RESOURCE_DEFAULT_DOMAIN,
                                                              RESOURCE_DEFAULT_DOMAIN);
 
         katharsisServlet.init(servletConfig);
