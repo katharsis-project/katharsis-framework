@@ -19,4 +19,6 @@ public interface BaseResponse<T> {
     JsonPath getJsonPath();
 
     RequestParams getRequestParams();
+
+    MetaInformation getMetaInformation();
 }
