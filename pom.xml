@@ -10,6 +10,7 @@
         <module>jersey-example</module>
         <module>dropwizard-simple-example</module>
         <module>wildfly-example</module>
+        <module>spring-boot-simple-example</module>
     </modules>
     <packaging>pom</packaging>
 
