@@ -35,13 +35,10 @@ public class ControllerRegistryBuilder {
      * Scans an internal Katharsis package for controllers and then instantiates them.
      *
      * @return an instance of {@link ControllerRegistry} with initialized controllers
-     * @throws NoSuchMethodException
-     * @throws IllegalAccessException
-     * @throws InvocationTargetException
-     * @throws InstantiationException
+     * @throws Exception initialization exception
      */
-    public ControllerRegistry build()
-        throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    public ControllerRegistry build() throws Exception {
+
 
         Reflections reflections = new Reflections("io.katharsis.dispatcher.controller");
 
