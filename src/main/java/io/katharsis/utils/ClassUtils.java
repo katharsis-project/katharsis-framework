@@ -43,14 +43,12 @@ public class ClassUtils {
      * <p>
      * Return a list of class getters. Supports inheritance and overriding, that is when a method is found on the
      * lowest level of inheritance chain, no other method can override it.
-     * </p>
      * <p>
      * A getter:
      * <ul>
      * <li>Starts with an <i>is</i> if returns <i>boolean</i> or {@link Boolean} value</li>
      * <li>Starts with a <i>get</i> if returns non-boolean value</li>
      * </ul>
-     * </p>
      *
      * @param beanClass class to be searched for
      * @return a list of found getters

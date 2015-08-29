@@ -24,9 +24,10 @@ public class ErrorDataBuilder {
     }
 
     /**
-     * A link that leads to further details about this particular occurrence of the problem.
+     * A link that leads to further details about this particular occurrence of the problem. Wrapped in "links" object.
      *
-     * Wrapped in "links" object.
+     * @param aboutLink information about an error
+     * @return builder instance
      */
     public ErrorDataBuilder setAboutLink(String aboutLink) {
         this.aboutLink = aboutLink;
@@ -35,6 +36,8 @@ public class ErrorDataBuilder {
 
     /**
      * The HTTP status code applicable to this problem, expressed as a string value.
+     * @param status HTTP status code
+     * @return builder instance
      */
     public ErrorDataBuilder setStatus(String status) {
         this.status = status;
@@ -43,6 +46,8 @@ public class ErrorDataBuilder {
 
     /**
      * An application-specific error code, expressed as a string value.
+     * @param code application-specific error code
+     * @return builder instance
      */
     public ErrorDataBuilder setCode(String code) {
         this.code = code;
@@ -52,6 +57,8 @@ public class ErrorDataBuilder {
     /**
      * A short, human-readable summary of the problem.
      * It SHOULD NOT change from occurrence to occurrence of the problem, except for purposes of localization.
+     * @param title title of an error
+     * @return builder instance
      */
     public ErrorDataBuilder setTitle(String title) {
         this.title = title;
@@ -60,6 +67,8 @@ public class ErrorDataBuilder {
 
     /**
      * A human-readable explanation specific to this occurrence of the problem.
+     * @param detail error details
+     * @return builder instance
      */
     public ErrorDataBuilder setDetail(String detail) {
         this.detail = detail;
@@ -71,7 +80,8 @@ public class ErrorDataBuilder {
      * [e.g. "/data" for a primary data object, or "/data/attributes/title" for a specific attribute].
      *
      * Wrapped in "source" object.
-     *
+     * @param sourcePointer pointer to the error origin
+     * @return builder instance
      */
     public ErrorDataBuilder setSourcePointer(String sourcePointer) {
         this.sourcePointer = sourcePointer;
@@ -82,6 +92,8 @@ public class ErrorDataBuilder {
      * A string indicating which query parameter caused the error.
      *
      * Wrapped in "source" object.
+     * @param sourceParameter source parameter
+     * @return builder instance
      */
     public ErrorDataBuilder setSourceParameter(String sourceParameter) {
         this.sourceParameter = sourceParameter;
@@ -90,6 +102,8 @@ public class ErrorDataBuilder {
 
     /**
      * A meta object containing non-standard meta-information about the error.
+     * @param meta meta information
+     * @return builder instance
      */
     public ErrorDataBuilder setMeta(Map<String, Object> meta) {
         this.meta = meta;
