@@ -29,7 +29,8 @@ public class ResourceResponse implements BaseResponse {
 
     private MetaInformation metaInformation;
 
-    public ResourceResponse() {
+    public ResourceResponse(MetaInformation metaInformation) {
+        this.metaInformation = metaInformation;
     }
 
     public ResourceResponse(Object data, JsonPath jsonPath, RequestParams requestParams, MetaInformation metaInformation) {

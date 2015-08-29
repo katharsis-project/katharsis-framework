@@ -4,6 +4,7 @@ import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.RequestParams;
 import io.katharsis.repository.RelationshipRepository;
+import io.katharsis.repository.ResourceRepository;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
@@ -17,11 +18,13 @@ import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
+import io.katharsis.response.MetaInformation;
 import io.katharsis.response.ResourceResponse;
 import io.katharsis.utils.Generics;
 import io.katharsis.utils.parser.TypeParser;
 
 import java.io.Serializable;
+import java.util.Collections;
 
 public abstract class RelationshipsResourceUpsert implements BaseController {
 
@@ -90,7 +93,8 @@ public abstract class RelationshipsResourceUpsert implements BaseController {
         if (relationshipField == null) {
             throw new ResourceFieldNotFoundException(jsonPath.getElementName());
         }
-        Object resource = registryEntry.getResourceRepository().findOne(castedResourceId, requestParams);
+        ResourceRepository resourceRepository = registryEntry.getResourceRepository();
+        Object resource = resourceRepository.findOne(castedResourceId, requestParams);
 
         Class<?> baseRelationshipFieldClass = relationshipField.getType();
         Class<?> relationshipFieldClass = Generics
@@ -113,7 +117,9 @@ public abstract class RelationshipsResourceUpsert implements BaseController {
             processToOneRelationship(resource, relationshipIdType, jsonPath.getElementName(), dataBody, relationshipRepositoryForClass);
         }
 
-        return new ResourceResponse();
+        MetaInformation metaInformation = getMetaInformation(resourceRepository, Collections.singletonList(resource));
+
+        return new ResourceResponse(metaInformation);
     }
 
     private Serializable getResourceId(PathIds resourceIds, RegistryEntry<?> registryEntry) {

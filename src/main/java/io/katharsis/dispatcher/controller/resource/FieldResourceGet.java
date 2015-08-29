@@ -14,12 +14,14 @@ import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
 import io.katharsis.response.CollectionResponse;
+import io.katharsis.response.MetaInformation;
 import io.katharsis.response.ResourceResponse;
 import io.katharsis.utils.Generics;
 import io.katharsis.utils.parser.TypeParser;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Collections;
 
 public class FieldResourceGet implements BaseController {
 
@@ -58,11 +60,15 @@ public class FieldResourceGet implements BaseController {
         RelationshipRepository relationshipRepositoryForClass = registryEntry.getRelationshipRepositoryForClass(relationshipFieldClass);
         BaseResponse target;
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
-            Iterable targetObjects = relationshipRepositoryForClass.findManyTargets(castedResourceId, elementName, requestParams);
-            target = new CollectionResponse(targetObjects, jsonPath, requestParams);
+            Iterable<?> targetObjects = relationshipRepositoryForClass
+                .findManyTargets(castedResourceId, elementName, requestParams);
+            MetaInformation metaInformation = getMetaInformation(relationshipRepositoryForClass, targetObjects);
+            target = new CollectionResponse(targetObjects, jsonPath, requestParams, metaInformation);
         } else {
             Object targetObject = relationshipRepositoryForClass.findOneTarget(castedResourceId, elementName, requestParams);
-            target = new ResourceResponse(targetObject, jsonPath, requestParams);
+            MetaInformation metaInformation =
+                getMetaInformation(relationshipRepositoryForClass, Collections.singletonList(targetObject));
+            target = new ResourceResponse(targetObject, jsonPath, requestParams, metaInformation);
         }
 
         return target;

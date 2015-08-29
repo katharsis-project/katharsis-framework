@@ -22,6 +22,7 @@ public class BaseResponseSerializer extends JsonSerializer<BaseResponse> {
 
     private static final String INCLUDED_FIELD_NAME = "included";
     private static final String DATA_FIELD_NAME = "data";
+    private static final String META_FIELD_NAME = "meta";
 
     private ResourceRegistry resourceRegistry;
     private IncludedRelationshipExtractor includedRelationshipExtractor;
@@ -49,6 +50,7 @@ public class BaseResponseSerializer extends JsonSerializer<BaseResponse> {
         }
 
         gen.writeObjectField(INCLUDED_FIELD_NAME, includedResources);
+        gen.writeObjectField(META_FIELD_NAME, value.getMetaInformation());
 
         gen.writeEndObject();
     }
