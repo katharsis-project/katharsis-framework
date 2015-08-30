@@ -1,8 +1,8 @@
 package io.katharsis.resource.registry;
 
 import io.katharsis.repository.RelationshipRepository;
-import io.katharsis.repository.RelationshipRepositoryNotFoundException;
-import io.katharsis.resource.ResourceInformation;
+import io.katharsis.repository.exception.RelationshipRepositoryNotFoundException;
+import io.katharsis.resource.infromation.ResourceInformation;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.models.User;

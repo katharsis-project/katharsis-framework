@@ -1,6 +1,8 @@
-package io.katharsis.resource;
+package io.katharsis.resource.infromation;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.katharsis.resource.field.ResourceField;
+import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.annotations.JsonApiId;
 import io.katharsis.resource.annotations.JsonApiToMany;
 import io.katharsis.resource.annotations.JsonApiToOne;

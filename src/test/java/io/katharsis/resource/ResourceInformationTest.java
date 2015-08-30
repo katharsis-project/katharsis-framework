@@ -1,5 +1,7 @@
 package io.katharsis.resource;
 
+import io.katharsis.resource.field.ResourceField;
+import io.katharsis.resource.infromation.ResourceInformation;
 import io.katharsis.resource.mock.models.Task;
 import org.junit.Test;
 

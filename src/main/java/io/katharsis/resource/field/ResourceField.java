@@ -1,4 +1,4 @@
-package io.katharsis.resource;
+package io.katharsis.resource.field;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;

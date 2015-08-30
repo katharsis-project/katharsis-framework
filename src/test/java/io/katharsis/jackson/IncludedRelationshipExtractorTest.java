@@ -6,7 +6,7 @@ import io.katharsis.queryParams.RequestParams;
 import io.katharsis.queryParams.RequestParamsBuilder;
 import io.katharsis.request.path.FieldPath;
 import io.katharsis.request.path.ResourcePath;
-import io.katharsis.resource.ResourceField;
+import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.RestrictedQueryParamsMembers;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;

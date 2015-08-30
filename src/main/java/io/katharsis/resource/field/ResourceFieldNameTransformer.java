@@ -1,4 +1,4 @@
-package io.katharsis.resource;
+package io.katharsis.resource.field;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
