@@ -31,9 +31,8 @@ public class PathIds {
 
         PathIds pathIds = (PathIds) o;
 
-        if (ids != null ? !ids.equals(pathIds.ids) : pathIds.ids != null) return false;
+        return !(ids != null ? !ids.equals(pathIds.ids) : pathIds.ids != null);
 
-        return true;
     }
 
     @Override

@@ -17,9 +17,8 @@ public class DataBody {
         return id;
     }
 
-    public DataBody setId(String id) {
+    public void setId(String id) {
         this.id = id;
-        return this;
     }
 
     public String getType() {

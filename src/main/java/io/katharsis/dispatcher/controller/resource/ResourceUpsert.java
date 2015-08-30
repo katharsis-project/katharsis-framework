@@ -139,7 +139,6 @@ public abstract class ResourceUpsert implements BaseController {
             throw new RuntimeException(String.format("Inconsistent type definition between path and body: body type: " +
                     "%s, request type: %s", dataBody.getType(), resourceName));
         }
-        Object resource = registryEntry.getResourceInformation().getResourceClass().newInstance();
-        return resource;
+        return registryEntry.getResourceInformation().getResourceClass().newInstance();
     }
 }

@@ -39,7 +39,7 @@ public class TaskToProjectRepository implements RelationshipRepository<Task, Lon
     @Override
     public void addRelations(Task source, Iterable<Long> targetIds, String fieldName) {
         targetIds.forEach(targetId ->
-                        THREAD_LOCAL_REPOSITORY.get().add(new Relation<>(source, targetId, fieldName))
+                THREAD_LOCAL_REPOSITORY.get().add(new Relation<>(source, targetId, fieldName))
         );
     }
 
@@ -70,7 +70,7 @@ public class TaskToProjectRepository implements RelationshipRepository<Task, Lon
     public Project findOneTarget(Long sourceId, String fieldName, RequestParams requestParams) {
         for (Relation<Task> relation : THREAD_LOCAL_REPOSITORY.get()) {
             if (relation.getSource().getId().equals(sourceId) &&
-                    relation.getFieldName().equals(fieldName)) {
+                relation.getFieldName().equals(fieldName)) {
                 Project project = new Project();
                 project.setId((Long) relation.getTargetId());
                 return project;
@@ -82,14 +82,15 @@ public class TaskToProjectRepository implements RelationshipRepository<Task, Lon
     @Override
     public Iterable<Project> findManyTargets(Long sourceId, String fieldName, RequestParams requestParams) {
         List<Project> projects = new LinkedList<>();
-        for (Relation<Task> relation : THREAD_LOCAL_REPOSITORY.get()) {
-            if (relation.getSource().getId().equals(sourceId) &&
-                    relation.getFieldName().equals(fieldName)) {
-                Project project = new Project();
-                project.setId((Long) relation.getTargetId());
-                projects.add(project);
-            }
-        }
+        THREAD_LOCAL_REPOSITORY
+            .get()
+            .stream()
+            .filter(relation -> relation.getSource()
+                .getId().equals(sourceId) && relation.getFieldName().equals(fieldName)).forEach(relation -> {
+            Project project = new Project();
+            project.setId((Long) relation.getTargetId());
+            projects.add(project);
+        });
         return projects;
     }
 }

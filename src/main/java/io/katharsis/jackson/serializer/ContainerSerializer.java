@@ -108,16 +108,17 @@ public class ContainerSerializer extends JsonSerializer<Container> {
     }
 
     private void writeAttributes(JsonGenerator gen, Object data, Set<ResourceField> attributeFields,
-        List<String> includedFields)
+                                 List<String> includedFields)
         throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
 
         Attributes attributesObject = new Attributes();
-        for (ResourceField attributeField : attributeFields) {
-            if (isIncluded(includedFields, attributeField)) {
+        attributeFields
+            .stream()
+            .filter(attributeField -> isIncluded(includedFields, attributeField))
+            .forEach(attributeField -> {
                 Object basicFieldValue = PropertyUtils.getProperty(data, attributeField.getName());
                 attributesObject.addAttribute(attributeField.getName(), basicFieldValue);
-            }
-        }
+            });
         gen.writeObjectField(ATTRIBUTES_FIELD_NAME, attributesObject);
     }
 

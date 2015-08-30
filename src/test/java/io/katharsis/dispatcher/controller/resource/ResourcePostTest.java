@@ -20,7 +20,7 @@ import io.katharsis.response.ResourceResponse;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Arrays;
+import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -187,8 +187,8 @@ public class ResourcePostTest extends BaseControllerTest {
         data.setType("users");
         data.setAttributes(OBJECT_MAPPER.createObjectNode().put("name", "some user"));
         data.setRelationships(new ResourceRelationships());
-        data.getRelationships().setAdditionalProperty("assignedProjects", Arrays.asList(new LinkageData("projects",
-                projectId.toString())));
+        data.getRelationships().setAdditionalProperty("assignedProjects", Collections.singletonList(new LinkageData("projects",
+            projectId.toString())));
 
         JsonPath taskPath = pathBuilder.buildPath("/users");
 

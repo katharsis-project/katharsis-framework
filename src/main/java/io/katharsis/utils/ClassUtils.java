@@ -102,9 +102,7 @@ public class ClassUtils {
         if (method.getName().length() < 3)
             return false;
         if (method.getParameterTypes().length != 0) return false;
-        if (!(boolean.class.equals(method.getReturnType()) || Boolean.class.equals(method.getReturnType())))
-            return false;
-        return true;
+        return boolean.class.equals(method.getReturnType()) || Boolean.class.equals(method.getReturnType());
     }
 
     private boolean isNonBooleanGetter(Method method) {
@@ -114,8 +112,7 @@ public class ClassUtils {
             return false;
         if (method.getParameterTypes().length != 0)
             return false;
-        if (void.class.equals(method.getReturnType())) return false;
-        return true;
+        return !void.class.equals(method.getReturnType());
     }
 
     private boolean isSetter(Method method) {
@@ -123,8 +120,6 @@ public class ClassUtils {
             return false;
         if (method.getName().length() < 4)
             return false;
-        if (method.getParameterTypes().length != 1)
-            return false;
-        return true;
+        return method.getParameterTypes().length == 1;
     }
 }

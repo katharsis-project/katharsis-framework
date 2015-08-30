@@ -1,9 +1,6 @@
 package io.katharsis.errorhandling;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ErrorDataMother {
 
@@ -43,6 +40,6 @@ public class ErrorDataMother {
     }
 
     public static List<ErrorData> oneSizeCollectionOfErrorData() {
-        return Arrays.asList(fullyPopulatedErrorData());
+        return Collections.singletonList(fullyPopulatedErrorData());
     }
 }

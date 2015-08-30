@@ -59,10 +59,6 @@ public class ResponseBuilder {
     }
 
     private String getClassName(Class<?> resourceType) {
-        StringBuilder sb = new StringBuilder("io.katharsis.resource.proxy$");
-        sb.append(resourceType.getCanonicalName())
-                .append("$")
-                .append(idCounter.getAndIncrement());
-        return sb.toString();
+        return "io.katharsis.resource.proxy$" + resourceType.getCanonicalName() + "$" + idCounter.getAndIncrement();
     }
 }

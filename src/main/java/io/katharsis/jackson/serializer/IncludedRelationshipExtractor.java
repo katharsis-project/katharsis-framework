@@ -36,11 +36,10 @@ public class IncludedRelationshipExtractor {
     private List<?> extractDefaultIncludedFields(Object resource, Set<ResourceField> relationshipFields,
         BaseResponse response) {
         List<?> includedResources = new LinkedList<>();
-        for (ResourceField relationshipField : relationshipFields) {
-            if (relationshipField.isAnnotationPresent(JsonApiIncludeByDefault.class)) {
-                includedResources.addAll(getIncludedFromRelation(relationshipField, resource, response));
-            }
-        }
+        relationshipFields
+            .stream()
+            .filter(relationshipField -> relationshipField.isAnnotationPresent(JsonApiIncludeByDefault.class))
+            .forEach(relationshipField -> includedResources.addAll(getIncludedFromRelation(relationshipField, resource, response)));
 
         return includedResources;
     }
@@ -87,9 +86,8 @@ public class IncludedRelationshipExtractor {
         if (property != null) {
             List<String> subPathList = pathList.subList(1, pathList.size());
             if (Iterable.class.isAssignableFrom(property.getClass())) {
-                Iterator iterator = ((Iterable) property).iterator();
-                while (iterator.hasNext()) {
-                    elements.addAll(getElements(iterator.next(), subPathList, response));
+                for (Object o : ((Iterable) property)) {
+                    elements.addAll(getElements(o, subPathList, response));
                 }
             } else {
                 elements.addAll(getElements(property, subPathList, response));

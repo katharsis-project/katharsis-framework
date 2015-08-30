@@ -39,9 +39,11 @@ public class BaseResponseSerializer extends JsonSerializer<BaseResponse> {
         gen.writeStartObject();
         if (value instanceof ResourceResponse) {
             Set included = serializeSingle((ResourceResponse) value, gen);
+            //noinspection unchecked
             includedResources.addAll(included);
         } else if (value instanceof CollectionResponse) {
             Set included = serializeResourceCollection((CollectionResponse) value, gen);
+            //noinspection unchecked
             includedResources.addAll(included);
         } else {
             throw new IllegalArgumentException(String.format("Response can be either %s or %s. Got %s",
