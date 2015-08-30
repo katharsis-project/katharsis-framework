@@ -3,6 +3,7 @@ package io.katharsis.dispatcher.controller.collection;
 import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.RequestParams;
+import io.katharsis.repository.ResourceRepository;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
@@ -11,6 +12,7 @@ import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
 import io.katharsis.response.CollectionResponse;
+import io.katharsis.response.MetaInformation;
 import io.katharsis.utils.parser.TypeParser;
 
 import java.io.Serializable;
@@ -45,23 +47,25 @@ public class CollectionGet implements BaseController {
         if (registryEntry == null) {
             throw new ResourceNotFoundException(resourceName);
         }
-        Iterable iterable;
+        Iterable<?> resources;
+        ResourceRepository resourceRepository = registryEntry.getResourceRepository();
         if (jsonPath.getIds() == null || jsonPath.getIds().getIds().isEmpty()) {
-            iterable = registryEntry.getResourceRepository().findAll(requestParams);
+            resources = resourceRepository.findAll(requestParams);
         } else {
             Class<? extends Serializable> idType = (Class<? extends Serializable>)registryEntry
                     .getResourceInformation().getIdField().getType();
             Iterable<? extends Serializable> parsedIds = typeParser.parse((Iterable<String>) jsonPath.getIds().getIds(),
                     idType);
-            iterable = registryEntry.getResourceRepository().findAll(parsedIds, requestParams);
+            resources = resourceRepository.findAll(parsedIds, requestParams);
         }
         List containers = new LinkedList();
-        if (iterable != null) {
-            for (Object element : iterable) {
+        if (resources != null) {
+            for (Object element : resources) {
                 containers.add(element);
             }
         }
+        MetaInformation metaInformation = getMetaInformation(resourceRepository, resources);
 
-        return new CollectionResponse(containers, jsonPath, requestParams);
+        return new CollectionResponse(containers, jsonPath, requestParams, metaInformation);
     }
 }

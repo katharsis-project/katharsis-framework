@@ -3,6 +3,7 @@ package io.katharsis.dispatcher.controller.resource;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.RequestParams;
+import io.katharsis.repository.ResourceRepository;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
@@ -13,10 +14,12 @@ import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
+import io.katharsis.response.MetaInformation;
 import io.katharsis.response.ResourceResponse;
 import io.katharsis.utils.parser.TypeParser;
 
 import java.io.Serializable;
+import java.util.Collections;
 
 public class ResourcePatch extends ResourceUpsert {
 
@@ -54,15 +57,20 @@ public class ResourcePatch extends ResourceUpsert {
                 .getType();
         Serializable resourceId = typeParser.parse(idString, idClass);
 
-        @SuppressWarnings("unchecked") Object resource = registryEntry.getResourceRepository().findOne(resourceId, requestParams);
+        ResourceRepository resourceRepository = registryEntry.getResourceRepository();
+        @SuppressWarnings("unchecked")
+        Object resource = resourceRepository.findOne(resourceId, requestParams);
         DataBody dataBody = requestBody.getSingleData();
 
         setAttributes(dataBody, resource, registryEntry.getResourceInformation());
-        Object savedResource = registryEntry.getResourceRepository().save(resource);
+        Object savedResource = resourceRepository.save(resource);
         saveRelations(savedResource, registryEntry, dataBody);
 
-        @SuppressWarnings("unchecked") Object savedResourceWithRelations = registryEntry.getResourceRepository().findOne(resourceId, requestParams);
+        @SuppressWarnings("unchecked")
+        Object savedResourceWithRelations = resourceRepository.findOne(resourceId, requestParams);
+        MetaInformation metaInformation =
+            getMetaInformation(resourceRepository, Collections.singletonList(savedResourceWithRelations));
 
-        return new ResourceResponse(savedResourceWithRelations, jsonPath, requestParams);
+        return new ResourceResponse(savedResourceWithRelations, jsonPath, requestParams, metaInformation);
     }
 }

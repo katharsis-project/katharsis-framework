@@ -41,7 +41,7 @@ public class IncludedRelationshipExtractorTest {
     @Test
     public void onEmptyInclusionShouldReturnEmptySet() throws Exception {
         // GIVEN
-        ResourceResponse response = new ResourceResponse(null, null, new RequestParams(null));
+        ResourceResponse response = new ResourceResponse(null, null, new RequestParams(null), null);
 
         // WHEN
         Set result = sut.extractIncludedResources(new Project(), Collections.<ResourceField>emptySet(), response);
@@ -53,7 +53,7 @@ public class IncludedRelationshipExtractorTest {
     @Test
     public void onDefaultNullInclusionShouldReturnEmptySet() throws Exception {
         // GIVEN
-        ResourceResponse response = new ResourceResponse(null, null, new RequestParams(null));
+        ResourceResponse response = new ResourceResponse(null, null, new RequestParams(null), null);
 
         // WHEN
         Set result = sut.extractIncludedResources(new Task(), Collections.singleton(resourceField), response);
@@ -65,7 +65,7 @@ public class IncludedRelationshipExtractorTest {
     @Test
     public void onDefaultInclusionShouldReturnOneElement() throws Exception {
         // GIVEN
-        ResourceResponse response = new ResourceResponse(null, null, new RequestParams(null));
+        ResourceResponse response = new ResourceResponse(null, null, new RequestParams(null), null);
         Task resource = new Task();
         Project project = new Project();
         resource.setProject(project);
@@ -82,7 +82,7 @@ public class IncludedRelationshipExtractorTest {
         // GIVEN
         RequestParams requestParams = getRequestParamsWithInclusion("[\"project\"]");
 
-        ResourceResponse response = new ResourceResponse(null, new ResourcePath("tasks"), requestParams);
+        ResourceResponse response = new ResourceResponse(null, new ResourcePath("tasks"), requestParams, null);
         Task resource = new Task();
         Project project = new Project();
         resource.setProject(project);
@@ -98,7 +98,7 @@ public class IncludedRelationshipExtractorTest {
     public void onNullInclusionShouldReturnEmptySet() throws Exception {
         // GIVEN
         RequestParams requestParams = getRequestParamsWithInclusion("[]");
-        ResourceResponse response = new ResourceResponse(null, new ResourcePath("tasks"), requestParams);
+        ResourceResponse response = new ResourceResponse(null, new ResourcePath("tasks"), requestParams, null);
 
         // WHEN
         Set<?> result = sut.extractIncludedResources(null, Collections.emptySet(), response);
@@ -112,7 +112,7 @@ public class IncludedRelationshipExtractorTest {
         // GIVEN
         RequestParams requestParams = getRequestParamsWithInclusion("[\"task.project\"]");
 
-        ResourceResponse response = new ResourceResponse(null, new FieldPath("project"), requestParams);
+        ResourceResponse response = new ResourceResponse(null, new FieldPath("project"), requestParams, null);
         Task resource = new Task();
         Project project = new Project();
         resource.setProject(project);
@@ -129,7 +129,7 @@ public class IncludedRelationshipExtractorTest {
         // GIVEN
         RequestParams requestParams = getRequestParamsWithInclusion("[\"classBs.classCs\"]");
 
-        ResourceResponse response = new ResourceResponse(null, new ResourcePath("classAs"), requestParams);
+        ResourceResponse response = new ResourceResponse(null, new ResourcePath("classAs"), requestParams, null);
         ClassC classC = new ClassC();
         ClassA classA = new ClassA(new ClassB(classC));
 
@@ -144,7 +144,7 @@ public class IncludedRelationshipExtractorTest {
     public void onNullFieldInclusionShouldReturnEmptySet() throws Exception {
         // GIVEN
         RequestParams requestParams = getRequestParamsWithInclusion("[\"task.project\"]");
-        ResourceResponse response = new ResourceResponse(null, new FieldPath("tasks"), requestParams);
+        ResourceResponse response = new ResourceResponse(null, new FieldPath("tasks"), requestParams, null);
         Task resource = new Task();
 
         // WHEN

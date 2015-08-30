@@ -12,15 +12,13 @@ import io.katharsis.resource.ResourceField;
 import io.katharsis.resource.exception.ResourceFieldNotFoundException;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.response.BaseResponse;
-import io.katharsis.response.CollectionResponse;
-import io.katharsis.response.LinkageContainer;
-import io.katharsis.response.ResourceResponse;
+import io.katharsis.response.*;
 import io.katharsis.utils.Generics;
 import io.katharsis.utils.parser.TypeParser;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -60,26 +58,34 @@ public class RelationshipsResourceGet implements BaseController {
         Class<?> relationshipFieldClass = Generics
             .getResourceClass(relationshipField.getGenericType(), baseRelationshipFieldClass);
 
-        RelationshipRepository relationshipRepositoryForClass = registryEntry.getRelationshipRepositoryForClass(relationshipFieldClass);
+        RelationshipRepository relationshipRepositoryForClass = registryEntry.getRelationshipRepositoryForClass(
+            relationshipFieldClass);
         RegistryEntry relationshipFieldEntry = resourceRegistry.getEntry(relationshipFieldClass);
         BaseResponse target;
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
             List<LinkageContainer> dataList = new LinkedList<>();
 
-            @SuppressWarnings("unchecked") Iterable targetObjects = relationshipRepositoryForClass.findManyTargets(castedResourceId, elementName, requestParams);
+            @SuppressWarnings("unchecked")
+            Iterable<?> targetObjects = relationshipRepositoryForClass
+                .findManyTargets(castedResourceId, elementName, requestParams);
+            MetaInformation metaInformation = getMetaInformation(relationshipRepositoryForClass, targetObjects);
             if (targetObjects != null) {
                 for (Object targetObject : targetObjects) {
                     dataList.add(new LinkageContainer(targetObject, relationshipFieldClass, relationshipFieldEntry));
                 }
             }
-            target = new CollectionResponse(dataList, jsonPath, requestParams);
+            target = new CollectionResponse(dataList, jsonPath, requestParams, metaInformation);
         } else {
-            @SuppressWarnings("unchecked") Object targetObject = relationshipRepositoryForClass.findOneTarget(castedResourceId, elementName, requestParams);
+            @SuppressWarnings("unchecked")
+            Object targetObject = relationshipRepositoryForClass.findOneTarget(castedResourceId, elementName, requestParams);
+            MetaInformation metaInformation =
+                getMetaInformation(relationshipRepositoryForClass, Collections.singletonList(targetObject));
             if (targetObject != null) {
                 LinkageContainer linkageContainer = new LinkageContainer(targetObject, relationshipFieldClass, relationshipFieldEntry);
-                target = new ResourceResponse(linkageContainer, jsonPath, requestParams);
+
+                target = new ResourceResponse(linkageContainer, jsonPath, requestParams, metaInformation);
             } else {
-                target = new ResourceResponse(null, jsonPath, requestParams);
+                target = new ResourceResponse(null, jsonPath, requestParams, metaInformation);
             }
         }
 

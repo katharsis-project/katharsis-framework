@@ -1,9 +1,11 @@
 package io.katharsis.dispatcher.controller;
 
 import io.katharsis.queryParams.RequestParams;
+import io.katharsis.repository.MetaRepository;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.response.BaseResponse;
+import io.katharsis.response.MetaInformation;
 
 /**
  * Represents a controller contract. There can be many kinds of requests that can be send to the framework. The
@@ -32,4 +34,11 @@ public interface BaseController {
      * @throws Exception internal Katharsis exception
      */
     BaseResponse<?> handle(JsonPath jsonPath, RequestParams requestParams, RequestBody requestBody) throws Exception;
+
+    default MetaInformation getMetaInformation(Object repository, Iterable<?> resources) {
+        if (repository instanceof MetaRepository) {
+            return ((MetaRepository) repository).getMetaInformation(resources);
+        }
+        return null;
+    }
 }

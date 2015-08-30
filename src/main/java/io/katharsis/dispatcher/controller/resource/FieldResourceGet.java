@@ -14,12 +14,14 @@ import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
 import io.katharsis.response.CollectionResponse;
+import io.katharsis.response.MetaInformation;
 import io.katharsis.response.ResourceResponse;
 import io.katharsis.utils.Generics;
 import io.katharsis.utils.parser.TypeParser;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Collections;
 
 public class FieldResourceGet implements BaseController {
 
@@ -58,11 +60,17 @@ public class FieldResourceGet implements BaseController {
         RelationshipRepository relationshipRepositoryForClass = registryEntry.getRelationshipRepositoryForClass(relationshipFieldClass);
         BaseResponse target;
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
-            @SuppressWarnings("unchecked") Iterable targetObjects = relationshipRepositoryForClass.findManyTargets(castedResourceId, elementName, requestParams);
-            target = new CollectionResponse(targetObjects, jsonPath, requestParams);
+            @SuppressWarnings("unchecked")
+            Iterable<?> targetObjects = relationshipRepositoryForClass
+                .findManyTargets(castedResourceId, elementName, requestParams);
+            MetaInformation metaInformation = getMetaInformation(relationshipRepositoryForClass, targetObjects);
+            target = new CollectionResponse(targetObjects, jsonPath, requestParams, metaInformation);
         } else {
-            @SuppressWarnings("unchecked") Object targetObject = relationshipRepositoryForClass.findOneTarget(castedResourceId, elementName, requestParams);
-            target = new ResourceResponse(targetObject, jsonPath, requestParams);
+            @SuppressWarnings("unchecked")
+            Object targetObject = relationshipRepositoryForClass.findOneTarget(castedResourceId, elementName, requestParams);
+            MetaInformation metaInformation =
+                getMetaInformation(relationshipRepositoryForClass, Collections.singletonList(targetObject));
+            target = new ResourceResponse(targetObject, jsonPath, requestParams, metaInformation);
         }
 
         return target;
@@ -70,7 +78,8 @@ public class FieldResourceGet implements BaseController {
 
     private Serializable getResourceId(PathIds resourceIds, RegistryEntry<?> registryEntry) {
         String resourceId = resourceIds.getIds().get(0);
-        @SuppressWarnings("unchecked") Class<? extends Serializable> idClass = (Class<? extends Serializable>) registryEntry
+        @SuppressWarnings("unchecked")
+        Class<? extends Serializable> idClass = (Class<? extends Serializable>) registryEntry
                 .getResourceInformation()
                 .getIdField()
                 .getType();
