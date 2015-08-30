@@ -68,6 +68,7 @@ public class ResourcePost extends ResourceUpsert {
         Serializable resourceId = (Serializable) PropertyUtils
             .getProperty(savedResource, registryEntry.getResourceInformation().getIdField().getName());
 
+        @SuppressWarnings("unchecked")
         Object savedResourceWithRelations = resourceRepository.findOne(resourceId, requestParams);
         MetaInformation metaInformation =
             getMetaInformation(resourceRepository, Collections.singletonList(savedResourceWithRelations));

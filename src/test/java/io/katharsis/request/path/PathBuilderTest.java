@@ -23,7 +23,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class PathBuilderTest {
 
-    private ResourceRegistry resourceRegistry;
     private PathBuilder pathBuilder;
 
     @Rule
@@ -35,7 +34,7 @@ public class PathBuilderTest {
             new ResourceFieldNameTransformer());
         ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonServiceLocator(),
             resourceInformationBuilder);
-        resourceRegistry = registryBuilder
+        ResourceRegistry resourceRegistry = registryBuilder
             .build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, ResourceRegistryTest.TEST_MODELS_URL);
 
         pathBuilder = new PathBuilder(resourceRegistry);
@@ -62,7 +61,6 @@ public class PathBuilderTest {
         JsonPath jsonPath = pathBuilder.buildPath(path);
 
         // THEN
-        JsonPath expectedPath = new ResourcePath("tasks");
         assertThat(jsonPath).isEqualTo(new ResourcePath("tasks"));
         assertThat(jsonPath.isCollection()).isTrue();
     }
@@ -229,7 +227,7 @@ public class PathBuilderTest {
         JsonPath jsonPath = new ResourcePath("tasks");
 
         // WHEN
-        String result = pathBuilder.buildPath(jsonPath);
+        String result = PathBuilder.buildPath(jsonPath);
 
         // THEN
         assertThat(result).isEqualTo("/tasks/");
@@ -241,7 +239,7 @@ public class PathBuilderTest {
         JsonPath jsonPath = new ResourcePath("tasks", new PathIds(Arrays.asList("1", "2")));
 
         // WHEN
-        String result = pathBuilder.buildPath(jsonPath);
+        String result = PathBuilder.buildPath(jsonPath);
 
         // THEN
         assertThat(result).isEqualTo("/tasks/1,2/");
@@ -255,7 +253,7 @@ public class PathBuilderTest {
         jsonPath.setParentResource(parentJsonPath);
 
         // WHEN
-        String result = pathBuilder.buildPath(jsonPath);
+        String result = PathBuilder.buildPath(jsonPath);
 
         // THEN
         assertThat(result).isEqualTo("/tasks/1/relationships/project/");
@@ -269,7 +267,7 @@ public class PathBuilderTest {
         jsonPath.setParentResource(parentJsonPath);
 
         // WHEN
-        String result = pathBuilder.buildPath(jsonPath);
+        String result = PathBuilder.buildPath(jsonPath);
 
         // THEN
         assertThat(result).isEqualTo("/tasks/1/project/");

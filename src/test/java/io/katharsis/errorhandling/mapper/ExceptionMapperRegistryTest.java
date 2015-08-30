@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.*;
 public class ExceptionMapperRegistryTest {
 
     //Reused in RequestDispatcherTest
-    public static ExceptionMapperRegistry exceptionMapperRegistry = new ExceptionMapperRegistry(exceptionMapperTypeSet());
+    public static final ExceptionMapperRegistry exceptionMapperRegistry = new ExceptionMapperRegistry(exceptionMapperTypeSet());
 
     @Test
     public void shouldReturnIntegerMAXForNotRelatedClasses() {
@@ -57,7 +57,7 @@ public class ExceptionMapperRegistryTest {
     private static class SomeException extends Exception {
     }
 
-    public static Set<ExceptionMapperType> exceptionMapperTypeSet() {
+    private static Set<ExceptionMapperType> exceptionMapperTypeSet() {
         Set<ExceptionMapperType> types = new HashSet<>();
         types.add(new ExceptionMapperType(IllegalStateException.class, new IllegalStateExceptionMapper()));
         return types;

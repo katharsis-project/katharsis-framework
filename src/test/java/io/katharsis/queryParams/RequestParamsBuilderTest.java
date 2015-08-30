@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class RequestParamsBuilderTest {
 
     private Map<String, String> queryParams;
-    RequestParamsBuilder sut;
+    private RequestParamsBuilder sut;
 
     @Before
     public void prepare() {

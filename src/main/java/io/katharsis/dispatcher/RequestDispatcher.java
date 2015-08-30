@@ -14,7 +14,7 @@ import java.util.Optional;
  * A class that can be used to integrate Katharsis with external frameworks like Jersey, Spring etc. See katharsis-rs
  * and katharsis-servlet for usage.
  */
-public class RequestDispatcher {
+class RequestDispatcher {
 
     private final ControllerRegistry controllerRegistry;
     private final ExceptionMapperRegistry exceptionMapperRegistry;
@@ -34,7 +34,7 @@ public class RequestDispatcher {
      * @throws Exception exception thrown while processing the request
      */
     public BaseResponse<?> dispatchRequest(JsonPath jsonPath, String requestType, RequestParams requestParams,
-                                           RequestBody requestBody) throws Exception {
+                                           @SuppressWarnings("SameParameterValue") RequestBody requestBody) throws Exception {
 
         try {
         return controllerRegistry
@@ -43,6 +43,7 @@ public class RequestDispatcher {
         } catch (Exception e) {
             Optional<JsonApiExceptionMapper> exceptionMapper = exceptionMapperRegistry.findMapperFor(e.getClass());
             if (exceptionMapper.isPresent()) {
+                //noinspection unchecked
                 return exceptionMapper.get().toErrorResponse(e);
             } else {
                 throw e;

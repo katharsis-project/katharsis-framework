@@ -6,7 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ErrorResponseBuilderTest {
 
-    public static final int STATUS = 500;
+    private static final int STATUS = 500;
 
     @Test
     public void shouldSetStatus() throws Exception {

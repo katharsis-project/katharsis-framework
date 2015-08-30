@@ -9,7 +9,7 @@ import java.io.Serializable;
  */
 public class NotFoundRepository implements ResourceRepository {
 
-    private Class<?> repositoryClass;
+    private final Class<?> repositoryClass;
 
     public NotFoundRepository(Class<?> repositoryClass) {
         this.repositoryClass = repositoryClass;

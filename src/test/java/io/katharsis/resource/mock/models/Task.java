@@ -31,7 +31,7 @@ public class Task {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(@SuppressWarnings("SameParameterValue") String name) {
         this.name = name;
     }
 

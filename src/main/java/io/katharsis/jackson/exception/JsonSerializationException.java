@@ -8,7 +8,7 @@ import io.katharsis.response.HttpStatus;
  * Thrown when a Jackson serialization related exception occurs.
  */
 public class JsonSerializationException extends KatharsisMappableException {
-    public static final String TITLE = "JSON serialization error";
+    private static final String TITLE = "JSON serialization error";
 
     public JsonSerializationException(String message) {
         super(HttpStatus.INTERNAL_SERVER_ERROR_500, ErrorData.builder()

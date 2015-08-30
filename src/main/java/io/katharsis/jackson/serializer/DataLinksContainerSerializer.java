@@ -16,10 +16,7 @@ import java.io.IOException;
  */
 public class DataLinksContainerSerializer extends JsonSerializer<DataLinksContainer> {
 
-    private ResourceRegistry resourceRegistry;
-
     public DataLinksContainerSerializer(ResourceRegistry resourceRegistry) {
-        this.resourceRegistry = resourceRegistry;
     }
 
     @Override

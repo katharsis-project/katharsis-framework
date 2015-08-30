@@ -8,7 +8,7 @@ package io.katharsis.errorhandling.exception;
  */
 public abstract class KatharsisMatchingException extends KatharsisException {
 
-    public KatharsisMatchingException(String message) {
+    protected KatharsisMatchingException(String message) {
         super(message);
     }
 }

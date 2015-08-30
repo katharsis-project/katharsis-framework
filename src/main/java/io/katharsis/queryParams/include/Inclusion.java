@@ -11,7 +11,7 @@ public class Inclusion {
 
     private String path;
 
-    public Inclusion(String path) {
+    public Inclusion(@SuppressWarnings("SameParameterValue") String path) {
         if (path == null) {
             throw new IllegalArgumentException("path cannot be null");
         }

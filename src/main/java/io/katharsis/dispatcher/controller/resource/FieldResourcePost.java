@@ -33,7 +33,7 @@ import java.util.Collections;
  */
 public class FieldResourcePost extends ResourceUpsert {
 
-    public FieldResourcePost(ResourceRegistry resourceRegistry, TypeParser typeParser, ObjectMapper objectMapper) {
+    public FieldResourcePost(ResourceRegistry resourceRegistry, TypeParser typeParser, @SuppressWarnings("SameParameterValue") ObjectMapper objectMapper) {
         super(resourceRegistry, typeParser, objectMapper);
     }
 
@@ -86,13 +86,17 @@ public class FieldResourcePost extends ResourceUpsert {
         Serializable resourceId = (Serializable) PropertyUtils
             .getProperty(savedResource, relationshipRegistryEntry.getResourceInformation().getIdField().getName());
 
+        @SuppressWarnings("unchecked")
         Object savedResourceWithRelations = resourceRepository.findOne(resourceId, requestParams);
 
         RelationshipRepository relationshipRepositoryForClass = registryEntry.getRelationshipRepositoryForClass(relationshipFieldClass);
+        @SuppressWarnings("unchecked")
         Object parent = registryEntry.getResourceRepository().findOne(castedResourceId, requestParams);
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
+            //noinspection unchecked
             relationshipRepositoryForClass.addRelations(parent, Collections.singletonList(resourceId), jsonPath.getElementName());
         } else {
+            //noinspection unchecked
             relationshipRepositoryForClass.setRelation(parent, resourceId, jsonPath.getElementName());
         }
         MetaInformation metaInformation = getMetaInformation(resourceRepository,
@@ -103,6 +107,7 @@ public class FieldResourcePost extends ResourceUpsert {
 
     private Serializable getResourceId(PathIds resourceIds, RegistryEntry<?> registryEntry) {
         String resourceId = resourceIds.getIds().get(0);
+        @SuppressWarnings("unchecked")
         Class<? extends Serializable> idClass = (Class<? extends Serializable>) registryEntry
                 .getResourceInformation()
                 .getIdField()

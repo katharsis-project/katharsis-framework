@@ -18,13 +18,15 @@ import java.util.*;
  * Extracts inclusions from a resource.
  */
 public class IncludedRelationshipExtractor {
-    Logger logger = LoggerFactory.getLogger(IncludedRelationshipExtractor.class);
+    private final Logger logger = LoggerFactory.getLogger(IncludedRelationshipExtractor.class);
 
     public Set<?> extractIncludedResources(Object resource, Set<ResourceField> relationshipFields,
         BaseResponse response) {
         Set includedResources = new HashSet<>();
+        //noinspection unchecked
         includedResources.addAll(extractDefaultIncludedFields(resource, relationshipFields, response));
         try {
+            //noinspection unchecked
             includedResources.addAll(extractIncludedRelationships(resource, response));
         } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException | NoSuchFieldException e) {
             logger.info("Exception while extracting included fields", e);
@@ -36,11 +38,11 @@ public class IncludedRelationshipExtractor {
     private List<?> extractDefaultIncludedFields(Object resource, Set<ResourceField> relationshipFields,
         BaseResponse response) {
         List<?> includedResources = new LinkedList<>();
-        for (ResourceField relationshipField : relationshipFields) {
-            if (relationshipField.isAnnotationPresent(JsonApiIncludeByDefault.class)) {
-                includedResources.addAll(getIncludedFromRelation(relationshipField, resource, response));
-            }
-        }
+        //noinspection unchecked
+        relationshipFields
+            .stream()
+            .filter(relationshipField -> relationshipField.isAnnotationPresent(JsonApiIncludeByDefault.class))
+            .forEach(relationshipField -> includedResources.addAll(getIncludedFromRelation(relationshipField, resource, response)));
 
         return includedResources;
     }
@@ -51,6 +53,7 @@ public class IncludedRelationshipExtractor {
         List<Inclusion> includedRelations = response.getRequestParams().getIncludedRelations();
         if (includedRelations != null) {
             for (Inclusion inclusion : includedRelations) {
+                //noinspection unchecked
                 includedResources.addAll(extractIncludedRelationship(resource, inclusion, response));
             }
         }
@@ -87,11 +90,12 @@ public class IncludedRelationshipExtractor {
         if (property != null) {
             List<String> subPathList = pathList.subList(1, pathList.size());
             if (Iterable.class.isAssignableFrom(property.getClass())) {
-                Iterator iterator = ((Iterable) property).iterator();
-                while (iterator.hasNext()) {
-                    elements.addAll(getElements(iterator.next(), subPathList, response));
+                for (Object o : ((Iterable) property)) {
+                    //noinspection unchecked
+                    elements.addAll(getElements(o, subPathList, response));
                 }
             } else {
+                //noinspection unchecked
                 elements.addAll(getElements(property, subPathList, response));
             }
         } else {

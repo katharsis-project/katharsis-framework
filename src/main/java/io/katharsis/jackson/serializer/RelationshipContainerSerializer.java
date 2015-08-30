@@ -29,7 +29,7 @@ public class RelationshipContainerSerializer extends JsonSerializer<Relationship
     private static final String DATA_FIELD_NAME = "data";
     private static final String LINKS_FIELD_NAME = "links";
 
-    private ResourceRegistry resourceRegistry;
+    private final ResourceRegistry resourceRegistry;
 
     public RelationshipContainerSerializer(ResourceRegistry resourceRegistry) {
         this.resourceRegistry = resourceRegistry;

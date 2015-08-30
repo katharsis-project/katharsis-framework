@@ -24,8 +24,8 @@ public class BaseResponseSerializer extends JsonSerializer<BaseResponse> {
     private static final String DATA_FIELD_NAME = "data";
     private static final String META_FIELD_NAME = "meta";
 
-    private ResourceRegistry resourceRegistry;
-    private IncludedRelationshipExtractor includedRelationshipExtractor;
+    private final ResourceRegistry resourceRegistry;
+    private final IncludedRelationshipExtractor includedRelationshipExtractor;
 
     public BaseResponseSerializer(ResourceRegistry resourceRegistry) {
         this.resourceRegistry = resourceRegistry;
@@ -40,9 +40,11 @@ public class BaseResponseSerializer extends JsonSerializer<BaseResponse> {
         gen.writeStartObject();
         if (value instanceof ResourceResponse) {
             Set included = serializeSingle((ResourceResponse) value, gen);
+            //noinspection unchecked
             includedResources.addAll(included);
         } else if (value instanceof CollectionResponse) {
             Set included = serializeResourceCollection((CollectionResponse) value, gen);
+            //noinspection unchecked
             includedResources.addAll(included);
         } else {
             throw new IllegalArgumentException(String.format("Response can be either %s or %s. Got %s",
@@ -83,6 +85,7 @@ public class BaseResponseSerializer extends JsonSerializer<BaseResponse> {
         if (values != null) {
             for (Object value : values) {
                 Set<ResourceField> relationshipFields = getRelationshipFields(value);
+                //noinspection unchecked
                 includedFields.addAll(includedRelationshipExtractor.extractIncludedResources(value, relationshipFields, collectionResponse));
             }
         } else {

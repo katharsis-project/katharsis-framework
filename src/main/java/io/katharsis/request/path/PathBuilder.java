@@ -13,10 +13,10 @@ import java.util.*;
  * Builder responsible for parsing URL path.
  */
 public class PathBuilder {
-    public static final String SEPARATOR = "/";
+    private static final String SEPARATOR = "/";
     public static final String RELATIONSHIP_MARK = "relationships";
 
-    private ResourceRegistry resourceRegistry;
+    private final ResourceRegistry resourceRegistry;
 
     public PathBuilder(ResourceRegistry resourceRegistry) {
         this.resourceRegistry = resourceRegistry;

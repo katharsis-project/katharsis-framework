@@ -78,7 +78,7 @@ public class ResourceFieldNameTransformerTest {
         assertThat(name).isEqualTo("wrappedCustomName");
     }
 
-    public static class TestClass {
+    private static class TestClass {
 
         private String field;
 

@@ -23,7 +23,7 @@ import java.util.Collections;
 
 public class ResourcePatch extends ResourceUpsert {
 
-    public ResourcePatch(ResourceRegistry resourceRegistry, TypeParser typeParser, ObjectMapper objectMapper) {
+    public ResourcePatch(ResourceRegistry resourceRegistry, TypeParser typeParser, @SuppressWarnings("SameParameterValue") ObjectMapper objectMapper) {
         super(resourceRegistry, typeParser, objectMapper);
     }
 
@@ -51,13 +51,14 @@ public class ResourcePatch extends ResourceUpsert {
 
         String idString = jsonPath.getIds().getIds().get(0);
 
-        Class<? extends Serializable> idClass = (Class<? extends Serializable>) registryEntry
+        @SuppressWarnings("unchecked") Class<? extends Serializable> idClass = (Class<? extends Serializable>) registryEntry
                 .getResourceInformation()
                 .getIdField()
                 .getType();
         Serializable resourceId = typeParser.parse(idString, idClass);
 
         ResourceRepository resourceRepository = registryEntry.getResourceRepository();
+        @SuppressWarnings("unchecked")
         Object resource = resourceRepository.findOne(resourceId, requestParams);
         DataBody dataBody = requestBody.getSingleData();
 
@@ -65,6 +66,7 @@ public class ResourcePatch extends ResourceUpsert {
         Object savedResource = resourceRepository.save(resource);
         saveRelations(savedResource, registryEntry, dataBody);
 
+        @SuppressWarnings("unchecked")
         Object savedResourceWithRelations = resourceRepository.findOne(resourceId, requestParams);
         MetaInformation metaInformation =
             getMetaInformation(resourceRepository, Collections.singletonList(savedResourceWithRelations));

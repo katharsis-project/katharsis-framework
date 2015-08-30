@@ -12,7 +12,7 @@ import org.junit.Before;
 
 public abstract class BaseSerializerTest {
 
-    protected ObjectMapper sut;
+    ObjectMapper sut;
 
     @Before
     public void setUp() throws Exception {

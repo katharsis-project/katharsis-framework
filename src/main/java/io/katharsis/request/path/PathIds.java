@@ -10,9 +10,9 @@ import java.util.List;
 public class PathIds {
     public static final String ID_SEPERATOR = ",";
 
-    private List<String> ids = new LinkedList<>();
+    private final List<String> ids = new LinkedList<>();
 
-    public PathIds(String id) {
+    public PathIds(@SuppressWarnings("SameParameterValue") String id) {
         ids.add(id);
     }
 
@@ -31,9 +31,8 @@ public class PathIds {
 
         PathIds pathIds = (PathIds) o;
 
-        if (ids != null ? !ids.equals(pathIds.ids) : pathIds.ids != null) return false;
+        return !(ids != null ? !ids.equals(pathIds.ids) : pathIds.ids != null);
 
-        return true;
     }
 
     @Override

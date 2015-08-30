@@ -11,7 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class RequestBodyTest {
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
     public void onPostDataWithSingleLinkageShouldMapToObject() throws Exception {
@@ -84,12 +84,16 @@ public class RequestBodyTest {
         assertThat(data.getRelationships()).isNotNull();
         assertThat(data.getRelationships().getAdditionalProperties()).containsOnlyKeys("project");
         assertThat(data.getRelationships().getAdditionalProperties().get("project")).isInstanceOf(Iterable.class);
+        //noinspection unchecked
         assertThat(((Iterable<LinkageData>) (data.getRelationships().getAdditionalProperties().get("project"))))
                 .hasSize(1);
+        //noinspection unchecked
         assertThat(((Iterable<LinkageData>) (data.getRelationships().getAdditionalProperties().get("project")))
                 .iterator().next()).isInstanceOf(LinkageData.class);
+        //noinspection unchecked
         assertThat(((Iterable<LinkageData>) (data.getRelationships().getAdditionalProperties().get("project")))
                 .iterator().next().getType()).isEqualTo("projects");
+        //noinspection unchecked
         assertThat(((Iterable<LinkageData>) (data.getRelationships().getAdditionalProperties().get("project")))
                 .iterator().next().getId()).isEqualTo("123");
     }
@@ -115,6 +119,7 @@ public class RequestBodyTest {
         assertThat(data.getRelationships()).isNotNull();
         assertThat(data.getRelationships().getAdditionalProperties()).containsOnlyKeys("project");
         assertThat(data.getRelationships().getAdditionalProperties().get("project")).isInstanceOf(Iterable.class);
+        //noinspection unchecked
         assertThat(((Iterable<LinkageData>) (data.getRelationships().getAdditionalProperties().get("project"))))
                 .hasSize(0);
     }

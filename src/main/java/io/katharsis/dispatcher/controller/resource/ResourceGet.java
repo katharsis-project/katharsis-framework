@@ -22,8 +22,8 @@ import java.util.Collections;
 
 public class ResourceGet implements BaseController {
 
-    private ResourceRegistry resourceRegistry;
-    private TypeParser typeParser;
+    private final ResourceRegistry resourceRegistry;
+    private final TypeParser typeParser;
 
     public ResourceGet(ResourceRegistry resourceRegistry, TypeParser typeParser) {
         this.resourceRegistry = resourceRegistry;
@@ -58,12 +58,13 @@ public class ResourceGet implements BaseController {
         }
         String id = resourceIds.getIds().get(0);
 
-        Class<? extends Serializable> idClass = (Class<? extends Serializable>) registryEntry
+        @SuppressWarnings("unchecked") Class<? extends Serializable> idClass = (Class<? extends Serializable>) registryEntry
                 .getResourceInformation()
                 .getIdField()
                 .getType();
         Serializable castedId = typeParser.parse(id, idClass);
         ResourceRepository resourceRepository = registryEntry.getResourceRepository();
+        @SuppressWarnings("unchecked")
         Object entity = resourceRepository.findOne(castedId, requestParams);
         MetaInformation metaInformation = getMetaInformation(resourceRepository, Collections.singletonList(entity));
 

@@ -7,12 +7,12 @@ import java.util.List;
 import java.util.Objects;
 
 public class ResourceField {
-    private String name;
-    private Class<?> type;
-    private Type genericType;
+    private final String name;
+    private final Class<?> type;
+    private final Type genericType;
     private List<Annotation> annotations = Collections.emptyList();
 
-    public ResourceField(String name, Class<?> type, Type genericType) {
+    public ResourceField(@SuppressWarnings("SameParameterValue") String name, Class<?> type, Type genericType) {
         this.name = name;
         this.type = type;
         this.genericType = genericType;

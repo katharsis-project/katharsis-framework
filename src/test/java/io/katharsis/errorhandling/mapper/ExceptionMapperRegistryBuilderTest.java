@@ -12,7 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ExceptionMapperRegistryBuilderTest {
 
-    ExceptionMapperRegistryBuilder builder = new ExceptionMapperRegistryBuilder();
+    private final ExceptionMapperRegistryBuilder builder = new ExceptionMapperRegistryBuilder();
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();

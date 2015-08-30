@@ -18,14 +18,14 @@ import java.util.Set;
  * A builder class which holds all of the Katharsis controllers, which must be placed in
  * {@link io.katharsis.dispatcher.controller} package.
  */
-public class ControllerRegistryBuilder {
+class ControllerRegistryBuilder {
 
-    private ResourceRegistry resourceRegistry;
-    private TypeParser typeParser;
-    private ObjectMapper objectMapper;
+    private final ResourceRegistry resourceRegistry;
+    private final TypeParser typeParser;
+    private final ObjectMapper objectMapper;
 
-    public ControllerRegistryBuilder(ResourceRegistry resourceRegistry, TypeParser typeParser,
-        ObjectMapper objectMapper) {
+    public ControllerRegistryBuilder(@SuppressWarnings("SameParameterValue") ResourceRegistry resourceRegistry, @SuppressWarnings("SameParameterValue") TypeParser typeParser,
+                                     @SuppressWarnings("SameParameterValue") ObjectMapper objectMapper) {
         this.resourceRegistry = resourceRegistry;
         this.typeParser = typeParser;
         this.objectMapper = objectMapper;

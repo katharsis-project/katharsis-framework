@@ -61,7 +61,7 @@ public class UserRepository implements ResourceRepository<User, Long> {
         THREAD_LOCAL_REPOSITORY.get().remove(aLong);
     }
 
-    public static <E> List<E> makeCollection(Iterable<E> iter) {
+    private static <E> List<E> makeCollection(Iterable<E> iter) {
         List<E> list = new LinkedList<>();
         for (E item : iter) {
             list.add(item);

@@ -21,9 +21,9 @@ import java.util.Objects;
  */
 public class LinkageContainer {
 
-    private Object objectItem;
-    private Class relationshipClass;
-    private RegistryEntry relationshipEntry;
+    private final Object objectItem;
+    private final Class relationshipClass;
+    private final RegistryEntry relationshipEntry;
 
     public LinkageContainer(Object objectItem, Class relationshipClass, RegistryEntry relationshipEntry) {
         this.objectItem = objectItem;

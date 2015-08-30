@@ -18,8 +18,8 @@ import java.lang.reflect.InvocationTargetException;
 
 public class ResourceDelete implements BaseController {
 
-    private ResourceRegistry resourceRegistry;
-    private TypeParser typeParser;
+    private final ResourceRegistry resourceRegistry;
+    private final TypeParser typeParser;
 
     public ResourceDelete(ResourceRegistry resourceRegistry, TypeParser typeParser) {
         this.resourceRegistry = resourceRegistry;
@@ -49,11 +49,12 @@ public class ResourceDelete implements BaseController {
             throw new ResourceNotFoundException(resourceName);
         }
         for (String id : resourceIds.getIds()) {
-            Class<? extends Serializable> idClass = (Class<? extends Serializable>) registryEntry
+            @SuppressWarnings("unchecked") Class<? extends Serializable> idClass = (Class<? extends Serializable>) registryEntry
                     .getResourceInformation()
                     .getIdField()
                     .getType();
             Serializable castedId = typeParser.parse(id, idClass);
+            //noinspection unchecked
             registryEntry.getResourceRepository().delete(castedId);
         }
 

@@ -21,8 +21,8 @@ import java.util.Set;
  */
 public class ResourceRegistryBuilder {
 
-    private JsonServiceLocator context;
-    private ResourceInformationBuilder resourceInformationBuilder;
+    private final JsonServiceLocator context;
+    private final ResourceInformationBuilder resourceInformationBuilder;
 
     public ResourceRegistryBuilder(JsonServiceLocator context, ResourceInformationBuilder resourceInformationBuilder) {
         this.context = context;
@@ -36,7 +36,7 @@ public class ResourceRegistryBuilder {
      * @param serviceUrl  URL to the service
      * @return an instance of ResourceRegistry
      */
-    public ResourceRegistry build(String packageName, String serviceUrl) {
+    public ResourceRegistry build(String packageName, @SuppressWarnings("SameParameterValue") String serviceUrl) {
         Reflections reflections;
         if (packageName != null) {
             String[] packageNames = packageName.split(",");
@@ -78,6 +78,7 @@ public class ResourceRegistryBuilder {
         ResourceRepository resourceRepository = new NotFoundRepository(resourceClass);
         List<RelationshipRepository> relationshipRepositories = initializeRelationshipRepositories(
             foundRelationshipRepositoriesClasses);
+        //noinspection unchecked
         return new RegistryEntry(resourceInformation, resourceRepository, relationshipRepositories);
     }
 
@@ -115,6 +116,7 @@ public class ResourceRegistryBuilder {
         }
         List<RelationshipRepository> relationshipRepositories =
             initializeRelationshipRepositories(foundRelationshipRepositoriesClasses);
+        //noinspection unchecked
         return new RegistryEntry(resourceInformation, resourceRepository, relationshipRepositories);
     }
 

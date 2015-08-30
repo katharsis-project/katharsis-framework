@@ -24,8 +24,8 @@ import java.util.List;
 
 public class RelationshipsResourceGet implements BaseController {
 
-    private ResourceRegistry resourceRegistry;
-    private TypeParser typeParser;
+    private final ResourceRegistry resourceRegistry;
+    private final TypeParser typeParser;
 
     public RelationshipsResourceGet(ResourceRegistry resourceRegistry, TypeParser typeParser) {
         this.resourceRegistry = resourceRegistry;
@@ -65,6 +65,7 @@ public class RelationshipsResourceGet implements BaseController {
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
             List<LinkageContainer> dataList = new LinkedList<>();
 
+            @SuppressWarnings("unchecked")
             Iterable<?> targetObjects = relationshipRepositoryForClass
                 .findManyTargets(castedResourceId, elementName, requestParams);
             MetaInformation metaInformation = getMetaInformation(relationshipRepositoryForClass, targetObjects);
@@ -75,6 +76,7 @@ public class RelationshipsResourceGet implements BaseController {
             }
             target = new CollectionResponse(dataList, jsonPath, requestParams, metaInformation);
         } else {
+            @SuppressWarnings("unchecked")
             Object targetObject = relationshipRepositoryForClass.findOneTarget(castedResourceId, elementName, requestParams);
             MetaInformation metaInformation =
                 getMetaInformation(relationshipRepositoryForClass, Collections.singletonList(targetObject));
@@ -92,7 +94,7 @@ public class RelationshipsResourceGet implements BaseController {
 
     private Serializable getResourceId(PathIds resourceIds, RegistryEntry<?> registryEntry) {
         String resourceId = resourceIds.getIds().get(0);
-        Class<? extends Serializable> idClass = (Class<? extends Serializable>) registryEntry
+        @SuppressWarnings("unchecked") Class<? extends Serializable> idClass = (Class<? extends Serializable>) registryEntry
                 .getResourceInformation()
                 .getIdField()
                 .getType();

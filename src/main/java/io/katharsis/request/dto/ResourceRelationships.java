@@ -14,7 +14,7 @@ import java.util.Map;
 public class ResourceRelationships {
 
     @JsonIgnore
-    private Map<String, Object> linkageList = new HashMap<>();
+    private final Map<String, Object> linkageList = new HashMap<>();
 
     @JsonAnyGetter
     public Map<String, Object> getAdditionalProperties() {
