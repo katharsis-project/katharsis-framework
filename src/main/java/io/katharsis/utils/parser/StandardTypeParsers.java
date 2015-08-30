@@ -12,7 +12,7 @@ import static java.util.Collections.singletonList;
 /**
  * Parsers for standard Java types.
  */
-final class StandardTypeParsers {
+public final class StandardTypeParsers {
     public static final Map<Class, StandardTypeParser> parsers = new HashMap<>();
 
     static {

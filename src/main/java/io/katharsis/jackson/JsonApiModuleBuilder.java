@@ -1,20 +1,14 @@
 package io.katharsis.jackson;
 
-import io.katharsis.jackson.serializer.BaseResponseSerializer;
-import io.katharsis.jackson.serializer.ContainerSerializer;
-import io.katharsis.jackson.serializer.DataLinksContainerSerializer;
-import io.katharsis.jackson.serializer.ErrorResponseSerializer;
-import io.katharsis.jackson.serializer.LinkageContainerSerializer;
-import io.katharsis.jackson.serializer.RelationshipContainerSerializer;
-import io.katharsis.resource.registry.ResourceRegistry;
-
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import io.katharsis.jackson.serializer.*;
+import io.katharsis.resource.registry.ResourceRegistry;
 
 /**
  * Creates Jackson {@link com.fasterxml.jackson.databind.Module} with all custom Katharsis serializers.
  */
-class JsonApiModuleBuilder {
+public class JsonApiModuleBuilder {
 
     public static final String JSON_API_MODULE_NAME = "JsonApiModule";
 

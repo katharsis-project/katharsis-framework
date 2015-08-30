@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.locator.SampleJsonServiceLocator;
 import io.katharsis.request.path.PathBuilder;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
-import io.katharsis.resource.infromation.ResourceInformationBuilder;
+import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryBuilder;
 import io.katharsis.resource.registry.ResourceRegistryBuilderTest;

@@ -1,7 +1,7 @@
 package io.katharsis.response;
 
 import io.katharsis.queryParams.RequestParams;
-import io.katharsis.resource.infromation.ResourceInformation;
+import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.RegistryEntry;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;

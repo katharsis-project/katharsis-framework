@@ -1,9 +1,9 @@
 package io.katharsis.request.path;
 
-import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.exception.ResourceException;
 import io.katharsis.resource.exception.ResourceFieldNotFoundException;
 import io.katharsis.resource.exception.ResourceNotFoundException;
+import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 
@@ -13,7 +13,7 @@ import java.util.*;
  * Builder responsible for parsing URL path.
  */
 public class PathBuilder {
-    private static final String SEPARATOR = "/";
+    public static final String SEPARATOR = "/";
     public static final String RELATIONSHIP_MARK = "relationships";
 
     private final ResourceRegistry resourceRegistry;

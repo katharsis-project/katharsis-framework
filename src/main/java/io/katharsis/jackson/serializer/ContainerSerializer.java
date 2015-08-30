@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import io.katharsis.jackson.exception.JsonSerializationException;
 import io.katharsis.request.dto.Attributes;
 import io.katharsis.resource.field.ResourceField;
-import io.katharsis.resource.infromation.ResourceInformation;
+import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.Container;

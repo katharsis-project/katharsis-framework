@@ -8,7 +8,7 @@ import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.Set;
 
-final class ExceptionMapperRegistryBuilder {
+public final class ExceptionMapperRegistryBuilder {
     private final Set<ExceptionMapperType> exceptionMappers = new HashSet<>();
 
 

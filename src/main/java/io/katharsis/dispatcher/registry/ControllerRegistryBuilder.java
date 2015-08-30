@@ -18,7 +18,7 @@ import java.util.Set;
  * A builder class which holds all of the Katharsis controllers, which must be placed in
  * {@link io.katharsis.dispatcher.controller} package.
  */
-class ControllerRegistryBuilder {
+public class ControllerRegistryBuilder {
 
     private final ResourceRegistry resourceRegistry;
     private final TypeParser typeParser;

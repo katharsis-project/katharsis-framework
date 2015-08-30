@@ -1,13 +1,13 @@
-package io.katharsis.resource.infromation;
+package io.katharsis.resource.information;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.katharsis.resource.field.ResourceField;
-import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.annotations.JsonApiId;
 import io.katharsis.resource.annotations.JsonApiToMany;
 import io.katharsis.resource.annotations.JsonApiToOne;
 import io.katharsis.resource.exception.init.ResourceDuplicateIdException;
 import io.katharsis.resource.exception.init.ResourceIdNotFoundException;
+import io.katharsis.resource.field.ResourceField;
+import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.utils.ClassUtils;
 
 import java.lang.annotation.Annotation;

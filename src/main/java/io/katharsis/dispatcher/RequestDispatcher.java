@@ -14,7 +14,7 @@ import java.util.Optional;
  * A class that can be used to integrate Katharsis with external frameworks like Jersey, Spring etc. See katharsis-rs
  * and katharsis-servlet for usage.
  */
-class RequestDispatcher {
+public class RequestDispatcher {
 
     private final ControllerRegistry controllerRegistry;
     private final ExceptionMapperRegistry exceptionMapperRegistry;

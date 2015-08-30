@@ -1,9 +1,9 @@
 package io.katharsis.resource.registry;
 
 import io.katharsis.repository.RelationshipRepository;
-import io.katharsis.repository.exception.RelationshipRepositoryNotFoundException;
 import io.katharsis.repository.ResourceRepository;
-import io.katharsis.resource.infromation.ResourceInformation;
+import io.katharsis.repository.exception.RelationshipRepositoryNotFoundException;
+import io.katharsis.resource.information.ResourceInformation;
 import net.jodah.typetools.TypeResolver;
 
 import java.util.LinkedList;

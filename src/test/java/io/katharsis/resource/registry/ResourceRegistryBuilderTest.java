@@ -4,7 +4,7 @@ import io.katharsis.locator.SampleJsonServiceLocator;
 import io.katharsis.repository.NotFoundRepository;
 import io.katharsis.repository.exception.RepositoryInstanceNotFoundException;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
-import io.katharsis.resource.infromation.ResourceInformationBuilder;
+import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.ResourceWithoutRepository;
 import io.katharsis.resource.mock.models.Task;

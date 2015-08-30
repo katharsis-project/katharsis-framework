@@ -3,9 +3,9 @@ package io.katharsis.errorhandling.exception;
 /**
  * General type for exceptions, which can be thrown during Katharsis request processing.
  */
-abstract class KatharsisException extends RuntimeException {
+public abstract class KatharsisException extends RuntimeException {
 
-    KatharsisException(String message) {
+    public KatharsisException(String message) {
         super(message);
     }
 }

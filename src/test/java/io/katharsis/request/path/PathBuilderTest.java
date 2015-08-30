@@ -1,11 +1,11 @@
 package io.katharsis.request.path;
 
 import io.katharsis.locator.SampleJsonServiceLocator;
-import io.katharsis.resource.field.ResourceFieldNameTransformer;
-import io.katharsis.resource.infromation.ResourceInformationBuilder;
 import io.katharsis.resource.exception.ResourceException;
 import io.katharsis.resource.exception.ResourceFieldNotFoundException;
 import io.katharsis.resource.exception.ResourceNotFoundException;
+import io.katharsis.resource.field.ResourceFieldNameTransformer;
+import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryBuilder;
 import io.katharsis.resource.registry.ResourceRegistryBuilderTest;
