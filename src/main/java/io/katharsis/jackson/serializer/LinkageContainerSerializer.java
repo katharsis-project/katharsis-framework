@@ -3,7 +3,7 @@ package io.katharsis.jackson.serializer;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import io.katharsis.resource.ResourceField;
+import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.LinkageContainer;
 import io.katharsis.utils.BeanUtils;

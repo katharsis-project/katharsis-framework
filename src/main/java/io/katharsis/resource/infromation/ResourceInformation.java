@@ -1,4 +1,6 @@
-package io.katharsis.resource;
+package io.katharsis.resource.infromation;
+
+import io.katharsis.resource.field.ResourceField;
 
 import java.util.Objects;
 import java.util.Set;

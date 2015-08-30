@@ -2,8 +2,8 @@ package io.katharsis.jackson;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.locator.SampleJsonServiceLocator;
-import io.katharsis.resource.ResourceFieldNameTransformer;
-import io.katharsis.resource.ResourceInformationBuilder;
+import io.katharsis.resource.field.ResourceFieldNameTransformer;
+import io.katharsis.resource.infromation.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryBuilder;
 import io.katharsis.resource.registry.ResourceRegistryBuilderTest;

@@ -2,7 +2,7 @@ package io.katharsis.jackson.serializer;
 
 import io.katharsis.queryParams.include.Inclusion;
 import io.katharsis.request.path.ResourcePath;
-import io.katharsis.resource.ResourceField;
+import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.annotations.JsonApiIncludeByDefault;
 import io.katharsis.response.BaseResponse;
 import io.katharsis.response.Container;

@@ -1,4 +1,4 @@
-package io.katharsis.repository;
+package io.katharsis.repository.exception;
 
 import io.katharsis.errorhandling.exception.KatharsisMatchingException;
 

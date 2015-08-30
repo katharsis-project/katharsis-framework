@@ -9,7 +9,7 @@ import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathIds;
 import io.katharsis.request.path.RelationshipsPath;
-import io.katharsis.resource.ResourceField;
+import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.exception.RequestBodyException;
 import io.katharsis.resource.exception.RequestBodyNotFoundException;
 import io.katharsis.resource.exception.ResourceFieldNotFoundException;

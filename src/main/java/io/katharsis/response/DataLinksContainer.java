@@ -1,7 +1,7 @@
 package io.katharsis.response;
 
 import io.katharsis.jackson.serializer.DataLinksContainerSerializer;
-import io.katharsis.resource.ResourceField;
+import io.katharsis.resource.field.ResourceField;
 
 import java.util.Objects;
 import java.util.Set;
