@@ -4,7 +4,7 @@
 
     <groupId>io.katharsis</groupId>
     <artifactId>katharsis-examples</artifactId>
-    <version>0.9.4-SNAPSHOT</version>
+    <version>0.9.4</version>
     <modules>
         <module>dropwizard-mongo-example</module>
         <module>jersey-example</module>
