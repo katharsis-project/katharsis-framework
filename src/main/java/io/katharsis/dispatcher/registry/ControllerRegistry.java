@@ -9,8 +9,6 @@ import java.util.List;
 
 /**
  * Stores a list of controllers which are used to process the incoming requests.
- *
- * @see io.katharsis.dispatcher.RequestDispatcher
  */
 public class ControllerRegistry {
 
