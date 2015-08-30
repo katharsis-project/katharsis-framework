@@ -34,8 +34,8 @@ public class ResponseContractTest {
         ResourceInformation resourceInformationRed = new ResourceInformation(String.class, null, null, null);
         ResourceInformation resourceInformationBlack = new ResourceInformation(Integer.class, null, null, null);
 
-        RegistryEntry registryEntryRed = new RegistryEntry(resourceInformationRed, null);
-        RegistryEntry registryEntryBlack = new RegistryEntry(resourceInformationBlack, null);
+        @SuppressWarnings("unchecked") RegistryEntry registryEntryRed = new RegistryEntry(resourceInformationRed, null);
+        @SuppressWarnings("unchecked") RegistryEntry registryEntryBlack = new RegistryEntry(resourceInformationBlack, null);
 
         EqualsVerifier.forClass(LinkageContainer.class)
                 .withPrefabValues(Field.class, String.class.getDeclaredField("value"), String.class.getDeclaredField("hash"))

@@ -25,10 +25,10 @@ import java.io.Serializable;
 
 public abstract class RelationshipsResourceUpsert implements BaseController {
 
-    protected ResourceRegistry resourceRegistry;
-    protected TypeParser typeParser;
+    private final ResourceRegistry resourceRegistry;
+    final TypeParser typeParser;
 
-    public RelationshipsResourceUpsert(ResourceRegistry resourceRegistry, TypeParser typeParser) {
+    RelationshipsResourceUpsert(ResourceRegistry resourceRegistry, TypeParser typeParser) {
         this.resourceRegistry = resourceRegistry;
         this.typeParser = typeParser;
     }
@@ -38,7 +38,7 @@ public abstract class RelationshipsResourceUpsert implements BaseController {
      *
      * @return HTTP method name
      */
-    public abstract HttpMethod method();
+    protected abstract HttpMethod method();
 
     /**
      * Processes To-Many field
@@ -90,12 +90,12 @@ public abstract class RelationshipsResourceUpsert implements BaseController {
         if (relationshipField == null) {
             throw new ResourceFieldNotFoundException(jsonPath.getElementName());
         }
-        Object resource = registryEntry.getResourceRepository().findOne(castedResourceId, requestParams);
+        @SuppressWarnings("unchecked") Object resource = registryEntry.getResourceRepository().findOne(castedResourceId, requestParams);
 
         Class<?> baseRelationshipFieldClass = relationshipField.getType();
         Class<?> relationshipFieldClass = Generics
             .getResourceClass(relationshipField.getGenericType(), baseRelationshipFieldClass);
-        Class<? extends Serializable> relationshipIdType = (Class<? extends Serializable>) resourceRegistry
+        @SuppressWarnings("unchecked") Class<? extends Serializable> relationshipIdType = (Class<? extends Serializable>) resourceRegistry
                 .getEntry(relationshipFieldClass).getResourceInformation().getIdField().getType();
 
         RelationshipRepository relationshipRepositoryForClass = registryEntry.getRelationshipRepositoryForClass(relationshipFieldClass);
@@ -118,7 +118,7 @@ public abstract class RelationshipsResourceUpsert implements BaseController {
 
     private Serializable getResourceId(PathIds resourceIds, RegistryEntry<?> registryEntry) {
         String resourceId = resourceIds.getIds().get(0);
-        Class<? extends Serializable> idClass = (Class<? extends Serializable>) registryEntry
+        @SuppressWarnings("unchecked") Class<? extends Serializable> idClass = (Class<? extends Serializable>) registryEntry
                 .getResourceInformation()
                 .getIdField()
                 .getType();

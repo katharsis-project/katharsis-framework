@@ -7,7 +7,7 @@ public class ProjectData {
         return data;
     }
 
-    public ProjectData setData(String data) {
+    public ProjectData setData(@SuppressWarnings("SameParameterValue") String data) {
         this.data = data;
         return this;
     }

@@ -35,7 +35,7 @@ public class Project {
         return description;
     }
 
-    public void setDescription(String description) {
+    public void setDescription(@SuppressWarnings("SameParameterValue") String description) {
         this.description = description;
     }
 

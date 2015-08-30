@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 /**
  * Creates Jackson {@link com.fasterxml.jackson.databind.Module} with all custom Katharsis serializers.
  */
-public class JsonApiModuleBuilder {
+class JsonApiModuleBuilder {
 
     public static final String JSON_API_MODULE_NAME = "JsonApiModule";
 

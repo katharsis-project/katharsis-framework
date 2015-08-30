@@ -20,6 +20,7 @@ public class RequestBody {
     }
 
     public Iterable<DataBody> getMultipleData() {
+        //noinspection unchecked
         return (Iterable<DataBody>) data;
     }
 

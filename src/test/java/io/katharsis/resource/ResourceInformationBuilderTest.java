@@ -20,7 +20,7 @@ public class ResourceInformationBuilderTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
-    private ResourceInformationBuilder resourceInformationBuilder = new ResourceInformationBuilder(
+    private final ResourceInformationBuilder resourceInformationBuilder = new ResourceInformationBuilder(
         new ResourceFieldNameTransformer());
 
     @Test

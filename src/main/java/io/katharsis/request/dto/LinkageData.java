@@ -7,7 +7,7 @@ public class LinkageData {
     public LinkageData() {
     }
 
-    public LinkageData(String type, String id) {
+    public LinkageData(@SuppressWarnings("SameParameterValue") String type, String id) {
         this.type = type;
         this.id = id;
     }

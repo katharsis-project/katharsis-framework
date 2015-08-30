@@ -14,22 +14,22 @@ public abstract class JsonPath {
     /**
      * Name of a resource or a filed
      */
-    protected String elementName;
+    final String elementName;
 
     /**
      * Unique identifier of a field
      */
-    protected PathIds ids;
+    PathIds ids;
 
     /**
      * Entry closer to path's beginning
      */
-    protected JsonPath parentResource;
+    JsonPath parentResource;
 
     /**
      * Entry closer to path's end
      */
-    protected JsonPath childResource;
+    private JsonPath childResource;
 
     public JsonPath(String elementName) {
         this(elementName, null);

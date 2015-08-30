@@ -10,9 +10,9 @@ import java.util.List;
 public class PathIds {
     public static final String ID_SEPERATOR = ",";
 
-    private List<String> ids = new LinkedList<>();
+    private final List<String> ids = new LinkedList<>();
 
-    public PathIds(String id) {
+    public PathIds(@SuppressWarnings("SameParameterValue") String id) {
         ids.add(id);
     }
 

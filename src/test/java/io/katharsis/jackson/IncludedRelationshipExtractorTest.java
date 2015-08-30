@@ -160,7 +160,7 @@ public class IncludedRelationshipExtractorTest {
     }
 
     public static class ClassA {
-        private List<ClassB> classBs;
+        private final List<ClassB> classBs;
 
         public ClassA(ClassB classBs) {
             this.classBs = Collections.singletonList(classBs);
@@ -172,7 +172,7 @@ public class IncludedRelationshipExtractorTest {
     }
 
     public static class ClassB {
-        private List<ClassC> classCs;
+        private final List<ClassC> classCs;
 
         public ClassB(ClassC classCs) {
             this.classCs = Collections.singletonList(classCs);
@@ -183,6 +183,6 @@ public class IncludedRelationshipExtractorTest {
         }
     }
 
-    public static class ClassC {
+    private static class ClassC {
     }
 }

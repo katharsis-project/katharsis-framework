@@ -20,7 +20,7 @@ import java.io.Serializable;
 
 public class ResourcePatch extends ResourceUpsert {
 
-    public ResourcePatch(ResourceRegistry resourceRegistry, TypeParser typeParser, ObjectMapper objectMapper) {
+    public ResourcePatch(ResourceRegistry resourceRegistry, TypeParser typeParser, @SuppressWarnings("SameParameterValue") ObjectMapper objectMapper) {
         super(resourceRegistry, typeParser, objectMapper);
     }
 
@@ -48,20 +48,20 @@ public class ResourcePatch extends ResourceUpsert {
 
         String idString = jsonPath.getIds().getIds().get(0);
 
-        Class<? extends Serializable> idClass = (Class<? extends Serializable>) registryEntry
+        @SuppressWarnings("unchecked") Class<? extends Serializable> idClass = (Class<? extends Serializable>) registryEntry
                 .getResourceInformation()
                 .getIdField()
                 .getType();
         Serializable resourceId = typeParser.parse(idString, idClass);
 
-        Object resource = registryEntry.getResourceRepository().findOne(resourceId, requestParams);
+        @SuppressWarnings("unchecked") Object resource = registryEntry.getResourceRepository().findOne(resourceId, requestParams);
         DataBody dataBody = requestBody.getSingleData();
 
         setAttributes(dataBody, resource, registryEntry.getResourceInformation());
         Object savedResource = registryEntry.getResourceRepository().save(resource);
         saveRelations(savedResource, registryEntry, dataBody);
 
-        Object savedResourceWithRelations = registryEntry.getResourceRepository().findOne(resourceId, requestParams);
+        @SuppressWarnings("unchecked") Object savedResourceWithRelations = registryEntry.getResourceRepository().findOne(resourceId, requestParams);
 
         return new ResourceResponse(savedResourceWithRelations, jsonPath, requestParams);
     }

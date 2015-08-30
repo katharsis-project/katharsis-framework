@@ -13,7 +13,7 @@ import java.util.Map;
  */
 public class RequestParamsBuilder {
 
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
 
     public RequestParamsBuilder(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;

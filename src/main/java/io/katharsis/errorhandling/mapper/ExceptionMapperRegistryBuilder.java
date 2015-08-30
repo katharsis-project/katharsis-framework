@@ -8,7 +8,7 @@ import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.Set;
 
-public final class ExceptionMapperRegistryBuilder {
+final class ExceptionMapperRegistryBuilder {
     private final Set<ExceptionMapperType> exceptionMappers = new HashSet<>();
 
 
@@ -47,6 +47,7 @@ public final class ExceptionMapperRegistryBuilder {
         Type[] types = mapper.getGenericInterfaces();
         for (Type type : types) {
             if (type instanceof ParameterizedType && ((ParameterizedType)type).getRawType() == JsonApiExceptionMapper.class) {
+                //noinspection unchecked
                 return (Class<? extends Throwable>)((ParameterizedType)type).getActualTypeArguments()[0];
             }
         }

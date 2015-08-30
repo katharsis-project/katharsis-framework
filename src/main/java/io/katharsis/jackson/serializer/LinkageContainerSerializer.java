@@ -21,7 +21,7 @@ public class LinkageContainerSerializer extends JsonSerializer<LinkageContainer>
     private static final String TYPE_FIELD_NAME = "type";
     private static final String ID_FIELD_NAME = "id";
 
-    private ResourceRegistry resourceRegistry;
+    private final ResourceRegistry resourceRegistry;
 
     public LinkageContainerSerializer(ResourceRegistry resourceRegistry) {
         this.resourceRegistry = resourceRegistry;

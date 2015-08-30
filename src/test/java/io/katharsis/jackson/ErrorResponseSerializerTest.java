@@ -10,7 +10,7 @@ import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 
 public class ErrorResponseSerializerTest extends BaseSerializerTest {
 
-    public static final ErrorResponse ERROR_RESPONSE = ErrorResponse.builder()
+    private static final ErrorResponse ERROR_RESPONSE = ErrorResponse.builder()
             .setStatus(HttpStatus.INTERNAL_SERVER_ERROR_500)
             .setSingleErrorData(ErrorDataMother.fullyPopulatedErrorData())
             .build();

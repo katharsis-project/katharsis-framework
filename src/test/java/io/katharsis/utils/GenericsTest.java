@@ -33,7 +33,7 @@ public class GenericsTest {
             List.class);
     }
 
-    public static class SampleGenericClass {
+    private static class SampleGenericClass {
         private List<String> strings;
         private List<? extends String> stringsWildcard;
     }

@@ -9,7 +9,7 @@ public class RequestBodyException extends KatharsisMappableException {
 
     private static final String TITLE = "Request body error";
 
-    public RequestBodyException(HttpMethod method, String resourceName, String details) {
+    public RequestBodyException(@SuppressWarnings("SameParameterValue") HttpMethod method, String resourceName, String details) {
         super(HttpStatus.BAD_REQUEST_400, ErrorData.builder()
                 .setStatus(String.valueOf(HttpStatus.BAD_REQUEST_400))
                 .setTitle(TITLE)

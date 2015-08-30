@@ -18,7 +18,7 @@ public class ErrorDataBuilder {
      * @param id A unique identifier for this particular occurrence of the problem.
      * @return ErrorDataBuilder
      */
-    public ErrorDataBuilder setId(String id) {
+    public ErrorDataBuilder setId(@SuppressWarnings("SameParameterValue") String id) {
         this.id = id;
         return this;
     }
@@ -29,7 +29,7 @@ public class ErrorDataBuilder {
      * @param aboutLink information about an error
      * @return builder instance
      */
-    public ErrorDataBuilder setAboutLink(String aboutLink) {
+    public ErrorDataBuilder setAboutLink(@SuppressWarnings("SameParameterValue") String aboutLink) {
         this.aboutLink = aboutLink;
         return this;
     }
@@ -49,7 +49,7 @@ public class ErrorDataBuilder {
      * @param code application-specific error code
      * @return builder instance
      */
-    public ErrorDataBuilder setCode(String code) {
+    public ErrorDataBuilder setCode(@SuppressWarnings("SameParameterValue") String code) {
         this.code = code;
         return this;
     }
@@ -105,7 +105,7 @@ public class ErrorDataBuilder {
      * @param meta meta information
      * @return builder instance
      */
-    public ErrorDataBuilder setMeta(Map<String, Object> meta) {
+    public ErrorDataBuilder setMeta(@SuppressWarnings("SameParameterValue") Map<String, Object> meta) {
         this.meta = meta;
         return this;
     }

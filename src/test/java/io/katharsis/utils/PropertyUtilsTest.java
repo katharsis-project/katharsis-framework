@@ -264,7 +264,7 @@ public class PropertyUtilsTest {
             return privatePropertyWithMutators;
         }
 
-        public void setPrivatePropertyWithMutators(String privatePropertyWithMutators) {
+        public void setPrivatePropertyWithMutators(@SuppressWarnings("SameParameterValue") String privatePropertyWithMutators) {
             this.privatePropertyWithMutators = privatePropertyWithMutators;
         }
 
@@ -272,7 +272,7 @@ public class PropertyUtilsTest {
             return booleanPrimitivePropertyWithMutators;
         }
 
-        public void setBooleanPrimitivePropertyWithMutators(boolean booleanPrimitivePropertyWithMutators) {
+        public void setBooleanPrimitivePropertyWithMutators(@SuppressWarnings("SameParameterValue") boolean booleanPrimitivePropertyWithMutators) {
             this.booleanPrimitivePropertyWithMutators = booleanPrimitivePropertyWithMutators;
         }
 
@@ -280,7 +280,7 @@ public class PropertyUtilsTest {
             return booleanPropertyWithMutators;
         }
 
-        public void setBooleanPropertyWithMutators(Boolean booleanPropertyWithMutators) {
+        public void setBooleanPropertyWithMutators(@SuppressWarnings("SameParameterValue") Boolean booleanPropertyWithMutators) {
             this.booleanPropertyWithMutators = booleanPropertyWithMutators;
         }
 
@@ -288,16 +288,16 @@ public class PropertyUtilsTest {
             return jacksonProperty;
         }
 
-        public void setJacksonProperty(String jacksonProperty) {
+        public void setJacksonProperty(@SuppressWarnings("SameParameterValue") String jacksonProperty) {
             this.jacksonProperty = jacksonProperty;
         }
     }
 
-    public static class ChildBean extends Bean {
+    private static class ChildBean extends Bean {
 
     }
 
-    public static class GetterTest {
+    private static class GetterTest {
         public String getProperty() {
             return "valueProperty";
         }

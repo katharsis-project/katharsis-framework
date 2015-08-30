@@ -4,9 +4,9 @@ import java.io.Serializable;
 import java.util.Objects;
 
 public class Relation<T> {
-    private T source;
-    private Serializable targetId;
-    private String fieldName;
+    private final T source;
+    private final Serializable targetId;
+    private final String fieldName;
 
     public Relation(T source, Serializable targetId, String fieldName) {
         this.source = source;

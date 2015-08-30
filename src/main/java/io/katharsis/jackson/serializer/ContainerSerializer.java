@@ -34,7 +34,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
     private static final String LINKS_FIELD_NAME = "links";
     private static final String SELF_FIELD_NAME = "self";
 
-    private ResourceRegistry resourceRegistry;
+    private final ResourceRegistry resourceRegistry;
 
     public ContainerSerializer(ResourceRegistry resourceRegistry) {
         this.resourceRegistry = resourceRegistry;

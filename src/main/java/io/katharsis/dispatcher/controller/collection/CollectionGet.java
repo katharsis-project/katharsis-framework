@@ -19,8 +19,8 @@ import java.util.List;
 
 public class CollectionGet implements BaseController {
 
-    private ResourceRegistry resourceRegistry;
-    private TypeParser typeParser;
+    private final ResourceRegistry resourceRegistry;
+    private final TypeParser typeParser;
 
     public CollectionGet(ResourceRegistry resourceRegistry, TypeParser typeParser) {
         this.resourceRegistry = resourceRegistry;

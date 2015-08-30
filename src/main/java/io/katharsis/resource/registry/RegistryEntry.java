@@ -20,11 +20,11 @@ import java.util.Objects;
  * @param <T> resource type
  */
 public class RegistryEntry<T> {
-    private ResourceInformation resourceInformation;
-    private ResourceRepository<T, ?> resourceRepository;
-    private List<RelationshipRepository<T, ?, ?, ?>> relationshipRepositories;
+    private final ResourceInformation resourceInformation;
+    private final ResourceRepository<T, ?> resourceRepository;
+    private final List<RelationshipRepository<T, ?, ?, ?>> relationshipRepositories;
 
-    public RegistryEntry(ResourceInformation resourceInformation, ResourceRepository<T, ?> resourceRepository) {
+    public RegistryEntry(ResourceInformation resourceInformation, @SuppressWarnings("SameParameterValue") ResourceRepository<T, ?> resourceRepository) {
         this(resourceInformation, resourceRepository, new LinkedList<>());
     }
 

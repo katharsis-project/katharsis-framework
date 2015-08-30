@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * This class builds a response object that is then passed to Jackson. It takes original resource and basing on that
  * creates a new proxy class on-the-fly.
  */
-public class ResponseBuilder {
+class ResponseBuilder {
 
     private static final String DATA_FIELD_NAME = "data";
 

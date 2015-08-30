@@ -67,6 +67,7 @@ public class RequestDispatcherTest {
     public void shouldMapExceptionToErrorResponseIfMapperIsAvailable() throws Exception {
 
         ControllerRegistry controllerRegistry = mock(ControllerRegistry.class);
+        //noinspection unchecked
         when(controllerRegistry.getController(any(JsonPath.class), anyString())).thenThrow(IllegalStateException.class);
 
         RequestDispatcher requestDispatcher = new RequestDispatcher(controllerRegistry,
@@ -85,6 +86,7 @@ public class RequestDispatcherTest {
     @Test
     public void shouldThrowExceptionAsIsIfMapperIsNotAvailable() throws Exception {
         ControllerRegistry controllerRegistry = mock(ControllerRegistry.class);
+        //noinspection unchecked
         when(controllerRegistry.getController(any(JsonPath.class), anyString())).thenThrow(ArithmeticException.class);
 
         RequestDispatcher requestDispatcher = new RequestDispatcher(controllerRegistry,

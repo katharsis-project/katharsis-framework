@@ -17,7 +17,7 @@ public class TypeParserTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
-    private TypeParser sut = new TypeParser();
+    private final TypeParser sut = new TypeParser();
 
     @Test
     public void onStringShouldReturnString() throws Exception {
@@ -226,9 +226,9 @@ public class TypeParserTest {
     }
 
     static class SampleClass implements Serializable {
-        private String input;
+        private final String input;
 
-        public SampleClass(String input) {
+        public SampleClass(@SuppressWarnings("SameParameterValue") String input) {
             this.input = input;
         }
 
@@ -246,6 +246,6 @@ public class TypeParserTest {
         }
     }
 
-    static class UnknownClass implements Serializable {
+    private static class UnknownClass implements Serializable {
     }
 }

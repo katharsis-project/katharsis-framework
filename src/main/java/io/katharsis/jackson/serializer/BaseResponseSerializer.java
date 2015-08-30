@@ -23,8 +23,8 @@ public class BaseResponseSerializer extends JsonSerializer<BaseResponse> {
     private static final String INCLUDED_FIELD_NAME = "included";
     private static final String DATA_FIELD_NAME = "data";
 
-    private ResourceRegistry resourceRegistry;
-    private IncludedRelationshipExtractor includedRelationshipExtractor;
+    private final ResourceRegistry resourceRegistry;
+    private final IncludedRelationshipExtractor includedRelationshipExtractor;
 
     public BaseResponseSerializer(ResourceRegistry resourceRegistry) {
         this.resourceRegistry = resourceRegistry;
@@ -80,6 +80,7 @@ public class BaseResponseSerializer extends JsonSerializer<BaseResponse> {
         if (values != null) {
             for (Object value : values) {
                 Set<ResourceField> relationshipFields = getRelationshipFields(value);
+                //noinspection unchecked
                 includedFields.addAll(includedRelationshipExtractor.extractIncludedResources(value, relationshipFields, collectionResponse));
             }
         } else {

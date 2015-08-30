@@ -9,7 +9,7 @@ import io.katharsis.response.HttpStatus;
  */
 public class ResourceException extends KatharsisMappableException {
 
-    public static final String TITLE = "Resource error";
+    private static final String TITLE = "Resource error";
 
     public ResourceException(String message) {
         super(HttpStatus.INTERNAL_SERVER_ERROR_500, ErrorData.builder()

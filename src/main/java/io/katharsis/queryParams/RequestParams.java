@@ -22,7 +22,7 @@ public class RequestParams {
     private List<String> includedFields;
     private List<Inclusion> includedRelations;
 
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
 
     private static final TypeReference SORTING_TYPE_REFERENCE;
     private static final TypeReference GROUPING_TYPE_REFERENCE;

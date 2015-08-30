@@ -26,8 +26,8 @@ import java.util.List;
 
 public class RelationshipsResourceGet implements BaseController {
 
-    private ResourceRegistry resourceRegistry;
-    private TypeParser typeParser;
+    private final ResourceRegistry resourceRegistry;
+    private final TypeParser typeParser;
 
     public RelationshipsResourceGet(ResourceRegistry resourceRegistry, TypeParser typeParser) {
         this.resourceRegistry = resourceRegistry;
@@ -66,7 +66,7 @@ public class RelationshipsResourceGet implements BaseController {
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
             List<LinkageContainer> dataList = new LinkedList<>();
 
-            Iterable targetObjects = relationshipRepositoryForClass.findManyTargets(castedResourceId, elementName, requestParams);
+            @SuppressWarnings("unchecked") Iterable targetObjects = relationshipRepositoryForClass.findManyTargets(castedResourceId, elementName, requestParams);
             if (targetObjects != null) {
                 for (Object targetObject : targetObjects) {
                     dataList.add(new LinkageContainer(targetObject, relationshipFieldClass, relationshipFieldEntry));
@@ -74,7 +74,7 @@ public class RelationshipsResourceGet implements BaseController {
             }
             target = new CollectionResponse(dataList, jsonPath, requestParams);
         } else {
-            Object targetObject = relationshipRepositoryForClass.findOneTarget(castedResourceId, elementName, requestParams);
+            @SuppressWarnings("unchecked") Object targetObject = relationshipRepositoryForClass.findOneTarget(castedResourceId, elementName, requestParams);
             if (targetObject != null) {
                 LinkageContainer linkageContainer = new LinkageContainer(targetObject, relationshipFieldClass, relationshipFieldEntry);
                 target = new ResourceResponse(linkageContainer, jsonPath, requestParams);
@@ -88,7 +88,7 @@ public class RelationshipsResourceGet implements BaseController {
 
     private Serializable getResourceId(PathIds resourceIds, RegistryEntry<?> registryEntry) {
         String resourceId = resourceIds.getIds().get(0);
-        Class<? extends Serializable> idClass = (Class<? extends Serializable>) registryEntry
+        @SuppressWarnings("unchecked") Class<? extends Serializable> idClass = (Class<? extends Serializable>) registryEntry
                 .getResourceInformation()
                 .getIdField()
                 .getType();

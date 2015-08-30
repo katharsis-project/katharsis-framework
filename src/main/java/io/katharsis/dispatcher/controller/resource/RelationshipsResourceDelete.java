@@ -29,12 +29,14 @@ public class RelationshipsResourceDelete extends RelationshipsResourceUpsert {
             Serializable parsedId = typeParser.parse(dataBody.getId(), relationshipIdType);
             parsedIds.add(parsedId);
         });
+        //noinspection unchecked
         relationshipRepositoryForClass.removeRelations(resource, parsedIds, elementName);
     }
 
     @Override
     protected void processToOneRelationship(Object resource, Class<? extends Serializable> relationshipIdType,
                                             String elementName, DataBody dataBody, RelationshipRepository relationshipRepositoryForClass) {
+        //noinspection unchecked
         relationshipRepositoryForClass.setRelation(resource, null, elementName);
     }
 

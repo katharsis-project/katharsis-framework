@@ -11,8 +11,8 @@ import static org.assertj.core.api.Assertions.tuple;
 
 public class KatharsisExceptionMapperTest {
 
-    public static final String TITLE1 = "title1";
-    public static final String DETAIL1 = "detail1";
+    private static final String TITLE1 = "title1";
+    private static final String DETAIL1 = "detail1";
 
     @Test
     public void shouldMapToErrorResponse() throws Exception {
@@ -28,7 +28,7 @@ public class KatharsisExceptionMapperTest {
 
     private static class SampleKatharsisException extends KatharsisMappableException {
 
-        protected SampleKatharsisException() {
+        SampleKatharsisException() {
             super(HttpStatus.INTERNAL_SERVER_ERROR_500, ErrorData.builder()
                     .setTitle(TITLE1)
                     .setDetail(DETAIL1)

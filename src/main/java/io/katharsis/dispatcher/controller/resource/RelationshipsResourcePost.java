@@ -30,6 +30,7 @@ public class RelationshipsResourcePost extends RelationshipsResourceUpsert {
             Serializable parsedId = typeParser.parse(dataBody.getId(), relationshipIdType);
             parsedIds.add(parsedId);
         });
+        //noinspection unchecked
         relationshipRepositoryForClass.addRelations(resource, parsedIds, elementName);
     }
 
@@ -37,6 +38,7 @@ public class RelationshipsResourcePost extends RelationshipsResourceUpsert {
     protected void processToOneRelationship(Object resource, Class<? extends Serializable> relationshipIdType,
                                             String elementName, DataBody dataBody, RelationshipRepository relationshipRepositoryForClass) {
         Serializable parsedId = typeParser.parse(dataBody.getId(), relationshipIdType);
+        //noinspection unchecked
         relationshipRepositoryForClass.setRelation(resource, parsedId, elementName);
     }
 
