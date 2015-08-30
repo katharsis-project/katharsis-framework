@@ -76,14 +76,13 @@ public class RelationshipsResourceGet implements BaseController {
             target = new CollectionResponse(dataList, jsonPath, requestParams, metaInformation);
         } else {
             Object targetObject = relationshipRepositoryForClass.findOneTarget(castedResourceId, elementName, requestParams);
+            MetaInformation metaInformation =
+                getMetaInformation(relationshipRepositoryForClass, Collections.singletonList(targetObject));
             if (targetObject != null) {
                 LinkageContainer linkageContainer = new LinkageContainer(targetObject, relationshipFieldClass, relationshipFieldEntry);
-                MetaInformation metaInformation =
-                    getMetaInformation(relationshipRepositoryForClass, Collections.singletonList(targetObject));
+
                 target = new ResourceResponse(linkageContainer, jsonPath, requestParams, metaInformation);
             } else {
-                MetaInformation metaInformation =
-                    getMetaInformation(relationshipRepositoryForClass);
                 target = new ResourceResponse(null, jsonPath, requestParams, metaInformation);
             }
         }

@@ -50,7 +50,10 @@ public class BaseResponseSerializer extends JsonSerializer<BaseResponse> {
         }
 
         gen.writeObjectField(INCLUDED_FIELD_NAME, includedResources);
-        gen.writeObjectField(META_FIELD_NAME, value.getMetaInformation());
+
+        if (value.getMetaInformation() != null) {
+            gen.writeObjectField(META_FIELD_NAME, value.getMetaInformation());
+        }
 
         gen.writeEndObject();
     }

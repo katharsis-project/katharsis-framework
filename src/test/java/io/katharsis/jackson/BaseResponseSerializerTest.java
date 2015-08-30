@@ -112,13 +112,23 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
     }
 
     @Test
-    public void onMetaInformationReturnMetaObject() throws Exception {
+    public void onMetaInformationShouldReturnMetaObject() throws Exception {
         // WHEN
         String result = sut.writeValueAsString(
             new ResourceResponse(null, new ResourcePath("projects"), REQUEST_PARAMS, new MetaData("Humpty Dumpty")));
 
         // THEN
         assertThatJson(result).node("meta.author").isEqualTo("Humpty Dumpty");
+    }
+
+    @Test
+    public void onNoMetaInformationShouldReturnNoMetaObject() throws Exception {
+        // WHEN
+        String result = sut.writeValueAsString(
+            new ResourceResponse(null, new ResourcePath("projects"), REQUEST_PARAMS, null));
+
+        // THEN
+        assertThatJson(result).node("meta").isAbsent();
     }
 
     @Test
