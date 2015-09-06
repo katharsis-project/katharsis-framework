@@ -5,6 +5,7 @@ import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -41,6 +42,7 @@ public final class StandardTypeParsers {
             }
             return input.charAt(0);
         });
+        addType(asList(UUID.class), UUID::fromString);
     }
 
     private static void addType(List<Class<?>> classes, StandardTypeParser standardTypeParser) {
