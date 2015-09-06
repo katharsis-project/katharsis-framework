@@ -39,7 +39,7 @@
     <dependency>
       <groupId>io.katharsis</groupId>
       <artifactId>katharsis-servlet</artifactId>
-      <version>${project.version}</version>
+      <version>0.9.4</version>
     </dependency>
 
   </dependencies>
