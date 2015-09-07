@@ -22,6 +22,7 @@ import java.util.List;
  *     <li>{@link BigDecimal}</li>
  *     <li>{@link Character} and {@link char}</li>
  *     <li>{@link Boolean} and {@link boolean}</li>
+ *     <li>{@link java.util.UUID}</li>
  *     <li>An {@link Enum}</li>
  *     <li>A class with a {@link String} only constructor</li>
  * </ol>

@@ -7,6 +7,7 @@ import org.junit.rules.ExpectedException;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.UUID;
 import java.util.Collections;
 import java.util.Objects;
 
@@ -53,6 +54,13 @@ public class TypeParserTest {
 
         // WHEN
         sut.parse("ab", Character.class);
+    }
+
+    @Test
+    public void onUUIDStringShouldReturnUUID() throws Exception {
+        UUID result = sut.parse("de305d54-75b4-431b-adb2-eb6b9e546014", UUID.class);
+        assertThat(result).isExactlyInstanceOf(UUID.class);
+        assertThat(result).isEqualTo(UUID.fromString("de305d54-75b4-431b-adb2-eb6b9e546014"));
     }
 
     @Test
