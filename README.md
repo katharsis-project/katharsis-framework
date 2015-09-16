@@ -43,7 +43,7 @@ either [SampleKatharsisFilter.java](src/main/java/io/katharsis/servlet/SampleKat
 or [SampleKatharsisServlet.java](src/main/java/io/katharsis/servlet/SampleKatharsisServlet.java)
 to use your own JsonServiceLocator component.
 
-For example, you can create a new JsonServiceLocator to get a bean (singleton or prototype)
+For example, you can create a new *JsonServiceLocator* to get a bean (singleton or prototype)
 from Spring Web Application Context like the following example:
 
 
