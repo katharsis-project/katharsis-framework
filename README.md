@@ -43,15 +43,16 @@ either [SampleKatharsisFilter.java](src/main/java/io/katharsis/servlet/SampleKat
 or [SampleKatharsisServlet.java](src/main/java/io/katharsis/servlet/SampleKatharsisServlet.java)
 to use your own JsonServiceLocator component.
 
-For example, you can create a new JsonServiceLocator to get a bean (singleton or prototype)
+For example, you can create a new *JsonServiceLocator* to get a bean (singleton or prototype)
 from Spring Web Application Context like the following example:
 
 
 ```java
+
     /**
      * NOTE: A class extending this must provide a platform specific {@link JsonServiceLocator}
      *       instead of the (testing-purpose) {@link SampleJsonServiceLocator} below
-     *       in order to provide advanced dependency injections for the repositories.
+     *       in order to provide advanced dependency injections for the ResourceRepository beans.
      */
     @Override
     protected KatharsisInvokerBuilder createKatharsisInvokerBuilder() {
@@ -61,14 +62,38 @@ from Spring Web Application Context like the following example:
                 .jsonServiceLocator(new JsonServiceLocator() {
                     @Override
                     public <T> T getInstance(Class<T> clazz) {
-                        // assuming the repository beans can be retrieved from the WebApplicationContext and are identified by the FQCN in this exmaple.
-                        return WebApplicationContextUtils.getWebApplicationContext(getServletContext()).getBean(clazz.getName());
+                        // assuming the following in this example:
+                        // - you can get the BeanFactory through WebApplicationContextUtils and servlet context.
+                        // - your ResourceRepository beans are retrieved by the type through the BeanFactory.
+                        BeanFactory beanFactory = WebApplicationContextUtils.getWebApplicationContext(getServletContext());
+                        return beanFactory.getBean(clazz);
                     }
                 });
     }
+
 ```
 
-You will probably get the idea on how to integrate with other containers as well from the example.
+In the example above, a custom *JsonServiceLocator* was provided to find *ResourceRepository* beans by the type
+from the underlying *WebApplicationContext*.
+
+For demonstration purpose, the example assumes that it can retrieve Repository beans
+from the *WebApplicationContext* in a Web MVC application. So you will need to register the JSON API Repository beans
+by either annotation-based or XML configuration based approach in the *WebApplicationContext*.
+
+You can also choose a more generic approach by using a bean which implements *BeanFactoryAware*
+instead of using *WebApplicationContextUtils*.
+
+In the [spring-boot-simple-example](https://github.com/katharsis-project/katharsis-examples/tree/master/spring-boot-simple-example),
+it demonstrates how to register the filter bean itself by using *@Configuration*-annotated class
+(see [WebConfig.java](https://github.com/katharsis-project/katharsis-examples/blob/master/spring-boot-simple-example/src/main/java/io/katharsis/example/springboot/simple/WebConfig.java))
+and how to let the filter bean ([SpringBootSampleKatharsisFilter.java](https://github.com/katharsis-project/katharsis-examples/blob/master/spring-boot-simple-example/src/main/java/io/katharsis/example/springboot/simple/filter/SpringBootSampleKatharsisFilter.java))
+get access to the *BeanFactory* by implementing *BeanFactoryAware*, for instance.
+So, the filter bean can retrieve *ResourceRepository* beans by invoking on *BeanFactory#getBean(Class)* directly.
+
+Please read more about [The IoC container](http://docs.spring.io/spring-framework/docs/current/spring-framework-reference/html/beans.html)
+if you need more detail about Spring IoC container and beans configuration.
+
+You have probably got the idea on how to integrate with other containers as well from the example.
 
 # How to Add this module in my Project
 
@@ -93,3 +118,4 @@ Please run the following command in this project root folder:
 ```
 
 Visit [http://localhost:8080/katharsis/](http://localhost:8080/katharsis/) and test out each JSON API link.
+
