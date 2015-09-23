@@ -42,6 +42,6 @@ public class TaskRepository implements ResourceRepository<Task, ObjectId> {
     }
 
     public void delete(ObjectId id) {
-        datastore.delete(Task.class, new Key<>(Task.class, id));
+        datastore.delete(datastore.createQuery(Task.class).filter("_id", id));
     }
 }

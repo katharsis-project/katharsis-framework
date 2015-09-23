@@ -43,6 +43,6 @@ public class ProjectRepository implements ResourceRepository<Project, ObjectId> 
     }
 
     public void delete(ObjectId id) {
-        datastore.delete(Project.class, new Key<>(Project.class, id));
+        datastore.delete(datastore.createQuery(Project.class).filter("_id", id));
     }
 }
