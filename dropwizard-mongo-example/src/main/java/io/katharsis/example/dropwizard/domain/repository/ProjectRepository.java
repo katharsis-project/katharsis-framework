@@ -11,7 +11,6 @@ import org.mongodb.morphia.Key;
 import javax.inject.Inject;
 
 public class ProjectRepository implements ResourceRepository<Project, ObjectId> {
-
     private Datastore datastore;
 
     @Inject
