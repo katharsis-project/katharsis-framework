@@ -23,10 +23,6 @@ public class TaskRepository implements ResourceRepository<Task, ObjectId> {
         return (S) datastore.getByKey(Task.class, saveKey);
     }
 
-    public <S extends Task> S update(S entity) {
-        return save(entity);
-    }
-
     public Task findOne(ObjectId id, RequestParams requestParams) {
         return datastore.getByKey(Task.class, new Key<>(Task.class, id));
     }
