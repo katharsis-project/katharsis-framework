@@ -118,7 +118,8 @@ public abstract class RelationshipsResourceUpsert implements BaseController {
             processToOneRelationship(resource, relationshipIdType, jsonPath.getElementName(), dataBody, relationshipRepositoryForClass);
         }
 
-        MetaInformation metaInformation = getMetaInformation(resourceRepository, Collections.singletonList(resource));
+        MetaInformation metaInformation =
+            getMetaInformation(resourceRepository, Collections.singletonList(resource), requestParams);
 
         return new ResourceResponse(metaInformation);
     }

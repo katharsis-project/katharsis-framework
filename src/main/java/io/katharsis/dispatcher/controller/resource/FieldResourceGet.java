@@ -12,10 +12,7 @@ import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.exception.ResourceFieldNotFoundException;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.response.BaseResponse;
-import io.katharsis.response.CollectionResponse;
-import io.katharsis.response.MetaInformation;
-import io.katharsis.response.ResourceResponse;
+import io.katharsis.response.*;
 import io.katharsis.utils.Generics;
 import io.katharsis.utils.parser.TypeParser;
 
@@ -63,14 +60,17 @@ public class FieldResourceGet implements BaseController {
             @SuppressWarnings("unchecked")
             Iterable<?> targetObjects = relationshipRepositoryForClass
                 .findManyTargets(castedResourceId, elementName, requestParams);
-            MetaInformation metaInformation = getMetaInformation(relationshipRepositoryForClass, targetObjects);
-            target = new CollectionResponse(targetObjects, jsonPath, requestParams, metaInformation);
+            MetaInformation metaInformation = getMetaInformation(relationshipRepositoryForClass, targetObjects, requestParams);
+            LinksInformation linksInformation = getLinksInformation(relationshipRepositoryForClass, targetObjects, requestParams);
+            target = new CollectionResponse(targetObjects, jsonPath, requestParams, metaInformation, linksInformation);
         } else {
             @SuppressWarnings("unchecked")
             Object targetObject = relationshipRepositoryForClass.findOneTarget(castedResourceId, elementName, requestParams);
             MetaInformation metaInformation =
-                getMetaInformation(relationshipRepositoryForClass, Collections.singletonList(targetObject));
-            target = new ResourceResponse(targetObject, jsonPath, requestParams, metaInformation);
+                getMetaInformation(relationshipRepositoryForClass, Collections.singletonList(targetObject), requestParams);
+            LinksInformation linksInformation =
+                getLinksInformation(relationshipRepositoryForClass, Collections.singletonList(targetObject), requestParams);
+            target = new ResourceResponse(targetObject, jsonPath, requestParams, metaInformation, linksInformation);
         }
 
         return target;

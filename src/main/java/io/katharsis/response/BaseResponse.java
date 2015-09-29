@@ -21,4 +21,6 @@ public interface BaseResponse<T> {
     RequestParams getRequestParams();
 
     MetaInformation getMetaInformation();
+
+    LinksInformation getLinksInformation();
 }

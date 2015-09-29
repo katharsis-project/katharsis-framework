@@ -1,14 +1,13 @@
 package io.katharsis.repository;
 
 import io.katharsis.queryParams.RequestParams;
-import io.katharsis.response.MetaInformation;
+import io.katharsis.response.LinksInformation;
 
 /**
  * An optional interface that can be implemented along with {@link ResourceRepository} or {@link
- * RelationshipRepository} to get meta information about returned resource(s).
+ * RelationshipRepository} to get links information about returned resource(s).
  */
-public interface MetaRepository<T> {
-
+public interface LinksRepository<T> {
     /**
      * Return meta information about a resource. Can be called after find repository methods call
      *
@@ -16,5 +15,5 @@ public interface MetaRepository<T> {
      * @param requestParams parameters sent along with the request
      * @return meta information object
      */
-    MetaInformation getMetaInformation(Iterable<T> resources, RequestParams requestParams);
+    LinksInformation getLinksInformation(Iterable<T> resources, RequestParams requestParams);
 }

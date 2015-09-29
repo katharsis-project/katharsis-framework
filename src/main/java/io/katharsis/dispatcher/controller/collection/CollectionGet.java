@@ -12,6 +12,7 @@ import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
 import io.katharsis.response.CollectionResponse;
+import io.katharsis.response.LinksInformation;
 import io.katharsis.response.MetaInformation;
 import io.katharsis.utils.parser.TypeParser;
 
@@ -64,8 +65,9 @@ public class CollectionGet implements BaseController {
                 containers.add(element);
             }
         }
-        MetaInformation metaInformation = getMetaInformation(resourceRepository, resources);
+        MetaInformation metaInformation = getMetaInformation(resourceRepository, resources, requestParams);
+        LinksInformation linksInformation = getLinksInformation(resourceRepository, resources, requestParams);
 
-        return new CollectionResponse(containers, jsonPath, requestParams, metaInformation);
+        return new CollectionResponse(containers, jsonPath, requestParams, metaInformation, linksInformation);
     }
 }
