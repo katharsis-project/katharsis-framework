@@ -35,13 +35,13 @@ public class RelationshipsResourceGet implements BaseController {
     @Override
     public boolean isAcceptable(JsonPath jsonPath, String requestType) {
         return !jsonPath.isCollection()
-                && jsonPath instanceof RelationshipsPath
-                && HttpMethod.GET.name().equals(requestType);
+            && jsonPath instanceof RelationshipsPath
+            && HttpMethod.GET.name().equals(requestType);
     }
 
     @Override
     public BaseResponse handle(JsonPath jsonPath, RequestParams requestParams, RequestBody requestBody)
-            throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+        throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         String resourceName = jsonPath.getResourceName();
         PathIds resourceIds = jsonPath.getIds();
         RegistryEntry<?> registryEntry = resourceRegistry.getEntry(resourceName);
@@ -68,24 +68,29 @@ public class RelationshipsResourceGet implements BaseController {
             @SuppressWarnings("unchecked")
             Iterable<?> targetObjects = relationshipRepositoryForClass
                 .findManyTargets(castedResourceId, elementName, requestParams);
-            MetaInformation metaInformation = getMetaInformation(relationshipRepositoryForClass, targetObjects);
+            MetaInformation metaInformation =
+                getMetaInformation(relationshipRepositoryForClass, targetObjects, requestParams);
+            LinksInformation linksInformation =
+                getLinksInformation(relationshipRepositoryForClass, targetObjects, requestParams);
             if (targetObjects != null) {
                 for (Object targetObject : targetObjects) {
                     dataList.add(new LinkageContainer(targetObject, relationshipFieldClass, relationshipFieldEntry));
                 }
             }
-            target = new CollectionResponse(dataList, jsonPath, requestParams, metaInformation);
+            target = new CollectionResponse(dataList, jsonPath, requestParams, metaInformation, linksInformation);
         } else {
             @SuppressWarnings("unchecked")
             Object targetObject = relationshipRepositoryForClass.findOneTarget(castedResourceId, elementName, requestParams);
             MetaInformation metaInformation =
-                getMetaInformation(relationshipRepositoryForClass, Collections.singletonList(targetObject));
+                getMetaInformation(relationshipRepositoryForClass, Collections.singletonList(targetObject), requestParams);
+            LinksInformation linksInformation =
+                getLinksInformation(relationshipRepositoryForClass, Collections.singletonList(targetObject), requestParams);
             if (targetObject != null) {
                 LinkageContainer linkageContainer = new LinkageContainer(targetObject, relationshipFieldClass, relationshipFieldEntry);
 
-                target = new ResourceResponse(linkageContainer, jsonPath, requestParams, metaInformation);
+                target = new ResourceResponse(linkageContainer, jsonPath, requestParams, metaInformation, linksInformation);
             } else {
-                target = new ResourceResponse(null, jsonPath, requestParams, metaInformation);
+                target = new ResourceResponse(null, jsonPath, requestParams, metaInformation, linksInformation);
             }
         }
 
@@ -95,9 +100,9 @@ public class RelationshipsResourceGet implements BaseController {
     private Serializable getResourceId(PathIds resourceIds, RegistryEntry<?> registryEntry) {
         String resourceId = resourceIds.getIds().get(0);
         @SuppressWarnings("unchecked") Class<? extends Serializable> idClass = (Class<? extends Serializable>) registryEntry
-                .getResourceInformation()
-                .getIdField()
-                .getType();
+            .getResourceInformation()
+            .getIdField()
+            .getType();
         return typeParser.parse(resourceId, idClass);
     }
 }

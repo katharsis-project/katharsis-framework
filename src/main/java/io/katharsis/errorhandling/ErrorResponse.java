@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.katharsis.queryParams.RequestParams;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.response.BaseResponse;
+import io.katharsis.response.LinksInformation;
 import io.katharsis.response.MetaInformation;
 
 import java.util.Objects;
@@ -43,6 +44,11 @@ public final class ErrorResponse implements BaseResponse<Iterable<ErrorData>> {
 
     @Override
     public MetaInformation getMetaInformation() {
+        return null;
+    }
+
+    @Override
+    public LinksInformation getLinksInformation() {
         return null;
     }
 

@@ -29,15 +29,19 @@ public class ResourceResponse implements BaseResponse {
 
     private MetaInformation metaInformation;
 
+    private LinksInformation linksInformation;
+
     public ResourceResponse(MetaInformation metaInformation) {
         this.metaInformation = metaInformation;
     }
 
-    public ResourceResponse(Object data, JsonPath jsonPath, RequestParams requestParams, MetaInformation metaInformation) {
+    public ResourceResponse(Object data, JsonPath jsonPath, RequestParams requestParams,
+                            MetaInformation metaInformation, LinksInformation linksInformation) {
         this.data = data;
         this.jsonPath = jsonPath;
         this.requestParams = requestParams;
         this.metaInformation = metaInformation;
+        this.linksInformation = linksInformation;
     }
 
     @Override
@@ -63,6 +67,11 @@ public class ResourceResponse implements BaseResponse {
     @Override
     public MetaInformation getMetaInformation() {
         return metaInformation;
+    }
+
+    @Override
+    public LinksInformation getLinksInformation() {
+        return linksInformation;
     }
 
     @Override

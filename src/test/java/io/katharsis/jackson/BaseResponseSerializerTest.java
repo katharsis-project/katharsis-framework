@@ -7,10 +7,7 @@ import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.models.User;
-import io.katharsis.response.BaseResponse;
-import io.katharsis.response.CollectionResponse;
-import io.katharsis.response.MetaInformation;
-import io.katharsis.response.ResourceResponse;
+import io.katharsis.response.*;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -40,7 +37,7 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
         // WHEN
 
         String result = sut
-            .writeValueAsString(new ResourceResponse(task, new ResourcePath("projects"), REQUEST_PARAMS, null));
+            .writeValueAsString(new ResourceResponse(task, new ResourcePath("projects"), REQUEST_PARAMS, null, null));
 
         // THEN
         assertThatJson(result).node("data").isPresent();
@@ -65,7 +62,7 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
 
         // WHEN
         String result = sut
-            .writeValueAsString(new ResourceResponse(user, new ResourcePath("projects"), REQUEST_PARAMS, null));
+            .writeValueAsString(new ResourceResponse(user, new ResourcePath("projects"), REQUEST_PARAMS, null, null));
 
         // THEN
         assertThatJson(result).node("data").isPresent();
@@ -85,7 +82,7 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
 
         // WHEN
         String result = sut.writeValueAsString(new CollectionResponse(Arrays.asList(task1, task2),
-            new ResourcePath("tasks"), REQUEST_PARAMS, null));
+            new ResourcePath("tasks"), REQUEST_PARAMS, null, null));
 
         // THEN
         assertThatJson(result).node("data").isArray().ofLength(2);
@@ -95,7 +92,7 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
     public void onSingleResponseWithNoResourcesShouldReturnEmptyArray() throws Exception {
         // WHEN
         String result = sut
-            .writeValueAsString(new CollectionResponse(null, new ResourcePath("projects"), REQUEST_PARAMS, null));
+            .writeValueAsString(new CollectionResponse(null, new ResourcePath("projects"), REQUEST_PARAMS, null, null));
 
         // THEN
         assertThatJson(result).node("data").isArray().ofLength(0);
@@ -105,7 +102,7 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
     public void onSingleResponseWithNoResourceShouldReturnNull() throws Exception {
         // WHEN
         String result = sut
-            .writeValueAsString(new ResourceResponse(null, new ResourcePath("projects"), REQUEST_PARAMS, null));
+            .writeValueAsString(new ResourceResponse(null, new ResourcePath("projects"), REQUEST_PARAMS, null, null));
 
         // THEN
         assertThatJson(result).node("data").isEqualTo(null);
@@ -115,20 +112,40 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
     public void onMetaInformationShouldReturnMetaObject() throws Exception {
         // WHEN
         String result = sut.writeValueAsString(
-            new ResourceResponse(null, new ResourcePath("projects"), REQUEST_PARAMS, new MetaData("Humpty Dumpty")));
+            new ResourceResponse(null, new ResourcePath("projects"), REQUEST_PARAMS, new MetaData("Humpty Dumpty"), null));
 
         // THEN
         assertThatJson(result).node("meta.author").isEqualTo("Humpty Dumpty");
     }
 
     @Test
+    public void onLinksInformationShouldReturnLinksObject() throws Exception {
+        // WHEN
+        String result = sut.writeValueAsString(
+            new ResourceResponse(null, new ResourcePath("projects"), REQUEST_PARAMS, null, new LinksData("/sth/123")));
+
+        // THEN
+        assertThatJson(result).node("links.self").isEqualTo("/sth/123");
+    }
+
+    @Test
     public void onNoMetaInformationShouldReturnNoMetaObject() throws Exception {
         // WHEN
         String result = sut.writeValueAsString(
-            new ResourceResponse(null, new ResourcePath("projects"), REQUEST_PARAMS, null));
+            new ResourceResponse(null, new ResourcePath("projects"), REQUEST_PARAMS, null, null));
 
         // THEN
         assertThatJson(result).node("meta").isAbsent();
+    }
+
+    @Test
+    public void onNoLinksInformationShouldReturnNoLinksObject() throws Exception {
+        // WHEN
+        String result = sut.writeValueAsString(
+            new ResourceResponse(null, new ResourcePath("projects"), REQUEST_PARAMS, null, null));
+
+        // THEN
+        assertThatJson(result).node("links").isAbsent();
     }
 
     @Test
@@ -162,6 +179,11 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
             public MetaInformation getMetaInformation() {
                 return null;
             }
+
+            @Override
+            public LinksInformation getLinksInformation() {
+                return null;
+            }
         });
     }
 
@@ -174,6 +196,18 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
 
         public String getAuthor() {
             return author;
+        }
+    }
+
+    public static class LinksData implements LinksInformation {
+        private String self;
+
+        public LinksData(String self) {
+            this.self = self;
+        }
+
+        public String getSelf() {
+            return self;
         }
     }
 }

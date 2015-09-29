@@ -14,6 +14,7 @@ import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
+import io.katharsis.response.LinksInformation;
 import io.katharsis.response.MetaInformation;
 import io.katharsis.response.ResourceResponse;
 import io.katharsis.utils.parser.TypeParser;
@@ -69,8 +70,10 @@ public class ResourcePatch extends ResourceUpsert {
         @SuppressWarnings("unchecked")
         Object savedResourceWithRelations = resourceRepository.findOne(resourceId, requestParams);
         MetaInformation metaInformation =
-            getMetaInformation(resourceRepository, Collections.singletonList(savedResourceWithRelations));
+            getMetaInformation(resourceRepository, Collections.singletonList(savedResourceWithRelations), requestParams);
+        LinksInformation linksInformation =
+            getLinksInformation(resourceRepository, Collections.singletonList(savedResourceWithRelations), requestParams);
 
-        return new ResourceResponse(savedResourceWithRelations, jsonPath, requestParams, metaInformation);
+        return new ResourceResponse(savedResourceWithRelations, jsonPath, requestParams, metaInformation, linksInformation);
     }
 }

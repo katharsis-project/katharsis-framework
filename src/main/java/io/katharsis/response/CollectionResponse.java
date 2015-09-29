@@ -26,15 +26,18 @@ public class CollectionResponse implements BaseResponse<Iterable> {
 
     private MetaInformation metaInformation;
 
+    private LinksInformation linksInformation;
+
     public CollectionResponse() {
     }
 
     public CollectionResponse(Iterable data, JsonPath jsonPath, RequestParams requestParams,
-        MetaInformation metaInformation) {
+        MetaInformation metaInformation, LinksInformation linksInformation) {
         this.data = data;
         this.jsonPath = jsonPath;
         this.requestParams = requestParams;
         this.metaInformation = metaInformation;
+        this.linksInformation = linksInformation;
     }
 
     @Override
@@ -60,6 +63,11 @@ public class CollectionResponse implements BaseResponse<Iterable> {
     @Override
     public MetaInformation getMetaInformation() {
         return metaInformation;
+    }
+
+    @Override
+    public LinksInformation getLinksInformation() {
+        return linksInformation;
     }
 
     public void setData(Iterable data) {
