@@ -50,4 +50,14 @@ public class ExceptionMapperRegistryBuilderTest {
                 .doesNotContain(NoAnnotationExceptionMapper.ShouldNotAppearException.class);
     }
 
+
+    @Test
+    public void shouldContainScannedExceptionMapperWhenMultiplePaths() throws Exception {
+        ExceptionMapperRegistry registry = builder.build("io.katharsis.errorhandling.handlers,io.katharsis.errorhandling.handlers");
+        assertThat(registry.getExceptionMappers())
+                .isNotNull()
+                .extracting("exceptionClass")
+                .contains(SomeExceptionMapper.SomeException.class);
+    }
+
 }

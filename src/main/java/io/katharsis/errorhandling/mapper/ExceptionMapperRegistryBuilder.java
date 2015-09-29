@@ -27,7 +27,13 @@ public final class ExceptionMapperRegistryBuilder {
     }
 
     private void scanForCustomMappers(String resourceSearchPackage) throws InstantiationException, IllegalAccessException {
-        Reflections reflections = new Reflections(resourceSearchPackage);
+        Reflections reflections;
+        if (resourceSearchPackage != null) {
+            String[] packageNames = resourceSearchPackage.split(",");
+            reflections = new Reflections(packageNames);
+        } else {
+            reflections = new Reflections(resourceSearchPackage);
+        }
         Set<Class<?>> exceptionMapperClasses = reflections.getTypesAnnotatedWith(ExceptionMapperProvider.class);
 
         for (Class<?> exceptionMapperClazz : exceptionMapperClasses) {
