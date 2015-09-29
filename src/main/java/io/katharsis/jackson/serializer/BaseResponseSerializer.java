@@ -25,13 +25,10 @@ public class BaseResponseSerializer extends JsonSerializer<BaseResponse> {
     private static final String META_FIELD_NAME = "meta";
     private static final String LINKS_FIELD_NAME = "links";
 
-    private final ResourceRegistry resourceRegistry;
     private final IncludedRelationshipExtractor includedRelationshipExtractor;
 
     public BaseResponseSerializer(ResourceRegistry resourceRegistry) {
-        this.resourceRegistry = resourceRegistry;
-
-        includedRelationshipExtractor = new IncludedRelationshipExtractor();
+        includedRelationshipExtractor = new IncludedRelationshipExtractor(resourceRegistry);
     }
 
     @Override
@@ -69,18 +66,10 @@ public class BaseResponseSerializer extends JsonSerializer<BaseResponse> {
         gen.writeObjectField(DATA_FIELD_NAME, new Container(value, resourceResponse.getRequestParams()));
 
         if (value != null) {
-            Set<ResourceField> relationshipFields = getRelationshipFields(value);
-            return includedRelationshipExtractor.extractIncludedResources(value, relationshipFields, resourceResponse);
+            return includedRelationshipExtractor.extractIncludedResources(value, resourceResponse);
         } else {
             return Collections.EMPTY_SET;
         }
-    }
-
-    private Set<ResourceField> getRelationshipFields(Object resource) {
-        Class<?> dataClass = resource.getClass();
-        RegistryEntry entry = resourceRegistry.getEntry(dataClass);
-        ResourceInformation resourceInformation = entry.getResourceInformation();
-        return resourceInformation.getRelationshipFields();
     }
 
     private Set serializeResourceCollection(CollectionResponse collectionResponse, JsonGenerator gen) throws IOException {
@@ -88,9 +77,8 @@ public class BaseResponseSerializer extends JsonSerializer<BaseResponse> {
         Set includedFields = new HashSet<>();
         if (values != null) {
             for (Object value : values) {
-                Set<ResourceField> relationshipFields = getRelationshipFields(value);
                 //noinspection unchecked
-                includedFields.addAll(includedRelationshipExtractor.extractIncludedResources(value, relationshipFields, collectionResponse));
+                includedFields.addAll(includedRelationshipExtractor.extractIncludedResources(value, collectionResponse));
             }
         } else {
             values = Collections.emptyList();

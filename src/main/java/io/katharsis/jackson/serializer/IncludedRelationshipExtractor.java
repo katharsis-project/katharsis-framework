@@ -2,8 +2,11 @@ package io.katharsis.jackson.serializer;
 
 import io.katharsis.queryParams.include.Inclusion;
 import io.katharsis.request.path.ResourcePath;
-import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.annotations.JsonApiIncludeByDefault;
+import io.katharsis.resource.field.ResourceField;
+import io.katharsis.resource.information.ResourceInformation;
+import io.katharsis.resource.registry.RegistryEntry;
+import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
 import io.katharsis.response.Container;
 import io.katharsis.utils.PropertyUtils;
@@ -13,18 +16,23 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Extracts inclusions from a resource.
  */
 public class IncludedRelationshipExtractor {
-    private final Logger logger = LoggerFactory.getLogger(IncludedRelationshipExtractor.class);
+    private static final Logger logger = LoggerFactory.getLogger(IncludedRelationshipExtractor.class);
+    private final ResourceRegistry resourceRegistry;
 
-    public Set<?> extractIncludedResources(Object resource, Set<ResourceField> relationshipFields,
-        BaseResponse response) {
+    public IncludedRelationshipExtractor(ResourceRegistry resourceRegistry) {
+        this.resourceRegistry = resourceRegistry;
+    }
+
+    public Set<?> extractIncludedResources(Object resource, BaseResponse response) {
         Set includedResources = new HashSet<>();
         //noinspection unchecked
-        includedResources.addAll(extractDefaultIncludedFields(resource, relationshipFields, response));
+        includedResources.addAll(extractDefaultIncludedFields(resource, response));
         try {
             //noinspection unchecked
             includedResources.addAll(extractIncludedRelationships(resource, response));
@@ -35,16 +43,51 @@ public class IncludedRelationshipExtractor {
         return includedResources;
     }
 
-    private List<?> extractDefaultIncludedFields(Object resource, Set<ResourceField> relationshipFields,
-        BaseResponse response) {
-        List<?> includedResources = new LinkedList<>();
-        //noinspection unchecked
-        relationshipFields
-            .stream()
-            .filter(relationshipField -> relationshipField.isAnnotationPresent(JsonApiIncludeByDefault.class))
-            .forEach(relationshipField -> includedResources.addAll(getIncludedFromRelation(relationshipField, resource, response)));
+    private List<?> extractDefaultIncludedFields(Object resource, BaseResponse response) {
+        List<?> includedResources = getIncludedByDefaultResources(resource, 1);
 
-        return includedResources;
+        return includedResources
+            .stream()
+            .map(includedResource -> new Container(includedResource, response.getRequestParams()))
+            .collect(Collectors.toList());
+    }
+
+
+    private List<?> getIncludedByDefaultResources(Object resource, int recurrenceLevel) {
+        if (recurrenceLevel >= 42 || resource == null) {
+            return Collections.emptyList();
+        }
+
+        Set<ResourceField> relationshipFields = getRelationshipFields(resource);
+        List includedFields = new LinkedList<>();
+
+        //noinspection unchecked
+        for (ResourceField resourceField : relationshipFields) {
+            if (resourceField.isAnnotationPresent(JsonApiIncludeByDefault.class)) {
+
+                Object targetDataObj = PropertyUtils.getProperty(resource, resourceField.getName());
+
+                if (targetDataObj != null) {
+                    recurrenceLevel++;
+
+                    if (targetDataObj instanceof Iterable) {
+                        for (Object objectItem : (Iterable) targetDataObj) {
+                            //noinspection unchecked
+                            includedFields.add(objectItem);
+                            //noinspection unchecked
+                            includedFields.addAll(getIncludedByDefaultResources(objectItem, recurrenceLevel));
+                        }
+                    } else {
+                        //noinspection unchecked
+                        includedFields.add(targetDataObj);
+                        //noinspection unchecked
+                        includedFields.addAll(getIncludedByDefaultResources(targetDataObj, recurrenceLevel));
+                    }
+                }
+            }
+        }
+
+        return includedFields;
     }
 
     private List<?> extractIncludedRelationships(Object resource, BaseResponse response)
@@ -104,18 +147,10 @@ public class IncludedRelationshipExtractor {
         return elements;
     }
 
-    private List getIncludedFromRelation(ResourceField relationshipField, Object resource, BaseResponse response) {
-        List<Container> includedFields = new LinkedList<>();
-        Object targetDataObj = PropertyUtils.getProperty(resource, relationshipField.getName());
-        if (targetDataObj != null) {
-            if (Iterable.class.isAssignableFrom(targetDataObj.getClass())) {
-                for (Object objectItem : (Iterable) targetDataObj) {
-                    includedFields.add(new Container(objectItem, response.getRequestParams()));
-                }
-            } else {
-                includedFields.add(new Container(targetDataObj, response.getRequestParams()));
-            }
-        }
-        return includedFields;
+    private Set<ResourceField> getRelationshipFields(Object resource) {
+        Class<?> dataClass = resource.getClass();
+        RegistryEntry entry = resourceRegistry.getEntry(dataClass);
+        ResourceInformation resourceInformation = entry.getResourceInformation();
+        return resourceInformation.getRelationshipFields();
     }
 }
