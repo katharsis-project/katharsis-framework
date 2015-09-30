@@ -26,7 +26,7 @@ public class RegistryEntryTest {
     @Test
     public void onValidRelationshipClassShouldReturnRelationshipRepository() throws Exception {
         // GIVEN
-        RegistryEntry<Task> sut = new RegistryEntry<>(null, null, Collections.singletonList(new TaskToProjectRepository()));
+        RegistryEntry<Task> sut = new RegistryEntry<>(null, null, null, Collections.singletonList(new TaskToProjectRepository()));
 
         // WHEN
         RelationshipRepository<Task, ?, ?, ?> relationshipRepository = sut.getRelationshipRepositoryForClass(Project.class);
@@ -39,7 +39,7 @@ public class RegistryEntryTest {
     public void onInvalidRelationshipClassShouldThrowException() throws Exception {
         // GIVEN
         ResourceInformation resourceInformation = new ResourceInformation(Task.class, null, null, null);
-        RegistryEntry<Task> sut = new RegistryEntry<>(resourceInformation, null,
+        RegistryEntry<Task> sut = new RegistryEntry<>(resourceInformation, null, null,
             Collections.singletonList(new TaskToProjectRepository()));
 
         // THEN

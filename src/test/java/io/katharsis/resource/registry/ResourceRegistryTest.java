@@ -23,21 +23,21 @@ public class ResourceRegistryTest {
 
     @Test
     public void onExistingTypeShouldReturnEntry() {
-        resourceRegisty.addEntry(Task.class, new RegistryEntry<>(null, null));
+        resourceRegisty.addEntry(Task.class, new RegistryEntry<>(null, null, null));
         RegistryEntry tasksEntry = resourceRegisty.getEntry("tasks");
         assertThat(tasksEntry).isNotNull();
     }
 
     @Test
     public void onExistingClassShouldReturnEntry() {
-        resourceRegisty.addEntry(Task.class, new RegistryEntry<>(null, null));
+        resourceRegisty.addEntry(Task.class, new RegistryEntry<>(null, null, null));
         RegistryEntry tasksEntry = resourceRegisty.getEntry(Task.class);
         assertThat(tasksEntry).isNotNull();
     }
 
     @Test
     public void onExistingTypeShouldReturnUrl() {
-        resourceRegisty.addEntry(Task.class, new RegistryEntry<>(null, null));
+        resourceRegisty.addEntry(Task.class, new RegistryEntry<>(null, null, null));
         String resourceUrl = resourceRegisty.getResourceUrl(Task.class);
         assertThat(resourceUrl).isEqualTo(TEST_MODELS_URL + "/tasks");
     }

@@ -46,20 +46,20 @@ public class ResourcePost extends ResourceUpsert {
     public ResourceResponse handle(JsonPath jsonPath, RequestParams requestParams, RequestBody requestBody)
         throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException,
         IOException {
-        String resourceName = jsonPath.getResourceName();
-        RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
+        String resourceEndpointName = jsonPath.getResourceName();
+        RegistryEntry registryEntry = resourceRegistry.getEntry(resourceEndpointName);
         if (registryEntry == null) {
-            throw new ResourceNotFoundException(resourceName);
+            throw new ResourceNotFoundException(resourceEndpointName);
         }
         if (requestBody == null) {
-            throw new RequestBodyNotFoundException(HttpMethod.POST, resourceName);
+            throw new RequestBodyNotFoundException(HttpMethod.POST, resourceEndpointName);
         }
         if (requestBody.isMultiple()) {
-            throw new RequestBodyException(HttpMethod.POST, resourceName, "Multiple data in body");
+            throw new RequestBodyException(HttpMethod.POST, resourceEndpointName, "Multiple data in body");
         }
 
         DataBody dataBody = requestBody.getSingleData();
-        Object resource = buildNewResource(registryEntry, dataBody, resourceName);
+        Object resource = buildNewResource(registryEntry, dataBody, resourceEndpointName);
 
         setAttributes(dataBody, resource, registryEntry.getResourceInformation());
         ResourceRepository resourceRepository = registryEntry.getResourceRepository();

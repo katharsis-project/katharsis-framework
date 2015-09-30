@@ -20,17 +20,23 @@ import java.util.Objects;
  * @param <T> resource type
  */
 public class RegistryEntry<T> {
+    private final ResourceInformation parentResourceInformation;
     private final ResourceInformation resourceInformation;
     private final ResourceRepository<T, ?> resourceRepository;
     private final List<RelationshipRepository<T, ?, ?, ?>> relationshipRepositories;
 
-    public RegistryEntry(ResourceInformation resourceInformation, @SuppressWarnings("SameParameterValue") ResourceRepository<T, ?> resourceRepository) {
-        this(resourceInformation, resourceRepository, new LinkedList<>());
+    public RegistryEntry(ResourceInformation resourceInformation,
+                         @SuppressWarnings("SameParameterValue") ResourceInformation parentResourceInformation,
+                         @SuppressWarnings("SameParameterValue") ResourceRepository<T, ?> resourceRepository) {
+        this(resourceInformation, parentResourceInformation, resourceRepository, new LinkedList<>());
     }
 
-    public RegistryEntry(ResourceInformation resourceInformation, ResourceRepository<T, ?> resourceRepository,
+    public RegistryEntry(ResourceInformation resourceInformation,
+                         @SuppressWarnings("SameParameterValue") ResourceInformation parentResourceInformation,
+                         ResourceRepository<T, ?> resourceRepository,
                          List<RelationshipRepository<T, ?, ?, ?>> relationshipRepositories) {
         this.resourceInformation = resourceInformation;
+        this.parentResourceInformation = parentResourceInformation;
         this.resourceRepository = resourceRepository;
         this.relationshipRepositories = relationshipRepositories;
     }
@@ -64,18 +70,23 @@ public class RegistryEntry<T> {
         return resourceInformation;
     }
 
+    public ResourceInformation getParentResourceInformation() {
+        return parentResourceInformation;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         RegistryEntry<?> that = (RegistryEntry<?>) o;
-        return Objects.equals(resourceInformation, that.resourceInformation) &&
-                Objects.equals(resourceRepository, that.resourceRepository) &&
-                Objects.equals(relationshipRepositories, that.relationshipRepositories);
+        return Objects.equals(parentResourceInformation, that.parentResourceInformation) &&
+            Objects.equals(resourceInformation, that.resourceInformation) &&
+            Objects.equals(resourceRepository, that.resourceRepository) &&
+            Objects.equals(relationshipRepositories, that.relationshipRepositories);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(resourceInformation, resourceRepository, relationshipRepositories);
+        return Objects.hash(parentResourceInformation, resourceInformation, resourceRepository, relationshipRepositories);
     }
 }
