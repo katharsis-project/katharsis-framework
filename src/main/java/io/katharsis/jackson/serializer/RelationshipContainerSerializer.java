@@ -40,7 +40,9 @@ public class RelationshipContainerSerializer extends JsonSerializer<Relationship
         throws IOException {
         gen.writeStartObject();
         writeLinks(relationshipContainer, gen);
-        writeLinkage(relationshipContainer, gen);
+        if (!relationshipContainer.getRelationshipField().isLazy()) {
+            writeLinkage(relationshipContainer, gen);
+        }
         gen.writeEndObject();
     }
 
@@ -53,7 +55,7 @@ public class RelationshipContainerSerializer extends JsonSerializer<Relationship
     }
 
     private void writeLink(RelationshipContainer relationshipContainer, JsonGenerator gen, String fieldName,
-        boolean addLinks) throws IOException {
+                           boolean addLinks) throws IOException {
         Object data = relationshipContainer.getDataLinksContainer().getData();
         Class<?> sourceClass = data.getClass();
         String resourceUrl = resourceRegistry.getResourceUrl(sourceClass);
@@ -85,7 +87,7 @@ public class RelationshipContainerSerializer extends JsonSerializer<Relationship
     }
 
     private void writeLinkageField(RelationshipContainer relationshipContainer, JsonGenerator gen, Class baseClass,
-        Class relationshipClass, RegistryEntry relationshipEntry)
+                                   Class relationshipClass, RegistryEntry relationshipEntry)
         throws IOException {
         try {
             if (Iterable.class.isAssignableFrom(baseClass)) {
@@ -99,7 +101,7 @@ public class RelationshipContainerSerializer extends JsonSerializer<Relationship
     }
 
     private void writeToManyLinkage(RelationshipContainer relationshipContainer, JsonGenerator gen,
-        Class relationshipClass, RegistryEntry relationshipEntry)
+                                    Class relationshipClass, RegistryEntry relationshipEntry)
         throws IOException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         ResourceField relationshipField = relationshipContainer.getRelationshipField();
         Object targetDataObj = PropertyUtils
@@ -115,7 +117,7 @@ public class RelationshipContainerSerializer extends JsonSerializer<Relationship
     }
 
     private void writeToOneLinkage(RelationshipContainer relationshipContainer, JsonGenerator gen,
-        Class<?> relationshipClass, RegistryEntry relationshipEntry)
+                                   Class<?> relationshipClass, RegistryEntry relationshipEntry)
         throws IOException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         ResourceField relationshipField = relationshipContainer.getRelationshipField();
         Object targetDataObj = PropertyUtils

@@ -1,6 +1,7 @@
 package io.katharsis.jackson;
 
 import io.katharsis.queryParams.RequestParams;
+import io.katharsis.resource.mock.models.LazyTask;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.models.User;
@@ -72,6 +73,23 @@ public class RelationshipContainerSerializerTest extends BaseSerializerTest {
 
         // THEN
         assertThatJson(result).node("relationships.project.data").isPresent();
+    }
+
+    @Test
+    public void onToManyLazyRelationshipShouldIncludeToOneRelationshipLinkage() throws Exception {
+        // GIVEN
+        Project project = new Project();
+        project.setId(2L);
+        LazyTask task = new LazyTask();
+        task.setId(1L);
+        task.setProjects(Collections.singletonList(project));
+
+        // WHEN
+        String result = sut.writeValueAsString(new Container(task, new RequestParams(null)));
+
+        // THEN
+        assertThatJson(result).node("relationships.projects").isPresent();
+        assertThatJson(result).node("relationships.projects.data").isAbsent();
     }
 
     @Test

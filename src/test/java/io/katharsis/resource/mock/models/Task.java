@@ -16,7 +16,7 @@ public class Task {
     @JsonApiIncludeByDefault
     private Project project;
 
-    @JsonApiToMany
+    @JsonApiToMany(lazy = false)
     private List<Project> projects;
 
     public Long getId() {
