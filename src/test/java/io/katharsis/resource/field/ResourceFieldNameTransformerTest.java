@@ -1,7 +1,6 @@
-package io.katharsis.resource;
+package io.katharsis.resource.field;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import org.junit.Before;
 import org.junit.Test;
 

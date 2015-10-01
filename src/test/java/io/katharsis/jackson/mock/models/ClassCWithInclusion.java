@@ -13,7 +13,7 @@ public class ClassCWithInclusion {
     @JsonApiId
     private Long id;
 
-    @JsonApiToMany
+    @JsonApiToMany(lazy = false)
     @JsonApiIncludeByDefault
     private List<ClassCWithInclusion> classCsWithInclusion;
 

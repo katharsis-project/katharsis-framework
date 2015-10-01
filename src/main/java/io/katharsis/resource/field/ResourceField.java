@@ -1,10 +1,13 @@
 package io.katharsis.resource.field;
 
+import io.katharsis.resource.annotations.JsonApiToMany;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 public class ResourceField {
     private final String name;
@@ -48,7 +51,20 @@ public class ResourceField {
             .isPresent();
     }
 
-    @Override public boolean equals(Object o) {
+    public boolean isLazy() {
+        boolean isLazy = false;
+        Optional<JsonApiToMany> toManyOptional = annotations.stream()
+            .filter(annotation -> annotation.annotationType().equals(JsonApiToMany.class))
+            .map(annotation -> (JsonApiToMany) annotation)
+            .findAny();
+        if (toManyOptional.isPresent()) {
+            isLazy = toManyOptional.get().lazy();
+        }
+        return isLazy;
+    }
+
+    @Override
+    public boolean equals(Object o) {
         if (this == o)
             return true;
         if (o == null || getClass() != o.getClass())
@@ -60,7 +76,8 @@ public class ResourceField {
             Objects.equals(annotations, that.annotations);
     }
 
-    @Override public int hashCode() {
+    @Override
+    public int hashCode() {
         return Objects.hash(name, type, genericType, annotations);
     }
 }
