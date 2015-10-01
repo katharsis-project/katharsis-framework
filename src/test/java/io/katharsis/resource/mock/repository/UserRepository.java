@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class UserRepository implements ResourceRepository<User, Long> {
 
@@ -22,8 +23,6 @@ public class UserRepository implements ResourceRepository<User, Long> {
             return new HashMap<>();
         }
     };
-
-    private static final UserToProjectRepository USER_TO_PROJECT_REPOSITORY = new UserToProjectRepository();
 
     @Override
     public <S extends User> S save(S entity) {
@@ -39,8 +38,6 @@ public class UserRepository implements ResourceRepository<User, Long> {
         if (user == null) {
             throw new ResourceNotFoundException(User.class.getCanonicalName());
         }
-        Iterable<Project> assignedProjects = USER_TO_PROJECT_REPOSITORY.findManyTargets(aLong, "assignedProjects", REQUEST_PARAMS);
-        user.setAssignedProjects(makeCollection(assignedProjects));
 
         return user;
     }
@@ -52,20 +49,25 @@ public class UserRepository implements ResourceRepository<User, Long> {
 
 
     @Override
-    public Iterable<User> findAll(Iterable<Long> longs, RequestParams requestParams) {
-        return null;
+    public Iterable<User> findAll(Iterable<Long> ids, RequestParams requestParams) {
+        return THREAD_LOCAL_REPOSITORY.get().values()
+            .stream()
+            .filter(value -> contains(value, ids))
+            .collect(Collectors.toList());
+    }
+
+    private boolean contains(User value, Iterable<Long> ids) {
+        for (Long id : ids) {
+            if (value.getId().equals(id)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     @Override
     public void delete(Long aLong) {
         THREAD_LOCAL_REPOSITORY.get().remove(aLong);
-    }
-
-    private static <E> List<E> makeCollection(Iterable<E> iter) {
-        List<E> list = new LinkedList<>();
-        for (E item : iter) {
-            list.add(item);
-        }
-        return list;
     }
 }

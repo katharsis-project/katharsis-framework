@@ -64,8 +64,9 @@ public abstract class ResourceUpsert implements BaseController {
         }
     }
 
-    private void saveRelationsField(Object savedResource, RegistryEntry registryEntry, Map.Entry<String,
-            Iterable<LinkageData>> property, ResourceInformation resourceInformation)
+    private void saveRelationsField(Object savedResource, RegistryEntry registryEntry,
+                                    Map.Entry<String, Iterable<LinkageData>> property,
+                                    ResourceInformation resourceInformation)
             throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         if (!allTypesTheSame(property.getValue())) {
             throw new ResourceException("Not all types are the same for linkage: " + property.getKey());
@@ -102,13 +103,12 @@ public abstract class ResourceUpsert implements BaseController {
         return true;
     }
 
-    private String getLinkageType(Iterable<LinkageData> linkages) {
+    protected String getLinkageType(Iterable<LinkageData> linkages) {
         return linkages.iterator().hasNext() ? linkages.iterator().next().getType() : null;
     }
 
-    private void saveRelationField(Object savedResource, RegistryEntry registryEntry, Map.Entry<String, LinkageData>
-        property,
-                                   ResourceInformation resourceInformation)
+    private void saveRelationField(Object savedResource, RegistryEntry registryEntry,
+                                   Map.Entry<String, LinkageData> property, ResourceInformation resourceInformation)
             throws NoSuchMethodException, IllegalAccessException, InstantiationException, InvocationTargetException {
         RegistryEntry relationRegistryEntry = getRelationRegistryEntry(property.getValue().getType());
 
