@@ -4,9 +4,11 @@ import io.katharsis.queryParams.RequestParams;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.mock.models.Project;
+import io.katharsis.resource.mock.models.Task;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ProjectRepository implements ResourceRepository<Project, Long> {
 
@@ -42,8 +44,21 @@ public class ProjectRepository implements ResourceRepository<Project, Long> {
 
 
     @Override
-    public Iterable<Project> findAll(Iterable<Long> longs, RequestParams requestParams) {
-        return null;
+    public Iterable<Project> findAll(Iterable<Long> ids, RequestParams requestParams) {
+        return THREAD_LOCAL_REPOSITORY.get().values()
+            .stream()
+            .filter(value -> contains(value, ids))
+            .collect(Collectors.toList());
+    }
+
+    private boolean contains(Project value, Iterable<Long> ids) {
+        for (Long id : ids) {
+            if (value.getId().equals(id)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     @Override

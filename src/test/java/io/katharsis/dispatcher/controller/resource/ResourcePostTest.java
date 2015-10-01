@@ -12,6 +12,8 @@ import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.mock.models.*;
+import io.katharsis.resource.mock.repository.ProjectRepository;
+import io.katharsis.resource.mock.repository.TaskRepository;
 import io.katharsis.resource.mock.repository.TaskToProjectRepository;
 import io.katharsis.response.ResourceResponse;
 import org.junit.Assert;
@@ -149,9 +151,9 @@ public class ResourcePostTest extends BaseControllerTest {
         assertThat(taskId).isNotNull();
         assertThat(((Task) (taskResponse.getData())).getName()).isEqualTo("sample task");
 
-        TaskToProjectRepository taskToProjectRepository = new TaskToProjectRepository();
-        Project project = taskToProjectRepository.findOneTarget(taskId, "project", REQUEST_PARAMS);
-        assertThat(project.getId()).isEqualTo(projectId);
+        TaskRepository taskRepository = new TaskRepository();
+        Task persistedTask = taskRepository.findOne(taskId, null);
+        assertThat(persistedTask.getProject().getId()).isEqualTo(projectId);
     }
 
     @Test
