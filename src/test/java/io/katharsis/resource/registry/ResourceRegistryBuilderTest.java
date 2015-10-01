@@ -5,9 +5,7 @@ import io.katharsis.repository.NotFoundRepository;
 import io.katharsis.repository.exception.RepositoryInstanceNotFoundException;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.ResourceInformationBuilder;
-import io.katharsis.resource.mock.models.Project;
-import io.katharsis.resource.mock.models.ResourceWithoutRepository;
-import io.katharsis.resource.mock.models.Task;
+import io.katharsis.resource.mock.models.*;
 import io.katharsis.resource.mock.repository.ResourceWithoutRepositoryToProjectRepository;
 import io.katharsis.resource.mock.repository.TaskRepository;
 import io.katharsis.resource.mock.repository.TaskToProjectRepository;
@@ -133,5 +131,37 @@ public class ResourceRegistryBuilderTest {
         assertThat(entry.getResourceRepository()).isExactlyInstanceOf(NotFoundRepository.class);
         assertThat(entry.getRelationshipRepositoryForClass(Project.class))
             .isExactlyInstanceOf(ResourceWithoutRepositoryToProjectRepository.class);
+    }
+
+    @Test
+    public void onInheritedResourcesShouldAddInformationToEntry() {
+        // GIVEN
+        ResourceRegistryBuilder sut = new ResourceRegistryBuilder(new SampleJsonServiceLocator(),
+            resourceInformationBuilder);
+        String packageNames = String.format("java.lang,%s,io.katharsis.locator", TEST_MODELS_PACKAGE);
+
+        // WHEN
+        ResourceRegistry resourceRegistry = sut.build(packageNames, TEST_MODELS_URL);
+
+        // THEN
+        RegistryEntry memorandaEntry = resourceRegistry.getEntry("memoranda");
+        assertThat(memorandaEntry.getParentRegistryEntry()).isNotNull();
+        assertThat(memorandaEntry.getParentRegistryEntry().getResourceInformation().getResourceClass()).isEqualTo(Document.class);
+        assertThat(memorandaEntry.getParentRegistryEntry().getParentRegistryEntry()).isNotNull();
+        assertThat(memorandaEntry.getParentRegistryEntry().getParentRegistryEntry().getResourceInformation().getResourceClass()).isEqualTo(Thing.class);
+    }
+
+    @Test
+    public void onNonInheritedResourcesShouldNotAddInformationToEntry() {
+        // GIVEN
+        ResourceRegistryBuilder sut = new ResourceRegistryBuilder(new SampleJsonServiceLocator(),
+            resourceInformationBuilder);
+
+        // WHEN
+        ResourceRegistry resourceRegistry = sut.build(TEST_MODELS_PACKAGE, TEST_MODELS_URL);
+
+        // THEN
+        RegistryEntry tasksEntry = resourceRegistry.getEntry("tasks");
+        assertThat(tasksEntry.getParentRegistryEntry()).isNull();
     }
 }

@@ -5,6 +5,8 @@ import io.katharsis.repository.LinksRepository;
 import io.katharsis.repository.MetaRepository;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
+import io.katharsis.resource.exception.RequestBodyException;
+import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.response.BaseResponse;
 import io.katharsis.response.LinksInformation;
 import io.katharsis.response.MetaInformation;
@@ -48,5 +50,17 @@ public interface BaseController {
             return ((LinksRepository) repository).getLinksInformation(resources, requestParams);
         }
         return null;
+    }
+
+    default void verifyTypes(HttpMethod methodType, String resourceEndpointName, RegistryEntry endpointRegistryEntry,
+                                         RegistryEntry bodyRegistryEntry) {
+        if (endpointRegistryEntry.equals(bodyRegistryEntry)) {
+            return;
+        }
+        if (!bodyRegistryEntry.isParent(endpointRegistryEntry)) {
+            String message = String.format("Inconsistent type definition between path and body: body type: " +
+                "%s, request type: %s", methodType, resourceEndpointName);
+            throw new RequestBodyException(methodType, resourceEndpointName, message);
+        }
     }
 }

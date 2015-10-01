@@ -16,27 +16,25 @@ import java.util.Objects;
  * - ResourceInformation instance with information about the resource,
  * - ResourceRepository instance,
  * - List of all repositories for relationships defined in resource class.
+ * - Parent RegistryEntry if a resource inherits from another resource
  *
  * @param <T> resource type
  */
 public class RegistryEntry<T> {
-    private final ResourceInformation parentResourceInformation;
     private final ResourceInformation resourceInformation;
     private final ResourceRepository<T, ?> resourceRepository;
     private final List<RelationshipRepository<T, ?, ?, ?>> relationshipRepositories;
+    private RegistryEntry parentRegistryEntry = null;
 
     public RegistryEntry(ResourceInformation resourceInformation,
-                         @SuppressWarnings("SameParameterValue") ResourceInformation parentResourceInformation,
                          @SuppressWarnings("SameParameterValue") ResourceRepository<T, ?> resourceRepository) {
-        this(resourceInformation, parentResourceInformation, resourceRepository, new LinkedList<>());
+        this(resourceInformation, resourceRepository, new LinkedList<>());
     }
 
     public RegistryEntry(ResourceInformation resourceInformation,
-                         @SuppressWarnings("SameParameterValue") ResourceInformation parentResourceInformation,
                          ResourceRepository<T, ?> resourceRepository,
                          List<RelationshipRepository<T, ?, ?, ?>> relationshipRepositories) {
         this.resourceInformation = resourceInformation;
-        this.parentResourceInformation = parentResourceInformation;
         this.resourceRepository = resourceRepository;
         this.relationshipRepositories = relationshipRepositories;
     }
@@ -70,8 +68,32 @@ public class RegistryEntry<T> {
         return resourceInformation;
     }
 
-    public ResourceInformation getParentResourceInformation() {
-        return parentResourceInformation;
+    public RegistryEntry getParentRegistryEntry() {
+        return parentRegistryEntry;
+    }
+
+    /**
+     * To be used only by ResourceRegistryBuilder
+     * @param parentRegistryEntry parent resource
+     */
+    void setParentRegistryEntry(RegistryEntry parentRegistryEntry) {
+        this.parentRegistryEntry = parentRegistryEntry;
+    }
+
+    /**
+     * Check the parameter is a parent of <b>this</b> {@link RegistryEntry} instance
+     * @param registryEntry parent to check
+     * @return true if the parameter is a parent
+     */
+    public boolean isParent(RegistryEntry registryEntry) {
+        RegistryEntry parentRegistryEntry = getParentRegistryEntry();
+        while (parentRegistryEntry != null) {
+            if (parentRegistryEntry.equals(registryEntry)) {
+                return true;
+            }
+            parentRegistryEntry = parentRegistryEntry.getParentRegistryEntry();
+        }
+        return false;
     }
 
     @Override
@@ -79,14 +101,14 @@ public class RegistryEntry<T> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         RegistryEntry<?> that = (RegistryEntry<?>) o;
-        return Objects.equals(parentResourceInformation, that.parentResourceInformation) &&
-            Objects.equals(resourceInformation, that.resourceInformation) &&
+        return Objects.equals(resourceInformation, that.resourceInformation) &&
             Objects.equals(resourceRepository, that.resourceRepository) &&
-            Objects.equals(relationshipRepositories, that.relationshipRepositories);
+            Objects.equals(relationshipRepositories, that.relationshipRepositories) &&
+            Objects.equals(parentRegistryEntry, that.parentRegistryEntry);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(parentResourceInformation, resourceInformation, resourceRepository, relationshipRepositories);
+        return Objects.hash(resourceInformation, resourceRepository, relationshipRepositories, parentRegistryEntry);
     }
 }

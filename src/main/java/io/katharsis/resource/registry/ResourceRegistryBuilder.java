@@ -60,10 +60,11 @@ public class ResourceRegistryBuilder {
             .map(resourceInformationBuilder::build)
             .collect(Collectors.toSet());
 
-        ResourceRegistry resourceRegistry = new ResourceRegistry(serviceUrl);
+
+        Set<RegistryEntry> registryEntries = new HashSet<>(resourceInformationSet.size());
         for (ResourceInformation resourceInformation : resourceInformationSet) {
             Class<?> resourceClass = resourceInformation.getResourceClass();
-            ResourceInformation resourceInformationParent = findParent(resourceClass, resourceInformationSet);
+
 
             Class<? extends ResourceRepository> foundEntityRepositoryClass = findEntityRepository(resourceClass,
                 entityRepositoryClasses);
@@ -72,12 +73,20 @@ public class ResourceRegistryBuilder {
 
             RegistryEntry registryEntry;
             if (foundEntityRepositoryClass == null) {
-                registryEntry = createNotFoundEntry(resourceInformation, resourceInformationParent, foundRelationshipRepositoriesClasses);
+                registryEntry = createNotFoundEntry(resourceInformation, foundRelationshipRepositoriesClasses);
             } else {
-                registryEntry = createEntry(resourceInformation, resourceInformationParent, foundEntityRepositoryClass,
+                registryEntry = createEntry(resourceInformation, foundEntityRepositoryClass,
                     foundRelationshipRepositoriesClasses);
             }
+            registryEntries.add(registryEntry);
 
+        }
+
+        ResourceRegistry resourceRegistry = new ResourceRegistry(serviceUrl);
+        for (RegistryEntry registryEntry : registryEntries) {
+            Class<?> resourceClass = registryEntry.getResourceInformation().getResourceClass();
+            RegistryEntry registryEntryParent = findParent(resourceClass, registryEntries);
+            registryEntry.setParentRegistryEntry(registryEntryParent);
             resourceRegistry.addEntry(resourceClass, registryEntry);
         }
 
@@ -89,33 +98,32 @@ public class ResourceRegistryBuilder {
      * inheritance hierarchy. If no resource parent is found, <i>null</i> is returned.
      *
      * @param resourceClass    information about the searched resource
-     * @param resourceInformationSet a set of available resources
+     * @param registryEntries a set of available resources
      * @return resource's parent resource
      */
-    private ResourceInformation findParent(Class<?> resourceClass, Set<ResourceInformation> resourceInformationSet) {
-        ResourceInformation foundResourceInformation = null;
+    private RegistryEntry findParent(Class<?> resourceClass, Set<RegistryEntry> registryEntries) {
+        RegistryEntry foundRegistryEntry = null;
         Class<?> currentClass = resourceClass.getSuperclass();
         classHierarchy:
         while (currentClass != null && currentClass != Object.class) {
-            for (ResourceInformation availableResourceInformation : resourceInformationSet) {
-                if (availableResourceInformation.getResourceClass().equals(currentClass)) {
-                    foundResourceInformation = availableResourceInformation;
+            for (RegistryEntry availableRegistryEntry : registryEntries) {
+                if (availableRegistryEntry.getResourceInformation().getResourceClass().equals(currentClass)) {
+                    foundRegistryEntry = availableRegistryEntry;
                     break classHierarchy;
                 }
             }
             currentClass = currentClass.getSuperclass();
         }
-        return foundResourceInformation;
+        return foundRegistryEntry;
     }
 
     private RegistryEntry createNotFoundEntry(ResourceInformation resourceInformation,
-                                              ResourceInformation resourceInformationParent,
                                               Set<Class<? extends RelationshipRepository>> foundRelationshipRepositoriesClasses) {
         ResourceRepository resourceRepository = new NotFoundRepository(resourceInformation.getResourceClass());
         List<RelationshipRepository> relationshipRepositories = initializeRelationshipRepositories(
             foundRelationshipRepositoriesClasses, resourceInformation.getResourceClass());
         //noinspection unchecked
-        return new RegistryEntry(resourceInformation, resourceInformationParent, resourceRepository, relationshipRepositories);
+        return new RegistryEntry(resourceInformation, resourceRepository, relationshipRepositories);
     }
 
     private Class<? extends ResourceRepository> findEntityRepository(Class resourceClass,
@@ -143,7 +151,6 @@ public class ResourceRegistryBuilder {
     }
 
     private RegistryEntry createEntry(ResourceInformation resourceInformation,
-                                      ResourceInformation resourceInformationParent,
                                       Class<? extends ResourceRepository> foundEntityRepositoryClass,
                                       Set<Class<? extends RelationshipRepository>> foundRelationshipRepositoriesClasses) {
         ResourceRepository resourceRepository = context.getInstance(foundEntityRepositoryClass);
@@ -157,7 +164,7 @@ public class ResourceRegistryBuilder {
         List<RelationshipRepository> relationshipRepositories =
             initializeRelationshipRepositories(foundRelationshipRepositoriesClasses, resourceInformation.getResourceClass());
         //noinspection unchecked
-        return new RegistryEntry(resourceInformation, resourceInformationParent, resourceRepository, relationshipRepositories);
+        return new RegistryEntry(resourceInformation, resourceRepository, relationshipRepositories);
     }
 
     private List<RelationshipRepository> initializeRelationshipRepositories(

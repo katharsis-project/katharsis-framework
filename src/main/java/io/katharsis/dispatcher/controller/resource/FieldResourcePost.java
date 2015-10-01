@@ -49,22 +49,22 @@ public class FieldResourcePost extends ResourceUpsert {
     public ResourceResponse handle(JsonPath jsonPath, RequestParams requestParams, RequestBody requestBody)
         throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException,
         IOException {
-        String resourceName = jsonPath.getResourceName();
+        String resourceEndpointName = jsonPath.getResourceName();
         PathIds resourceIds = jsonPath.getIds();
-        RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
+        RegistryEntry endpointRegistryEntry = resourceRegistry.getEntry(resourceEndpointName);
 
-        if (registryEntry == null) {
-            throw new ResourceNotFoundException(resourceName);
+        if (endpointRegistryEntry == null) {
+            throw new ResourceNotFoundException(resourceEndpointName);
         }
         if (requestBody == null) {
-            throw new RequestBodyNotFoundException(HttpMethod.POST, resourceName);
+            throw new RequestBodyNotFoundException(HttpMethod.POST, resourceEndpointName);
         }
         if (requestBody.isMultiple()) {
-            throw new RequestBodyException(HttpMethod.POST, resourceName, "Multiple data in body");
+            throw new RequestBodyException(HttpMethod.POST, resourceEndpointName, "Multiple data in body");
         }
 
-        Serializable castedResourceId = getResourceId(resourceIds, registryEntry);
-        ResourceField relationshipField = registryEntry.getResourceInformation()
+        Serializable castedResourceId = getResourceId(resourceIds, endpointRegistryEntry);
+        ResourceField relationshipField = endpointRegistryEntry.getResourceInformation()
             .findRelationshipFieldByName(jsonPath.getElementName());
         if (relationshipField == null) {
             throw new ResourceFieldNotFoundException(jsonPath.getElementName());
@@ -90,9 +90,9 @@ public class FieldResourcePost extends ResourceUpsert {
         @SuppressWarnings("unchecked")
         Object savedResourceWithRelations = resourceRepository.findOne(resourceId, requestParams);
 
-        RelationshipRepository relationshipRepositoryForClass = registryEntry.getRelationshipRepositoryForClass(relationshipFieldClass);
+        RelationshipRepository relationshipRepositoryForClass = endpointRegistryEntry.getRelationshipRepositoryForClass(relationshipFieldClass);
         @SuppressWarnings("unchecked")
-        Object parent = registryEntry.getResourceRepository().findOne(castedResourceId, requestParams);
+        Object parent = endpointRegistryEntry.getResourceRepository().findOne(castedResourceId, requestParams);
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
             //noinspection unchecked
             relationshipRepositoryForClass.addRelations(parent, Collections.singletonList(resourceId), jsonPath.getElementName());
