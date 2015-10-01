@@ -46,28 +46,33 @@ public class ResourcePost extends ResourceUpsert {
     public ResourceResponse handle(JsonPath jsonPath, RequestParams requestParams, RequestBody requestBody)
         throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException,
         IOException {
-        String resourceName = jsonPath.getResourceName();
-        RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
-        if (registryEntry == null) {
-            throw new ResourceNotFoundException(resourceName);
+        String resourceEndpointName = jsonPath.getResourceName();
+        RegistryEntry endpointRegistryEntry = resourceRegistry.getEntry(resourceEndpointName);
+        if (endpointRegistryEntry == null) {
+            throw new ResourceNotFoundException(resourceEndpointName);
         }
         if (requestBody == null) {
-            throw new RequestBodyNotFoundException(HttpMethod.POST, resourceName);
+            throw new RequestBodyNotFoundException(HttpMethod.POST, resourceEndpointName);
         }
         if (requestBody.isMultiple()) {
-            throw new RequestBodyException(HttpMethod.POST, resourceName, "Multiple data in body");
+            throw new RequestBodyException(HttpMethod.POST, resourceEndpointName, "Multiple data in body");
         }
 
         DataBody dataBody = requestBody.getSingleData();
-        Object resource = buildNewResource(registryEntry, dataBody, resourceName);
+        if (dataBody == null) {
+            throw new RequestBodyException(HttpMethod.POST, resourceEndpointName, "No data field in the body.");
+        }
+        RegistryEntry bodyRegistryEntry = resourceRegistry.getEntry(dataBody.getType());
+        verifyTypes(HttpMethod.POST, resourceEndpointName, endpointRegistryEntry, bodyRegistryEntry);
+        Object resource = bodyRegistryEntry.getResourceInformation().getResourceClass().newInstance();
 
-        setAttributes(dataBody, resource, registryEntry.getResourceInformation());
-        ResourceRepository resourceRepository = registryEntry.getResourceRepository();
+        setAttributes(dataBody, resource, bodyRegistryEntry.getResourceInformation());
+        ResourceRepository resourceRepository = endpointRegistryEntry.getResourceRepository();
         Object savedResource = resourceRepository.save(resource);
-        saveRelations(savedResource, registryEntry, dataBody);
+        saveRelations(savedResource, bodyRegistryEntry, dataBody);
 
         Serializable resourceId = (Serializable) PropertyUtils
-            .getProperty(savedResource, registryEntry.getResourceInformation().getIdField().getName());
+            .getProperty(savedResource, bodyRegistryEntry.getResourceInformation().getIdField().getName());
 
         @SuppressWarnings("unchecked")
         Object savedResourceWithRelations = resourceRepository.findOne(resourceId, requestParams);
@@ -78,4 +83,6 @@ public class ResourcePost extends ResourceUpsert {
 
         return new ResourceResponse(savedResourceWithRelations, jsonPath, requestParams, metaInformation, linksInformation);
     }
+
+
 }

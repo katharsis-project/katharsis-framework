@@ -11,10 +11,7 @@ import io.katharsis.request.dto.ResourceRelationships;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.exception.ResourceNotFoundException;
-import io.katharsis.resource.mock.models.Project;
-import io.katharsis.resource.mock.models.ProjectData;
-import io.katharsis.resource.mock.models.Task;
-import io.katharsis.resource.mock.models.User;
+import io.katharsis.resource.mock.models.*;
 import io.katharsis.resource.mock.repository.TaskToProjectRepository;
 import io.katharsis.response.ResourceResponse;
 import org.junit.Assert;
@@ -203,5 +200,31 @@ public class ResourcePostTest extends BaseControllerTest {
 
         assertThat(((User) (taskResponse.getData())).getAssignedProjects()).hasSize(1);
         assertThat(((User) (taskResponse.getData())).getAssignedProjects().get(0).getId()).isEqualTo(projectId);
+    }
+
+    @Test
+    public void onNewInheritedResourceShouldPersistThisResource() throws Exception {
+        // GIVEN
+        RequestBody newMemorandumBody = new RequestBody();
+        DataBody data = new DataBody();
+        newMemorandumBody.setData(data);
+        data.setType("memoranda");
+        ObjectNode attributes = OBJECT_MAPPER.createObjectNode()
+            .put("title", "sample title")
+            .put("body", "sample body");
+        data.setAttributes(attributes);
+
+        JsonPath projectPath = pathBuilder.buildPath("/documents");
+        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
+
+        // WHEN
+        ResourceResponse memorandumResponse = sut.handle(projectPath, new RequestParams(new ObjectMapper()), newMemorandumBody);
+
+        // THEN
+        assertThat(memorandumResponse.getData()).isExactlyInstanceOf(Memorandum.class);
+        Memorandum persistedMemorandum = (Memorandum) (memorandumResponse.getData());
+        assertThat(persistedMemorandum.getId()).isNotNull();
+        assertThat(persistedMemorandum.getTitle()).isEqualTo("sample title");
+        assertThat(persistedMemorandum.getBody()).isEqualTo("sample body");
     }
 }
