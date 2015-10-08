@@ -1,12 +1,14 @@
 package io.katharsis.dispatcher.controller.resource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
 import io.katharsis.queryParams.RequestParams;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
+import io.katharsis.resource.mock.models.Memorandum;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.response.BaseResponse;
 import io.katharsis.response.ResourceResponse;
@@ -91,5 +93,53 @@ public class ResourcePatchTest extends BaseControllerTest {
         Assert.assertNotNull(response);
         assertThat(response.getData()).isExactlyInstanceOf(Task.class);
         assertThat(((Task) (response.getData())).getName()).isEqualTo("task updated");
+    }
+
+    @Test
+    public void onInheritedResourceShouldUpdateInheritedResource() throws Exception {
+        // GIVEN
+        RequestBody memorandumBody = new RequestBody();
+        DataBody data = new DataBody();
+        memorandumBody.setData(data);
+        data.setType("memoranda");
+        ObjectNode attributes = OBJECT_MAPPER.createObjectNode()
+            .put("title", "sample title")
+            .put("body", "sample body");
+        data.setAttributes(attributes);
+
+        JsonPath documentsPath = pathBuilder.buildPath("/documents");
+
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
+
+        // WHEN
+        ResourceResponse taskResponse = resourcePost.handle(documentsPath, new RequestParams(new ObjectMapper()), memorandumBody);
+
+        // THEN
+        assertThat(taskResponse.getData()).isExactlyInstanceOf(Memorandum.class);
+        Long memorandumId = ((Memorandum) (taskResponse.getData())).getId();
+        assertThat(memorandumId).isNotNull();
+
+        // --------------------------
+
+        // GIVEN
+        memorandumBody = new RequestBody();
+        data = new DataBody();
+        memorandumBody.setData(data);
+        data.setType("memoranda");
+        data.setAttributes(OBJECT_MAPPER.createObjectNode()
+            .put("title", "new title")
+            .put("body", "new body"));
+        JsonPath documentPath = pathBuilder.buildPath("/documents/" + memorandumId);
+        ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser, OBJECT_MAPPER);
+
+        // WHEN
+        BaseResponse memorandumResponse = sut.handle(documentPath, new RequestParams(new ObjectMapper()), memorandumBody);
+
+        // THEN
+        assertThat(memorandumResponse.getData()).isExactlyInstanceOf(Memorandum.class);
+        Memorandum persistedMemorandum = (Memorandum) (memorandumResponse.getData());
+        assertThat(persistedMemorandum.getId()).isNotNull();
+        assertThat(persistedMemorandum.getTitle()).isEqualTo("new title");
+        assertThat(persistedMemorandum.getBody()).isEqualTo("new body");
     }
 }

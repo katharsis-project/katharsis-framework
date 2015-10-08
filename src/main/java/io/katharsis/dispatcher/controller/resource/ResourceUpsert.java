@@ -3,6 +3,7 @@ package io.katharsis.dispatcher.controller.resource;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import io.katharsis.dispatcher.controller.BaseController;
+import io.katharsis.queryParams.RequestParams;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.LinkageData;
@@ -12,6 +13,7 @@ import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.utils.Generics;
 import io.katharsis.utils.PropertyUtils;
 import io.katharsis.utils.parser.TypeParser;
 
@@ -47,7 +49,7 @@ public abstract class ResourceUpsert implements BaseController {
         }
     }
 
-    void saveRelations(Object savedResource, RegistryEntry registryEntry, DataBody dataBody)
+    protected void saveRelations(Object savedResource, RegistryEntry registryEntry, DataBody dataBody)
             throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         if (dataBody.getRelationships() != null) {
             Map<String, Object> additionalProperties = dataBody.getRelationships().getAdditionalProperties();
@@ -144,5 +146,51 @@ public abstract class ResourceUpsert implements BaseController {
                     "%s, request type: %s", dataBody.getType(), resourceName));
         }
         return registryEntry.getResourceInformation().getResourceClass().newInstance();
+    }
+
+    protected void setRelations(Object newResource, RegistryEntry registryEntry, DataBody dataBody, RequestParams requestParams)
+        throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+        if (dataBody.getRelationships() != null) {
+            Map<String, Object> additionalProperties = dataBody.getRelationships().getAdditionalProperties();
+            for (Map.Entry<String, Object> property : additionalProperties.entrySet()) {
+                if (Iterable.class.isAssignableFrom(property.getValue().getClass())) {
+                    //noinspection unchecked
+                    setRelationsField(newResource, registryEntry, (Map.Entry) property, requestParams);
+                } else {
+                    //noinspection unchecked
+                    setRelationField(newResource, registryEntry, (Map.Entry) property, requestParams);
+                }
+
+            }
+        }
+    }
+
+    private void setRelationsField(Object newResource, RegistryEntry registryEntry,
+                                   Map.Entry<String, Iterable<LinkageData>> property, RequestParams requestParams) {
+        String propertyName = property.getKey();
+        ResourceField relationshipField = registryEntry.getResourceInformation().findRelationshipFieldByName(propertyName);
+        Class<?> relationshipFieldClass = Generics.getResourceClass(relationshipField.getGenericType(), relationshipField.getType());
+        RegistryEntry entry = resourceRegistry.getEntry(relationshipFieldClass);
+        Class idFieldType = entry.getResourceInformation().getIdField().getType();
+
+        List<Serializable> relationshipIds = new LinkedList<>();
+        for (LinkageData linkageData : property.getValue()) {
+            Serializable castedRelationshipId = typeParser.parse(linkageData.getId(), idFieldType);
+            relationshipIds.add(castedRelationshipId);
+        }
+        Iterable relationObjects = entry.getResourceRepository().findAll(relationshipIds, requestParams);
+        PropertyUtils.setProperty(newResource, propertyName, relationObjects);
+    }
+
+    private void setRelationField(Object newResource, RegistryEntry registryEntry,
+                                  Map.Entry<String, LinkageData> property, RequestParams requestParams) {
+        String propertyName = property.getKey();
+        ResourceField relationshipFieldByName = registryEntry.getResourceInformation().findRelationshipFieldByName(propertyName);
+        RegistryEntry entry = resourceRegistry.getEntry(relationshipFieldByName.getType());
+        Class idFieldType = entry.getResourceInformation().getIdField().getType();
+        Serializable castedRelationshipId = typeParser.parse(property.getValue().getId(), idFieldType);
+
+        Object relationObject = entry.getResourceRepository().findOne(castedRelationshipId, requestParams);
+        PropertyUtils.setProperty(newResource, propertyName, relationObject);
     }
 }
