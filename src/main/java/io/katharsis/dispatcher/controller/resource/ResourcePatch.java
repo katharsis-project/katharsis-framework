@@ -17,6 +17,7 @@ import io.katharsis.response.BaseResponse;
 import io.katharsis.response.LinksInformation;
 import io.katharsis.response.MetaInformation;
 import io.katharsis.response.ResourceResponse;
+import io.katharsis.utils.PropertyUtils;
 import io.katharsis.utils.parser.TypeParser;
 
 import java.io.Serializable;
@@ -37,43 +38,48 @@ public class ResourcePatch extends ResourceUpsert {
 
     @Override
     public BaseResponse<?> handle(JsonPath jsonPath, RequestParams requestParams, RequestBody requestBody) throws Exception {
-        String resourceName = jsonPath.getResourceName();
-        RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
-        if (registryEntry == null) {
-            throw new ResourceNotFoundException(resourceName);
+
+        String resourceEndpointName = jsonPath.getResourceName();
+        RegistryEntry endpointRegistryEntry = resourceRegistry.getEntry(resourceEndpointName);
+        if (endpointRegistryEntry == null) {
+            throw new ResourceNotFoundException(resourceEndpointName);
         }
         if (requestBody == null) {
-            throw new RequestBodyNotFoundException(HttpMethod.PATCH, resourceName);
+            throw new RequestBodyNotFoundException(HttpMethod.PATCH, resourceEndpointName);
         }
         if (requestBody.isMultiple()) {
-            throw new RequestBodyException(HttpMethod.POST, resourceName, "Multiple data in body");
+            throw new RequestBodyException(HttpMethod.PATCH, resourceEndpointName, "Multiple data in body");
         }
-
 
         String idString = jsonPath.getIds().getIds().get(0);
 
-        @SuppressWarnings("unchecked") Class<? extends Serializable> idClass = (Class<? extends Serializable>) registryEntry
-                .getResourceInformation()
-                .getIdField()
-                .getType();
-        Serializable resourceId = typeParser.parse(idString, idClass);
+        DataBody dataBody = requestBody.getSingleData();
+        if (dataBody == null) {
+            throw new RequestBodyException(HttpMethod.POST, resourceEndpointName, "No data field in the body.");
+        }
+        RegistryEntry bodyRegistryEntry = resourceRegistry.getEntry(dataBody.getType());
+        verifyTypes(HttpMethod.PATCH, resourceEndpointName, endpointRegistryEntry, bodyRegistryEntry);
 
-        ResourceRepository resourceRepository = registryEntry.getResourceRepository();
+        Class<?> type = bodyRegistryEntry
+            .getResourceInformation()
+            .getIdField()
+            .getType();
+        Serializable resourceId = typeParser.parse(idString, (Class<? extends Serializable>) type);
+
+        ResourceRepository resourceRepository = endpointRegistryEntry.getResourceRepository();
         @SuppressWarnings("unchecked")
         Object resource = resourceRepository.findOne(resourceId, requestParams);
-        DataBody dataBody = requestBody.getSingleData();
 
-        setAttributes(dataBody, resource, registryEntry.getResourceInformation());
+
+        setAttributes(dataBody, resource, bodyRegistryEntry.getResourceInformation());
+        setRelations(resource, bodyRegistryEntry, dataBody, requestParams);
         Object savedResource = resourceRepository.save(resource);
-        saveRelations(savedResource, registryEntry, dataBody);
 
-        @SuppressWarnings("unchecked")
-        Object savedResourceWithRelations = resourceRepository.findOne(resourceId, requestParams);
         MetaInformation metaInformation =
-            getMetaInformation(resourceRepository, Collections.singletonList(savedResourceWithRelations), requestParams);
+            getMetaInformation(resourceRepository, Collections.singletonList(savedResource), requestParams);
         LinksInformation linksInformation =
-            getLinksInformation(resourceRepository, Collections.singletonList(savedResourceWithRelations), requestParams);
+            getLinksInformation(resourceRepository, Collections.singletonList(savedResource), requestParams);
 
-        return new ResourceResponse(savedResourceWithRelations, jsonPath, requestParams, metaInformation, linksInformation);
+        return new ResourceResponse(savedResource, jsonPath, requestParams, metaInformation, linksInformation);
     }
 }
