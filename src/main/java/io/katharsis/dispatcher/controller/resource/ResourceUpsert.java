@@ -50,7 +50,7 @@ public abstract class ResourceUpsert implements BaseController {
     }
 
     protected void saveRelations(Object savedResource, RegistryEntry registryEntry, DataBody dataBody)
-            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+        throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         if (dataBody.getRelationships() != null) {
             Map<String, Object> additionalProperties = dataBody.getRelationships().getAdditionalProperties();
             for (Map.Entry<String, Object> property : additionalProperties.entrySet()) {
@@ -69,7 +69,7 @@ public abstract class ResourceUpsert implements BaseController {
     private void saveRelationsField(Object savedResource, RegistryEntry registryEntry,
                                     Map.Entry<String, Iterable<LinkageData>> property,
                                     ResourceInformation resourceInformation)
-            throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+        throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         if (!allTypesTheSame(property.getValue())) {
             throw new ResourceException("Not all types are the same for linkage: " + property.getKey());
         }
@@ -78,9 +78,9 @@ public abstract class ResourceUpsert implements BaseController {
         RegistryEntry relationRegistryEntry = getRelationRegistryEntry(type);
         @SuppressWarnings("unchecked")
         Class<? extends Serializable> relationshipIdClass = (Class<? extends Serializable>) relationRegistryEntry
-                .getResourceInformation()
-                .getIdField()
-                .getType();
+            .getResourceInformation()
+            .getIdField()
+            .getType();
         List<Serializable> castedRelationIds = new LinkedList<>();
 
         for (LinkageData linkageData : property.getValue()) {
@@ -111,14 +111,14 @@ public abstract class ResourceUpsert implements BaseController {
 
     private void saveRelationField(Object savedResource, RegistryEntry registryEntry,
                                    Map.Entry<String, LinkageData> property, ResourceInformation resourceInformation)
-            throws NoSuchMethodException, IllegalAccessException, InstantiationException, InvocationTargetException {
+        throws NoSuchMethodException, IllegalAccessException, InstantiationException, InvocationTargetException {
         RegistryEntry relationRegistryEntry = getRelationRegistryEntry(property.getValue().getType());
 
         @SuppressWarnings("unchecked")
         Class<? extends Serializable> relationshipIdClass = (Class<? extends Serializable>) relationRegistryEntry
-                .getResourceInformation()
-                .getIdField()
-                .getType();
+            .getResourceInformation()
+            .getIdField()
+            .getType();
         Serializable castedRelationshipId = typeParser.parse(property.getValue().getId(), relationshipIdClass);
 
         Class<?> relationshipClass = relationRegistryEntry.getResourceInformation().getResourceClass();
@@ -137,13 +137,13 @@ public abstract class ResourceUpsert implements BaseController {
     }
 
     Object buildNewResource(RegistryEntry registryEntry, DataBody dataBody, String resourceName)
-            throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException {
+        throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException {
         if (dataBody == null) {
             throw new RuntimeException("No data field in the body.");
         }
         if (!resourceName.equals(dataBody.getType())) {
             throw new RuntimeException(String.format("Inconsistent type definition between path and body: body type: " +
-                    "%s, request type: %s", dataBody.getType(), resourceName));
+                "%s, request type: %s", dataBody.getType(), resourceName));
         }
         return registryEntry.getResourceInformation().getResourceClass().newInstance();
     }
@@ -153,7 +153,7 @@ public abstract class ResourceUpsert implements BaseController {
         if (dataBody.getRelationships() != null) {
             Map<String, Object> additionalProperties = dataBody.getRelationships().getAdditionalProperties();
             for (Map.Entry<String, Object> property : additionalProperties.entrySet()) {
-                if (Iterable.class.isAssignableFrom(property.getValue().getClass())) {
+                if (property.getValue() != null && Iterable.class.isAssignableFrom(property.getValue().getClass())) {
                     //noinspection unchecked
                     setRelationsField(newResource, registryEntry, (Map.Entry) property, requestParams);
                 } else {
@@ -185,12 +185,19 @@ public abstract class ResourceUpsert implements BaseController {
     private void setRelationField(Object newResource, RegistryEntry registryEntry,
                                   Map.Entry<String, LinkageData> property, RequestParams requestParams) {
         String propertyName = property.getKey();
-        ResourceField relationshipFieldByName = registryEntry.getResourceInformation().findRelationshipFieldByName(propertyName);
-        RegistryEntry entry = resourceRegistry.getEntry(relationshipFieldByName.getType());
-        Class idFieldType = entry.getResourceInformation().getIdField().getType();
-        Serializable castedRelationshipId = typeParser.parse(property.getValue().getId(), idFieldType);
 
-        Object relationObject = entry.getResourceRepository().findOne(castedRelationshipId, requestParams);
+        Object relationObject;
+        if (property.getValue() != null) {
+            ResourceField relationshipFieldByName = registryEntry.getResourceInformation().findRelationshipFieldByName(propertyName);
+            RegistryEntry entry = resourceRegistry.getEntry(relationshipFieldByName.getType());
+            Class idFieldType = entry.getResourceInformation().getIdField().getType();
+            Serializable castedRelationshipId = typeParser.parse(property.getValue().getId(), idFieldType);
+            relationObject = entry.getResourceRepository().findOne(castedRelationshipId, requestParams);
+        } else {
+            relationObject = null;
+        }
+
+
         PropertyUtils.setProperty(newResource, propertyName, relationObject);
     }
 }

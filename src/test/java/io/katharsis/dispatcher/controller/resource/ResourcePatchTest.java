@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
 import io.katharsis.queryParams.RequestParams;
 import io.katharsis.request.dto.DataBody;
+import io.katharsis.request.dto.LinkageData;
 import io.katharsis.request.dto.RequestBody;
+import io.katharsis.request.dto.ResourceRelationships;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.mock.models.Memorandum;
@@ -14,6 +16,8 @@ import io.katharsis.response.BaseResponse;
 import io.katharsis.response.ResourceResponse;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -141,5 +145,44 @@ public class ResourcePatchTest extends BaseControllerTest {
         assertThat(persistedMemorandum.getId()).isNotNull();
         assertThat(persistedMemorandum.getTitle()).isEqualTo("new title");
         assertThat(persistedMemorandum.getBody()).isEqualTo("new body");
+    }
+
+    @Test
+    public void onResourceRelationshipNullifiedShouldSaveIt() throws Exception {
+        // GIVEN
+        RequestBody newTaskBody = new RequestBody();
+        DataBody data = new DataBody();
+        newTaskBody.setData(data);
+        data.setType("tasks");
+        data.setAttributes(OBJECT_MAPPER.createObjectNode().put("name", "sample task"));
+
+        JsonPath taskPath = pathBuilder.buildPath("/tasks");
+
+        // WHEN
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
+        ResourceResponse taskResponse = resourcePost.handle(taskPath, new RequestParams(new ObjectMapper()), newTaskBody);
+        assertThat(taskResponse.getData()).isExactlyInstanceOf(Task.class);
+        Long taskId = ((Task) (taskResponse.getData())).getId();
+        assertThat(taskId).isNotNull();
+
+        // GIVEN
+        RequestBody taskPatch = new RequestBody();
+        data = new DataBody();
+        taskPatch.setData(data);
+        data.setType("tasks");
+        data.setAttributes(OBJECT_MAPPER.createObjectNode().put("name", "task updated"));
+        data.setRelationships(new ResourceRelationships());
+        data.getRelationships().setAdditionalProperty("project", null);
+        JsonPath jsonPath = pathBuilder.buildPath("/tasks/" + taskId);
+        ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser, OBJECT_MAPPER);
+
+        // WHEN
+        BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()), taskPatch);
+
+        // THEN
+        Assert.assertNotNull(response);
+        assertThat(response.getData()).isExactlyInstanceOf(Task.class);
+        assertThat(((Task) (response.getData())).getName()).isEqualTo("task updated");
+        assertThat(((Task) (response.getData())).getProject()).isNull();
     }
 }
