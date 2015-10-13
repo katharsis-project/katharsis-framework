@@ -4,6 +4,7 @@ import io.katharsis.dispatcher.registry.ControllerRegistry;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
 import io.katharsis.queryParams.RequestParams;
+import io.katharsis.repository.ResourceMethodParameterProvider;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.response.BaseResponse;
@@ -34,12 +35,13 @@ public class RequestDispatcher {
      * @throws Exception exception thrown while processing the request
      */
     public BaseResponse<?> dispatchRequest(JsonPath jsonPath, String requestType, RequestParams requestParams,
+                                           ResourceMethodParameterProvider parameterProvider,
                                            @SuppressWarnings("SameParameterValue") RequestBody requestBody) throws Exception {
 
         try {
         return controllerRegistry
                 .getController(jsonPath, requestType)
-                .handle(jsonPath, requestParams, requestBody);
+                .handle(jsonPath, requestParams, parameterProvider, requestBody);
         } catch (Exception e) {
             Optional<JsonApiExceptionMapper> exceptionMapper = exceptionMapperRegistry.findMapperFor(e.getClass());
             if (exceptionMapper.isPresent()) {

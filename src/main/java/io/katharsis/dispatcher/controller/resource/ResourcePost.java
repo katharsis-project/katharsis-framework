@@ -3,6 +3,7 @@ package io.katharsis.dispatcher.controller.resource;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.RequestParams;
+import io.katharsis.repository.ResourceMethodParameterProvider;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.LinkageData;
@@ -49,7 +50,8 @@ public class ResourcePost extends ResourceUpsert {
     }
 
     @Override
-    public ResourceResponse handle(JsonPath jsonPath, RequestParams requestParams, RequestBody requestBody)
+    public ResourceResponse handle(JsonPath jsonPath, RequestParams requestParams,
+                                   ResourceMethodParameterProvider parameterProvider, RequestBody requestBody)
         throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException,
         IOException {
         String resourceEndpointName = jsonPath.getResourceName();
@@ -73,8 +75,8 @@ public class ResourcePost extends ResourceUpsert {
         Object newResource = bodyRegistryEntry.getResourceInformation().getResourceClass().newInstance();
 
         setAttributes(dataBody, newResource, bodyRegistryEntry.getResourceInformation());
-        ResourceRepository resourceRepository = endpointRegistryEntry.getResourceRepository();
-        setRelations(newResource, bodyRegistryEntry, dataBody, requestParams);
+        ResourceRepository resourceRepository = endpointRegistryEntry.getResourceRepository(parameterProvider);
+        setRelations(newResource, bodyRegistryEntry, dataBody, requestParams, parameterProvider);
         Object savedResource = resourceRepository.save(newResource);
 
         Serializable resourceId = (Serializable) PropertyUtils

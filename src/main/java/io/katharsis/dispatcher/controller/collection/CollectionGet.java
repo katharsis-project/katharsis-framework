@@ -3,6 +3,7 @@ package io.katharsis.dispatcher.controller.collection;
 import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.RequestParams;
+import io.katharsis.repository.ResourceMethodParameterProvider;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
@@ -42,23 +43,16 @@ public class CollectionGet implements BaseController {
 
     @Override
     @SuppressWarnings("unchecked")
-    public BaseResponse<?> handle(JsonPath jsonPath, RequestParams requestParams, RequestBody requestBody) {
+    public BaseResponse<?> handle(JsonPath jsonPath, RequestParams requestParams,
+                                  ResourceMethodParameterProvider parameterProvider, RequestBody requestBody) {
         String resourceName = jsonPath.getElementName();
         RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
         if (registryEntry == null) {
             throw new ResourceNotFoundException(resourceName);
         }
         Iterable<?> resources;
-        ResourceRepository resourceRepository = registryEntry.getResourceRepository();
-        if (jsonPath.getIds() == null || jsonPath.getIds().getIds().isEmpty()) {
-            resources = resourceRepository.findAll(requestParams);
-        } else {
-            Class<? extends Serializable> idType = (Class<? extends Serializable>)registryEntry
-                    .getResourceInformation().getIdField().getType();
-            Iterable<? extends Serializable> parsedIds = typeParser.parse((Iterable<String>) jsonPath.getIds().getIds(),
-                    idType);
-            resources = resourceRepository.findAll(parsedIds, requestParams);
-        }
+        ResourceRepository resourceRepository = registryEntry.getResourceRepository(parameterProvider);
+        resources = resourceRepository.findAll(requestParams);
         List containers = new LinkedList();
         if (resources != null) {
             for (Object element : resources) {

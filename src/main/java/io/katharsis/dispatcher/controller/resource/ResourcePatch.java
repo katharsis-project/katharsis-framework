@@ -3,6 +3,7 @@ package io.katharsis.dispatcher.controller.resource;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.RequestParams;
+import io.katharsis.repository.ResourceMethodParameterProvider;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.RequestBody;
@@ -17,7 +18,6 @@ import io.katharsis.response.BaseResponse;
 import io.katharsis.response.LinksInformation;
 import io.katharsis.response.MetaInformation;
 import io.katharsis.response.ResourceResponse;
-import io.katharsis.utils.PropertyUtils;
 import io.katharsis.utils.parser.TypeParser;
 
 import java.io.Serializable;
@@ -37,7 +37,8 @@ public class ResourcePatch extends ResourceUpsert {
     }
 
     @Override
-    public BaseResponse<?> handle(JsonPath jsonPath, RequestParams requestParams, RequestBody requestBody) throws Exception {
+    public BaseResponse<?> handle(JsonPath jsonPath, RequestParams requestParams,
+                                  ResourceMethodParameterProvider parameterProvider, RequestBody requestBody) throws Exception {
 
         String resourceEndpointName = jsonPath.getResourceName();
         RegistryEntry endpointRegistryEntry = resourceRegistry.getEntry(resourceEndpointName);
@@ -66,13 +67,13 @@ public class ResourcePatch extends ResourceUpsert {
             .getType();
         Serializable resourceId = typeParser.parse(idString, (Class<? extends Serializable>) type);
 
-        ResourceRepository resourceRepository = endpointRegistryEntry.getResourceRepository();
+        ResourceRepository resourceRepository = endpointRegistryEntry.getResourceRepository(parameterProvider);
         @SuppressWarnings("unchecked")
         Object resource = resourceRepository.findOne(resourceId, requestParams);
 
 
         setAttributes(dataBody, resource, bodyRegistryEntry.getResourceInformation());
-        setRelations(resource, bodyRegistryEntry, dataBody, requestParams);
+        setRelations(resource, bodyRegistryEntry, dataBody, requestParams, parameterProvider);
         Object savedResource = resourceRepository.save(resource);
 
         MetaInformation metaInformation =

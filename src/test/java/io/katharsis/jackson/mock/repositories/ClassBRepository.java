@@ -1,6 +1,5 @@
 package io.katharsis.jackson.mock.repositories;
 
-import io.katharsis.jackson.mock.models.ClassA;
 import io.katharsis.jackson.mock.models.ClassB;
 import io.katharsis.queryParams.RequestParams;
 import io.katharsis.repository.ResourceRepository;
@@ -13,11 +12,6 @@ public class ClassBRepository implements ResourceRepository<ClassB, Long> {
 
     @Override
     public Iterable<ClassB> findAll(RequestParams requestParams) {
-        return null;
-    }
-
-    @Override
-    public Iterable<ClassB> findAll(Iterable<Long> longs, RequestParams requestParams) {
         return null;
     }
 

@@ -7,6 +7,7 @@ import io.katharsis.resource.mock.models.Task;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -39,21 +40,15 @@ public class TaskRepository implements ResourceRepository<Task, Long> {
 
     @Override
     public Iterable<Task> findAll(RequestParams requestParams) {
-        return THREAD_LOCAL_REPOSITORY.get().values();
-    }
-
-
-    @Override
-    public Iterable<Task> findAll(Iterable<Long> ids, RequestParams requestParams) {
         return THREAD_LOCAL_REPOSITORY.get().values()
             .stream()
-            .filter(value -> contains(value, ids))
+            .filter(value -> contains(value, requestParams.getIds()))
             .collect(Collectors.toList());
     }
 
-    private boolean contains(Task value, Iterable<Long> ids) {
-        for (Long id : ids) {
-            if (value.getId().equals(id)) {
+    private boolean contains(Task value, List<String> ids) {
+        for (String id : ids) {
+            if (value.getId().equals(Long.valueOf(id))) {
                 return true;
             }
         }

@@ -3,6 +3,7 @@ package io.katharsis.dispatcher.controller;
 import io.katharsis.queryParams.RequestParams;
 import io.katharsis.repository.LinksRepository;
 import io.katharsis.repository.MetaRepository;
+import io.katharsis.repository.ResourceMethodParameterProvider;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.resource.exception.RequestBodyException;
@@ -37,7 +38,7 @@ public interface BaseController {
      * @return CollectionResponse object
      * @throws Exception internal Katharsis exception
      */
-    BaseResponse<?> handle(JsonPath jsonPath, RequestParams requestParams, RequestBody requestBody) throws Exception;
+    BaseResponse<?> handle(JsonPath jsonPath, RequestParams requestParams, ResourceMethodParameterProvider parameterProvider, RequestBody requestBody) throws Exception;
 
     default MetaInformation getMetaInformation(Object repository, Iterable<?> resources, RequestParams requestParams) {
         if (repository instanceof MetaRepository) {

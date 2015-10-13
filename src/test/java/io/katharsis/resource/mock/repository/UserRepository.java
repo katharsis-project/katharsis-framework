@@ -44,21 +44,15 @@ public class UserRepository implements ResourceRepository<User, Long> {
 
     @Override
     public Iterable<User> findAll(RequestParams requestParams) {
-        return THREAD_LOCAL_REPOSITORY.get().values();
-    }
-
-
-    @Override
-    public Iterable<User> findAll(Iterable<Long> ids, RequestParams requestParams) {
         return THREAD_LOCAL_REPOSITORY.get().values()
             .stream()
-            .filter(value -> contains(value, ids))
+            .filter(value -> contains(value, requestParams.getIds()))
             .collect(Collectors.toList());
     }
 
-    private boolean contains(User value, Iterable<Long> ids) {
-        for (Long id : ids) {
-            if (value.getId().equals(id)) {
+    private boolean contains(User value, List<String> ids) {
+        for (String id : ids) {
+            if (value.getId().equals(Long.valueOf(id))) {
                 return true;
             }
         }

@@ -3,6 +3,7 @@ package io.katharsis.dispatcher.controller.resource;
 import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.RequestParams;
+import io.katharsis.repository.ResourceMethodParameterProvider;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
@@ -49,7 +50,8 @@ public class ResourceGet implements BaseController {
      * Passes the request to controller method.
      */
     @Override
-    public BaseResponse<?> handle(JsonPath jsonPath, RequestParams requestParams, RequestBody requestBody)
+    public BaseResponse<?> handle(JsonPath jsonPath, RequestParams requestParams,
+                                  ResourceMethodParameterProvider parameterProvider, RequestBody requestBody)
             throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         String resourceName = jsonPath.getElementName();
         PathIds resourceIds = jsonPath.getIds();
@@ -64,7 +66,7 @@ public class ResourceGet implements BaseController {
                 .getIdField()
                 .getType();
         Serializable castedId = typeParser.parse(id, idClass);
-        ResourceRepository resourceRepository = registryEntry.getResourceRepository();
+        ResourceRepository resourceRepository = registryEntry.getResourceRepository(parameterProvider);
         @SuppressWarnings("unchecked")
         Object entity = resourceRepository.findOne(castedId, requestParams);
         MetaInformation metaInformation =

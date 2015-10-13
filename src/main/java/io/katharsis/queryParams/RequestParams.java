@@ -7,6 +7,7 @@ import io.katharsis.queryParams.include.Inclusion;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
  * Contains a set of parameters passed along with the request.
  */
 public class RequestParams {
+    private List<String> ids = new LinkedList<>();
     private JsonNode filters;
     private Map<String, SortingValues> sorting;
     private List<String> grouping;
@@ -40,6 +42,19 @@ public class RequestParams {
 
     public RequestParams(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
+    }
+
+    /**
+     * Sets up a list of passed resource identifiers from the path.
+     * @return ids
+     */
+    public List<String> getIds() {
+        return ids;
+    }
+
+    RequestParams setIds(List<String> ids) {
+        this.ids = ids;
+        return this;
     }
 
     /**
