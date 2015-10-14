@@ -21,7 +21,7 @@
     <parent>
         <groupId>io.katharsis</groupId>
     	<artifactId>katharsis-examples</artifactId>
-        <version>1.0.0</version>
+        <version>1.0.1</version>
     </parent>
 
     <artifactId>wildfly-example</artifactId>
