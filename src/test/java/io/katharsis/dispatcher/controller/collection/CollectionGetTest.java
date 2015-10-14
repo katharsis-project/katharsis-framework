@@ -8,6 +8,8 @@ import io.katharsis.response.BaseResponse;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.lang.reflect.InvocationTargetException;
+
 public class CollectionGetTest extends BaseControllerTest {
 
     private static final String REQUEST_TYPE = "GET";
@@ -16,7 +18,7 @@ public class CollectionGetTest extends BaseControllerTest {
     public void onGivenRequestCollectionGetShouldAcceptIt() {
         // GIVEN
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/");
-        CollectionGet sut = new CollectionGet(resourceRegistry, typeParser);
+        CollectionGet sut = new CollectionGet(resourceRegistry, typeParser, includeFieldSetter);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -29,7 +31,7 @@ public class CollectionGetTest extends BaseControllerTest {
     public void onGivenRequestCollectionGetShouldDenyIt() {
         // GIVEN
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/2");
-        CollectionGet sut = new CollectionGet(resourceRegistry, typeParser);
+        CollectionGet sut = new CollectionGet(resourceRegistry, typeParser, includeFieldSetter);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -39,11 +41,12 @@ public class CollectionGetTest extends BaseControllerTest {
     }
 
     @Test
-    public void onGivenRequestCollectionGetShouldHandleIt() {
+    public void onGivenRequestCollectionGetShouldHandleIt()
+            throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, NoSuchFieldException {
         // GIVEN
 
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/");
-        CollectionGet sut = new CollectionGet(resourceRegistry, typeParser);
+        CollectionGet sut = new CollectionGet(resourceRegistry, typeParser, includeFieldSetter);
 
         // WHEN
         BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()), null, null);
@@ -53,11 +56,12 @@ public class CollectionGetTest extends BaseControllerTest {
     }
 
     @Test
-    public void onGivenRequestCollectionWithIdsGetShouldHandleIt() {
+    public void onGivenRequestCollectionWithIdsGetShouldHandleIt()
+            throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, NoSuchFieldException {
         // GIVEN
 
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/1,2");
-        CollectionGet sut = new CollectionGet(resourceRegistry, typeParser);
+        CollectionGet sut = new CollectionGet(resourceRegistry, typeParser, includeFieldSetter);
 
         // WHEN
         BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()), null, null);

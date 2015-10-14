@@ -10,6 +10,7 @@ import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathIds;
 import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.exception.ResourceNotFoundException;
+import io.katharsis.resource.include.IncludeFieldSetter;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
@@ -20,16 +21,13 @@ import io.katharsis.utils.parser.TypeParser;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Type;
 import java.util.Collections;
 
-public class ResourceGet implements BaseController {
+public class ResourceGet extends ResourceIncludeField {
 
-    private final ResourceRegistry resourceRegistry;
-    private final TypeParser typeParser;
-
-    public ResourceGet(ResourceRegistry resourceRegistry, TypeParser typeParser) {
-        this.resourceRegistry = resourceRegistry;
-        this.typeParser = typeParser;
+    public ResourceGet(ResourceRegistry resourceRegistry, TypeParser typeParser, IncludeFieldSetter fieldSetter) {
+        super(resourceRegistry, typeParser, fieldSetter);
     }
 
     /**
@@ -51,8 +49,7 @@ public class ResourceGet implements BaseController {
      */
     @Override
     public BaseResponse<?> handle(JsonPath jsonPath, RequestParams requestParams,
-                                  RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody)
-            throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+            throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException, NoSuchFieldException {
         String resourceName = jsonPath.getElementName();
         PathIds resourceIds = jsonPath.getIds();
         RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
@@ -73,6 +70,7 @@ public class ResourceGet implements BaseController {
             getMetaInformation(resourceRepository, Collections.singletonList(entity), requestParams);
         LinksInformation linksInformation =
             getLinksInformation(resourceRepository, Collections.singletonList(entity), requestParams);
+        includeFieldSetter.setIncludedElements(entity, requestParams);
 
         return new ResourceResponse(entity, jsonPath, requestParams, metaInformation, linksInformation);
     }

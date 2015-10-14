@@ -23,7 +23,7 @@ public class ResourceGetTest extends BaseControllerTest {
     public void onGivenRequestCollectionGetShouldDenyIt() {
         // GIVEN
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/");
-        ResourceGet sut = new ResourceGet(resourceRegistry, typeParser);
+        ResourceGet sut = new ResourceGet(resourceRegistry, typeParser, includeFieldSetter);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -36,7 +36,7 @@ public class ResourceGetTest extends BaseControllerTest {
     public void onGivenRequestResourceGetShouldAcceptIt() {
         // GIVEN
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/2");
-        ResourceGet sut = new ResourceGet(resourceRegistry, typeParser);
+        ResourceGet sut = new ResourceGet(resourceRegistry, typeParser, includeFieldSetter);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -66,7 +66,7 @@ public class ResourceGetTest extends BaseControllerTest {
 
         // GIVEN
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/" + taskId);
-        ResourceGet sut = new ResourceGet(resourceRegistry, typeParser);
+        ResourceGet sut = new ResourceGet(resourceRegistry, typeParser, includeFieldSetter);
 
         // WHEN
         BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()), null, null);

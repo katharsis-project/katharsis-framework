@@ -5,10 +5,12 @@ import io.katharsis.dispatcher.controller.BaseControllerTest;
 import io.katharsis.queryParams.RequestParams;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
+import io.katharsis.resource.include.IncludeFieldSetter;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.internal.util.reflection.FieldSetter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -21,7 +23,8 @@ public class FieldResourceGetTest extends BaseControllerTest {
         // GIVEN
         JsonPath jsonPath = pathBuilder.buildPath("tasks/1/project");
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-        FieldResourceGet sut = new FieldResourceGet(resourceRegistry, typeParser);
+        IncludeFieldSetter includeFieldSetter = mock(IncludeFieldSetter.class);
+        FieldResourceGet sut = new FieldResourceGet(resourceRegistry, typeParser, includeFieldSetter);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -35,7 +38,8 @@ public class FieldResourceGetTest extends BaseControllerTest {
         // GIVEN
         JsonPath jsonPath = new ResourcePath("tasks");
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-        FieldResourceGet sut = new FieldResourceGet(resourceRegistry, typeParser);
+        IncludeFieldSetter includeFieldSetter = mock(IncludeFieldSetter.class);
+        FieldResourceGet sut = new FieldResourceGet(resourceRegistry, typeParser, includeFieldSetter);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -49,7 +53,7 @@ public class FieldResourceGetTest extends BaseControllerTest {
         // GIVEN
 
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/1/project");
-        FieldResourceGet sut = new FieldResourceGet(resourceRegistry, typeParser);
+        FieldResourceGet sut = new FieldResourceGet(resourceRegistry, typeParser, includeFieldSetter);
 
         // WHEN
         BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()), null, null);
@@ -63,7 +67,7 @@ public class FieldResourceGetTest extends BaseControllerTest {
         // GIVEN
 
         JsonPath jsonPath = pathBuilder.buildPath("/users/1/assignedProjects");
-        FieldResourceGet sut = new FieldResourceGet(resourceRegistry, typeParser);
+        FieldResourceGet sut = new FieldResourceGet(resourceRegistry, typeParser, includeFieldSetter);
 
         // WHEN
         BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()), null, null);

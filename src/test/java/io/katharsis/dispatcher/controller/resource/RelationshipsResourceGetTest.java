@@ -22,7 +22,7 @@ public class RelationshipsResourceGetTest extends BaseControllerTest {
         // GIVEN
         JsonPath jsonPath = pathBuilder.buildPath("tasks/1/relationships/project");
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-        RelationshipsResourceGet sut = new RelationshipsResourceGet(resourceRegistry, typeParser);
+        RelationshipsResourceGet sut = new RelationshipsResourceGet(resourceRegistry, typeParser, includeFieldSetter);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -36,7 +36,7 @@ public class RelationshipsResourceGetTest extends BaseControllerTest {
         // GIVEN
         JsonPath jsonPath = new ResourcePath("tasks");
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-        RelationshipsResourceGet sut = new RelationshipsResourceGet(resourceRegistry, typeParser);
+        RelationshipsResourceGet sut = new RelationshipsResourceGet(resourceRegistry, typeParser, includeFieldSetter);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -50,7 +50,7 @@ public class RelationshipsResourceGetTest extends BaseControllerTest {
         // GIVEN
 
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/1/relationships/project");
-        RelationshipsResourceGet sut = new RelationshipsResourceGet(resourceRegistry, typeParser);
+        RelationshipsResourceGet sut = new RelationshipsResourceGet(resourceRegistry, typeParser, includeFieldSetter);
 
         // WHEN
         BaseResponse<?> response = sut.handle(jsonPath, null, null, null);
@@ -64,7 +64,7 @@ public class RelationshipsResourceGetTest extends BaseControllerTest {
         // GIVEN
 
         JsonPath jsonPath = pathBuilder.buildPath("/users/1/relationships/assignedProjects");
-        RelationshipsResourceGet sut = new RelationshipsResourceGet(resourceRegistry, typeParser);
+        RelationshipsResourceGet sut = new RelationshipsResourceGet(resourceRegistry, typeParser, includeFieldSetter);
 
         // WHEN
         BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()), null, null);
