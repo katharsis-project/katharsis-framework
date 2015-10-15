@@ -9,7 +9,7 @@
     </parent>
 
     <artifactId>katharsis-rs</artifactId>
-    <version>2.0.0-SNAPSHOT</version>
+    <version>1.0.2</version>
     <packaging>jar</packaging>
 
     <name>katharsis-rs</name>
@@ -22,6 +22,8 @@
         <javax.ws.rs-api.version>2.0.1</javax.ws.rs-api.version>
         <jersey.version>2.17</jersey.version>
         <json-unit-fluent.version>1.5.3</json-unit-fluent.version>
+
+        <katharsis-core.version>1.0.1</katharsis-core.version>
     </properties>
 
     <build>
@@ -41,7 +43,7 @@
         <dependency>
             <groupId>io.katharsis</groupId>
             <artifactId>katharsis-core</artifactId>
-            <version>${project.version}</version>
+            <version>${katharsis-core.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>

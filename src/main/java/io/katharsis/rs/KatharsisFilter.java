@@ -75,7 +75,11 @@ public class KatharsisFilter implements ContainerRequestFilter {
         try {
             dispatchRequest(requestContext);
         } catch (Exception e) {
-            throw new WebApplicationException(e);
+            if (e instanceof WebApplicationException) {
+                throw (WebApplicationException) e;
+            } else {
+                throw new WebApplicationException(e);
+            }
         }
     }
 
@@ -100,7 +104,7 @@ public class KatharsisFilter implements ContainerRequestFilter {
         } catch (KatharsisMatchingException e) {
             passToMethodMatcher = true;
         } finally {
-            if ( !passToMethodMatcher) {
+            if (!passToMethodMatcher) {
                 abortWithResponse(requestContext, katharsisResponse);
             }
         }
