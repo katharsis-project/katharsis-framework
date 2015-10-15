@@ -36,7 +36,7 @@ Add dependency to your `pom.xml`:
 <dependency>
 	<groupId>io.katharsis</groupId>
 	<artifactId>katharsis-core</artifactId>
-	<version>0.9.3</version>
+	<version>1.0.0</version>
 </dependency>
 
 ```
