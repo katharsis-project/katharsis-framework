@@ -8,6 +8,7 @@ import io.katharsis.repository.exception.RepositoryInstanceNotFoundException;
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.information.ResourceInformationBuilder;
+import io.katharsis.resource.registry.repository.DirectResourceRepositoryEntry;
 import net.jodah.typetools.TypeResolver;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
@@ -123,7 +124,7 @@ public class ResourceRegistryBuilder {
         List<RelationshipRepository> relationshipRepositories = initializeRelationshipRepositories(
             foundRelationshipRepositoriesClasses, resourceInformation.getResourceClass());
         //noinspection unchecked
-        return new RegistryEntry(resourceInformation, resourceRepository, relationshipRepositories);
+        return new RegistryEntry(resourceInformation, new DirectResourceRepositoryEntry(resourceRepository), relationshipRepositories);
     }
 
     private Class<? extends ResourceRepository> findEntityRepository(Class resourceClass,
@@ -164,7 +165,7 @@ public class ResourceRegistryBuilder {
         List<RelationshipRepository> relationshipRepositories =
             initializeRelationshipRepositories(foundRelationshipRepositoriesClasses, resourceInformation.getResourceClass());
         //noinspection unchecked
-        return new RegistryEntry(resourceInformation, resourceRepository, relationshipRepositories);
+        return new RegistryEntry(resourceInformation, new DirectResourceRepositoryEntry(resourceRepository), relationshipRepositories);
     }
 
     private List<RelationshipRepository> initializeRelationshipRepositories(

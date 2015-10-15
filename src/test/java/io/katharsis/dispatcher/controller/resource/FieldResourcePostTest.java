@@ -69,7 +69,7 @@ public class FieldResourcePostTest extends BaseControllerTest {
         expectedException.expect(ResourceNotFoundException.class);
 
         // WHEN
-        sut.handle(projectPath, new RequestParams(OBJECT_MAPPER), newProjectBody);
+        sut.handle(projectPath, new RequestParams(OBJECT_MAPPER), null, newProjectBody);
     }
 
     @Test
@@ -86,7 +86,7 @@ public class FieldResourcePostTest extends BaseControllerTest {
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
 
         // WHEN
-        BaseResponse taskResponse = resourcePost.handle(taskPath, new RequestParams(new ObjectMapper()), newTaskBody);
+        BaseResponse taskResponse = resourcePost.handle(taskPath, new RequestParams(new ObjectMapper()), null, newTaskBody);
 
         // THEN
         assertThat(taskResponse.getData()).isExactlyInstanceOf(Task.class);
@@ -106,7 +106,7 @@ public class FieldResourcePostTest extends BaseControllerTest {
         FieldResourcePost sut = new FieldResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
 
         // WHEN
-        ResourceResponse projectResponse = sut.handle(projectPath, new RequestParams(OBJECT_MAPPER), newProjectBody);
+        ResourceResponse projectResponse = sut.handle(projectPath, new RequestParams(OBJECT_MAPPER), null, newProjectBody);
 
         assertThat(projectResponse.getData()).isExactlyInstanceOf(Project.class);
         assertThat(((Project) (projectResponse.getData())).getId()).isNotNull();

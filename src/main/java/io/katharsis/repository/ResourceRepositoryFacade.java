@@ -17,14 +17,14 @@ import java.util.Arrays;
 
 public class ResourceRepositoryFacade<T, ID extends Serializable> implements ResourceRepository<T, ID> {
     private final Object implementationObject;
-    private final ResourceMethodParameterProvider parameterProvider;
+    private final RepositoryMethodParameterProvider parameterProvider;
 
     private Method findOneMethod;
     private Method findAllMethod;
     private Method saveMethod;
     private Method deleteMethod;
 
-    public ResourceRepositoryFacade(Object implementationObject, ResourceMethodParameterProvider parameterProvider) {
+    public ResourceRepositoryFacade(Object implementationObject, RepositoryMethodParameterProvider parameterProvider) {
         this.implementationObject = implementationObject;
         this.parameterProvider = parameterProvider;
     }

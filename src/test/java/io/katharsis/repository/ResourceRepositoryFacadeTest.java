@@ -22,12 +22,12 @@ import static org.mockito.Mockito.verify;
 
 public class ResourceRepositoryFacadeTest {
     private RequestParams requestParams;
-    private NewInstanceResourceMethodParameterProvider parameterProvider;
+    private NewInstanceRepositoryMethodParameterProvider parameterProvider;
 
     @Before
     public void setUp() throws Exception {
         requestParams = new RequestParams(null);
-        parameterProvider = new NewInstanceResourceMethodParameterProvider();
+        parameterProvider = new NewInstanceRepositoryMethodParameterProvider();
     }
 
     @Test(expected = RepositoryAnnotationNotFoundException.class)
@@ -228,7 +228,7 @@ public class ResourceRepositoryFacadeTest {
         }
     }
 
-    public static class NewInstanceResourceMethodParameterProvider implements ResourceMethodParameterProvider {
+    public static class NewInstanceRepositoryMethodParameterProvider implements RepositoryMethodParameterProvider {
 
         @Override
         public <T> T provide(Parameter parameter) {

@@ -4,7 +4,7 @@ import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.RequestParams;
 import io.katharsis.repository.RelationshipRepository;
-import io.katharsis.repository.ResourceMethodParameterProvider;
+import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathIds;
@@ -42,7 +42,7 @@ public class RelationshipsResourceGet implements BaseController {
 
     @Override
     public BaseResponse handle(JsonPath jsonPath, RequestParams requestParams,
-                               ResourceMethodParameterProvider parameterProvider, RequestBody requestBody)
+                               RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody)
         throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         String resourceName = jsonPath.getResourceName();
         PathIds resourceIds = jsonPath.getIds();

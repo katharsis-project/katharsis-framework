@@ -3,7 +3,7 @@ package io.katharsis.dispatcher.controller.collection;
 import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.RequestParams;
-import io.katharsis.repository.ResourceMethodParameterProvider;
+import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
@@ -17,7 +17,6 @@ import io.katharsis.response.LinksInformation;
 import io.katharsis.response.MetaInformation;
 import io.katharsis.utils.parser.TypeParser;
 
-import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -44,7 +43,7 @@ public class CollectionGet implements BaseController {
     @Override
     @SuppressWarnings("unchecked")
     public BaseResponse<?> handle(JsonPath jsonPath, RequestParams requestParams,
-                                  ResourceMethodParameterProvider parameterProvider, RequestBody requestBody) {
+                                  RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody) {
         String resourceName = jsonPath.getElementName();
         RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
         if (registryEntry == null) {

@@ -1,7 +1,7 @@
 package io.katharsis.resource.registry;
 
 import io.katharsis.repository.RelationshipRepository;
-import io.katharsis.repository.ResourceMethodParameterProvider;
+import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.repository.exception.RelationshipRepositoryNotFoundException;
 import io.katharsis.resource.information.ResourceInformation;
@@ -43,7 +43,7 @@ public class RegistryEntry<T> {
         this.relationshipRepositories = relationshipRepositories;
     }
 
-    public ResourceRepository<T, ?> getResourceRepository(ResourceMethodParameterProvider parameterProvider) {
+    public ResourceRepository<T, ?> getResourceRepository(RepositoryMethodParameterProvider parameterProvider) {
         ResourceRepository<T, ?> repo = null;
         if (resourceRepositoryEntry instanceof DirectResourceRepositoryEntry) {
             repo = ((DirectResourceRepositoryEntry<T, ?>) resourceRepositoryEntry).getResourceRepository();

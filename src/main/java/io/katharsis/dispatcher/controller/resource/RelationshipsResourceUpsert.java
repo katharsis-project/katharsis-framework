@@ -4,7 +4,7 @@ import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.RequestParams;
 import io.katharsis.repository.RelationshipRepository;
-import io.katharsis.repository.ResourceMethodParameterProvider;
+import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.RequestBody;
@@ -77,7 +77,7 @@ public abstract class RelationshipsResourceUpsert implements BaseController {
 
     @Override
     public final BaseResponse<?> handle(JsonPath jsonPath, RequestParams requestParams,
-                                        ResourceMethodParameterProvider parameterProvider, RequestBody requestBody) throws Exception {
+                                        RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody) throws Exception {
         String resourceName = jsonPath.getResourceName();
         PathIds resourceIds = jsonPath.getIds();
         RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);

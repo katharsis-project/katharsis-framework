@@ -3,9 +3,9 @@ package io.katharsis.repository;
 import java.lang.reflect.Parameter;
 
 /**
- * Provides additional parameters for a method.
+ * Provides additional parameters for a repository method.
  */
-public interface ResourceMethodParameterProvider {
+public interface RepositoryMethodParameterProvider {
 
     <T> T provide(Parameter parameter);
 }

@@ -7,6 +7,7 @@ import io.katharsis.errorhandling.ErrorResponse;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryTest;
 import io.katharsis.locator.SampleJsonServiceLocator;
 import io.katharsis.queryParams.RequestParams;
+import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathBuilder;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
@@ -57,10 +58,10 @@ public class RequestDispatcherTest {
         // WHEN
         when(collectionGet.isAcceptable(any(JsonPath.class), eq(requestType))).thenCallRealMethod();
         JsonPath jsonPath = pathBuilder.buildPath(path);
-        sut.dispatchRequest(jsonPath, requestType, new RequestParams(new ObjectMapper()), null);
+        sut.dispatchRequest(jsonPath, requestType, new RequestParams(new ObjectMapper()), null, null);
 
         // THEN
-        verify(collectionGet, times(1)).handle(any(JsonPath.class), any(RequestParams.class), any());
+        verify(collectionGet, times(1)).handle(any(JsonPath.class), any(RequestParams.class), isNull(RepositoryMethodParameterProvider.class), any());
     }
 
     @Test
@@ -73,7 +74,7 @@ public class RequestDispatcherTest {
         RequestDispatcher requestDispatcher = new RequestDispatcher(controllerRegistry,
             ExceptionMapperRegistryTest.exceptionMapperRegistry);
 
-        BaseResponse<?> response = requestDispatcher.dispatchRequest(null, null, null, null);
+        BaseResponse<?> response = requestDispatcher.dispatchRequest(null, null, null, null, null);
         assertThat(response)
             .isNotNull()
             .isExactlyInstanceOf(ErrorResponse.class);
@@ -94,6 +95,6 @@ public class RequestDispatcherTest {
 
         expectedException.expect(ArithmeticException.class);
 
-        BaseResponse<?> response = requestDispatcher.dispatchRequest(null, null, null, null);
+        BaseResponse<?> response = requestDispatcher.dispatchRequest(null, null, null, null, null);
     }
 }

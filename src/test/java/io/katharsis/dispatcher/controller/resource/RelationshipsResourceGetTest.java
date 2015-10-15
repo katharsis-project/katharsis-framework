@@ -53,7 +53,7 @@ public class RelationshipsResourceGetTest extends BaseControllerTest {
         RelationshipsResourceGet sut = new RelationshipsResourceGet(resourceRegistry, typeParser);
 
         // WHEN
-        BaseResponse<?> response = sut.handle(jsonPath, null, null);
+        BaseResponse<?> response = sut.handle(jsonPath, null, null, null);
 
         // THEN
         Assert.assertNotNull(response);
@@ -67,7 +67,7 @@ public class RelationshipsResourceGetTest extends BaseControllerTest {
         RelationshipsResourceGet sut = new RelationshipsResourceGet(resourceRegistry, typeParser);
 
         // WHEN
-        BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()), null);
+        BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()), null, null);
 
         // THEN
         Assert.assertNotNull(response);

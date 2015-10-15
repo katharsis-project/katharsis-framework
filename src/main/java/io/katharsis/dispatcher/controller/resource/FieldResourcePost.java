@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.RequestParams;
 import io.katharsis.repository.RelationshipRepository;
-import io.katharsis.repository.ResourceMethodParameterProvider;
+import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.RequestBody;
@@ -48,7 +48,7 @@ public class FieldResourcePost extends ResourceUpsert {
 
     @Override
     public ResourceResponse handle(JsonPath jsonPath, RequestParams requestParams,
-                                   ResourceMethodParameterProvider parameterProvider, RequestBody requestBody)
+                                   RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody)
         throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException,
         IOException {
         String resourceEndpointName = jsonPath.getResourceName();

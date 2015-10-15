@@ -3,7 +3,7 @@ package io.katharsis.dispatcher.controller.resource;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.RequestParams;
-import io.katharsis.repository.ResourceMethodParameterProvider;
+import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.RequestBody;
@@ -38,7 +38,7 @@ public class ResourcePatch extends ResourceUpsert {
 
     @Override
     public BaseResponse<?> handle(JsonPath jsonPath, RequestParams requestParams,
-                                  ResourceMethodParameterProvider parameterProvider, RequestBody requestBody) throws Exception {
+                                  RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody) throws Exception {
 
         String resourceEndpointName = jsonPath.getResourceName();
         RegistryEntry endpointRegistryEntry = resourceRegistry.getEntry(resourceEndpointName);
