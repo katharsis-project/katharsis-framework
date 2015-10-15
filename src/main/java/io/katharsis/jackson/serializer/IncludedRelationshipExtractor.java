@@ -128,8 +128,7 @@ public class IncludedRelationshipExtractor {
                 return Collections.emptySet();
             }
         }
-        Field field = resource.getClass().getDeclaredField(pathList.get(0));
-        Object property = PropertyUtils.getProperty(resource, field.getName());
+        Object property = PropertyUtils.getProperty(resource, pathList.get(0));
         if (property != null) {
             List<String> subPathList = pathList.subList(1, pathList.size());
             if (Iterable.class.isAssignableFrom(property.getClass())) {
