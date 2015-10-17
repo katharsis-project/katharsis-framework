@@ -60,7 +60,7 @@ public class ResourcePatchTest extends BaseControllerTest {
         expectedException.expect(RuntimeException.class);
 
         // WHEN
-        sut.handle(new ResourcePath("fridges"), new RequestParams(new ObjectMapper()), null);
+        sut.handle(new ResourcePath("fridges"), new RequestParams(new ObjectMapper()), null, null);
     }
 
     @Test
@@ -76,7 +76,7 @@ public class ResourcePatchTest extends BaseControllerTest {
 
         // WHEN
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
-        ResourceResponse taskResponse = resourcePost.handle(taskPath, new RequestParams(new ObjectMapper()), newTaskBody);
+        ResourceResponse taskResponse = resourcePost.handle(taskPath, new RequestParams(new ObjectMapper()), null, newTaskBody);
         assertThat(taskResponse.getData()).isExactlyInstanceOf(Task.class);
         Long taskId = ((Task) (taskResponse.getData())).getId();
         assertThat(taskId).isNotNull();
@@ -91,7 +91,7 @@ public class ResourcePatchTest extends BaseControllerTest {
         ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser, OBJECT_MAPPER);
 
         // WHEN
-        BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()), taskPatch);
+        BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()), null, taskPatch);
 
         // THEN
         Assert.assertNotNull(response);
@@ -116,7 +116,7 @@ public class ResourcePatchTest extends BaseControllerTest {
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
 
         // WHEN
-        ResourceResponse taskResponse = resourcePost.handle(documentsPath, new RequestParams(new ObjectMapper()), memorandumBody);
+        ResourceResponse taskResponse = resourcePost.handle(documentsPath, new RequestParams(new ObjectMapper()), null, memorandumBody);
 
         // THEN
         assertThat(taskResponse.getData()).isExactlyInstanceOf(Memorandum.class);
@@ -137,7 +137,7 @@ public class ResourcePatchTest extends BaseControllerTest {
         ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser, OBJECT_MAPPER);
 
         // WHEN
-        BaseResponse memorandumResponse = sut.handle(documentPath, new RequestParams(new ObjectMapper()), memorandumBody);
+        BaseResponse memorandumResponse = sut.handle(documentPath, new RequestParams(new ObjectMapper()), null, memorandumBody);
 
         // THEN
         assertThat(memorandumResponse.getData()).isExactlyInstanceOf(Memorandum.class);
@@ -160,7 +160,7 @@ public class ResourcePatchTest extends BaseControllerTest {
 
         // WHEN
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
-        ResourceResponse taskResponse = resourcePost.handle(taskPath, new RequestParams(new ObjectMapper()), newTaskBody);
+        ResourceResponse taskResponse = resourcePost.handle(taskPath, new RequestParams(new ObjectMapper()), null, newTaskBody);
         assertThat(taskResponse.getData()).isExactlyInstanceOf(Task.class);
         Long taskId = ((Task) (taskResponse.getData())).getId();
         assertThat(taskId).isNotNull();
@@ -177,7 +177,7 @@ public class ResourcePatchTest extends BaseControllerTest {
         ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser, OBJECT_MAPPER);
 
         // WHEN
-        BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()), taskPatch);
+        BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()), null, taskPatch);
 
         // THEN
         Assert.assertNotNull(response);

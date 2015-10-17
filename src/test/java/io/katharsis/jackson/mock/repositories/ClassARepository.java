@@ -16,11 +16,6 @@ public class ClassARepository implements ResourceRepository<ClassA, Long> {
     }
 
     @Override
-    public Iterable<ClassA> findAll(Iterable<Long> longs, RequestParams requestParams) {
-        return null;
-    }
-
-    @Override
     public <S extends ClassA> S save(S entity) {
         return null;
     }

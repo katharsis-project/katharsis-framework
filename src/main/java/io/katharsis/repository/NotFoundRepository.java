@@ -27,11 +27,6 @@ public class NotFoundRepository implements ResourceRepository {
     }
 
     @Override
-    public Iterable findAll(Iterable iterable, RequestParams requestParams) {
-        throw new RepositoryNotFoundException(repositoryClass);
-    }
-
-    @Override
     public void delete(Serializable serializable) {
         throw new RepositoryNotFoundException(repositoryClass);
     }

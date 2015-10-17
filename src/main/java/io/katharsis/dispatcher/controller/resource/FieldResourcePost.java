@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.RequestParams;
 import io.katharsis.repository.RelationshipRepository;
+import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.RequestBody;
@@ -46,7 +47,8 @@ public class FieldResourcePost extends ResourceUpsert {
     }
 
     @Override
-    public ResourceResponse handle(JsonPath jsonPath, RequestParams requestParams, RequestBody requestBody)
+    public ResourceResponse handle(JsonPath jsonPath, RequestParams requestParams,
+                                   RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody)
         throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException,
         IOException {
         String resourceEndpointName = jsonPath.getResourceName();
@@ -80,7 +82,7 @@ public class FieldResourcePost extends ResourceUpsert {
         DataBody dataBody = requestBody.getSingleData();
         Object resource = buildNewResource(relationshipRegistryEntry, dataBody, relationshipResourceType);
         setAttributes(dataBody, resource, relationshipRegistryEntry.getResourceInformation());
-        ResourceRepository resourceRepository = relationshipRegistryEntry.getResourceRepository();
+        ResourceRepository resourceRepository = relationshipRegistryEntry.getResourceRepository(parameterProvider);
         Object savedResource = resourceRepository.save(resource);
         saveRelations(savedResource, relationshipRegistryEntry, dataBody);
 
@@ -92,7 +94,7 @@ public class FieldResourcePost extends ResourceUpsert {
 
         RelationshipRepository relationshipRepositoryForClass = endpointRegistryEntry.getRelationshipRepositoryForClass(relationshipFieldClass);
         @SuppressWarnings("unchecked")
-        Object parent = endpointRegistryEntry.getResourceRepository().findOne(castedResourceId, requestParams);
+        Object parent = endpointRegistryEntry.getResourceRepository(parameterProvider).findOne(castedResourceId, requestParams);
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
             //noinspection unchecked
             relationshipRepositoryForClass.addRelations(parent, Collections.singletonList(resourceId), jsonPath.getElementName());

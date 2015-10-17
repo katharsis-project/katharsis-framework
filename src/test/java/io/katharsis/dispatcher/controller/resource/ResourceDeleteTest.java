@@ -52,7 +52,7 @@ public class ResourceDeleteTest extends BaseControllerTest {
         ResourceDelete sut = new ResourceDelete(resourceRegistry, typeParser);
 
         // WHEN
-        BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()), null);
+        BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()), null, null);
 
         // THEN
         assertThat(response).isNull();

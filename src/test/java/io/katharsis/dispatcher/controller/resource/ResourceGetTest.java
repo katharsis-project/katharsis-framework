@@ -59,7 +59,7 @@ public class ResourceGetTest extends BaseControllerTest {
 
         // WHEN
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
-        ResourceResponse taskResponse = resourcePost.handle(taskPath, new RequestParams(new ObjectMapper()), newTaskBody);
+        ResourceResponse taskResponse = resourcePost.handle(taskPath, new RequestParams(new ObjectMapper()), null, newTaskBody);
         assertThat(taskResponse.getData()).isExactlyInstanceOf(Task.class);
         Long taskId = ((Task) (taskResponse.getData())).getId();
         assertThat(taskId).isNotNull();
@@ -69,7 +69,7 @@ public class ResourceGetTest extends BaseControllerTest {
         ResourceGet sut = new ResourceGet(resourceRegistry, typeParser);
 
         // WHEN
-        BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()), null);
+        BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()), null, null);
 
         // THEN
         Assert.assertNotNull(response);

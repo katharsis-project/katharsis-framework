@@ -70,7 +70,7 @@ public class ResourcePostTest extends BaseControllerTest {
         expectedException.expect(RuntimeException.class);
 
         // WHEN
-        sut.handle(projectPath, new RequestParams(new ObjectMapper()), newProjectBody);
+        sut.handle(projectPath, new RequestParams(new ObjectMapper()), null, newProjectBody);
     }
 
     @Test
@@ -87,7 +87,7 @@ public class ResourcePostTest extends BaseControllerTest {
         expectedException.expect(ResourceNotFoundException.class);
 
         // WHEN
-        sut.handle(new ResourcePath("fridges"), new RequestParams(new ObjectMapper()), newProjectBody);
+        sut.handle(new ResourcePath("fridges"), new RequestParams(new ObjectMapper()), null, newProjectBody);
     }
 
     @Test
@@ -99,7 +99,7 @@ public class ResourcePostTest extends BaseControllerTest {
         expectedException.expect(RuntimeException.class);
 
         // WHEN
-        sut.handle(new ResourcePath("fridges"), new RequestParams(new ObjectMapper()), null);
+        sut.handle(new ResourcePath("fridges"), new RequestParams(new ObjectMapper()), null, null);
     }
 
     @Test
@@ -119,7 +119,7 @@ public class ResourcePostTest extends BaseControllerTest {
         ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
 
         // WHEN
-        ResourceResponse projectResponse = sut.handle(projectPath, new RequestParams(new ObjectMapper()), newProjectBody);
+        ResourceResponse projectResponse = sut.handle(projectPath, new RequestParams(new ObjectMapper()), null, newProjectBody);
 
         // THEN
         assertThat(projectResponse.getData()).isExactlyInstanceOf(Project.class);
@@ -143,7 +143,7 @@ public class ResourcePostTest extends BaseControllerTest {
         JsonPath taskPath = pathBuilder.buildPath("/tasks");
 
         // WHEN
-        ResourceResponse taskResponse = sut.handle(taskPath, new RequestParams(new ObjectMapper()), newTaskBody);
+        ResourceResponse taskResponse = sut.handle(taskPath, new RequestParams(new ObjectMapper()), null, newTaskBody);
 
         // THEN
         assertThat(taskResponse.getData()).isExactlyInstanceOf(Task.class);
@@ -169,7 +169,7 @@ public class ResourcePostTest extends BaseControllerTest {
         ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
 
         // WHEN
-        ResourceResponse projectResponse = sut.handle(projectPath, new RequestParams(new ObjectMapper()), newProjectBody);
+        ResourceResponse projectResponse = sut.handle(projectPath, new RequestParams(new ObjectMapper()), null, newProjectBody);
 
         // THEN
         assertThat(projectResponse.getData()).isExactlyInstanceOf(Project.class);
@@ -192,7 +192,7 @@ public class ResourcePostTest extends BaseControllerTest {
         JsonPath taskPath = pathBuilder.buildPath("/users");
 
         // WHEN
-        ResourceResponse taskResponse = sut.handle(taskPath, new RequestParams(new ObjectMapper()), newUserBody);
+        ResourceResponse taskResponse = sut.handle(taskPath, new RequestParams(new ObjectMapper()), null, newUserBody);
 
         // THEN
         assertThat(taskResponse.getData()).isExactlyInstanceOf(User.class);
@@ -220,7 +220,7 @@ public class ResourcePostTest extends BaseControllerTest {
         ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
 
         // WHEN
-        ResourceResponse memorandumResponse = sut.handle(projectPath, new RequestParams(new ObjectMapper()), newMemorandumBody);
+        ResourceResponse memorandumResponse = sut.handle(projectPath, new RequestParams(new ObjectMapper()), null, newMemorandumBody);
 
         // THEN
         assertThat(memorandumResponse.getData()).isExactlyInstanceOf(Memorandum.class);
