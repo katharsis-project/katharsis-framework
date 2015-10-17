@@ -1,10 +1,10 @@
 package io.katharsis.repository;
 
 import io.katharsis.queryParams.RequestParams;
-import io.katharsis.repository.annotations.Delete;
-import io.katharsis.repository.annotations.FindAll;
-import io.katharsis.repository.annotations.FindOne;
-import io.katharsis.repository.annotations.Save;
+import io.katharsis.repository.annotations.JsonApiDelete;
+import io.katharsis.repository.annotations.JsonApiFindAll;
+import io.katharsis.repository.annotations.JsonApiFindOne;
+import io.katharsis.repository.annotations.JsonApiSave;
 import io.katharsis.repository.exception.RepositoryAnnotationNotFoundException;
 import io.katharsis.repository.exception.RepositoryMethodException;
 
@@ -31,7 +31,7 @@ public class ResourceRepositoryFacade<T, ID extends Serializable> implements Res
 
     @Override
     public T findOne(ID id, RequestParams requestParams) {
-        Class<FindOne> annotationType = FindOne.class;
+        Class<JsonApiFindOne> annotationType = JsonApiFindOne.class;
         if (findOneMethod == null) {
             findOneMethod = findMethodWith(annotationType);
         }
@@ -49,9 +49,9 @@ public class ResourceRepositoryFacade<T, ID extends Serializable> implements Res
     @Override
     public Iterable<T> findAll(RequestParams requestParams) {
         if (findAllMethod == null) {
-            findAllMethod = findMethodWith(FindAll.class);
+            findAllMethod = findMethodWith(JsonApiFindAll.class);
         }
-        checkIfNotNull(FindAll.class, findAllMethod);
+        checkIfNotNull(JsonApiFindAll.class, findAllMethod);
 
         Parameter[] parametersToResolve = findAllMethod.getParameters();
         Object[] methodParameters = resolveParameters(parametersToResolve, requestParams);
@@ -65,7 +65,7 @@ public class ResourceRepositoryFacade<T, ID extends Serializable> implements Res
 
     @Override
     public <S extends T> S save(S entity) {
-        Class<Save> annotationType = Save.class;
+        Class<JsonApiSave> annotationType = JsonApiSave.class;
         if (saveMethod == null) {
             saveMethod = findMethodWith(annotationType);
         }
@@ -82,7 +82,7 @@ public class ResourceRepositoryFacade<T, ID extends Serializable> implements Res
 
     @Override
     public void delete(ID id) {
-        Class<Delete> annotationType = Delete.class;
+        Class<JsonApiDelete> annotationType = JsonApiDelete.class;
         if (deleteMethod == null) {
             deleteMethod = findMethodWith(annotationType);
         }

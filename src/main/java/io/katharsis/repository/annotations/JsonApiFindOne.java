@@ -3,10 +3,10 @@ package io.katharsis.repository.annotations;
 import java.lang.annotation.*;
 
 /**
- * Created by patryk on 13.10.15.
+ * Annotated method should have at least one parameter, that is, the first parameter should be an id value.
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface FindAll {
+public @interface JsonApiFindOne {
 }

@@ -1,10 +1,7 @@
 package io.katharsis.repository;
 
 import io.katharsis.queryParams.RequestParams;
-import io.katharsis.repository.annotations.Delete;
-import io.katharsis.repository.annotations.FindAll;
-import io.katharsis.repository.annotations.FindOne;
-import io.katharsis.repository.annotations.Save;
+import io.katharsis.repository.annotations.*;
 import io.katharsis.repository.exception.RepositoryAnnotationNotFoundException;
 import io.katharsis.repository.exception.RepositoryMethodException;
 import io.katharsis.resource.mock.models.Project;
@@ -161,69 +158,69 @@ public class ResourceRepositoryFacadeTest {
         verify(repo).delete(eq(1L), eq(""));
     }
 
-    @io.katharsis.repository.annotations.ResourceRepository(Project.class)
+    @JsonApiResourceRepository(Project.class)
     public static class ResourceRepositoryWithoutAnyMethods {
     }
 
-    @io.katharsis.repository.annotations.ResourceRepository(Project.class)
+    @JsonApiResourceRepository(Project.class)
     public static class ResourceRepositoryWithEmptyFindOne {
 
-        @FindOne
+        @JsonApiFindOne
         public Project findOne() {
             return new Project();
         }
     }
 
-    @io.katharsis.repository.annotations.ResourceRepository(Project.class)
+    @JsonApiResourceRepository(Project.class)
     public static class ResourceRepositoryWithFindOne {
 
-        @FindOne
+        @JsonApiFindOne
         public Project findOne(Long id, RequestParams requestParams, String someString) {
             return new Project()
                 .setId(id);
         }
     }
 
-    @io.katharsis.repository.annotations.ResourceRepository(Project.class)
+    @JsonApiResourceRepository(Project.class)
     public static class ResourceRepositoryWithFindAll {
 
-        @FindAll
+        @JsonApiFindAll
         public Iterable<Project> findAll(RequestParams requestParams, String s) {
             return Collections.singletonList(new Project().setId(1L));
         }
     }
 
-    @io.katharsis.repository.annotations.ResourceRepository(Project.class)
+    @JsonApiResourceRepository(Project.class)
     public static class ResourceRepositoryWithEmptySave {
 
-        @Save
+        @JsonApiSave
         public Project save() {
             return new Project();
         }
     }
 
-    @io.katharsis.repository.annotations.ResourceRepository(Project.class)
+    @JsonApiResourceRepository(Project.class)
     public static class ResourceRepositoryWithSave {
 
-        @Save
+        @JsonApiSave
         public Project save(Project project, String s) {
             return project
                 .setId(1L);
         }
     }
 
-    @io.katharsis.repository.annotations.ResourceRepository(Project.class)
+    @JsonApiResourceRepository(Project.class)
     public static class ResourceRepositoryWithEmptyDelete {
 
-        @Delete
+        @JsonApiDelete
         public void delete() {
         }
     }
 
-    @io.katharsis.repository.annotations.ResourceRepository(Project.class)
+    @JsonApiResourceRepository(Project.class)
     public static class ResourceRepositoryWithDelete {
 
-        @Delete
+        @JsonApiDelete
         public void delete(Long id, String s) {
         }
     }

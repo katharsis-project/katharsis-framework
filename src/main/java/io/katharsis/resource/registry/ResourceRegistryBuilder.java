@@ -159,7 +159,7 @@ public class ResourceRegistryBuilder {
             throw new RepositoryInstanceNotFoundException(foundEntityRepositoryClass.getCanonicalName());
         }
 
-        logger.debug("Assigned {} ResourceRepository to {} resource class",
+        logger.debug("Assigned {} JsonApiResourceRepository to {} resource class",
             foundEntityRepositoryClass.getCanonicalName(), resourceInformation.getResourceClass().getCanonicalName());
 
         List<RelationshipRepository> relationshipRepositories =
