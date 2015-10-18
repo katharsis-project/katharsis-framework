@@ -1,0 +1,26 @@
+package io.katharsis.repository.annotations;
+
+import io.katharsis.queryParams.RequestParams;
+
+import java.io.Serializable;
+
+/**
+ * <p>
+ * Method annotated with this annotation will be used to perform find one relationship resource on a particular
+ * resource. The method must be defined in a class annotated with {@link JsonApiRelationshipRepository}.
+ * </p>
+ * <p>
+ * The requirements for the method parameters are as follows:
+ * <ol>
+ *     <li>An identifier of a source resource</li>
+ *     <li>Relationship's field name</li>
+ * </ol>
+ * </p>
+ * <p>
+ * The return value must be a resources of {@link JsonApiRelationshipRepository#target()} type.
+ * </p>
+ *
+ * @see io.katharsis.repository.RelationshipRepository#findOneTarget(Serializable, String, RequestParams)
+ */
+public @interface JsonApiFindOneTarget {
+}
