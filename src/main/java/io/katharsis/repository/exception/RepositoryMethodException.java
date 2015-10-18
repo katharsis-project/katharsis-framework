@@ -4,9 +4,6 @@ import io.katharsis.errorhandling.ErrorData;
 import io.katharsis.errorhandling.exception.KatharsisMappableException;
 import io.katharsis.response.HttpStatus;
 
-/**
- * Created by patryk on 13.10.15.
- */
 public class RepositoryMethodException extends KatharsisMappableException {
     private static final String TITLE = "Resource method error";
 

@@ -38,7 +38,7 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable> implements Re
         checkIfNotNull(annotationType, findOneMethod);
 
         Object[] methodParameters = parametersFactory
-            .buildParameters(id, findOneMethod.getParameters(), requestParams, annotationType);
+            .buildParameters(new Object[]{id}, findOneMethod.getParameters(), requestParams, annotationType);
 
         try {
             return (T) findOneMethod.invoke(implementationObject, methodParameters);
@@ -73,7 +73,8 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable> implements Re
         }
         checkIfNotNull(annotationType, saveMethod);
 
-        Object[] methodParameters = parametersFactory.buildParameters(entity, saveMethod.getParameters(), annotationType);
+        Object[] methodParameters = parametersFactory
+            .buildParameters(new Object[]{entity}, saveMethod.getParameters(), annotationType);
 
         try {
             return (S) saveMethod.invoke(implementationObject, methodParameters);
@@ -90,7 +91,8 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable> implements Re
         }
         checkIfNotNull(annotationType, deleteMethod);
 
-        Object[] methodParameters = parametersFactory.buildParameters(id, deleteMethod.getParameters(), annotationType);
+        Object[] methodParameters = parametersFactory
+            .buildParameters(new Object[]{id}, deleteMethod.getParameters(), annotationType);
 
         try {
             deleteMethod.invoke(implementationObject, methodParameters);

@@ -1,7 +1,7 @@
 package io.katharsis.repository;
 
 import io.katharsis.queryParams.RequestParams;
-import io.katharsis.repository.annotations.JsonApiSetRelation;
+import io.katharsis.repository.annotations.*;
 import io.katharsis.repository.exception.RepositoryAnnotationNotFoundException;
 import io.katharsis.utils.ClassUtils;
 
@@ -34,41 +34,93 @@ public class RelationshipRepositoryAdapter<T, T_ID extends Serializable, D, D_ID
         if (setRelationMethod == null) {
             setRelationMethod = ClassUtils.findMethodWith(implementationObject, annotationType);
         }
-        checkIfNotNull(annotationType, setRelationMethod);
+        Method method = this.setRelationMethod;
+        Object[] firstParameters = {source, targetId, fieldName};
+        performRelationChangeOperation(annotationType, method, firstParameters);
+    }
+
+    @Override
+    public void setRelations(T source, Iterable<D_ID> targetIds, String fieldName) {
+        Class<JsonApiSetRelations> annotationType = JsonApiSetRelations.class;
+        if (setRelationsMethod == null) {
+            setRelationsMethod = ClassUtils.findMethodWith(implementationObject, annotationType);
+        }
+        Method method = this.setRelationsMethod;
+        Object[] firstParameters = {source, targetIds, fieldName};
+        performRelationChangeOperation(annotationType, method, firstParameters);
+    }
+
+    @Override
+    public void addRelations(T source, Iterable<D_ID> targetIds, String fieldName) {
+        Class<JsonApiAddRelations> annotationType = JsonApiAddRelations.class;
+        if (addRelationsMethod == null) {
+            addRelationsMethod = ClassUtils.findMethodWith(implementationObject, annotationType);
+        }
+        Method method = this.addRelationsMethod;
+        Object[] firstParameters = {source, targetIds, fieldName};
+        performRelationChangeOperation(annotationType, method, firstParameters);
+    }
+
+    @Override
+    public void removeRelations(T source, Iterable<D_ID> targetIds, String fieldName) {
+        Class<JsonApiRemoveRelations> annotationType = JsonApiRemoveRelations.class;
+        if (removeRelationsMethod == null) {
+            removeRelationsMethod = ClassUtils.findMethodWith(implementationObject, annotationType);
+        }
+        Method method = this.removeRelationsMethod;
+        Object[] firstParameters = {source, targetIds, fieldName};
+        performRelationChangeOperation(annotationType, method, firstParameters);
+    }
+
+    private void performRelationChangeOperation(Class<? extends Annotation> annotationType, Method method, Object[] firstParameters) {
+        checkIfNotNull(annotationType, method);
 
         Object[] methodParameters = parametersFactory
-            .buildParameters(id, setRelationMethod.getParameters(), requestParams, annotationType);
+            .buildParameters(firstParameters, method.getParameters(), annotationType);
 
         try {
-            setRelationMethod.invoke(implementationObject, methodParameters);
+            method.invoke(implementationObject, methodParameters);
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    public void setRelations(T source, Iterable<D_ID> targetIds, String fieldName) {
-
-    }
-
-    @Override
-    public void addRelations(T source, Iterable<D_ID> targetIds, String fieldName) {
-
-    }
-
-    @Override
-    public void removeRelations(T source, Iterable<D_ID> targetIds, String fieldName) {
-
-    }
-
-    @Override
     public D findOneTarget(T_ID sourceId, String fieldName, RequestParams requestParams) {
-        return null;
+        Class<JsonApiFindOneTarget> annotationType = JsonApiFindOneTarget.class;
+        if (findOneTargetMethod == null) {
+            findOneTargetMethod = ClassUtils.findMethodWith(implementationObject, annotationType);
+        }
+        checkIfNotNull(annotationType, findOneTargetMethod);
+
+        Object[] firstParameters = {sourceId, fieldName};
+        Object[] methodParameters = parametersFactory
+            .buildParameters(firstParameters, findOneTargetMethod.getParameters(), requestParams, annotationType);
+
+        try {
+            return (D) findOneTargetMethod.invoke(implementationObject, methodParameters);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public Iterable<D> findManyTargets(T_ID sourceId, String fieldName, RequestParams requestParams) {
-        return null;
+        Class<JsonApiFindManyTargets> annotationType = JsonApiFindManyTargets.class;
+        if (findManyTargetsMethod == null) {
+            findManyTargetsMethod = ClassUtils.findMethodWith(implementationObject, annotationType);
+        }
+        checkIfNotNull(annotationType, findManyTargetsMethod);
+
+        Object[] firstParameters = {sourceId, fieldName};
+        Object[] methodParameters = parametersFactory
+            .buildParameters(firstParameters, findManyTargetsMethod.getParameters(), requestParams, annotationType);
+
+        try {
+            return (Iterable<D>) findManyTargetsMethod.invoke(implementationObject, methodParameters);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void checkIfNotNull(Class<? extends Annotation> annotationClass, Method foundMethod) {

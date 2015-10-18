@@ -4,6 +4,7 @@ import io.katharsis.queryParams.RequestParams;
 import io.katharsis.repository.annotations.*;
 import io.katharsis.repository.exception.RepositoryAnnotationNotFoundException;
 import io.katharsis.repository.exception.RepositoryMethodException;
+import io.katharsis.repository.mock.NewInstanceRepositoryMethodParameterProvider;
 import io.katharsis.resource.mock.models.Project;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,12 +20,12 @@ import static org.mockito.Mockito.verify;
 
 public class ResourceRepositoryAdapterTest {
     private RequestParams requestParams;
-    private NewInstanceRepositoryMethodParameterProvider parameterProvider;
+    private ParametersFactory parameterProvider;
 
     @Before
     public void setUp() throws Exception {
         requestParams = new RequestParams(null);
-        parameterProvider = new NewInstanceRepositoryMethodParameterProvider();
+        parameterProvider = new ParametersFactory(new NewInstanceRepositoryMethodParameterProvider());
     }
 
     @Test(expected = RepositoryAnnotationNotFoundException.class)
@@ -222,18 +223,6 @@ public class ResourceRepositoryAdapterTest {
 
         @JsonApiDelete
         public void delete(Long id, String s) {
-        }
-    }
-
-    public static class NewInstanceRepositoryMethodParameterProvider implements RepositoryMethodParameterProvider {
-
-        @Override
-        public <T> T provide(Parameter parameter) {
-            try {
-                return (T) parameter.getType().newInstance();
-            } catch (InstantiationException | IllegalAccessException e) {
-                throw new RuntimeException(e);
-            }
         }
     }
 }

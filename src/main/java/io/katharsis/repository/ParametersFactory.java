@@ -4,7 +4,6 @@ import io.katharsis.queryParams.RequestParams;
 import io.katharsis.repository.exception.RepositoryMethodException;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Array;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
 
@@ -19,13 +18,13 @@ public class ParametersFactory {
     /**
      * Build a list of parameters that can be provided to a method.
      *
-     * @param firstParameter parameter to be returned as the first element in the return array
+     * @param firstParameters parameters to be returned as the firsts element in the return array
      * @param parameters     parameters to be resolved
      * @param requestParams  {@link RequestParams} object associated with the request
      * @param annotationType method annotation
      * @return array of resolved parameters
      */
-    public Object[] buildParameters(Object[] firstParameter, Parameter[] parameters, RequestParams requestParams,
+    public Object[] buildParameters(Object[] firstParameters, Parameter[] parameters, RequestParams requestParams,
                                     Class<? extends Annotation> annotationType) {
         if (parameters.length < 1) {
             throw new RepositoryMethodException(
@@ -34,18 +33,18 @@ public class ParametersFactory {
         Parameter[] parametersToResolve = Arrays.copyOfRange(parameters, 1, parameters.length);
         Object[] additionalParameters = buildParameters(parametersToResolve, requestParams);
 
-        return prepend(firstParameter, additionalParameters);
+        return concatenate(firstParameters, additionalParameters);
     }
 
     /**
      * Build a list of parameters that can be provided to a method.
      *
-     * @param firstParameter parameter to be returned as the first element in the return array
+     * @param firstParameters parameters to be returned as the first elements in the return array
      * @param parameters     parameters to be resolved
      * @param annotationType method annotation
      * @return array of resolved parameters
      */
-    public Object[] buildParameters(Object firstParameter, Parameter[] parameters,
+    public Object[] buildParameters(Object[] firstParameters, Parameter[] parameters,
                                     Class<? extends Annotation> annotationType) {
         if (parameters.length < 1) {
             throw new RepositoryMethodException(
@@ -54,7 +53,7 @@ public class ParametersFactory {
         Parameter[] parametersToResolve = Arrays.copyOfRange(parameters, 1, parameters.length);
         Object[] additionalParameters = buildParameters(parametersToResolve);
 
-        return prepend(firstParameter, additionalParameters);
+        return concatenate(firstParameters, additionalParameters);
     }
 
     /**
