@@ -3,6 +3,7 @@ package io.katharsis.dispatcher.controller;
 import io.katharsis.queryParams.RequestParams;
 import io.katharsis.repository.LinksRepository;
 import io.katharsis.repository.MetaRepository;
+import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;

@@ -46,7 +46,7 @@ public class ResourceGet extends ResourceIncludeField {
      * Passes the request to controller method.
      */
     @Override
-    public BaseResponse<?> handle(JsonPath jsonPath, RequestParams requestParams,
+    public BaseResponse<?> handle(JsonPath jsonPath, RequestParams requestParams, RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody)
             throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException, NoSuchFieldException {
         String resourceName = jsonPath.getElementName();
         PathIds resourceIds = jsonPath.getIds();

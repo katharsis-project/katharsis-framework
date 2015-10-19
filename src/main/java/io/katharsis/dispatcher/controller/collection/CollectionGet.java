@@ -20,6 +20,7 @@ import io.katharsis.utils.parser.TypeParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedList;
 import java.util.List;
@@ -44,7 +45,7 @@ public class CollectionGet extends ResourceIncludeField {
 
     @Override
     @SuppressWarnings("unchecked")
-    public BaseResponse<?> handle(JsonPath jsonPath, RequestParams requestParams, RequestBody requestBody)
+    public BaseResponse<?> handle(JsonPath jsonPath, RequestParams requestParams, RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody)
             throws NoSuchMethodException, NoSuchFieldException, IllegalAccessException, InvocationTargetException {
         String resourceName = jsonPath.getElementName();
         RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
@@ -52,16 +53,8 @@ public class CollectionGet extends ResourceIncludeField {
             throw new ResourceNotFoundException(resourceName);
         }
         Iterable<?> resources;
-        ResourceRepository resourceRepository = registryEntry.getResourceRepository();
-        if (jsonPath.getIds() == null || jsonPath.getIds().getIds().isEmpty()) {
-            resources = resourceRepository.findAll(requestParams);
-        } else {
-            Class<? extends Serializable> idType = (Class<? extends Serializable>) registryEntry
-                    .getResourceInformation().getIdField().getType();
-            Iterable<? extends Serializable> parsedIds = typeParser.parse((Iterable<String>) jsonPath.getIds().getIds(),
-                    idType);
-            resources = resourceRepository.findAll(parsedIds, requestParams);
-        }
+        ResourceRepository resourceRepository = registryEntry.getResourceRepository(parameterProvider);
+        resources = resourceRepository.findAll(requestParams);
         List containers = new LinkedList();
         if (resources != null) {
             includeFieldSetter.setIncludedElements(resources, requestParams);

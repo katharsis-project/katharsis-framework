@@ -103,7 +103,7 @@ public class CollectionGetTest extends BaseControllerTest {
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
 
         // WHEN -- adding a task
-        BaseResponse taskResponse = resourcePost.handle(taskPath, new RequestParams(new ObjectMapper()), newTaskBody);
+        BaseResponse taskResponse = resourcePost.handle(taskPath, new RequestParams(new ObjectMapper()), null, newTaskBody);
 
         // THEN
         assertThat(taskResponse.getData()).isExactlyInstanceOf(Task.class);
@@ -122,7 +122,7 @@ public class CollectionGetTest extends BaseControllerTest {
         JsonPath projectPath = pathBuilder.buildPath("/projects");
 
         // WHEN -- adding a project
-        ResourceResponse projectResponse = resourcePost.handle(projectPath, new RequestParams(OBJECT_MAPPER), newProjectBody);
+        ResourceResponse projectResponse = resourcePost.handle(projectPath, new RequestParams(OBJECT_MAPPER), null, newProjectBody);
 
         // THEN
         assertThat(projectResponse.getData()).isExactlyInstanceOf(Project.class);
@@ -144,7 +144,7 @@ public class CollectionGetTest extends BaseControllerTest {
         RelationshipsResourcePost sut = new RelationshipsResourcePost(resourceRegistry, typeParser);
 
         // WHEN -- adding a relation between task and project
-        BaseResponse projectRelationshipResponse = sut.handle(savedTaskPath, new RequestParams(OBJECT_MAPPER), newTaskToProjectBody);
+        BaseResponse projectRelationshipResponse = sut.handle(savedTaskPath, new RequestParams(OBJECT_MAPPER), null, newTaskToProjectBody);
         assertThat(projectRelationshipResponse).isNotNull();
 
         // THEN
@@ -160,7 +160,7 @@ public class CollectionGetTest extends BaseControllerTest {
         RequestParams requestParams = new RequestParamsBuilder(new ObjectMapper()).buildRequestParams(queryParams);
 
         // WHEN
-        BaseResponse<?> response = responseGetResp.handle(jsonPath, requestParams, null);
+        BaseResponse<?> response = responseGetResp.handle(jsonPath, requestParams, null, null);
 
         // THEN
         Assert.assertNotNull(response);
@@ -184,7 +184,7 @@ public class CollectionGetTest extends BaseControllerTest {
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
 
         // WHEN -- adding a task
-        BaseResponse taskResponse = resourcePost.handle(taskPath, new RequestParams(new ObjectMapper()), newTaskBody);
+        BaseResponse taskResponse = resourcePost.handle(taskPath, new RequestParams(new ObjectMapper()), null, newTaskBody);
 
         // THEN
         assertThat(taskResponse.getData()).isExactlyInstanceOf(Task.class);
@@ -203,7 +203,7 @@ public class CollectionGetTest extends BaseControllerTest {
         JsonPath projectPath = pathBuilder.buildPath("/projects");
 
         // WHEN -- adding a project
-        ResourceResponse projectResponse = resourcePost.handle(projectPath, new RequestParams(OBJECT_MAPPER), newProjectBody);
+        ResourceResponse projectResponse = resourcePost.handle(projectPath, new RequestParams(OBJECT_MAPPER), null, newProjectBody);
 
         // THEN
         assertThat(projectResponse.getData()).isExactlyInstanceOf(Project.class);
@@ -225,7 +225,7 @@ public class CollectionGetTest extends BaseControllerTest {
         RelationshipsResourcePost sut = new RelationshipsResourcePost(resourceRegistry, typeParser);
 
         // WHEN -- adding a relation between task and project
-        BaseResponse projectRelationshipResponse = sut.handle(savedTaskPath, new RequestParams(OBJECT_MAPPER), newTaskToProjectBody);
+        BaseResponse projectRelationshipResponse = sut.handle(savedTaskPath, new RequestParams(OBJECT_MAPPER), null, newTaskToProjectBody);
         assertThat(projectRelationshipResponse).isNotNull();
 
         // THEN
@@ -241,7 +241,7 @@ public class CollectionGetTest extends BaseControllerTest {
         RequestParams requestParams = new RequestParamsBuilder(new ObjectMapper()).buildRequestParams(queryParams);
 
         // WHEN
-        BaseResponse<?> response = responseGetResp.handle(jsonPath, requestParams, null);
+        BaseResponse<?> response = responseGetResp.handle(jsonPath, requestParams, null, null);
 
         // THEN
         Assert.assertNotNull(response);

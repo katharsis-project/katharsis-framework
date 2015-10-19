@@ -76,7 +76,7 @@ public class ResourceInformationBuilderTest {
 
         assertThat(resourceInformation.getRelationshipFields())
             .isNotNull()
-            .hasSize(2)
+            .hasSize(4)
             .extracting(NAME_PROPERTY)
             .contains("project", "projects");
     }
