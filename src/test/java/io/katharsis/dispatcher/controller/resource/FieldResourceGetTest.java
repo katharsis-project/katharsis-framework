@@ -5,12 +5,11 @@ import io.katharsis.dispatcher.controller.BaseControllerTest;
 import io.katharsis.queryParams.RequestParams;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
-import io.katharsis.resource.include.IncludeFieldSetter;
+import io.katharsis.resource.include.IncludeLookupSetter;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
 import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.internal.util.reflection.FieldSetter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -23,7 +22,7 @@ public class FieldResourceGetTest extends BaseControllerTest {
         // GIVEN
         JsonPath jsonPath = pathBuilder.buildPath("tasks/1/project");
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-        IncludeFieldSetter includeFieldSetter = mock(IncludeFieldSetter.class);
+        IncludeLookupSetter includeFieldSetter = mock(IncludeLookupSetter.class);
         FieldResourceGet sut = new FieldResourceGet(resourceRegistry, typeParser, includeFieldSetter);
 
         // WHEN
@@ -38,7 +37,7 @@ public class FieldResourceGetTest extends BaseControllerTest {
         // GIVEN
         JsonPath jsonPath = new ResourcePath("tasks");
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-        IncludeFieldSetter includeFieldSetter = mock(IncludeFieldSetter.class);
+        IncludeLookupSetter includeFieldSetter = mock(IncludeLookupSetter.class);
         FieldResourceGet sut = new FieldResourceGet(resourceRegistry, typeParser, includeFieldSetter);
 
         // WHEN

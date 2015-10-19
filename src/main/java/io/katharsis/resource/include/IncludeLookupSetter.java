@@ -4,6 +4,7 @@ import io.katharsis.queryParams.RequestParams;
 import io.katharsis.queryParams.include.Inclusion;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.repository.exception.RelationshipRepositoryNotFoundException;
+import io.katharsis.resource.annotations.JsonApiLookupIncludeAutomatically;
 import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -16,27 +17,24 @@ import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Spliterator;
-import java.util.Spliterators;
 import java.util.stream.StreamSupport;
 
 /**
  * Created by zachncst on 10/14/15.
  */
-public class IncludeFieldSetter {
-    private static final transient Logger logger = LoggerFactory.getLogger(IncludeFieldSetter.class);
+public class IncludeLookupSetter {
+    private static final transient Logger logger = LoggerFactory.getLogger(IncludeLookupSetter.class);
 
     private final ResourceRegistry resourceRegistry;
 
-    public IncludeFieldSetter(ResourceRegistry resourceRegistry) {
+    public IncludeLookupSetter(ResourceRegistry resourceRegistry) {
         this.resourceRegistry = resourceRegistry;
     }
 
     public void setIncludedElements(Object resource, RequestParams requestParams)
             throws InvocationTargetException, NoSuchMethodException, NoSuchFieldException, IllegalAccessException {
-        if (requestParams.getIncludedRelations() != null) {
+        if (resource != null && requestParams.getIncludedRelations() != null) {
             if (Iterable.class.isAssignableFrom(resource.getClass())) {
                 StreamSupport.stream(((Iterable<?>) resource).spliterator(), true)
                         .forEach((target) -> {
@@ -63,7 +61,7 @@ public class IncludeFieldSetter {
             Field field = resource.getClass().getDeclaredField(pathList.get(0));
             Object property = PropertyUtils.getProperty(resource, field.getName());
             //attempt to load relationship if it's null
-            if (property == null) {
+            if (property == null && field.isAnnotationPresent(JsonApiLookupIncludeAutomatically.class)) {
                 try {
                     property = loadRelationship(resource, field, requestParams);
                     PropertyUtils.setProperty(resource, field.getName(), property);

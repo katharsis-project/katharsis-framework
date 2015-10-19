@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.dispatcher.controller.resource.ResourceIncludeField;
 import io.katharsis.dispatcher.controller.resource.ResourceUpsert;
-import io.katharsis.resource.include.IncludeFieldSetter;
+import io.katharsis.resource.include.IncludeLookupSetter;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.utils.parser.TypeParser;
 import org.reflections.Reflections;
@@ -25,14 +25,14 @@ public class ControllerRegistryBuilder {
     private final ResourceRegistry resourceRegistry;
     private final TypeParser typeParser;
     private final ObjectMapper objectMapper;
-    private final IncludeFieldSetter includeFieldSetter;
+    private final IncludeLookupSetter includeFieldSetter;
 
     public ControllerRegistryBuilder(@SuppressWarnings("SameParameterValue") ResourceRegistry resourceRegistry, @SuppressWarnings("SameParameterValue") TypeParser typeParser,
-                                     @SuppressWarnings("SameParameterValue") ObjectMapper objectMapper, @SuppressWarnings("SameParameterValue") IncludeFieldSetter includeFieldSetter) {
+                                     @SuppressWarnings("SameParameterValue") ObjectMapper objectMapper) {
         this.resourceRegistry = resourceRegistry;
         this.typeParser = typeParser;
         this.objectMapper = objectMapper;
-        this.includeFieldSetter = includeFieldSetter;
+        this.includeFieldSetter = new IncludeLookupSetter(resourceRegistry);
     }
 
     /**
@@ -69,7 +69,7 @@ public class ControllerRegistryBuilder {
             controller = declaredConstructor.newInstance(resourceRegistry, typeParser, objectMapper);
         } else if (ResourceIncludeField.class.isAssignableFrom(controllerClass)) {
             Constructor<? extends BaseController> declaredConstructor = controllerClass
-                    .getDeclaredConstructor(ResourceRegistry.class, TypeParser.class, IncludeFieldSetter.class);
+                    .getDeclaredConstructor(ResourceRegistry.class, TypeParser.class, IncludeLookupSetter.class);
             controller = declaredConstructor.newInstance(resourceRegistry, typeParser, includeFieldSetter);
         } else {
             Constructor<? extends BaseController> declaredConstructor = controllerClass

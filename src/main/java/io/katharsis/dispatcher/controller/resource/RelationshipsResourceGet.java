@@ -1,6 +1,5 @@
 package io.katharsis.dispatcher.controller.resource;
 
-import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.RequestParams;
 import io.katharsis.repository.RelationshipRepository;
@@ -11,7 +10,7 @@ import io.katharsis.request.path.PathIds;
 import io.katharsis.request.path.RelationshipsPath;
 import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.exception.ResourceFieldNotFoundException;
-import io.katharsis.resource.include.IncludeFieldSetter;
+import io.katharsis.resource.include.IncludeLookupSetter;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.*;
@@ -26,7 +25,7 @@ import java.util.List;
 
 public class RelationshipsResourceGet extends ResourceIncludeField  {
 
-    public RelationshipsResourceGet(ResourceRegistry resourceRegistry, TypeParser typeParser, IncludeFieldSetter fieldSetter) {
+    public RelationshipsResourceGet(ResourceRegistry resourceRegistry, TypeParser typeParser, IncludeLookupSetter fieldSetter) {
         super(resourceRegistry, typeParser, fieldSetter);
     }
 

@@ -1,7 +1,7 @@
 package io.katharsis.dispatcher.controller.resource;
 
 import io.katharsis.dispatcher.controller.BaseController;
-import io.katharsis.resource.include.IncludeFieldSetter;
+import io.katharsis.resource.include.IncludeLookupSetter;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.utils.parser.TypeParser;
 
@@ -11,9 +11,9 @@ import io.katharsis.utils.parser.TypeParser;
 public abstract class ResourceIncludeField implements BaseController {
     protected final ResourceRegistry resourceRegistry;
     protected final TypeParser typeParser;
-    protected final IncludeFieldSetter includeFieldSetter;
+    protected final IncludeLookupSetter includeFieldSetter;
 
-    public ResourceIncludeField(ResourceRegistry resourceRegistry, TypeParser typeParser, IncludeFieldSetter fieldSetter) {
+    public ResourceIncludeField(ResourceRegistry resourceRegistry, TypeParser typeParser, IncludeLookupSetter fieldSetter) {
         this.resourceRegistry = resourceRegistry;
         this.typeParser = typeParser;
         this.includeFieldSetter = fieldSetter;

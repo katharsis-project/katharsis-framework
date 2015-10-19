@@ -1,6 +1,5 @@
 package io.katharsis.dispatcher.controller.collection;
 
-import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.dispatcher.controller.resource.ResourceIncludeField;
 import io.katharsis.queryParams.RequestParams;
@@ -10,7 +9,7 @@ import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.exception.ResourceNotFoundException;
-import io.katharsis.resource.include.IncludeFieldSetter;
+import io.katharsis.resource.include.IncludeLookupSetter;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
@@ -29,7 +28,7 @@ public class CollectionGet extends ResourceIncludeField {
 
     private static final transient Logger log = LoggerFactory.getLogger(CollectionGet.class);
 
-    public CollectionGet(ResourceRegistry resourceRegistry, TypeParser typeParser, IncludeFieldSetter fieldSetter) {
+    public CollectionGet(ResourceRegistry resourceRegistry, TypeParser typeParser, IncludeLookupSetter fieldSetter) {
         super(resourceRegistry, typeParser, fieldSetter);
     }
 

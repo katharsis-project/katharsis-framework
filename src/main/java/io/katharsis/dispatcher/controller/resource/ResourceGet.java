@@ -1,6 +1,5 @@
 package io.katharsis.dispatcher.controller.resource;
 
-import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.RequestParams;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
@@ -10,7 +9,7 @@ import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathIds;
 import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.exception.ResourceNotFoundException;
-import io.katharsis.resource.include.IncludeFieldSetter;
+import io.katharsis.resource.include.IncludeLookupSetter;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
@@ -21,12 +20,11 @@ import io.katharsis.utils.parser.TypeParser;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Type;
 import java.util.Collections;
 
 public class ResourceGet extends ResourceIncludeField {
 
-    public ResourceGet(ResourceRegistry resourceRegistry, TypeParser typeParser, IncludeFieldSetter fieldSetter) {
+    public ResourceGet(ResourceRegistry resourceRegistry, TypeParser typeParser, IncludeLookupSetter fieldSetter) {
         super(resourceRegistry, typeParser, fieldSetter);
     }
 
