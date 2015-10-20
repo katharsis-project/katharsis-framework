@@ -56,7 +56,7 @@ public class TaskToProjectRepository implements RelationshipRepository<Task, Lon
         });
     }
 
-    private void removeRelations(String fieldName) {
+    public void removeRelations(String fieldName) {
         Iterator<Relation<Task>> iterator = THREAD_LOCAL_REPOSITORY.get().iterator();
         while (iterator.hasNext()) {
             Relation<Task> next = iterator.next();

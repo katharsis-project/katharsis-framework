@@ -3,14 +3,8 @@ package io.katharsis.jackson.serializer;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import io.katharsis.resource.field.ResourceField;
-import io.katharsis.resource.information.ResourceInformation;
-import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.response.BaseResponse;
-import io.katharsis.response.CollectionResponse;
-import io.katharsis.response.Container;
-import io.katharsis.response.ResourceResponse;
+import io.katharsis.response.*;
 
 import java.io.IOException;
 import java.util.*;
@@ -36,6 +30,41 @@ public class BaseResponseSerializer extends JsonSerializer<BaseResponse> {
         Set<?> includedResources = new HashSet<>();
 
         gen.writeStartObject();
+
+        if (isLinkageContainer(value)) {
+            gen.writeObjectField(DATA_FIELD_NAME, value.getData());
+        } else {
+            writeResponseWithResources(value, gen, includedResources);
+        }
+
+        if (value.getMetaInformation() != null) {
+            gen.writeObjectField(META_FIELD_NAME, value.getMetaInformation());
+        }
+        if (value.getLinksInformation() != null) {
+            gen.writeObjectField(LINKS_FIELD_NAME, value.getLinksInformation());
+        }
+
+        gen.writeEndObject();
+    }
+
+    private boolean isLinkageContainer(BaseResponse value) {
+        if (value instanceof ResourceResponse) {
+            return value.getData() instanceof LinkageContainer;
+        } else if (value instanceof CollectionResponse) {
+            Iterable data = ((CollectionResponse) value).getData();
+            if (data == null) {
+                return false;
+            } else {
+                Iterator iterator = data.iterator();
+                return iterator.hasNext() && iterator.next() instanceof LinkageContainer;
+            }
+        } else {
+            throw new IllegalArgumentException(String.format("Response can be either %s or %s. Got %s",
+                ResourceResponse.class, CollectionResponse.class, value.getClass()));
+        }
+    }
+
+    private void writeResponseWithResources(BaseResponse value, JsonGenerator gen, Set<?> includedResources) throws IOException {
         if (value instanceof ResourceResponse) {
             Set included = serializeSingle((ResourceResponse) value, gen);
             //noinspection unchecked
@@ -50,15 +79,6 @@ public class BaseResponseSerializer extends JsonSerializer<BaseResponse> {
         }
 
         gen.writeObjectField(INCLUDED_FIELD_NAME, includedResources);
-
-        if (value.getMetaInformation() != null) {
-            gen.writeObjectField(META_FIELD_NAME, value.getMetaInformation());
-        }
-        if (value.getLinksInformation() != null) {
-            gen.writeObjectField(LINKS_FIELD_NAME, value.getLinksInformation());
-        }
-
-        gen.writeEndObject();
     }
 
     private Set<?> serializeSingle(ResourceResponse resourceResponse, JsonGenerator gen) throws IOException {

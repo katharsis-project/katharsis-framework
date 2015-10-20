@@ -7,6 +7,7 @@ import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.models.User;
+import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.response.*;
 import org.junit.Rule;
 import org.junit.Test;
@@ -86,6 +87,39 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
 
         // THEN
         assertThatJson(result).node("data").isArray().ofLength(2);
+    }
+
+    @Test
+    public void onSingleResponseWithManyLinkagesShouldReturnArrayOfLinks() throws Exception {
+        // GIVEN
+        RegistryEntry entry = resourceRegistry.getEntry(Task.class);
+
+        LinkageContainer linkageContainer1 = new LinkageContainer(new Task().setId(1L), Task.class, entry);
+        LinkageContainer linkageContainer2 = new LinkageContainer(new Task().setId(2L), Task.class, entry);
+
+        // WHEN
+        String result = sut.writeValueAsString(new CollectionResponse(Arrays.asList(linkageContainer1, linkageContainer2),
+            new ResourcePath("tasks"), REQUEST_PARAMS, null, null));
+
+        // THEN
+        assertThatJson(result).node("data").isArray().ofLength(2);
+        assertThatJson(result).node("data[0].type").isEqualTo("tasks");
+    }
+
+    @Test
+    public void onSingleResponseWithOneLinkagesShouldReturnOneLink() throws Exception {
+        // GIVEN
+        RegistryEntry entry = resourceRegistry.getEntry(Task.class);
+
+        LinkageContainer linkageContainer1 = new LinkageContainer(new Task().setId(1L), Task.class, entry);
+
+        // WHEN
+        String result = sut.writeValueAsString(new ResourceResponse(linkageContainer1,
+            new ResourcePath("tasks"), REQUEST_PARAMS, null, null));
+
+        // THEN
+        assertThatJson(result).node("data.id").isStringEqualTo("1");
+        assertThatJson(result).node("data.type").isEqualTo("tasks");
     }
 
     @Test
