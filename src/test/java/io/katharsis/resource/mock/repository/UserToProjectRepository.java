@@ -56,7 +56,7 @@ public class UserToProjectRepository implements RelationshipRepository<User, Lon
         });
     }
 
-    private void removeRelations(String fieldName) {
+    public void removeRelations(String fieldName) {
         Iterator<Relation<User>> iterator = THREAD_LOCAL_REPOSITORY.get().iterator();
         while (iterator.hasNext()) {
             Relation<User> next = iterator.next();
