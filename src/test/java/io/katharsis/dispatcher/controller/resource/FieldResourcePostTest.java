@@ -3,7 +3,7 @@ package io.katharsis.dispatcher.controller.resource;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
 import io.katharsis.dispatcher.controller.HttpMethod;
-import io.katharsis.queryParams.RequestParams;
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.dto.ResourceRelationships;
@@ -23,7 +23,7 @@ import static org.mockito.Mockito.mock;
 
 public class FieldResourcePostTest extends BaseControllerTest {
     private static final String REQUEST_TYPE = HttpMethod.POST.name();
-    private static final RequestParams REQUEST_PARAMS = new RequestParams(OBJECT_MAPPER);
+    private static final QueryParams REQUEST_PARAMS = new QueryParams();
 
     @Test
     public void onValidRequestShouldAcceptIt() {
@@ -69,7 +69,7 @@ public class FieldResourcePostTest extends BaseControllerTest {
         expectedException.expect(ResourceNotFoundException.class);
 
         // WHEN
-        sut.handle(projectPath, new RequestParams(OBJECT_MAPPER), newProjectBody);
+        sut.handle(projectPath, new QueryParams(), newProjectBody);
     }
 
     @Test
@@ -86,7 +86,7 @@ public class FieldResourcePostTest extends BaseControllerTest {
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
 
         // WHEN
-        BaseResponse taskResponse = resourcePost.handle(taskPath, new RequestParams(new ObjectMapper()), newTaskBody);
+        BaseResponse taskResponse = resourcePost.handle(taskPath, new QueryParams(), newTaskBody);
 
         // THEN
         assertThat(taskResponse.getData()).isExactlyInstanceOf(Task.class);
@@ -106,7 +106,7 @@ public class FieldResourcePostTest extends BaseControllerTest {
         FieldResourcePost sut = new FieldResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
 
         // WHEN
-        ResourceResponse projectResponse = sut.handle(projectPath, new RequestParams(OBJECT_MAPPER), newProjectBody);
+        ResourceResponse projectResponse = sut.handle(projectPath, new QueryParams(), newProjectBody);
 
         assertThat(projectResponse.getData()).isExactlyInstanceOf(Project.class);
         assertThat(((Project) (projectResponse.getData())).getId()).isNotNull();

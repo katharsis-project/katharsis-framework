@@ -1,12 +1,11 @@
 package io.katharsis.resource.mock.repository;
 
-import io.katharsis.queryParams.RequestParams;
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.mock.models.Task;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -29,7 +28,7 @@ public class TaskRepository implements ResourceRepository<Task, Long> {
     }
 
     @Override
-    public Task findOne(Long aLong, RequestParams requestParams) {
+    public Task findOne(Long aLong, QueryParams queryParams) {
         Task task = THREAD_LOCAL_REPOSITORY.get().get(aLong);
         if (task == null) {
             throw new ResourceNotFoundException("");
@@ -38,13 +37,13 @@ public class TaskRepository implements ResourceRepository<Task, Long> {
     }
 
     @Override
-    public Iterable<Task> findAll(RequestParams requestParams) {
+    public Iterable<Task> findAll(QueryParams queryParams) {
         return THREAD_LOCAL_REPOSITORY.get().values();
     }
 
 
     @Override
-    public Iterable<Task> findAll(Iterable<Long> ids, RequestParams requestParams) {
+    public Iterable<Task> findAll(Iterable<Long> ids, QueryParams queryParams) {
         return THREAD_LOCAL_REPOSITORY.get().values()
             .stream()
             .filter(value -> contains(value, ids))

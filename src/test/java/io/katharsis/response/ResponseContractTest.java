@@ -1,6 +1,6 @@
 package io.katharsis.response;
 
-import io.katharsis.queryParams.RequestParams;
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.RegistryEntry;
 import nl.jqno.equalsverifier.EqualsVerifier;
@@ -14,7 +14,7 @@ public class ResponseContractTest {
     @Test
     public void ContainerEqualsContract() throws NoSuchFieldException {
         EqualsVerifier.forClass(Container.class)
-                .withPrefabValues(RequestParams.class, new RequestParams(null), new RequestParams(null))
+            .withPrefabValues(QueryParams.class, new QueryParams(), new QueryParams())
                 .usingGetClass()
                 .suppress(Warning.NONFINAL_FIELDS)
                 .verify();

@@ -3,9 +3,8 @@ package io.katharsis.dispatcher.controller.resource;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
-import io.katharsis.queryParams.RequestParams;
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.request.dto.DataBody;
-import io.katharsis.request.dto.LinkageData;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.dto.ResourceRelationships;
 import io.katharsis.request.path.JsonPath;
@@ -16,8 +15,6 @@ import io.katharsis.response.BaseResponse;
 import io.katharsis.response.ResourceResponse;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -60,7 +57,7 @@ public class ResourcePatchTest extends BaseControllerTest {
         expectedException.expect(RuntimeException.class);
 
         // WHEN
-        sut.handle(new ResourcePath("fridges"), new RequestParams(new ObjectMapper()), null);
+        sut.handle(new ResourcePath("fridges"), new QueryParams(), null);
     }
 
     @Test
@@ -76,7 +73,7 @@ public class ResourcePatchTest extends BaseControllerTest {
 
         // WHEN
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
-        ResourceResponse taskResponse = resourcePost.handle(taskPath, new RequestParams(new ObjectMapper()), newTaskBody);
+        ResourceResponse taskResponse = resourcePost.handle(taskPath, new QueryParams(), newTaskBody);
         assertThat(taskResponse.getData()).isExactlyInstanceOf(Task.class);
         Long taskId = ((Task) (taskResponse.getData())).getId();
         assertThat(taskId).isNotNull();
@@ -91,7 +88,7 @@ public class ResourcePatchTest extends BaseControllerTest {
         ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser, OBJECT_MAPPER);
 
         // WHEN
-        BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()), taskPatch);
+        BaseResponse<?> response = sut.handle(jsonPath, new QueryParams(), taskPatch);
 
         // THEN
         Assert.assertNotNull(response);
@@ -116,7 +113,7 @@ public class ResourcePatchTest extends BaseControllerTest {
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
 
         // WHEN
-        ResourceResponse taskResponse = resourcePost.handle(documentsPath, new RequestParams(new ObjectMapper()), memorandumBody);
+        ResourceResponse taskResponse = resourcePost.handle(documentsPath, new QueryParams(), memorandumBody);
 
         // THEN
         assertThat(taskResponse.getData()).isExactlyInstanceOf(Memorandum.class);
@@ -137,7 +134,7 @@ public class ResourcePatchTest extends BaseControllerTest {
         ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser, OBJECT_MAPPER);
 
         // WHEN
-        BaseResponse memorandumResponse = sut.handle(documentPath, new RequestParams(new ObjectMapper()), memorandumBody);
+        BaseResponse memorandumResponse = sut.handle(documentPath, new QueryParams(), memorandumBody);
 
         // THEN
         assertThat(memorandumResponse.getData()).isExactlyInstanceOf(Memorandum.class);
@@ -160,7 +157,7 @@ public class ResourcePatchTest extends BaseControllerTest {
 
         // WHEN
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
-        ResourceResponse taskResponse = resourcePost.handle(taskPath, new RequestParams(new ObjectMapper()), newTaskBody);
+        ResourceResponse taskResponse = resourcePost.handle(taskPath, new QueryParams(), newTaskBody);
         assertThat(taskResponse.getData()).isExactlyInstanceOf(Task.class);
         Long taskId = ((Task) (taskResponse.getData())).getId();
         assertThat(taskId).isNotNull();
@@ -177,7 +174,7 @@ public class ResourcePatchTest extends BaseControllerTest {
         ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser, OBJECT_MAPPER);
 
         // WHEN
-        BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()), taskPatch);
+        BaseResponse<?> response = sut.handle(jsonPath, new QueryParams(), taskPatch);
 
         // THEN
         Assert.assertNotNull(response);

@@ -3,7 +3,7 @@ package io.katharsis.dispatcher;
 import io.katharsis.dispatcher.registry.ControllerRegistry;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
-import io.katharsis.queryParams.RequestParams;
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.response.BaseResponse;
@@ -28,18 +28,18 @@ public class RequestDispatcher {
      * Dispatch the request from a client
      * @param jsonPath built {@link JsonPath} instance which represents the URI sent in the request
      * @param requestType type of the request e.g. POST, GET, PATCH
-     * @param requestParams built object containing query parameters of the request
+     * @param queryParams built object containing query parameters of the request
      * @param requestBody deserialized body of the client request
      * @return the response form the Katharsis
      * @throws Exception exception thrown while processing the request
      */
-    public BaseResponse<?> dispatchRequest(JsonPath jsonPath, String requestType, RequestParams requestParams,
+    public BaseResponse<?> dispatchRequest(JsonPath jsonPath, String requestType, QueryParams queryParams,
                                            @SuppressWarnings("SameParameterValue") RequestBody requestBody) throws Exception {
 
         try {
         return controllerRegistry
                 .getController(jsonPath, requestType)
-                .handle(jsonPath, requestParams, requestBody);
+            .handle(jsonPath, queryParams, requestBody);
         } catch (Exception e) {
             Optional<JsonApiExceptionMapper> exceptionMapper = exceptionMapperRegistry.findMapperFor(e.getClass());
             if (exceptionMapper.isPresent()) {

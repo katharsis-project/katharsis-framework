@@ -1,6 +1,6 @@
 package io.katharsis.queryParams;
 
-public enum PaginationKeys {
+public enum RestrictedPaginationKeys {
     offset,
     limit
 }

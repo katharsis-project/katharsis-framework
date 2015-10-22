@@ -13,7 +13,6 @@ import io.katharsis.utils.PropertyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -48,7 +47,7 @@ public class IncludedRelationshipExtractor {
 
         return includedResources
             .stream()
-            .map(includedResource -> new Container(includedResource, response.getRequestParams()))
+            .map(includedResource -> new Container(includedResource, response.getQueryParams()))
             .collect(Collectors.toList());
     }
 
@@ -93,7 +92,8 @@ public class IncludedRelationshipExtractor {
     private List<?> extractIncludedRelationships(Object resource, BaseResponse response)
         throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
         List<?> includedResources = new LinkedList<>();
-        List<Inclusion> includedRelations = response.getRequestParams().getIncludedRelations();
+        List<Inclusion> includedRelations = response.getQueryParams()
+            .getIncludedRelations();
         if (includedRelations != null) {
             for (Inclusion inclusion : includedRelations) {
                 //noinspection unchecked
@@ -123,7 +123,7 @@ public class IncludedRelationshipExtractor {
         Set elements = new HashSet();
         if (pathList.isEmpty()) {
             if (resource != null) {
-                return Collections.singleton(new Container(resource, response.getRequestParams()));
+                return Collections.singleton(new Container(resource, response.getQueryParams()));
             } else {
                 return Collections.emptySet();
             }

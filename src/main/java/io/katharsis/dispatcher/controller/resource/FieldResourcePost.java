@@ -2,7 +2,7 @@ package io.katharsis.dispatcher.controller.resource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.HttpMethod;
-import io.katharsis.queryParams.RequestParams;
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.request.dto.DataBody;
@@ -46,7 +46,7 @@ public class FieldResourcePost extends ResourceUpsert {
     }
 
     @Override
-    public ResourceResponse handle(JsonPath jsonPath, RequestParams requestParams, RequestBody requestBody)
+    public ResourceResponse handle(JsonPath jsonPath, QueryParams queryParams, RequestBody requestBody)
         throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException,
         IOException {
         String resourceEndpointName = jsonPath.getResourceName();
@@ -88,11 +88,12 @@ public class FieldResourcePost extends ResourceUpsert {
             .getProperty(savedResource, relationshipRegistryEntry.getResourceInformation().getIdField().getName());
 
         @SuppressWarnings("unchecked")
-        Object savedResourceWithRelations = resourceRepository.findOne(resourceId, requestParams);
+        Object savedResourceWithRelations = resourceRepository.findOne(resourceId, queryParams);
 
         RelationshipRepository relationshipRepositoryForClass = endpointRegistryEntry.getRelationshipRepositoryForClass(relationshipFieldClass);
         @SuppressWarnings("unchecked")
-        Object parent = endpointRegistryEntry.getResourceRepository().findOne(castedResourceId, requestParams);
+        Object parent = endpointRegistryEntry.getResourceRepository()
+            .findOne(castedResourceId, queryParams);
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
             //noinspection unchecked
             relationshipRepositoryForClass.addRelations(parent, Collections.singletonList(resourceId), jsonPath.getElementName());
@@ -101,11 +102,11 @@ public class FieldResourcePost extends ResourceUpsert {
             relationshipRepositoryForClass.setRelation(parent, resourceId, jsonPath.getElementName());
         }
         MetaInformation metaInformation = getMetaInformation(resourceRepository,
-            Collections.singletonList(savedResourceWithRelations), requestParams);
+            Collections.singletonList(savedResourceWithRelations), queryParams);
         LinksInformation linksInformation =
-            getLinksInformation(resourceRepository, Collections.singletonList(savedResourceWithRelations), requestParams);
+            getLinksInformation(resourceRepository, Collections.singletonList(savedResourceWithRelations), queryParams);
 
-        return new ResourceResponse(savedResourceWithRelations, jsonPath, requestParams, metaInformation, linksInformation);
+        return new ResourceResponse(savedResourceWithRelations, jsonPath, queryParams, metaInformation, linksInformation);
     }
 
     private Serializable getResourceId(PathIds resourceIds, RegistryEntry<?> registryEntry) {

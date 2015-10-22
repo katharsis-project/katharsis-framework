@@ -2,7 +2,7 @@ package io.katharsis.dispatcher.controller.resource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
-import io.katharsis.queryParams.RequestParams;
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -67,7 +67,7 @@ public class RelationshipsResourceGetTest extends BaseControllerTest {
         RelationshipsResourceGet sut = new RelationshipsResourceGet(resourceRegistry, typeParser);
 
         // WHEN
-        BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()), null);
+        BaseResponse<?> response = sut.handle(jsonPath, new QueryParams(), null);
 
         // THEN
         Assert.assertNotNull(response);

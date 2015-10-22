@@ -45,7 +45,8 @@ public class ContainerSerializer extends JsonSerializer<Container> {
 
         if (value != null && value.getData() != null) {
             gen.writeStartObject();
-            writeData(gen, value.getData(), value.getRequestParams().getIncludedFields());
+            writeData(gen, value.getData(), value.getQueryParams()
+                .getIncludedFields());
             gen.writeEndObject();
         } else {
             gen.writeObject(null);

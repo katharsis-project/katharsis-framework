@@ -3,9 +3,6 @@ package io.katharsis.jackson.serializer;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import io.katharsis.resource.field.ResourceField;
-import io.katharsis.resource.information.ResourceInformation;
-import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
 import io.katharsis.response.CollectionResponse;
@@ -63,7 +60,7 @@ public class BaseResponseSerializer extends JsonSerializer<BaseResponse> {
 
     private Set<?> serializeSingle(ResourceResponse resourceResponse, JsonGenerator gen) throws IOException {
         Object value = resourceResponse.getData();
-        gen.writeObjectField(DATA_FIELD_NAME, new Container(value, resourceResponse.getRequestParams()));
+        gen.writeObjectField(DATA_FIELD_NAME, new Container(value, resourceResponse.getQueryParams()));
 
         if (value != null) {
             return includedRelationshipExtractor.extractIncludedResources(value, resourceResponse);
@@ -86,7 +83,7 @@ public class BaseResponseSerializer extends JsonSerializer<BaseResponse> {
 
         List<Container> containers = new LinkedList<>();
         for (Object value : values) {
-            containers.add(new Container(value, collectionResponse.getRequestParams()));
+            containers.add(new Container(value, collectionResponse.getQueryParams()));
         }
 
         gen.writeObjectField(DATA_FIELD_NAME, containers);

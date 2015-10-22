@@ -4,8 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.jackson.mock.models.*;
 import io.katharsis.jackson.serializer.IncludedRelationshipExtractor;
 import io.katharsis.locator.SampleJsonServiceLocator;
-import io.katharsis.queryParams.RequestParams;
-import io.katharsis.queryParams.RequestParamsBuilder;
+import io.katharsis.queryParams.QueryParams;
+import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.request.path.FieldPath;
 import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.field.ResourceField;
@@ -60,7 +60,7 @@ public class IncludedRelationshipExtractorTest {
     @Test
     public void onEmptyInclusionShouldReturnEmptySet() throws Exception {
         // GIVEN
-        ResourceResponse response = new ResourceResponse(null, null, new RequestParams(null), null, null);
+        ResourceResponse response = new ResourceResponse(null, null, new QueryParams(), null, null);
 
         // WHEN
         Set result = sut.extractIncludedResources(new Project(), response);
@@ -72,7 +72,7 @@ public class IncludedRelationshipExtractorTest {
     @Test
     public void onDefaultNullInclusionShouldReturnEmptySet() throws Exception {
         // GIVEN
-        ResourceResponse response = new ResourceResponse(null, null, new RequestParams(null), null, null);
+        ResourceResponse response = new ResourceResponse(null, null, new QueryParams(), null, null);
 
         // WHEN
         Set result = sut.extractIncludedResources(new ClassAWithInclusion(), response);
@@ -84,7 +84,7 @@ public class IncludedRelationshipExtractorTest {
     @Test
     public void onDefaultInclusionShouldReturnOneElement() throws Exception {
         // GIVEN
-        ResourceResponse response = new ResourceResponse(null, null, new RequestParams(null), null, null);
+        ResourceResponse response = new ResourceResponse(null, null, new QueryParams(), null, null);
         ClassBWithInclusion classBsWithInclusion = new ClassBWithInclusion();
         ClassAWithInclusion classAWithInclusion = new ClassAWithInclusion(classBsWithInclusion);
 
@@ -92,13 +92,13 @@ public class IncludedRelationshipExtractorTest {
         Set<?> result = sut.extractIncludedResources(classAWithInclusion, response);
 
         // THEN
-        assertThat(result).containsExactly(new Container(classBsWithInclusion, new RequestParams(null)));
+        assertThat(result).containsExactly(new Container(classBsWithInclusion, new QueryParams()));
     }
 
     @Test
     public void onDefaultInclusionShouldReturnTwoElements() throws Exception {
         // GIVEN
-        ResourceResponse response = new ResourceResponse(null, null, new RequestParams(null), null, null);
+        ResourceResponse response = new ResourceResponse(null, null, new QueryParams(), null, null);
         ClassCWithInclusion classCWithInclusion = new ClassCWithInclusion();
         ClassBWithInclusion classBWithInclusion = new ClassBWithInclusion(classCWithInclusion);
         ClassAWithInclusion classAWithInclusion = new ClassAWithInclusion(classBWithInclusion);
@@ -107,14 +107,14 @@ public class IncludedRelationshipExtractorTest {
         Set<?> result = sut.extractIncludedResources(classAWithInclusion, response);
 
         // THEN
-        assertThat(result).containsOnly(new Container(classBWithInclusion, new RequestParams(null)),
-            new Container(classCWithInclusion, new RequestParams(null)));
+        assertThat(result).containsOnly(new Container(classBWithInclusion, new QueryParams()),
+            new Container(classCWithInclusion, new QueryParams()));
     }
 
     @Test
     public void onDefaultInclusionWithLoopShouldReturnOneElement() throws Exception {
         // GIVEN
-        ResourceResponse response = new ResourceResponse(null, null, new RequestParams(null), null, null);
+        ResourceResponse response = new ResourceResponse(null, null, new QueryParams(), null, null);
         ClassCWithInclusion classCWithInclusion = new ClassCWithInclusion();
         classCWithInclusion.setClassCsWithInclusion(Collections.singletonList(classCWithInclusion));
 
@@ -122,15 +122,16 @@ public class IncludedRelationshipExtractorTest {
         Set<?> result = sut.extractIncludedResources(classCWithInclusion, response);
 
         // THEN
-        assertThat(result).containsExactly(new Container(classCWithInclusion, new RequestParams(null)));
+        assertThat(result).containsExactly(new Container(classCWithInclusion, new QueryParams()));
     }
 
     @Test
     public void onInclusionShouldReturnOneElement() throws Exception {
         // GIVEN
-        RequestParams requestParams = getRequestParamsWithInclusion("[\"classBsWithInclusion\"]");
+        QueryParams queryParams = getRequestParamsWithInclusion("include[classBsWithInclusion]");
 
-        ResourceResponse response = new ResourceResponse(null, new ResourcePath("classAsWithInclusion"), requestParams, null, null);
+        ResourceResponse response = new ResourceResponse(null, new ResourcePath("classAsWithInclusion"), queryParams,
+            null, null);
         ClassBWithInclusion classBsWithInclusion = new ClassBWithInclusion();
         ClassAWithInclusion classAWithInclusion = new ClassAWithInclusion(classBsWithInclusion);
 
@@ -138,14 +139,14 @@ public class IncludedRelationshipExtractorTest {
         Set<?> result = sut.extractIncludedResources(classAWithInclusion, response);
 
         // THEN
-        assertThat(result).containsExactly(new Container(classBsWithInclusion, new RequestParams(null)));
+        assertThat(result).containsExactly(new Container(classBsWithInclusion, new QueryParams()));
     }
 
     @Test
     public void onNullInclusionShouldReturnEmptySet() throws Exception {
         // GIVEN
-        RequestParams requestParams = getRequestParamsWithInclusion("[]");
-        ResourceResponse response = new ResourceResponse(null, new ResourcePath("tasks"), requestParams, null, null);
+        QueryParams queryParams = getRequestParamsWithInclusion("");
+        ResourceResponse response = new ResourceResponse(null, new ResourcePath("tasks"), queryParams, null, null);
 
         // WHEN
         Set<?> result = sut.extractIncludedResources(null, response);
@@ -157,9 +158,9 @@ public class IncludedRelationshipExtractorTest {
     @Test
     public void onFieldInclusionShouldReturnOneElement() throws Exception {
         // GIVEN
-        RequestParams requestParams = getRequestParamsWithInclusion("[\"task.project\"]");
+        QueryParams queryParams = getRequestParamsWithInclusion("include[task][project]");
 
-        ResourceResponse response = new ResourceResponse(null, new FieldPath("project"), requestParams, null, null);
+        ResourceResponse response = new ResourceResponse(null, new FieldPath("project"), queryParams, null, null);
         Task resource = new Task();
         Project project = new Project();
         resource.setProject(project);
@@ -168,15 +169,15 @@ public class IncludedRelationshipExtractorTest {
         Set<?> result = sut.extractIncludedResources(resource, response);
 
         // THEN
-        assertThat(result).containsExactly(new Container(project, new RequestParams(null)));
+        assertThat(result).containsExactly(new Container(project, new QueryParams()));
     }
 
     @Test
     public void onMultipleFieldsInclusionShouldReturnOneElement() throws Exception {
         // GIVEN
-        RequestParams requestParams = getRequestParamsWithInclusion("[\"classBs.classCs\"]");
+        QueryParams queryParams = getRequestParamsWithInclusion("include[classBs][classCs]");
 
-        ResourceResponse response = new ResourceResponse(null, new ResourcePath("classAs"), requestParams, null, null);
+        ResourceResponse response = new ResourceResponse(null, new ResourcePath("classAs"), queryParams, null, null);
         ClassC classC = new ClassC();
         ClassA classA = new ClassA(new ClassB(classC));
 
@@ -184,14 +185,14 @@ public class IncludedRelationshipExtractorTest {
         Set<?> result = sut.extractIncludedResources(classA, response);
 
         // THEN
-        assertThat(result).containsExactly(new Container(classC, new RequestParams(null)));
+        assertThat(result).containsExactly(new Container(classC, new QueryParams()));
     }
 
     @Test
     public void onNullFieldInclusionShouldReturnEmptySet() throws Exception {
         // GIVEN
-        RequestParams requestParams = getRequestParamsWithInclusion("[\"task.project\"]");
-        ResourceResponse response = new ResourceResponse(null, new FieldPath("tasks"), requestParams, null, null);
+        QueryParams queryParams = getRequestParamsWithInclusion("include[task][project]");
+        ResourceResponse response = new ResourceResponse(null, new FieldPath("tasks"), queryParams, null, null);
         Task resource = new Task();
 
         // WHEN
@@ -201,8 +202,8 @@ public class IncludedRelationshipExtractorTest {
         assertThat(result).isEmpty();
     }
 
-    private RequestParams getRequestParamsWithInclusion(String project1) {
-        RequestParamsBuilder requestParamsBuilder = new RequestParamsBuilder(new ObjectMapper());
-        return requestParamsBuilder.buildRequestParams(Collections.singletonMap(RestrictedQueryParamsMembers.include.name(), project1));
+    private QueryParams getRequestParamsWithInclusion(String project1) {
+        QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder();
+        return queryParamsBuilder.buildQueryParams(Collections.singletonMap(project1, Collections.singleton("")));
     }
 }

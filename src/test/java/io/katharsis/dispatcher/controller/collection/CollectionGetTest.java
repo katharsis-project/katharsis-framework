@@ -2,8 +2,8 @@ package io.katharsis.dispatcher.controller.collection;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.request.path.JsonPath;
-import io.katharsis.queryParams.RequestParams;
 import io.katharsis.response.BaseResponse;
 import org.junit.Assert;
 import org.junit.Test;
@@ -46,7 +46,7 @@ public class CollectionGetTest extends BaseControllerTest {
         CollectionGet sut = new CollectionGet(resourceRegistry, typeParser);
 
         // WHEN
-        BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()), null);
+        BaseResponse<?> response = sut.handle(jsonPath, new QueryParams(), null);
 
         // THEN
         Assert.assertNotNull(response);
@@ -60,7 +60,7 @@ public class CollectionGetTest extends BaseControllerTest {
         CollectionGet sut = new CollectionGet(resourceRegistry, typeParser);
 
         // WHEN
-        BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()), null);
+        BaseResponse<?> response = sut.handle(jsonPath, new QueryParams(), null);
 
         // THEN
         Assert.assertNotNull(response);

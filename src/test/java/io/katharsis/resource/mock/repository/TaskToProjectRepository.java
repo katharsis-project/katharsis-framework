@@ -1,6 +1,6 @@
 package io.katharsis.resource.mock.repository;
 
-import io.katharsis.queryParams.RequestParams;
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
@@ -67,7 +67,7 @@ public class TaskToProjectRepository implements RelationshipRepository<Task, Lon
     }
 
     @Override
-    public Project findOneTarget(Long sourceId, String fieldName, RequestParams requestParams) {
+    public Project findOneTarget(Long sourceId, String fieldName, QueryParams queryParams) {
         for (Relation<Task> relation : THREAD_LOCAL_REPOSITORY.get()) {
             if (relation.getSource().getId().equals(sourceId) &&
                 relation.getFieldName().equals(fieldName)) {
@@ -80,7 +80,7 @@ public class TaskToProjectRepository implements RelationshipRepository<Task, Lon
     }
 
     @Override
-    public Iterable<Project> findManyTargets(Long sourceId, String fieldName, RequestParams requestParams) {
+    public Iterable<Project> findManyTargets(Long sourceId, String fieldName, QueryParams queryParams) {
         List<Project> projects = new LinkedList<>();
         THREAD_LOCAL_REPOSITORY
             .get()

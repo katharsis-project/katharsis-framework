@@ -2,7 +2,7 @@ package io.katharsis.dispatcher.controller.resource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.HttpMethod;
-import io.katharsis.queryParams.RequestParams;
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.RequestBody;
@@ -17,7 +17,6 @@ import io.katharsis.response.BaseResponse;
 import io.katharsis.response.LinksInformation;
 import io.katharsis.response.MetaInformation;
 import io.katharsis.response.ResourceResponse;
-import io.katharsis.utils.PropertyUtils;
 import io.katharsis.utils.parser.TypeParser;
 
 import java.io.Serializable;
@@ -37,7 +36,8 @@ public class ResourcePatch extends ResourceUpsert {
     }
 
     @Override
-    public BaseResponse<?> handle(JsonPath jsonPath, RequestParams requestParams, RequestBody requestBody) throws Exception {
+    public BaseResponse<?> handle(JsonPath jsonPath, QueryParams queryParams, RequestBody requestBody) throws
+        Exception {
 
         String resourceEndpointName = jsonPath.getResourceName();
         RegistryEntry endpointRegistryEntry = resourceRegistry.getEntry(resourceEndpointName);
@@ -68,18 +68,18 @@ public class ResourcePatch extends ResourceUpsert {
 
         ResourceRepository resourceRepository = endpointRegistryEntry.getResourceRepository();
         @SuppressWarnings("unchecked")
-        Object resource = resourceRepository.findOne(resourceId, requestParams);
+        Object resource = resourceRepository.findOne(resourceId, queryParams);
 
 
         setAttributes(dataBody, resource, bodyRegistryEntry.getResourceInformation());
-        setRelations(resource, bodyRegistryEntry, dataBody, requestParams);
+        setRelations(resource, bodyRegistryEntry, dataBody, queryParams);
         Object savedResource = resourceRepository.save(resource);
 
         MetaInformation metaInformation =
-            getMetaInformation(resourceRepository, Collections.singletonList(savedResource), requestParams);
+            getMetaInformation(resourceRepository, Collections.singletonList(savedResource), queryParams);
         LinksInformation linksInformation =
-            getLinksInformation(resourceRepository, Collections.singletonList(savedResource), requestParams);
+            getLinksInformation(resourceRepository, Collections.singletonList(savedResource), queryParams);
 
-        return new ResourceResponse(savedResource, jsonPath, requestParams, metaInformation, linksInformation);
+        return new ResourceResponse(savedResource, jsonPath, queryParams, metaInformation, linksInformation);
     }
 }

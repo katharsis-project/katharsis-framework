@@ -3,7 +3,7 @@ package io.katharsis.dispatcher.controller.resource;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import io.katharsis.dispatcher.controller.BaseController;
-import io.katharsis.queryParams.RequestParams;
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.LinkageData;
@@ -148,17 +148,18 @@ public abstract class ResourceUpsert implements BaseController {
         return registryEntry.getResourceInformation().getResourceClass().newInstance();
     }
 
-    protected void setRelations(Object newResource, RegistryEntry registryEntry, DataBody dataBody, RequestParams requestParams)
+    protected void setRelations(Object newResource, RegistryEntry registryEntry, DataBody dataBody, QueryParams
+        queryParams)
         throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         if (dataBody.getRelationships() != null) {
             Map<String, Object> additionalProperties = dataBody.getRelationships().getAdditionalProperties();
             for (Map.Entry<String, Object> property : additionalProperties.entrySet()) {
                 if (property.getValue() != null && Iterable.class.isAssignableFrom(property.getValue().getClass())) {
                     //noinspection unchecked
-                    setRelationsField(newResource, registryEntry, (Map.Entry) property, requestParams);
+                    setRelationsField(newResource, registryEntry, (Map.Entry) property, queryParams);
                 } else {
                     //noinspection unchecked
-                    setRelationField(newResource, registryEntry, (Map.Entry) property, requestParams);
+                    setRelationField(newResource, registryEntry, (Map.Entry) property, queryParams);
                 }
 
             }
@@ -166,7 +167,7 @@ public abstract class ResourceUpsert implements BaseController {
     }
 
     private void setRelationsField(Object newResource, RegistryEntry registryEntry,
-                                   Map.Entry<String, Iterable<LinkageData>> property, RequestParams requestParams) {
+                                   Map.Entry<String, Iterable<LinkageData>> property, QueryParams queryParams) {
         String propertyName = property.getKey();
         ResourceField relationshipField = registryEntry.getResourceInformation().findRelationshipFieldByName(propertyName);
         Class<?> relationshipFieldClass = Generics.getResourceClass(relationshipField.getGenericType(), relationshipField.getType());
@@ -178,12 +179,13 @@ public abstract class ResourceUpsert implements BaseController {
             Serializable castedRelationshipId = typeParser.parse(linkageData.getId(), idFieldType);
             relationshipIds.add(castedRelationshipId);
         }
-        Iterable relationObjects = entry.getResourceRepository().findAll(relationshipIds, requestParams);
+        Iterable relationObjects = entry.getResourceRepository()
+            .findAll(relationshipIds, queryParams);
         PropertyUtils.setProperty(newResource, propertyName, relationObjects);
     }
 
     private void setRelationField(Object newResource, RegistryEntry registryEntry,
-                                  Map.Entry<String, LinkageData> property, RequestParams requestParams) {
+                                  Map.Entry<String, LinkageData> property, QueryParams queryParams) {
         String propertyName = property.getKey();
 
         Object relationObject;
@@ -192,7 +194,8 @@ public abstract class ResourceUpsert implements BaseController {
             RegistryEntry entry = resourceRegistry.getEntry(relationshipFieldByName.getType());
             Class idFieldType = entry.getResourceInformation().getIdField().getType();
             Serializable castedRelationshipId = typeParser.parse(property.getValue().getId(), idFieldType);
-            relationObject = entry.getResourceRepository().findOne(castedRelationshipId, requestParams);
+            relationObject = entry.getResourceRepository()
+                .findOne(castedRelationshipId, queryParams);
         } else {
             relationObject = null;
         }

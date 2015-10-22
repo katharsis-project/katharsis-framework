@@ -2,7 +2,7 @@ package io.katharsis.dispatcher.controller.collection;
 
 import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.dispatcher.controller.HttpMethod;
-import io.katharsis.queryParams.RequestParams;
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
@@ -42,7 +42,7 @@ public class CollectionGet implements BaseController {
 
     @Override
     @SuppressWarnings("unchecked")
-    public BaseResponse<?> handle(JsonPath jsonPath, RequestParams requestParams, RequestBody requestBody) {
+    public BaseResponse<?> handle(JsonPath jsonPath, QueryParams queryParams, RequestBody requestBody) {
         String resourceName = jsonPath.getElementName();
         RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
         if (registryEntry == null) {
@@ -51,13 +51,13 @@ public class CollectionGet implements BaseController {
         Iterable<?> resources;
         ResourceRepository resourceRepository = registryEntry.getResourceRepository();
         if (jsonPath.getIds() == null || jsonPath.getIds().getIds().isEmpty()) {
-            resources = resourceRepository.findAll(requestParams);
+            resources = resourceRepository.findAll(queryParams);
         } else {
             Class<? extends Serializable> idType = (Class<? extends Serializable>)registryEntry
                     .getResourceInformation().getIdField().getType();
             Iterable<? extends Serializable> parsedIds = typeParser.parse((Iterable<String>) jsonPath.getIds().getIds(),
                     idType);
-            resources = resourceRepository.findAll(parsedIds, requestParams);
+            resources = resourceRepository.findAll(parsedIds, queryParams);
         }
         List containers = new LinkedList();
         if (resources != null) {
@@ -65,9 +65,9 @@ public class CollectionGet implements BaseController {
                 containers.add(element);
             }
         }
-        MetaInformation metaInformation = getMetaInformation(resourceRepository, resources, requestParams);
-        LinksInformation linksInformation = getLinksInformation(resourceRepository, resources, requestParams);
+        MetaInformation metaInformation = getMetaInformation(resourceRepository, resources, queryParams);
+        LinksInformation linksInformation = getLinksInformation(resourceRepository, resources, queryParams);
 
-        return new CollectionResponse(containers, jsonPath, requestParams, metaInformation, linksInformation);
+        return new CollectionResponse(containers, jsonPath, queryParams, metaInformation, linksInformation);
     }
 }

@@ -1,6 +1,6 @@
 package io.katharsis.dispatcher.controller;
 
-import io.katharsis.queryParams.RequestParams;
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.LinksRepository;
 import io.katharsis.repository.MetaRepository;
 import io.katharsis.request.dto.RequestBody;
@@ -32,22 +32,23 @@ public interface BaseController {
      * Passes the request to controller method.
      *
      * @param jsonPath Requested resource path
-     * @param requestParams Params specifying request
+     * @param queryParams Params specifying request
      * @param requestBody Top-level JSON object from method's body of the request passed as {@link RequestBody}
      * @return CollectionResponse object
      * @throws Exception internal Katharsis exception
      */
-    BaseResponse<?> handle(JsonPath jsonPath, RequestParams requestParams, RequestBody requestBody) throws Exception;
+    BaseResponse<?> handle(JsonPath jsonPath, QueryParams queryParams, RequestBody requestBody) throws Exception;
 
-    default MetaInformation getMetaInformation(Object repository, Iterable<?> resources, RequestParams requestParams) {
+    default MetaInformation getMetaInformation(Object repository, Iterable<?> resources, QueryParams queryParams) {
         if (repository instanceof MetaRepository) {
-            return ((MetaRepository) repository).getMetaInformation(resources, requestParams);
+            return ((MetaRepository) repository).getMetaInformation(resources, queryParams);
         }
         return null;
     }
-    default LinksInformation getLinksInformation(Object repository, Iterable<?> resources, RequestParams requestParams) {
+
+    default LinksInformation getLinksInformation(Object repository, Iterable<?> resources, QueryParams queryParams) {
         if (repository instanceof LinksRepository) {
-            return ((LinksRepository) repository).getLinksInformation(resources, requestParams);
+            return ((LinksRepository) repository).getLinksInformation(resources, queryParams);
         }
         return null;
     }

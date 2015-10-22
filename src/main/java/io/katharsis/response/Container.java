@@ -1,7 +1,7 @@
 package io.katharsis.response;
 
 import io.katharsis.jackson.serializer.ContainerSerializer;
-import io.katharsis.queryParams.RequestParams;
+import io.katharsis.queryParams.QueryParams;
 
 import java.util.Objects;
 
@@ -11,22 +11,22 @@ import java.util.Objects;
  */
 public class Container {
     private Object data;
-    private RequestParams requestParams;
+    private QueryParams queryParams;
 
     public Container() {
     }
 
-    public Container(Object data, RequestParams requestParams) {
+    public Container(Object data, QueryParams queryParams) {
         this.data = data;
-        this.requestParams = requestParams;
+        this.queryParams = queryParams;
     }
 
-    public RequestParams getRequestParams() {
-        return requestParams;
+    public QueryParams getQueryParams() {
+        return queryParams;
     }
 
-    public void setRequestParams(RequestParams requestParams) {
-        this.requestParams = requestParams;
+    public void setQueryParams(QueryParams queryParams) {
+        this.queryParams = queryParams;
     }
 
     public Object getData() {

@@ -2,7 +2,7 @@ package io.katharsis.dispatcher.controller.resource;
 
 import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.dispatcher.controller.HttpMethod;
-import io.katharsis.queryParams.RequestParams;
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.FieldPath;
@@ -38,7 +38,7 @@ public class FieldResourceGet implements BaseController {
     }
 
     @Override
-    public BaseResponse handle(JsonPath jsonPath, RequestParams requestParams, RequestBody requestBody)
+    public BaseResponse handle(JsonPath jsonPath, QueryParams queryParams, RequestBody requestBody)
             throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         String resourceName = jsonPath.getResourceName();
         PathIds resourceIds = jsonPath.getIds();
@@ -59,18 +59,21 @@ public class FieldResourceGet implements BaseController {
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
             @SuppressWarnings("unchecked")
             Iterable<?> targetObjects = relationshipRepositoryForClass
-                .findManyTargets(castedResourceId, elementName, requestParams);
-            MetaInformation metaInformation = getMetaInformation(relationshipRepositoryForClass, targetObjects, requestParams);
-            LinksInformation linksInformation = getLinksInformation(relationshipRepositoryForClass, targetObjects, requestParams);
-            target = new CollectionResponse(targetObjects, jsonPath, requestParams, metaInformation, linksInformation);
+                .findManyTargets(castedResourceId, elementName, queryParams);
+            MetaInformation metaInformation = getMetaInformation(relationshipRepositoryForClass, targetObjects,
+                queryParams);
+            LinksInformation linksInformation = getLinksInformation(relationshipRepositoryForClass, targetObjects,
+                queryParams);
+            target = new CollectionResponse(targetObjects, jsonPath, queryParams, metaInformation, linksInformation);
         } else {
             @SuppressWarnings("unchecked")
-            Object targetObject = relationshipRepositoryForClass.findOneTarget(castedResourceId, elementName, requestParams);
+            Object targetObject = relationshipRepositoryForClass.findOneTarget(castedResourceId, elementName, queryParams);
             MetaInformation metaInformation =
-                getMetaInformation(relationshipRepositoryForClass, Collections.singletonList(targetObject), requestParams);
+                getMetaInformation(relationshipRepositoryForClass, Collections.singletonList(targetObject), queryParams);
             LinksInformation linksInformation =
-                getLinksInformation(relationshipRepositoryForClass, Collections.singletonList(targetObject), requestParams);
-            target = new ResourceResponse(targetObject, jsonPath, requestParams, metaInformation, linksInformation);
+                getLinksInformation(relationshipRepositoryForClass, Collections.singletonList(targetObject),
+                    queryParams);
+            target = new ResourceResponse(targetObject, jsonPath, queryParams, metaInformation, linksInformation);
         }
 
         return target;

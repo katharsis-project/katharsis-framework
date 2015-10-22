@@ -2,7 +2,7 @@ package io.katharsis.dispatcher.controller.resource;
 
 import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.dispatcher.controller.HttpMethod;
-import io.katharsis.queryParams.RequestParams;
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
@@ -40,7 +40,7 @@ public class RelationshipsResourceGet implements BaseController {
     }
 
     @Override
-    public BaseResponse handle(JsonPath jsonPath, RequestParams requestParams, RequestBody requestBody)
+    public BaseResponse handle(JsonPath jsonPath, QueryParams queryParams, RequestBody requestBody)
         throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         String resourceName = jsonPath.getResourceName();
         PathIds resourceIds = jsonPath.getIds();
@@ -67,30 +67,31 @@ public class RelationshipsResourceGet implements BaseController {
 
             @SuppressWarnings("unchecked")
             Iterable<?> targetObjects = relationshipRepositoryForClass
-                .findManyTargets(castedResourceId, elementName, requestParams);
+                .findManyTargets(castedResourceId, elementName, queryParams);
             MetaInformation metaInformation =
-                getMetaInformation(relationshipRepositoryForClass, targetObjects, requestParams);
+                getMetaInformation(relationshipRepositoryForClass, targetObjects, queryParams);
             LinksInformation linksInformation =
-                getLinksInformation(relationshipRepositoryForClass, targetObjects, requestParams);
+                getLinksInformation(relationshipRepositoryForClass, targetObjects, queryParams);
             if (targetObjects != null) {
                 for (Object targetObject : targetObjects) {
                     dataList.add(new LinkageContainer(targetObject, relationshipFieldClass, relationshipFieldEntry));
                 }
             }
-            target = new CollectionResponse(dataList, jsonPath, requestParams, metaInformation, linksInformation);
+            target = new CollectionResponse(dataList, jsonPath, queryParams, metaInformation, linksInformation);
         } else {
             @SuppressWarnings("unchecked")
-            Object targetObject = relationshipRepositoryForClass.findOneTarget(castedResourceId, elementName, requestParams);
+            Object targetObject = relationshipRepositoryForClass.findOneTarget(castedResourceId, elementName,
+                queryParams);
             MetaInformation metaInformation =
-                getMetaInformation(relationshipRepositoryForClass, Collections.singletonList(targetObject), requestParams);
+                getMetaInformation(relationshipRepositoryForClass, Collections.singletonList(targetObject), queryParams);
             LinksInformation linksInformation =
-                getLinksInformation(relationshipRepositoryForClass, Collections.singletonList(targetObject), requestParams);
+                getLinksInformation(relationshipRepositoryForClass, Collections.singletonList(targetObject), queryParams);
             if (targetObject != null) {
                 LinkageContainer linkageContainer = new LinkageContainer(targetObject, relationshipFieldClass, relationshipFieldEntry);
 
-                target = new ResourceResponse(linkageContainer, jsonPath, requestParams, metaInformation, linksInformation);
+                target = new ResourceResponse(linkageContainer, jsonPath, queryParams, metaInformation, linksInformation);
             } else {
-                target = new ResourceResponse(null, jsonPath, requestParams, metaInformation, linksInformation);
+                target = new ResourceResponse(null, jsonPath, queryParams, metaInformation, linksInformation);
             }
         }
 
