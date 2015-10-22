@@ -30,7 +30,7 @@ public class ParametersFactory {
             throw new RepositoryMethodException(
                 String.format("Method with %s annotation should have at least one parameter.", annotationType));
         }
-        Parameter[] parametersToResolve = Arrays.copyOfRange(parameters, 1, parameters.length);
+        Parameter[] parametersToResolve = Arrays.copyOfRange(parameters, firstParameters.length, parameters.length);
         Object[] additionalParameters = buildParameters(parametersToResolve, requestParams);
 
         return concatenate(firstParameters, additionalParameters);
@@ -50,7 +50,7 @@ public class ParametersFactory {
             throw new RepositoryMethodException(
                 String.format("Method with %s annotation should have at least one parameter.", annotationType));
         }
-        Parameter[] parametersToResolve = Arrays.copyOfRange(parameters, 1, parameters.length);
+        Parameter[] parametersToResolve = Arrays.copyOfRange(parameters, firstParameters.length, parameters.length);
         Object[] additionalParameters = buildParameters(parametersToResolve);
 
         return concatenate(firstParameters, additionalParameters);

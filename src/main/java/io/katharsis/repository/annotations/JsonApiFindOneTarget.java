@@ -3,6 +3,7 @@ package io.katharsis.repository.annotations;
 import io.katharsis.queryParams.RequestParams;
 
 import java.io.Serializable;
+import java.lang.annotation.*;
 
 /**
  * <p>
@@ -22,5 +23,8 @@ import java.io.Serializable;
  *
  * @see io.katharsis.repository.RelationshipRepository#findOneTarget(Serializable, String, RequestParams)
  */
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
 public @interface JsonApiFindOneTarget {
 }
