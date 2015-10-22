@@ -1,5 +1,6 @@
 package io.katharsis.utils;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -90,6 +91,29 @@ public class ClassUtils {
         }
 
         return new LinkedList<>(result.values());
+    }
+
+    /**
+     * Return a first occurrence of a method
+     * @param searchObject
+     * @param annotationClass
+     * @return
+     */
+    public static Method findMethodWith(Object searchObject, Class<? extends Annotation> annotationClass) {
+        Method foundMethod = null;
+        Class<?> currentClass = searchObject.getClass();
+        methodFinder:
+        while (currentClass != null && currentClass != Object.class) {
+            for (Method method : currentClass.getDeclaredMethods()) {
+                if (method.isAnnotationPresent(annotationClass)) {
+                    foundMethod = method;
+                    break methodFinder;
+                }
+            }
+            currentClass = currentClass.getSuperclass();
+        }
+
+        return foundMethod;
     }
 
     private boolean isGetter(Method method) {

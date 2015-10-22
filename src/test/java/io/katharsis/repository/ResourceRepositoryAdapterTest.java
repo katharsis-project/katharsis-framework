@@ -4,6 +4,7 @@ import io.katharsis.queryParams.RequestParams;
 import io.katharsis.repository.annotations.*;
 import io.katharsis.repository.exception.RepositoryAnnotationNotFoundException;
 import io.katharsis.repository.exception.RepositoryMethodException;
+import io.katharsis.repository.mock.NewInstanceRepositoryMethodParameterProvider;
 import io.katharsis.resource.mock.models.Project;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,21 +18,21 @@ import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
-public class ResourceRepositoryFacadeTest {
+public class ResourceRepositoryAdapterTest {
     private RequestParams requestParams;
-    private NewInstanceRepositoryMethodParameterProvider parameterProvider;
+    private ParametersFactory parameterProvider;
 
     @Before
     public void setUp() throws Exception {
         requestParams = new RequestParams(null);
-        parameterProvider = new NewInstanceRepositoryMethodParameterProvider();
+        parameterProvider = new ParametersFactory(new NewInstanceRepositoryMethodParameterProvider());
     }
 
     @Test(expected = RepositoryAnnotationNotFoundException.class)
     public void onClassWithoutFindOneShouldThrowException() throws Exception {
         // GIVEN
         ResourceRepositoryWithoutAnyMethods repo = new ResourceRepositoryWithoutAnyMethods();
-        ResourceRepositoryFacade<Project, Long> sut = new ResourceRepositoryFacade<>(repo, parameterProvider);
+        ResourceRepositoryAdapter<Project, Long> sut = new ResourceRepositoryAdapter<>(repo, parameterProvider);
 
         // WHEN
         sut.findOne(1L, requestParams);
@@ -41,7 +42,7 @@ public class ResourceRepositoryFacadeTest {
     public void onClassWithInvalidFindOneShouldThrowException() throws Exception {
         // GIVEN
         ResourceRepositoryWithEmptyFindOne repo = new ResourceRepositoryWithEmptyFindOne();
-        ResourceRepositoryFacade<Project, Long> sut = new ResourceRepositoryFacade<>(repo, parameterProvider);
+        ResourceRepositoryAdapter<Project, Long> sut = new ResourceRepositoryAdapter<>(repo, parameterProvider);
 
         // WHEN
         sut.findOne(1L, requestParams);
@@ -51,7 +52,7 @@ public class ResourceRepositoryFacadeTest {
     public void onClassWithFindOneShouldReturnValue() throws Exception {
         // GIVEN
         ResourceRepositoryWithFindOne repo = spy(ResourceRepositoryWithFindOne.class);
-        ResourceRepositoryFacade<Project, Long> sut = new ResourceRepositoryFacade<>(repo, parameterProvider);
+        ResourceRepositoryAdapter<Project, Long> sut = new ResourceRepositoryAdapter<>(repo, parameterProvider);
 
         // WHEN
         Project result = sut.findOne(1L, requestParams);
@@ -66,7 +67,7 @@ public class ResourceRepositoryFacadeTest {
     public void onClassWithoutFindAllShouldThrowException() throws Exception {
         // GIVEN
         ResourceRepositoryWithoutAnyMethods repo = new ResourceRepositoryWithoutAnyMethods();
-        ResourceRepositoryFacade<Project, Long> sut = new ResourceRepositoryFacade<>(repo, parameterProvider);
+        ResourceRepositoryAdapter<Project, Long> sut = new ResourceRepositoryAdapter<>(repo, parameterProvider);
 
         // WHEN
         sut.findAll(requestParams);
@@ -76,7 +77,7 @@ public class ResourceRepositoryFacadeTest {
     public void onClassWithFindAllShouldReturnValue() throws Exception {
         // GIVEN
         ResourceRepositoryWithFindAll repo = spy(ResourceRepositoryWithFindAll.class);
-        ResourceRepositoryFacade<Project, Long> sut = new ResourceRepositoryFacade<>(repo, parameterProvider);
+        ResourceRepositoryAdapter<Project, Long> sut = new ResourceRepositoryAdapter<>(repo, parameterProvider);
 
         // WHEN
         Iterable<Project> result = sut.findAll(requestParams);
@@ -92,7 +93,7 @@ public class ResourceRepositoryFacadeTest {
     public void onClassWithoutSaveShouldThrowException() throws Exception {
         // GIVEN
         ResourceRepositoryWithoutAnyMethods repo = new ResourceRepositoryWithoutAnyMethods();
-        ResourceRepositoryFacade<Project, Long> sut = new ResourceRepositoryFacade<>(repo, parameterProvider);
+        ResourceRepositoryAdapter<Project, Long> sut = new ResourceRepositoryAdapter<>(repo, parameterProvider);
 
         // WHEN
         sut.save(new Project());
@@ -102,7 +103,7 @@ public class ResourceRepositoryFacadeTest {
     public void onClassWithInvalidSaveShouldThrowException() throws Exception {
         // GIVEN
         ResourceRepositoryWithEmptySave repo = new ResourceRepositoryWithEmptySave();
-        ResourceRepositoryFacade<Project, Long> sut = new ResourceRepositoryFacade<>(repo, parameterProvider);
+        ResourceRepositoryAdapter<Project, Long> sut = new ResourceRepositoryAdapter<>(repo, parameterProvider);
 
         // WHEN
         sut.save(new Project());
@@ -112,7 +113,7 @@ public class ResourceRepositoryFacadeTest {
     public void onClassWithSaveShouldReturnValue() throws Exception {
         // GIVEN
         ResourceRepositoryWithSave repo = spy(ResourceRepositoryWithSave.class);
-        ResourceRepositoryFacade<Project, Long> sut = new ResourceRepositoryFacade<>(repo, parameterProvider);
+        ResourceRepositoryAdapter<Project, Long> sut = new ResourceRepositoryAdapter<>(repo, parameterProvider);
 
         // WHEN
         Project entity = new Project();
@@ -129,7 +130,7 @@ public class ResourceRepositoryFacadeTest {
         // GIVEN
         ResourceRepositoryWithoutAnyMethods repo = new ResourceRepositoryWithoutAnyMethods();
         
-        ResourceRepositoryFacade<Project, Long> sut = new ResourceRepositoryFacade<>(repo, parameterProvider);
+        ResourceRepositoryAdapter<Project, Long> sut = new ResourceRepositoryAdapter<>(repo, parameterProvider);
 
         // WHEN
         sut.delete(1L);
@@ -139,7 +140,7 @@ public class ResourceRepositoryFacadeTest {
     public void onClassWithInvalidDeleteShouldThrowException() throws Exception {
         // GIVEN
         ResourceRepositoryWithEmptyDelete repo = new ResourceRepositoryWithEmptyDelete();
-        ResourceRepositoryFacade<Project, Long> sut = new ResourceRepositoryFacade<>(repo, parameterProvider);
+        ResourceRepositoryAdapter<Project, Long> sut = new ResourceRepositoryAdapter<>(repo, parameterProvider);
 
         // WHEN
         sut.delete(1L);
@@ -149,7 +150,7 @@ public class ResourceRepositoryFacadeTest {
     public void onClassWithDeleteShouldInvokeMethod() throws Exception {
         // GIVEN
         ResourceRepositoryWithDelete repo = spy(ResourceRepositoryWithDelete.class);
-        ResourceRepositoryFacade<Project, Long> sut = new ResourceRepositoryFacade<>(repo, parameterProvider);
+        ResourceRepositoryAdapter<Project, Long> sut = new ResourceRepositoryAdapter<>(repo, parameterProvider);
 
         // WHEN
         sut.delete(1L);
@@ -222,18 +223,6 @@ public class ResourceRepositoryFacadeTest {
 
         @JsonApiDelete
         public void delete(Long id, String s) {
-        }
-    }
-
-    public static class NewInstanceRepositoryMethodParameterProvider implements RepositoryMethodParameterProvider {
-
-        @Override
-        public <T> T provide(Parameter parameter) {
-            try {
-                return (T) parameter.getType().newInstance();
-            } catch (InstantiationException | IllegalAccessException e) {
-                throw new RuntimeException(e);
-            }
         }
     }
 }
