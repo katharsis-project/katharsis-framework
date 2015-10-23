@@ -31,7 +31,6 @@ public class CollectionGetTest extends BaseControllerTest {
 
     private static final String REQUEST_TYPE = "GET";
 
-    private static final RequestParams REQUEST_PARAMS = new RequestParams(OBJECT_MAPPER);
 
     @Test
     public void onGivenRequestCollectionGetShouldAcceptIt() {
@@ -96,11 +95,11 @@ public class CollectionGetTest extends BaseControllerTest {
         DataBody data = new DataBody();
         newTaskBody.setData(data);
         data.setType("tasks");
-        data.setAttributes(OBJECT_MAPPER.createObjectNode().put("name", "sample task"));
+        data.setAttributes(objectMapper.createObjectNode().put("name", "sample task"));
         data.setRelationships(new ResourceRelationships());
 
         JsonPath taskPath = pathBuilder.buildPath("/tasks");
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper);
 
         // WHEN -- adding a task
         BaseResponse taskResponse = resourcePost.handle(taskPath, new RequestParams(new ObjectMapper()), null, newTaskBody);
@@ -117,12 +116,12 @@ public class CollectionGetTest extends BaseControllerTest {
         data = new DataBody();
         newProjectBody.setData(data);
         data.setType("projects");
-        data.setAttributes(OBJECT_MAPPER.createObjectNode().put("name", "sample project"));
+        data.setAttributes(objectMapper.createObjectNode().put("name", "sample project"));
 
         JsonPath projectPath = pathBuilder.buildPath("/projects");
 
         // WHEN -- adding a project
-        ResourceResponse projectResponse = resourcePost.handle(projectPath, new RequestParams(OBJECT_MAPPER), null, newProjectBody);
+        ResourceResponse projectResponse = resourcePost.handle(projectPath, new RequestParams(objectMapper), null, newProjectBody);
 
         // THEN
         assertThat(projectResponse.getData()).isExactlyInstanceOf(Project.class);
@@ -144,7 +143,7 @@ public class CollectionGetTest extends BaseControllerTest {
         RelationshipsResourcePost sut = new RelationshipsResourcePost(resourceRegistry, typeParser);
 
         // WHEN -- adding a relation between task and project
-        BaseResponse projectRelationshipResponse = sut.handle(savedTaskPath, new RequestParams(OBJECT_MAPPER), null, newTaskToProjectBody);
+        BaseResponse projectRelationshipResponse = sut.handle(savedTaskPath, new RequestParams(objectMapper), null, newTaskToProjectBody);
         assertThat(projectRelationshipResponse).isNotNull();
 
         // THEN
@@ -177,11 +176,11 @@ public class CollectionGetTest extends BaseControllerTest {
         DataBody data = new DataBody();
         newTaskBody.setData(data);
         data.setType("tasks");
-        data.setAttributes(OBJECT_MAPPER.createObjectNode().put("name", "sample task"));
+        data.setAttributes(objectMapper.createObjectNode().put("name", "sample task"));
         data.setRelationships(new ResourceRelationships());
 
         JsonPath taskPath = pathBuilder.buildPath("/tasks");
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper);
 
         // WHEN -- adding a task
         BaseResponse taskResponse = resourcePost.handle(taskPath, new RequestParams(new ObjectMapper()), null, newTaskBody);
@@ -198,12 +197,12 @@ public class CollectionGetTest extends BaseControllerTest {
         data = new DataBody();
         newProjectBody.setData(data);
         data.setType("projects");
-        data.setAttributes(OBJECT_MAPPER.createObjectNode().put("name", "sample project"));
+        data.setAttributes(objectMapper.createObjectNode().put("name", "sample project"));
 
         JsonPath projectPath = pathBuilder.buildPath("/projects");
 
         // WHEN -- adding a project
-        ResourceResponse projectResponse = resourcePost.handle(projectPath, new RequestParams(OBJECT_MAPPER), null, newProjectBody);
+        ResourceResponse projectResponse = resourcePost.handle(projectPath, new RequestParams(objectMapper), null, newProjectBody);
 
         // THEN
         assertThat(projectResponse.getData()).isExactlyInstanceOf(Project.class);
@@ -225,7 +224,7 @@ public class CollectionGetTest extends BaseControllerTest {
         RelationshipsResourcePost sut = new RelationshipsResourcePost(resourceRegistry, typeParser);
 
         // WHEN -- adding a relation between task and project
-        BaseResponse projectRelationshipResponse = sut.handle(savedTaskPath, new RequestParams(OBJECT_MAPPER), null, newTaskToProjectBody);
+        BaseResponse projectRelationshipResponse = sut.handle(savedTaskPath, new RequestParams(objectMapper), null, newTaskToProjectBody);
         assertThat(projectRelationshipResponse).isNotNull();
 
         // THEN

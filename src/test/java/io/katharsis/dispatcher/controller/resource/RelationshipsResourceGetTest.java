@@ -81,7 +81,7 @@ public class RelationshipsResourceGetTest extends BaseControllerTest {
     public void onGivenRequestLinkResourceGetShouldReturnDataField() throws Exception {
         // GIVEN
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/1/relationships/project");
-        RelationshipsResourceGet sut = new RelationshipsResourceGet(resourceRegistry, typeParser);
+        RelationshipsResourceGet sut = new RelationshipsResourceGet(resourceRegistry, typeParser, includeFieldSetter);
         new TaskToProjectRepository().setRelation(new Task().setId(1L), 42L, "project");
 
         // WHEN
