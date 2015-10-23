@@ -82,13 +82,13 @@ public class ResourceGetTest extends BaseControllerTest {
         DataBody data = new DataBody();
         newTaskBody.setData(data);
         data.setType("tasks");
-        data.setAttributes(OBJECT_MAPPER.createObjectNode().put("name", "sample task"));
+        data.setAttributes(objectMapper.createObjectNode().put("name", "sample task"));
         data.setRelationships(new ResourceRelationships());
 
         JsonPath taskPath = pathBuilder.buildPath("/tasks");
 
         // WHEN
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper);
         ResourceResponse taskResponse = resourcePost.handle(taskPath, new RequestParams(new ObjectMapper()), null, newTaskBody);
         assertThat(taskResponse.getData()).isExactlyInstanceOf(Task.class);
         Long taskId = ((Task) (taskResponse.getData())).getId();

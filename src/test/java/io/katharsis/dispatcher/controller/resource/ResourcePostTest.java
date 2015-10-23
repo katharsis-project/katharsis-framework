@@ -26,13 +26,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ResourcePostTest extends BaseControllerTest {
 
     private static final String REQUEST_TYPE = "POST";
-    private static final RequestParams REQUEST_PARAMS = new RequestParams(null);
 
     @Test
     public void onGivenRequestCollectionGetShouldDenyIt() {
         // GIVEN
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/1");
-        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
+        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -45,7 +44,7 @@ public class ResourcePostTest extends BaseControllerTest {
     public void onGivenRequestResourceGetShouldAcceptIt() {
         // GIVEN
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/");
-        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
+        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -61,10 +60,10 @@ public class ResourcePostTest extends BaseControllerTest {
         DataBody data = new DataBody();
         newProjectBody.setData(data);
         data.setType("projects");
-        data.setAttributes(OBJECT_MAPPER.createObjectNode().put("name", "sample task"));
+        data.setAttributes(objectMapper.createObjectNode().put("name", "sample task"));
 
         JsonPath projectPath = pathBuilder.buildPath("/tasks");
-        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
+        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper);
 
         // THEN
         expectedException.expect(RuntimeException.class);
@@ -81,7 +80,7 @@ public class ResourcePostTest extends BaseControllerTest {
         newProjectBody.setData(data);
         data.setType("fridges");
 
-        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
+        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper);
 
         // THEN
         expectedException.expect(ResourceNotFoundException.class);
@@ -93,7 +92,7 @@ public class ResourcePostTest extends BaseControllerTest {
     @Test
     public void onNoBodyResourceShouldThrowException() throws Exception {
         // GIVEN
-        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
+        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper);
 
         // THEN
         expectedException.expect(RuntimeException.class);
@@ -109,14 +108,14 @@ public class ResourcePostTest extends BaseControllerTest {
         DataBody data = new DataBody();
         newProjectBody.setData(data);
         data.setType("projects");
-        ObjectNode attributes = OBJECT_MAPPER.createObjectNode()
+        ObjectNode attributes = objectMapper.createObjectNode()
             .put("name", "sample project");
         attributes.putObject("data")
             .put("data", "asd");
         data.setAttributes(attributes);
 
         JsonPath projectPath = pathBuilder.buildPath("/projects");
-        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
+        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper);
 
         // WHEN
         ResourceResponse projectResponse = sut.handle(projectPath, new RequestParams(new ObjectMapper()), null, newProjectBody);
@@ -136,7 +135,7 @@ public class ResourcePostTest extends BaseControllerTest {
         data = new DataBody();
         newTaskBody.setData(data);
         data.setType("tasks");
-        data.setAttributes(OBJECT_MAPPER.createObjectNode().put("name", "sample task"));
+        data.setAttributes(objectMapper.createObjectNode().put("name", "sample task"));
         data.setRelationships(new ResourceRelationships());
         data.getRelationships().setAdditionalProperty("project", new LinkageData("projects", projectId.toString()));
 
@@ -163,10 +162,10 @@ public class ResourcePostTest extends BaseControllerTest {
         DataBody data = new DataBody();
         newProjectBody.setData(data);
         data.setType("projects");
-        data.setAttributes(OBJECT_MAPPER.createObjectNode().put("name", "sample project"));
+        data.setAttributes(objectMapper.createObjectNode().put("name", "sample project"));
 
         JsonPath projectPath = pathBuilder.buildPath("/projects");
-        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
+        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper);
 
         // WHEN
         ResourceResponse projectResponse = sut.handle(projectPath, new RequestParams(new ObjectMapper()), null, newProjectBody);
@@ -184,7 +183,7 @@ public class ResourcePostTest extends BaseControllerTest {
         data = new DataBody();
         newUserBody.setData(data);
         data.setType("users");
-        data.setAttributes(OBJECT_MAPPER.createObjectNode().put("name", "some user"));
+        data.setAttributes(objectMapper.createObjectNode().put("name", "some user"));
         data.setRelationships(new ResourceRelationships());
         data.getRelationships().setAdditionalProperty("assignedProjects", Collections.singletonList(new LinkageData("projects",
             projectId.toString())));
@@ -211,13 +210,13 @@ public class ResourcePostTest extends BaseControllerTest {
         DataBody data = new DataBody();
         newMemorandumBody.setData(data);
         data.setType("memoranda");
-        ObjectNode attributes = OBJECT_MAPPER.createObjectNode()
+        ObjectNode attributes = objectMapper.createObjectNode()
             .put("title", "sample title")
             .put("body", "sample body");
         data.setAttributes(attributes);
 
         JsonPath projectPath = pathBuilder.buildPath("/documents");
-        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
+        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper);
 
         // WHEN
         ResourceResponse memorandumResponse = sut.handle(projectPath, new RequestParams(new ObjectMapper()), null, newMemorandumBody);

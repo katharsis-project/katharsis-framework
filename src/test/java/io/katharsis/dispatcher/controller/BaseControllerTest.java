@@ -1,7 +1,9 @@
 package io.katharsis.dispatcher.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.katharsis.jackson.JsonApiModuleBuilder;
 import io.katharsis.locator.SampleJsonServiceLocator;
+import io.katharsis.queryParams.RequestParams;
 import io.katharsis.request.path.PathBuilder;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.include.IncludeLookupSetter;
@@ -16,9 +18,9 @@ import org.junit.Rule;
 import org.junit.rules.ExpectedException;
 
 public abstract class BaseControllerTest {
+    protected static final RequestParams REQUEST_PARAMS = new RequestParams(null);
 
-    protected static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-
+    protected ObjectMapper objectMapper;
     protected PathBuilder pathBuilder;
     protected ResourceRegistry resourceRegistry;
     protected TypeParser typeParser;
@@ -38,5 +40,7 @@ public abstract class BaseControllerTest {
         pathBuilder = new PathBuilder(resourceRegistry);
         typeParser = new TypeParser();
         includeFieldSetter = new IncludeLookupSetter(resourceRegistry);
+        objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JsonApiModuleBuilder().build(resourceRegistry));
     }
 }

@@ -31,8 +31,9 @@ public class Task {
         return id;
     }
 
-    public void setId(Long id) {
+    public Task setId(Long id) {
         this.id = id;
+        return this;
     }
 
     public String getName() {

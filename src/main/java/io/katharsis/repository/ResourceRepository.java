@@ -35,8 +35,7 @@ public interface ResourceRepository<T, ID extends Serializable> {
     Iterable<T> findAll(RequestParams requestParams);
 
     /**
-     * Saves a resource. It should not save relating relationships. A Returning resource must include assigned
-     * identifier created for the instance of resource.
+     * Saves a resource. A Returning resource must include assigned identifier created for the instance of resource.
      *
      * @param entity resource to be saved
      * @param <S> type of the resource

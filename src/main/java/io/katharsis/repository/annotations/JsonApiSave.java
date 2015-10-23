@@ -3,7 +3,21 @@ package io.katharsis.repository.annotations;
 import java.lang.annotation.*;
 
 /**
- * Created by patryk on 13.10.15.
+ * <p>
+ * Method annotated with this annotation will be used to perform save operation on a particular resource. The method
+ * must be defined in a class annotated with {@link JsonApiResourceRepository}.
+ * </p>
+ * <p>
+ * The requirements for the method parameters are as follows:
+ * <ol>
+ *     <li>An instance of a resource to be saved</li>
+ * </ol>
+ * </p>
+ * <p>
+ * The return value should be a resource of {@link JsonApiResourceRepository#value()} type.
+ * </p>
+ *
+ * @see io.katharsis.repository.ResourceRepository#save(Object)
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
