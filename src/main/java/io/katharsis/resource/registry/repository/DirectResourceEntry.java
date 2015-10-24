@@ -4,10 +4,10 @@ import io.katharsis.repository.ResourceRepository;
 
 import java.io.Serializable;
 
-public class DirectResourceRepositoryEntry<T, ID extends Serializable> implements ResourceRepositoryEntry<T, ID> {
+public class DirectResourceEntry<T, ID extends Serializable> implements ResourceEntry<T, ID> {
     private final ResourceRepository<T, ID> resourceRepository;
 
-    public DirectResourceRepositoryEntry(ResourceRepository<T, ID> resourceRepository) {
+    public DirectResourceEntry(ResourceRepository<T, ID> resourceRepository) {
         this.resourceRepository = resourceRepository;
     }
 

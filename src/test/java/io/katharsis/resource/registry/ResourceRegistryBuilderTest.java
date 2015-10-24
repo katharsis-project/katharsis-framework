@@ -47,7 +47,7 @@ public class ResourceRegistryBuilderTest {
         Assert.assertNotNull(tasksEntry);
         Assert.assertEquals("id", tasksEntry.getResourceInformation().getIdField().getName());
         Assert.assertNotNull(tasksEntry.getResourceRepository(null));
-        List tasksRelationshipRepositories = tasksEntry.getRelationshipRepositories();
+        List tasksRelationshipRepositories = tasksEntry.getRelationshipEntries();
         Assert.assertEquals(1, tasksRelationshipRepositories.size());
         Assert.assertEquals(TEST_MODELS_URL + "/tasks", resourceRegistry.getResourceUrl(Task.class));
 
@@ -55,7 +55,7 @@ public class ResourceRegistryBuilderTest {
         Assert.assertNotNull(projectsEntry);
         Assert.assertEquals("id", projectsEntry.getResourceInformation().getIdField().getName());
         Assert.assertNotNull(tasksEntry.getResourceRepository(null));
-        List ProjectRelationshipRepositories = projectsEntry.getRelationshipRepositories();
+        List ProjectRelationshipRepositories = projectsEntry.getRelationshipEntries();
         Assert.assertEquals(0, ProjectRelationshipRepositories.size());
         Assert.assertEquals(TEST_MODELS_URL + "/projects", resourceRegistry.getResourceUrl(Project.class));
     }
@@ -129,7 +129,7 @@ public class ResourceRegistryBuilderTest {
 
         assertThat(entry.getResourceInformation().getResourceClass()).isEqualTo(ResourceWithoutRepository.class);
         assertThat(entry.getResourceRepository(null)).isExactlyInstanceOf(NotFoundRepository.class);
-        assertThat(entry.getRelationshipRepositoryForClass(Project.class))
+        assertThat(entry.getRelationshipRepositoryForClass(Project.class, null))
             .isExactlyInstanceOf(ResourceWithoutRepositoryToProjectRepository.class);
     }
 

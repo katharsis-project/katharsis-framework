@@ -7,14 +7,14 @@ import io.katharsis.repository.ResourceRepositoryAdapter;
 
 import java.io.Serializable;
 
-public class ParametrizedResourceRepositoryEntry<T, ID extends Serializable> implements ResourceRepositoryEntry<T, ID> {
+public class AnnotatedResourceEntryBuilder<T, ID extends Serializable> implements ResourceEntry<T, ID> {
     private final Object repositoryImplementation;
 
-    public ParametrizedResourceRepositoryEntry(Object repositoryImplementation) {
+    public AnnotatedResourceEntryBuilder(Object repositoryImplementation) {
         this.repositoryImplementation = repositoryImplementation;
     }
 
-    public ResourceRepository<T, ?> buildResourceRepository(RepositoryMethodParameterProvider parameterProvider) {
+    public ResourceRepository<T, ?> build(RepositoryMethodParameterProvider parameterProvider) {
         return new ResourceRepositoryAdapter<>(repositoryImplementation, new ParametersFactory(parameterProvider));
     }
 }

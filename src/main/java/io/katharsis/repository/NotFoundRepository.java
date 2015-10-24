@@ -8,31 +8,31 @@ import java.io.Serializable;
 /**
  * Represents a non-existing repository. It is assigned to a resource class if Katharsis couldn't find any repository.
  */
-public class NotFoundRepository implements ResourceRepository {
+public class NotFoundRepository<T, ID extends Serializable> implements ResourceRepository<T, ID> {
 
     private final Class<?> repositoryClass;
 
-    public NotFoundRepository(Class<?> repositoryClass) {
+    public NotFoundRepository(Class<? extends T> repositoryClass) {
         this.repositoryClass = repositoryClass;
     }
 
     @Override
-    public Object findOne(Serializable serializable, RequestParams requestParams) {
+    public T findOne(ID id, RequestParams requestParams) {
         throw new RepositoryNotFoundException(repositoryClass);
     }
 
     @Override
-    public Iterable findAll(RequestParams requestParams) {
+    public Iterable<T> findAll(RequestParams requestParams) {
         throw new RepositoryNotFoundException(repositoryClass);
     }
 
     @Override
-    public void delete(Serializable serializable) {
+    public void delete(ID id) {
         throw new RepositoryNotFoundException(repositoryClass);
     }
 
     @Override
-    public Object save(Object entity) {
+    public <S extends T> S save(S entity) {
         throw new RepositoryNotFoundException(repositoryClass);
     }
 }

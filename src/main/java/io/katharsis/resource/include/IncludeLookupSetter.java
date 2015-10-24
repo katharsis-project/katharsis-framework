@@ -3,6 +3,7 @@ package io.katharsis.resource.include;
 import io.katharsis.queryParams.RequestParams;
 import io.katharsis.queryParams.include.Inclusion;
 import io.katharsis.repository.RelationshipRepository;
+import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.repository.exception.RelationshipRepositoryNotFoundException;
 import io.katharsis.resource.annotations.JsonApiLookupIncludeAutomatically;
 import io.katharsis.resource.field.ResourceField;
@@ -32,14 +33,15 @@ public class IncludeLookupSetter {
         this.resourceRegistry = resourceRegistry;
     }
 
-    public void setIncludedElements(Object resource, RequestParams requestParams)
+    public void setIncludedElements(Object resource, RequestParams requestParams,
+                                    RepositoryMethodParameterProvider parameterProvider)
             throws InvocationTargetException, NoSuchMethodException, NoSuchFieldException, IllegalAccessException {
         if (resource != null && requestParams.getIncludedRelations() != null) {
             if (Iterable.class.isAssignableFrom(resource.getClass())) {
                 StreamSupport.stream(((Iterable<?>) resource).spliterator(), true)
                         .forEach((target) -> {
                             try {
-                                setIncludedElements(target, requestParams);
+                                setIncludedElements(target, requestParams, parameterProvider);
                             } catch (InvocationTargetException | NoSuchMethodException | NoSuchFieldException | IllegalAccessException e) {
                                 logger.error("Error with spliterator", e);
                             }
@@ -48,14 +50,15 @@ public class IncludeLookupSetter {
                 for (Inclusion inclusion : requestParams.getIncludedRelations()) {
                     List<String> pathList = inclusion.getPathList();
                     if (resource != null && !pathList.isEmpty()) {
-                        getElements(resource, pathList, requestParams);
+                        getElements(resource, pathList, requestParams, parameterProvider);
                     }
                 }
             }
         }
     }
 
-    private void getElements(Object resource, List<String> pathList, RequestParams requestParams)
+    private void getElements(Object resource, List<String> pathList, RequestParams requestParams,
+                             RepositoryMethodParameterProvider parameterProvider)
             throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
         if (!pathList.isEmpty()) {
             Field field = resource.getClass().getDeclaredField(pathList.get(0));
@@ -63,7 +66,7 @@ public class IncludeLookupSetter {
             //attempt to load relationship if it's null
             if (property == null && field.isAnnotationPresent(JsonApiLookupIncludeAutomatically.class)) {
                 try {
-                    property = loadRelationship(resource, field, requestParams);
+                    property = loadRelationship(resource, field, requestParams, parameterProvider);
                     PropertyUtils.setProperty(resource, field.getName(), property);
                 } catch( Exception e ) {
                     logger.error("Error loading relationship, couldn't automatically include", e);
@@ -75,17 +78,18 @@ public class IncludeLookupSetter {
                 if (Iterable.class.isAssignableFrom(property.getClass())) {
                     for (Object o : ((Iterable) property)) {
                         //noinspection unchecked
-                        getElements(o, subPathList, requestParams);
+                        getElements(o, subPathList, requestParams, parameterProvider);
                     }
                 } else {
                     //noinspection unchecked
-                    getElements(property, subPathList, requestParams);
+                    getElements(property, subPathList, requestParams, parameterProvider);
                 }
             }
         }
     }
 
-    private Object loadRelationship(Object root, Field relationshipField, RequestParams requestParams) {
+    private Object loadRelationship(Object root, Field relationshipField, RequestParams requestParams,
+                                    RepositoryMethodParameterProvider parameterProvider) {
         Class<?> resourceClass = getClassFromField(relationshipField);
         RegistryEntry<?> rootEntry = resourceRegistry.getEntry(root.getClass());
         RegistryEntry<?> registryEntry = resourceRegistry.getEntry(resourceClass);
@@ -101,7 +105,8 @@ public class IncludeLookupSetter {
         Class<?> relationshipFieldClass = Generics.getResourceClass(root.getClass(), resourceClass);
 
         try {
-            RelationshipRepository relationshipRepositoryForClass = rootEntry.getRelationshipRepositoryForClass(relationshipFieldClass);
+            RelationshipRepository relationshipRepositoryForClass = rootEntry
+                .getRelationshipRepositoryForClass(relationshipFieldClass, parameterProvider);
             if (relationshipRepositoryForClass != null) {
                 if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
                     return relationshipRepositoryForClass.findManyTargets(castedResourceId, relationshipField.getName(), requestParams);

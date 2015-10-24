@@ -52,25 +52,6 @@ public class FieldResourcePostTest extends BaseControllerTest {
     }
 
     @Test
-    public void onNonExistentParentResourceShouldThrowException() throws Exception {
-        // GIVEN
-        RequestBody newProjectBody = new RequestBody();
-        DataBody data = new DataBody();
-        newProjectBody.setData(data);
-        data.setType("projects");
-        data.setAttributes(objectMapper.createObjectNode().put("name", "sample project"));
-
-        JsonPath projectPath = pathBuilder.buildPath("/tasks/-1/project");
-        FieldResourcePost sut = new FieldResourcePost(resourceRegistry, typeParser, objectMapper);
-
-        // THEN
-        expectedException.expect(ResourceNotFoundException.class);
-
-        // WHEN
-        sut.handle(projectPath, new RequestParams(objectMapper), null, newProjectBody);
-    }
-
-    @Test
     public void onExistingParentResourceShouldSaveIt() throws Exception {
         // GIVEN
         RequestBody newTaskBody = new RequestBody();
