@@ -89,7 +89,7 @@ public class RelationshipContainerSerializerTest extends BaseSerializerTest {
 
         // THEN
         assertThatJson(result).node("relationships.projects").isPresent();
-        assertThatJson(result).node("relationships.projects.data").isAbsent();
+        assertThatJson(result).node("relationships.projects.data").isPresent();
     }
 
     @Test

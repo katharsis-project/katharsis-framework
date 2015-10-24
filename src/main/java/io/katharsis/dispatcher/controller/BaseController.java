@@ -4,6 +4,7 @@ import io.katharsis.queryParams.RequestParams;
 import io.katharsis.repository.LinksRepository;
 import io.katharsis.repository.MetaRepository;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
+import io.katharsis.repository.ResourceRepository;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.resource.exception.RequestBodyException;
@@ -11,6 +12,8 @@ import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.response.BaseResponse;
 import io.katharsis.response.LinksInformation;
 import io.katharsis.response.MetaInformation;
+
+import java.util.List;
 
 /**
  * Represents a controller contract. There can be many kinds of requests that can be send to the framework. The

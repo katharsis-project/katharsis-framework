@@ -1,6 +1,5 @@
 package io.katharsis.dispatcher.controller.resource;
 
-import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.RequestParams;
 import io.katharsis.repository.RelationshipRepository;
@@ -11,6 +10,7 @@ import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathIds;
 import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.exception.ResourceFieldNotFoundException;
+import io.katharsis.resource.include.IncludeLookupSetter;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.*;
@@ -21,14 +21,10 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 
-public class FieldResourceGet implements BaseController {
+public class FieldResourceGet extends ResourceIncludeField {
 
-    private final ResourceRegistry resourceRegistry;
-    private final TypeParser typeParser;
-
-    public FieldResourceGet(ResourceRegistry resourceRegistry, TypeParser typeParser) {
-        this.resourceRegistry = resourceRegistry;
-        this.typeParser = typeParser;
+    public FieldResourceGet(ResourceRegistry resourceRegistry, TypeParser typeParser, IncludeLookupSetter fieldSetter) {
+        super(resourceRegistry,typeParser,fieldSetter);
     }
 
     @Override
@@ -39,9 +35,8 @@ public class FieldResourceGet implements BaseController {
     }
 
     @Override
-    public BaseResponse handle(JsonPath jsonPath, RequestParams requestParams,
-                               RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody)
-            throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    public BaseResponse handle(JsonPath jsonPath, RequestParams requestParams, RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody)
+            throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException, NoSuchFieldException {
         String resourceName = jsonPath.getResourceName();
         PathIds resourceIds = jsonPath.getIds();
 
@@ -61,17 +56,19 @@ public class FieldResourceGet implements BaseController {
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
             @SuppressWarnings("unchecked")
             Iterable<?> targetObjects = relationshipRepositoryForClass
-                .findManyTargets(castedResourceId, elementName, requestParams);
+                    .findManyTargets(castedResourceId, elementName, requestParams);
+            includeFieldSetter.setIncludedElements(targetObjects, requestParams);
             MetaInformation metaInformation = getMetaInformation(relationshipRepositoryForClass, targetObjects, requestParams);
             LinksInformation linksInformation = getLinksInformation(relationshipRepositoryForClass, targetObjects, requestParams);
             target = new CollectionResponse(targetObjects, jsonPath, requestParams, metaInformation, linksInformation);
         } else {
             @SuppressWarnings("unchecked")
             Object targetObject = relationshipRepositoryForClass.findOneTarget(castedResourceId, elementName, requestParams);
+            includeFieldSetter.setIncludedElements(targetObject, requestParams);
             MetaInformation metaInformation =
-                getMetaInformation(relationshipRepositoryForClass, Collections.singletonList(targetObject), requestParams);
+                    getMetaInformation(relationshipRepositoryForClass, Collections.singletonList(targetObject), requestParams);
             LinksInformation linksInformation =
-                getLinksInformation(relationshipRepositoryForClass, Collections.singletonList(targetObject), requestParams);
+                    getLinksInformation(relationshipRepositoryForClass, Collections.singletonList(targetObject), requestParams);
             target = new ResourceResponse(targetObject, jsonPath, requestParams, metaInformation, linksInformation);
         }
 

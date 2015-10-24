@@ -40,9 +40,7 @@ public class RelationshipContainerSerializer extends JsonSerializer<Relationship
         throws IOException {
         gen.writeStartObject();
         writeLinks(relationshipContainer, gen);
-        if (!relationshipContainer.getRelationshipField().isLazy()) {
-            writeLinkage(relationshipContainer, gen);
-        }
+        writeLinkage(relationshipContainer, gen);
         gen.writeEndObject();
     }
 
@@ -120,8 +118,7 @@ public class RelationshipContainerSerializer extends JsonSerializer<Relationship
                                    Class<?> relationshipClass, RegistryEntry relationshipEntry)
         throws IOException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         ResourceField relationshipField = relationshipContainer.getRelationshipField();
-        Object targetDataObj = PropertyUtils
-            .getProperty(relationshipContainer.getDataLinksContainer().getData(), relationshipField.getName());
+        Object targetDataObj = PropertyUtils.getProperty(relationshipContainer.getDataLinksContainer().getData(), relationshipField.getName());
         if (targetDataObj == null) {
             gen.writeObject(null);
         } else {
