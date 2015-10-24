@@ -6,6 +6,7 @@ import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.mock.models.*;
 import io.katharsis.resource.mock.repository.TaskRepository;
 import io.katharsis.resource.mock.repository.TaskToProjectRepository;
+import io.katharsis.resource.registry.repository.AnnotatedResourceEntryBuilder;
 import io.katharsis.resource.registry.repository.DirectRelationshipEntry;
 import io.katharsis.resource.registry.repository.DirectResourceEntry;
 import nl.jqno.equalsverifier.EqualsVerifier;
@@ -27,7 +28,7 @@ public class RegistryEntryTest {
     @Test
     public void onValidRelationshipClassShouldReturnRelationshipRepository() throws Exception {
         // GIVEN
-        RegistryEntry<Task> sut = new RegistryEntry<>(null, new DirectResourceEntry<>(new TaskRepository()), Collections.singletonList(new DirectRelationshipEntry<>(new TaskToProjectRepository())));
+        RegistryEntry<Task> sut = new RegistryEntry<>(null, new AnnotatedResourceEntryBuilder<>(new TaskRepository()), Collections.singletonList(new DirectRelationshipEntry<>(new TaskToProjectRepository())));
 
         // WHEN
         RelationshipRepository<Task, ?, ?, ?> relationshipRepository = sut.getRelationshipRepositoryForClass(Project.class, null);

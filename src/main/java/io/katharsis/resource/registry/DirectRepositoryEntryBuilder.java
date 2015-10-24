@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 /**
- * Repository entries builder for direct classes implementing repository interfaces.
+ * Repository entries builder for classes implementing repository interfaces.
  */
 public class DirectRepositoryEntryBuilder implements RepositoryEntryBuilder {
     private static final Logger LOGGER = LoggerFactory.getLogger(DirectRepositoryEntryBuilder.class);

@@ -2,13 +2,15 @@ package io.katharsis.resource.mock.repository;
 
 import io.katharsis.queryParams.RequestParams;
 import io.katharsis.repository.RelationshipRepository;
+import io.katharsis.repository.annotations.*;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.User;
 import io.katharsis.resource.mock.repository.util.Relation;
 
 import java.util.*;
 
-public class UserToProjectRepository implements RelationshipRepository<User, Long, Project, Long> {
+@JsonApiRelationshipRepository(source = User.class, target = Project.class)
+public class UserToProjectRepository {
 
     // Used ThreadLocal in case of switching to TestNG and using concurrent tests
     private static final ThreadLocal<Set<Relation<User>>> THREAD_LOCAL_REPOSITORY = new ThreadLocal<Set<Relation<User>>>() {
@@ -18,7 +20,7 @@ public class UserToProjectRepository implements RelationshipRepository<User, Lon
         }
     };
 
-    @Override
+    @JsonApiSetRelation
     public void setRelation(User source, Long targetId, String fieldName) {
         removeRelations(fieldName);
         if (targetId != null) {
@@ -26,7 +28,7 @@ public class UserToProjectRepository implements RelationshipRepository<User, Lon
         }
     }
 
-    @Override
+    @JsonApiSetRelations
     public void setRelations(User source, Iterable<Long> targetIds, String fieldName) {
         removeRelations(fieldName);
         if (targetIds != null) {
@@ -36,14 +38,14 @@ public class UserToProjectRepository implements RelationshipRepository<User, Lon
         }
     }
 
-    @Override
+    @JsonApiAddRelations
     public void addRelations(User source, Iterable<Long> targetIds, String fieldName) {
         targetIds.forEach(targetId ->
                 THREAD_LOCAL_REPOSITORY.get().add(new Relation<>(source, targetId, fieldName))
         );
     }
 
-    @Override
+    @JsonApiRemoveRelations
     public void removeRelations(User source, Iterable<Long> targetIds, String fieldName) {
         targetIds.forEach(targetId -> {
             Iterator<Relation<User>> iterator = THREAD_LOCAL_REPOSITORY.get().iterator();
@@ -66,7 +68,7 @@ public class UserToProjectRepository implements RelationshipRepository<User, Lon
         }
     }
 
-    @Override
+    @JsonApiFindOneTarget
     public Project findOneTarget(Long sourceId, String fieldName, RequestParams requestParams) {
         Set<Relation<User>> relations = THREAD_LOCAL_REPOSITORY.get();
         for (Relation<User> relation : relations) {
@@ -80,7 +82,7 @@ public class UserToProjectRepository implements RelationshipRepository<User, Lon
         return null;
     }
 
-    @Override
+    @JsonApiFindManyTargets
     public Iterable<Project> findManyTargets(Long sourceId, String fieldName, RequestParams requestParams) {
         List<Project> projects = new LinkedList<>();
         THREAD_LOCAL_REPOSITORY.get()

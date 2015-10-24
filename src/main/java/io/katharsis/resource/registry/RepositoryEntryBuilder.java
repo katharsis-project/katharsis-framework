@@ -8,7 +8,7 @@ import java.util.List;
 
 /**
  * Using class of this type it's possible to build instances of repository entries, which can be used by other parts of
- * the library
+ * the library.
  */
 public interface RepositoryEntryBuilder {
 

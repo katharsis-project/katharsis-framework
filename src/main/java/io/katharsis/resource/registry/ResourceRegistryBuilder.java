@@ -1,23 +1,16 @@
 package io.katharsis.resource.registry;
 
 import io.katharsis.locator.JsonServiceLocator;
-import io.katharsis.repository.NotFoundRepository;
-import io.katharsis.repository.RelationshipRepository;
-import io.katharsis.repository.ResourceRepository;
-import io.katharsis.repository.exception.RepositoryInstanceNotFoundException;
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.information.ResourceInformationBuilder;
-import io.katharsis.resource.registry.repository.DirectResourceEntry;
 import io.katharsis.resource.registry.repository.RelationshipEntry;
 import io.katharsis.resource.registry.repository.ResourceEntry;
-import net.jodah.typetools.TypeResolver;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -69,10 +62,7 @@ public class ResourceRegistryBuilder {
             List<RelationshipEntry<?, ?>> relationshipEntries = repositoryEntryBuilder
             .buildRelationshipRepositories(reflections, resourceClass);
 
-
-            RegistryEntry registryEntry = new RegistryEntry(resourceInformation, resourceEntry, relationshipEntries);
-
-            registryEntries.add(registryEntry);
+            registryEntries.add(new RegistryEntry(resourceInformation, resourceEntry, relationshipEntries));
 
         }
 
@@ -109,22 +99,5 @@ public class ResourceRegistryBuilder {
             currentClass = currentClass.getSuperclass();
         }
         return foundRegistryEntry;
-    }
-
-    private List<RelationshipRepository> initializeRelationshipRepositories(
-        Set<Class<? extends RelationshipRepository>> foundRelationshipRepositoriesClasses, Class resourceClass) {
-        List<RelationshipRepository> relationshipRepositories = new LinkedList<>();
-        for (Class<? extends RelationshipRepository> relationshipRepositoryClass : foundRelationshipRepositoriesClasses) {
-            RelationshipRepository relationshipRepository = jsonServiceLocator.getInstance(relationshipRepositoryClass);
-            if (relationshipRepository == null) {
-                throw new RepositoryInstanceNotFoundException(relationshipRepositoryClass.getCanonicalName());
-            }
-
-            LOGGER.debug("Assigned {} RelationshipRepository  to {} resource class",
-                relationshipRepositoryClass.getCanonicalName(), resourceClass.getCanonicalName());
-
-            relationshipRepositories.add(relationshipRepository);
-        }
-        return relationshipRepositories;
     }
 }

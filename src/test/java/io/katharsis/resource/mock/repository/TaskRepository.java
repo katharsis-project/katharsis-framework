@@ -2,6 +2,7 @@ package io.katharsis.resource.mock.repository;
 
 import io.katharsis.queryParams.RequestParams;
 import io.katharsis.repository.ResourceRepository;
+import io.katharsis.repository.annotations.*;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.mock.models.Task;
 
@@ -11,7 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class TaskRepository implements ResourceRepository<Task, Long> {
+@JsonApiResourceRepository(Task.class)
+public class TaskRepository {
 
     // Used ThreadLocal in case of switching to TestNG and using concurrent tests
     private static final ThreadLocal<Map<Long, Task>> THREAD_LOCAL_REPOSITORY = new ThreadLocal<Map<Long, Task>>() {
@@ -21,7 +23,7 @@ public class TaskRepository implements ResourceRepository<Task, Long> {
         }
     };
 
-    @Override
+    @JsonApiSave
     public <S extends Task> S save(S entity) {
         entity.setId((long) (THREAD_LOCAL_REPOSITORY.get().size() + 1));
         THREAD_LOCAL_REPOSITORY.get().put(entity.getId(), entity);
@@ -29,7 +31,7 @@ public class TaskRepository implements ResourceRepository<Task, Long> {
         return entity;
     }
 
-    @Override
+    @JsonApiFindOne
     public Task findOne(Long aLong, RequestParams requestParams) {
         Task task = THREAD_LOCAL_REPOSITORY.get().get(aLong);
         if (task == null) {
@@ -38,7 +40,7 @@ public class TaskRepository implements ResourceRepository<Task, Long> {
         return task;
     }
 
-    @Override
+    @JsonApiFindAll
     public Iterable<Task> findAll(RequestParams requestParams) {
         return THREAD_LOCAL_REPOSITORY.get().values()
             .stream()
@@ -56,7 +58,7 @@ public class TaskRepository implements ResourceRepository<Task, Long> {
         return false;
     }
 
-    @Override
+    @JsonApiDelete
     public void delete(Long aLong) {
         THREAD_LOCAL_REPOSITORY.get().remove(aLong);
     }
