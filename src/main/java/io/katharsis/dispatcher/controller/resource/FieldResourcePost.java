@@ -84,7 +84,7 @@ public class FieldResourcePost extends ResourceUpsert {
         setAttributes(dataBody, resource, relationshipRegistryEntry.getResourceInformation());
         ResourceRepository resourceRepository = relationshipRegistryEntry.getResourceRepository(parameterProvider);
         Object savedResource = resourceRepository.save(resource);
-        saveRelations(savedResource, relationshipRegistryEntry, dataBody);
+        saveRelations(savedResource, relationshipRegistryEntry, dataBody, parameterProvider);
 
         Serializable resourceId = (Serializable) PropertyUtils
             .getProperty(savedResource, relationshipRegistryEntry.getResourceInformation().getIdField().getName());
@@ -92,7 +92,8 @@ public class FieldResourcePost extends ResourceUpsert {
         @SuppressWarnings("unchecked")
         Object savedResourceWithRelations = resourceRepository.findOne(resourceId, requestParams);
 
-        RelationshipRepository relationshipRepositoryForClass = endpointRegistryEntry.getRelationshipRepositoryForClass(relationshipFieldClass);
+        RelationshipRepository relationshipRepositoryForClass = endpointRegistryEntry
+            .getRelationshipRepositoryForClass(relationshipFieldClass, parameterProvider);
         @SuppressWarnings("unchecked")
         Object parent = endpointRegistryEntry.getResourceRepository(parameterProvider).findOne(castedResourceId, requestParams);
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {

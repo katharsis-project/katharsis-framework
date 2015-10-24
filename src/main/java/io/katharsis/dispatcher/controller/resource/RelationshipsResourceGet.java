@@ -55,8 +55,8 @@ public class RelationshipsResourceGet extends ResourceIncludeField  {
         Class<?> relationshipFieldClass = Generics
             .getResourceClass(relationshipField.getGenericType(), baseRelationshipFieldClass);
 
-        RelationshipRepository relationshipRepositoryForClass = registryEntry.getRelationshipRepositoryForClass(
-            relationshipFieldClass);
+        RelationshipRepository relationshipRepositoryForClass = registryEntry
+            .getRelationshipRepositoryForClass(relationshipFieldClass, parameterProvider);
         RegistryEntry relationshipFieldEntry = resourceRegistry.getEntry(relationshipFieldClass);
         BaseResponse target;
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
@@ -70,7 +70,7 @@ public class RelationshipsResourceGet extends ResourceIncludeField  {
             LinksInformation linksInformation =
                 getLinksInformation(relationshipRepositoryForClass, targetObjects, requestParams);
             if (targetObjects != null) {
-                includeFieldSetter.setIncludedElements(targetObjects, requestParams);
+                includeFieldSetter.setIncludedElements(targetObjects, requestParams, parameterProvider);
                 for (Object targetObject : targetObjects) {
                     dataList.add(new LinkageContainer(targetObject, relationshipFieldClass, relationshipFieldEntry));
                 }
@@ -85,7 +85,7 @@ public class RelationshipsResourceGet extends ResourceIncludeField  {
                 getLinksInformation(relationshipRepositoryForClass, Collections.singletonList(targetObject), requestParams);
             if (targetObject != null) {
                 LinkageContainer linkageContainer = new LinkageContainer(targetObject, relationshipFieldClass, relationshipFieldEntry);
-                includeFieldSetter.setIncludedElements(targetObject, requestParams);
+                includeFieldSetter.setIncludedElements(targetObject, requestParams, parameterProvider);
                 target = new ResourceResponse(linkageContainer, jsonPath, requestParams, metaInformation, linksInformation);
             } else {
                 target = new ResourceResponse(null, jsonPath, requestParams, metaInformation, linksInformation);

@@ -105,7 +105,8 @@ public abstract class RelationshipsResourceUpsert implements BaseController {
         @SuppressWarnings("unchecked") Class<? extends Serializable> relationshipIdType = (Class<? extends Serializable>) resourceRegistry
                 .getEntry(relationshipFieldClass).getResourceInformation().getIdField().getType();
 
-        RelationshipRepository relationshipRepositoryForClass = registryEntry.getRelationshipRepositoryForClass(relationshipFieldClass);
+        RelationshipRepository relationshipRepositoryForClass = registryEntry
+            .getRelationshipRepositoryForClass(relationshipFieldClass, parameterProvider);
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
             if (!requestBody.isMultiple()) {
                 throw new RequestBodyException(HttpMethod.POST, resourceName, "Non-multiple data in body");

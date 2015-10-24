@@ -5,5 +5,5 @@ import java.io.Serializable;
 /**
  * A marker interface that identifies a resource repository entry
  */
-public interface ResourceRepositoryEntry<T, ID extends Serializable> {
+public interface ResourceEntry<T, ID extends Serializable> {
 }

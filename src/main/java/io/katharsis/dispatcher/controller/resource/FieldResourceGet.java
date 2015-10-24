@@ -51,20 +51,20 @@ public class FieldResourceGet extends ResourceIncludeField {
         Class<?> baseRelationshipFieldClass = relationshipField.getType();
         Class<?> relationshipFieldClass = Generics.getResourceClass(relationshipField.getGenericType(), baseRelationshipFieldClass);
 
-        RelationshipRepository relationshipRepositoryForClass = registryEntry.getRelationshipRepositoryForClass(relationshipFieldClass);
+        RelationshipRepository relationshipRepositoryForClass = registryEntry.getRelationshipRepositoryForClass(relationshipFieldClass, parameterProvider);
         BaseResponse target;
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
             @SuppressWarnings("unchecked")
             Iterable<?> targetObjects = relationshipRepositoryForClass
                     .findManyTargets(castedResourceId, elementName, requestParams);
-            includeFieldSetter.setIncludedElements(targetObjects, requestParams);
+            includeFieldSetter.setIncludedElements(targetObjects, requestParams, parameterProvider);
             MetaInformation metaInformation = getMetaInformation(relationshipRepositoryForClass, targetObjects, requestParams);
             LinksInformation linksInformation = getLinksInformation(relationshipRepositoryForClass, targetObjects, requestParams);
             target = new CollectionResponse(targetObjects, jsonPath, requestParams, metaInformation, linksInformation);
         } else {
             @SuppressWarnings("unchecked")
             Object targetObject = relationshipRepositoryForClass.findOneTarget(castedResourceId, elementName, requestParams);
-            includeFieldSetter.setIncludedElements(targetObject, requestParams);
+            includeFieldSetter.setIncludedElements(targetObject, requestParams, parameterProvider);
             MetaInformation metaInformation =
                     getMetaInformation(relationshipRepositoryForClass, Collections.singletonList(targetObject), requestParams);
             LinksInformation linksInformation =

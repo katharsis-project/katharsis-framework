@@ -5,9 +5,7 @@ import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.repository.exception.RelationshipRepositoryNotFoundException;
 import io.katharsis.resource.information.ResourceInformation;
-import io.katharsis.resource.registry.repository.DirectResourceRepositoryEntry;
-import io.katharsis.resource.registry.repository.ParametrizedResourceRepositoryEntry;
-import io.katharsis.resource.registry.repository.ResourceRepositoryEntry;
+import io.katharsis.resource.registry.repository.*;
 import net.jodah.typetools.TypeResolver;
 
 import java.util.LinkedList;
@@ -18,7 +16,7 @@ import java.util.Objects;
  * Holds information about a resource of type <i>T</i> and its repositories.
  * It includes the following information:
  * - ResourceInformation instance with information about the resource,
- * - ResourceRepositoryEntry instance,
+ * - ResourceEntry instance,
  * - List of all repositories for relationships defined in resource class.
  * - Parent RegistryEntry if a resource inherits from another resource
  *
@@ -26,52 +24,57 @@ import java.util.Objects;
  */
 public class RegistryEntry<T> {
     private final ResourceInformation resourceInformation;
-    private final ResourceRepositoryEntry<T, ?> resourceRepositoryEntry;
-    private final List<RelationshipRepository<T, ?, ?, ?>> relationshipRepositories;
+    private final ResourceEntry<T, ?> resourceEntry;
+    private final List<RelationshipEntry<T, ?>> relationshipEntries;
     private RegistryEntry parentRegistryEntry = null;
 
     public RegistryEntry(ResourceInformation resourceInformation,
-                         @SuppressWarnings("SameParameterValue") ResourceRepositoryEntry<T, ?> resourceRepositoryEntry) {
-        this(resourceInformation, resourceRepositoryEntry, new LinkedList<>());
+                         @SuppressWarnings("SameParameterValue") ResourceEntry<T, ?> resourceEntry) {
+        this(resourceInformation, resourceEntry, new LinkedList<>());
     }
 
     public RegistryEntry(ResourceInformation resourceInformation,
-                         ResourceRepositoryEntry<T, ?> resourceRepositoryEntry,
-                         List<RelationshipRepository<T, ?, ?, ?>> relationshipRepositories) {
+                         ResourceEntry<T, ?> resourceEntry,
+                         List<RelationshipEntry<T, ?>> relationshipEntries) {
         this.resourceInformation = resourceInformation;
-        this.resourceRepositoryEntry = resourceRepositoryEntry;
-        this.relationshipRepositories = relationshipRepositories;
+        this.resourceEntry = resourceEntry;
+        this.relationshipEntries = relationshipEntries;
     }
 
     public ResourceRepository<T, ?> getResourceRepository(RepositoryMethodParameterProvider parameterProvider) {
-        ResourceRepository<T, ?> repo = null;
-        if (resourceRepositoryEntry instanceof DirectResourceRepositoryEntry) {
-            repo = ((DirectResourceRepositoryEntry<T, ?>) resourceRepositoryEntry).getResourceRepository();
-        } else if (resourceRepositoryEntry instanceof ParametrizedResourceRepositoryEntry) {
-            repo = ((ParametrizedResourceRepositoryEntry<T, ?>) resourceRepositoryEntry).buildResourceRepository(parameterProvider);
+        ResourceRepository<T, ?> repoInstance = null;
+        if (resourceEntry instanceof DirectResourceEntry) {
+            repoInstance = ((DirectResourceEntry<T, ?>) resourceEntry).getResourceRepository();
+        } else if (resourceEntry instanceof AnnotatedResourceEntryBuilder) {
+            repoInstance = ((AnnotatedResourceEntryBuilder<T, ?>) resourceEntry).build(parameterProvider);
         }
-        return repo;
+        return repoInstance;
     }
 
-    public List<RelationshipRepository<T, ?, ?, ?>> getRelationshipRepositories() {
-        return relationshipRepositories;
+    public List<RelationshipEntry<T, ?>> getRelationshipEntries() {
+        return relationshipEntries;
     }
 
-    public RelationshipRepository<T, ?, ?, ?> getRelationshipRepositoryForClass(Class clazz) {
-        RelationshipRepository<T, ?, ?, ?> foundRelationshipRepository = null;
-        for (RelationshipRepository<T, ?, ?, ?> relationshipRepository : relationshipRepositories) {
-            Class<?>[] typeArgs = TypeResolver
-                .resolveRawArguments(RelationshipRepository.class, relationshipRepository.getClass());
-
-            if (clazz == typeArgs[RelationshipRepository.TARGET_TYPE_GENERIC_PARAMETER_IDX]) {
-                foundRelationshipRepository = relationshipRepository;
+    public RelationshipRepository<T, ?, ?, ?> getRelationshipRepositoryForClass(Class clazz, RepositoryMethodParameterProvider parameterProvider) {
+        RelationshipEntry<T, ?> foundRelationshipEntry = null;
+        for (RelationshipEntry<T, ?> relationshipEntry : relationshipEntries) {
+            if (clazz == relationshipEntry.getTargetAffiliation()) {
+                foundRelationshipEntry = relationshipEntry;
+                break;
             }
         }
-        if (foundRelationshipRepository == null) {
+        if (foundRelationshipEntry == null) {
             throw new RelationshipRepositoryNotFoundException(resourceInformation.getResourceClass(), clazz);
         }
 
-        return foundRelationshipRepository;
+        RelationshipRepository<T, ?, ?, ?> repoInstance = null;
+        if (foundRelationshipEntry instanceof DirectRelationshipEntry) {
+            repoInstance = ((DirectRelationshipEntry<T, ?>) foundRelationshipEntry).getRelationshipRepository();
+        } else if (foundRelationshipEntry instanceof AnnotatedRelationshipEntryBuilder) {
+            repoInstance = ((AnnotatedRelationshipEntryBuilder<T, ?>) foundRelationshipEntry).build(parameterProvider);
+        }
+
+        return repoInstance;
     }
 
     public ResourceInformation getResourceInformation() {
@@ -114,13 +117,13 @@ public class RegistryEntry<T> {
         if (o == null || getClass() != o.getClass()) return false;
         RegistryEntry<?> that = (RegistryEntry<?>) o;
         return Objects.equals(resourceInformation, that.resourceInformation) &&
-            Objects.equals(resourceRepositoryEntry, that.resourceRepositoryEntry) &&
-            Objects.equals(relationshipRepositories, that.relationshipRepositories) &&
+            Objects.equals(resourceEntry, that.resourceEntry) &&
+            Objects.equals(relationshipEntries, that.relationshipEntries) &&
             Objects.equals(parentRegistryEntry, that.parentRegistryEntry);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(resourceInformation, resourceRepositoryEntry, relationshipRepositories, parentRegistryEntry);
+        return Objects.hash(resourceInformation, resourceEntry, relationshipEntries, parentRegistryEntry);
     }
 }
