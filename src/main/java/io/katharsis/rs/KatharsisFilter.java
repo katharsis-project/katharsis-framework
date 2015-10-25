@@ -97,8 +97,9 @@ public class KatharsisFilter implements ContainerRequestFilter {
             String method = requestContext.getMethod();
             RequestBody requestBody = inputStreamToBody(requestContext.getEntityStream());
 
+            JaxRsParameterProvider parameterProvider = new JaxRsParameterProvider(objectMapper, requestContext);
             katharsisResponse = requestDispatcher
-                .dispatchRequest(jsonPath, method, requestParams, requestBody);
+                .dispatchRequest(jsonPath, method, requestParams, parameterProvider, requestBody);
         } catch (KatharsisMappableException e) {
             katharsisResponse = new KatharsisExceptionMapper().toErrorResponse(e);
         } catch (KatharsisMatchingException e) {
