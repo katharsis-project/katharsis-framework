@@ -1,6 +1,7 @@
 package io.katharsis.resource.field;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.katharsis.utils.ClassUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -20,13 +21,22 @@ public class ResourceFieldNameTransformer {
     }
 
     public String getName(Method method) {
-        String resourceName = method.getName().substring(3);
-        String name = resourceName.substring(0, 1).toLowerCase() + resourceName.substring(1);
+        String name;
+        if (ClassUtils.isBooleanGetter(method)) {
+            name = extractMethodName(method, 2);
+        } else {
+            name = extractMethodName(method, 3);
+        }
 
         if (method.isAnnotationPresent(JsonProperty.class) &&
             !"".equals(method.getAnnotation(JsonProperty.class).value())) {
             name = method.getAnnotation(JsonProperty.class).value();
         }
         return name;
+    }
+
+    private String extractMethodName(Method method, int nameStart) {
+        String resourceName = method.getName().substring(nameStart);
+        return resourceName.substring(0, 1).toLowerCase() + resourceName.substring(1);
     }
 }

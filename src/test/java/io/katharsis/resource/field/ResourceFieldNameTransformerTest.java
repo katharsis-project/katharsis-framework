@@ -55,7 +55,7 @@ public class ResourceFieldNameTransformerTest {
     }
 
     @Test
-    public void onWrappedFieldShouldReturnFieldNameBasedOnGetter() throws Exception {
+    public void onWrappedBooleanFieldShouldReturnFieldNameBasedOnGetter() throws Exception {
         // GIVEN
         Method method = TestClass.class.getDeclaredMethod("getAccessorField");
 
@@ -64,6 +64,18 @@ public class ResourceFieldNameTransformerTest {
 
         // THEN
         assertThat(name).isEqualTo("accessorField");
+    }
+
+    @Test
+    public void onWrappedFieldShouldReturnFieldNameBasedOnGetter() throws Exception {
+        // GIVEN
+        Method method = TestClass.class.getDeclaredMethod("isBooleanProperty");
+
+        // WHEN
+        String name = sut.getName(method);
+
+        // THEN
+        assertThat(name).isEqualTo("booleanProperty");
     }
 
     @Test
@@ -96,5 +108,9 @@ public class ResourceFieldNameTransformerTest {
 
         @JsonProperty
         private String fieldWithDefaultJsonProperty;
+
+        private boolean isBooleanProperty() {
+            return false;
+        }
     }
 }
