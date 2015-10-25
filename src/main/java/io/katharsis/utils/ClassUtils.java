@@ -120,7 +120,7 @@ public class ClassUtils {
         return isBooleanGetter(method) || isNonBooleanGetter(method);
     }
 
-    private boolean isBooleanGetter(Method method) {
+    public static boolean isBooleanGetter(Method method) {
         if (!method.getName().startsWith("is"))
             return false;
         if (method.getName().length() < 3)
