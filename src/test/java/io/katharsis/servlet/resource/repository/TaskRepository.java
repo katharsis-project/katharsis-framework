@@ -16,36 +16,33 @@
  */
 package io.katharsis.servlet.resource.repository;
 
-import io.katharsis.queryParams.RequestParams;
-import io.katharsis.repository.ResourceRepository;
+import io.katharsis.repository.annotations.*;
 import io.katharsis.servlet.resource.model.Task;
 
-import java.util.Arrays;
+import java.util.Collections;
 
-public class TaskRepository implements ResourceRepository<Task, Long> {
-    @Override
+@JsonApiResourceRepository(Task.class)
+public class TaskRepository {
+
+    @JsonApiSave
     public <S extends Task> S save(S entity) {
         return null;
     }
 
-    @Override
-    public Task findOne(Long aLong, RequestParams requestParams) {
+    @JsonApiFindOne
+    public Task findOne(Long aLong) {
         Task task = new Task(aLong, "Some task");
         return task;
     }
 
-    @Override
-    public Iterable<Task> findAll(RequestParams requestParams) {
-        return findAll(null, requestParams);
+    @JsonApiFindAll
+    public Iterable<Task> findAll() {
+        return Collections.singletonList(new Task(1L, "First task"));
     }
 
-    @Override
-    public Iterable<Task> findAll(Iterable<Long> taskIds, RequestParams requestParams) {
-        return Arrays.asList(new Task(1L, "First task"));
-    }
-
-    @Override
+    @JsonApiDelete
     public void delete(Long aLong) {
 
     }
 }
+

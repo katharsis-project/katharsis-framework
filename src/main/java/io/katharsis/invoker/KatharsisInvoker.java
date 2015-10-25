@@ -27,6 +27,7 @@ import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
+import io.katharsis.servlet.ServletParametersProvider;
 import io.katharsis.servlet.util.QueryStringUtils;
 
 import java.io.ByteArrayOutputStream;
@@ -93,7 +94,8 @@ public class KatharsisInvoker {
             RequestBody requestBody = inputStreamToBody(in);
 
             String method = invokerContext.getRequestMethod();
-            katharsisResponse = requestDispatcher.dispatchRequest(jsonPath, method, requestParams,
+            ServletParametersProvider parametersProvider = new ServletParametersProvider(invokerContext);
+            katharsisResponse = requestDispatcher.dispatchRequest(jsonPath, method, requestParams, parametersProvider,
                                                                   requestBody);
         } catch (KatharsisMappableException e) {
             if (log.isDebugEnabled()) {

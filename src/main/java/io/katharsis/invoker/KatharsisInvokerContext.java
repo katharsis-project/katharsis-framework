@@ -16,6 +16,9 @@
  */
 package io.katharsis.invoker;
 
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -32,24 +35,30 @@ import java.io.OutputStream;
  */
 public interface KatharsisInvokerContext {
 
-    public String getRequestHeader(String name);
+    String getRequestHeader(String name);
 
-    public String getRequestPath();
+    String getRequestPath();
 
-    public String getRequestMethod();
+    String getRequestMethod();
 
-    public String getRequestQueryString();
+    String getRequestQueryString();
 
-    public String [] getRequestParameterValues(String name);
+    String [] getRequestParameterValues(String name);
 
-    public String getRequestParameter(String name);
+    String getRequestParameter(String name);
 
-    public InputStream getRequestEntityStream() throws IOException;
+    InputStream getRequestEntityStream() throws IOException;
 
-    public void setResponseStatus(int status);
+    void setResponseStatus(int status);
 
-    public void setResponseContentType(String type);
+    void setResponseContentType(String type);
 
-    public OutputStream getResponseOutputStream() throws IOException;
+    OutputStream getResponseOutputStream() throws IOException;
+
+    ServletContext getServletContext();
+
+    HttpServletRequest getServletRequest();
+
+    HttpServletResponse getServletResponse();
 
 }

@@ -88,15 +88,15 @@ public class ServletKatharsisInvokerContext implements KatharsisInvokerContext {
         return response.getOutputStream();
     }
 
-    protected ServletContext getServletContext() {
+    public ServletContext getServletContext() {
         return servletContext;
     }
 
-    protected HttpServletRequest getServletRequest() {
+    public HttpServletRequest getServletRequest() {
         return request;
     }
 
-    protected HttpServletResponse getServletResponse() {
+    public HttpServletResponse getServletResponse() {
         return response;
     }
 }
