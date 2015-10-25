@@ -31,12 +31,16 @@ public abstract class KatharsisControllerTest extends JerseyTest {
     @Test
     public void onSimpleResourceGetShouldReturnOneResource() {
         // WHEN
+        String headerTestValue = "test value";
         String taskResourceResponse = target(getPrefixForPath() + "tasks/1")
             .queryParam("filter")
             .request(APPLICATION_JSON_API_TYPE)
+            .header("X-test", headerTestValue)
             .get(String.class);
 
-        Assert.assertNotNull(taskResourceResponse);
+        assertThatJson(taskResourceResponse)
+        .node("data").isPresent()
+        .node("data.attributes.name").isStringEqualTo(headerTestValue);
     }
 
     @Test
