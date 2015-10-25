@@ -80,8 +80,10 @@ public class RelationshipRepositoryAdapter<T, T_ID extends Serializable, D, D_ID
 
         try {
             method.invoke(implementationObject, methodParameters);
-        } catch (IllegalAccessException | InvocationTargetException e) {
+        } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            throw (RuntimeException)e.getCause();
         }
     }
 
@@ -99,8 +101,10 @@ public class RelationshipRepositoryAdapter<T, T_ID extends Serializable, D, D_ID
 
         try {
             return (D) findOneTargetMethod.invoke(implementationObject, methodParameters);
-        } catch (IllegalAccessException | InvocationTargetException e) {
+        } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            throw (RuntimeException)e.getCause();
         }
     }
 
@@ -118,8 +122,10 @@ public class RelationshipRepositoryAdapter<T, T_ID extends Serializable, D, D_ID
 
         try {
             return (Iterable<D>) findManyTargetsMethod.invoke(implementationObject, methodParameters);
-        } catch (IllegalAccessException | InvocationTargetException e) {
+        } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            throw (RuntimeException)e.getCause();
         }
     }
 

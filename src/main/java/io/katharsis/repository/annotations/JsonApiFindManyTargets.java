@@ -12,11 +12,11 @@ import java.lang.annotation.*;
  * </p>
  * <p>
  * The requirements for the method parameters are as follows:
+ * </p>
  * <ol>
  *     <li>An identifier of a source resource</li>
  *     <li>Relationship's field name</li>
  * </ol>
- * </p>
  * <p>
  * The return value must be an {@link Iterable} of resources of {@link JsonApiRelationshipRepository#target()} type.
  * </p>

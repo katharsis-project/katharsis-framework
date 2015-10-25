@@ -42,8 +42,10 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable> implements Re
 
         try {
             return (T) findOneMethod.invoke(implementationObject, methodParameters);
-        } catch (IllegalAccessException | InvocationTargetException e) {
+        } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            throw (RuntimeException)e.getCause();
         }
     }
 
@@ -60,8 +62,10 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable> implements Re
 
         try {
             return (Iterable<T>) findAllMethod.invoke(implementationObject, methodParameters);
-        } catch (IllegalAccessException | InvocationTargetException e) {
+        } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            throw (RuntimeException)e.getCause();
         }
     }
 
@@ -78,8 +82,10 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable> implements Re
 
         try {
             return (S) saveMethod.invoke(implementationObject, methodParameters);
-        } catch (IllegalAccessException | InvocationTargetException e) {
+        } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            throw (RuntimeException)e.getCause();
         }
     }
 
@@ -96,8 +102,10 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable> implements Re
 
         try {
             deleteMethod.invoke(implementationObject, methodParameters);
-        } catch (IllegalAccessException | InvocationTargetException e) {
+        } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            throw (RuntimeException)e.getCause();
         }
     }
 

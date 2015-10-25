@@ -3,7 +3,7 @@ package io.katharsis.resource.mock.repository.util;
 import java.io.Serializable;
 import java.util.Objects;
 
-public class Relation<T> {
+public class Relation<T> implements Comparable<Relation<?>> {
     private final T source;
     private final Serializable targetId;
     private final String fieldName;
@@ -39,5 +39,10 @@ public class Relation<T> {
     @Override
     public int hashCode() {
         return Objects.hash(source, targetId, fieldName);
+    }
+
+    @Override
+    public int compareTo(Relation<?> o) {
+        return 0;
     }
 }

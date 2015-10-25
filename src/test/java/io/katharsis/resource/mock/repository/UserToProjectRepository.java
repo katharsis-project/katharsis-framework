@@ -1,30 +1,25 @@
 package io.katharsis.resource.mock.repository;
 
 import io.katharsis.queryParams.RequestParams;
-import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.repository.annotations.*;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.User;
 import io.katharsis.resource.mock.repository.util.Relation;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 @JsonApiRelationshipRepository(source = User.class, target = Project.class)
 public class UserToProjectRepository {
 
-    // Used ThreadLocal in case of switching to TestNG and using concurrent tests
-    private static final ThreadLocal<Set<Relation<User>>> THREAD_LOCAL_REPOSITORY = new ThreadLocal<Set<Relation<User>>>() {
-        @Override
-        protected Set<Relation<User>> initialValue() {
-            return new HashSet<>();
-        }
-    };
+    private static final ConcurrentMap<Relation<User>, Integer> THREAD_LOCAL_REPOSITORY = new ConcurrentHashMap<>();
 
     @JsonApiSetRelation
     public void setRelation(User source, Long targetId, String fieldName) {
         removeRelations(fieldName);
         if (targetId != null) {
-            THREAD_LOCAL_REPOSITORY.get().add(new Relation<>(source, targetId, fieldName));
+            THREAD_LOCAL_REPOSITORY.put(new Relation<>(source, targetId, fieldName), 0);
         }
     }
 
@@ -33,7 +28,7 @@ public class UserToProjectRepository {
         removeRelations(fieldName);
         if (targetIds != null) {
             for (Long targetId : targetIds) {
-                THREAD_LOCAL_REPOSITORY.get().add(new Relation<>(source, targetId, fieldName));
+                THREAD_LOCAL_REPOSITORY.put(new Relation<>(source, targetId, fieldName), 0);
             }
         }
     }
@@ -41,14 +36,14 @@ public class UserToProjectRepository {
     @JsonApiAddRelations
     public void addRelations(User source, Iterable<Long> targetIds, String fieldName) {
         targetIds.forEach(targetId ->
-                THREAD_LOCAL_REPOSITORY.get().add(new Relation<>(source, targetId, fieldName))
+                THREAD_LOCAL_REPOSITORY.put(new Relation<>(source, targetId, fieldName), 0)
         );
     }
 
     @JsonApiRemoveRelations
     public void removeRelations(User source, Iterable<Long> targetIds, String fieldName) {
         targetIds.forEach(targetId -> {
-            Iterator<Relation<User>> iterator = THREAD_LOCAL_REPOSITORY.get().iterator();
+            Iterator<Relation<User>> iterator = THREAD_LOCAL_REPOSITORY.keySet().iterator();
             while (iterator.hasNext()) {
                 Relation<User> next = iterator.next();
                 if (next.getFieldName().equals(fieldName) && next.getTargetId().equals(targetId)) {
@@ -59,7 +54,7 @@ public class UserToProjectRepository {
     }
 
     public void removeRelations(String fieldName) {
-        Iterator<Relation<User>> iterator = THREAD_LOCAL_REPOSITORY.get().iterator();
+        Iterator<Relation<User>> iterator = THREAD_LOCAL_REPOSITORY.keySet().iterator();
         while (iterator.hasNext()) {
             Relation<User> next = iterator.next();
             if (next.getFieldName().equals(fieldName)) {
@@ -70,8 +65,7 @@ public class UserToProjectRepository {
 
     @JsonApiFindOneTarget
     public Project findOneTarget(Long sourceId, String fieldName, RequestParams requestParams) {
-        Set<Relation<User>> relations = THREAD_LOCAL_REPOSITORY.get();
-        for (Relation<User> relation : relations) {
+        for (Relation<User> relation : THREAD_LOCAL_REPOSITORY.keySet()) {
             if (relation.getSource().getId().equals(sourceId) &&
                 relation.getFieldName().equals(fieldName)) {
                 Project project = new Project();
@@ -85,7 +79,7 @@ public class UserToProjectRepository {
     @JsonApiFindManyTargets
     public Iterable<Project> findManyTargets(Long sourceId, String fieldName, RequestParams requestParams) {
         List<Project> projects = new LinkedList<>();
-        THREAD_LOCAL_REPOSITORY.get()
+        THREAD_LOCAL_REPOSITORY.keySet()
             .stream()
             .filter(relation -> relation.getSource().getId().equals(sourceId) && relation.getFieldName().equals
                 (fieldName)).forEach(relation -> {

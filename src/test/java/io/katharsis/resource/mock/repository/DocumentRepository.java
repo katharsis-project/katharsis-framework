@@ -5,30 +5,23 @@ import io.katharsis.repository.ResourceRepository;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.mock.models.Document;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class DocumentRepository implements ResourceRepository<Document, Long> {
 
-    // Used ThreadLocal in case of switching to TestNG and using concurrent tests
-    private static final ThreadLocal<Map<Long, Document>> THREAD_LOCAL_REPOSITORY = new ThreadLocal<Map<Long, Document>>() {
-        @Override
-        protected Map<Long, Document> initialValue() {
-            return new HashMap<>();
-        }
-    };
+    private static final ConcurrentHashMap<Long, Document> THREAD_LOCAL_REPOSITORY = new ConcurrentHashMap<>();
 
     @Override
     public <S extends Document> S save(S entity) {
-        entity.setId((long) (THREAD_LOCAL_REPOSITORY.get().size() + 1));
-        THREAD_LOCAL_REPOSITORY.get().put(entity.getId(), entity);
+        entity.setId((long) (THREAD_LOCAL_REPOSITORY.size() + 1));
+        THREAD_LOCAL_REPOSITORY.put(entity.getId(), entity);
 
         return entity;
     }
 
     @Override
     public Document findOne(Long aLong, RequestParams requestParams) {
-        Document project = THREAD_LOCAL_REPOSITORY.get().get(aLong);
+        Document project = THREAD_LOCAL_REPOSITORY.get(aLong);
         if (project == null) {
             throw new ResourceNotFoundException(Document.class.getCanonicalName());
         }
@@ -37,11 +30,11 @@ public class DocumentRepository implements ResourceRepository<Document, Long> {
 
     @Override
     public Iterable<Document> findAll(RequestParams requestParams) {
-        return THREAD_LOCAL_REPOSITORY.get().values();
+        return THREAD_LOCAL_REPOSITORY.values();
     }
 
     @Override
     public void delete(Long aLong) {
-        THREAD_LOCAL_REPOSITORY.get().remove(aLong);
+        THREAD_LOCAL_REPOSITORY.remove(aLong);
     }
 }

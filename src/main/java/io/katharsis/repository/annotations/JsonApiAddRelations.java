@@ -9,12 +9,12 @@ import java.lang.annotation.*;
  * </p>
  * <p>
  * The requirements for the method parameters are as follows:
+ * </p>
  * <ol>
  *     <li>Instance of a source resource</li>
  *     <li>{@link Iterable} of relationships to be add</li>
  *     <li>Relationship's filed name</li>
  * </ol>
- * </p>
  * <p>
  * The method's return value should be <i>void</i>.
  * </p>

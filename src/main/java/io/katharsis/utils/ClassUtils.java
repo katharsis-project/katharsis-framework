@@ -94,10 +94,10 @@ public class ClassUtils {
     }
 
     /**
-     * Return a first occurrence of a method
-     * @param searchObject
-     * @param annotationClass
-     * @return
+     * Return a first occurrence of a method annotated with specified annotation
+     * @param searchObject instance to be searched
+     * @param annotationClass annotation class
+     * @return annotated method or null
      */
     public static Method findMethodWith(Object searchObject, Class<? extends Annotation> annotationClass) {
         Method foundMethod = null;

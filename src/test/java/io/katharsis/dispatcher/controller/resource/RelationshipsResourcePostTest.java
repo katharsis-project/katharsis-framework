@@ -223,7 +223,7 @@ public class RelationshipsResourcePostTest extends BaseControllerTest {
         RequestBody newTaskToProjectBody = new RequestBody();
         newTaskToProjectBody.setData(null);
 
-        JsonPath savedTaskPath = pathBuilder.buildPath("/tasks/1/relationships/project");
+        JsonPath savedTaskPath = pathBuilder.buildPath("/tasks/"+ taskId +"/relationships/project");
         RelationshipsResourcePost sut = new RelationshipsResourcePost(resourceRegistry, typeParser);
 
         // WHEN -- adding a relation between user and project
