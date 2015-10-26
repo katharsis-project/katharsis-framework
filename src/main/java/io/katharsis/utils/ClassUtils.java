@@ -1,12 +1,11 @@
 package io.katharsis.utils;
 
+import io.katharsis.resource.annotations.JsonApiResource;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Provides reflection methods for parsing information about a class.
@@ -38,6 +37,31 @@ public class ClassUtils {
         }
 
         return new LinkedList<>(result.values());
+    }
+
+    /**
+     * Tries to find a class fields. Supports inheritance and doesn't return synthetic fields.
+     *
+     * @param beanClass class to be searched for
+     * @param fieldName field name
+     * @return a list of found fields
+     */
+    public static Field findClassField(Class<?> beanClass, String fieldName) {
+        Class<?> currentClass = beanClass;
+        while (currentClass != null && currentClass != Object.class) {
+            for (Field field : currentClass.getDeclaredFields()) {
+                if (field.isSynthetic()) {
+                    continue;
+                }
+
+                if (field.getName().equals(fieldName)) {
+                    return field;
+                }
+            }
+            currentClass = currentClass.getSuperclass();
+        }
+
+        return null;
     }
 
     /**
@@ -114,6 +138,28 @@ public class ClassUtils {
         }
 
         return foundMethod;
+    }
+
+    /**
+     * Returns the first clazz in the ancestory hierarchy with the JsonApiResource annotation
+     * @param data instance
+     * @param <T> instance type
+     * @return class or null
+     */
+    public static <T> Class<? super T> getJsonApiResourceClass(final T data) {
+        return getJsonApiResourceClass((Class<? super T>)data.getClass());
+    }
+
+    public static <T> Class<? super T> getJsonApiResourceClass(final Class<T> candidateClass) {
+        Class<? super T> currentClass = candidateClass;
+        while (currentClass != null && currentClass != Object.class) {
+            if (currentClass.isAnnotationPresent(JsonApiResource.class)) {
+                return currentClass;
+            }
+            currentClass = currentClass.getSuperclass();
+        }
+
+        return null;
     }
 
     private boolean isGetter(Method method) {

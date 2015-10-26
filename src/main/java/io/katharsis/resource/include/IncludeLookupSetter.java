@@ -9,6 +9,7 @@ import io.katharsis.resource.annotations.JsonApiLookupIncludeAutomatically;
 import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.utils.ClassUtils;
 import io.katharsis.utils.Generics;
 import io.katharsis.utils.PropertyUtils;
 import org.slf4j.Logger;
@@ -61,7 +62,11 @@ public class IncludeLookupSetter {
                              RepositoryMethodParameterProvider parameterProvider)
             throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
         if (!pathList.isEmpty()) {
-            Field field = resource.getClass().getDeclaredField(pathList.get(0));
+            Field field = ClassUtils.findClassField(resource.getClass(), pathList.get(0));
+            if (field == null) {
+                logger.warn("Error loading relationship, couldn't find field " + pathList.get(0));
+                return;
+            }
             Object property = PropertyUtils.getProperty(resource, field.getName());
             //attempt to load relationship if it's null
             if (property == null && field.isAnnotationPresent(JsonApiLookupIncludeAutomatically.class)) {
