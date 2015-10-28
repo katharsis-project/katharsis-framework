@@ -44,17 +44,33 @@ public class QueryParams {
     }
 
     void setFilters(Map<String, Set<String>> filters) {
-        Map<String, Set<String>> decodedFilters = new LinkedHashMap<>();
+        Map<String, Map<String, Set<String>>> temporaryFiltersMap = new LinkedHashMap<>();
 
         for (Map.Entry<String, Set<String>> entry : filters.entrySet()) {
 
             List<String> propertyList = buildPropertyListFromEntry(entry, RestrictedQueryParamsMembers.filter.name());
-            String entryKey = String.join(".", propertyList);
 
-            decodedFilters.put(entryKey, Collections.unmodifiableSet(entry.getValue()));
+            String resourceType = propertyList.get(0);
+            String propertyPath = String.join(".", propertyList.subList(1, propertyList.size()));
+
+            if (temporaryFiltersMap.containsKey(resourceType)) {
+                Map<String, Set<String>> resourceParams = temporaryFiltersMap.get(resourceType);
+                resourceParams.put(propertyPath, Collections.unmodifiableSet(entry.getValue()));
+            } else {
+                Map<String, Set<String>> resourceParams = new LinkedHashMap<>();
+                temporaryFiltersMap.put(resourceType, resourceParams);
+                resourceParams.put(propertyPath, entry.getValue());
+            }
         }
 
-        this.filters = Collections.unmodifiableMap(decodedFilters);
+        Map<String, FilterParams> decodedFiltersMap = new LinkedHashMap<>();
+
+        for (Map.Entry<String, Map<String, Set<String>>> resourceTypesMap : temporaryFiltersMap.entrySet()) {
+            Map<String, Set<String>> filtersMap = Collections.unmodifiableMap(resourceTypesMap.getValue());
+            decodedFiltersMap.put(resourceTypesMap.getKey(), new FilterParams(filtersMap));
+        }
+
+        this.filters = new TypedParams<>(Collections.unmodifiableMap(decodedFiltersMap));
     }
 
     /**
@@ -78,20 +94,41 @@ public class QueryParams {
     }
 
     void setSorting(Map<String, Set<String>> sorting) {
-        Map<String, RestrictedSortingValues> decodedSorting = new LinkedHashMap<>();
+        Map<String, Map<String, RestrictedSortingValues>> temporarySortingMap = new LinkedHashMap<>();
 
         for (Map.Entry<String, Set<String>> entry : sorting.entrySet()) {
 
             List<String> propertyList = buildPropertyListFromEntry(entry, RestrictedQueryParamsMembers.sort.name());
 
-            String entryKey = String.join(".", propertyList);
+            String resourceType = propertyList.get(0);
+            String propertyPath = String.join(".", propertyList.subList(1, propertyList.size()));
 
-            decodedSorting.put(entryKey, RestrictedSortingValues.valueOf(entry.getValue()
-                .iterator()
-                .next()));
+
+            if (temporarySortingMap.containsKey(resourceType)) {
+                Map<String, RestrictedSortingValues> resourceParams = temporarySortingMap.get(resourceType);
+                resourceParams.put(propertyPath, RestrictedSortingValues.valueOf(entry.getValue()
+                    .iterator()
+                    .next()));
+            } else {
+                Map<String, RestrictedSortingValues> resourceParams = new HashMap<>();
+                temporarySortingMap.put(resourceType, resourceParams);
+                resourceParams.put(propertyPath, RestrictedSortingValues.valueOf(entry.getValue()
+                    .iterator()
+                    .next()));
+            }
         }
 
-        this.sorting = Collections.unmodifiableMap(decodedSorting);
+        Map<String, SortingParams> decodedSortingMap = new LinkedHashMap<>();
+
+        for (Map.Entry<String, Map<String, RestrictedSortingValues>> resourceTypesMap : temporarySortingMap.entrySet
+            ()) {
+            Map<String, RestrictedSortingValues> sortingMap = Collections.unmodifiableMap(resourceTypesMap.getValue());
+            decodedSortingMap.put(resourceTypesMap.getKey(), new SortingParams(sortingMap));
+        }
+
+
+        this.sorting = new TypedParams<>(Collections.unmodifiableMap(decodedSortingMap));
+
     }
 
     /**
@@ -114,22 +151,39 @@ public class QueryParams {
     }
 
     void setGrouping(Map<String, Set<String>> grouping) {
-        List<String> decodedGrouping = new LinkedList<>();
+        Map<String, Set<String>> temporaryGroupingMap = new LinkedHashMap<>();
 
         for (Map.Entry<String, Set<String>> entry : grouping.entrySet()) {
+
             List<String> propertyList = buildPropertyListFromEntry(entry, RestrictedQueryParamsMembers.group.name());
 
-            if (propertyList.size() > 0) {
+            if (propertyList.size() > 1) {
                 throw new ParametersDeserializationException("Exceeded maximum level of nesting of 'group' parameter " +
-                    "(0)");
+                    "(1) eg. group[Task][name] <-- #2 level and more are not allowed");
             }
 
-            String entryKey = propertyList.iterator()
-                .next();
+            String resourceType = propertyList.get(0);
 
-            decodedGrouping.add(entryKey);
+            if (temporaryGroupingMap.containsKey(resourceType)) {
+                Set<String> resourceParams = temporaryGroupingMap.get(resourceType);
+                resourceParams.addAll(entry.getValue());
+                temporaryGroupingMap.put(resourceType, resourceParams);
+            } else {
+                Set<String> resourceParams = new LinkedHashSet<>();
+                resourceParams.addAll(entry.getValue());
+                temporaryGroupingMap.put(resourceType, resourceParams);
+            }
         }
-        this.grouping = Collections.unmodifiableList(decodedGrouping);
+
+        Map<String, GroupingParams> decodedGroupingMap = new LinkedHashMap<>();
+
+        for (Map.Entry<String, Set<String>> resourceTypesMap : temporaryGroupingMap.entrySet()) {
+            Set<String> groupingSet = Collections.unmodifiableSet(resourceTypesMap.getValue());
+            decodedGroupingMap.put(resourceTypesMap.getKey(), new GroupingParams(groupingSet));
+        }
+
+        this.grouping = new TypedParams<>(Collections.unmodifiableMap(decodedGroupingMap));
+
     }
 
     /**
@@ -159,19 +213,16 @@ public class QueryParams {
 
             if (propertyList.size() > 1) {
                 throw new ParametersDeserializationException("Exceeded maximum level of nesting of 'page' parameter " +
-                    "(1)");
+                    "(1) eg. page[offset][minimal] <-- #2 level and more are not allowed");
             }
 
-            String entryKey = propertyList.iterator()
-                .next();
-
-            decodedPagination.put(RestrictedPaginationKeys.valueOf(entryKey), Integer.valueOf(entry.getValue()
+            decodedPagination.put(RestrictedPaginationKeys.valueOf(entry.getKey()), Integer.parseInt(entry
+                .getValue()
                 .iterator()
                 .next()));
         }
 
         this.pagination = Collections.unmodifiableMap(decodedPagination);
-
     }
 
     /**
@@ -196,23 +247,37 @@ public class QueryParams {
     }
 
     void setIncludedFields(Map<String, Set<String>> sparse) {
-        Map<String, Set<String>> decodedSparse = new LinkedHashMap<>();
+        Map<String, Set<String>> temporarySparseMap = new LinkedHashMap<>();
 
         for (Map.Entry<String, Set<String>> entry : sparse.entrySet()) {
             List<String> propertyList = buildPropertyListFromEntry(entry, RestrictedQueryParamsMembers.fields.name());
 
             if (propertyList.size() > 1) {
                 throw new ParametersDeserializationException("Exceeded maximum level of nesting of 'fields' " +
-                    "parameter (1)");
+                    "parameter (1) eg. fields[Task][name] <-- #2 level and more are not allowed");
             }
 
-            String entryKey = propertyList.iterator()
-                .next();
+            String resourceType = propertyList.get(0);
 
-            decodedSparse.put(entryKey, Collections.unmodifiableSet(entry.getValue()));
+            if (temporarySparseMap.containsKey(resourceType)) {
+                Set<String> resourceParams = temporarySparseMap.get(resourceType);
+                resourceParams.addAll(entry.getValue());
+                temporarySparseMap.put(resourceType, resourceParams);
+            } else {
+                Set<String> resourceParams = new LinkedHashSet<>();
+                resourceParams.addAll(entry.getValue());
+                temporarySparseMap.put(resourceType, resourceParams);
+            }
         }
 
-        this.includedFields = Collections.unmodifiableMap(decodedSparse);
+        Map<String, IncludedFieldsParams> decodedSparseMap = new LinkedHashMap<>();
+
+        for (Map.Entry<String, Set<String>> resourceTypesMap : temporarySparseMap.entrySet()) {
+            Set<String> sparseSet = Collections.unmodifiableSet(resourceTypesMap.getValue());
+            decodedSparseMap.put(resourceTypesMap.getKey(), new IncludedFieldsParams(sparseSet));
+        }
+
+        this.includedFields = new TypedParams<>(Collections.unmodifiableMap(decodedSparseMap));
     }
 
     /**
@@ -237,22 +302,33 @@ public class QueryParams {
     }
 
     void setIncludedRelations(Map<String, Set<String>> inclusions) {
-        List<Inclusion> decodedInclusions = new LinkedList<>();
+        Map<String, Set<Inclusion>> temporaryInclusionsMap = new LinkedHashMap<>();
 
         for (Map.Entry<String, Set<String>> entry : inclusions.entrySet()) {
             List<String> propertyList = buildPropertyListFromEntry(entry, RestrictedQueryParamsMembers.include.name());
 
-            if (propertyList.size() > 0) {
+            if (propertyList.size() > 1) {
                 throw new ParametersDeserializationException("Exceeded maximum level of nesting of 'include' " +
-                    "parameter (0)");
+                    "parameter (1)");
             }
 
-            decodedInclusions.add(new Inclusion(entry.getValue()
+            String resourceType = propertyList.get(0);
+
+            Set<Inclusion> resourceParams = temporaryInclusionsMap.get(resourceType);
+            resourceParams.add(new Inclusion(entry.getValue()
                 .iterator()
                 .next()));
+            temporaryInclusionsMap.put(resourceType, resourceParams);
         }
 
-        this.includedRelations = Collections.unmodifiableList(decodedInclusions);
+        Map<String, IncludedRelationsParams> decodedInclusions = new LinkedHashMap<>();
+
+        for (Map.Entry<String, Set<Inclusion>> resourceTypesMap : temporaryInclusionsMap.entrySet()) {
+            Set<Inclusion> inclusionSet = Collections.unmodifiableSet(resourceTypesMap.getValue());
+            decodedInclusions.put(resourceTypesMap.getKey(), new IncludedRelationsParams(inclusionSet));
+        }
+
+        this.includedRelations = new TypedParams<>(Collections.unmodifiableMap(decodedInclusions));
     }
 
     private List<String> buildPropertyListFromEntry(Map.Entry<String, Set<String>> entry, String prefix) {
@@ -262,10 +338,15 @@ public class QueryParams {
         String pattern = "\\w+(?<!\\[)(?=\\])";
         Pattern regexp = Pattern.compile(pattern);
         Matcher matcher = regexp.matcher(entryKey);
-        List<String> matchList = new ArrayList<>();
+        List<String> matchList = new LinkedList<>();
 
         while (matcher.find()) {
             matchList.add(matcher.group());
+        }
+
+
+        if (matchList.size() < 1) {
+            throw new ParametersDeserializationException("Malformed filter parameter: " + entryKey);
         }
 
         return matchList;

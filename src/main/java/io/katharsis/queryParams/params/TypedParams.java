@@ -1,5 +1,6 @@
 package io.katharsis.queryParams.params;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -8,7 +9,7 @@ import java.util.Map;
  * @param <T>
  */
 public class TypedParams<T> {
-    private Map<String, T> params;
+    private Map<String, T> params = new HashMap<>();
 
     public TypedParams(Map<String, T> params) {
         this.params = params;

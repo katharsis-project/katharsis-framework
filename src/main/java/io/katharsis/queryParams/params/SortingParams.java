@@ -2,10 +2,11 @@ package io.katharsis.queryParams.params;
 
 import io.katharsis.queryParams.RestrictedSortingValues;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class SortingParams {
-    private Map<String, RestrictedSortingValues> params;
+    private Map<String, RestrictedSortingValues> params = new HashMap<>();
 
     public SortingParams(Map<String, RestrictedSortingValues> params) {
         this.params = params;
