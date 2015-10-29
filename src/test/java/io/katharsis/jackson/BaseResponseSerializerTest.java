@@ -1,7 +1,7 @@
 package io.katharsis.jackson;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
-import io.katharsis.queryParams.RequestParams;
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.mock.models.Project;
@@ -19,7 +19,7 @@ import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 
 public class BaseResponseSerializerTest extends BaseSerializerTest {
 
-    private static final RequestParams REQUEST_PARAMS = new RequestParams(null);
+    private static final QueryParams REQUEST_PARAMS = new QueryParams();
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -205,7 +205,7 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
             }
 
             @Override
-            public RequestParams getRequestParams() {
+            public QueryParams getQueryParams() {
                 return null;
             }
 

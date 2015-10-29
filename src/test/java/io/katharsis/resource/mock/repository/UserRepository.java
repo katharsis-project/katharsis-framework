@@ -1,6 +1,6 @@
 package io.katharsis.resource.mock.repository;
 
-import io.katharsis.queryParams.RequestParams;
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.mock.models.User;
@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 public class UserRepository implements ResourceRepository<User, Long> {
 
-    private static final RequestParams REQUEST_PARAMS = new RequestParams(null);
+    private static final QueryParams REQUEST_PARAMS = new QueryParams();
 
     private static final ConcurrentHashMap<Long, User> THREAD_LOCAL_REPOSITORY = new ConcurrentHashMap<>();
 
@@ -24,7 +24,7 @@ public class UserRepository implements ResourceRepository<User, Long> {
     }
 
     @Override
-    public User findOne(Long aLong, RequestParams requestParams) {
+    public User findOne(Long aLong, QueryParams queryParams) {
         User user = THREAD_LOCAL_REPOSITORY.get(aLong);
         if (user == null) {
             throw new ResourceNotFoundException(User.class.getCanonicalName());
@@ -34,13 +34,13 @@ public class UserRepository implements ResourceRepository<User, Long> {
     }
 
     @Override
-    public Iterable<User> findAll(RequestParams requestParams) {
+    public Iterable<User> findAll(QueryParams queryParams) {
         return THREAD_LOCAL_REPOSITORY.values();
     }
 
 
     @Override
-    public Iterable<User> findAll(Iterable<Long> ids, RequestParams requestParams) {
+    public Iterable<User> findAll(Iterable<Long> ids, QueryParams queryParams) {
         return THREAD_LOCAL_REPOSITORY.values()
             .stream()
             .filter(value -> contains(value, ids))

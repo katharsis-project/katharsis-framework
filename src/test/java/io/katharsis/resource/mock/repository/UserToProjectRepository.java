@@ -1,6 +1,6 @@
 package io.katharsis.resource.mock.repository;
 
-import io.katharsis.queryParams.RequestParams;
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.annotations.*;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.User;
@@ -64,7 +64,7 @@ public class UserToProjectRepository {
     }
 
     @JsonApiFindOneTarget
-    public Project findOneTarget(Long sourceId, String fieldName, RequestParams requestParams) {
+    public Project findOneTarget(Long sourceId, String fieldName, QueryParams queryParams) {
         for (Relation<User> relation : THREAD_LOCAL_REPOSITORY.keySet()) {
             if (relation.getSource().getId().equals(sourceId) &&
                 relation.getFieldName().equals(fieldName)) {
@@ -77,7 +77,7 @@ public class UserToProjectRepository {
     }
 
     @JsonApiFindManyTargets
-    public Iterable<Project> findManyTargets(Long sourceId, String fieldName, RequestParams requestParams) {
+    public Iterable<Project> findManyTargets(Long sourceId, String fieldName,  QueryParams queryParams) {
         List<Project> projects = new LinkedList<>();
         THREAD_LOCAL_REPOSITORY.keySet()
             .stream()

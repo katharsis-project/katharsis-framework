@@ -1,6 +1,6 @@
 package io.katharsis.repository.annotations;
 
-import io.katharsis.queryParams.RequestParams;
+import io.katharsis.queryParams.QueryParams;
 
 import java.lang.annotation.*;
 
@@ -16,7 +16,7 @@ import java.lang.annotation.*;
  * The return value must be an {@link Iterable} of resources of {@link JsonApiResourceRepository#value()} type.
  * </p>
  *
- * @see io.katharsis.repository.ResourceRepository#findAll(RequestParams)
+ * @see io.katharsis.repository.ResourceRepository#findAll(QueryParams)
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

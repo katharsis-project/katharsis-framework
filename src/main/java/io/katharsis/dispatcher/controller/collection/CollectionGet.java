@@ -2,8 +2,8 @@ package io.katharsis.dispatcher.controller.collection;
 
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.dispatcher.controller.resource.ResourceIncludeField;
-import io.katharsis.queryParams.RequestParams;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
@@ -45,7 +45,8 @@ public class CollectionGet extends ResourceIncludeField {
 
     @Override
     @SuppressWarnings("unchecked")
-    public BaseResponse<?> handle(JsonPath jsonPath, RequestParams requestParams, RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody)
+    public BaseResponse<?> handle(JsonPath jsonPath, QueryParams queryParams, RepositoryMethodParameterProvider 
+        parameterProvider, RequestBody requestBody)
             throws NoSuchMethodException, NoSuchFieldException, IllegalAccessException, InvocationTargetException {
         String resourceName = jsonPath.getElementName();
         RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
@@ -55,25 +56,25 @@ public class CollectionGet extends ResourceIncludeField {
         Iterable<?> resources;
         ResourceRepository resourceRepository = registryEntry.getResourceRepository(parameterProvider);
         if (jsonPath.getIds() == null || jsonPath.getIds().getIds().isEmpty()) {
-            resources = resourceRepository.findAll(requestParams);
+            resources = resourceRepository.findAll(queryParams);
         } else {
             Class<? extends Serializable> idType = (Class<? extends Serializable>)registryEntry
                 .getResourceInformation().getIdField().getType();
             Iterable<? extends Serializable> parsedIds = typeParser.parse((Iterable<String>) jsonPath.getIds().getIds(),
                 idType);
-            resources = resourceRepository.findAll(parsedIds, requestParams);
+            resources = resourceRepository.findAll(parsedIds, queryParams);
         }
 
         List containers = new LinkedList();
         if (resources != null) {
-            includeFieldSetter.setIncludedElements(resources, requestParams, parameterProvider);
+            includeFieldSetter.setIncludedElements(resourceName, resources, queryParams, parameterProvider);
             for (Object element : resources) {
                 containers.add(element);
             }
         }
-        MetaInformation metaInformation = getMetaInformation(resourceRepository, resources, requestParams);
-        LinksInformation linksInformation = getLinksInformation(resourceRepository, resources, requestParams);
+        MetaInformation metaInformation = getMetaInformation(resourceRepository, resources, queryParams);
+        LinksInformation linksInformation = getLinksInformation(resourceRepository, resources, queryParams);
 
-        return new CollectionResponse(containers, jsonPath, requestParams, metaInformation, linksInformation);
+        return new CollectionResponse(containers, jsonPath, queryParams, metaInformation, linksInformation);
     }
 }

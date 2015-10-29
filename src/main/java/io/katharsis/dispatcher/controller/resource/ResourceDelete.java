@@ -2,7 +2,7 @@ package io.katharsis.dispatcher.controller.resource;
 
 import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.dispatcher.controller.HttpMethod;
-import io.katharsis.queryParams.RequestParams;
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
@@ -40,7 +40,7 @@ public class ResourceDelete implements BaseController {
     }
 
     @Override
-    public BaseResponse<?> handle(JsonPath jsonPath, RequestParams requestParams,
+    public BaseResponse<?> handle(JsonPath jsonPath, QueryParams queryParams,
                                   RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody)
             throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         String resourceName = jsonPath.getElementName();

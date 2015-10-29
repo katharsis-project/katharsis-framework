@@ -1,11 +1,9 @@
 package io.katharsis.dispatcher.controller.resource;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
-import io.katharsis.queryParams.RequestParams;
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.request.dto.DataBody;
-import io.katharsis.request.dto.LinkageData;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.dto.ResourceRelationships;
 import io.katharsis.request.path.JsonPath;
@@ -16,8 +14,6 @@ import io.katharsis.response.BaseResponse;
 import io.katharsis.response.ResourceResponse;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -60,7 +56,7 @@ public class ResourcePatchTest extends BaseControllerTest {
         expectedException.expect(RuntimeException.class);
 
         // WHEN
-        sut.handle(new ResourcePath("fridges"), new RequestParams(new ObjectMapper()), null, null);
+        sut.handle(new ResourcePath("fridges"), new QueryParams(), null, null);
     }
 
     @Test
@@ -70,13 +66,14 @@ public class ResourcePatchTest extends BaseControllerTest {
         DataBody data = new DataBody();
         newTaskBody.setData(data);
         data.setType("tasks");
-        data.setAttributes(objectMapper.createObjectNode().put("name", "sample task"));
+        data.setAttributes(objectMapper.createObjectNode()
+            .put("name", "sample task"));
 
         JsonPath taskPath = pathBuilder.buildPath("/tasks");
 
         // WHEN
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper);
-        ResourceResponse taskResponse = resourcePost.handle(taskPath, new RequestParams(new ObjectMapper()), null, newTaskBody);
+        ResourceResponse taskResponse = resourcePost.handle(taskPath, new QueryParams(), null, newTaskBody);
         assertThat(taskResponse.getData()).isExactlyInstanceOf(Task.class);
         Long taskId = ((Task) (taskResponse.getData())).getId();
         assertThat(taskId).isNotNull();
@@ -86,12 +83,13 @@ public class ResourcePatchTest extends BaseControllerTest {
         data = new DataBody();
         taskPatch.setData(data);
         data.setType("tasks");
-        data.setAttributes(objectMapper.createObjectNode().put("name", "task updated"));
+        data.setAttributes(objectMapper.createObjectNode()
+            .put("name", "task updated"));
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/" + taskId);
         ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser, objectMapper);
 
         // WHEN
-        BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()), null, taskPatch);
+        BaseResponse<?> response = sut.handle(jsonPath, new QueryParams(), null, taskPatch);
 
         // THEN
         Assert.assertNotNull(response);
@@ -116,7 +114,7 @@ public class ResourcePatchTest extends BaseControllerTest {
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper);
 
         // WHEN
-        ResourceResponse taskResponse = resourcePost.handle(documentsPath, new RequestParams(new ObjectMapper()), null, memorandumBody);
+        ResourceResponse taskResponse = resourcePost.handle(documentsPath, new QueryParams(), null, memorandumBody);
 
         // THEN
         assertThat(taskResponse.getData()).isExactlyInstanceOf(Memorandum.class);
@@ -137,7 +135,7 @@ public class ResourcePatchTest extends BaseControllerTest {
         ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser, objectMapper);
 
         // WHEN
-        BaseResponse memorandumResponse = sut.handle(documentPath, new RequestParams(new ObjectMapper()), null, memorandumBody);
+        BaseResponse memorandumResponse = sut.handle(documentPath, new QueryParams(), null, memorandumBody);
 
         // THEN
         assertThat(memorandumResponse.getData()).isExactlyInstanceOf(Memorandum.class);
@@ -154,13 +152,14 @@ public class ResourcePatchTest extends BaseControllerTest {
         DataBody data = new DataBody();
         newTaskBody.setData(data);
         data.setType("tasks");
-        data.setAttributes(objectMapper.createObjectNode().put("name", "sample task"));
+        data.setAttributes(objectMapper.createObjectNode()
+            .put("name", "sample task"));
 
         JsonPath taskPath = pathBuilder.buildPath("/tasks");
 
         // WHEN
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper);
-        ResourceResponse taskResponse = resourcePost.handle(taskPath, new RequestParams(new ObjectMapper()), null, newTaskBody);
+        ResourceResponse taskResponse = resourcePost.handle(taskPath, new QueryParams(), null, newTaskBody);
         assertThat(taskResponse.getData()).isExactlyInstanceOf(Task.class);
         Long taskId = ((Task) (taskResponse.getData())).getId();
         assertThat(taskId).isNotNull();
@@ -170,14 +169,16 @@ public class ResourcePatchTest extends BaseControllerTest {
         data = new DataBody();
         taskPatch.setData(data);
         data.setType("tasks");
-        data.setAttributes(objectMapper.createObjectNode().put("name", "task updated"));
+        data.setAttributes(objectMapper.createObjectNode()
+            .put("name", "task updated"));
         data.setRelationships(new ResourceRelationships());
-        data.getRelationships().setAdditionalProperty("project", null);
+        data.getRelationships()
+            .setAdditionalProperty("project", null);
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/" + taskId);
         ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser, objectMapper);
 
         // WHEN
-        BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()), null, taskPatch);
+        BaseResponse<?> response = sut.handle(jsonPath, new QueryParams(), null, taskPatch);
 
         // THEN
         Assert.assertNotNull(response);

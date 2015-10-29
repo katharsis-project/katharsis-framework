@@ -1,22 +1,22 @@
 package io.katharsis.jackson.mock.repositories;
 
 import io.katharsis.jackson.mock.models.ClassC;
-import io.katharsis.queryParams.RequestParams;
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.ResourceRepository;
 
 public class ClassCRepository implements ResourceRepository<ClassC, Long> {
     @Override
-    public ClassC findOne(Long aLong, RequestParams requestParams) {
+    public ClassC findOne(Long aLong, QueryParams queryParams) {
         return null;
     }
 
     @Override
-    public Iterable<ClassC> findAll(RequestParams requestParams) {
+    public Iterable<ClassC> findAll(QueryParams queryParams) {
         return null;
     }
 
     @Override
-    public Iterable<ClassC> findAll(Iterable<Long> longs, RequestParams requestParams) {
+    public Iterable<ClassC> findAll(Iterable<Long> longs, QueryParams queryParams) {
         return null;
     }
 

@@ -1,10 +1,9 @@
 package io.katharsis.repository;
 
-import io.katharsis.queryParams.RequestParams;
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 
 import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
 
 /**
  * Base repository which is used to operate on the resources. Each resource should have a corresponding repository
@@ -20,29 +19,29 @@ public interface ResourceRepository<T, ID extends Serializable> {
      * exception should be thrown.
      *
      * @param id an identifier of the resource
-     * @param requestParams parameters sent along with the request
+     * @param queryParams parameters sent along with the request
      * @return an instance of the resource
      */
-    T findOne(ID id, RequestParams requestParams);
+    T findOne(ID id, QueryParams queryParams);
 
     /**
-     * Search for all of the resources. An instance of {@link RequestParams} can be used if necessary. If no
+     * Search for all of the resources. An instance of {@link QueryParams} can be used if necessary. If no
      * resources can be found, an empty {@link Iterable} or <i>null</i> must be returned.
      *
-     * @param requestParams parameters send with the request
+     * @param queryParams parameters send with the request
      * @return a list of found resources
      */
-    Iterable<T> findAll(RequestParams requestParams);
+    Iterable<T> findAll(QueryParams queryParams);
 
     /**
-     * Search for resources constrained by a list of identifiers. An instance of {@link RequestParams} can be used if
+     * Search for resources constrained by a list of identifiers. An instance of {@link QueryParams} can be used if
      * necessary. If no resources can be found, an empty {@link Iterable} or <i>null</i> must be returned.
      *
      * @param ids an {@link Iterable} of passed resource identifiers
-     * @param requestParams parameters send with the request
+     * @param queryParams parameters send with the request
      * @return a list of found resources
      */
-    Iterable<T> findAll(Iterable<ID> ids, RequestParams requestParams);
+    Iterable<T> findAll(Iterable<ID> ids, QueryParams queryParams);
 
     /**
      * Saves a resource. A Returning resource must include assigned identifier created for the instance of resource.

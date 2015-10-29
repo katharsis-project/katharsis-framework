@@ -1,6 +1,6 @@
 package io.katharsis.repository;
 
-import io.katharsis.queryParams.RequestParams;
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.annotations.*;
 import io.katharsis.repository.exception.RepositoryAnnotationNotFoundException;
 import io.katharsis.repository.exception.RepositoryMethodException;
@@ -18,12 +18,12 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
 public class RelationshipRepositoryAdapterTest {
-    private RequestParams requestParams;
+    private QueryParams queryParams;
     private ParametersFactory parameterProvider;
 
     @Before
     public void setUp() throws Exception {
-        requestParams = new RequestParams(null);
+        queryParams = new QueryParams();
         parameterProvider = new ParametersFactory(new NewInstanceRepositoryMethodParameterProvider());
     }
 
@@ -174,7 +174,7 @@ public class RelationshipRepositoryAdapterTest {
         RelationshipRepositoryAdapter<Task, Long, Project, Long> sut = new RelationshipRepositoryAdapter<>(repo, parameterProvider);
 
         // WHEN
-        sut.findOneTarget(1L, "project", requestParams);
+        sut.findOneTarget(1L, "project", queryParams);
     }
 
     @Test(expected = RepositoryMethodException.class)
@@ -185,7 +185,7 @@ public class RelationshipRepositoryAdapterTest {
         RelationshipRepositoryAdapter<Task, Long, Project, Long> sut = new RelationshipRepositoryAdapter<>(repo, parameterProvider);
 
         // WHEN
-        sut.findOneTarget(1L, "project", requestParams);
+        sut.findOneTarget(1L, "project", queryParams);
     }
 
     @Test
@@ -195,10 +195,10 @@ public class RelationshipRepositoryAdapterTest {
         RelationshipRepositoryAdapter<Task, Long, Project, Long> sut = new RelationshipRepositoryAdapter<>(repo, parameterProvider);
 
         // WHEN
-        Project project = sut.findOneTarget(1L, "project", requestParams);
+        Project project = sut.findOneTarget(1L, "project", queryParams);
 
         // THEN
-        verify(repo).findOneTarget(1L, "project", requestParams, "");
+        verify(repo).findOneTarget(1L, "project", queryParams, "");
         assertThat(project).isNotNull();
         assertThat(project.getId()).isEqualTo(42L);
     }
@@ -210,7 +210,7 @@ public class RelationshipRepositoryAdapterTest {
         RelationshipRepositoryAdapter<Task, Long, Project, Long> sut = new RelationshipRepositoryAdapter<>(repo, parameterProvider);
 
         // WHEN
-        sut.findManyTargets(1L, "project", requestParams);
+        sut.findManyTargets(1L, "project", queryParams);
     }
 
     @Test(expected = RepositoryMethodException.class)
@@ -221,7 +221,7 @@ public class RelationshipRepositoryAdapterTest {
         RelationshipRepositoryAdapter<Task, Long, Project, Long> sut = new RelationshipRepositoryAdapter<>(repo, parameterProvider);
 
         // WHEN
-        sut.findManyTargets(1L, "project", requestParams);
+        sut.findManyTargets(1L, "project", queryParams);
     }
 
     @Test
@@ -231,10 +231,10 @@ public class RelationshipRepositoryAdapterTest {
         RelationshipRepositoryAdapter<Task, Long, Project, Long> sut = new RelationshipRepositoryAdapter<>(repo, parameterProvider);
 
         // WHEN
-        Iterable<Project> projects = sut.findManyTargets(1L, "project", requestParams);
+        Iterable<Project> projects = sut.findManyTargets(1L, "project", queryParams);
 
         // THEN
-        verify(repo).findManyTargets(1L, "project", requestParams, "");
+        verify(repo).findManyTargets(1L, "project", queryParams, "");
         assertThat(projects).isNotNull();
         assertThat(projects).hasSize(1);
         assertThat(projects.iterator().next().getId()).isEqualTo(42L);
@@ -320,7 +320,7 @@ public class RelationshipRepositoryAdapterTest {
     public static class RelationshipRepositoryWithFindOneTargetRelations {
 
         @JsonApiFindOneTarget
-        public Project findOneTarget(Long id, String fieldName, RequestParams requestParams, String sth) {
+        public Project findOneTarget(Long id, String fieldName, QueryParams queryParams, String sth) {
             return new Project()
                 .setId(42L);
         }
@@ -338,7 +338,7 @@ public class RelationshipRepositoryAdapterTest {
     public static class RelationshipRepositoryWithFindManyTargetsRelations {
 
         @JsonApiFindManyTargets
-        public Iterable<Project> findManyTargets(Long id, String fieldName, RequestParams requestParams, String sth) {
+        public Iterable<Project> findManyTargets(Long id, String fieldName, QueryParams queryParams, String sth) {
             return Collections.singleton(new Project()
                 .setId(42L));
         }

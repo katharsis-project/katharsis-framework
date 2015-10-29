@@ -6,8 +6,8 @@ import io.katharsis.dispatcher.registry.ControllerRegistry;
 import io.katharsis.errorhandling.ErrorResponse;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryTest;
 import io.katharsis.locator.SampleJsonServiceLocator;
-import io.katharsis.queryParams.RequestParams;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathBuilder;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
@@ -58,10 +58,10 @@ public class RequestDispatcherTest {
         // WHEN
         when(collectionGet.isAcceptable(any(JsonPath.class), eq(requestType))).thenCallRealMethod();
         JsonPath jsonPath = pathBuilder.buildPath(path);
-        sut.dispatchRequest(jsonPath, requestType, new RequestParams(new ObjectMapper()), null, null);
+        sut.dispatchRequest(jsonPath, requestType, new QueryParams(), null, null);
 
         // THEN
-        verify(collectionGet, times(1)).handle(any(JsonPath.class), any(RequestParams.class), isNull(RepositoryMethodParameterProvider.class), any());
+        verify(collectionGet, times(1)).handle(any(JsonPath.class), any(QueryParams.class), any(), any());
     }
 
     @Test

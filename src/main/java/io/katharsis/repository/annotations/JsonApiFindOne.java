@@ -1,6 +1,6 @@
 package io.katharsis.repository.annotations;
 
-import io.katharsis.queryParams.RequestParams;
+import io.katharsis.queryParams.QueryParams;
 
 import java.io.Serializable;
 import java.lang.annotation.*;
@@ -20,7 +20,7 @@ import java.lang.annotation.*;
  * The return value should be a resource of {@link JsonApiResourceRepository#value()} type.
  * </p>
  *
- * @see io.katharsis.repository.ResourceRepository#findOne(Serializable, RequestParams)
+ * @see io.katharsis.repository.ResourceRepository#findOne(Serializable, QueryParams)
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

@@ -1,6 +1,6 @@
 package io.katharsis.repository;
 
-import io.katharsis.queryParams.RequestParams;
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.annotations.*;
 import io.katharsis.repository.exception.RepositoryAnnotationNotFoundException;
 import io.katharsis.utils.ClassUtils;
@@ -88,7 +88,7 @@ public class RelationshipRepositoryAdapter<T, T_ID extends Serializable, D, D_ID
     }
 
     @Override
-    public D findOneTarget(T_ID sourceId, String fieldName, RequestParams requestParams) {
+    public D findOneTarget(T_ID sourceId, String fieldName, QueryParams queryParams) {
         Class<JsonApiFindOneTarget> annotationType = JsonApiFindOneTarget.class;
         if (findOneTargetMethod == null) {
             findOneTargetMethod = ClassUtils.findMethodWith(implementationObject, annotationType);
@@ -97,7 +97,7 @@ public class RelationshipRepositoryAdapter<T, T_ID extends Serializable, D, D_ID
 
         Object[] firstParameters = {sourceId, fieldName};
         Object[] methodParameters = parametersFactory
-            .buildParameters(firstParameters, findOneTargetMethod.getParameters(), requestParams, annotationType);
+            .buildParameters(firstParameters, findOneTargetMethod.getParameters(), queryParams, annotationType);
 
         try {
             return (D) findOneTargetMethod.invoke(implementationObject, methodParameters);
@@ -109,7 +109,7 @@ public class RelationshipRepositoryAdapter<T, T_ID extends Serializable, D, D_ID
     }
 
     @Override
-    public Iterable<D> findManyTargets(T_ID sourceId, String fieldName, RequestParams requestParams) {
+    public Iterable<D> findManyTargets(T_ID sourceId, String fieldName, QueryParams queryParams) {
         Class<JsonApiFindManyTargets> annotationType = JsonApiFindManyTargets.class;
         if (findManyTargetsMethod == null) {
             findManyTargetsMethod = ClassUtils.findMethodWith(implementationObject, annotationType);
@@ -118,7 +118,7 @@ public class RelationshipRepositoryAdapter<T, T_ID extends Serializable, D, D_ID
 
         Object[] firstParameters = {sourceId, fieldName};
         Object[] methodParameters = parametersFactory
-            .buildParameters(firstParameters, findManyTargetsMethod.getParameters(), requestParams, annotationType);
+            .buildParameters(firstParameters, findManyTargetsMethod.getParameters(), queryParams, annotationType);
 
         try {
             return (Iterable<D>) findManyTargetsMethod.invoke(implementationObject, methodParameters);

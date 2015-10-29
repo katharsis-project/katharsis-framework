@@ -1,6 +1,5 @@
 package io.katharsis.jackson;
 
-import io.katharsis.queryParams.RequestParams;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.response.Container;
@@ -20,7 +19,7 @@ public class LinkageDataContainerSerializerTest extends BaseSerializerTest {
         task.setProject(project);
 
         // WHEN
-        String result = sut.writeValueAsString(new Container(task, new RequestParams(null)));
+        String result = sut.writeValueAsString(new Container(task, testResponse));
 
         // THEN
         assertThatJson(result).node("relationships.project.data.type").isEqualTo("projects");

@@ -83,7 +83,7 @@ public class BaseResponseSerializer extends JsonSerializer<BaseResponse> {
 
     private Set<?> serializeSingle(ResourceResponse resourceResponse, JsonGenerator gen) throws IOException {
         Object value = resourceResponse.getData();
-        gen.writeObjectField(DATA_FIELD_NAME, new Container(value, resourceResponse.getRequestParams()));
+        gen.writeObjectField(DATA_FIELD_NAME, new Container(value, resourceResponse));
 
         if (value != null) {
             return includedRelationshipExtractor.extractIncludedResources(value, resourceResponse);
@@ -106,7 +106,7 @@ public class BaseResponseSerializer extends JsonSerializer<BaseResponse> {
 
         List<Container> containers = new LinkedList<>();
         for (Object value : values) {
-            containers.add(new Container(value, collectionResponse.getRequestParams()));
+            containers.add(new Container(value, collectionResponse));
         }
 
         gen.writeObjectField(DATA_FIELD_NAME, containers);

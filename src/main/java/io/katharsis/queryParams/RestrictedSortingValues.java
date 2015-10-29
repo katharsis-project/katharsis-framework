@@ -3,7 +3,7 @@ package io.katharsis.queryParams;
 /**
  * Holds available sorting param values
  */
-public enum SortingValues {
+public enum RestrictedSortingValues {
     /**
      * Ascending order
      */

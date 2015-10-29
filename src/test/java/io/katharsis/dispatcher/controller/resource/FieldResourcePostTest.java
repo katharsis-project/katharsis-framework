@@ -2,7 +2,7 @@ package io.katharsis.dispatcher.controller.resource;
 
 import io.katharsis.dispatcher.controller.BaseControllerTest;
 import io.katharsis.dispatcher.controller.HttpMethod;
-import io.katharsis.queryParams.RequestParams;
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.dto.ResourceRelationships;
@@ -66,7 +66,7 @@ public class FieldResourcePostTest extends BaseControllerTest {
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper);
 
         // WHEN
-        BaseResponse taskResponse = resourcePost.handle(taskPath, new RequestParams(objectMapper), null, newTaskBody);
+        BaseResponse taskResponse = resourcePost.handle(taskPath, new QueryParams(), null, newTaskBody);
 
         // THEN
         assertThat(taskResponse.getData()).isExactlyInstanceOf(Task.class);
@@ -86,7 +86,7 @@ public class FieldResourcePostTest extends BaseControllerTest {
         FieldResourcePost sut = new FieldResourcePost(resourceRegistry, typeParser, objectMapper);
 
         // WHEN
-        ResourceResponse projectResponse = sut.handle(projectPath, new RequestParams(objectMapper), null, newProjectBody);
+        ResourceResponse projectResponse = sut.handle(projectPath, new QueryParams(), null, newProjectBody);
 
         // THEN
         assertThat(projectResponse.getHttpStatus()).isEqualTo(HttpStatus.CREATED_201);

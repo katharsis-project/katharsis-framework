@@ -3,8 +3,8 @@ package io.katharsis.dispatcher.controller.resource;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
-import io.katharsis.queryParams.RequestParams;
-import io.katharsis.queryParams.RequestParamsBuilder;
+import io.katharsis.queryParams.QueryParams;
+import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.dto.ResourceRelationships;
@@ -19,10 +19,11 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
-import static org.assertj.core.api.Assertions.allOf;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ResourceGetTest extends BaseControllerTest {
@@ -88,7 +89,7 @@ public class ResourceGetTest extends BaseControllerTest {
 
         // WHEN
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper);
-        ResourceResponse taskResponse = resourcePost.handle(taskPath, new RequestParams(new ObjectMapper()), null, newTaskBody);
+        ResourceResponse taskResponse = resourcePost.handle(taskPath, new QueryParams(), null, newTaskBody);
         assertThat(taskResponse.getData()).isExactlyInstanceOf(Task.class);
         Long taskId = ((Task) (taskResponse.getData())).getId();
         assertThat(taskId).isNotNull();
@@ -98,7 +99,7 @@ public class ResourceGetTest extends BaseControllerTest {
         ResourceGet sut = new ResourceGet(resourceRegistry, typeParser, includeFieldSetter);
 
         // WHEN
-        BaseResponse<?> response = sut.handle(jsonPath, new RequestParams(new ObjectMapper()), null, null);
+        BaseResponse<?> response = sut.handle(jsonPath, new QueryParams(), null, null);
 
         // THEN
         Assert.assertNotNull(response);
@@ -119,7 +120,7 @@ public class ResourceGetTest extends BaseControllerTest {
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper);
 
         // WHEN -- adding a task
-        BaseResponse taskResponse = resourcePost.handle(taskPath, new RequestParams(new ObjectMapper()), null, newTaskBody);
+        BaseResponse taskResponse = resourcePost.handle(taskPath, new QueryParams(), null, newTaskBody);
 
         // THEN
         assertThat(taskResponse.getData()).isExactlyInstanceOf(Task.class);
@@ -138,7 +139,7 @@ public class ResourceGetTest extends BaseControllerTest {
         JsonPath projectPath = pathBuilder.buildPath("/projects");
 
         // WHEN -- adding a project
-        ResourceResponse projectResponse = resourcePost.handle(projectPath, new RequestParams(objectMapper), null, newProjectBody);
+        ResourceResponse projectResponse = resourcePost.handle(projectPath, new QueryParams(), null, newProjectBody);
 
         // THEN
         assertThat(projectResponse.getData()).isExactlyInstanceOf(Project.class);
@@ -160,7 +161,8 @@ public class ResourceGetTest extends BaseControllerTest {
         RelationshipsResourcePost sut = new RelationshipsResourcePost(resourceRegistry, typeParser);
 
         // WHEN -- adding a relation between task and project
-        BaseResponse projectRelationshipResponse = sut.handle(savedTaskPath, new RequestParams(objectMapper), null, newTaskToProjectBody);
+        BaseResponse projectRelationshipResponse = sut.handle(savedTaskPath, new QueryParams(), null,
+            newTaskToProjectBody);
         assertThat(projectRelationshipResponse).isNotNull();
 
         // THEN
@@ -171,12 +173,13 @@ public class ResourceGetTest extends BaseControllerTest {
         //Given
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/" + taskId );
         ResourceGet responseGetResp = new ResourceGet(resourceRegistry, typeParser, includeFieldSetter);
-        Map<String, String> queryParams = new HashMap<>();
-        queryParams.put(RestrictedQueryParamsMembers.include.name(), "[\"includedProject\"]");
-        RequestParams requestParams = new RequestParamsBuilder(new ObjectMapper()).buildRequestParams(queryParams);
+        Map<String, Set<String>> queryParams = new HashMap<>();
+        queryParams.put(RestrictedQueryParamsMembers.include.name() + "[tasks]",
+            Collections.singleton("includedProject"));
+        QueryParams queryParamsObject = new QueryParamsBuilder().buildQueryParams(queryParams);
 
         // WHEN
-        BaseResponse<?> response = responseGetResp.handle(jsonPath, requestParams, null, null);
+        BaseResponse<?> response = responseGetResp.handle(jsonPath, queryParamsObject, null, null);
 
         // THEN
         Assert.assertNotNull(response);
@@ -199,7 +202,7 @@ public class ResourceGetTest extends BaseControllerTest {
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper);
 
         // WHEN -- adding a task
-        BaseResponse taskResponse = resourcePost.handle(taskPath, new RequestParams(new ObjectMapper()), null, newTaskBody);
+        BaseResponse taskResponse = resourcePost.handle(taskPath, new QueryParams(), null, newTaskBody);
 
         // THEN
         assertThat(taskResponse.getData()).isExactlyInstanceOf(Task.class);
@@ -218,7 +221,7 @@ public class ResourceGetTest extends BaseControllerTest {
         JsonPath projectPath = pathBuilder.buildPath("/projects");
 
         // WHEN -- adding a project
-        ResourceResponse projectResponse = resourcePost.handle(projectPath, new RequestParams(objectMapper), null, newProjectBody);
+        ResourceResponse projectResponse = resourcePost.handle(projectPath, new QueryParams(), null, newProjectBody);
 
         // THEN
         assertThat(projectResponse.getData()).isExactlyInstanceOf(Project.class);
@@ -240,7 +243,7 @@ public class ResourceGetTest extends BaseControllerTest {
         RelationshipsResourcePost sut = new RelationshipsResourcePost(resourceRegistry, typeParser);
 
         // WHEN -- adding a relation between task and project
-        BaseResponse projectRelationshipResponse = sut.handle(savedTaskPath, new RequestParams(objectMapper), null, newTaskToProjectBody);
+        BaseResponse projectRelationshipResponse = sut.handle(savedTaskPath, new QueryParams(), null, newTaskToProjectBody);
         assertThat(projectRelationshipResponse).isNotNull();
 
         // THEN
@@ -251,9 +254,10 @@ public class ResourceGetTest extends BaseControllerTest {
         //Given
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/" + taskId );
         ResourceGet responseGetResp = new ResourceGet(resourceRegistry, typeParser, includeFieldSetter);
-        Map<String, String> queryParams = new HashMap<>();
-        queryParams.put(RestrictedQueryParamsMembers.include.name(), "[\"project\"]");
-        RequestParams requestParams = new RequestParamsBuilder(new ObjectMapper()).buildRequestParams(queryParams);
+        Map<String, Set<String>> queryParams = new HashMap<>();
+        queryParams.put(RestrictedQueryParamsMembers.include.name() + "[tasks]",
+            Collections.singleton("[\"project\"]"));
+        QueryParams requestParams = new QueryParamsBuilder().buildQueryParams(queryParams);
 
         // WHEN
         BaseResponse<?> response = responseGetResp.handle(jsonPath, requestParams, null, null);

@@ -1,11 +1,14 @@
 package io.katharsis.jackson;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.katharsis.queryParams.RequestParams;
-import io.katharsis.queryParams.RequestParamsBuilder;
+import io.katharsis.queryParams.QueryParams;
+import io.katharsis.queryParams.QueryParamsBuilder;
+import io.katharsis.request.path.JsonPath;
+import io.katharsis.request.path.PathBuilder;
 import io.katharsis.resource.RestrictedQueryParamsMembers;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.response.Container;
+import io.katharsis.response.ResourceResponse;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -20,7 +23,7 @@ public class ContainerSerializerTest extends BaseSerializerTest {
         Project project = new Project();
 
         // WHEN
-        String result = sut.writeValueAsString(new Container(project, new RequestParams(null)));
+        String result = sut.writeValueAsString(new Container(project, testResponse));
 
         // THEN
         assertThatJson(result).node("type").isEqualTo("projects");
@@ -33,7 +36,7 @@ public class ContainerSerializerTest extends BaseSerializerTest {
         project.setId(1L);
 
         // WHEN
-        String result = sut.writeValueAsString(new Container(project, new RequestParams(null)));
+        String result = sut.writeValueAsString(new Container(project, testResponse));
 
         // THEN
         assertThatJson(result).node("id").isEqualTo("\"1\"");
@@ -46,7 +49,7 @@ public class ContainerSerializerTest extends BaseSerializerTest {
         project.setName("name");
 
         // WHEN
-        String result = sut.writeValueAsString(new Container(project, new RequestParams(null)));
+        String result = sut.writeValueAsString(new Container(project, testResponse));
 
         // THEN
         assertThatJson(result).node("attributes.name").isEqualTo("name");
@@ -59,12 +62,14 @@ public class ContainerSerializerTest extends BaseSerializerTest {
         project.setName("name");
         project.setDescription("description");
 
-        RequestParamsBuilder requestParamsBuilder = new RequestParamsBuilder(new ObjectMapper());
-        RequestParams requestParams = requestParamsBuilder.buildRequestParams(
-                Collections.singletonMap(RestrictedQueryParamsMembers.fields.name(), "[\"name\"]"));
+        QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder();
+        QueryParams queryParams = queryParamsBuilder.buildQueryParams(
+            Collections.singletonMap("fields[projects]", Collections.singleton("name")));
+        JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath("/projects");
 
         // WHEN
-        String result = sut.writeValueAsString(new Container(project, requestParams));
+        String result = sut.writeValueAsString(new Container(project, new ResourceResponse(null, jsonPath, queryParams,
+            null, null)));
 
         // THEN
         assertThatJson(result).node("attributes.name").isEqualTo("name");

@@ -1,6 +1,6 @@
 package io.katharsis.repository;
 
-import io.katharsis.queryParams.RequestParams;
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.exception.RepositoryNotFoundException;
 
 import java.io.Serializable;
@@ -17,17 +17,17 @@ public class NotFoundRepository<T, ID extends Serializable> implements ResourceR
     }
 
     @Override
-    public T findOne(ID id, RequestParams requestParams) {
+    public T findOne(ID id, QueryParams queryParams) {
         throw new RepositoryNotFoundException(repositoryClass);
     }
 
     @Override
-    public Iterable<T> findAll(RequestParams requestParams) {
+    public Iterable<T> findAll(QueryParams queryParams) {
         throw new RepositoryNotFoundException(repositoryClass);
     }
 
     @Override
-    public Iterable<T> findAll(Iterable<ID> ids, RequestParams requestParams) {
+    public Iterable<T> findAll(Iterable<ID> ids, QueryParams queryParams) {
         throw new RepositoryNotFoundException(repositoryClass);
     }
 

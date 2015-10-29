@@ -1,6 +1,6 @@
 package io.katharsis.response;
 
-import io.katharsis.queryParams.RequestParams;
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.request.path.JsonPath;
 
 import java.util.Objects;
@@ -25,7 +25,7 @@ public class ResourceResponse implements BaseResponse {
 
     private JsonPath jsonPath;
 
-    private RequestParams requestParams;
+    private QueryParams queryParams;
 
     private MetaInformation metaInformation;
 
@@ -37,16 +37,16 @@ public class ResourceResponse implements BaseResponse {
         this(null, null, null, metaInformation, linksInformation, httpStatus);
     }
 
-    public ResourceResponse(Object data, JsonPath jsonPath, RequestParams requestParams,
+    public ResourceResponse(Object data, JsonPath jsonPath, QueryParams queryParams,
                             MetaInformation metaInformation, LinksInformation linksInformation) {
-        this(data, jsonPath, requestParams, metaInformation, linksInformation, HttpStatus.OK_200);
+        this(data, jsonPath, queryParams, metaInformation, linksInformation, HttpStatus.OK_200);
     }
 
-    public ResourceResponse(Object data, JsonPath jsonPath, RequestParams requestParams,
+    public ResourceResponse(Object data, JsonPath jsonPath, QueryParams queryParams,
                             MetaInformation metaInformation, LinksInformation linksInformation, int httpStatus) {
         this.data = data;
         this.jsonPath = jsonPath;
-        this.requestParams = requestParams;
+        this.queryParams = queryParams;
         this.metaInformation = metaInformation;
         this.linksInformation = linksInformation;
         this.httpStatus = httpStatus;
@@ -68,8 +68,8 @@ public class ResourceResponse implements BaseResponse {
     }
 
     @Override
-    public RequestParams getRequestParams() {
-        return requestParams;
+    public QueryParams getQueryParams() {
+        return queryParams;
     }
 
     @Override
