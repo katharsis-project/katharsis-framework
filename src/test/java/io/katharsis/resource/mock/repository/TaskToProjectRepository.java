@@ -81,11 +81,14 @@ public class TaskToProjectRepository implements RelationshipRepository<Task, Lon
         THREAD_LOCAL_REPOSITORY.keySet()
             .stream()
             .filter(relation -> relation.getSource()
-                .getId().equals(sourceId) && relation.getFieldName().equals(fieldName)).forEach(relation -> {
-            Project project = new Project();
-            project.setId((Long) relation.getTargetId());
-            projects.add(project);
-        });
+                .getId()
+                .equals(sourceId) && relation.getFieldName()
+                .equals(fieldName))
+            .forEach(relation -> {
+                Project project = new Project();
+                project.setId((Long) relation.getTargetId());
+                projects.add(project);
+            });
         return projects;
     }
 }

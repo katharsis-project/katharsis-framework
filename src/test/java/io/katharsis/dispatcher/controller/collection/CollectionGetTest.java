@@ -157,7 +157,7 @@ public class CollectionGetTest extends BaseControllerTest {
         ResourceGet responseGetResp = new ResourceGet(resourceRegistry, typeParser, includeFieldSetter);
         Map<String, Set<String>> queryParams = new HashMap<>();
         queryParams.put(RestrictedQueryParamsMembers.include.name() + "[tasks]",
-            Collections.singleton("[\"includedProjects\"]"));
+            Collections.singleton("includedProjects"));
         QueryParams queryParams1 = new QueryParamsBuilder().buildQueryParams(queryParams);
 
         // WHEN

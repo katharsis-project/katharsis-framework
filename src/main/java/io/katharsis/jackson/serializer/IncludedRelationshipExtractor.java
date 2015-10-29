@@ -108,13 +108,15 @@ public class IncludedRelationshipExtractor {
         return includedResources;
     }
 
-    private IncludedRelationsParams findInclusions(TypedParams<IncludedRelationsParams> queryParams, String
-        resourceName) {
+    private IncludedRelationsParams findInclusions(TypedParams<IncludedRelationsParams> queryParams,
+                                                   String resourceName) {
         IncludedRelationsParams includedRelationsParams = null;
-        for (Map.Entry<String, IncludedRelationsParams> entry : queryParams.getParams()
-            .entrySet()) {
-            if (resourceName.equals(entry.getKey())) {
-                includedRelationsParams = entry.getValue();
+        if (queryParams != null) {
+            for (Map.Entry<String, IncludedRelationsParams> entry : queryParams.getParams()
+                .entrySet()) {
+                if (resourceName.equals(entry.getKey())) {
+                    includedRelationsParams = entry.getValue();
+                }
             }
         }
         return includedRelationsParams;

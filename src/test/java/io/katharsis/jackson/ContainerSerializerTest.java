@@ -3,6 +3,8 @@ package io.katharsis.jackson;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
+import io.katharsis.request.path.JsonPath;
+import io.katharsis.request.path.PathBuilder;
 import io.katharsis.resource.RestrictedQueryParamsMembers;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.response.Container;
@@ -62,10 +64,11 @@ public class ContainerSerializerTest extends BaseSerializerTest {
 
         QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder();
         QueryParams queryParams = queryParamsBuilder.buildQueryParams(
-            Collections.singletonMap("fields[name]", Collections.singleton("")));
+            Collections.singletonMap("fields[projects]", Collections.singleton("name")));
+        JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath("/projects");
 
         // WHEN
-        String result = sut.writeValueAsString(new Container(project, new ResourceResponse(null, null, queryParams,
+        String result = sut.writeValueAsString(new Container(project, new ResourceResponse(null, jsonPath, queryParams,
             null, null)));
 
         // THEN

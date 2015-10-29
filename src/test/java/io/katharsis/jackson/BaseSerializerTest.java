@@ -3,6 +3,8 @@ package io.katharsis.jackson;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.locator.SampleJsonServiceLocator;
 import io.katharsis.queryParams.QueryParams;
+import io.katharsis.request.path.JsonPath;
+import io.katharsis.request.path.PathBuilder;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -33,6 +35,7 @@ public abstract class BaseSerializerTest {
         sut = new ObjectMapper();
         sut.registerModule(jsonApiModuleBuilder.build(resourceRegistry));
 
-        testResponse = new ResourceResponse(null, null, new QueryParams(), null, null);
+        JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath("/tasks");
+        testResponse = new ResourceResponse(null, jsonPath, new QueryParams(), null, null);
     }
 }

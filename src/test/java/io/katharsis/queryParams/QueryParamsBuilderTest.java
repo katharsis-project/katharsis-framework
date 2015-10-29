@@ -53,7 +53,7 @@ public class QueryParamsBuilderTest {
         // THEN
         assertThat(result.getSorting()
             .getParams()
-            .get("name")).isNotNull();
+            .get("User")).isNotNull();
 
         assertThat(result.getSorting()
             .getParams()
