@@ -10,6 +10,7 @@ import io.katharsis.resource.mock.repository.TaskToProjectRepository;
 import io.katharsis.resource.mock.repository.util.Relation;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
+import io.katharsis.response.HttpStatus;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -106,5 +107,6 @@ public class RelationshipsResourceGetTest extends BaseControllerTest {
 
         // THEN
         Assert.assertNotNull(response);
+        assertThat(response.getHttpStatus()).isEqualTo(HttpStatus.OK_200);
     }
 }
