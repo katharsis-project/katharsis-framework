@@ -13,6 +13,7 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.SecurityContext;
 import java.lang.reflect.Parameter;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.UUID;
 
@@ -143,7 +144,11 @@ public class JaxRsParameterProviderTest {
     }
 
     private Parameter getParameter(int idx) {
-        return TestClass.class.getDeclaredMethods()[0].getParameters()[idx];
+        return Arrays.stream(TestClass.class.getDeclaredMethods())
+            .filter(method -> "testMethod".equals(method.getName()))
+            .findFirst()
+            .get()
+            .getParameters()[idx];
     }
 
     public static class TestClass {
