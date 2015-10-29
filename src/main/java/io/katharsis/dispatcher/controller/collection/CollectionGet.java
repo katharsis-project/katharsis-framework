@@ -54,7 +54,16 @@ public class CollectionGet extends ResourceIncludeField {
         }
         Iterable<?> resources;
         ResourceRepository resourceRepository = registryEntry.getResourceRepository(parameterProvider);
-        resources = resourceRepository.findAll(requestParams);
+        if (jsonPath.getIds() == null || jsonPath.getIds().getIds().isEmpty()) {
+            resources = resourceRepository.findAll(requestParams);
+        } else {
+            Class<? extends Serializable> idType = (Class<? extends Serializable>)registryEntry
+                .getResourceInformation().getIdField().getType();
+            Iterable<? extends Serializable> parsedIds = typeParser.parse((Iterable<String>) jsonPath.getIds().getIds(),
+                idType);
+            resources = resourceRepository.findAll(parsedIds, requestParams);
+        }
+
         List containers = new LinkedList();
         if (resources != null) {
             includeFieldSetter.setIncludedElements(resources, requestParams, parameterProvider);
