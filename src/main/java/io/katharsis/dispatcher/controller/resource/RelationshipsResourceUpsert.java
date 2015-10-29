@@ -18,9 +18,7 @@ import io.katharsis.resource.exception.ResourceFieldNotFoundException;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.response.BaseResponse;
-import io.katharsis.response.MetaInformation;
-import io.katharsis.response.ResourceResponse;
+import io.katharsis.response.*;
 import io.katharsis.utils.Generics;
 import io.katharsis.utils.parser.TypeParser;
 
@@ -123,8 +121,10 @@ public abstract class RelationshipsResourceUpsert implements BaseController {
 
         MetaInformation metaInformation =
             getMetaInformation(resourceRepository, Collections.singletonList(resource), requestParams);
+        LinksInformation linksInformation =
+            getLinksInformation(resourceRepository, Collections.singletonList(resource), requestParams);
 
-        return new ResourceResponse(metaInformation);
+        return new ResourceResponse(metaInformation, linksInformation, HttpStatus.NO_CONTENT_204);
     }
 
     private Serializable getResourceId(PathIds resourceIds, RegistryEntry<?> registryEntry) {

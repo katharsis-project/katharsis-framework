@@ -14,6 +14,7 @@ import io.katharsis.resource.exception.RequestBodyNotFoundException;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.response.HttpStatus;
 import io.katharsis.response.LinksInformation;
 import io.katharsis.response.MetaInformation;
 import io.katharsis.response.ResourceResponse;
@@ -83,6 +84,7 @@ public class ResourcePost extends ResourceUpsert {
         LinksInformation linksInformation =
             getLinksInformation(resourceRepository, Collections.singletonList(savedResourceWithRelations), requestParams);
 
-        return new ResourceResponse(savedResourceWithRelations, jsonPath, requestParams, metaInformation, linksInformation);
+        return new ResourceResponse(savedResourceWithRelations, jsonPath, requestParams, metaInformation, linksInformation,
+            HttpStatus.CREATED_201);
     }
 }

@@ -31,22 +31,30 @@ public class ResourceResponse implements BaseResponse {
 
     private LinksInformation linksInformation;
 
-    public ResourceResponse(MetaInformation metaInformation) {
-        this.metaInformation = metaInformation;
+    private int httpStatus;
+
+    public ResourceResponse(MetaInformation metaInformation, LinksInformation linksInformation, int httpStatus) {
+        this(null, null, null, metaInformation, linksInformation, httpStatus);
     }
 
     public ResourceResponse(Object data, JsonPath jsonPath, RequestParams requestParams,
                             MetaInformation metaInformation, LinksInformation linksInformation) {
+        this(data, jsonPath, requestParams, metaInformation, linksInformation, HttpStatus.OK_200);
+    }
+
+    public ResourceResponse(Object data, JsonPath jsonPath, RequestParams requestParams,
+                            MetaInformation metaInformation, LinksInformation linksInformation, int httpStatus) {
         this.data = data;
         this.jsonPath = jsonPath;
         this.requestParams = requestParams;
         this.metaInformation = metaInformation;
         this.linksInformation = linksInformation;
+        this.httpStatus = httpStatus;
     }
 
     @Override
     public int getHttpStatus() {
-        return HttpStatus.OK_200;
+        return httpStatus;
     }
 
     @Override

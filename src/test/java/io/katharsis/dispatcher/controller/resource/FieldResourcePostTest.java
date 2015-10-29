@@ -14,6 +14,7 @@ import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.repository.TaskToProjectRepository;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
+import io.katharsis.response.HttpStatus;
 import io.katharsis.response.ResourceResponse;
 import org.junit.Test;
 
@@ -87,6 +88,8 @@ public class FieldResourcePostTest extends BaseControllerTest {
         // WHEN
         ResourceResponse projectResponse = sut.handle(projectPath, new RequestParams(objectMapper), null, newProjectBody);
 
+        // THEN
+        assertThat(projectResponse.getHttpStatus()).isEqualTo(HttpStatus.CREATED_201);
         assertThat(projectResponse.getData()).isExactlyInstanceOf(Project.class);
         assertThat(((Project) (projectResponse.getData())).getId()).isNotNull();
         assertThat(((Project) (projectResponse.getData())).getName()).isEqualTo("sample project");

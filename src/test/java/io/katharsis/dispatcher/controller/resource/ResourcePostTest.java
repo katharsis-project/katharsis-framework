@@ -15,6 +15,7 @@ import io.katharsis.resource.mock.models.*;
 import io.katharsis.resource.mock.repository.ProjectRepository;
 import io.katharsis.resource.mock.repository.TaskRepository;
 import io.katharsis.resource.mock.repository.TaskToProjectRepository;
+import io.katharsis.response.HttpStatus;
 import io.katharsis.response.ResourceResponse;
 import org.junit.Assert;
 import org.junit.Test;
@@ -121,6 +122,7 @@ public class ResourcePostTest extends BaseControllerTest {
         ResourceResponse projectResponse = sut.handle(projectPath, new RequestParams(new ObjectMapper()), null, newProjectBody);
 
         // THEN
+        assertThat(projectResponse.getHttpStatus()).isEqualTo(HttpStatus.CREATED_201);
         assertThat(projectResponse.getData()).isExactlyInstanceOf(Project.class);
         Project persistedProject = (Project) (projectResponse.getData());
         assertThat(persistedProject.getId()).isNotNull();
@@ -145,6 +147,7 @@ public class ResourcePostTest extends BaseControllerTest {
         ResourceResponse taskResponse = sut.handle(taskPath, new RequestParams(new ObjectMapper()), null, newTaskBody);
 
         // THEN
+        assertThat(taskResponse.getHttpStatus()).isEqualTo(HttpStatus.CREATED_201);
         assertThat(taskResponse.getData()).isExactlyInstanceOf(Task.class);
         Long taskId = ((Task) (taskResponse.getData())).getId();
         assertThat(taskId).isNotNull();

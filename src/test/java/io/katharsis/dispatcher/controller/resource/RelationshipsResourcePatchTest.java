@@ -16,6 +16,7 @@ import io.katharsis.resource.mock.repository.TaskToProjectRepository;
 import io.katharsis.resource.mock.repository.UserToProjectRepository;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
+import io.katharsis.response.HttpStatus;
 import io.katharsis.response.ResourceResponse;
 import org.junit.Before;
 import org.junit.Test;
@@ -231,6 +232,7 @@ public class RelationshipsResourcePatchTest extends BaseControllerTest {
         assertThat(projectRelationshipResponse).isNotNull();
 
         // THEN
+        assertThat(projectRelationshipResponse.getHttpStatus()).isEqualTo(HttpStatus.NO_CONTENT_204);
         Project project = localUserToProjectRepository.findOneTarget(1L, "project", REQUEST_PARAMS);
         assertThat(project).isNull();
     }
