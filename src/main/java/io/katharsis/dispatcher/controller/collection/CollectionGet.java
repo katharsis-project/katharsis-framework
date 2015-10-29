@@ -56,13 +56,13 @@ public class CollectionGet extends ResourceIncludeField {
         Iterable<?> resources;
         ResourceRepository resourceRepository = registryEntry.getResourceRepository(parameterProvider);
         if (jsonPath.getIds() == null || jsonPath.getIds().getIds().isEmpty()) {
-            resources = resourceRepository.findAll(requestParams);
+            resources = resourceRepository.findAll(queryParams);
         } else {
             Class<? extends Serializable> idType = (Class<? extends Serializable>)registryEntry
                 .getResourceInformation().getIdField().getType();
             Iterable<? extends Serializable> parsedIds = typeParser.parse((Iterable<String>) jsonPath.getIds().getIds(),
                 idType);
-            resources = resourceRepository.findAll(parsedIds, requestParams);
+            resources = resourceRepository.findAll(parsedIds, queryParams);
         }
 
         List containers = new LinkedList();
