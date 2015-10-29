@@ -32,15 +32,21 @@ public class ProjectRepository implements ResourceRepository<Project, Long> {
 
     @Override
     public Iterable<Project> findAll(RequestParams requestParams) {
+        return THREAD_LOCAL_REPOSITORY.values();
+    }
+
+
+    @Override
+    public Iterable<Project> findAll(Iterable<Long> ids, RequestParams requestParams) {
         return THREAD_LOCAL_REPOSITORY.values()
             .stream()
-            .filter(value -> contains(value, requestParams.getIds()))
+            .filter(value -> contains(value, ids))
             .collect(Collectors.toList());
     }
 
-    private boolean contains(Project value, List<String> ids) {
-        for (String id : ids) {
-            if (value.getId().equals(Long.valueOf(id))) {
+    private boolean contains(Project value, Iterable<Long> ids) {
+        for (Long id : ids) {
+            if (value.getId().equals(id)) {
                 return true;
             }
         }

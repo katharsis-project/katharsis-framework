@@ -33,15 +33,21 @@ public class TaskRepository {
 
     @JsonApiFindAll
     public Iterable<Task> findAll(RequestParams requestParams) {
+        return THREAD_LOCAL_REPOSITORY.values();
+    }
+
+
+    @JsonApiFindAllWithIds
+    public Iterable<Task> findAll(Iterable<Long> ids, RequestParams requestParams) {
         return THREAD_LOCAL_REPOSITORY.values()
             .stream()
-            .filter(value -> contains(value, requestParams.getIds()))
+            .filter(value -> contains(value, ids))
             .collect(Collectors.toList());
     }
 
-    private boolean contains(Task value, List<String> ids) {
-        for (String id : ids) {
-            if (value.getId().equals(Long.valueOf(id))) {
+    private boolean contains(Task value, Iterable<Long> ids) {
+        for (Long id : ids) {
+            if (value.getId().equals(id)) {
                 return true;
             }
         }

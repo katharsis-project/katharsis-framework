@@ -14,7 +14,7 @@ import java.lang.annotation.*;
  * The requirements for the method parameters are as follows:
  * </p>
  * <ol>
- *     <li>An identifier of a resource</li>
+ *     <li>A resource identifier</li>
  * </ol>
  * <p>
  * The return value should be a resource of {@link JsonApiResourceRepository#value()} type.

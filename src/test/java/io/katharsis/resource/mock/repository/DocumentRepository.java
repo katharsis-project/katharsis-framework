@@ -34,6 +34,11 @@ public class DocumentRepository implements ResourceRepository<Document, Long> {
     }
 
     @Override
+    public Iterable<Document> findAll(Iterable<Long> longs, RequestParams requestParams) {
+        return null;
+    }
+
+    @Override
     public void delete(Long aLong) {
         THREAD_LOCAL_REPOSITORY.remove(aLong);
     }
