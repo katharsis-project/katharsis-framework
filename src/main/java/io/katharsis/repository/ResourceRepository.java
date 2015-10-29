@@ -27,12 +27,22 @@ public interface ResourceRepository<T, ID extends Serializable> {
 
     /**
      * Search for all of the resources. An instance of {@link RequestParams} can be used if necessary. If no
-     * resources can be found an empty {@link Iterable} or <i>null</i> must be returned.
+     * resources can be found, an empty {@link Iterable} or <i>null</i> must be returned.
      *
      * @param requestParams parameters send with the request
      * @return a list of found resources
      */
     Iterable<T> findAll(RequestParams requestParams);
+
+    /**
+     * Search for resources constrained by a list of identifiers. An instance of {@link RequestParams} can be used if
+     * necessary. If no resources can be found, an empty {@link Iterable} or <i>null</i> must be returned.
+     *
+     * @param ids an {@link Iterable} of passed resource identifiers
+     * @param requestParams parameters send with the request
+     * @return a list of found resources
+     */
+    Iterable<T> findAll(Iterable<ID> ids, RequestParams requestParams);
 
     /**
      * Saves a resource. A Returning resource must include assigned identifier created for the instance of resource.

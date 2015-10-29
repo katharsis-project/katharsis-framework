@@ -16,6 +16,11 @@ public class ClassBWithInclusionRepository implements ResourceRepository<ClassBW
     }
 
     @Override
+    public Iterable<ClassBWithInclusion> findAll(Iterable<Long> longs, RequestParams requestParams) {
+        return null;
+    }
+
+    @Override
     public <S extends ClassBWithInclusion> S save(S entity) {
         return null;
     }
