@@ -6,6 +6,7 @@ import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.resource.RestrictedQueryParamsMembers;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.response.Container;
+import io.katharsis.response.ResourceResponse;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -20,7 +21,7 @@ public class ContainerSerializerTest extends BaseSerializerTest {
         Project project = new Project();
 
         // WHEN
-        String result = sut.writeValueAsString(new Container(project, new QueryParams()));
+        String result = sut.writeValueAsString(new Container(project, testResponse));
 
         // THEN
         assertThatJson(result).node("type").isEqualTo("projects");
@@ -33,7 +34,7 @@ public class ContainerSerializerTest extends BaseSerializerTest {
         project.setId(1L);
 
         // WHEN
-        String result = sut.writeValueAsString(new Container(project, new QueryParams()));
+        String result = sut.writeValueAsString(new Container(project, testResponse));
 
         // THEN
         assertThatJson(result).node("id").isEqualTo("\"1\"");
@@ -46,7 +47,7 @@ public class ContainerSerializerTest extends BaseSerializerTest {
         project.setName("name");
 
         // WHEN
-        String result = sut.writeValueAsString(new Container(project, new QueryParams()));
+        String result = sut.writeValueAsString(new Container(project, testResponse));
 
         // THEN
         assertThatJson(result).node("attributes.name").isEqualTo("name");
@@ -64,7 +65,8 @@ public class ContainerSerializerTest extends BaseSerializerTest {
             Collections.singletonMap("fields[name]", Collections.singleton("")));
 
         // WHEN
-        String result = sut.writeValueAsString(new Container(project, queryParams));
+        String result = sut.writeValueAsString(new Container(project, new ResourceResponse(null, null, queryParams,
+            null, null)));
 
         // THEN
         assertThatJson(result).node("attributes.name").isEqualTo("name");

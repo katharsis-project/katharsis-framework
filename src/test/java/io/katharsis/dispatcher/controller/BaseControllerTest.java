@@ -3,7 +3,7 @@ package io.katharsis.dispatcher.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.jackson.JsonApiModuleBuilder;
 import io.katharsis.locator.SampleJsonServiceLocator;
-import io.katharsis.queryParams.RequestParams;
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.request.path.PathBuilder;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.include.IncludeLookupSetter;
@@ -18,7 +18,7 @@ import org.junit.Rule;
 import org.junit.rules.ExpectedException;
 
 public abstract class BaseControllerTest {
-    protected static final RequestParams REQUEST_PARAMS = new RequestParams(null);
+    protected static final QueryParams REQUEST_PARAMS = new QueryParams();
 
     protected ObjectMapper objectMapper;
     protected PathBuilder pathBuilder;

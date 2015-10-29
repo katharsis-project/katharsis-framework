@@ -11,22 +11,22 @@ import java.util.Objects;
  */
 public class Container {
     private Object data;
-    private QueryParams queryParams;
+    private BaseResponse response;
 
     public Container() {
     }
 
-    public Container(Object data, QueryParams queryParams) {
+    public Container(Object data, BaseResponse response) {
         this.data = data;
-        this.queryParams = queryParams;
+        this.response = response;
     }
 
-    public QueryParams getQueryParams() {
-        return queryParams;
+    public BaseResponse getResponse() {
+        return response;
     }
 
-    public void setQueryParams(QueryParams queryParams) {
-        this.queryParams = queryParams;
+    public void setResponse(BaseResponse response) {
+        this.response = response;
     }
 
     public Object getData() {

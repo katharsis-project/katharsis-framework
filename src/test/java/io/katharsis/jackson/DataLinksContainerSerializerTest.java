@@ -15,7 +15,7 @@ public class DataLinksContainerSerializerTest extends BaseSerializerTest {
         Project project = new Project();
 
         // WHEN
-        String result = sut.writeValueAsString(new Container(project, new QueryParams()));
+        String result = sut.writeValueAsString(new Container(project, testResponse));
 
         // THEN
         assertThatJson(result).node("links").isPresent();
@@ -28,7 +28,7 @@ public class DataLinksContainerSerializerTest extends BaseSerializerTest {
         project.setId(1L);
 
         // WHEN
-        String result = sut.writeValueAsString(new Container(project, new QueryParams()));
+        String result = sut.writeValueAsString(new Container(project, testResponse));
 
         // THEN
         assertThatJson(result).node("links.self").isEqualTo("https://service.local/projects/1");

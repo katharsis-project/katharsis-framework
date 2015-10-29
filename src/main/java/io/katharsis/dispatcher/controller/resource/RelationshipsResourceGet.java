@@ -70,7 +70,7 @@ public class RelationshipsResourceGet extends ResourceIncludeField  {
             LinksInformation linksInformation =
                 getLinksInformation(relationshipRepositoryForClass, targetObjects, queryParams);
             if (targetObjects != null) {
-                includeFieldSetter.setIncludedElements(targetObjects, requestParams, parameterProvider);
+                includeFieldSetter.setIncludedElements(resourceName, targetObjects, queryParams, parameterProvider);
                 for (Object targetObject : targetObjects) {
                     dataList.add(new LinkageContainer(targetObject, relationshipFieldClass, relationshipFieldEntry));
                 }
@@ -86,7 +86,7 @@ public class RelationshipsResourceGet extends ResourceIncludeField  {
                 getLinksInformation(relationshipRepositoryForClass, Collections.singletonList(targetObject), queryParams);
             if (targetObject != null) {
                 LinkageContainer linkageContainer = new LinkageContainer(targetObject, relationshipFieldClass, relationshipFieldEntry);
-                includeFieldSetter.setIncludedElements(targetObject, queryParams, parameterProvider);
+                includeFieldSetter.setIncludedElements(resourceName, targetObject, queryParams, parameterProvider);
                 target = new ResourceResponse(linkageContainer, jsonPath, queryParams, metaInformation, linksInformation);
             } else {
                 target = new ResourceResponse(null, jsonPath, queryParams, metaInformation, linksInformation);

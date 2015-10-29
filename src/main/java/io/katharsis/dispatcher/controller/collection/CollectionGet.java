@@ -58,7 +58,7 @@ public class CollectionGet extends ResourceIncludeField {
         resources = resourceRepository.findAll(queryParams);
         List containers = new LinkedList();
         if (resources != null) {
-            includeFieldSetter.setIncludedElements(resources, queryParams, parameterProvider);
+            includeFieldSetter.setIncludedElements(resourceName, resources, queryParams, parameterProvider);
             for (Object element : resources) {
                 containers.add(element);
             }

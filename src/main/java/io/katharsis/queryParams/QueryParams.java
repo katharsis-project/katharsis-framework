@@ -216,7 +216,9 @@ public class QueryParams {
                     "(1) eg. page[offset][minimal] <-- #2 level and more are not allowed");
             }
 
-            decodedPagination.put(RestrictedPaginationKeys.valueOf(entry.getKey()), Integer.parseInt(entry
+            String resourceType = propertyList.get(0);
+
+            decodedPagination.put(RestrictedPaginationKeys.valueOf(resourceType), Integer.parseInt(entry
                 .getValue()
                 .iterator()
                 .next()));
@@ -314,11 +316,19 @@ public class QueryParams {
 
             String resourceType = propertyList.get(0);
 
-            Set<Inclusion> resourceParams = temporaryInclusionsMap.get(resourceType);
-            resourceParams.add(new Inclusion(entry.getValue()
-                .iterator()
-                .next()));
-            temporaryInclusionsMap.put(resourceType, resourceParams);
+            if (temporaryInclusionsMap.containsKey(resourceType)) {
+                Set<Inclusion> resourceParams = temporaryInclusionsMap.get(resourceType);
+                resourceParams.add(new Inclusion(entry.getValue()
+                    .iterator()
+                    .next()));
+                temporaryInclusionsMap.put(resourceType, resourceParams);
+            } else {
+                Set<Inclusion> resourceParams = new LinkedHashSet<>();
+                resourceParams.add(new Inclusion(entry.getValue()
+                    .iterator()
+                    .next()));
+                temporaryInclusionsMap.put(resourceType, resourceParams);
+            }
         }
 
         Map<String, IncludedRelationsParams> decodedInclusions = new LinkedHashMap<>();

@@ -1,6 +1,5 @@
 package io.katharsis.dispatcher.controller.resource;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
 import io.katharsis.queryParams.QueryParams;
@@ -67,7 +66,8 @@ public class ResourcePatchTest extends BaseControllerTest {
         DataBody data = new DataBody();
         newTaskBody.setData(data);
         data.setType("tasks");
-        data.setAttributes(objectMapper.createObjectNode().put("name", "sample task"));
+        data.setAttributes(objectMapper.createObjectNode()
+            .put("name", "sample task"));
 
         JsonPath taskPath = pathBuilder.buildPath("/tasks");
 
@@ -83,7 +83,8 @@ public class ResourcePatchTest extends BaseControllerTest {
         data = new DataBody();
         taskPatch.setData(data);
         data.setType("tasks");
-        data.setAttributes(objectMapper.createObjectNode().put("name", "task updated"));
+        data.setAttributes(objectMapper.createObjectNode()
+            .put("name", "task updated"));
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/" + taskId);
         ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser, objectMapper);
 
@@ -113,7 +114,7 @@ public class ResourcePatchTest extends BaseControllerTest {
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper);
 
         // WHEN
-        ResourceResponse taskResponse = resourcePost.handle(documentsPath, new QueryParams()), null, memorandumBody);
+        ResourceResponse taskResponse = resourcePost.handle(documentsPath, new QueryParams(), null, memorandumBody);
 
         // THEN
         assertThat(taskResponse.getData()).isExactlyInstanceOf(Memorandum.class);
@@ -151,7 +152,8 @@ public class ResourcePatchTest extends BaseControllerTest {
         DataBody data = new DataBody();
         newTaskBody.setData(data);
         data.setType("tasks");
-        data.setAttributes(objectMapper.createObjectNode().put("name", "sample task"));
+        data.setAttributes(objectMapper.createObjectNode()
+            .put("name", "sample task"));
 
         JsonPath taskPath = pathBuilder.buildPath("/tasks");
 
@@ -167,9 +169,11 @@ public class ResourcePatchTest extends BaseControllerTest {
         data = new DataBody();
         taskPatch.setData(data);
         data.setType("tasks");
-        data.setAttributes(objectMapper.createObjectNode().put("name", "task updated"));
+        data.setAttributes(objectMapper.createObjectNode()
+            .put("name", "task updated"));
         data.setRelationships(new ResourceRelationships());
-        data.getRelationships().setAdditionalProperty("project", null);
+        data.getRelationships()
+            .setAdditionalProperty("project", null);
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/" + taskId);
         ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser, objectMapper);
 

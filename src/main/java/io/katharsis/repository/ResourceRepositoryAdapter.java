@@ -1,6 +1,6 @@
 package io.katharsis.repository;
 
-import io.katharsis.queryParams.RequestParams;
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.annotations.*;
 import io.katharsis.repository.exception.RepositoryAnnotationNotFoundException;
 import io.katharsis.utils.ClassUtils;
@@ -28,7 +28,7 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable> implements Re
     }
 
     @Override
-    public T findOne(ID id, RequestParams requestParams) {
+    public T findOne(ID id, QueryParams queryParams) {
         Class<JsonApiFindOne> annotationType = JsonApiFindOne.class;
         if (findOneMethod == null) {
             findOneMethod = ClassUtils.findMethodWith(implementationObject, annotationType);
@@ -36,7 +36,7 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable> implements Re
         checkIfNotNull(annotationType, findOneMethod);
 
         Object[] methodParameters = parametersFactory
-            .buildParameters(new Object[]{id}, findOneMethod.getParameters(), requestParams, annotationType);
+            .buildParameters(new Object[]{id}, findOneMethod.getParameters(), queryParams, annotationType);
 
         try {
             return (T) findOneMethod.invoke(implementationObject, methodParameters);
@@ -48,7 +48,7 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable> implements Re
     }
 
     @Override
-    public Iterable<T> findAll(RequestParams requestParams) {
+    public Iterable<T> findAll(QueryParams queryParams) {
         Class<JsonApiFindAll> annotationType = JsonApiFindAll.class;
         if (findAllMethod == null) {
             findAllMethod = ClassUtils.findMethodWith(implementationObject, annotationType);
@@ -56,7 +56,7 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable> implements Re
         checkIfNotNull(annotationType, findAllMethod);
 
         Parameter[] parametersToResolve = findAllMethod.getParameters();
-        Object[] methodParameters = parametersFactory.buildParameters(parametersToResolve, requestParams);
+        Object[] methodParameters = parametersFactory.buildParameters(parametersToResolve, queryParams);
 
         try {
             return (Iterable<T>) findAllMethod.invoke(implementationObject, methodParameters);
@@ -68,7 +68,7 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable> implements Re
     }
 
     @Override
-    public Iterable<T> findAll(Iterable<ID> ids, RequestParams requestParams) {
+    public Iterable<T> findAll(Iterable<ID> ids, QueryParams queryParams) {
         Class<JsonApiFindAllWithIds> annotationType = JsonApiFindAllWithIds.class;
         if (findAllWithIds == null) {
             findAllWithIds = ClassUtils.findMethodWith(implementationObject, annotationType);
@@ -76,7 +76,7 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable> implements Re
         checkIfNotNull(annotationType, findAllWithIds);
 
         Object[] methodParameters = parametersFactory
-            .buildParameters(new Object[]{ids}, findAllWithIds.getParameters(), requestParams, annotationType);
+            .buildParameters(new Object[]{ids}, findAllWithIds.getParameters(), queryParams, annotationType);
 
         try {
             return (Iterable<T>) findAllWithIds.invoke(implementationObject, methodParameters);

@@ -2,18 +2,22 @@ package io.katharsis.jackson;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.locator.SampleJsonServiceLocator;
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryBuilder;
 import io.katharsis.resource.registry.ResourceRegistryBuilderTest;
 import io.katharsis.resource.registry.ResourceRegistryTest;
+import io.katharsis.response.ResourceResponse;
 import org.junit.Before;
 
 public abstract class BaseSerializerTest {
 
     ObjectMapper sut;
     protected ResourceRegistry resourceRegistry;
+
+    protected ResourceResponse testResponse;
 
     @Before
     public void setUp() throws Exception {
@@ -28,5 +32,7 @@ public abstract class BaseSerializerTest {
 
         sut = new ObjectMapper();
         sut.registerModule(jsonApiModuleBuilder.build(resourceRegistry));
+
+        testResponse = new ResourceResponse(null, null, new QueryParams(), null, null);
     }
 }

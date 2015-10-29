@@ -1,7 +1,6 @@
 package io.katharsis.queryParams;
 
 import io.katharsis.jackson.exception.ParametersDeserializationException;
-import io.katharsis.queryParams.include.Inclusion;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -26,41 +25,64 @@ public class QueryParamsBuilderTest {
     @Test
     public void onGivenFiltersBuilderShouldReturnRequestParamsWithFilters() throws ParametersDeserializationException {
         // GIVEN
-        queryParams.put("filter[name]", Collections.singleton("John"));
+        queryParams.put("filter[User][name]", Collections.singleton("John"));
 
         // WHEN
         QueryParams result = sut.buildQueryParams(queryParams);
 
         // THEN
         assertThat(result.getFilters()
+            .getParams()
+            .get("User")).isNotNull();
+
+        assertThat(result.getFilters()
+            .getParams()
+            .get("User")
+            .getParams()
             .get("name")).isEqualTo(Collections.singleton("John"));
     }
 
     @Test
     public void onGivenSortingBuilderShouldReturnRequestParamsWithSorting() throws ParametersDeserializationException {
         // GIVEN
-        queryParams.put("sort[name]", Collections.singleton("asc"));
+        queryParams.put("sort[User][name]", Collections.singleton("asc"));
 
         // WHEN
         QueryParams result = sut.buildQueryParams(queryParams);
 
         // THEN
         assertThat(result.getSorting()
+            .getParams()
+            .get("name")).isNotNull();
+
+        assertThat(result.getSorting()
+            .getParams()
+            .get("User")
+            .getParams()
             .get("name")).isEqualTo(RestrictedSortingValues.asc);
+
     }
 
     @Test
     public void onGivenGroupingBuilderShouldReturnRequestParamsWithGrouping() throws
         ParametersDeserializationException {
         // GIVEN
-        queryParams.put("group", Collections.singleton("name"));
+        queryParams.put("group[User]", Collections.singleton("name"));
 
         // WHEN
         QueryParams result = sut.buildQueryParams(queryParams);
 
         // THEN
         assertThat(result.getGrouping()
-            .contains("name")).isTrue();
+            .getParams()
+            .get("User")).isNotNull();
+
+        assertThat(result.getGrouping()
+            .getParams()
+            .get("User")
+            .getParams()
+            .iterator()
+            .next()).isEqualTo("name");
     }
 
 
@@ -85,27 +107,44 @@ public class QueryParamsBuilderTest {
     public void onGivenIncludedFieldsBuilderShouldReturnRequestParamsWithIncludedFields() throws
         ParametersDeserializationException {
         // GIVEN
-        queryParams.put("fields[name]", Collections.singleton(""));
+        queryParams.put("fields[User]", Collections.singleton("name"));
 
         // WHEN
         QueryParams result = sut.buildQueryParams(queryParams);
 
         // THEN
         assertThat(result.getIncludedFields()
-            .contains("name")).isTrue();
+            .getParams()
+            .get("User")).isNotNull();
+
+        assertThat(result.getIncludedFields()
+            .getParams()
+            .get("User")
+            .getParams()
+            .iterator()
+            .next()).isEqualTo("name");
     }
 
     @Test
     public void onGivenIncludedRelationsBuilderShouldReturnRequestParamsWithIncludedRelations() throws
         ParametersDeserializationException {
         // GIVEN
-        queryParams.put("include[friends]", Collections.singleton(""));
+        queryParams.put("include[User]", Collections.singleton("friends"));
 
         // WHEN
         QueryParams result = sut.buildQueryParams(queryParams);
 
         // THEN
         assertThat(result.getIncludedRelations()
-            .contains(new Inclusion("friends"))).isTrue();
+            .getParams()
+            .get("User")).isNotNull();
+
+        assertThat(result.getIncludedRelations()
+            .getParams()
+            .get("User")
+            .getParams()
+            .iterator()
+            .next()
+            .getPath()).isEqualTo("friends");
     }
 }

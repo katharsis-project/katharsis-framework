@@ -39,10 +39,10 @@ public class ResourceResponse implements BaseResponse {
 
     public ResourceResponse(Object data, JsonPath jsonPath, QueryParams queryParams,
                             MetaInformation metaInformation, LinksInformation linksInformation) {
-        this(data, jsonPath, requestParams, metaInformation, linksInformation, HttpStatus.OK_200);
+        this(data, jsonPath, queryParams, metaInformation, linksInformation, HttpStatus.OK_200);
     }
 
-    public ResourceResponse(Object data, JsonPath jsonPath, RequestParams requestParams,
+    public ResourceResponse(Object data, JsonPath jsonPath, QueryParams queryParams,
                             MetaInformation metaInformation, LinksInformation linksInformation, int httpStatus) {
         this.data = data;
         this.jsonPath = jsonPath;

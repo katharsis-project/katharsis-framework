@@ -1,6 +1,8 @@
 package io.katharsis.jackson.serializer;
 
 import io.katharsis.queryParams.include.Inclusion;
+import io.katharsis.queryParams.params.IncludedRelationsParams;
+import io.katharsis.queryParams.params.TypedParams;
 import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.annotations.JsonApiIncludeByDefault;
 import io.katharsis.resource.field.ResourceField;
@@ -47,7 +49,7 @@ public class IncludedRelationshipExtractor {
 
         return includedResources
             .stream()
-            .map(includedResource -> new Container(includedResource, response.getQueryParams()))
+            .map(includedResource -> new Container(includedResource, response))
             .collect(Collectors.toList());
     }
 
@@ -92,15 +94,30 @@ public class IncludedRelationshipExtractor {
     private List<?> extractIncludedRelationships(Object resource, BaseResponse response)
         throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
         List<?> includedResources = new LinkedList<>();
-        List<Inclusion> includedRelations = response.getQueryParams()
+        TypedParams<IncludedRelationsParams> includedRelations = response.getQueryParams()
             .getIncludedRelations();
+        String elementName = response.getJsonPath()
+            .getElementName();
+        IncludedRelationsParams includedRelationsParams = findInclusions(includedRelations, elementName);
         if (includedRelations != null) {
-            for (Inclusion inclusion : includedRelations) {
+            for (Inclusion inclusion : includedRelationsParams.getParams()) {
                 //noinspection unchecked
                 includedResources.addAll(extractIncludedRelationship(resource, inclusion, response));
             }
         }
         return includedResources;
+    }
+
+    private IncludedRelationsParams findInclusions(TypedParams<IncludedRelationsParams> queryParams, String
+        resourceName) {
+        IncludedRelationsParams includedRelationsParams = null;
+        for (Map.Entry<String, IncludedRelationsParams> entry : queryParams.getParams()
+            .entrySet()) {
+            if (resourceName.equals(entry.getKey())) {
+                includedRelationsParams = entry.getValue();
+            }
+        }
+        return includedRelationsParams;
     }
 
     private Set extractIncludedRelationship(Object resource, Inclusion inclusion, BaseResponse response)
@@ -123,7 +140,7 @@ public class IncludedRelationshipExtractor {
         Set elements = new HashSet();
         if (pathList.isEmpty()) {
             if (resource != null) {
-                return Collections.singleton(new Container(resource, response.getQueryParams()));
+                return Collections.singleton(new Container(resource, response));
             } else {
                 return Collections.emptySet();
             }

@@ -4,7 +4,6 @@ import io.katharsis.queryParams.QueryParams;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 
 import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
 
 /**
  * Base repository which is used to operate on the resources. Each resource should have a corresponding repository
@@ -26,7 +25,7 @@ public interface ResourceRepository<T, ID extends Serializable> {
     T findOne(ID id, QueryParams queryParams);
 
     /**
-     * Search for all of the resources. An instance of {@link RequestParams} can be used if necessary. If no
+     * Search for all of the resources. An instance of {@link QueryParams} can be used if necessary. If no
      * resources can be found, an empty {@link Iterable} or <i>null</i> must be returned.
      *
      * @param queryParams parameters send with the request
@@ -35,7 +34,7 @@ public interface ResourceRepository<T, ID extends Serializable> {
     Iterable<T> findAll(QueryParams queryParams);
 
     /**
-     * Search for resources constrained by a list of identifiers. An instance of {@link RequestParams} can be used if
+     * Search for resources constrained by a list of identifiers. An instance of {@link QueryParams} can be used if
      * necessary. If no resources can be found, an empty {@link Iterable} or <i>null</i> must be returned.
      *
      * @param ids an {@link Iterable} of passed resource identifiers

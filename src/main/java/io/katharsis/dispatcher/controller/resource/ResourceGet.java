@@ -69,7 +69,7 @@ public class ResourceGet extends ResourceIncludeField {
             getMetaInformation(resourceRepository, Collections.singletonList(entity), queryParams);
         LinksInformation linksInformation =
             getLinksInformation(resourceRepository, Collections.singletonList(entity), queryParams);
-        includeFieldSetter.setIncludedElements(entity, queryParams, parameterProvider);
+        includeFieldSetter.setIncludedElements(resourceName, entity, queryParams, parameterProvider);
 
         return new ResourceResponse(entity, jsonPath, queryParams, metaInformation, linksInformation);
     }

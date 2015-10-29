@@ -1,6 +1,5 @@
 package io.katharsis.jackson;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.jackson.mock.models.*;
 import io.katharsis.jackson.serializer.IncludedRelationshipExtractor;
 import io.katharsis.locator.SampleJsonServiceLocator;
@@ -9,7 +8,6 @@ import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.request.path.FieldPath;
 import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.field.ResourceField;
-import io.katharsis.resource.RestrictedQueryParamsMembers;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.mock.models.Project;
@@ -36,6 +34,7 @@ public class IncludedRelationshipExtractorTest {
 
     private IncludedRelationshipExtractor sut;
     private ResourceField resourceField;
+    private ResourceResponse testResponse;
 
     @Before
     public void setUp() throws Exception {
@@ -55,6 +54,8 @@ public class IncludedRelationshipExtractorTest {
         List<Annotation> declaredAnnotations = Arrays.asList(someField.getDeclaredAnnotations());
         resourceField = new ResourceField(someField.getName(), someField.getType(), someField.getGenericType(),
             declaredAnnotations);
+
+        testResponse = new ResourceResponse(null, null, new QueryParams(), null, null);
     }
 
     @Test
@@ -92,7 +93,7 @@ public class IncludedRelationshipExtractorTest {
         Set<?> result = sut.extractIncludedResources(classAWithInclusion, response);
 
         // THEN
-        assertThat(result).containsExactly(new Container(classBsWithInclusion, new QueryParams()));
+        assertThat(result).containsExactly(new Container(classBsWithInclusion, testResponse));
     }
 
     @Test
@@ -107,8 +108,8 @@ public class IncludedRelationshipExtractorTest {
         Set<?> result = sut.extractIncludedResources(classAWithInclusion, response);
 
         // THEN
-        assertThat(result).containsOnly(new Container(classBWithInclusion, new QueryParams()),
-            new Container(classCWithInclusion, new QueryParams()));
+        assertThat(result).containsOnly(new Container(classBWithInclusion, testResponse),
+            new Container(classCWithInclusion, testResponse));
     }
 
     @Test
@@ -122,7 +123,7 @@ public class IncludedRelationshipExtractorTest {
         Set<?> result = sut.extractIncludedResources(classCWithInclusion, response);
 
         // THEN
-        assertThat(result).containsExactly(new Container(classCWithInclusion, new QueryParams()));
+        assertThat(result).containsExactly(new Container(classCWithInclusion, testResponse));
     }
 
     @Test
@@ -139,7 +140,7 @@ public class IncludedRelationshipExtractorTest {
         Set<?> result = sut.extractIncludedResources(classAWithInclusion, response);
 
         // THEN
-        assertThat(result).containsExactly(new Container(classBsWithInclusion, new QueryParams()));
+        assertThat(result).containsExactly(new Container(classBsWithInclusion, testResponse));
     }
 
     @Test
@@ -169,7 +170,7 @@ public class IncludedRelationshipExtractorTest {
         Set<?> result = sut.extractIncludedResources(resource, response);
 
         // THEN
-        assertThat(result).containsExactly(new Container(project, new QueryParams()));
+        assertThat(result).containsExactly(new Container(project, testResponse));
     }
 
     @Test
@@ -185,7 +186,7 @@ public class IncludedRelationshipExtractorTest {
         Set<?> result = sut.extractIncludedResources(classA, response);
 
         // THEN
-        assertThat(result).containsExactly(new Container(classC, new QueryParams()));
+        assertThat(result).containsExactly(new Container(classC, testResponse));
     }
 
     @Test
