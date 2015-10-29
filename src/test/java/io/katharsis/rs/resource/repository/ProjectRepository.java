@@ -21,6 +21,11 @@ public class ProjectRepository implements ResourceRepository<Project, Long> {
     }
 
     @Override
+    public Iterable<Project> findAll(Iterable<Long> longs, RequestParams requestParams) {
+        return null;
+    }
+
+    @Override
     public void delete(Long aLong) {
 
     }
