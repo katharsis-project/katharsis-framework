@@ -6,6 +6,7 @@ import io.katharsis.dispatcher.registry.ControllerRegistry;
 import io.katharsis.errorhandling.ErrorResponse;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryTest;
 import io.katharsis.locator.SampleJsonServiceLocator;
+import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathBuilder;
@@ -73,7 +74,7 @@ public class RequestDispatcherTest {
         RequestDispatcher requestDispatcher = new RequestDispatcher(controllerRegistry,
             ExceptionMapperRegistryTest.exceptionMapperRegistry);
 
-        BaseResponse<?> response = requestDispatcher.dispatchRequest(null, null, null, null);
+        BaseResponse<?> response = requestDispatcher.dispatchRequest(null, null, null, null, null);
         assertThat(response)
             .isNotNull()
             .isExactlyInstanceOf(ErrorResponse.class);
@@ -94,6 +95,6 @@ public class RequestDispatcherTest {
 
         expectedException.expect(ArithmeticException.class);
 
-        BaseResponse<?> response = requestDispatcher.dispatchRequest(null, null, null, null);
+        BaseResponse<?> response = requestDispatcher.dispatchRequest(null, null, null, null, null);
     }
 }

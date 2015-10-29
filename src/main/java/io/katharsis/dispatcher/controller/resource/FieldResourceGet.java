@@ -1,15 +1,16 @@
 package io.katharsis.dispatcher.controller.resource;
 
-import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.RelationshipRepository;
+import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.FieldPath;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathIds;
 import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.exception.ResourceFieldNotFoundException;
+import io.katharsis.resource.include.IncludeLookupSetter;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.*;
@@ -20,14 +21,10 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 
-public class FieldResourceGet implements BaseController {
+public class FieldResourceGet extends ResourceIncludeField {
 
-    private final ResourceRegistry resourceRegistry;
-    private final TypeParser typeParser;
-
-    public FieldResourceGet(ResourceRegistry resourceRegistry, TypeParser typeParser) {
-        this.resourceRegistry = resourceRegistry;
-        this.typeParser = typeParser;
+    public FieldResourceGet(ResourceRegistry resourceRegistry, TypeParser typeParser, IncludeLookupSetter fieldSetter) {
+        super(resourceRegistry,typeParser,fieldSetter);
     }
 
     @Override
@@ -38,8 +35,9 @@ public class FieldResourceGet implements BaseController {
     }
 
     @Override
-    public BaseResponse handle(JsonPath jsonPath, QueryParams queryParams, RequestBody requestBody)
-            throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    public BaseResponse handle(JsonPath jsonPath, QueryParams queryParams, RepositoryMethodParameterProvider 
+        parameterProvider, RequestBody requestBody)
+            throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException, NoSuchFieldException {
         String resourceName = jsonPath.getResourceName();
         PathIds resourceIds = jsonPath.getIds();
 
@@ -54,25 +52,24 @@ public class FieldResourceGet implements BaseController {
         Class<?> baseRelationshipFieldClass = relationshipField.getType();
         Class<?> relationshipFieldClass = Generics.getResourceClass(relationshipField.getGenericType(), baseRelationshipFieldClass);
 
-        RelationshipRepository relationshipRepositoryForClass = registryEntry.getRelationshipRepositoryForClass(relationshipFieldClass);
+        RelationshipRepository relationshipRepositoryForClass = registryEntry.getRelationshipRepositoryForClass(relationshipFieldClass, parameterProvider);
         BaseResponse target;
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
             @SuppressWarnings("unchecked")
             Iterable<?> targetObjects = relationshipRepositoryForClass
-                .findManyTargets(castedResourceId, elementName, queryParams);
-            MetaInformation metaInformation = getMetaInformation(relationshipRepositoryForClass, targetObjects,
-                queryParams);
-            LinksInformation linksInformation = getLinksInformation(relationshipRepositoryForClass, targetObjects,
-                queryParams);
+                    .findManyTargets(castedResourceId, elementName, queryParams);
+            includeFieldSetter.setIncludedElements(targetObjects, queryParams, parameterProvider);
+            MetaInformation metaInformation = getMetaInformation(relationshipRepositoryForClass, targetObjects, queryParams);
+            LinksInformation linksInformation = getLinksInformation(relationshipRepositoryForClass, targetObjects, queryParams);
             target = new CollectionResponse(targetObjects, jsonPath, queryParams, metaInformation, linksInformation);
         } else {
             @SuppressWarnings("unchecked")
             Object targetObject = relationshipRepositoryForClass.findOneTarget(castedResourceId, elementName, queryParams);
+            includeFieldSetter.setIncludedElements(targetObject, queryParams, parameterProvider);
             MetaInformation metaInformation =
-                getMetaInformation(relationshipRepositoryForClass, Collections.singletonList(targetObject), queryParams);
+                    getMetaInformation(relationshipRepositoryForClass, Collections.singletonList(targetObject), queryParams);
             LinksInformation linksInformation =
-                getLinksInformation(relationshipRepositoryForClass, Collections.singletonList(targetObject),
-                    queryParams);
+                    getLinksInformation(relationshipRepositoryForClass, Collections.singletonList(targetObject), queryParams);
             target = new ResourceResponse(targetObject, jsonPath, queryParams, metaInformation, linksInformation);
         }
 

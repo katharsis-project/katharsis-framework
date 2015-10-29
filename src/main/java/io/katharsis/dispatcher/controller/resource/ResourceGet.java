@@ -1,7 +1,7 @@
 package io.katharsis.dispatcher.controller.resource;
 
-import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.dispatcher.controller.HttpMethod;
+import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.request.dto.RequestBody;
@@ -9,6 +9,7 @@ import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathIds;
 import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.exception.ResourceNotFoundException;
+import io.katharsis.resource.include.IncludeLookupSetter;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
@@ -21,14 +22,10 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 
-public class ResourceGet implements BaseController {
+public class ResourceGet extends ResourceIncludeField {
 
-    private final ResourceRegistry resourceRegistry;
-    private final TypeParser typeParser;
-
-    public ResourceGet(ResourceRegistry resourceRegistry, TypeParser typeParser) {
-        this.resourceRegistry = resourceRegistry;
-        this.typeParser = typeParser;
+    public ResourceGet(ResourceRegistry resourceRegistry, TypeParser typeParser, IncludeLookupSetter fieldSetter) {
+        super(resourceRegistry, typeParser, fieldSetter);
     }
 
     /**
@@ -49,8 +46,9 @@ public class ResourceGet implements BaseController {
      * Passes the request to controller method.
      */
     @Override
-    public BaseResponse<?> handle(JsonPath jsonPath, QueryParams queryParams, RequestBody requestBody)
-            throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    public BaseResponse<?> handle(JsonPath jsonPath, QueryParams queryParams, RepositoryMethodParameterProvider 
+        parameterProvider, RequestBody requestBody)
+            throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException, NoSuchFieldException {
         String resourceName = jsonPath.getElementName();
         PathIds resourceIds = jsonPath.getIds();
         RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
@@ -64,13 +62,14 @@ public class ResourceGet implements BaseController {
                 .getIdField()
                 .getType();
         Serializable castedId = typeParser.parse(id, idClass);
-        ResourceRepository resourceRepository = registryEntry.getResourceRepository();
+        ResourceRepository resourceRepository = registryEntry.getResourceRepository(parameterProvider);
         @SuppressWarnings("unchecked")
         Object entity = resourceRepository.findOne(castedId, queryParams);
         MetaInformation metaInformation =
             getMetaInformation(resourceRepository, Collections.singletonList(entity), queryParams);
         LinksInformation linksInformation =
             getLinksInformation(resourceRepository, Collections.singletonList(entity), queryParams);
+        includeFieldSetter.setIncludedElements(entity, queryParams, parameterProvider);
 
         return new ResourceResponse(entity, jsonPath, queryParams, metaInformation, linksInformation);
     }

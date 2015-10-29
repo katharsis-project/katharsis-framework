@@ -1,15 +1,16 @@
 package io.katharsis.dispatcher.controller.resource;
 
-import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.RelationshipRepository;
+import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathIds;
 import io.katharsis.request.path.RelationshipsPath;
 import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.exception.ResourceFieldNotFoundException;
+import io.katharsis.resource.include.IncludeLookupSetter;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.*;
@@ -22,14 +23,10 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-public class RelationshipsResourceGet implements BaseController {
+public class RelationshipsResourceGet extends ResourceIncludeField  {
 
-    private final ResourceRegistry resourceRegistry;
-    private final TypeParser typeParser;
-
-    public RelationshipsResourceGet(ResourceRegistry resourceRegistry, TypeParser typeParser) {
-        this.resourceRegistry = resourceRegistry;
-        this.typeParser = typeParser;
+    public RelationshipsResourceGet(ResourceRegistry resourceRegistry, TypeParser typeParser, IncludeLookupSetter fieldSetter) {
+        super(resourceRegistry, typeParser, fieldSetter);
     }
 
     @Override
@@ -40,8 +37,8 @@ public class RelationshipsResourceGet implements BaseController {
     }
 
     @Override
-    public BaseResponse handle(JsonPath jsonPath, QueryParams queryParams, RequestBody requestBody)
-        throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    public BaseResponse handle(JsonPath jsonPath, QueryParams queryParams, RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody)
+            throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException, NoSuchFieldException {
         String resourceName = jsonPath.getResourceName();
         PathIds resourceIds = jsonPath.getIds();
         RegistryEntry<?> registryEntry = resourceRegistry.getEntry(resourceName);
@@ -58,8 +55,8 @@ public class RelationshipsResourceGet implements BaseController {
         Class<?> relationshipFieldClass = Generics
             .getResourceClass(relationshipField.getGenericType(), baseRelationshipFieldClass);
 
-        RelationshipRepository relationshipRepositoryForClass = registryEntry.getRelationshipRepositoryForClass(
-            relationshipFieldClass);
+        RelationshipRepository relationshipRepositoryForClass = registryEntry
+            .getRelationshipRepositoryForClass(relationshipFieldClass, parameterProvider);
         RegistryEntry relationshipFieldEntry = resourceRegistry.getEntry(relationshipFieldClass);
         BaseResponse target;
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
@@ -73,6 +70,7 @@ public class RelationshipsResourceGet implements BaseController {
             LinksInformation linksInformation =
                 getLinksInformation(relationshipRepositoryForClass, targetObjects, queryParams);
             if (targetObjects != null) {
+                includeFieldSetter.setIncludedElements(targetObjects, requestParams, parameterProvider);
                 for (Object targetObject : targetObjects) {
                     dataList.add(new LinkageContainer(targetObject, relationshipFieldClass, relationshipFieldEntry));
                 }
@@ -88,7 +86,7 @@ public class RelationshipsResourceGet implements BaseController {
                 getLinksInformation(relationshipRepositoryForClass, Collections.singletonList(targetObject), queryParams);
             if (targetObject != null) {
                 LinkageContainer linkageContainer = new LinkageContainer(targetObject, relationshipFieldClass, relationshipFieldEntry);
-
+                includeFieldSetter.setIncludedElements(targetObject, queryParams, parameterProvider);
                 target = new ResourceResponse(linkageContainer, jsonPath, queryParams, metaInformation, linksInformation);
             } else {
                 target = new ResourceResponse(null, jsonPath, queryParams, metaInformation, linksInformation);

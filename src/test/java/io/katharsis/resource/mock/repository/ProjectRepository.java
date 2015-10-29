@@ -5,31 +5,25 @@ import io.katharsis.repository.ResourceRepository;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.mock.models.Project;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public class ProjectRepository implements ResourceRepository<Project, Long> {
 
-    // Used ThreadLocal in case of switching to TestNG and using concurrent tests
-    private static final ThreadLocal<Map<Long, Project>> THREAD_LOCAL_REPOSITORY = new ThreadLocal<Map<Long, Project>>() {
-        @Override
-        protected Map<Long, Project> initialValue() {
-            return new HashMap<>();
-        }
-    };
+    private static final ConcurrentHashMap<Long, Project> THREAD_LOCAL_REPOSITORY = new ConcurrentHashMap<>();
 
     @Override
     public <S extends Project> S save(S entity) {
-        entity.setId((long) (THREAD_LOCAL_REPOSITORY.get().size() + 1));
-        THREAD_LOCAL_REPOSITORY.get().put(entity.getId(), entity);
+        entity.setId((long) (THREAD_LOCAL_REPOSITORY.size() + 1));
+        THREAD_LOCAL_REPOSITORY.put(entity.getId(), entity);
 
         return entity;
     }
 
     @Override
     public Project findOne(Long aLong, QueryParams queryParams) {
-        Project project = THREAD_LOCAL_REPOSITORY.get().get(aLong);
+        Project project = THREAD_LOCAL_REPOSITORY.get(aLong);
         if (project == null) {
             throw new ResourceNotFoundException(Project.class.getCanonicalName());
         }
@@ -37,14 +31,14 @@ public class ProjectRepository implements ResourceRepository<Project, Long> {
     }
 
     @Override
-    public Iterable<Project> findAll(QueryParams queryParams) {
-        return THREAD_LOCAL_REPOSITORY.get().values();
+    public Iterable<Project> findAll(QueryParams queryParamss) {
+        return THREAD_LOCAL_REPOSITORY.values();
     }
 
 
     @Override
     public Iterable<Project> findAll(Iterable<Long> ids, QueryParams queryParams) {
-        return THREAD_LOCAL_REPOSITORY.get().values()
+        return THREAD_LOCAL_REPOSITORY.values()
             .stream()
             .filter(value -> contains(value, ids))
             .collect(Collectors.toList());
@@ -62,6 +56,6 @@ public class ProjectRepository implements ResourceRepository<Project, Long> {
 
     @Override
     public void delete(Long aLong) {
-        THREAD_LOCAL_REPOSITORY.get().remove(aLong);
+        THREAD_LOCAL_REPOSITORY.remove(aLong);
     }
 }

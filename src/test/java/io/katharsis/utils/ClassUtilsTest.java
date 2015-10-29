@@ -1,5 +1,6 @@
 package io.katharsis.utils;
 
+import io.katharsis.resource.annotations.JsonApiResource;
 import org.junit.Test;
 
 import java.lang.reflect.Field;
@@ -17,6 +18,17 @@ public class ClassUtilsTest {
 
         // THEN
         assertThat(result).hasSize(2);
+    }
+
+    @Test
+    public void onClassInheritanceShouldReturnInheritedField() throws Exception {
+        // WHEN
+        Field result = ClassUtils.findClassField(ChildClass.class, "parentField");
+
+        // THEN
+        assertThat(result).isNotNull();
+        assertThat(result.getName()).isEqualTo("parentField");
+        assertThat(result.getDeclaringClass()).isEqualTo(ParentClass.class);
     }
 
     @Test
@@ -91,6 +103,39 @@ public class ClassUtilsTest {
         assertThat(result).hasSize(1);
     }
 
+    @Test
+    public void onGetJsonApiResourceClassReturnCorrectClass() {
+        // WHEN
+        Class<? super ResourceClass$Proxy> clazz = ClassUtils.getJsonApiResourceClass(ResourceClass$Proxy.class);
+
+        // THEN
+        assertThat(clazz).isNotNull();
+        assertThat(clazz).hasAnnotation(JsonApiResource.class);
+        assertThat(clazz).isEqualTo(ResourceClass.class);
+    }
+
+    @Test
+    public void onGetJsonApiResourceClassReturnCorrectInstanceClass() {
+        ResourceClass$Proxy resource = new ResourceClass$Proxy();
+
+        // WHEN
+        Class<? super ResourceClass$Proxy> clazz = ClassUtils.getJsonApiResourceClass(resource);
+
+        // THEN
+        assertThat(clazz).isEqualTo(ResourceClass.class);
+    }
+
+    @Test
+    public void onGetJsonApiResourceClassReturnNoInstanceClass() {
+        ParentClass resource = new ParentClass();
+
+        // WHEN
+        Class<? super ParentClass> clazz = ClassUtils.getJsonApiResourceClass(resource);
+
+        // THEN
+        assertThat(clazz).isNull();
+    }
+
     public static class ParentClass {
 
         private String parentField;
@@ -144,5 +189,14 @@ public class ClassUtilsTest {
         public String getChildField() {
             return childField;
         }
+    }
+
+    @JsonApiResource(type = "resource")
+    public static class ResourceClass {
+
+    }
+
+    public static class ResourceClass$Proxy extends ResourceClass{
+
     }
 }

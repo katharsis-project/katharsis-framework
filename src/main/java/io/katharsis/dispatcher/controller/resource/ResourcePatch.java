@@ -3,6 +3,7 @@ package io.katharsis.dispatcher.controller.resource;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.QueryParams;
+import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.RequestBody;
@@ -36,8 +37,8 @@ public class ResourcePatch extends ResourceUpsert {
     }
 
     @Override
-    public BaseResponse<?> handle(JsonPath jsonPath, QueryParams queryParams, RequestBody requestBody) throws
-        Exception {
+    public BaseResponse<?> handle(JsonPath jsonPath, QueryParams queryParams,
+                                  RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody) throws Exception {
 
         String resourceEndpointName = jsonPath.getResourceName();
         RegistryEntry endpointRegistryEntry = resourceRegistry.getEntry(resourceEndpointName);
@@ -66,13 +67,13 @@ public class ResourcePatch extends ResourceUpsert {
             .getType();
         Serializable resourceId = typeParser.parse(idString, (Class<? extends Serializable>) type);
 
-        ResourceRepository resourceRepository = endpointRegistryEntry.getResourceRepository();
+        ResourceRepository resourceRepository = endpointRegistryEntry.getResourceRepository(parameterProvider);
         @SuppressWarnings("unchecked")
         Object resource = resourceRepository.findOne(resourceId, queryParams);
 
 
         setAttributes(dataBody, resource, bodyRegistryEntry.getResourceInformation());
-        setRelations(resource, bodyRegistryEntry, dataBody, queryParams);
+        setRelations(resource, bodyRegistryEntry, dataBody, queryParams, parameterProvider);
         Object savedResource = resourceRepository.save(resource);
 
         MetaInformation metaInformation =

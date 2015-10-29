@@ -19,12 +19,21 @@ public class Task {
     @JsonApiToMany(lazy = false)
     private List<Project> projects;
 
+    @JsonApiToOne
+    @JsonApiLookupIncludeAutomatically
+    private Project includedProject;
+
+    @JsonApiToMany
+    @JsonApiLookupIncludeAutomatically
+    private List<Project> includedProjects;
+
     public Long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public Task setId(Long id) {
         this.id = id;
+        return this;
     }
 
     public String getName() {
@@ -49,5 +58,21 @@ public class Task {
 
     public void setProjects(List<Project> projects) {
         this.projects = projects;
+    }
+
+    public Project getIncludedProject() {
+        return includedProject;
+    }
+
+    public void setIncludedProject(Project includedProject) {
+        this.includedProject = includedProject;
+    }
+
+    public List<Project> getIncludedProjects() {
+        return includedProjects;
+    }
+
+    public void setIncludedProjects(List<Project> includedProjects) {
+        this.includedProjects = includedProjects;
     }
 }

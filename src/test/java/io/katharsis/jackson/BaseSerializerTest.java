@@ -13,6 +13,7 @@ import org.junit.Before;
 public abstract class BaseSerializerTest {
 
     ObjectMapper sut;
+    protected ResourceRegistry resourceRegistry;
 
     @Before
     public void setUp() throws Exception {
@@ -20,7 +21,7 @@ public abstract class BaseSerializerTest {
             new ResourceFieldNameTransformer());
         ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonServiceLocator(),
             resourceInformationBuilder);
-        ResourceRegistry resourceRegistry = registryBuilder
+        resourceRegistry = registryBuilder
             .build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, ResourceRegistryTest.TEST_MODELS_URL);
 
         JsonApiModuleBuilder jsonApiModuleBuilder = new JsonApiModuleBuilder();

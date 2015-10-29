@@ -3,6 +3,7 @@ package io.katharsis.response;
 public interface HttpStatus {
 
     int OK_200 = 200;
+    int CREATED_201 = 201;
     int NO_CONTENT_204 = 204;
     int NOT_FOUND_404 = 404;
     int BAD_REQUEST_400 = 400;

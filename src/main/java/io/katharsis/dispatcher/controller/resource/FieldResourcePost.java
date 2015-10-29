@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.RelationshipRepository;
+import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.RequestBody;
@@ -17,6 +18,7 @@ import io.katharsis.resource.exception.ResourceFieldNotFoundException;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.response.HttpStatus;
 import io.katharsis.response.LinksInformation;
 import io.katharsis.response.MetaInformation;
 import io.katharsis.response.ResourceResponse;
@@ -46,7 +48,8 @@ public class FieldResourcePost extends ResourceUpsert {
     }
 
     @Override
-    public ResourceResponse handle(JsonPath jsonPath, QueryParams queryParams, RequestBody requestBody)
+    public ResourceResponse handle(JsonPath jsonPath, QueryParams queryParams,
+                                   RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody)
         throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException,
         IOException {
         String resourceEndpointName = jsonPath.getResourceName();
@@ -80,9 +83,9 @@ public class FieldResourcePost extends ResourceUpsert {
         DataBody dataBody = requestBody.getSingleData();
         Object resource = buildNewResource(relationshipRegistryEntry, dataBody, relationshipResourceType);
         setAttributes(dataBody, resource, relationshipRegistryEntry.getResourceInformation());
-        ResourceRepository resourceRepository = relationshipRegistryEntry.getResourceRepository();
+        ResourceRepository resourceRepository = relationshipRegistryEntry.getResourceRepository(parameterProvider);
         Object savedResource = resourceRepository.save(resource);
-        saveRelations(savedResource, relationshipRegistryEntry, dataBody);
+        saveRelations(savedResource, relationshipRegistryEntry, dataBody, parameterProvider);
 
         Serializable resourceId = (Serializable) PropertyUtils
             .getProperty(savedResource, relationshipRegistryEntry.getResourceInformation().getIdField().getName());
@@ -90,10 +93,10 @@ public class FieldResourcePost extends ResourceUpsert {
         @SuppressWarnings("unchecked")
         Object savedResourceWithRelations = resourceRepository.findOne(resourceId, queryParams);
 
-        RelationshipRepository relationshipRepositoryForClass = endpointRegistryEntry.getRelationshipRepositoryForClass(relationshipFieldClass);
+        RelationshipRepository relationshipRepositoryForClass = endpointRegistryEntry
+            .getRelationshipRepositoryForClass(relationshipFieldClass, parameterProvider);
         @SuppressWarnings("unchecked")
-        Object parent = endpointRegistryEntry.getResourceRepository()
-            .findOne(castedResourceId, queryParams);
+        Object parent = endpointRegistryEntry.getResourceRepository(parameterProvider).findOne(castedResourceId, queryParams);
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
             //noinspection unchecked
             relationshipRepositoryForClass.addRelations(parent, Collections.singletonList(resourceId), jsonPath.getElementName());
@@ -106,7 +109,8 @@ public class FieldResourcePost extends ResourceUpsert {
         LinksInformation linksInformation =
             getLinksInformation(resourceRepository, Collections.singletonList(savedResourceWithRelations), queryParams);
 
-        return new ResourceResponse(savedResourceWithRelations, jsonPath, queryParams, metaInformation, linksInformation);
+        return new ResourceResponse(savedResourceWithRelations, jsonPath, queryParams, metaInformation, linksInformation,
+            HttpStatus.CREATED_201);
     }
 
     private Serializable getResourceId(PathIds resourceIds, RegistryEntry<?> registryEntry) {

@@ -12,6 +12,7 @@ import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.Container;
 import io.katharsis.response.DataLinksContainer;
 import io.katharsis.utils.BeanUtils;
+import io.katharsis.utils.ClassUtils;
 import io.katharsis.utils.PropertyUtils;
 
 import java.io.IOException;
@@ -58,7 +59,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
      * <a href="http://jsonapi.org/format/#document-structure-resource-types"></a>.
      */
     private void writeData(JsonGenerator gen, Object data, List<String> includedFields) throws IOException {
-        Class<?> dataClass = data.getClass();
+        Class<?> dataClass = ClassUtils.getJsonApiResourceClass(data);
         String resourceType = resourceRegistry.getResourceType(dataClass);
 
         gen.writeStringField(TYPE_FIELD_NAME, resourceType);
