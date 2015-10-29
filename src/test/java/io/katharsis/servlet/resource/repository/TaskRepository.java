@@ -37,6 +37,11 @@ public class TaskRepository {
 
     @JsonApiFindAll
     public Iterable<Task> findAll() {
+        return findAll(null);
+    }
+
+    @JsonApiFindAllWithIds
+    public Iterable<Task> findAll(Iterable<Long> ids) {
         return Collections.singletonList(new Task(1L, "First task"));
     }
 
