@@ -1,10 +1,7 @@
 package io.katharsis.repository;
 
 import io.katharsis.queryParams.RequestParams;
-import io.katharsis.repository.annotations.JsonApiDelete;
-import io.katharsis.repository.annotations.JsonApiFindAll;
-import io.katharsis.repository.annotations.JsonApiFindOne;
-import io.katharsis.repository.annotations.JsonApiSave;
+import io.katharsis.repository.annotations.*;
 import io.katharsis.repository.exception.RepositoryAnnotationNotFoundException;
 import io.katharsis.utils.ClassUtils;
 
@@ -21,6 +18,7 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable> implements Re
 
     private Method findOneMethod;
     private Method findAllMethod;
+    private Method findAllWithIds;
     private Method saveMethod;
     private Method deleteMethod;
 
@@ -62,6 +60,26 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable> implements Re
 
         try {
             return (Iterable<T>) findAllMethod.invoke(implementationObject, methodParameters);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            throw (RuntimeException)e.getCause();
+        }
+    }
+
+    @Override
+    public Iterable<T> findAll(Iterable<ID> ids, RequestParams requestParams) {
+        Class<JsonApiFindAllWithIds> annotationType = JsonApiFindAllWithIds.class;
+        if (findAllWithIds == null) {
+            findAllWithIds = ClassUtils.findMethodWith(implementationObject, annotationType);
+        }
+        checkIfNotNull(annotationType, findAllWithIds);
+
+        Object[] methodParameters = parametersFactory
+            .buildParameters(new Object[]{ids}, findAllWithIds.getParameters(), requestParams, annotationType);
+
+        try {
+            return (Iterable<T>) findAllWithIds.invoke(implementationObject, methodParameters);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {

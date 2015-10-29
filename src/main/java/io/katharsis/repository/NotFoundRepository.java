@@ -27,6 +27,11 @@ public class NotFoundRepository<T, ID extends Serializable> implements ResourceR
     }
 
     @Override
+    public Iterable<T> findAll(Iterable<ID> ids, RequestParams requestParams) {
+        throw new RepositoryNotFoundException(repositoryClass);
+    }
+
+    @Override
     public void delete(ID id) {
         throw new RepositoryNotFoundException(repositoryClass);
     }
