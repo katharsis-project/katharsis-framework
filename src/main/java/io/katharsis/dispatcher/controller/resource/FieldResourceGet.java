@@ -30,7 +30,7 @@ public class FieldResourceGet extends ResourceIncludeField {
     @Override
     public boolean isAcceptable(JsonPath jsonPath, String requestType) {
         return !jsonPath.isCollection()
-                && jsonPath instanceof FieldPath
+                && FieldPath.class.equals(jsonPath.getClass())
                 && HttpMethod.GET.name().equals(requestType);
     }
 

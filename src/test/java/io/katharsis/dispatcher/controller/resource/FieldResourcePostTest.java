@@ -39,6 +39,20 @@ public class FieldResourcePostTest extends BaseControllerTest {
     }
 
     @Test
+    public void onRelationshipRequestShouldDenyIt() {
+        // GIVEN
+        JsonPath jsonPath = new ResourcePath("tasks/1/relationships/project");
+        ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
+        FieldResourcePost sut = new FieldResourcePost(resourceRegistry, typeParser, objectMapper);
+
+        // WHEN
+        boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
+
+        // THEN
+        assertThat(result).isFalse();
+    }
+
+    @Test
     public void onNonRelationRequestShouldDenyIt() {
         // GIVEN
         JsonPath jsonPath = new ResourcePath("tasks");
