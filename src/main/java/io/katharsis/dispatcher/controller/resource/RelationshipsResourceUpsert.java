@@ -69,7 +69,7 @@ public abstract class RelationshipsResourceUpsert implements BaseController {
     @Override
     public final boolean isAcceptable(JsonPath jsonPath, String requestType) {
         return !jsonPath.isCollection()
-                && jsonPath instanceof RelationshipsPath
+                && RelationshipsPath.class.equals(jsonPath.getClass())
                 && method().name().equals(requestType);
     }
 

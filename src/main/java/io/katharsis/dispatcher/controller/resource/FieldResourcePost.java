@@ -43,7 +43,7 @@ public class FieldResourcePost extends ResourceUpsert {
     @Override
     public boolean isAcceptable(JsonPath jsonPath, String requestType) {
         return !jsonPath.isCollection()
-                && jsonPath instanceof FieldPath
+                && FieldPath.class.equals(jsonPath.getClass())
                 && HttpMethod.POST.name().equals(requestType);
     }
 
