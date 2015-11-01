@@ -1,6 +1,7 @@
 package io.katharsis.repository;
 
 import io.katharsis.queryParams.QueryParams;
+import io.katharsis.repository.adapter.ResourceRepositoryAdapter;
 import io.katharsis.repository.annotations.*;
 import io.katharsis.repository.exception.RepositoryAnnotationNotFoundException;
 import io.katharsis.repository.exception.RepositoryMethodException;

@@ -1,8 +1,14 @@
-package io.katharsis.repository;
+package io.katharsis.repository.adapter;
 
 import io.katharsis.queryParams.QueryParams;
+import io.katharsis.repository.LinksRepository;
+import io.katharsis.repository.MetaRepository;
+import io.katharsis.repository.ParametersFactory;
+import io.katharsis.repository.ResourceRepository;
 import io.katharsis.repository.annotations.*;
 import io.katharsis.repository.exception.RepositoryAnnotationNotFoundException;
+import io.katharsis.response.LinksInformation;
+import io.katharsis.response.MetaInformation;
 import io.katharsis.utils.ClassUtils;
 
 import java.io.Serializable;
@@ -11,10 +17,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
-public class ResourceRepositoryAdapter<T, ID extends Serializable> implements ResourceRepository<T, ID> {
-
-    private final Object implementationObject;
-    private final ParametersFactory parametersFactory;
+public class ResourceRepositoryAdapter<T, ID extends Serializable>
+    extends RepositoryAdapter<T>
+    implements ResourceRepository<T, ID> {
 
     private Method findOneMethod;
     private Method findAllMethod;
@@ -23,8 +28,7 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable> implements Re
     private Method deleteMethod;
 
     public ResourceRepositoryAdapter(Object implementationObject, ParametersFactory parametersFactory) {
-        this.implementationObject = implementationObject;
-        this.parametersFactory = parametersFactory;
+        super(implementationObject, parametersFactory);
     }
 
     @Override
@@ -124,13 +128,6 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable> implements Re
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
             throw (RuntimeException)e.getCause();
-        }
-    }
-
-    private void checkIfNotNull(Class<? extends Annotation> annotationClass, Method foundMethod) {
-        if (foundMethod == null) {
-            throw new RepositoryAnnotationNotFoundException(
-                String.format("Annotation %s for class %s not found", annotationClass, implementationObject.getClass()));
         }
     }
 }
