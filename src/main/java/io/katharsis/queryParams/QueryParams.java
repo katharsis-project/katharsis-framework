@@ -29,7 +29,7 @@ public class QueryParams {
      * Filter params can be send with following format (Katharsis does not specify or implement any operators): <br>
      * <strong>filter[ResourceType][property|operator]([property|operator])* = "value"</strong><br>
      * <p>
-     * Examples of accepted sorting of resources:
+     * Examples of accepted filtering of resources:
      * <ul>
      * <li>{@code GET /tasks/?filter[Task][name]=Super task}</li>
      * <li>{@code GET /tasks/?filter[Task][name]=Super task&[Task][dueDate]=2015-10-01}</li>
@@ -84,7 +84,7 @@ public class QueryParams {
      * Examples of accepted sorting of resources:
      * <ul>
      * <li>{@code GET /tasks/?sort[Task][name]=asc}</li>
-     * <li>{@code GET /project/?sort[Project][shortName]=desc&sort[User][name][firstName]=asc&include[Project]=team}</li>
+     * <li>{@code GET /project/?sort[Project][shortName]=desc&sort[User][name][firstName]=asc}</li>
      * </ul>
      *
      * @return {@link TypedParams} Map of sorting params passed to request grouped by type of resource
@@ -192,7 +192,7 @@ public class QueryParams {
      * is agnostic about pagination strategies.
      * <p>
      * Pagination params can be send with following format: <br>
-     * <strong>page[offset|limit] = "value"</strong>
+     * <strong>page[offset|limit] = "value"</strong>, where value is an integer
      * <p>
      * Examples of accepted grouping of resources:
      * <ul>
@@ -287,7 +287,7 @@ public class QueryParams {
      * <a href="http://jsonapi.org/format/#fetching-includes">definition of includes</a>
      * in order to fit standard query parameter serializing strategy and maximize effective processing of data.
      * <p>
-     * Sparse field set params can be send with following format: <br>
+     * Included field set params can be send with following format: <br>
      * <strong>include[ResourceType] = "property(.property)*"</strong><br>
      * <p>
      * Examples of accepted sparse field sets of resources:

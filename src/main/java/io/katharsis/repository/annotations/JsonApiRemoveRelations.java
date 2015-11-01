@@ -12,7 +12,7 @@ import java.lang.annotation.*;
  * </p>
  * <ol>
  *     <li>Instance of a source resource</li>
- *     <li>{@link Iterable} of relationships to be set</li>
+ *     <li>{@link Iterable} of relationships to be removed</li>
  *     <li>Relationship's filed name</li>
  * </ol>
  * <p>
