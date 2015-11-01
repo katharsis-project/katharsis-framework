@@ -99,7 +99,9 @@ public class IncludedRelationshipExtractor {
         String elementName = response.getJsonPath()
             .getElementName();
         IncludedRelationsParams includedRelationsParams = findInclusions(includedRelations, elementName);
-        if (includedRelations != null) {
+        if (includedRelations != null
+            && includedRelations.getParams() != null
+            && includedRelations.getParams().size() != 0) {
             for (Inclusion inclusion : includedRelationsParams.getParams()) {
                 //noinspection unchecked
                 includedResources.addAll(extractIncludedRelationship(resource, inclusion, response));
@@ -111,7 +113,7 @@ public class IncludedRelationshipExtractor {
     private IncludedRelationsParams findInclusions(TypedParams<IncludedRelationsParams> queryParams,
                                                    String resourceName) {
         IncludedRelationsParams includedRelationsParams = null;
-        if (queryParams != null) {
+        if (queryParams != null && queryParams.getParams() != null) {
             for (Map.Entry<String, IncludedRelationsParams> entry : queryParams.getParams()
                 .entrySet()) {
                 if (resourceName.equals(entry.getKey())) {
