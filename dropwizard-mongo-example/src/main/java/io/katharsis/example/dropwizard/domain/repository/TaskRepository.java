@@ -2,7 +2,7 @@ package io.katharsis.example.dropwizard.domain.repository;
 
 import io.katharsis.example.dropwizard.domain.model.Task;
 import io.katharsis.example.dropwizard.managed.MongoManaged;
-import io.katharsis.queryParams.RequestParams;
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.ResourceRepository;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.Datastore;
@@ -23,17 +23,17 @@ public class TaskRepository implements ResourceRepository<Task, ObjectId> {
         return (S) datastore.getByKey(Task.class, saveKey);
     }
 
-    public Task findOne(ObjectId id, RequestParams requestParams) {
+    public Task findOne(ObjectId id, QueryParams requestParams) {
         return datastore.getByKey(Task.class, new Key<>(Task.class, id));
     }
 
     @Override
-    public Iterable<Task> findAll(RequestParams requestParams) {
+    public Iterable<Task> findAll(QueryParams requestParams) {
         return datastore.find(Task.class);
     }
 
     @Override
-    public Iterable<Task> findAll(Iterable<ObjectId> iterable, RequestParams requestParams) {
+    public Iterable<Task> findAll(Iterable<ObjectId> iterable, QueryParams requestParams) {
         return datastore.get(Task.class, iterable);
     }
 

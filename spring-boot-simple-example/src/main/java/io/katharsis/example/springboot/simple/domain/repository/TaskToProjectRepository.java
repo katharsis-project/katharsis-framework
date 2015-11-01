@@ -18,7 +18,7 @@ package io.katharsis.example.springboot.simple.domain.repository;
 
 import io.katharsis.example.springboot.simple.domain.model.Project;
 import io.katharsis.example.springboot.simple.domain.model.Task;
-import io.katharsis.queryParams.RequestParams;
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.RelationshipRepository;
 
 import org.springframework.stereotype.Component;
@@ -45,12 +45,12 @@ public class TaskToProjectRepository implements RelationshipRepository<Task, Lon
     }
 
     @Override
-    public Project findOneTarget(Long sourceId, String fieldName, RequestParams requestParams) {
+    public Project findOneTarget(Long sourceId, String fieldName, QueryParams requestParams) {
         return null;
     }
 
     @Override
-    public Iterable<Project> findManyTargets(Long sourceId, String fieldName, RequestParams requestParams) {
+    public Iterable<Project> findManyTargets(Long sourceId, String fieldName, QueryParams requestParams) {
         return null;
     }
 }

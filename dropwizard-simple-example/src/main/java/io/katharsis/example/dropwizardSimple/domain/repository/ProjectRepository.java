@@ -2,7 +2,7 @@ package io.katharsis.example.dropwizardSimple.domain.repository;
 
 import com.google.common.collect.Iterables;
 import io.katharsis.example.dropwizardSimple.domain.model.Project;
-import io.katharsis.queryParams.RequestParams;
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 
@@ -24,7 +24,7 @@ public class ProjectRepository implements ResourceRepository<Project, Long> {
         return entity;
     }
 
-    public Project findOne(Long id, RequestParams requestParams) {
+    public Project findOne(Long id, QueryParams requestParams) {
         Project project = REPOSITORY.get(id);
         if (project == null) {
             throw new ResourceNotFoundException("Project not found");
@@ -33,12 +33,12 @@ public class ProjectRepository implements ResourceRepository<Project, Long> {
     }
 
     @Override
-    public Iterable<Project> findAll(RequestParams requestParams) {
+    public Iterable<Project> findAll(QueryParams requestParams) {
         return REPOSITORY.values();
     }
 
     @Override
-    public Iterable<Project> findAll(Iterable<Long> iterable, RequestParams requestParams) {
+    public Iterable<Project> findAll(Iterable<Long> iterable, QueryParams requestParams) {
         return REPOSITORY.entrySet()
                 .stream()
                 .filter(p -> Iterables.contains(iterable, p.getKey()))

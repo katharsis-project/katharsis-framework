@@ -1,7 +1,7 @@
 package io.katharsis.example.wildfly.endpoints;
 
 import io.katharsis.example.wildfly.model.User;
-import io.katharsis.queryParams.RequestParams;
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 
@@ -23,7 +23,7 @@ public class UserRepository implements ResourceRepository<User, String> {
     }
 
     @Override
-    public synchronized User findOne(String id, RequestParams requestParams) {
+    public synchronized User findOne(String id, QueryParams requestParams) {
         return users.stream()
                 .filter(u -> u.getId().equals(id))
                 .findFirst()
@@ -31,12 +31,12 @@ public class UserRepository implements ResourceRepository<User, String> {
     }
 
     @Override
-    public synchronized Iterable<User> findAll(RequestParams requestParams) {
+    public synchronized Iterable<User> findAll(QueryParams requestParams) {
         return users;
     }
 
     @Override
-    public synchronized Iterable<User> findAll(Iterable<String> ids, RequestParams requestParams) {
+    public synchronized Iterable<User> findAll(Iterable<String> ids, QueryParams requestParams) {
         return users.stream()
                 .filter(u ->
                         StreamSupport.stream(ids.spliterator(), false)
