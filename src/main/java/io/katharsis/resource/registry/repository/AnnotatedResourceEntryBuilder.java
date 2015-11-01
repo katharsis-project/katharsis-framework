@@ -3,7 +3,7 @@ package io.katharsis.resource.registry.repository;
 import io.katharsis.repository.ParametersFactory;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.repository.ResourceRepository;
-import io.katharsis.repository.ResourceRepositoryAdapter;
+import io.katharsis.repository.adapter.ResourceRepositoryAdapter;
 
 import java.io.Serializable;
 

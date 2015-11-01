@@ -1,6 +1,8 @@
-package io.katharsis.repository;
+package io.katharsis.repository.adapter;
 
 import io.katharsis.queryParams.QueryParams;
+import io.katharsis.repository.ParametersFactory;
+import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.repository.annotations.*;
 import io.katharsis.repository.exception.RepositoryAnnotationNotFoundException;
 import io.katharsis.utils.ClassUtils;
@@ -11,10 +13,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class RelationshipRepositoryAdapter<T, T_ID extends Serializable, D, D_ID extends Serializable>
+    extends RepositoryAdapter<T>
     implements RelationshipRepository<T, T_ID, D, D_ID> {
-
-    private final Object implementationObject;
-    private final ParametersFactory parametersFactory;
 
     private Method setRelationMethod;
     private Method setRelationsMethod;
@@ -24,8 +24,7 @@ public class RelationshipRepositoryAdapter<T, T_ID extends Serializable, D, D_ID
     private Method findManyTargetsMethod;
 
     public RelationshipRepositoryAdapter(Object implementationObject, ParametersFactory parametersFactory) {
-        this.implementationObject = implementationObject;
-        this.parametersFactory = parametersFactory;
+        super(implementationObject, parametersFactory);
     }
 
     @Override
@@ -126,13 +125,6 @@ public class RelationshipRepositoryAdapter<T, T_ID extends Serializable, D, D_ID
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
             throw (RuntimeException)e.getCause();
-        }
-    }
-
-    private void checkIfNotNull(Class<? extends Annotation> annotationClass, Method foundMethod) {
-        if (foundMethod == null) {
-            throw new RepositoryAnnotationNotFoundException(
-                String.format("Annotation %s for class %s not found", annotationClass, implementationObject.getClass()));
         }
     }
 }

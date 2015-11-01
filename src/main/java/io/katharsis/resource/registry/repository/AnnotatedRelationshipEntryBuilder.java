@@ -1,6 +1,7 @@
 package io.katharsis.resource.registry.repository;
 
 import io.katharsis.repository.*;
+import io.katharsis.repository.adapter.RelationshipRepositoryAdapter;
 import io.katharsis.repository.annotations.JsonApiRelationshipRepository;
 
 public class AnnotatedRelationshipEntryBuilder<T, D> implements RelationshipEntry<T, D> {
