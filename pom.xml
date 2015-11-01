@@ -13,7 +13,7 @@
     <packaging>jar</packaging>
 
     <name>katharsis-rs</name>
-    <url>https://github.com/IjinPL/katharsis-rs</url>
+    <url>https://github.com/katharsis-project/katharsis-rs</url>
 
     <properties>
         <jersey-container-servlet.version>2.17</jersey-container-servlet.version>
