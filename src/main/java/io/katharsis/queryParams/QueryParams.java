@@ -25,16 +25,16 @@ public class QueryParams {
      * <strong>Important!</strong> Katharsis implementation differs form JSON API
      * <a href="http://jsonapi.org/format/#fetching-filtering">definition of filtering</a>
      * in order to fit standard query parameter serializing strategy and maximize effective processing of data.
-     * <p/>
-     * Filter params can be send with following format (Katharsis does not specify or implement any operators): <br/>
-     * <strong>filter[ResourceType][property|operator]([property|operator])* = "value"</strong><br/>
-     * <p/>
+     * <p>
+     * Filter params can be send with following format (Katharsis does not specify or implement any operators): <br>
+     * <strong>filter[ResourceType][property|operator]([property|operator])* = "value"</strong><br>
+     * <p>
      * Examples of accepted sorting of resources:
      * <ul>
-     * <li>GET /tasks/?filter[Task][name]=Super task</li>
-     * <li>GET /tasks/?filter[Task][name]=Super task&[Task][dueDate]=2015-10-01</li>
-     * <li>GET /tasks/?filter[Task][name][$startWith]=Super task</li>
-     * <li>GET /tasks/?filter[Task][name][][$startWith]=Super&[Task][name][][$endWith]=task</li>
+     * <li>{@code GET /tasks/?filter[Task][name]=Super task}</li>
+     * <li>{@code GET /tasks/?filter[Task][name]=Super task&[Task][dueDate]=2015-10-01}</li>
+     * <li>{@code GET /tasks/?filter[Task][name][$startWith]=Super task}</li>
+     * <li>{@code GET /tasks/?filter[Task][name][][$startWith]=Super&[Task][name][][$endWith]=task}</li>
      * </ul>
      *
      * @return {@link TypedParams} Map of filtering params passed to a request grouped by type of resource
@@ -77,14 +77,14 @@ public class QueryParams {
      * <strong>Important!</strong> Katharsis implementation differs form JSON API
      * <a href="http://jsonapi.org/format/#fetching-sorting">definition of sorting</a>
      * in order to fit standard query parameter serializing strategy and maximize effective processing of data.
-     * <p/>
-     * Sort params can be send with following format: <br/>
+     * <p>
+     * Sort params can be send with following format: <br>
      * <strong>sort[ResourceType][property]([property])* = "asc|desc"</strong>
-     * <p/>
+     * <p>
      * Examples of accepted sorting of resources:
      * <ul>
-     * <li>GET /tasks/?sort[Task][name]=asc</li>
-     * <li>GET /project/?sort[Project][shortName]=desc&sort[User][name][firstName]=asc&include[Project]=team</li>
+     * <li>{@code GET /tasks/?sort[Task][name]=asc}</li>
+     * <li>{@code GET /project/?sort[Project][shortName]=desc&sort[User][name][firstName]=asc&include[Project]=team}</li>
      * </ul>
      *
      * @return {@link TypedParams} Map of sorting params passed to request grouped by type of resource
@@ -134,14 +134,14 @@ public class QueryParams {
     /**
      * <strong>Important: </strong> Grouping itself is not specified by JSON API itself, but the
      * keyword and format it reserved for today and future use in Katharsis.
-     * <p/>
-     * Group params can be send with following format: <br/>
+     * <p>
+     * Group params can be send with following format: <br>
      * <strong>group[ResourceType] = "property(.property)*"</strong>
-     * <p/>
+     * <p>
      * Examples of accepted grouping of resources:
      * <ul>
-     * <li>GET /tasks/?group[Task]=name</li>
-     * <li>GET /project/?group[User]=name.firstName&include[Project]=team</li>
+     * <li>{@code GET /tasks/?group[Task]=name}</li>
+     * <li>{@code GET /project/?group[User]=name.firstName&include[Project]=team}</li>
      * </ul>
      *
      * @return {@link Map} Map of grouping params passed to request grouped by type of resource
@@ -190,13 +190,13 @@ public class QueryParams {
      * <strong>Important!</strong> Katharsis implementation sets on strategy of pagination whereas JSON API
      * <a href="http://jsonapi.org/format/#fetching-pagination">definition of pagination</a>
      * is agnostic about pagination strategies.
-     * <p/>
-     * Pagination params can be send with following format: <br/>
+     * <p>
+     * Pagination params can be send with following format: <br>
      * <strong>page[offset|limit] = "value"</strong>
-     * <p/>
+     * <p>
      * Examples of accepted grouping of resources:
      * <ul>
-     * <li>GET /projects/?page[offset]=0&page[limit]=10</li>
+     * <li>{@code GET /projects/?page[offset]=0&page[limit]=10}</li>
      * </ul>
      *
      * @return {@link Map} Map of pagination keys passed to request
@@ -231,15 +231,15 @@ public class QueryParams {
      * <strong>Important!</strong> Katharsis implementation differs form JSON API
      * <a href="http://jsonapi.org/format/#fetching-sparse-fieldsets">definition of sparse field set</a>
      * in order to fit standard query parameter serializing strategy and maximize effective processing of data.
-     * <p/>
-     * Sparse field set params can be send with following format: <br/>
-     * <strong>fields[ResourceType] = "property(.property)*"</strong><br/>
-     * <p/>
+     * <p>
+     * Sparse field set params can be send with following format: <br>
+     * <strong>fields[ResourceType] = "property(.property)*"</strong><br>
+     * <p>
      * Examples of accepted sparse field sets of resources:
      * <ul>
-     * <li>GET /tasks/?fields[Task]=name</li>
-     * <li>GET /tasks/?fields[Task][]=name&fields[Task][]=dueDate</li>
-     * <li>GET /tasks/?fields[User]=name.surname&include[Task]=author</li>
+     * <li>{@code GET /tasks/?fields[Task]=name}</li>
+     * <li>{@code GET /tasks/?fields[Task][]=name&fields[Task][]=dueDate}</li>
+     * <li>{@code GET /tasks/?fields[User]=name.surname&include[Task]=author}</li>
      * </ul>
      *
      * @return {@link TypedParams} Map of sparse field set params passed to a request grouped by type of resource
@@ -286,15 +286,15 @@ public class QueryParams {
      * <strong>Important!</strong> Katharsis implementation differs form JSON API
      * <a href="http://jsonapi.org/format/#fetching-includes">definition of includes</a>
      * in order to fit standard query parameter serializing strategy and maximize effective processing of data.
-     * <p/>
-     * Sparse field set params can be send with following format: <br/>
-     * <strong>include[ResourceType] = "property(.property)*"</strong><br/>
-     * <p/>
+     * <p>
+     * Sparse field set params can be send with following format: <br>
+     * <strong>include[ResourceType] = "property(.property)*"</strong><br>
+     * <p>
      * Examples of accepted sparse field sets of resources:
      * <ul>
-     * <li>GET /tasks/?include[Task]=author</li>
-     * <li>GET /tasks/?include[Task][]=author&include[Task][]=comments</li>
-     * <li>GET /projects/?include[Project]=task&include[Task]=comments</li>
+     * <li>{@code GET /tasks/?include[Task]=author}</li>
+     * <li>{@code GET /tasks/?include[Task][]=author&include[Task][]=comments}</li>
+     * <li>{@code GET /projects/?include[Project]=task&include[Task]=comments}</li>
      * </ul>
      *
      * @return {@link TypedParams} Map of sparse field set params passed to a request grouped by type of resource

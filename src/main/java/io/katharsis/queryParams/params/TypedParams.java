@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * Generic query parameter container
  *
- * @param <T>
+ * @param <T> type of the parameter
  */
 public class TypedParams<T> {
     private Map<String, T> params = new HashMap<>();
