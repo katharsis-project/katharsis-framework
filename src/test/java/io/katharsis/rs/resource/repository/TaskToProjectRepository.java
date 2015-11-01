@@ -1,6 +1,6 @@
 package io.katharsis.rs.resource.repository;
 
-import io.katharsis.queryParams.RequestParams;
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.rs.resource.model.Project;
 import io.katharsis.rs.resource.model.Task;
@@ -26,12 +26,12 @@ public class TaskToProjectRepository implements RelationshipRepository<Task, Lon
     }
 
     @Override
-    public Project findOneTarget(Long sourceId, String fieldName, RequestParams requestParams) {
+    public Project findOneTarget(Long sourceId, String fieldName, QueryParams requestParams) {
         return null;
     }
 
     @Override
-    public Iterable<Project> findManyTargets(Long sourceId, String fieldName, RequestParams requestParams) {
+    public Iterable<Project> findManyTargets(Long sourceId, String fieldName, QueryParams requestParams) {
         return null;
     }
 }

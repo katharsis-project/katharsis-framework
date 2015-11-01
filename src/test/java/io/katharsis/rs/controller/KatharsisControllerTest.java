@@ -47,7 +47,7 @@ public abstract class KatharsisControllerTest extends JerseyTest {
     public void onCollectionRequestWithParamsGetShouldReturnCollection() {
         // WHEN
         String taskResourceResponse = target(getPrefixForPath() + "tasks")
-            .queryParam("filter", URLEncoder.encode("{\"name\":\"John\"}"))
+            .queryParam("filter[name]", "John")
             .request(APPLICATION_JSON_API_TYPE)
             .get(String.class);
 

@@ -5,8 +5,8 @@ import io.katharsis.dispatcher.RequestDispatcher;
 import io.katharsis.errorhandling.exception.KatharsisMappableException;
 import io.katharsis.errorhandling.exception.KatharsisMatchingException;
 import io.katharsis.errorhandling.mapper.KatharsisExceptionMapper;
-import io.katharsis.queryParams.RequestParams;
-import io.katharsis.queryParams.RequestParamsBuilder;
+import io.katharsis.queryParams.QueryParams;
+import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathBuilder;
@@ -25,9 +25,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 import static io.katharsis.rs.type.JsonApiMediaType.APPLICATION_JSON_API_TYPE;
 
@@ -92,7 +90,7 @@ public class KatharsisFilter implements ContainerRequestFilter {
             String path = buildPath(uriInfo);
             JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath(path);
 
-            RequestParams requestParams = createRequestParams(uriInfo);
+            QueryParams requestParams = createQueryParams(uriInfo);
 
             String method = requestContext.getMethod();
             RequestBody requestBody = inputStreamToBody(requestContext.getEntityStream());
@@ -137,17 +135,17 @@ public class KatharsisFilter implements ContainerRequestFilter {
         requestContext.abortWith(response);
     }
 
-    private RequestParams createRequestParams(UriInfo uriInfo) {
-        RequestParamsBuilder requestParamsBuilder = new RequestParamsBuilder(objectMapper);
+    private QueryParams createQueryParams(UriInfo uriInfo) {
+        QueryParamsBuilder requestParamsBuilder = new QueryParamsBuilder();
 
         MultivaluedMap<String, String> queryParametersMultiMap = uriInfo.getQueryParameters();
-        Map<String, String> queryParameters = new HashMap<>();
+        Map<String, Set<String>> queryParameters = new HashMap<>();
 
         for (String queryName : queryParametersMultiMap.keySet()) {
-            queryParameters.put(queryName, queryParametersMultiMap.getFirst(queryName));
+            queryParameters.put(queryName, new LinkedHashSet<>(queryParametersMultiMap.get(queryName)));
         }
 
-        return requestParamsBuilder.buildRequestParams(queryParameters);
+        return requestParamsBuilder.buildQueryParams(queryParameters);
     }
 
     public RequestBody inputStreamToBody(InputStream is) throws IOException {
