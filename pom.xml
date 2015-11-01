@@ -13,6 +13,7 @@
     <packaging>jar</packaging>
 
     <name>katharsis-core</name>
+    <url>https://github.com/katharsis-project/katharsis-core</url>
 
     <properties>
         <equalsverifier-version>1.7.2</equalsverifier-version>
