@@ -149,7 +149,7 @@ public class KatharsisServletTest {
         request.setRequestURI("/api/tasks");
         request.setContentType(JsonApiMediaType.APPLICATION_JSON_API);
         request.addHeader("Accept", "*/*");
-        request.addParameter("filter", "{\"name\":\"John\"}");
+        request.addParameter("filter[name]", "John");
 
         MockHttpServletResponse response = new MockHttpServletResponse();
 
@@ -178,7 +178,7 @@ public class KatharsisServletTest {
         request.setRequestURI("/api/tasks");
         request.setContentType(JsonApiMediaType.APPLICATION_JSON_API);
         request.addHeader("Accept", "application/xml");
-        request.addParameter("filter", "{\"name\":\"John\"}");
+        request.addParameter("filter[name]", "John");
 
         MockHttpServletResponse response = new MockHttpServletResponse();
 

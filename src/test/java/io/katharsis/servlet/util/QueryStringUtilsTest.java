@@ -1,5 +1,6 @@
 package io.katharsis.servlet.util;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -8,6 +9,7 @@ import io.katharsis.invoker.KatharsisInvokerContext;
 import io.katharsis.servlet.ServletKatharsisInvokerContext;
 
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.ServletContext;
 
@@ -56,18 +58,18 @@ public class QueryStringUtilsTest {
 
     @Test
     public void testParseQueryStringAsSingleValueMap() throws Exception {
-        Map<String, String> parsedQueryStringMap = QueryStringUtils.parseQueryStringAsSingleValueMap(invokerContext);
+        Map<String, Set<String>> parsedQueryStringMap = QueryStringUtils.parseQueryStringAsSingleValueMap(invokerContext);
         assertTrue("parsedQueryStringMap must contain foo.", parsedQueryStringMap.containsKey("foo"));
-        assertEquals(FOO_PARAM_VALUES[0], parsedQueryStringMap.get("foo"));
+        assertThat(parsedQueryStringMap.get("foo")).containsOnly(FOO_PARAM_VALUES[0]);
         assertTrue("parsedQueryStringMap must contain lux.", parsedQueryStringMap.containsKey("lux"));
-        assertEquals(LUX_PARAM_VALUES[0], parsedQueryStringMap.get("lux"));
+        assertThat(parsedQueryStringMap.get("lux")).containsOnly(FOO_PARAM_VALUES[0]);
         assertFalse(parsedQueryStringMap.containsKey("nameonly"));
     }
 
     @Test
     public void testParseQueryStringWithBlankQueryString() throws Exception {
         request.setQueryString(null);
-        Map<String, String> parsedQueryStringMap = QueryStringUtils.parseQueryStringAsSingleValueMap(invokerContext);
+        Map<String, Set<String>> parsedQueryStringMap = QueryStringUtils.parseQueryStringAsSingleValueMap(invokerContext);
         assertNotNull(parsedQueryStringMap);
         assertTrue("parsedQueryStringMap must be empty: " + parsedQueryStringMap, parsedQueryStringMap.isEmpty());
         Map<String, String[]> parsedQueryStringsMap = QueryStringUtils.parseQueryStringAsMultiValuesMap(invokerContext);

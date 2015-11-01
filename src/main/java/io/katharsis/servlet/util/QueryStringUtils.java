@@ -21,6 +21,7 @@ import io.katharsis.invoker.KatharsisInvokerContext;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Utility to parse HTTP QUERY_STRING.
@@ -30,8 +31,8 @@ public class QueryStringUtils {
     private QueryStringUtils() {
     }
 
-    public static Map<String, String> parseQueryStringAsSingleValueMap(KatharsisInvokerContext invokerContext) {
-        Map<String, String> queryParamMap = null;
+    public static Map<String, Set<String>> parseQueryStringAsSingleValueMap(KatharsisInvokerContext invokerContext) {
+        Map<String, Set<String>> queryParamMap = null;
 
         String queryString = invokerContext.getRequestQueryString();
 
@@ -47,17 +48,15 @@ public class QueryStringUtils {
             for (String paramPair : paramPairs) {
                 String[] paramNameAndValue = paramPair.split("=");
 
-                if (paramNameAndValue != null && paramNameAndValue.length > 1) {
+                if (paramNameAndValue.length > 1) {
                     paramName = paramNameAndValue[0].trim();
 
-                    if (paramName.length() != 0) {
-                        queryParamMap.put(paramName, null);
-                    }
+                    queryParamMap.put(paramName, null);
                 }
             }
 
-            for (Map.Entry<String, String> entry : queryParamMap.entrySet()) {
-                entry.setValue(invokerContext.getRequestParameter(entry.getKey()));
+            for (Map.Entry<String, Set<String>> entry : queryParamMap.entrySet()) {
+                entry.setValue(Collections.singleton(invokerContext.getQueryParameter(entry.getKey())));
             }
         }
 
@@ -91,7 +90,7 @@ public class QueryStringUtils {
             }
 
             for (Map.Entry<String, String []> entry : queryParamMap.entrySet()) {
-                entry.setValue(invokerContext.getRequestParameterValues(entry.getKey()));
+                entry.setValue(invokerContext.getQueryParameterValues(entry.getKey()));
             }
         }
 

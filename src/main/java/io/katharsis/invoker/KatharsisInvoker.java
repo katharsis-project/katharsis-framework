@@ -20,8 +20,8 @@ import io.katharsis.dispatcher.RequestDispatcher;
 import io.katharsis.errorhandling.exception.KatharsisMappableException;
 import io.katharsis.errorhandling.exception.KatharsisMatchingException;
 import io.katharsis.errorhandling.mapper.KatharsisExceptionMapper;
-import io.katharsis.queryParams.RequestParams;
-import io.katharsis.queryParams.RequestParamsBuilder;
+import io.katharsis.queryParams.QueryParams;
+import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathBuilder;
@@ -37,6 +37,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -88,7 +89,7 @@ public class KatharsisInvoker {
         try {
             JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath(invokerContext.getRequestPath());
 
-            RequestParams requestParams = createRequestParams(invokerContext);
+            QueryParams requestParams = createQueryParams(invokerContext);
 
             in = invokerContext.getRequestEntityStream();
             RequestBody requestBody = inputStreamToBody(in);
@@ -153,11 +154,11 @@ public class KatharsisInvoker {
         return false;
     }
 
-    private RequestParams createRequestParams(KatharsisInvokerContext invokerContext) {
-        RequestParamsBuilder requestParamsBuilder = new RequestParamsBuilder(objectMapper);
-        Map<String, String> queryParameters =
+    private QueryParams createQueryParams(KatharsisInvokerContext invokerContext) {
+        QueryParamsBuilder requestParamsBuilder = new QueryParamsBuilder();
+        Map<String, Set<String>> queryParameters =
             QueryStringUtils.parseQueryStringAsSingleValueMap(invokerContext);
-        return requestParamsBuilder.buildRequestParams(queryParameters);
+        return requestParamsBuilder.buildQueryParams(queryParameters);
     }
 
     private RequestBody inputStreamToBody(InputStream is) throws IOException {

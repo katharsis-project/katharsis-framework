@@ -64,11 +64,11 @@ public class ServletKatharsisInvokerContext implements KatharsisInvokerContext {
         return request.getQueryString();
     }
 
-    public String [] getRequestParameterValues(String name) {
+    public String [] getQueryParameterValues(String name) {
         return request.getParameterValues(name);
     }
 
-    public String getRequestParameter(String name) {
+    public String getQueryParameter(String name) {
         return request.getParameter(name);
     }
 

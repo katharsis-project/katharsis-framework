@@ -43,9 +43,9 @@ public interface KatharsisInvokerContext {
 
     String getRequestQueryString();
 
-    String [] getRequestParameterValues(String name);
+    String [] getQueryParameterValues(String name);
 
-    String getRequestParameter(String name);
+    String getQueryParameter(String name);
 
     InputStream getRequestEntityStream() throws IOException;
 
