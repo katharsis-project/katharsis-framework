@@ -142,24 +142,17 @@ public class IncludedRelationshipExtractor {
     private Set getElements(Object resource, List<String> pathList, BaseResponse response)
         throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
         Set elements = new HashSet();
-        if (pathList.isEmpty()) {
-            if (resource != null) {
-                return Collections.singleton(new Container(resource, response));
-            } else {
-                return Collections.emptySet();
-            }
-        }
+
         Object property = PropertyUtils.getProperty(resource, pathList.get(0));
         if (property != null) {
-            List<String> subPathList = pathList.subList(1, pathList.size());
             if (Iterable.class.isAssignableFrom(property.getClass())) {
                 for (Object o : ((Iterable) property)) {
                     //noinspection unchecked
-                    elements.addAll(getElements(o, subPathList, response));
+                    elements.add(new Container(o, response));
                 }
             } else {
                 //noinspection unchecked
-                elements.addAll(getElements(property, subPathList, response));
+                elements.add(new Container(property, response));
             }
         } else {
             return Collections.emptySet();
