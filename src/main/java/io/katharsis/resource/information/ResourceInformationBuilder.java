@@ -56,7 +56,6 @@ public final class ResourceInformationBuilder {
     private List<ResourceField> getFieldResourceFields(List<Field> classFields) {
         return classFields
             .stream()
-            .filter(field -> !isIgnorable(field))
             .map(field -> {
                 String name = resourceFieldNameTransformer.getName(field);
                 List<Annotation> annotations = Arrays.asList(field.getAnnotations());
@@ -68,7 +67,6 @@ public final class ResourceInformationBuilder {
     private List<ResourceField> getGetterResourceFields(List<Method> classGetters) {
         return classGetters
             .stream()
-            .filter(method -> !method.isAnnotationPresent(JsonIgnore.class))
             .map(getter -> {
                 String name = resourceFieldNameTransformer.getName(getter);
                 List<Annotation> annotations = Arrays.asList(getter.getAnnotations());
@@ -85,11 +83,24 @@ public final class ResourceInformationBuilder {
         }
 
         for (ResourceField field : resourceGetterFields) {
-            resourceFieldMap.putIfAbsent(field.getName(), field);
+            if (resourceFieldMap.containsKey(field.getName())) {
+                resourceFieldMap.put(field.getName(), mergeAnnotations(resourceFieldMap.get(field.getName()), field));
+            } else {
+                resourceFieldMap.put(field.getName(), field);
+            }
         }
 
-        return new LinkedList<>(resourceFieldMap.values());
+        return resourceFieldMap.values()
+            .stream()
+            .filter(field -> !field.isAnnotationPresent(JsonIgnore.class))
+            .collect(Collectors.toList());
+    }
 
+    private ResourceField mergeAnnotations(ResourceField fromField, ResourceField fromMethod) {
+        List<Annotation> annotations = new LinkedList<>(fromField.getAnnotations());
+        annotations.addAll(fromMethod.getAnnotations());
+
+        return new ResourceField(fromField.getName(), fromField.getType(), fromField.getGenericType(), annotations);
     }
 
     private <T> ResourceField getIdField(Class<T> resourceClass, List<ResourceField> classFields) {
@@ -103,12 +114,6 @@ public final class ResourceInformationBuilder {
             throw new ResourceDuplicateIdException(resourceClass.getCanonicalName());
         }
         return idFields.get(0);
-    }
-
-    private boolean isIgnorable(Field field) {
-        return field.isAnnotationPresent(JsonIgnore.class)
-            || Modifier.isTransient(field.getModifiers())
-            || field.isSynthetic();
     }
 
     private Set<ResourceField> getBasicFields(List<ResourceField> classFields, ResourceField idField) {
