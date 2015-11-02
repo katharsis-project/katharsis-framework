@@ -3,6 +3,7 @@ package io.katharsis.resource;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.katharsis.resource.annotations.JsonApiId;
 import io.katharsis.resource.annotations.JsonApiResource;
+import io.katharsis.resource.annotations.JsonApiToOne;
 import io.katharsis.resource.exception.init.ResourceDuplicateIdException;
 import io.katharsis.resource.exception.init.ResourceIdNotFoundException;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
@@ -89,13 +90,6 @@ public class ResourceInformationBuilderTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenResourceWithTransientIdAnnotation() {
-        expectedException.expect(ResourceIdNotFoundException.class);
-
-        resourceInformationBuilder.build(TransientIdResource.class);
-    }
-
-    @Test
     public void shouldHaveNoAttributesInfoForIgnoredField() throws Exception {
         ResourceInformation resourceInformation = resourceInformationBuilder.build(AccessorGetterResource.class);
 
@@ -134,6 +128,15 @@ public class ResourceInformationBuilderTest {
             .isNotNull();
     }
 
+    @Test
+    public void shouldReturnMergedAnnotationsOnAnnotationsOnFieldAndMethod() throws Exception {
+        ResourceInformation resourceInformation = resourceInformationBuilder.build(AnnotationOnFieldAndMethodResource.class);
+
+        assertThat(resourceInformation.getRelationshipFields())
+            .isNotNull()
+            .hasSize(0);
+    }
+
     @JsonApiResource(type = "duplicatedIdAnnotationResources")
     private static class DuplicatedIdResource {
         @JsonApiId
@@ -148,12 +151,6 @@ public class ResourceInformationBuilderTest {
         @JsonApiId
         @JsonIgnore
         private Long id;
-    }
-
-    @JsonApiResource(type = "transientId")
-    private static class TransientIdResource {
-        @JsonApiId
-        private transient Long id;
     }
 
     @JsonApiResource(type = "ignoredAttribute")
@@ -203,6 +200,20 @@ public class ResourceInformationBuilderTest {
 
         @JsonApiId
         public Long getId() {
+            return null;
+        }
+    }
+
+    @JsonApiResource(type = "annotationOnFieldAndMethod")
+    private static class AnnotationOnFieldAndMethodResource {
+        @JsonApiId
+        private Long id;
+
+        @JsonIgnore
+        private String field;
+
+        @JsonApiToOne
+        private String getField() {
             return null;
         }
     }

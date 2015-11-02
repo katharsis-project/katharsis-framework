@@ -13,12 +13,10 @@ public class ResourceField {
     private final String name;
     private final Class<?> type;
     private final Type genericType;
-    private List<Annotation> annotations = Collections.emptyList();
+    private List<Annotation> annotations;
 
     public ResourceField(@SuppressWarnings("SameParameterValue") String name, Class<?> type, Type genericType) {
-        this.name = name;
-        this.type = type;
-        this.genericType = genericType;
+        this(name, type, genericType, Collections.emptyList());
     }
 
     public ResourceField(String name, Class<?> type, Type genericType, List<Annotation> annotations) {
