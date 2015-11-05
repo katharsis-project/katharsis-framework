@@ -3,8 +3,8 @@ package io.katharsis.dispatcher;
 import io.katharsis.dispatcher.registry.ControllerRegistry;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
-import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.queryParams.QueryParams;
+import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.response.BaseResponse;
@@ -27,27 +27,30 @@ public class RequestDispatcher {
 
     /**
      * Dispatch the request from a client
-     * @param jsonPath built {@link JsonPath} instance which represents the URI sent in the request
-     * @param requestType type of the request e.g. POST, GET, PATCH
-   * @param parameterProvider repository method parameter provider
-     * @param queryParams built object containing query parameters of the request
-     * @param requestBody deserialized body of the client request
+     *
+     * @param jsonPath          built {@link JsonPath} instance which represents the URI sent in the request
+     * @param requestType       type of the request e.g. POST, GET, PATCH
+     * @param parameterProvider repository method parameter provider
+     * @param queryParams       built object containing query parameters of the request
+     * @param requestBody       deserialized body of the client request
      * @return the response form the Katharsis
      * @throws Exception exception thrown while processing the request
      */
     public BaseResponse<?> dispatchRequest(JsonPath jsonPath, String requestType, QueryParams queryParams,
                                            RepositoryMethodParameterProvider parameterProvider,
-                                           @SuppressWarnings("SameParameterValue") RequestBody requestBody) throws Exception {
+                                           @SuppressWarnings("SameParameterValue") RequestBody requestBody) throws
+        Exception {
 
         try {
-        return controllerRegistry
+            return controllerRegistry
                 .getController(jsonPath, requestType)
                 .handle(jsonPath, queryParams, parameterProvider, requestBody);
         } catch (Exception e) {
             Optional<JsonApiExceptionMapper> exceptionMapper = exceptionMapperRegistry.findMapperFor(e.getClass());
             if (exceptionMapper.isPresent()) {
                 //noinspection unchecked
-                return exceptionMapper.get().toErrorResponse(e);
+                return exceptionMapper.get()
+                    .toErrorResponse(e);
             } else {
                 throw e;
             }

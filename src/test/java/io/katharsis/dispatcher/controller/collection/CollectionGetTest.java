@@ -89,6 +89,27 @@ public class CollectionGetTest extends BaseControllerTest {
     }
 
     @Test
+    public void onGivenRequestResourceWithIdShouldSetIt() throws Exception {
+        // GIVEN
+        RequestBody requestBody = new RequestBody();
+        DataBody data = new DataBody();
+        requestBody.setData(data);
+        data.setType("tasks");
+        data.setId("1");
+
+        JsonPath taskPath = pathBuilder.buildPath("/tasks");
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper);
+
+        // WHEN -- adding a task
+        BaseResponse taskResponse = resourcePost.handle(taskPath, new QueryParams(), null, requestBody);
+
+        // THEN
+        assertThat(taskResponse.getData()).isExactlyInstanceOf(Task.class);
+        Long taskId = ((Task) (taskResponse.getData())).getId();
+        assertThat(taskId).isEqualTo(1);
+    }
+
+    @Test
     public void onGivenRequestResourceShouldLoadAutoIncludeFields() throws Exception {
         // GIVEN
         RequestBody newTaskBody = new RequestBody();
