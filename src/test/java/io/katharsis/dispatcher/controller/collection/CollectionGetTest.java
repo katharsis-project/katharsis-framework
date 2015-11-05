@@ -95,7 +95,7 @@ public class CollectionGetTest extends BaseControllerTest {
         DataBody data = new DataBody();
         requestBody.setData(data);
         data.setType("tasks");
-        data.setId("1");
+        data.setId("3");
 
         JsonPath taskPath = pathBuilder.buildPath("/tasks");
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper);
@@ -106,7 +106,7 @@ public class CollectionGetTest extends BaseControllerTest {
         // THEN
         assertThat(taskResponse.getData()).isExactlyInstanceOf(Task.class);
         Long taskId = ((Task) (taskResponse.getData())).getId();
-        assertThat(taskId).isEqualTo(1);
+        assertThat(taskId).isEqualTo(3);
     }
 
     @Test
