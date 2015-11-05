@@ -14,43 +14,43 @@ public class ResourceRegistryTest {
     public static final String TEST_MODELS_URL = "https://service.local";
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
-    private ResourceRegistry resourceRegisty;
+    private ResourceRegistry resourceRegistry;
 
     @Before
     public void resetResourceRegistry() {
-        resourceRegisty = new ResourceRegistry(TEST_MODELS_URL);
+        resourceRegistry = new ResourceRegistry(TEST_MODELS_URL);
     }
 
     @Test
     public void onExistingTypeShouldReturnEntry() {
-        resourceRegisty.addEntry(Task.class, new RegistryEntry<>(null, null, null));
-        RegistryEntry tasksEntry = resourceRegisty.getEntry("tasks");
+        resourceRegistry.addEntry(Task.class, new RegistryEntry<>(null, null, null));
+        RegistryEntry tasksEntry = resourceRegistry.getEntry("tasks");
         assertThat(tasksEntry).isNotNull();
     }
 
     @Test
     public void onExistingClassShouldReturnEntry() {
-        resourceRegisty.addEntry(Task.class, new RegistryEntry<>(null, null, null));
-        RegistryEntry tasksEntry = resourceRegisty.getEntry(Task.class);
+        resourceRegistry.addEntry(Task.class, new RegistryEntry<>(null, null, null));
+        RegistryEntry tasksEntry = resourceRegistry.getEntry(Task.class);
         assertThat(tasksEntry).isNotNull();
     }
 
     @Test
     public void onExistingTypeShouldReturnUrl() {
-        resourceRegisty.addEntry(Task.class, new RegistryEntry<>(null, null, null));
-        String resourceUrl = resourceRegisty.getResourceUrl(Task.class);
+        resourceRegistry.addEntry(Task.class, new RegistryEntry<>(null, null, null));
+        String resourceUrl = resourceRegistry.getResourceUrl(Task.class);
         assertThat(resourceUrl).isEqualTo(TEST_MODELS_URL + "/tasks");
     }
 
     @Test
     public void onNonExistingTypeShouldReturnNull() {
-        RegistryEntry entry = resourceRegisty.getEntry("nonExistingType");
+        RegistryEntry entry = resourceRegistry.getEntry("nonExistingType");
         assertThat(entry).isNull();
     }
 
     @Test
     public void onNonExistingClassShouldThrowException() {
         expectedException.expect(ResourceNotFoundInitializationException.class);
-        resourceRegisty.getEntry(Long.class);
+        resourceRegistry.getEntry(Long.class);
     }
 }

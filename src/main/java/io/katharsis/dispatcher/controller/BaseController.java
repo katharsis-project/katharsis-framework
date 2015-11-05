@@ -40,7 +40,8 @@ public interface BaseController {
      * @return CollectionResponse object
      * @throws Exception internal Katharsis exception
      */
-    BaseResponse<?> handle(JsonPath jsonPath, QueryParams queryParams, RepositoryMethodParameterProvider parameterProvider,
+    BaseResponse<?> handle(JsonPath jsonPath, QueryParams queryParams, RepositoryMethodParameterProvider
+        parameterProvider,
                            RequestBody requestBody) throws Exception;
 
     default MetaInformation getMetaInformation(Object repository, Iterable<?> resources, QueryParams queryParams) {
