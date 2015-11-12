@@ -70,6 +70,9 @@ public class KatharsisFilter implements ContainerRequestFilter {
 
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {
+        if (requestContext.hasEntity() && !requestContext.getMediaType().isCompatible(JsonApiMediaType.APPLICATION_JSON_API_TYPE)) {
+            return;
+        }
         try {
             dispatchRequest(requestContext);
         } catch (Exception e) {
