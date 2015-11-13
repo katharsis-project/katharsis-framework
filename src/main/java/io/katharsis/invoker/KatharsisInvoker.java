@@ -22,6 +22,7 @@ import io.katharsis.errorhandling.exception.KatharsisMatchingException;
 import io.katharsis.errorhandling.mapper.KatharsisExceptionMapper;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
+import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathBuilder;
@@ -95,8 +96,8 @@ public class KatharsisInvoker {
             RequestBody requestBody = inputStreamToBody(in);
 
             String method = invokerContext.getRequestMethod();
-            ServletParametersProvider parametersProvider = new ServletParametersProvider(invokerContext);
-            katharsisResponse = requestDispatcher.dispatchRequest(jsonPath, method, requestParams, parametersProvider,
+            RepositoryMethodParameterProvider parameterProvider = invokerContext.getParameterProvider();
+            katharsisResponse = requestDispatcher.dispatchRequest(jsonPath, method, requestParams, parameterProvider,
                                                                   requestBody);
         } catch (KatharsisMappableException e) {
             if (log.isDebugEnabled()) {

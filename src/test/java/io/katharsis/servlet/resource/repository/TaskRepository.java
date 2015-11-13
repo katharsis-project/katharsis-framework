@@ -19,6 +19,7 @@ package io.katharsis.servlet.resource.repository;
 import io.katharsis.repository.annotations.*;
 import io.katharsis.servlet.resource.model.Task;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;
 
 @JsonApiResourceRepository(Task.class)
@@ -30,7 +31,7 @@ public class TaskRepository {
     }
 
     @JsonApiFindOne
-    public Task findOne(Long aLong) {
+    public Task findOne(Long aLong, HttpServletRequest httpServletRequest) {
         Task task = new Task(aLong, "Some task");
         return task;
     }
