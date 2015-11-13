@@ -9,6 +9,7 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.SecurityContext;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
 /**
@@ -38,7 +39,8 @@ public class JaxRsParameterProvider implements RepositoryMethodParameterProvider
     }
 
     @Override
-    public <T> T provide(Parameter parameter) {
+    public <T> T provide(Method method, int parameterIndex) {
+        Parameter parameter = getParameter(method, parameterIndex);
         Object returnValue = null;
         if (ContainerRequestContext.class.isAssignableFrom(parameter.getType())) {
             returnValue = requestContext;

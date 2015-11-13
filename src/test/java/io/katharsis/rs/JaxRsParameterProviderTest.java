@@ -12,7 +12,7 @@ import javax.ws.rs.HeaderParam;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.SecurityContext;
-import java.lang.reflect.Parameter;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.UUID;
@@ -34,18 +34,22 @@ public class JaxRsParameterProviderTest {
 
     private JaxRsParameterProvider sut;
 
+    private Method testMethod;
+
     @Before
     public void setUp() throws Exception {
         sut = new JaxRsParameterProvider(objectMapper, requestContext);
+
+        testMethod = Arrays.stream(TestClass.class.getDeclaredMethods())
+            .filter(method -> "testMethod".equals(method.getName()))
+            .findFirst()
+            .get();
     }
 
     @Test
     public void onContainerRequestContextParameterShouldReturnThisInstance() throws Exception {
-        // GIVEN
-        Parameter parameter = getParameter(0);
-
         // WHEN
-        Object result = sut.provide(parameter);
+        Object result = sut.provide(testMethod, 0);
 
         // THEN
         assertThat(result).isEqualTo(requestContext);
@@ -55,11 +59,10 @@ public class JaxRsParameterProviderTest {
     public void onSecurityContextParameterShouldReturnThisInstance() throws Exception {
         // GIVEN
         SecurityContext securityContext = mock(SecurityContext.class);
-        Parameter parameter = getParameter(1);
         when(requestContext.getSecurityContext()).thenReturn(securityContext);
 
         // WHEN
-        Object result = sut.provide(parameter);
+        Object result = sut.provide(testMethod, 1);
 
         // THEN
         verify(requestContext).getSecurityContext();
@@ -69,12 +72,11 @@ public class JaxRsParameterProviderTest {
     @Test
     public void onObjectCookieShouldReturnThisInstance() throws Exception {
         // GIVEN
-        Parameter parameter = getParameter(2);
         Cookie cookie = new Cookie("sid", "123");
         when(requestContext.getCookies()).thenReturn(Collections.singletonMap("sid", cookie));
 
         // WHEN
-        Object result = sut.provide(parameter);
+        Object result = sut.provide(testMethod, 2);
 
         // THEN
         verify(requestContext).getCookies();
@@ -84,11 +86,10 @@ public class JaxRsParameterProviderTest {
     @Test
     public void onStringCookieShouldReturnThisInstance() throws Exception {
         // GIVEN
-        Parameter parameter = getParameter(3);
         when(requestContext.getCookies()).thenReturn(Collections.singletonMap("sid", new Cookie("sid", "123")));
 
         // WHEN
-        Object result = sut.provide(parameter);
+        Object result = sut.provide(testMethod, 3);
 
         // THEN
         verify(requestContext).getCookies();
@@ -98,12 +99,11 @@ public class JaxRsParameterProviderTest {
     @Test
     public void onLongCookieShouldReturnThisInstance() throws Exception {
         // GIVEN
-        Parameter parameter = getParameter(4);
         when(requestContext.getCookies()).thenReturn(Collections.singletonMap("sid", new Cookie("sid", "123")));
         when(objectMapper.readValue(any(String.class), any(Class.class))).thenReturn(123L);
 
         // WHEN
-        Object result = sut.provide(parameter);
+        Object result = sut.provide(testMethod, 4);
 
         // THEN
         verify(requestContext).getCookies();
@@ -114,12 +114,11 @@ public class JaxRsParameterProviderTest {
     @Test
     public void onStringHeaderShouldReturnThisInstance() throws Exception {
         // GIVEN
-        Parameter parameter = getParameter(5);
         UUID uuid = UUID.randomUUID();
         when(requestContext.getHeaderString(any())).thenReturn(uuid.toString());
 
         // WHEN
-        Object result = sut.provide(parameter);
+        Object result = sut.provide(testMethod, 5);
 
         // THEN
         verify(requestContext).getHeaderString("cid");
@@ -129,26 +128,17 @@ public class JaxRsParameterProviderTest {
     @Test
     public void onUuidHeaderShouldReturnThisInstance() throws Exception {
         // GIVEN
-        Parameter parameter = getParameter(6);
         UUID uuid = UUID.randomUUID();
         when(requestContext.getHeaderString(any())).thenReturn(uuid.toString());
         when(objectMapper.readValue(any(String.class), any(Class.class))).thenReturn(uuid);
 
         // WHEN
-        Object result = sut.provide(parameter);
+        Object result = sut.provide(testMethod, 6);
 
         // THEN
         verify(requestContext).getHeaderString("cid");
         verify(objectMapper).readValue(uuid.toString(), UUID.class);
         assertThat(result).isEqualTo(uuid);
-    }
-
-    private Parameter getParameter(int idx) {
-        return Arrays.stream(TestClass.class.getDeclaredMethods())
-            .filter(method -> "testMethod".equals(method.getName()))
-            .findFirst()
-            .get()
-            .getParameters()[idx];
     }
 
     public static class TestClass {
