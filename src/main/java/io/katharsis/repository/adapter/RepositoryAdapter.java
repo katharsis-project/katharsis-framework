@@ -40,7 +40,7 @@ public abstract class RepositoryAdapter<T> implements LinksRepository<T>, MetaRe
         checkIfNotNull(annotationType, linksMethod);
 
         Object[] methodParameters = parametersFactory
-            .buildParameters(new Object[]{resources}, linksMethod.getParameters(), queryParams, annotationType);
+            .buildParameters(new Object[]{resources}, linksMethod, queryParams, annotationType);
 
         try {
             return (LinksInformation) linksMethod.invoke(implementationObject, methodParameters);
@@ -69,7 +69,7 @@ public abstract class RepositoryAdapter<T> implements LinksRepository<T>, MetaRe
         checkIfNotNull(annotationType, metaMethod);
 
         Object[] methodParameters = parametersFactory
-            .buildParameters(new Object[]{resources}, metaMethod.getParameters(), queryParams, annotationType);
+            .buildParameters(new Object[]{resources}, metaMethod, queryParams, annotationType);
 
         try {
             return (MetaInformation) metaMethod.invoke(implementationObject, methodParameters);

@@ -1,21 +1,14 @@
 package io.katharsis.repository.adapter;
 
 import io.katharsis.queryParams.QueryParams;
-import io.katharsis.repository.LinksRepository;
-import io.katharsis.repository.MetaRepository;
 import io.katharsis.repository.ParametersFactory;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.repository.annotations.*;
-import io.katharsis.repository.exception.RepositoryAnnotationNotFoundException;
-import io.katharsis.response.LinksInformation;
-import io.katharsis.response.MetaInformation;
 import io.katharsis.utils.ClassUtils;
 
 import java.io.Serializable;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 
 public class ResourceRepositoryAdapter<T, ID extends Serializable>
     extends RepositoryAdapter<T>
@@ -40,14 +33,14 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable>
         checkIfNotNull(annotationType, findOneMethod);
 
         Object[] methodParameters = parametersFactory
-            .buildParameters(new Object[]{id}, findOneMethod.getParameters(), queryParams, annotationType);
+            .buildParameters(new Object[]{id}, findOneMethod, queryParams, annotationType);
 
         try {
             return (T) findOneMethod.invoke(implementationObject, methodParameters);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
-            throw (RuntimeException)e.getCause();
+            throw (RuntimeException) e.getCause();
         }
     }
 
@@ -59,15 +52,14 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable>
         }
         checkIfNotNull(annotationType, findAllMethod);
 
-        Parameter[] parametersToResolve = findAllMethod.getParameters();
-        Object[] methodParameters = parametersFactory.buildParameters(parametersToResolve, queryParams);
+        Object[] methodParameters = parametersFactory.buildParameters(new Object[]{}, findAllMethod, queryParams, annotationType);
 
         try {
             return (Iterable<T>) findAllMethod.invoke(implementationObject, methodParameters);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
-            throw (RuntimeException)e.getCause();
+            throw (RuntimeException) e.getCause();
         }
     }
 
@@ -80,14 +72,14 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable>
         checkIfNotNull(annotationType, findAllWithIds);
 
         Object[] methodParameters = parametersFactory
-            .buildParameters(new Object[]{ids}, findAllWithIds.getParameters(), queryParams, annotationType);
+            .buildParameters(new Object[]{ids}, findAllWithIds, queryParams, annotationType);
 
         try {
             return (Iterable<T>) findAllWithIds.invoke(implementationObject, methodParameters);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
-            throw (RuntimeException)e.getCause();
+            throw (RuntimeException) e.getCause();
         }
     }
 
@@ -100,14 +92,14 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable>
         checkIfNotNull(annotationType, saveMethod);
 
         Object[] methodParameters = parametersFactory
-            .buildParameters(new Object[]{entity}, saveMethod.getParameters(), annotationType);
+            .buildParameters(new Object[]{entity}, saveMethod, annotationType);
 
         try {
             return (S) saveMethod.invoke(implementationObject, methodParameters);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
-            throw (RuntimeException)e.getCause();
+            throw (RuntimeException) e.getCause();
         }
     }
 
@@ -120,14 +112,14 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable>
         checkIfNotNull(annotationType, deleteMethod);
 
         Object[] methodParameters = parametersFactory
-            .buildParameters(new Object[]{id}, deleteMethod.getParameters(), annotationType);
+            .buildParameters(new Object[]{id}, deleteMethod, annotationType);
 
         try {
             deleteMethod.invoke(implementationObject, methodParameters);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
-            throw (RuntimeException)e.getCause();
+            throw (RuntimeException) e.getCause();
         }
     }
 }

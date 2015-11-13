@@ -4,7 +4,6 @@ import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.ParametersFactory;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.repository.annotations.*;
-import io.katharsis.repository.exception.RepositoryAnnotationNotFoundException;
 import io.katharsis.utils.ClassUtils;
 
 import java.io.Serializable;
@@ -75,7 +74,7 @@ public class RelationshipRepositoryAdapter<T, T_ID extends Serializable, D, D_ID
         checkIfNotNull(annotationType, method);
 
         Object[] methodParameters = parametersFactory
-            .buildParameters(firstParameters, method.getParameters(), annotationType);
+            .buildParameters(firstParameters, method, annotationType);
 
         try {
             method.invoke(implementationObject, methodParameters);
@@ -96,7 +95,7 @@ public class RelationshipRepositoryAdapter<T, T_ID extends Serializable, D, D_ID
 
         Object[] firstParameters = {sourceId, fieldName};
         Object[] methodParameters = parametersFactory
-            .buildParameters(firstParameters, findOneTargetMethod.getParameters(), queryParams, annotationType);
+            .buildParameters(firstParameters, findOneTargetMethod, queryParams, annotationType);
 
         try {
             return (D) findOneTargetMethod.invoke(implementationObject, methodParameters);
@@ -117,7 +116,7 @@ public class RelationshipRepositoryAdapter<T, T_ID extends Serializable, D, D_ID
 
         Object[] firstParameters = {sourceId, fieldName};
         Object[] methodParameters = parametersFactory
-            .buildParameters(firstParameters, findManyTargetsMethod.getParameters(), queryParams, annotationType);
+            .buildParameters(firstParameters, findManyTargetsMethod, queryParams, annotationType);
 
         try {
             return (Iterable<D>) findManyTargetsMethod.invoke(implementationObject, methodParameters);

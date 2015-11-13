@@ -1,5 +1,6 @@
 package io.katharsis.repository;
 
+import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
 /**
@@ -7,5 +8,9 @@ import java.lang.reflect.Parameter;
  */
 public interface RepositoryMethodParameterProvider {
 
-    <T> T provide(Parameter parameter);
+    <T> T provide(Method method, int parameterIndex);
+
+    default Parameter getParameter(Method method, int parameterIndex) {
+        return method.getParameters()[parameterIndex];
+    }
 }
