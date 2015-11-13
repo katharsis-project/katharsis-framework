@@ -6,6 +6,7 @@ import io.katharsis.repository.RepositoryMethodParameterProvider;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
 public class ServletParametersProvider implements RepositoryMethodParameterProvider {
@@ -17,7 +18,8 @@ public class ServletParametersProvider implements RepositoryMethodParameterProvi
     }
 
     @Override
-    public <T> T provide(Parameter parameter) {
+    public <T> T provide(Method method, int parameterIndex) {
+        Parameter parameter = getParameter(method, parameterIndex);
         Object returnValue = null;
         if (ServletContext.class.isAssignableFrom(parameter.getType())) {
             returnValue = katharsisInvokerContext.getServletContext();
