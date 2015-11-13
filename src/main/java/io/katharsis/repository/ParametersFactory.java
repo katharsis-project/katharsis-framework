@@ -4,6 +4,7 @@ import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.exception.RepositoryMethodException;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
 
@@ -19,19 +20,28 @@ public class ParametersFactory {
      * Build a list of parameters that can be provided to a method.
      *
      * @param firstParameters parameters to be returned as the firsts element in the return array
-     * @param parameters     parameters to be resolved
-     * @param queryParams  {@link QueryParams} object associated with the request
-     * @param annotationType method annotation
+     * @param method          repository method
+     * @param queryParams     {@link QueryParams} object associated with the request
+     * @param annotationType  method annotation
      * @return array of resolved parameters
      */
-    public Object[] buildParameters(Object[] firstParameters, Parameter[] parameters, QueryParams queryParams,
+    public Object[] buildParameters(Object[] firstParameters, Method method, QueryParams queryParams,
                                     Class<? extends Annotation> annotationType) {
-        if (parameters.length < 1) {
+        Parameter[] parameters = method.getParameters();
+        if (firstParameters.length > 0 && parameters.length < 1) {
             throw new RepositoryMethodException(
                 String.format("Method with %s annotation should have at least one parameter.", annotationType));
         }
         Parameter[] parametersToResolve = Arrays.copyOfRange(parameters, firstParameters.length, parameters.length);
-        Object[] additionalParameters = buildParameters(parametersToResolve, queryParams);
+        Object[] additionalParameters = new Object[parametersToResolve.length];
+        for (int i = 0; i < parametersToResolve.length; i++) {
+            Parameter parameter = parametersToResolve[i];
+            if (QueryParams.class.equals(parameter.getType())) {
+                additionalParameters[i] = queryParams;
+            } else {
+                additionalParameters[i] = parameterProvider.provide(method, i + firstParameters.length);
+            }
+        }
 
         return concatenate(firstParameters, additionalParameters);
     }
@@ -40,54 +50,24 @@ public class ParametersFactory {
      * Build a list of parameters that can be provided to a method.
      *
      * @param firstParameters parameters to be returned as the first elements in the return array
-     * @param parameters     parameters to be resolved
-     * @param annotationType method annotation
+     * @param method          repository method
+     * @param annotationType  method annotation
      * @return array of resolved parameters
      */
-    public Object[] buildParameters(Object[] firstParameters, Parameter[] parameters,
+    public Object[] buildParameters(Object[] firstParameters, Method method,
                                     Class<? extends Annotation> annotationType) {
-        if (parameters.length < 1) {
+        Parameter[] parameters = method.getParameters();
+        if (firstParameters.length > 0 && parameters.length < 1) {
             throw new RepositoryMethodException(
                 String.format("Method with %s annotation should have at least one parameter.", annotationType));
         }
         Parameter[] parametersToResolve = Arrays.copyOfRange(parameters, firstParameters.length, parameters.length);
-        Object[] additionalParameters = buildParameters(parametersToResolve);
+        Object[] additionalParameters = new Object[parametersToResolve.length];
+        for (int i = 0; i < parametersToResolve.length; i++) {
+            additionalParameters[i] = parameterProvider.provide(method, i + firstParameters.length);
+        }
 
         return concatenate(firstParameters, additionalParameters);
-    }
-
-    /**
-     * Build a list of parameters that can be provided to a method.
-     *
-     * @param parameters    parameters to be resolved
-     * @param queryParams {@link QueryParams} object associated with the request
-     * @return array of resolved parameters
-     */
-    public Object[] buildParameters(Parameter[] parameters, QueryParams queryParams) {
-        Object[] parameterValues = new Object[parameters.length];
-        for (int i = 0; i < parameters.length; i++) {
-            Parameter parameter = parameters[i];
-            if (QueryParams.class.equals(parameter.getType())) {
-                parameterValues[i] = queryParams;
-            } else {
-                parameterValues[i] = parameterProvider.provide(parameter);
-            }
-        }
-        return parameterValues;
-    }
-
-    /**
-     * Build a list of parameters that can be provided to a method.
-     *
-     * @param parameters parameters to be resolved
-     * @return array of resolved parameters
-     */
-    private Object[] buildParameters(Parameter[] parameters) {
-        Object[] parameterValues = new Object[parameters.length];
-        for (int i = 0; i < parameters.length; i++) {
-            parameterValues[i] = parameterProvider.provide(parameters[i]);
-        }
-        return parameterValues;
     }
 
     /**

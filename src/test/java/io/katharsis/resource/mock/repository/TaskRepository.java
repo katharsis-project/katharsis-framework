@@ -1,11 +1,10 @@
 package io.katharsis.resource.mock.repository;
 
-import io.katharsis.repository.annotations.*;
 import io.katharsis.queryParams.QueryParams;
+import io.katharsis.repository.annotations.*;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.mock.models.Task;
 
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -16,7 +15,9 @@ public class TaskRepository {
 
     @JsonApiSave
     public <S extends Task> S save(S entity) {
-        entity.setId((long) (THREAD_LOCAL_REPOSITORY.size() + 1));
+        if (entity.getId() == null) {
+            entity.setId((long) (THREAD_LOCAL_REPOSITORY.size() + 1));
+        }
         THREAD_LOCAL_REPOSITORY.put(entity.getId(), entity);
 
         return entity;
