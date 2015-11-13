@@ -18,6 +18,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.container.PreMatching;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -75,6 +76,19 @@ public class KatharsisFilter implements ContainerRequestFilter {
         if (requestContext.hasEntity() && !requestContext.getMediaType().isCompatible(JsonApiMediaType.APPLICATION_JSON_API_TYPE)) {
             return;
         }
+
+        boolean acceptable = false;
+        for (MediaType acceptableMediaType : requestContext.getAcceptableMediaTypes()) {
+            if (acceptableMediaType.isCompatible(JsonApiMediaType.APPLICATION_JSON_API_TYPE)) {
+                acceptable = true;
+                break;
+            }
+        }
+
+        if (!acceptable) {
+            return;
+        }
+
         try {
             dispatchRequest(requestContext);
         } catch (Exception e) {

@@ -46,14 +46,26 @@ public class KatharsisControllerWithoutPrefixTest extends KatharsisControllerTes
     }
 
     @Test
-    public void onNonJsonApiCallShouldBeIgnored() {
+    public void onNonJsonApiPostCallShouldBeIgnored() {
         // WHEN
         Response response = target("tasks/1")
                 .request(MediaType.MEDIA_TYPE_WILDCARD)
                 .post(Entity.entity("binary", MediaType.APPLICATION_OCTET_STREAM_TYPE));
 
+        // THEN
         assertThat(response.getStatusInfo().getFamily()).isEqualTo(Response.Status.Family.SUCCESSFUL);
         String responseString = response.readEntity(String.class);
         assertThat(responseString).isEqualTo(SampleOverlayingController.NON_KATHARSIS_RESOURCE_OVERLAY_RESPONSE);
+    }
+
+    @Test
+    public void onNonJsonApiGetCallShouldBeIgnored() {
+        // WHEN
+        String response = target("tasks/1")
+                .request(MediaType.TEXT_PLAIN_TYPE)
+                .get(String.class);
+
+        // THEN
+        assertThat(response).isEqualTo(SampleOverlayingController.NON_KATHARSIS_RESOURCE_OVERLAY_RESPONSE);
     }
 }
