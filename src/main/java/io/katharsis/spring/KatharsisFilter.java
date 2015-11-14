@@ -10,7 +10,6 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -28,33 +27,10 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class KatharsisFilter extends SampleKatharsisFilter implements BeanFactoryAware {
 
-    private static final String DEFAULT_RESOURCE_SEARCH_PACKAGE = null;
-
-    private static final String RESOURCE_DEFAULT_DOMAIN = "http://localhost:8080";
-
+    private String resourceSearchPackage;
+    private String resourceDomain;
+    private String pathPrefix;
     private ConfigurableBeanFactory beanFactory;
-
-    @Override
-    public String getResourceSearchPackage() {
-        String resourceSearchPackage = super.getResourceSearchPackage();
-
-        if (StringUtils.isEmpty(resourceSearchPackage)) {
-            resourceSearchPackage = DEFAULT_RESOURCE_SEARCH_PACKAGE;
-        }
-
-        return resourceSearchPackage;
-    }
-
-    @Override
-    public String getResourceDefaultDomain() {
-        String resourceDefaultDomain = super.getResourceDefaultDomain();
-
-        if (StringUtils.isEmpty(resourceDefaultDomain)) {
-            resourceDefaultDomain = RESOURCE_DEFAULT_DOMAIN;
-        }
-
-        return resourceDefaultDomain;
-    }
 
     @Override
     public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
@@ -67,8 +43,8 @@ public class KatharsisFilter extends SampleKatharsisFilter implements BeanFactor
     protected KatharsisInvokerBuilder createKatharsisInvokerBuilder() {
         KatharsisInvokerBuilder builder = new KatharsisInvokerBuilder();
 
-        builder.resourceSearchPackage(getResourceSearchPackage())
-            .resourceDefaultDomain(getResourceDefaultDomain())
+        builder.resourceSearchPackage(resourceSearchPackage)
+            .resourceDefaultDomain(resourceDomain)
             .jsonServiceLocator(new JsonServiceLocator() {
 
                 @Override
@@ -88,10 +64,9 @@ public class KatharsisFilter extends SampleKatharsisFilter implements BeanFactor
             @Override
             public String getRequestPath() {
                 String path = super.getRequestPath();
-                String filterBasePath = getFilterBasePath();
 
-                if (filterBasePath != null && path.startsWith(filterBasePath)) {
-                    path = path.substring(filterBasePath.length());
+                if (pathPrefix != null && path.startsWith(pathPrefix)) {
+                    path = path.substring(pathPrefix.length());
                 }
 
                 return path;
@@ -99,8 +74,21 @@ public class KatharsisFilter extends SampleKatharsisFilter implements BeanFactor
 
             @Override
             public RepositoryMethodParameterProvider getParameterProvider() {
-                return new SpringParameterProvider(beanFactory);
+                return new SpringParameterProvider(beanFactory, getServletRequest());
             }
         };
+    }
+
+    public void setPathPrefix(String pathPrefix) {
+        this.pathPrefix = pathPrefix;
+    }
+
+    @Override
+    public void setResourceSearchPackage(String resourceSearchPackage) {
+        this.resourceSearchPackage = resourceSearchPackage;
+    }
+
+    public void setResourceDomain(String resourceDomain) {
+        this.resourceDomain = resourceDomain;
     }
 }
