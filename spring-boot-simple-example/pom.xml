@@ -41,11 +41,6 @@
       <artifactId>katharsis-spring</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.elasticsearch</groupId>
-      <artifactId>elasticsearch</artifactId>
-      <version>1.7.2</version>
-    </dependency>
 
   </dependencies>
 
