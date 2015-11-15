@@ -114,4 +114,53 @@ public class FieldResourcePostTest extends BaseControllerTest {
         Project project = taskToProjectRepository.findOneTarget(taskId, "project", REQUEST_PARAMS);
         assertThat(project.getId()).isEqualTo(projectId);
     }
+
+    @Test
+    public void onExistingParentResourceShouldSaveToToMany() throws Exception {
+        // GIVEN
+        RequestBody newTaskBody = new RequestBody();
+        DataBody data = new DataBody();
+        newTaskBody.setData(data);
+        data.setType("tasks");
+        data.setAttributes(objectMapper.createObjectNode().put("name", "sample task"));
+        data.setRelationships(new ResourceRelationships());
+
+        JsonPath taskPath = pathBuilder.buildPath("/tasks");
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper);
+
+        // WHEN
+        BaseResponse taskResponse = resourcePost.handle(taskPath, new QueryParams(), null, newTaskBody);
+
+        // THEN
+        assertThat(taskResponse.getData()).isExactlyInstanceOf(Task.class);
+        Long taskId = ((Task) (taskResponse.getData())).getId();
+        assertThat(taskId).isNotNull();
+
+        /* ------- */
+
+        // GIVEN
+        RequestBody newProjectBody = new RequestBody();
+        data = new DataBody();
+        newProjectBody.setData(data);
+        data.setType("projects");
+        data.setAttributes(objectMapper.createObjectNode().put("name", "sample project"));
+
+        JsonPath projectPath = pathBuilder.buildPath("/tasks/" + taskId + "/projects");
+        FieldResourcePost sut = new FieldResourcePost(resourceRegistry, typeParser, objectMapper);
+
+        // WHEN
+        ResourceResponse projectResponse = sut.handle(projectPath, new QueryParams(), null, newProjectBody);
+
+        // THEN
+        assertThat(projectResponse.getHttpStatus()).isEqualTo(HttpStatus.CREATED_201);
+        assertThat(projectResponse.getData()).isExactlyInstanceOf(Project.class);
+        assertThat(((Project) (projectResponse.getData())).getId()).isNotNull();
+        assertThat(((Project) (projectResponse.getData())).getName()).isEqualTo("sample project");
+        Long projectId = ((Project) (projectResponse.getData())).getId();
+        assertThat(projectId).isNotNull();
+
+        TaskToProjectRepository taskToProjectRepository = new TaskToProjectRepository();
+        Project project = taskToProjectRepository.findOneTarget(taskId, "projects", REQUEST_PARAMS);
+        assertThat(project.getId()).isEqualTo(projectId);
+    }
 }
