@@ -78,7 +78,7 @@ public class FieldResourcePost extends ResourceUpsert {
             .getResourceClass(relationshipField.getGenericType(), baseRelationshipFieldClass);
 
         RegistryEntry relationshipRegistryEntry = resourceRegistry.getEntry(relationshipFieldClass);
-        String relationshipResourceType = resourceRegistry.getResourceType(baseRelationshipFieldClass);
+        String relationshipResourceType = resourceRegistry.getResourceType(relationshipFieldClass);
 
         DataBody dataBody = requestBody.getSingleData();
         Object resource = buildNewResource(relationshipRegistryEntry, dataBody, relationshipResourceType);
