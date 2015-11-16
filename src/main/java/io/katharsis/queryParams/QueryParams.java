@@ -32,9 +32,9 @@ public class QueryParams {
      * Examples of accepted filtering of resources:
      * <ul>
      * <li>{@code GET /tasks/?filter[Task][name]=Super task}</li>
-     * <li>{@code GET /tasks/?filter[Task][name]=Super task&[Task][dueDate]=2015-10-01}</li>
+     * <li>{@code GET /tasks/?filter[Task][name]=Super task&filter[Task][dueDate]=2015-10-01}</li>
      * <li>{@code GET /tasks/?filter[Task][name][$startWith]=Super task}</li>
-     * <li>{@code GET /tasks/?filter[Task][name][][$startWith]=Super&[Task][name][][$endWith]=task}</li>
+     * <li>{@code GET /tasks/?filter[Task][name][][$startWith]=Super&filter[Task][name][][$endWith]=task}</li>
      * </ul>
      *
      * @return {@link TypedParams} Map of filtering params passed to a request grouped by type of resource
