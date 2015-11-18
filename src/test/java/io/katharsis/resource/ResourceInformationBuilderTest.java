@@ -137,6 +137,33 @@ public class ResourceInformationBuilderTest {
             .hasSize(0);
     }
 
+    @Test
+    public void shouldHaveNoAttributesInfoForTransientField() throws Exception {
+        ResourceInformation resourceInformation = resourceInformationBuilder.build(IgnoredTransientAttributeResource.class);
+
+        assertThat(resourceInformation.getAttributeFields())
+            .isNotNull()
+            .hasSize(0);
+    }
+
+    @Test
+    public void shouldHaveNoAttributesInfoForStaticField() throws Exception {
+        ResourceInformation resourceInformation = resourceInformationBuilder.build(IgnoredStaticAttributeResource.class);
+
+        assertThat(resourceInformation.getAttributeFields())
+            .isNotNull()
+            .hasSize(0);
+    }
+
+    @Test
+    public void shouldHaveNoAttributesInfoForStaticMEthod() throws Exception {
+        ResourceInformation resourceInformation = resourceInformationBuilder.build(IgnoredStaticGetterResource.class);
+
+        assertThat(resourceInformation.getAttributeFields())
+            .isNotNull()
+            .hasSize(0);
+    }
+
     @JsonApiResource(type = "duplicatedIdAnnotationResources")
     private static class DuplicatedIdResource {
         @JsonApiId
@@ -215,6 +242,38 @@ public class ResourceInformationBuilderTest {
         @JsonApiToOne
         private String getField() {
             return null;
+        }
+    }
+
+    @JsonApiResource(type = "ignoredAttribute")
+    private static class IgnoredStaticAttributeResource {
+        @JsonApiId
+        private Long id;
+
+        public static String attribute;
+    }
+
+    @JsonApiResource(type = "ignoredAttribute")
+    private static class IgnoredTransientAttributeResource {
+
+        @JsonApiId
+        private Long id;
+
+        public transient int attribute;
+
+        public int getAttribute() {
+            return attribute;
+        }
+
+    }
+
+    @JsonApiResource(type = "ignoredAttribute")
+    private static class IgnoredStaticGetterResource {
+        @JsonApiId
+        private Long id;
+
+        public static int getAttribute() {
+            return 0;
         }
     }
 }
