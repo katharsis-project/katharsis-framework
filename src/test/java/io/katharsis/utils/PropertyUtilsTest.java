@@ -5,6 +5,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class PropertyUtilsTest {
@@ -252,6 +256,84 @@ public class PropertyUtilsTest {
         PropertyUtils.getProperty(bean, "nonExistingProperty");
     }
 
+    @Test
+    public void onFieldListShouldSetValue() throws Exception {
+        // GIVEN
+        FieldListTest bean = new FieldListTest();
+        List<String> value = Collections.singletonList("asd");
+
+        // WHEN
+        PropertyUtils.setProperty(bean, "property", value);
+
+        // THEN
+        assertThat(bean.property).isEqualTo(value);
+    }
+
+    @Test
+    public void onFieldSetShouldSetValue() throws Exception {
+        // GIVEN
+        FieldSetTest bean = new FieldSetTest();
+        Set<String> value = Collections.singleton("asd");
+
+        // WHEN
+        PropertyUtils.setProperty(bean, "property", value);
+
+        // THEN
+        assertThat(bean.property).isEqualTo(value);
+    }
+
+    @Test
+    public void onSetterListShouldSetValue() throws Exception {
+        // GIVEN
+        SetterListTest bean = new SetterListTest();
+        List<String> value = Collections.singletonList("asd");
+
+        // WHEN
+        PropertyUtils.setProperty(bean, "property", value);
+
+        // THEN
+        assertThat(bean.getProperty()).isEqualTo(value);
+    }
+
+    @Test
+    public void onSetterSetShouldSetValue() throws Exception {
+        // GIVEN
+        SetterSetTest bean = new SetterSetTest();
+        Set<String> value = Collections.singleton("asd");
+
+        // WHEN
+        PropertyUtils.setProperty(bean, "property", value);
+
+        // THEN
+        assertThat(bean.getProperty()).isEqualTo(value);
+    }
+
+    @Test
+    public void onFieldWithSetterListShouldSetValue() throws Exception {
+        // GIVEN
+        FieldWithSetterListTest bean = new FieldWithSetterListTest();
+        List<String> value = Collections.singletonList("asd");
+
+        // WHEN
+        PropertyUtils.setProperty(bean, "property", value);
+
+        // THEN
+        assertThat(bean.getProperty()).isEqualTo(value);
+    }
+
+    @Test
+    public void onFieldWithSetterSetShouldSetValue() throws Exception {
+        // GIVEN
+        FieldWithSetterSetTest bean = new FieldWithSetterSetTest();
+        Set<String> value = Collections.singleton("asd");
+
+        // WHEN
+        PropertyUtils.setProperty(bean, "property", value);
+
+        // THEN
+        assertThat(bean.getProperty()).isEqualTo(value);
+    }
+
     public static class Bean {
         private String privatePropertyWithMutators;
         private boolean booleanPrimitivePropertyWithMutators;
@@ -317,6 +399,62 @@ public class PropertyUtilsTest {
 
         public void setProperty(String property) {
             anotherProperty = property;
+        }
+    }
+
+    public static class FieldListTest {
+        public List<String> property;
+    }
+
+    public static class FieldSetTest {
+        public Set<String> property;
+    }
+
+    public static class SetterListTest {
+        private List<String> property;
+
+        public List<String> getProperty() {
+            return property;
+        }
+
+        public void setProperty(List<String> property) {
+            this.property = property;
+        }
+    }
+
+    public static class SetterSetTest {
+        private Set<String> property;
+
+        public Set<String> getProperty() {
+            return property;
+        }
+
+        public void setProperty(Set<String> property) {
+            this.property = property;
+        }
+    }
+
+    public static class FieldWithSetterListTest {
+        public List<String> property;
+
+        public List<String> getProperty() {
+            return property;
+        }
+
+        public void setProperty(List<String> property) {
+            this.property = property;
+        }
+    }
+
+    public static class FieldWithSetterSetTest {
+        public Set<String> property;
+
+        public Set<String> getProperty() {
+            return property;
+        }
+
+        public void setProperty(Set<String> property) {
+            this.property = property;
         }
     }
 }
