@@ -6,7 +6,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.List;
+import java.util.*;
 
 /**
  * <p>
@@ -154,7 +154,12 @@ public class PropertyUtils {
      * <li>Using the found getter, an accompanying setter is being used to assign the value</li>
      * </ol>
      * <p>
-     * <b>Important</b> Each setter should have accompanying getter.
+     * <b>Important</b>
+     * <ul>
+     *   <li>Each setter should have accompanying getter.</li>
+     *   <li>If a value to be set is of type {@link List} and the property type is {@link Set}, the collection is changed to {@link Set}</li>
+     *   <li>If a value to be set is of type {@link Set} and the property type is {@link List}, the collection is changed to {@link List}</li>
+     * </ul>
      * </p>
      *
      * @param bean  bean to be accessed
@@ -178,20 +183,33 @@ public class PropertyUtils {
         if (foundField != null) {
             if ( !Modifier.isPublic(foundField.getModifiers())) {
                 Method setter = getSetter(bean, foundField.getName(), foundField.getType());
-                setter.invoke(bean, value);
+                setter.invoke(bean, prepareValue(value, setter.getParameterTypes()[0]));
             } else {
-                foundField.set(bean, value);
+                foundField.set(bean, prepareValue(value, foundField.getType()));
             }
         } else {
             Method getter = findGetter(bean, fieldName);
             if (getter == null) {
                 throw new RuntimeException(
-                    String.format("Cannot find an getter for %s.%s", bean.getClass().getCanonicalName(), fieldName));
+                    String.format("Cannot find a getter for %s.%s", bean.getClass().getCanonicalName(), fieldName));
             }
             String getterFieldName = getGetterFieldName(getter);
             Method setter = getSetter(bean, getterFieldName, getter.getReturnType());
-            setter.invoke(bean, value);
+            setter.invoke(bean, prepareValue(value, setter.getParameterTypes()[0]));
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private Object prepareValue(Object value, Class<?> fieldClass) {
+        if (Set.class.isAssignableFrom(fieldClass) && value instanceof List) {
+            List listValue = (List) value;
+            Set setValue = new HashSet<>(listValue.size());
+            setValue.addAll(listValue);
+            return setValue;
+        } else if (List.class.isAssignableFrom(fieldClass) && value instanceof Set) {
+            return new LinkedList<>((Set)value);
+        }
+        return value;
     }
 
     private Method getSetter(Object bean, String fieldName, Class<?> fieldType) throws NoSuchMethodException {
