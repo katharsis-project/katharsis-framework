@@ -1,4 +1,6 @@
-The Katharsis library adds an additional layer on top of RESTful endpoint to provide easy HATEOAS support for Java by implementing JSON:API standard.
+![Katharsis logo](http://katharsis.io/assets/img/engine_katharsis_github_3.png)
+
+The Katharsis library adds an additional layer on top of RESTful endpoint to provide easy HATEOAS support for Java by implementing JSON API standard.
 
 # katharsis-core
 
@@ -11,11 +13,11 @@ Systems nowadays utilize data from various systems to leverage the business need
 
 __Providing homogeneous REST interface__
 
-Katharsis implements JSON:API standard which introduce consistent REST interface definition. Now it can be easy to integrate with other systems through uniform mechanisms.
+Katharsis implements JSON API standard which introduce consistent REST interface definition. Now it can be easy to integrate with other systems through uniform mechanisms.
 
 __Use the purest form of REST__
 
-JSON:API is based on HATEOAS which means Hypermedia as the Engine of Application State. It is the highest form of REST which allows producing and storing as little documentation as possible.
+JSON API is based on HATEOAS which means Hypermedia as the Engine of Application State. It is the highest form of REST which allows producing and storing as little documentation as possible.
 
 ---
 
@@ -27,7 +29,7 @@ Katharsis introduces a way of defining both resources which can be shared over t
 
 __Integration with other libraries__
 
-Because of the usage of JSON:API, Katharsis can be used with many other libraries which support the standard.
+Because of the usage of JSON API, Katharsis can be used with many other libraries which support the standard.
 
 ## Quick start
 Add dependency to your `pom.xml`:
@@ -41,17 +43,13 @@ Add dependency to your `pom.xml`:
 
 ```
 
-## Documentation
+## Documentation and examples
 Documentation, along with example projects and project details are available on project website  [katharsis.io](http://katharsis.io) 
 
 ## Chat
 Need to directly talk to us? Write on gitter: 
 
 [![Join the chat at https://gitter.im/katharsis-project/katharsis-core](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/katharsis-project/katharsis-core?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
-## Development status
-[![Stories in Ready](https://badge.waffle.io/katharsis-project/katharsis-core.svg?label=ready&title=Ready)](http://waffle.io/katharsis-project/katharsis-core)
-[![Stories in In Progress](https://badge.waffle.io/katharsis-project/katharsis-core.svg?label=in progress&title=In Progress)](http://waffle.io/katharsis-project/katharsis-core)
 
 ## Donations
 This library is created and maintained by spending weekends and late nights for free without any company behind it. If you love it and simply wanna support us in our project you can do it via Pledgie, by clicking on the badge below.
