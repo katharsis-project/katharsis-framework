@@ -155,12 +155,12 @@ public class PropertyUtils {
      * </ol>
      * <p>
      * <b>Important</b>
+     * </p>
      * <ul>
      *   <li>Each setter should have accompanying getter.</li>
      *   <li>If a value to be set is of type {@link List} and the property type is {@link Set}, the collection is changed to {@link Set}</li>
      *   <li>If a value to be set is of type {@link Set} and the property type is {@link List}, the collection is changed to {@link List}</li>
      * </ul>
-     * </p>
      *
      * @param bean  bean to be accessed
      * @param field bean's fieldName
