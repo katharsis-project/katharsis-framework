@@ -27,7 +27,7 @@
   </parent>
 
   <artifactId>katharsis-servlet</artifactId>
-  <version>2.0.2-SNAPSHOT</version>
+  <version>2.0.2</version>
   <packaging>jar</packaging>
 
   <name>${project.groupId}:${project.artifactId}</name>
@@ -53,6 +53,7 @@
     <json-unit.version>1.5.5</json-unit.version>
 
     <maven-jetty-plugin.version>6.1.10</maven-jetty-plugin.version>
+    <katharsis-core.version>2.0.1</katharsis-core.version>
 
   </properties>
 
@@ -75,7 +76,7 @@
     <dependency>
       <groupId>io.katharsis</groupId>
       <artifactId>katharsis-core</artifactId>
-      <version>${project.version}</version>
+      <version>${katharsis-core.version}</version>
       <exclusions>
         <exclusion>
           <groupId>commons-logging</groupId>
