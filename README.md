@@ -50,10 +50,3 @@ Documentation, along with example projects and project details are available on 
 Need to directly talk to us? Write on gitter: 
 
 [![Join the chat at https://gitter.im/katharsis-project/katharsis-core](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/katharsis-project/katharsis-core?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
-## Donations
-This library is created and maintained by spending weekends and late nights for free without any company behind it. If you love it and simply wanna support us in our project you can do it via Pledgie, by clicking on the badge below.
-
-[![donation](http://forthebadge.com/images/badges/built-with-love.svg)](https://pledgie.com/campaigns/29704)
-
-
