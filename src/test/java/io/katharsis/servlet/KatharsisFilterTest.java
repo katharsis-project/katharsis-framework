@@ -157,7 +157,7 @@ public class KatharsisFilterTest {
         request.setRequestURI("/api/tasks");
         request.setContentType(JsonApiMediaType.APPLICATION_JSON_API);
         request.addHeader("Accept", "*/*");
-        request.addParameter("filter", "{\"name\":\"John\"}");
+        request.addParameter("filter", "[Task][name]=John");
 
         MockHttpServletResponse response = new MockHttpServletResponse();
 
