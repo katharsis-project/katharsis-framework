@@ -1,4 +1,3 @@
-# katharsis-parent
+![Katharsis logo](http://katharsis.io/assets/img/engine_katharsis_github_4.png)
 
-[![Join the chat at https://gitter.im/masterspambot/katharsis-parent](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/masterspambot/katharsis-parent?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Maven Central](https://img.shields.io/maven-central/v/io.katharsis/katharsis-parent.svg)]()
+The Katharsis library adds an additional layer on top of RESTful endpoint to provide easy HATEOAS support for Java by implementing JSON API standard.
