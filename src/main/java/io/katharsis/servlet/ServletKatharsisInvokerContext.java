@@ -35,11 +35,14 @@ public class ServletKatharsisInvokerContext implements KatharsisInvokerContext {
     private final ServletContext servletContext;
     private final HttpServletRequest request;
     private final HttpServletResponse response;
+    private final boolean urlDecoded;
 
-    public ServletKatharsisInvokerContext(final ServletContext servletContext, final HttpServletRequest request, final HttpServletResponse response) {
+    public ServletKatharsisInvokerContext(final ServletContext servletContext, final HttpServletRequest request,
+                                          final HttpServletResponse response, boolean urlDecoded) {
         this.servletContext = servletContext;
         this.request = request;
         this.response = response;
+        this.urlDecoded = urlDecoded;
     }
 
     public String getRequestHeader(String name) {
@@ -104,5 +107,10 @@ public class ServletKatharsisInvokerContext implements KatharsisInvokerContext {
     @Override
     public RepositoryMethodParameterProvider getParameterProvider() {
         return new ServletParametersProvider(servletContext, request, response);
+    }
+
+    @Override
+    public boolean isUrlDecoded() {
+        return urlDecoded;
     }
 }

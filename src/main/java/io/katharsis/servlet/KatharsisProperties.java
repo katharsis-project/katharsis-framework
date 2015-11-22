@@ -16,6 +16,8 @@
  */
 package io.katharsis.servlet;
 
+import javax.servlet.http.HttpServletRequest;
+
 /**
  * Katharsis configuration properties.
  */
@@ -63,4 +65,18 @@ public final class KatharsisProperties {
      * @since 0.9.4
      */
     public static final String WEB_PATH_PREFIX = "katharsis.config.web.path.prefix";
+
+    /**
+     * Determines if url decoding is required to be made. Katharsis uses
+     * {@link javax.servlet.ServletRequest#getParameter(String)} and
+     * {@link HttpServletRequest#getQueryString()} to access query parameters and some implementations provide already
+     * decoded parameters, so Katharsis shouldn't do it one more time.
+     *
+     * <p>
+     * The name of the configuration property is <tt>{@value}</tt>.
+     * </p>
+     *
+     * @since 2.0.3
+     */
+    public static final String URL_DECODED = "katharsis.config.web.url.decoded";
 }

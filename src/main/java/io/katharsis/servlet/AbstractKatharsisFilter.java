@@ -64,10 +64,16 @@ abstract public class AbstractKatharsisFilter implements Filter {
     private volatile KatharsisInvoker katharsisInvoker;
 
     private String filterBasePath;
+    private boolean urlDecoded;
 
     public void init(FilterConfig filterConfig) throws ServletException {
         servletContext = filterConfig.getServletContext();
         filterBasePath = filterConfig.getInitParameter(KatharsisProperties.WEB_PATH_PREFIX);
+
+        String urlDecodedString = filterConfig.getInitParameter(KatharsisProperties.URL_DECODED);
+        if (Boolean.TRUE.toString().equals(urlDecodedString)) {
+            urlDecoded = true;
+        }
     }
 
     public void destroy() {
@@ -130,8 +136,17 @@ abstract public class AbstractKatharsisFilter implements Filter {
         return servletContext;
     }
 
+
+    public void setUrlDecoded(boolean urlDecoded) {
+        this.urlDecoded = urlDecoded;
+    }
+
+    public boolean isUrlDecoded() {
+        return urlDecoded;
+    }
+
     protected KatharsisInvokerContext createKatharsisInvokerContext(HttpServletRequest request, HttpServletResponse response) {
-        return new ServletKatharsisInvokerContext(getServletContext(), request, response) {
+        return new ServletKatharsisInvokerContext(getServletContext(), request, response, urlDecoded) {
             @Override
             public String getRequestPath() {
                 String path = super.getRequestPath();

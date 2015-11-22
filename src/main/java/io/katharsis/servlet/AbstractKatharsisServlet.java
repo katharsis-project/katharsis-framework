@@ -25,6 +25,7 @@ import io.katharsis.resource.registry.ResourceRegistry;
 
 import java.io.IOException;
 
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -47,6 +48,18 @@ abstract public class AbstractKatharsisServlet extends HttpServlet {
     private static Logger log = LoggerFactory.getLogger(AbstractKatharsisServlet.class);
 
     private volatile KatharsisInvoker katharsisInvoker;
+
+    private boolean urlDecoded;
+
+    @Override
+    public void init(ServletConfig servletConfig) throws ServletException {
+        super.init(servletConfig);
+
+        String urlDecodedString = servletConfig.getInitParameter(KatharsisProperties.URL_DECODED);
+        if (Boolean.TRUE.toString().equals(urlDecodedString)) {
+            urlDecoded = true;
+        }
+    }
 
     /**
      * {@inheritDoc}
@@ -91,7 +104,7 @@ abstract public class AbstractKatharsisServlet extends HttpServlet {
     }
 
     protected KatharsisInvokerContext createKatharsisInvokerContext(HttpServletRequest request, HttpServletResponse response) {
-        return new ServletKatharsisInvokerContext(getServletContext(), request, response);
+        return new ServletKatharsisInvokerContext(getServletContext(), request, response, urlDecoded);
     }
 
     protected KatharsisInvoker createKatharsisInvoker() throws Exception {
