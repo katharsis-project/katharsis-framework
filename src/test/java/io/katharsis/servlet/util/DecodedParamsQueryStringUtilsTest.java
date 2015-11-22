@@ -10,8 +10,6 @@ import javax.servlet.ServletContext;
 
 public class DecodedParamsQueryStringUtilsTest extends QueryStringUtilsTest {
 
-    private static final String QUERY_STRING = "foo[asd]=bar&lux=bar&foo[asd]=foo&nameonly&& &=";
-
     @Before
     public void before() throws Exception {
         ServletContext servletContext = new MockServletContext();

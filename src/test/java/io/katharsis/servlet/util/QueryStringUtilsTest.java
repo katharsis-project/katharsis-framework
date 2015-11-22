@@ -13,6 +13,7 @@ import static org.junit.Assert.*;
 
 public abstract class QueryStringUtilsTest {
 
+    protected static final String QUERY_STRING = "foo%5Basd%5D=bar&lux=bar&foo%5Basd%5D=foo&nameonly&& &=";
     protected static final String[] FOO_PARAM_VALUES = {"bar", "foo"};
     protected static final String[] LUX_PARAM_VALUES = {"bar"};
 

@@ -61,7 +61,7 @@ public class QueryStringUtils {
                 String[] paramNameAndValue = paramPair.split("=");
 
                 if (paramNameAndValue.length > 1) {
-                    paramName = decode(paramNameAndValue[0], invokerContext.isUrlDecoded());
+                    paramName = decode(paramNameAndValue[0], false); // query params is always encoded
                     queryParamMap.put(paramName, null);
                 }
             }
@@ -103,7 +103,7 @@ public class QueryStringUtils {
                 String[] paramNameAndValue = paramPair.split("=");
 
                 if (paramNameAndValue.length > 1) {
-                    paramName = decode(paramNameAndValue[0].trim(), invokerContext.isUrlDecoded());
+                    paramName = decode(paramNameAndValue[0].trim(), false); // query params is always encoded
                     if (paramName.length() != 0) {
                         queryParamMap.put(paramName, null);
                     }
