@@ -79,6 +79,7 @@ abstract public class AbstractKatharsisFilter implements Filter {
         if (req instanceof HttpServletRequest && res instanceof HttpServletResponse) {
             HttpServletRequest request = (HttpServletRequest) req;
             HttpServletResponse response = (HttpServletResponse) res;
+            req.setCharacterEncoding("UTF-8");
 
             KatharsisInvokerContext invokerContext = createKatharsisInvokerContext(request, response);
 
