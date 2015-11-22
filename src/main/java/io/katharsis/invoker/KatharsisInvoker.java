@@ -90,14 +90,14 @@ public class KatharsisInvoker {
         try {
             JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath(invokerContext.getRequestPath());
 
-            QueryParams requestParams = createQueryParams(invokerContext);
+            QueryParams queryParams = createQueryParams(invokerContext);
 
             in = invokerContext.getRequestEntityStream();
             RequestBody requestBody = inputStreamToBody(in);
 
             String method = invokerContext.getRequestMethod();
             RepositoryMethodParameterProvider parameterProvider = invokerContext.getParameterProvider();
-            katharsisResponse = requestDispatcher.dispatchRequest(jsonPath, method, requestParams, parameterProvider,
+            katharsisResponse = requestDispatcher.dispatchRequest(jsonPath, method, queryParams, parameterProvider,
                                                                   requestBody);
         } catch (KatharsisMappableException e) {
             if (log.isDebugEnabled()) {
@@ -156,10 +156,10 @@ public class KatharsisInvoker {
     }
 
     private QueryParams createQueryParams(KatharsisInvokerContext invokerContext) {
-        QueryParamsBuilder requestParamsBuilder = new QueryParamsBuilder();
+        QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder();
         Map<String, Set<String>> queryParameters =
             QueryStringUtils.parseQueryStringAsSingleValueMap(invokerContext);
-        return requestParamsBuilder.buildQueryParams(queryParameters);
+        return queryParamsBuilder.buildQueryParams(queryParameters);
     }
 
     private RequestBody inputStreamToBody(InputStream is) throws IOException {

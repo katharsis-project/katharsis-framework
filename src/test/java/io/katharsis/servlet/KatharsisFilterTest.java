@@ -38,6 +38,9 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockServletContext;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 /**
  * Test for {@link AbstractKatharsisFilter}.
  */
@@ -126,7 +129,6 @@ public class KatharsisFilterTest {
         request.setRequestURI("/api/tasks/1");
         request.setContentType(JsonApiMediaType.APPLICATION_JSON_API);
         request.addHeader("Accept", "*/*");
-        request.addParameter("filter", "");
 
         MockHttpServletResponse response = new MockHttpServletResponse();
 
@@ -157,7 +159,8 @@ public class KatharsisFilterTest {
         request.setRequestURI("/api/tasks");
         request.setContentType(JsonApiMediaType.APPLICATION_JSON_API);
         request.addHeader("Accept", "*/*");
-        request.addParameter("filter", "[Task][name]=John");
+        request.addParameter(URLEncoder.encode("filter[Task][name]", StandardCharsets.UTF_8.name()), "John");
+        request.setQueryString(URLEncoder.encode("filter[Task][name]", StandardCharsets.UTF_8.name()) + "=John");
 
         MockHttpServletResponse response = new MockHttpServletResponse();
 
