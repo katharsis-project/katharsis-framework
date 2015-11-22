@@ -151,7 +151,7 @@ public class KatharsisServletTest {
         request.setRequestURI("/api/tasks");
         request.setContentType(JsonApiMediaType.APPLICATION_JSON_API);
         request.addHeader("Accept", "*/*");
-        request.addParameter(URLEncoder.encode("filter[Task][name]", StandardCharsets.UTF_8.name()), "John");
+        request.addParameter("filter[Task][name]", "John");
         request.setQueryString(URLEncoder.encode("filter[Task][name]", StandardCharsets.UTF_8.name()) + "=John");
 
         MockHttpServletResponse response = new MockHttpServletResponse();
@@ -181,7 +181,7 @@ public class KatharsisServletTest {
         request.setRequestURI("/api/tasks");
         request.setContentType(JsonApiMediaType.APPLICATION_JSON_API);
         request.addHeader("Accept", "application/xml");
-        request.addParameter(URLEncoder.encode("filter[Task][name]", StandardCharsets.UTF_8.name()), "John");
+        request.addParameter("filter[Task][name]", "John");
         request.setQueryString(URLEncoder.encode("filter[Task][name]", StandardCharsets.UTF_8.name()) + "=John");
 
         MockHttpServletResponse response = new MockHttpServletResponse();

@@ -1,29 +1,25 @@
 package io.katharsis.servlet.util;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import io.katharsis.invoker.KatharsisInvokerContext;
 import io.katharsis.servlet.ServletKatharsisInvokerContext;
-
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.ServletContext;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockServletContext;
 
+import javax.servlet.ServletContext;
+import java.util.Map;
+import java.util.Set;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.*;
+
 public class QueryStringUtilsTest {
 
     private static final String QUERY_STRING = "foo%5Basd%5D=bar&lux=bar&foo%5Basd%5D=foo&nameonly&& &=";
-    private static final String [] FOO_PARAM_VALUES = {"bar", "foo"};
-    private static final String [] LUX_PARAM_VALUES = {"bar"};
+    private static final String[] FOO_PARAM_VALUES = {"bar", "foo"};
+    private static final String[] LUX_PARAM_VALUES = {"bar"};
 
     private KatharsisInvokerContext invokerContext;
     private MockHttpServletRequest request;
@@ -35,7 +31,7 @@ public class QueryStringUtilsTest {
 
         request = new MockHttpServletRequest();
         request.setQueryString(QUERY_STRING);
-        request.setParameter("foo%5Basd%5D", FOO_PARAM_VALUES);
+        request.setParameter("foo[asd]", FOO_PARAM_VALUES);
         request.setParameter("lux", LUX_PARAM_VALUES);
 
         response = new MockHttpServletResponse();
@@ -43,9 +39,10 @@ public class QueryStringUtilsTest {
         invokerContext = new ServletKatharsisInvokerContext(servletContext, request, response);
     }
 
+
     @Test
     public void testParseQueryStringAsMultiValuesMap() throws Exception {
-        Map<String, String[] > parsedQueryStringMap =  QueryStringUtils.parseQueryStringAsMultiValuesMap(invokerContext);
+        Map<String, String[]> parsedQueryStringMap = QueryStringUtils.parseQueryStringAsMultiValuesMap(invokerContext);
         assertTrue("parsedQueryStringMap must contain foo[asd].", parsedQueryStringMap.containsKey("foo[asd]"));
         assertTrue("parsedQueryStringMap must have 2 values for foo[asd].",
             parsedQueryStringMap.get("foo[asd]").length == 2);

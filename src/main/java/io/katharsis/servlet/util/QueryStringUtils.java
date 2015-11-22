@@ -30,6 +30,8 @@ import java.util.*;
  */
 public class QueryStringUtils {
 
+    private static final String QUERY_CHARSET = StandardCharsets.UTF_8.name();
+
     private QueryStringUtils() {
     }
 
@@ -59,18 +61,15 @@ public class QueryStringUtils {
                 String[] paramNameAndValue = paramPair.split("=");
 
                 if (paramNameAndValue.length > 1) {
-                    paramName = URLDecoder.decode(paramNameAndValue[0], StandardCharsets.UTF_8.name());
+                    paramName = decode(paramNameAndValue[0]); // query params is always encoded
                     queryParamMap.put(paramName, null);
                 }
             }
 
             for (Map.Entry<String, Set<String>> entry : queryParamMap.entrySet()) {
-                String queryParameter = invokerContext.getQueryParameter(URLEncoder.encode(entry.getKey(),
-                    StandardCharsets.UTF_8.name()));
+                String queryParameter = invokerContext.getQueryParameter(entry.getKey());
                 if (queryParameter != null) {
-                    String decodedValue = URLDecoder.decode(queryParameter, StandardCharsets
-                        .UTF_8.name());
-                    entry.setValue(Collections.singleton(decodedValue));
+                    entry.setValue(Collections.singleton(queryParameter));
                 }
             }
         }
@@ -103,7 +102,7 @@ public class QueryStringUtils {
                 String[] paramNameAndValue = paramPair.split("=");
 
                 if (paramNameAndValue.length > 1) {
-                    paramName = URLDecoder.decode(paramNameAndValue[0].trim(), StandardCharsets.UTF_8.name());
+                    paramName = decode(paramNameAndValue[0].trim()); // query params is always encoded
                     if (paramName.length() != 0) {
                         queryParamMap.put(paramName, null);
                     }
@@ -112,11 +111,9 @@ public class QueryStringUtils {
 
             for (Map.Entry<String, String[]> entry : queryParamMap.entrySet()) {
                 List<String> decodedParameterValueList = new LinkedList<>();
-                for (String parameterValue : invokerContext.getQueryParameterValues(URLEncoder.encode(entry.getKey(),
-                    StandardCharsets.UTF_8.name()))) {
+                for (String parameterValue : invokerContext.getQueryParameterValues(entry.getKey())) {
                     if (parameterValue != null) {
-                        String decodedValue = URLDecoder.decode(parameterValue, StandardCharsets.UTF_8.name());
-                        decodedParameterValueList.add(decodedValue);
+                        decodedParameterValueList.add(parameterValue);
                     }
                 }
                 entry.setValue(decodedParameterValueList.toArray(new String[decodedParameterValueList.size()]));
@@ -125,4 +122,7 @@ public class QueryStringUtils {
         return queryParamMap;
     }
 
+    private static String decode(String key) throws UnsupportedEncodingException {
+        return URLDecoder.decode(key, QUERY_CHARSET);
+    }
 }

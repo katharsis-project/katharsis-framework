@@ -36,7 +36,8 @@ public class ServletKatharsisInvokerContext implements KatharsisInvokerContext {
     private final HttpServletRequest request;
     private final HttpServletResponse response;
 
-    public ServletKatharsisInvokerContext(final ServletContext servletContext, final HttpServletRequest request, final HttpServletResponse response) {
+    public ServletKatharsisInvokerContext(final ServletContext servletContext, final HttpServletRequest request,
+                                          final HttpServletResponse response) {
         this.servletContext = servletContext;
         this.request = request;
         this.response = response;
