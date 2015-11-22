@@ -60,7 +60,7 @@ public class KatharsisFilter extends SampleKatharsisFilter implements BeanFactor
 
     @Override
     protected KatharsisInvokerContext createKatharsisInvokerContext(HttpServletRequest request, HttpServletResponse response) {
-        return new ServletKatharsisInvokerContext(getServletContext(), request, response, true) {
+        return new ServletKatharsisInvokerContext(getServletContext(), request, response) {
             @Override
             public String getRequestPath() {
                 String path = super.getRequestPath();
