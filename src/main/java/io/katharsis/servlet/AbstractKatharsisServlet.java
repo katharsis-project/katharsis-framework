@@ -49,18 +49,6 @@ abstract public class AbstractKatharsisServlet extends HttpServlet {
 
     private volatile KatharsisInvoker katharsisInvoker;
 
-    private boolean urlDecoded;
-
-    @Override
-    public void init(ServletConfig servletConfig) throws ServletException {
-        super.init(servletConfig);
-
-        String urlDecodedString = servletConfig.getInitParameter(KatharsisProperties.URL_DECODED);
-        if (Boolean.TRUE.toString().equals(urlDecodedString)) {
-            urlDecoded = true;
-        }
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -104,7 +92,7 @@ abstract public class AbstractKatharsisServlet extends HttpServlet {
     }
 
     protected KatharsisInvokerContext createKatharsisInvokerContext(HttpServletRequest request, HttpServletResponse response) {
-        return new ServletKatharsisInvokerContext(getServletContext(), request, response, urlDecoded);
+        return new ServletKatharsisInvokerContext(getServletContext(), request, response);
     }
 
     protected KatharsisInvoker createKatharsisInvoker() throws Exception {

@@ -61,16 +61,15 @@ public class QueryStringUtils {
                 String[] paramNameAndValue = paramPair.split("=");
 
                 if (paramNameAndValue.length > 1) {
-                    paramName = decode(paramNameAndValue[0], false); // query params is always encoded
+                    paramName = decode(paramNameAndValue[0]); // query params is always encoded
                     queryParamMap.put(paramName, null);
                 }
             }
 
             for (Map.Entry<String, Set<String>> entry : queryParamMap.entrySet()) {
-                String queryParameter = invokerContext.getQueryParameter(encode(entry.getKey(), invokerContext.isUrlDecoded()));
+                String queryParameter = invokerContext.getQueryParameter(entry.getKey());
                 if (queryParameter != null) {
-                    String decodedValue = decode(queryParameter, invokerContext.isUrlDecoded());
-                    entry.setValue(Collections.singleton(decodedValue));
+                    entry.setValue(Collections.singleton(queryParameter));
                 }
             }
         }
@@ -103,7 +102,7 @@ public class QueryStringUtils {
                 String[] paramNameAndValue = paramPair.split("=");
 
                 if (paramNameAndValue.length > 1) {
-                    paramName = decode(paramNameAndValue[0].trim(), false); // query params is always encoded
+                    paramName = decode(paramNameAndValue[0].trim()); // query params is always encoded
                     if (paramName.length() != 0) {
                         queryParamMap.put(paramName, null);
                     }
@@ -112,10 +111,9 @@ public class QueryStringUtils {
 
             for (Map.Entry<String, String[]> entry : queryParamMap.entrySet()) {
                 List<String> decodedParameterValueList = new LinkedList<>();
-                for (String parameterValue : invokerContext.getQueryParameterValues(encode(entry.getKey(), invokerContext.isUrlDecoded()))) {
+                for (String parameterValue : invokerContext.getQueryParameterValues(entry.getKey())) {
                     if (parameterValue != null) {
-                        String decodedValue = decode(parameterValue, invokerContext.isUrlDecoded());
-                        decodedParameterValueList.add(decodedValue);
+                        decodedParameterValueList.add(parameterValue);
                     }
                 }
                 entry.setValue(decodedParameterValueList.toArray(new String[decodedParameterValueList.size()]));
@@ -124,19 +122,7 @@ public class QueryStringUtils {
         return queryParamMap;
     }
 
-    private static String encode(String key, boolean urlDecoded) throws UnsupportedEncodingException {
-        if (!urlDecoded) {
-            return URLEncoder.encode(key,QUERY_CHARSET);
-        } else {
-            return key;
-        }
-    }
-
-    private static String decode(String key, boolean urlDecoded) throws UnsupportedEncodingException {
-        if (!urlDecoded) {
-            return URLDecoder.decode(key, QUERY_CHARSET);
-        } else {
-            return key;
-        }
+    private static String decode(String key) throws UnsupportedEncodingException {
+        return URLDecoder.decode(key, QUERY_CHARSET);
     }
 }

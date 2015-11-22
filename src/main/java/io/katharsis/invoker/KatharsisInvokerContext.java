@@ -65,6 +65,4 @@ public interface KatharsisInvokerContext {
 
     RepositoryMethodParameterProvider getParameterProvider();
 
-    boolean isUrlDecoded();
-
 }

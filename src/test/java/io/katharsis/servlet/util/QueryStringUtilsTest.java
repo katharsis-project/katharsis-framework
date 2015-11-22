@@ -1,25 +1,44 @@
 package io.katharsis.servlet.util;
 
 import io.katharsis.invoker.KatharsisInvokerContext;
+import io.katharsis.servlet.ServletKatharsisInvokerContext;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockServletContext;
 
+import javax.servlet.ServletContext;
 import java.util.Map;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
 
-public abstract class QueryStringUtilsTest {
+public class QueryStringUtilsTest {
 
-    protected static final String QUERY_STRING = "foo%5Basd%5D=bar&lux=bar&foo%5Basd%5D=foo&nameonly&& &=";
-    protected static final String[] FOO_PARAM_VALUES = {"bar", "foo"};
-    protected static final String[] LUX_PARAM_VALUES = {"bar"};
+    private static final String QUERY_STRING = "foo%5Basd%5D=bar&lux=bar&foo%5Basd%5D=foo&nameonly&& &=";
+    private static final String[] FOO_PARAM_VALUES = {"bar", "foo"};
+    private static final String[] LUX_PARAM_VALUES = {"bar"};
 
-    protected KatharsisInvokerContext invokerContext;
-    protected MockHttpServletRequest request;
-    protected MockHttpServletResponse response;
+    private KatharsisInvokerContext invokerContext;
+    private MockHttpServletRequest request;
+    private MockHttpServletResponse response;
+
+    @Before
+    public void before() throws Exception {
+        ServletContext servletContext = new MockServletContext();
+
+        request = new MockHttpServletRequest();
+        request.setQueryString(QUERY_STRING);
+        request.setParameter("foo[asd]", FOO_PARAM_VALUES);
+        request.setParameter("lux", LUX_PARAM_VALUES);
+
+        response = new MockHttpServletResponse();
+
+        invokerContext = new ServletKatharsisInvokerContext(servletContext, request, response);
+    }
+
 
     @Test
     public void testParseQueryStringAsMultiValuesMap() throws Exception {
