@@ -1,5 +1,6 @@
 package io.katharsis.spring.domain.repository;
 
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.annotations.JsonApiFindAll;
 import io.katharsis.repository.annotations.JsonApiFindAllWithIds;
 import io.katharsis.repository.annotations.JsonApiFindOne;
@@ -21,12 +22,13 @@ public class TaskRepository {
     }
 
     @JsonApiFindAll
-    public Iterable<Task> findAll(TimeZone timeZone) {
-        return findAll(null, timeZone);
+    public Iterable<Task> findAll(TimeZone timeZone, QueryParams queryParams) {
+        return findAll(null, timeZone, queryParams);
     }
 
     @JsonApiFindAllWithIds
-    public Iterable<Task> findAll(Iterable<Long> taskIds, TimeZone timeZone) {
-        return Collections.singletonList(new Task(1L, timeZone.getDisplayName()));
+    public Iterable<Task> findAll(Iterable<Long> taskIds, TimeZone timeZone, QueryParams queryParams) {
+        String name = queryParams.getFilters().getParams().get("Task").getParams().get("name").iterator().next();
+        return Collections.singletonList(new Task(1L, name));
     }
 }
