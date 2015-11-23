@@ -8,7 +8,7 @@ import java.lang.reflect.Parameter;
  * parameters for a functionality. For example:
  * <pre>
  * {@code
- *  @JsonApiFindOne
+ *  &#64;JsonApiFindOne
  *  public Resource findOne(Long id) {
  *    ...
  *  }
@@ -17,12 +17,12 @@ import java.lang.reflect.Parameter;
  * This method has {@link io.katharsis.repository.annotations.JsonApiFindOne} annotation which require the first
  * parameter to be a resource identifier to be found. However, it is not the only parameter that can be defined.
  * It's possible to pass additional, web framework dependant objects associated with a request. When using JAX-RS
- * integration, it's possible to pass @{@link javax.ws.rs.core.SecurityContext}. To allow doing that, JAX-RS adapter
+ * integration, it's possible to pass <b>javax.ws.rs.core.SecurityContext</b>. To allow doing that, JAX-RS adapter
  * has implemented {@link RepositoryMethodParameterProvider} to pass several framework classes to the repository method.
  * An example below shows a sample repository which makes use of JAX-RS integration:
  * <pre>
  * {@code
- *  @JsonApiFindOne
+ *  &#64;JsonApiFindOne
  *  public Resource findOne(Long id, @HeaderParam("X-Token") String auth Token, SecurityContext securityContext) {
  *    ...
  *  }
