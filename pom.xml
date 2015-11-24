@@ -4,7 +4,7 @@
 
     <groupId>io.katharsis</groupId>
     <artifactId>katharsis-parent</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
     <packaging>pom</packaging>
 
 	<name>Katharsis parent POM</name>
@@ -29,6 +29,7 @@
         <jacoco-maven-plugin.version>0.7.4.201502262128</jacoco-maven-plugin.version>
         <maven-compiler-plugin.version>3.2</maven-compiler-plugin.version>
         <coveralls-maven-plugin.version>3.1.0</coveralls-maven-plugin.version>
+        <gitlog-maven-plugin.version>1.12.3</gitlog-maven-plugin.version>
 
         <gpg.passphrase/>
     </properties>
@@ -155,6 +156,27 @@
                             <phase>deploy</phase>
                             <goals>
                                 <goal>deploy</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>com.github.danielflower.mavenplugins</groupId>
+                    <artifactId>gitlog-maven-plugin</artifactId>
+                    <version>${gitlog-maven-plugin.version}</version>
+                    <configuration>
+                        <generateMarkdownChangeLog>true</generateMarkdownChangeLog>
+                        <generatePlainTextChangeLog>false</generatePlainTextChangeLog>
+                        <generateJSONChangeLog>false</generateJSONChangeLog>
+                        <generateSimpleHTMLChangeLog>false</generateSimpleHTMLChangeLog>
+                        <outputDirectory>.</outputDirectory>
+                        <dateFormat>yyyy-MM-dd</dateFormat>
+                        <excludeCommitsPattern>.*\b(Update README.md|snapshot)\b.*</excludeCommitsPattern>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>generate</goal>
                             </goals>
                         </execution>
                     </executions>
