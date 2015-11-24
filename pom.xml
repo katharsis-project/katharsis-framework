@@ -23,7 +23,7 @@
   <parent>
     <groupId>io.katharsis</groupId>
     <artifactId>katharsis-parent</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
   </parent>
 
   <artifactId>katharsis-servlet</artifactId>
@@ -33,6 +33,11 @@
   <name>${project.groupId}:${project.artifactId}</name>
   <description>Generic Servlet Adapter of Katharsis JSON:API middleware library</description>
   <url>https://github.com/katharsis-project/katharsis-servlet</url>
+
+  <issueManagement>
+    <system>GitHub</system>
+    <url>https://github.com/katharsis-project/katharsis-rs/issues</url>
+  </issueManagement>
 
   <licenses>
     <license>
@@ -178,6 +183,10 @@
       <plugin>
         <groupId>org.eluder.coveralls</groupId>
         <artifactId>coveralls-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>com.github.danielflower.mavenplugins</groupId>
+        <artifactId>gitlog-maven-plugin</artifactId>
       </plugin>
     </plugins>
   </build>
