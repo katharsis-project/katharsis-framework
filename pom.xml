@@ -5,7 +5,7 @@
     <parent>
         <groupId>io.katharsis</groupId>
         <artifactId>katharsis-parent</artifactId>
-        <version>1.0.2</version>
+        <version>1.0.3</version>
     </parent>
 
     <artifactId>katharsis-rs</artifactId>
@@ -14,6 +14,11 @@
 
     <name>katharsis-rs</name>
     <url>https://github.com/katharsis-project/katharsis-rs</url>
+
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/katharsis-project/katharsis-rs/issues</url>
+    </issueManagement>
 
     <properties>
         <jersey-container-servlet.version>2.17</jersey-container-servlet.version>
@@ -34,6 +39,10 @@
             <plugin>
                 <groupId>org.eluder.coveralls</groupId>
                 <artifactId>coveralls-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>com.github.danielflower.mavenplugins</groupId>
+                <artifactId>gitlog-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
