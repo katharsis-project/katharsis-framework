@@ -5,7 +5,7 @@
     <parent>
         <groupId>io.katharsis</groupId>
         <artifactId>katharsis-parent</artifactId>
-        <version>1.0.2</version>
+        <version>1.0.3</version>
     </parent>
 
     <artifactId>katharsis-spring</artifactId>
@@ -14,6 +14,11 @@
 
     <name>katharsis-spring</name>
     <url>https://github.com/katharsis-project/katharsis-spring</url>
+
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/katharsis-project/katharsis-spring/issues</url>
+    </issueManagement>
 
     <properties>
         <spring.version>4.1.8.RELEASE</spring.version>
@@ -32,6 +37,10 @@
             <plugin>
                 <groupId>org.eluder.coveralls</groupId>
                 <artifactId>coveralls-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>com.github.danielflower.mavenplugins</groupId>
+                <artifactId>gitlog-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
