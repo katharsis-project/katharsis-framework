@@ -85,7 +85,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
      * <a href="http://jsonapi.org/format/#document-structure-resource-types"></a>.
      */
     private void writeData(JsonGenerator gen, Object data, Set<String> includedFields) throws IOException {
-        Class<?> dataClass = ClassUtils.getJsonApiResourceClass(data);
+        Class<?> dataClass = data.getClass();
         String resourceType = resourceRegistry.getResourceType(dataClass);
 
         gen.writeStringField(TYPE_FIELD_NAME, resourceType);

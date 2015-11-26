@@ -141,7 +141,7 @@ public class ClassUtils {
     }
 
     /**
-     * Returns the first clazz in the ancestory hierarchy with the JsonApiResource annotation
+     * Returns the first clazz in the ancestor hierarchy with the JsonApiResource annotation
      * @param data instance
      * @param <T> instance type
      * @return class or null

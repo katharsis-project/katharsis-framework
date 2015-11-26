@@ -2,6 +2,7 @@ package io.katharsis.resource.registry;
 
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.exception.init.ResourceNotFoundInitializationException;
+import io.katharsis.utils.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +37,8 @@ public class ResourceRegistry {
     }
 
     public RegistryEntry getEntry(Class clazz) {
-        RegistryEntry registryEntry = resources.get(clazz);
+        Class resourceClazz = ClassUtils.getJsonApiResourceClass(clazz);
+        RegistryEntry registryEntry = resources.get(resourceClazz);
         if (registryEntry != null) {
             return registryEntry;
         }
@@ -44,7 +46,8 @@ public class ResourceRegistry {
     }
 
     public String getResourceType(Class clazz) {
-        Annotation[] annotations = clazz.getAnnotations();
+        Class resourceClazz = ClassUtils.getJsonApiResourceClass(clazz);
+        Annotation[] annotations = resourceClazz.getAnnotations();
         for (Annotation annotation : annotations) {
             if (annotation instanceof JsonApiResource) {
                 JsonApiResource apiResource = (JsonApiResource) annotation;
