@@ -35,13 +35,7 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable>
         Object[] methodParameters = parametersFactory
             .buildParameters(new Object[]{id}, findOneMethod, queryParams, annotationType);
 
-        try {
-            return (T) findOneMethod.invoke(implementationObject, methodParameters);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            throw (RuntimeException) e.getCause();
-        }
+        return invoke(findOneMethod, methodParameters);
     }
 
     @Override
@@ -52,15 +46,10 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable>
         }
         checkIfNotNull(annotationType, findAllMethod);
 
-        Object[] methodParameters = parametersFactory.buildParameters(new Object[]{}, findAllMethod, queryParams, annotationType);
+        Object[] methodParameters = parametersFactory
+            .buildParameters(new Object[]{}, findAllMethod, queryParams, annotationType);
 
-        try {
-            return (Iterable<T>) findAllMethod.invoke(implementationObject, methodParameters);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            throw (RuntimeException) e.getCause();
-        }
+        return invoke(findAllMethod, methodParameters);
     }
 
     @Override
@@ -74,13 +63,7 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable>
         Object[] methodParameters = parametersFactory
             .buildParameters(new Object[]{ids}, findAllWithIds, queryParams, annotationType);
 
-        try {
-            return (Iterable<T>) findAllWithIds.invoke(implementationObject, methodParameters);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            throw (RuntimeException) e.getCause();
-        }
+        return invoke(findAllWithIds, methodParameters);
     }
 
     @Override
@@ -94,13 +77,7 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable>
         Object[] methodParameters = parametersFactory
             .buildParameters(new Object[]{entity}, saveMethod, annotationType);
 
-        try {
-            return (S) saveMethod.invoke(implementationObject, methodParameters);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            throw (RuntimeException) e.getCause();
-        }
+        return invoke(saveMethod, methodParameters);
     }
 
     @Override
@@ -114,12 +91,6 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable>
         Object[] methodParameters = parametersFactory
             .buildParameters(new Object[]{id}, deleteMethod, annotationType);
 
-        try {
-            deleteMethod.invoke(implementationObject, methodParameters);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            throw (RuntimeException) e.getCause();
-        }
+        invoke(deleteMethod, methodParameters);
     }
 }

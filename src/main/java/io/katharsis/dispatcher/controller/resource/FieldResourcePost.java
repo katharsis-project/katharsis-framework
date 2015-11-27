@@ -82,6 +82,7 @@ public class FieldResourcePost extends ResourceUpsert {
 
         DataBody dataBody = requestBody.getSingleData();
         Object resource = buildNewResource(relationshipRegistryEntry, dataBody, relationshipResourceType);
+        setId(dataBody, resource, relationshipRegistryEntry.getResourceInformation());
         setAttributes(dataBody, resource, relationshipRegistryEntry.getResourceInformation());
         ResourceRepository resourceRepository = relationshipRegistryEntry.getResourceRepository(parameterProvider);
         Object savedResource = resourceRepository.save(resource);

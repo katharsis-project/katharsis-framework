@@ -76,13 +76,7 @@ public class RelationshipRepositoryAdapter<T, T_ID extends Serializable, D, D_ID
         Object[] methodParameters = parametersFactory
             .buildParameters(firstParameters, method, annotationType);
 
-        try {
-            method.invoke(implementationObject, methodParameters);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            throw (RuntimeException)e.getCause();
-        }
+        invoke(method, methodParameters);
     }
 
     @Override
@@ -97,13 +91,7 @@ public class RelationshipRepositoryAdapter<T, T_ID extends Serializable, D, D_ID
         Object[] methodParameters = parametersFactory
             .buildParameters(firstParameters, findOneTargetMethod, queryParams, annotationType);
 
-        try {
-            return (D) findOneTargetMethod.invoke(implementationObject, methodParameters);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            throw (RuntimeException)e.getCause();
-        }
+        return invoke(findOneTargetMethod, methodParameters);
     }
 
     @Override
@@ -118,12 +106,6 @@ public class RelationshipRepositoryAdapter<T, T_ID extends Serializable, D, D_ID
         Object[] methodParameters = parametersFactory
             .buildParameters(firstParameters, findManyTargetsMethod, queryParams, annotationType);
 
-        try {
-            return (Iterable<D>) findManyTargetsMethod.invoke(implementationObject, methodParameters);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            throw (RuntimeException)e.getCause();
-        }
+        return invoke(findManyTargetsMethod, methodParameters);
     }
 }
