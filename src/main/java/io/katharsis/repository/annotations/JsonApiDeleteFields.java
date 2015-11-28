@@ -6,7 +6,7 @@ import java.lang.annotation.*;
 
 /**
  * <p>
- * Method annotated with this annotation will be used to perform update operation of a resource and set of a relationship.
+ * Method annotated with this annotation will be used to perform delete operation of resource(s) and removal of relationship(s).
  * The method must be defined in a class annotated with {@link JsonApiFieldRepository}.
  * </p>
  * <p>
@@ -14,17 +14,17 @@ import java.lang.annotation.*;
  * </p>
  * <ol>
  *     <li>A resource identifier</li>
- *     <li>Instance of a relationship value to be set</li>
+ *     <li>A list of relationship identifiers to be removed</li>
  *     <li>Relationship's filed name</li>
  * </ol>
  * <p>
- * The return value should be a resource of {@link JsonApiFieldRepository#source()} type.
+ * The return value should be <i>void</i>.
  * </p>
  *
- * @see io.katharsis.repository.FieldRepository#addField(Object, Object, String, QueryParams)
+ * @see io.katharsis.repository.FieldRepository#deleteFields(Object, Iterable, String, QueryParams)
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface JsonApiUpdateField {
+public @interface JsonApiDeleteFields {
 }
