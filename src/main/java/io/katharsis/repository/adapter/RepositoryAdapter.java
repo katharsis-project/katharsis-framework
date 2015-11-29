@@ -83,7 +83,23 @@ public abstract class RepositoryAdapter<T> implements LinksRepository<T>, MetaRe
         }
     }
 
-    protected <TYPE> TYPE invoke(Method method, Object... args) {
+    protected <TYPE> TYPE invokeOperation(Method foundMethod, Class<? extends Annotation> annotationType,
+                                          Object[] firstParameters) {
+        checkIfNotNull(annotationType, foundMethod);
+        Object[] methodParameters = parametersFactory
+            .buildParameters(firstParameters, foundMethod, annotationType);
+        return invoke(foundMethod, methodParameters);
+    }
+
+    protected <TYPE> TYPE invokeOperation(Method foundMethod, Class<? extends Annotation> annotationType,
+                                          Object[] firstParameters, QueryParams queryParams) {
+        checkIfNotNull(annotationType, foundMethod);
+        Object[] methodParameters = parametersFactory
+            .buildParameters(firstParameters, foundMethod, queryParams, annotationType);
+        return invoke(foundMethod, methodParameters);
+    }
+
+    private <TYPE> TYPE invoke(Method method, Object... args) {
         try {
             return (TYPE) method.invoke(implementationObject, args);
         } catch (IllegalAccessException e) {
