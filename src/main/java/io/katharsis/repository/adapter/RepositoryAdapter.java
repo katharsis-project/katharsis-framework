@@ -14,6 +14,8 @@ import io.katharsis.utils.ClassUtils;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 public abstract class RepositoryAdapter<T> implements LinksRepository<T>, MetaRepository<T> {
 
@@ -42,13 +44,7 @@ public abstract class RepositoryAdapter<T> implements LinksRepository<T>, MetaRe
         Object[] methodParameters = parametersFactory
             .buildParameters(new Object[]{resources}, linksMethod, queryParams, annotationType);
 
-        try {
-            return (LinksInformation) linksMethod.invoke(implementationObject, methodParameters);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            throw (RuntimeException)e.getCause();
-        }
+        return invoke(linksMethod, methodParameters);
     }
 
     private void assignLinksMethod() {
@@ -71,13 +67,7 @@ public abstract class RepositoryAdapter<T> implements LinksRepository<T>, MetaRe
         Object[] methodParameters = parametersFactory
             .buildParameters(new Object[]{resources}, metaMethod, queryParams, annotationType);
 
-        try {
-            return (MetaInformation) metaMethod.invoke(implementationObject, methodParameters);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            throw (RuntimeException)e.getCause();
-        }
+        return invoke(metaMethod, methodParameters);
     }
 
     private void assignMetaMethod() {
@@ -90,6 +80,32 @@ public abstract class RepositoryAdapter<T> implements LinksRepository<T>, MetaRe
         if (foundMethod == null) {
             throw new RepositoryAnnotationNotFoundException(
                 String.format("Annotation %s for class %s not found", annotationClass, implementationObject.getClass()));
+        }
+    }
+
+    protected <TYPE> TYPE invokeOperation(Method foundMethod, Class<? extends Annotation> annotationType,
+                                          Object[] firstParameters) {
+        checkIfNotNull(annotationType, foundMethod);
+        Object[] methodParameters = parametersFactory
+            .buildParameters(firstParameters, foundMethod, annotationType);
+        return invoke(foundMethod, methodParameters);
+    }
+
+    protected <TYPE> TYPE invokeOperation(Method foundMethod, Class<? extends Annotation> annotationType,
+                                          Object[] firstParameters, QueryParams queryParams) {
+        checkIfNotNull(annotationType, foundMethod);
+        Object[] methodParameters = parametersFactory
+            .buildParameters(firstParameters, foundMethod, queryParams, annotationType);
+        return invoke(foundMethod, methodParameters);
+    }
+
+    private <TYPE> TYPE invoke(Method method, Object... args) {
+        try {
+            return (TYPE) method.invoke(implementationObject, args);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            throw (RuntimeException) e.getCause();
         }
     }
 }

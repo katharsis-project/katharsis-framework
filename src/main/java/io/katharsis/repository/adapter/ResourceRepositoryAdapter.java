@@ -30,18 +30,7 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable>
         if (findOneMethod == null) {
             findOneMethod = ClassUtils.findMethodWith(implementationObject, annotationType);
         }
-        checkIfNotNull(annotationType, findOneMethod);
-
-        Object[] methodParameters = parametersFactory
-            .buildParameters(new Object[]{id}, findOneMethod, queryParams, annotationType);
-
-        try {
-            return (T) findOneMethod.invoke(implementationObject, methodParameters);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            throw (RuntimeException) e.getCause();
-        }
+        return invokeOperation(findOneMethod, annotationType, new Object[]{id}, queryParams);
     }
 
     @Override
@@ -50,17 +39,7 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable>
         if (findAllMethod == null) {
             findAllMethod = ClassUtils.findMethodWith(implementationObject, annotationType);
         }
-        checkIfNotNull(annotationType, findAllMethod);
-
-        Object[] methodParameters = parametersFactory.buildParameters(new Object[]{}, findAllMethod, queryParams, annotationType);
-
-        try {
-            return (Iterable<T>) findAllMethod.invoke(implementationObject, methodParameters);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            throw (RuntimeException) e.getCause();
-        }
+        return invokeOperation(findAllMethod, annotationType, new Object[]{}, queryParams);
     }
 
     @Override
@@ -69,18 +48,7 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable>
         if (findAllWithIds == null) {
             findAllWithIds = ClassUtils.findMethodWith(implementationObject, annotationType);
         }
-        checkIfNotNull(annotationType, findAllWithIds);
-
-        Object[] methodParameters = parametersFactory
-            .buildParameters(new Object[]{ids}, findAllWithIds, queryParams, annotationType);
-
-        try {
-            return (Iterable<T>) findAllWithIds.invoke(implementationObject, methodParameters);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            throw (RuntimeException) e.getCause();
-        }
+        return invokeOperation(findAllWithIds, annotationType, new Object[]{ids}, queryParams);
     }
 
     @Override
@@ -89,18 +57,7 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable>
         if (saveMethod == null) {
             saveMethod = ClassUtils.findMethodWith(implementationObject, annotationType);
         }
-        checkIfNotNull(annotationType, saveMethod);
-
-        Object[] methodParameters = parametersFactory
-            .buildParameters(new Object[]{entity}, saveMethod, annotationType);
-
-        try {
-            return (S) saveMethod.invoke(implementationObject, methodParameters);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            throw (RuntimeException) e.getCause();
-        }
+        return invokeOperation(saveMethod, annotationType, new Object[]{entity});
     }
 
     @Override
@@ -109,17 +66,6 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable>
         if (deleteMethod == null) {
             deleteMethod = ClassUtils.findMethodWith(implementationObject, annotationType);
         }
-        checkIfNotNull(annotationType, deleteMethod);
-
-        Object[] methodParameters = parametersFactory
-            .buildParameters(new Object[]{id}, deleteMethod, annotationType);
-
-        try {
-            deleteMethod.invoke(implementationObject, methodParameters);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            throw (RuntimeException) e.getCause();
-        }
+        invokeOperation(deleteMethod, annotationType, new Object[]{id});
     }
 }

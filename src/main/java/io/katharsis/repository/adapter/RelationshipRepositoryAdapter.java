@@ -32,9 +32,7 @@ public class RelationshipRepositoryAdapter<T, T_ID extends Serializable, D, D_ID
         if (setRelationMethod == null) {
             setRelationMethod = ClassUtils.findMethodWith(implementationObject, annotationType);
         }
-        Method method = this.setRelationMethod;
-        Object[] firstParameters = {source, targetId, fieldName};
-        performRelationChangeOperation(annotationType, method, firstParameters);
+        invokeOperation(setRelationMethod, annotationType, new Object[]{source, targetId, fieldName});
     }
 
     @Override
@@ -43,9 +41,7 @@ public class RelationshipRepositoryAdapter<T, T_ID extends Serializable, D, D_ID
         if (setRelationsMethod == null) {
             setRelationsMethod = ClassUtils.findMethodWith(implementationObject, annotationType);
         }
-        Method method = this.setRelationsMethod;
-        Object[] firstParameters = {source, targetIds, fieldName};
-        performRelationChangeOperation(annotationType, method, firstParameters);
+        invokeOperation(setRelationsMethod, annotationType, new Object[]{source, targetIds, fieldName});
     }
 
     @Override
@@ -54,9 +50,7 @@ public class RelationshipRepositoryAdapter<T, T_ID extends Serializable, D, D_ID
         if (addRelationsMethod == null) {
             addRelationsMethod = ClassUtils.findMethodWith(implementationObject, annotationType);
         }
-        Method method = this.addRelationsMethod;
-        Object[] firstParameters = {source, targetIds, fieldName};
-        performRelationChangeOperation(annotationType, method, firstParameters);
+        invokeOperation(addRelationsMethod, annotationType, new Object[]{source, targetIds, fieldName});
     }
 
     @Override
@@ -65,24 +59,7 @@ public class RelationshipRepositoryAdapter<T, T_ID extends Serializable, D, D_ID
         if (removeRelationsMethod == null) {
             removeRelationsMethod = ClassUtils.findMethodWith(implementationObject, annotationType);
         }
-        Method method = this.removeRelationsMethod;
-        Object[] firstParameters = {source, targetIds, fieldName};
-        performRelationChangeOperation(annotationType, method, firstParameters);
-    }
-
-    private void performRelationChangeOperation(Class<? extends Annotation> annotationType, Method method, Object[] firstParameters) {
-        checkIfNotNull(annotationType, method);
-
-        Object[] methodParameters = parametersFactory
-            .buildParameters(firstParameters, method, annotationType);
-
-        try {
-            method.invoke(implementationObject, methodParameters);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            throw (RuntimeException)e.getCause();
-        }
+        invokeOperation(removeRelationsMethod, annotationType, new Object[]{source, targetIds, fieldName});
     }
 
     @Override
@@ -91,19 +68,7 @@ public class RelationshipRepositoryAdapter<T, T_ID extends Serializable, D, D_ID
         if (findOneTargetMethod == null) {
             findOneTargetMethod = ClassUtils.findMethodWith(implementationObject, annotationType);
         }
-        checkIfNotNull(annotationType, findOneTargetMethod);
-
-        Object[] firstParameters = {sourceId, fieldName};
-        Object[] methodParameters = parametersFactory
-            .buildParameters(firstParameters, findOneTargetMethod, queryParams, annotationType);
-
-        try {
-            return (D) findOneTargetMethod.invoke(implementationObject, methodParameters);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            throw (RuntimeException)e.getCause();
-        }
+        return invokeOperation(findOneTargetMethod, annotationType, new Object[]{sourceId, fieldName}, queryParams);
     }
 
     @Override
@@ -112,18 +77,6 @@ public class RelationshipRepositoryAdapter<T, T_ID extends Serializable, D, D_ID
         if (findManyTargetsMethod == null) {
             findManyTargetsMethod = ClassUtils.findMethodWith(implementationObject, annotationType);
         }
-        checkIfNotNull(annotationType, findManyTargetsMethod);
-
-        Object[] firstParameters = {sourceId, fieldName};
-        Object[] methodParameters = parametersFactory
-            .buildParameters(firstParameters, findManyTargetsMethod, queryParams, annotationType);
-
-        try {
-            return (Iterable<D>) findManyTargetsMethod.invoke(implementationObject, methodParameters);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            throw (RuntimeException)e.getCause();
-        }
+        return invokeOperation(findManyTargetsMethod, annotationType, new Object[]{sourceId, fieldName}, queryParams);
     }
 }
