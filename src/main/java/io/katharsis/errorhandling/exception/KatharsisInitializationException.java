@@ -8,4 +8,8 @@ public class KatharsisInitializationException extends RuntimeException {
     protected KatharsisInitializationException(String message) {
         super(message);
     }
+    
+    protected KatharsisInitializationException(String message, Exception e) {
+    	super(message, e);
+    }
 }

@@ -1,8 +1,5 @@
 package io.katharsis.errorhandling.mapper;
 
-import io.katharsis.resource.exception.init.InvalidResourceException;
-import org.reflections.Reflections;
-
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.HashSet;
@@ -15,33 +12,19 @@ public final class ExceptionMapperRegistryBuilder {
     public Set<ExceptionMapperType> getExceptionMappers() {
         return exceptionMappers;
     }
-
+    
     public ExceptionMapperRegistry build(String resourceSearchPackage) throws IllegalAccessException, InstantiationException {
-        addKatharsisDefaultMappers();
-        scanForCustomMappers(resourceSearchPackage);
-        return new ExceptionMapperRegistry(exceptionMappers);
+        return build(new DefaultExceptionMapperLookup(resourceSearchPackage));
+    }
+    
+    public ExceptionMapperRegistry build(ExceptionMapperLookup exceptionMapperLookup) throws IllegalAccessException, InstantiationException {
+    	addKatharsisDefaultMappers();
+    	exceptionMapperLookup.getExceptionMappers().stream().forEach(this::registerExceptionMapper);
+    	return new ExceptionMapperRegistry(exceptionMappers);
     }
 
     private void addKatharsisDefaultMappers() {
         registerExceptionMapper(new KatharsisExceptionMapper());
-    }
-
-    private void scanForCustomMappers(String resourceSearchPackage) throws InstantiationException, IllegalAccessException {
-        Reflections reflections;
-        if (resourceSearchPackage != null) {
-            String[] packageNames = resourceSearchPackage.split(",");
-            reflections = new Reflections(packageNames);
-        } else {
-            reflections = new Reflections(resourceSearchPackage);
-        }
-        Set<Class<?>> exceptionMapperClasses = reflections.getTypesAnnotatedWith(ExceptionMapperProvider.class);
-
-        for (Class<?> exceptionMapperClazz : exceptionMapperClasses) {
-            if (!JsonApiExceptionMapper.class.isAssignableFrom(exceptionMapperClazz)) {
-                throw new InvalidResourceException(exceptionMapperClazz.getCanonicalName() + " is not an implementation of JsonApiExceptionMapper");
-            }
-            registerExceptionMapper((JsonApiExceptionMapper<? extends Throwable>) exceptionMapperClazz.newInstance());
-        }
     }
 
     private void registerExceptionMapper(JsonApiExceptionMapper<? extends Throwable> exceptionMapper) {
