@@ -1,5 +1,12 @@
-# katharsis-core v2.0.2-SNAPSHOT git changelog
+# katharsis-core v2.1.0 git changelog
 
+2015-12-02    [#101](https://github.com/katharsis-project/katharsis-core/issues/101) review (Patryk Orwat)  
+2015-12-02    Support for custom handlers for getting exception mappers, resources and resource repositories and relationship repositories See katharsis-project/katharsis-core issue [#101](https://github.com/katharsis-project/katharsis-core/issues/101) (Cornelis Hoeflake)  
+2015-12-01    Created interface to collect exception mappers in stead of scanning the classpath (Cornelis Hoeflake)  
+2015-11-29    [#168](https://github.com/katharsis-project/katharsis-core/issues/168) code tests + refactor (Patryk Orwat)  
+2015-11-28    [#168](https://github.com/katharsis-project/katharsis-core/issues/168) added resource+relationship addition and removal (Patryk Orwat)  
+2015-11-27    [#168](https://github.com/katharsis-project/katharsis-core/issues/168) initial implementation/code refactoring (Patryk Orwat)  
+2015-11-26    ensure resource registry uses proper class during lookup for resource subclasses (Pascal Brogle)  
 2015-11-24    [#172](https://github.com/katharsis-project/katharsis-core/issues/172) added changelog (Patryk Orwat)  
 2015-11-23    [#169](https://github.com/katharsis-project/katharsis-core/issues/169) javadoc  fix (Patryk Orwat)  
 2015-11-20    [#169](https://github.com/katharsis-project/katharsis-core/issues/169) javadoc (Patryk Orwat)  
