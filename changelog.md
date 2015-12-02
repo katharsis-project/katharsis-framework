@@ -1,5 +1,8 @@
 # katharsis-core v2.1.0 git changelog
 
+
+**v2.1.0**  
+2015-12-02    v2.1.0 (Patryk Orwat)  
 2015-12-02    [#101](https://github.com/katharsis-project/katharsis-core/issues/101) review (Patryk Orwat)  
 2015-12-02    Support for custom handlers for getting exception mappers, resources and resource repositories and relationship repositories See katharsis-project/katharsis-core issue [#101](https://github.com/katharsis-project/katharsis-core/issues/101) (Cornelis Hoeflake)  
 2015-12-01    Created interface to collect exception mappers in stead of scanning the classpath (Cornelis Hoeflake)  
