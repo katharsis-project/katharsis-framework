@@ -31,10 +31,10 @@ public class QueryParams {
      * <p>
      * Examples of accepted filtering of resources:
      * <ul>
-     * <li>{@code GET /tasks/?filter[Task][name]=Super task}</li>
-     * <li>{@code GET /tasks/?filter[Task][name]=Super task&filter[Task][dueDate]=2015-10-01}</li>
-     * <li>{@code GET /tasks/?filter[Task][name][$startWith]=Super task}</li>
-     * <li>{@code GET /tasks/?filter[Task][name][][$startWith]=Super&filter[Task][name][][$endWith]=task}</li>
+     * <li>{@code GET /tasks/?filter[tasks][name]=Super task}</li>
+     * <li>{@code GET /tasks/?filter[tasks][name]=Super task&filter[tasks][dueDate]=2015-10-01}</li>
+     * <li>{@code GET /tasks/?filter[tasks][name][$startWith]=Super task}</li>
+     * <li>{@code GET /tasks/?filter[tasks][name][][$startWith]=Super&filter[tasks][name][][$endWith]=task}</li>
      * </ul>
      *
      * @return {@link TypedParams} Map of filtering params passed to a request grouped by type of resource
@@ -83,8 +83,8 @@ public class QueryParams {
      * <p>
      * Examples of accepted sorting of resources:
      * <ul>
-     * <li>{@code GET /tasks/?sort[Task][name]=asc}</li>
-     * <li>{@code GET /project/?sort[Project][shortName]=desc&sort[User][name][firstName]=asc}</li>
+     * <li>{@code GET /tasks/?sort[tasks][name]=asc}</li>
+     * <li>{@code GET /project/?sort[projects][shortName]=desc&sort[users][name][firstName]=asc}</li>
      * </ul>
      *
      * @return {@link TypedParams} Map of sorting params passed to request grouped by type of resource
@@ -140,8 +140,8 @@ public class QueryParams {
      * <p>
      * Examples of accepted grouping of resources:
      * <ul>
-     * <li>{@code GET /tasks/?group[Task]=name}</li>
-     * <li>{@code GET /project/?group[User]=name.firstName&include[Project]=team}</li>
+     * <li>{@code GET /tasks/?group[tasks]=name}</li>
+     * <li>{@code GET /project/?group[users]=name.firstName&include[projects]=team}</li>
      * </ul>
      *
      * @return {@link Map} Map of grouping params passed to request grouped by type of resource
@@ -159,7 +159,7 @@ public class QueryParams {
 
             if (propertyList.size() > 1) {
                 throw new ParametersDeserializationException("Exceeded maximum level of nesting of 'group' parameter " +
-                    "(1) eg. group[Task][name] <-- #2 level and more are not allowed");
+                    "(1) eg. group[tasks][name] <-- #2 level and more are not allowed");
             }
 
             String resourceType = propertyList.get(0);
@@ -237,9 +237,9 @@ public class QueryParams {
      * <p>
      * Examples of accepted sparse field sets of resources:
      * <ul>
-     * <li>{@code GET /tasks/?fields[Task]=name}</li>
-     * <li>{@code GET /tasks/?fields[Task][]=name&fields[Task][]=dueDate}</li>
-     * <li>{@code GET /tasks/?fields[User]=name.surname&include[Task]=author}</li>
+     * <li>{@code GET /tasks/?fields[tasks]=name}</li>
+     * <li>{@code GET /tasks/?fields[tasks][]=name&fields[tasks][]=dueDate}</li>
+     * <li>{@code GET /tasks/?fields[users]=name.surname&include[tasks]=author}</li>
      * </ul>
      *
      * @return {@link TypedParams} Map of sparse field set params passed to a request grouped by type of resource
@@ -256,7 +256,7 @@ public class QueryParams {
 
             if (propertyList.size() > 1) {
                 throw new ParametersDeserializationException("Exceeded maximum level of nesting of 'fields' " +
-                    "parameter (1) eg. fields[Task][name] <-- #2 level and more are not allowed");
+                    "parameter (1) eg. fields[tasks][name] <-- #2 level and more are not allowed");
             }
 
             String resourceType = propertyList.get(0);
@@ -292,9 +292,9 @@ public class QueryParams {
      * <p>
      * Examples of accepted sparse field sets of resources:
      * <ul>
-     * <li>{@code GET /tasks/?include[Task]=author}</li>
-     * <li>{@code GET /tasks/?include[Task][]=author&include[Task][]=comments}</li>
-     * <li>{@code GET /projects/?include[Project]=task&include[Task]=comments}</li>
+     * <li>{@code GET /tasks/?include[tasks]=author}</li>
+     * <li>{@code GET /tasks/?include[tasks][]=author&include[tasks][]=comments}</li>
+     * <li>{@code GET /projects/?include[projects]=task&include[tasks]=comments}</li>
      * </ul>
      *
      * @return {@link TypedParams} Map of sparse field set params passed to a request grouped by type of resource
@@ -345,7 +345,7 @@ public class QueryParams {
         String entryKey = entry.getKey()
             .substring(prefix.length());
 
-        String pattern = "\\w+(?<!\\[)(?=\\])";
+        String pattern = "[\\w-]+(?<!\\[)(?=\\])";
         Pattern regexp = Pattern.compile(pattern);
         Matcher matcher = regexp.matcher(entryKey);
         List<String> matchList = new LinkedList<>();

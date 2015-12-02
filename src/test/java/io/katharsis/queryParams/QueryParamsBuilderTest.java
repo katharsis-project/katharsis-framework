@@ -25,7 +25,7 @@ public class QueryParamsBuilderTest {
     @Test
     public void onGivenFiltersBuilderShouldReturnRequestParamsWithFilters() throws ParametersDeserializationException {
         // GIVEN
-        queryParams.put("filter[User][name]", Collections.singleton("John"));
+        queryParams.put("filter[users][name]", Collections.singleton("John"));
 
         // WHEN
         QueryParams result = sut.buildQueryParams(queryParams);
@@ -33,11 +33,11 @@ public class QueryParamsBuilderTest {
         // THEN
         assertThat(result.getFilters()
             .getParams()
-            .get("User")).isNotNull();
+            .get("users")).isNotNull();
 
         assertThat(result.getFilters()
             .getParams()
-            .get("User")
+            .get("users")
             .getParams()
             .get("name")).isEqualTo(Collections.singleton("John"));
     }
@@ -45,7 +45,7 @@ public class QueryParamsBuilderTest {
     @Test
     public void onGivenSortingBuilderShouldReturnRequestParamsWithSorting() throws ParametersDeserializationException {
         // GIVEN
-        queryParams.put("sort[User][name]", Collections.singleton("asc"));
+        queryParams.put("sort[users][name]", Collections.singleton("asc"));
 
         // WHEN
         QueryParams result = sut.buildQueryParams(queryParams);
@@ -53,11 +53,11 @@ public class QueryParamsBuilderTest {
         // THEN
         assertThat(result.getSorting()
             .getParams()
-            .get("User")).isNotNull();
+            .get("users")).isNotNull();
 
         assertThat(result.getSorting()
             .getParams()
-            .get("User")
+            .get("users")
             .getParams()
             .get("name")).isEqualTo(RestrictedSortingValues.asc);
 
@@ -67,7 +67,7 @@ public class QueryParamsBuilderTest {
     public void onGivenGroupingBuilderShouldReturnRequestParamsWithGrouping() throws
         ParametersDeserializationException {
         // GIVEN
-        queryParams.put("group[User]", Collections.singleton("name"));
+        queryParams.put("group[users]", Collections.singleton("name"));
 
         // WHEN
         QueryParams result = sut.buildQueryParams(queryParams);
@@ -75,11 +75,11 @@ public class QueryParamsBuilderTest {
         // THEN
         assertThat(result.getGrouping()
             .getParams()
-            .get("User")).isNotNull();
+            .get("users")).isNotNull();
 
         assertThat(result.getGrouping()
             .getParams()
-            .get("User")
+            .get("users")
             .getParams()
             .iterator()
             .next()).isEqualTo("name");
@@ -107,7 +107,7 @@ public class QueryParamsBuilderTest {
     public void onGivenIncludedFieldsBuilderShouldReturnRequestParamsWithIncludedFields() throws
         ParametersDeserializationException {
         // GIVEN
-        queryParams.put("fields[User]", Collections.singleton("name"));
+        queryParams.put("fields[users]", Collections.singleton("name"));
 
         // WHEN
         QueryParams result = sut.buildQueryParams(queryParams);
@@ -115,11 +115,11 @@ public class QueryParamsBuilderTest {
         // THEN
         assertThat(result.getIncludedFields()
             .getParams()
-            .get("User")).isNotNull();
+            .get("users")).isNotNull();
 
         assertThat(result.getIncludedFields()
             .getParams()
-            .get("User")
+            .get("users")
             .getParams()
             .iterator()
             .next()).isEqualTo("name");
@@ -129,7 +129,7 @@ public class QueryParamsBuilderTest {
     public void onGivenIncludedRelationsBuilderShouldReturnRequestParamsWithIncludedRelations() throws
         ParametersDeserializationException {
         // GIVEN
-        queryParams.put("include[User]", Collections.singleton("friends"));
+        queryParams.put("include[special-users]", Collections.singleton("friends"));
 
         // WHEN
         QueryParams result = sut.buildQueryParams(queryParams);
@@ -137,11 +137,11 @@ public class QueryParamsBuilderTest {
         // THEN
         assertThat(result.getIncludedRelations()
             .getParams()
-            .get("User")).isNotNull();
+            .get("special-users")).isNotNull();
 
         assertThat(result.getIncludedRelations()
             .getParams()
-            .get("User")
+            .get("special-users")
             .getParams()
             .iterator()
             .next()
