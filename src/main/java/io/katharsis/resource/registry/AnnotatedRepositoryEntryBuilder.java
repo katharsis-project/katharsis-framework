@@ -54,7 +54,7 @@ public class AnnotatedRepositoryEntryBuilder implements RepositoryEntryBuilder {
 
     private List<Object> findRepositoryObject(ResourceLookup lookup, Predicate<Class<?>> classPredicate, Class<? extends Annotation> annotation) {
         return lookup.getResourceRepositoryClasses().stream()
-        	.filter((clazz) -> clazz.getAnnotation(annotation) != null)
+        	.filter((clazz) -> clazz.isAnnotationPresent(annotation))
             .filter(classPredicate)
             .map(clazz -> {
                 Object instance = jsonServiceLocator.getInstance(clazz);

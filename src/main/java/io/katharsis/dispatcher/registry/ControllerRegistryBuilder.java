@@ -47,7 +47,7 @@ public class ControllerRegistryBuilder {
      * @return an instance of {@link ControllerRegistry} with initialized controllers
      * @throws Exception initialization exception
      */
-    public ControllerRegistry build(ControllerLookup lookup) throws Exception {
+    private ControllerRegistry build(ControllerLookup lookup) throws Exception {
         List<BaseController> controllers = new LinkedList<>();
         controllers.addAll(lookup.getControllers());
         return new ControllerRegistry(controllers);
