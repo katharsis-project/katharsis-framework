@@ -1,5 +1,8 @@
-# katharsis-rs v2.0.2-SNAPSHOT git changelog
+# katharsis-rs v2.1.0 git changelog
 
+
+**v2.1.0**  
+2015-12-02    v2.1.0 (Patryk Orwat)  
 2015-11-24    katharsis-core-172 added changelog (Patryk Orwat)  
 
 **v2.0.1**  
