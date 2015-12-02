@@ -8,12 +8,17 @@ import io.katharsis.resource.registry.repository.DirectRelationshipEntry;
 import io.katharsis.resource.registry.repository.DirectResourceEntry;
 import io.katharsis.resource.registry.repository.RelationshipEntry;
 import io.katharsis.resource.registry.repository.ResourceEntry;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import net.jodah.typetools.TypeResolver;
-import org.reflections.Reflections;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.*;
 
 /**
  * Repository entries builder for classes implementing repository interfaces.
@@ -28,9 +33,10 @@ public class DirectRepositoryEntryBuilder implements RepositoryEntryBuilder {
     }
 
     @Override
-    public ResourceEntry<?, ?> buildResourceRepository(Reflections reflections, Class<?> resourceClass) {
-        Optional<Class<? extends ResourceRepository>> repoClass = reflections.getSubTypesOf(ResourceRepository.class)
+    public ResourceEntry<?, ?> buildResourceRepository(ResourceLookup lookup, Class<?> resourceClass) {
+        Optional<Class<?>> repoClass = lookup.getResourceRepositoryClasses()
             .stream()
+            .filter(ResourceRepository.class::isAssignableFrom)
             .filter(clazz -> {
                 Class<?>[] typeArgs = TypeResolver.resolveRawArguments(ResourceRepository.class, clazz);
                 return typeArgs[0] == resourceClass;
@@ -39,7 +45,7 @@ public class DirectRepositoryEntryBuilder implements RepositoryEntryBuilder {
         if (!repoClass.isPresent()) {
             return null;
         }
-        ResourceRepository<?, ?> repoInstance = jsonServiceLocator.getInstance(repoClass.get());
+        ResourceRepository<?, ?> repoInstance = (ResourceRepository<?, ?>) jsonServiceLocator.getInstance(repoClass.get());
         if (repoInstance == null) {
             throw new RepositoryInstanceNotFoundException(repoClass.get().getCanonicalName());
         }
@@ -47,16 +53,15 @@ public class DirectRepositoryEntryBuilder implements RepositoryEntryBuilder {
     }
 
     @Override
-    public List<RelationshipEntry<?, ?>> buildRelationshipRepositories(Reflections reflections, Class<?> resourceClass) {
-        Set<Class<? extends RelationshipRepository>> relationshipRepositoryClasses = reflections
-            .getSubTypesOf(RelationshipRepository.class);
+    public List<RelationshipEntry<?, ?>> buildRelationshipRepositories(ResourceLookup lookup, Class<?> resourceClass) {
+        Set<Class<?>> relationshipRepositoryClasses = lookup.getResourceRepositoryClasses();
 
-        Set<Class<? extends RelationshipRepository>> relationshipRepositories =
+        Set<Class<?>> relationshipRepositories =
             findRelationshipRepositories(resourceClass, relationshipRepositoryClasses);
 
         List<RelationshipEntry<?, ?>> relationshipEntries = new LinkedList<>();
-        for (Class<? extends RelationshipRepository> relationshipRepositoryClass : relationshipRepositories) {
-            RelationshipRepository relationshipRepository = jsonServiceLocator.getInstance(relationshipRepositoryClass);
+        for (Class<?> relationshipRepositoryClass : relationshipRepositories) {
+            RelationshipRepository relationshipRepository = (RelationshipRepository) jsonServiceLocator.getInstance(relationshipRepositoryClass);
             if (relationshipRepository == null) {
                 throw new RepositoryInstanceNotFoundException(relationshipRepositoryClass.getCanonicalName());
             }
@@ -69,15 +74,12 @@ public class DirectRepositoryEntryBuilder implements RepositoryEntryBuilder {
         return relationshipEntries;
     }
 
-    private Set<Class<? extends RelationshipRepository>> findRelationshipRepositories(Class resourceClass,
-                                                                                      Set<Class<? extends RelationshipRepository>> relationshipRepositoryClasses) {
-        Set<Class<? extends RelationshipRepository>> foundRelationshipRepositories = new LinkedHashSet<>(2);
-        for (Class<? extends RelationshipRepository> relationshipRepository : relationshipRepositoryClasses) {
-            Class<?>[] typeArgs = TypeResolver.resolveRawArguments(RelationshipRepository.class, relationshipRepository);
-            if (typeArgs[0] == resourceClass) {
-                foundRelationshipRepositories.add(relationshipRepository);
-            }
-        }
-        return foundRelationshipRepositories;
+    private Set<Class<?>> findRelationshipRepositories(Class resourceClass, Set<Class<?>> relationshipRepositoryClasses) {
+    	return relationshipRepositoryClasses.stream()
+    		.filter(RelationshipRepository.class::isAssignableFrom)
+    		.filter(clazz-> {
+                Class<?>[] typeArgs = TypeResolver.resolveRawArguments(RelationshipRepository.class, clazz);
+                return typeArgs[0] == resourceClass;
+    		}).collect(Collectors.toSet());
     }
 }

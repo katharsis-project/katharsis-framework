@@ -5,7 +5,6 @@ import io.katharsis.repository.NotFoundRepository;
 import io.katharsis.resource.registry.repository.DirectResourceEntry;
 import io.katharsis.resource.registry.repository.RelationshipEntry;
 import io.katharsis.resource.registry.repository.ResourceEntry;
-import org.reflections.Reflections;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -25,11 +24,10 @@ public class RepositoryEntryBuilderFacade implements RepositoryEntryBuilder {
     }
 
     @Override
-    public ResourceEntry<?, ?> buildResourceRepository(Reflections reflections, Class<?> resourceClass) {
-        ResourceEntry<?, ?> resourceEntry = annotatedRepositoryEntryBuilder
-            .buildResourceRepository(reflections, resourceClass);
+    public ResourceEntry<?, ?> buildResourceRepository(ResourceLookup lookup, Class<?> resourceClass) {
+    	ResourceEntry<?, ?> resourceEntry =  annotatedRepositoryEntryBuilder.buildResourceRepository(lookup, resourceClass);
         if (resourceEntry == null) {
-            resourceEntry = directRepositoryEntryBuilder.buildResourceRepository(reflections, resourceClass);
+            resourceEntry = directRepositoryEntryBuilder.buildResourceRepository(lookup, resourceClass);
         }
         if (resourceEntry == null) {
             resourceEntry = new DirectResourceEntry<>(new NotFoundRepository<>(resourceClass));
@@ -39,12 +37,12 @@ public class RepositoryEntryBuilderFacade implements RepositoryEntryBuilder {
     }
 
     @Override
-    public List<RelationshipEntry<?, ?>> buildRelationshipRepositories(Reflections reflections, Class<?> resourceClass) {
+    public List<RelationshipEntry<?, ?>> buildRelationshipRepositories(ResourceLookup lookup, Class<?> resourceClass) {
         List<RelationshipEntry<?, ?>> annotationEntries = annotatedRepositoryEntryBuilder
-            .buildRelationshipRepositories(reflections, resourceClass);
+            .buildRelationshipRepositories(lookup, resourceClass);
         List<RelationshipEntry<?, ?>> targetEntries = new LinkedList<>(annotationEntries);
         List<RelationshipEntry<?, ?>> directEntries = directRepositoryEntryBuilder
-            .buildRelationshipRepositories(reflections, resourceClass);
+            .buildRelationshipRepositories(lookup, resourceClass);
 
         directEntries.forEach(
             directEntry -> {
