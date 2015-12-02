@@ -6,14 +6,14 @@ import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.registry.repository.RelationshipEntry;
 import io.katharsis.resource.registry.repository.ResourceEntry;
-import org.reflections.Reflections;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Builder responsible for building an instance of ResourceRegistry.
@@ -33,23 +33,26 @@ public class ResourceRegistryBuilder {
     }
 
     /**
-     * Scans all classes in provided package and finds all resources and repositories associated with found resource.
+     * Uses a {@link DefaultResourceLookup} to get all  classes in provided package and finds all resources and repositories associated with found resource.
      *
      * @param packageName Package containing resources (models) and repositories.
      * @param serviceUrl  URL to the service
      * @return an instance of ResourceRegistry
      */
     public ResourceRegistry build(String packageName, @SuppressWarnings("SameParameterValue") String serviceUrl) {
-        Reflections reflections;
-        if (packageName != null) {
-            String[] packageNames = packageName.split(",");
-            reflections = new Reflections(packageNames);
-        } else {
-            reflections = new Reflections(packageName);
-        }
+    	return build(new DefaultResourceLookup(packageName), serviceUrl);
+    }
 
-
-        Set<Class<?>> jsonApiResources = reflections.getTypesAnnotatedWith(JsonApiResource.class);
+    /**
+     * Uses a {@link ResourceLookup} to get all resources and repositories associated with found resource.
+     *
+     * @param resourceLookup Lookup for getting all resource classes.
+     * @param serviceUrl  URL to the service
+     * @return an instance of ResourceRegistry
+     */
+    public ResourceRegistry build(ResourceLookup resourceLookup, @SuppressWarnings("SameParameterValue") String serviceUrl) {
+        Set<Class<?>> jsonApiResources = resourceLookup.getResourceClasses();
+        
         Set<ResourceInformation> resourceInformationSet = jsonApiResources.stream()
             .map(resourceInformationBuilder::build)
             .collect(Collectors.toSet());
@@ -58,9 +61,9 @@ public class ResourceRegistryBuilder {
         for (ResourceInformation resourceInformation : resourceInformationSet) {
             Class<?> resourceClass = resourceInformation.getResourceClass();
 
-            ResourceEntry<?, ?> resourceEntry = repositoryEntryBuilder.buildResourceRepository(reflections, resourceClass);
+            ResourceEntry<?, ?> resourceEntry = repositoryEntryBuilder.buildResourceRepository(resourceLookup, resourceClass);
             List<RelationshipEntry<?, ?>> relationshipEntries = repositoryEntryBuilder
-            .buildRelationshipRepositories(reflections, resourceClass);
+            .buildRelationshipRepositories(resourceLookup, resourceClass);
 
             registryEntries.add(new RegistryEntry(resourceInformation, resourceEntry, relationshipEntries));
 

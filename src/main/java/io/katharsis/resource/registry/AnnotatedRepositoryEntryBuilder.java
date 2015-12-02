@@ -8,7 +8,6 @@ import io.katharsis.resource.registry.repository.AnnotatedRelationshipEntryBuild
 import io.katharsis.resource.registry.repository.AnnotatedResourceEntryBuilder;
 import io.katharsis.resource.registry.repository.RelationshipEntry;
 import io.katharsis.resource.registry.repository.ResourceEntry;
-import org.reflections.Reflections;
 
 import java.lang.annotation.Annotation;
 import java.util.List;
@@ -27,11 +26,11 @@ public class AnnotatedRepositoryEntryBuilder implements RepositoryEntryBuilder {
     }
 
     @Override
-    public ResourceEntry<?, ?> buildResourceRepository(Reflections reflections, Class<?> resourceClass) {
+    public ResourceEntry<?, ?> buildResourceRepository(ResourceLookup lookup, Class<?> resourceClass) {
         Predicate<Class<?>> classPredicate =
             clazz -> resourceClass.equals(clazz.getAnnotation(JsonApiResourceRepository.class).value());
 
-        List<Object> repositoryObjects = findRepositoryObject(reflections, classPredicate, JsonApiResourceRepository.class);
+        List<Object> repositoryObjects = findRepositoryObject(lookup, classPredicate, JsonApiResourceRepository.class);
         if (repositoryObjects.size() == 0) {
             return null;
         } else {
@@ -40,18 +39,22 @@ public class AnnotatedRepositoryEntryBuilder implements RepositoryEntryBuilder {
     }
 
     @Override
-    public List<RelationshipEntry<?, ?>> buildRelationshipRepositories(Reflections reflections, Class<?> resourceClass) {
+    public List<RelationshipEntry<?, ?>> buildRelationshipRepositories(ResourceLookup lookup, Class<?> resourceClass) {
         Predicate<Class<?>> classPredicate =
-            clazz -> resourceClass.equals(clazz.getAnnotation(JsonApiRelationshipRepository.class).source());
+            clazz -> {
+            	JsonApiRelationshipRepository annotation = clazz.getAnnotation(JsonApiRelationshipRepository.class);
+				return resourceClass.equals(annotation.source());
+            };
 
-        List<Object> repositoryObjects = findRepositoryObject(reflections, classPredicate, JsonApiRelationshipRepository.class);
+        List<Object> repositoryObjects = findRepositoryObject(lookup, classPredicate, JsonApiRelationshipRepository.class);
         return repositoryObjects.stream()
             .map(AnnotatedRelationshipEntryBuilder::new)
             .collect(Collectors.toList());
     }
 
-    private List<Object> findRepositoryObject(Reflections reflections, Predicate<Class<?>> classPredicate, Class<? extends Annotation> annotation) {
-        return reflections.getTypesAnnotatedWith(annotation).stream()
+    private List<Object> findRepositoryObject(ResourceLookup lookup, Predicate<Class<?>> classPredicate, Class<? extends Annotation> annotation) {
+        return lookup.getResourceRepositoryClasses().stream()
+        	.filter((clazz) -> clazz.isAnnotationPresent(annotation))
             .filter(classPredicate)
             .map(clazz -> {
                 Object instance = jsonServiceLocator.getInstance(clazz);
