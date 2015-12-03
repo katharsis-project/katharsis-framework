@@ -1,5 +1,6 @@
-# katharsis-core v2.1.1-SNAPSHOT git changelog
+# katharsis-core v2.1.1 git changelog
 
+2015-12-02    [#179](https://github.com/katharsis-project/katharsis-core/issues/179) fixed resource type with dash problem (Patryk Orwat)  
 
 **v2.1.0**  
 2015-12-02    v2.1.0 (Patryk Orwat)  
