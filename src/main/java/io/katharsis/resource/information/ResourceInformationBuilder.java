@@ -62,9 +62,9 @@ public final class ResourceInformationBuilder {
                 ResourceField resourceField = new ResourceField(name, field.getType(), field.getGenericType(), annotations);
                 if (Modifier.isTransient(field.getModifiers()) ||
                     Modifier.isStatic(field.getModifiers())) {
-                    return new ResourceFieldWrapper(resourceField, true);
+                    return new ResourceFieldWrapper(resourceField, true, field.getName());
                 } else {
-                    return new ResourceFieldWrapper(resourceField, false);
+                    return new ResourceFieldWrapper(resourceField, false, field.getName());
                 }
             })
             .collect(Collectors.toList());
@@ -75,12 +75,13 @@ public final class ResourceInformationBuilder {
             .stream()
             .map(getter -> {
                 String name = resourceFieldNameTransformer.getName(getter);
+                String originalName = resourceFieldNameTransformer.getMethodName(getter);
                 List<Annotation> annotations = Arrays.asList(getter.getAnnotations());
                 ResourceField resourceField = new ResourceField(name, getter.getReturnType(), getter.getGenericReturnType(), annotations);
                 if (Modifier.isStatic(getter.getModifiers())) {
-                    return new ResourceFieldWrapper(resourceField, true);
+                    return new ResourceFieldWrapper(resourceField, true, originalName);
                 } else {
-                    return new ResourceFieldWrapper(resourceField, false);
+                    return new ResourceFieldWrapper(resourceField, false, originalName);
                 }
             })
             .collect(Collectors.toList());
@@ -91,16 +92,17 @@ public final class ResourceInformationBuilder {
 
         for (ResourceFieldWrapper fieldWrapper : resourceClassFields) {
             if (!fieldWrapper.isDiscarded())
-            resourceFieldMap.put(fieldWrapper.getResourceField().getName(), fieldWrapper.getResourceField());
+            resourceFieldMap.put(fieldWrapper.getOriginalName(), fieldWrapper.getResourceField());
         }
 
         for (ResourceFieldWrapper fieldWrapper : resourceGetterFields) {
             if (!fieldWrapper.isDiscarded()) {
+                String originalName = fieldWrapper.getOriginalName();
                 ResourceField field = fieldWrapper.getResourceField();
-                if (resourceFieldMap.containsKey(field.getName())) {
-                    resourceFieldMap.put(field.getName(), mergeAnnotations(resourceFieldMap.get(field.getName()), field));
-                } else if (!hasDiscardedField(field, resourceClassFields)) {
-                    resourceFieldMap.put(field.getName(), field);
+                if (resourceFieldMap.containsKey(originalName)) {
+                    resourceFieldMap.put(originalName, mergeAnnotations(resourceFieldMap.get(originalName), field));
+                } else if (!hasDiscardedField(fieldWrapper, resourceClassFields)) {
+                    resourceFieldMap.put(originalName, field);
                 }
             }
         }
@@ -111,9 +113,10 @@ public final class ResourceInformationBuilder {
             .collect(Collectors.toList());
     }
 
-    private boolean hasDiscardedField(ResourceField field, List<ResourceFieldWrapper> resourceClassFields) {
+    private boolean hasDiscardedField(ResourceFieldWrapper fieldWrapper, List<ResourceFieldWrapper> resourceClassFields) {
         return resourceClassFields.stream()
-            .filter(resourceFieldWrapper -> field.getName().equals(resourceFieldWrapper.getResourceField().getName()))
+            .filter(resourceFieldWrapper -> fieldWrapper.getOriginalName()
+                    .equals(resourceFieldWrapper.getOriginalName()))
             .findFirst()
             .isPresent();
     }
