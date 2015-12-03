@@ -1,6 +1,9 @@
 # katharsis-rs v2.1.1 git changelog
 
 
+**v2.1.1**  
+2015-12-03    v2.1.1 (Patryk Orwat)  
+
 **v2.1.0**  
 2015-12-02    v2.1.0 (Patryk Orwat)  
 2015-12-02    made katharsis feature more extendable to allow usage of custom lookup classes (Cornelis Hoeflake)  
