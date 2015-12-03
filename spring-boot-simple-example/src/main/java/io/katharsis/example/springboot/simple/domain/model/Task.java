@@ -16,6 +16,7 @@
  */
 package io.katharsis.example.springboot.simple.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.katharsis.resource.annotations.JsonApiId;
 import io.katharsis.resource.annotations.JsonApiIncludeByDefault;
 import io.katharsis.resource.annotations.JsonApiResource;
@@ -27,6 +28,7 @@ public class Task {
     @JsonApiId
     private Long id;
 
+    @JsonProperty("my-name")
     private String name;
 
     @JsonApiToOne
