@@ -20,17 +20,33 @@ public class ResourceFieldNameTransformer {
         return name;
     }
 
+    /**
+     * Extract name to be used by Katharsis from getter's name. It uses
+     * {@link ResourceFieldNameTransformer#getMethodName(Method)} and {@link JsonProperty#value()} annotation.
+     * @param method method to extract name
+     * @return method name
+     */
     public String getName(Method method) {
+        String name = getMethodName(method);
+
+        if (method.isAnnotationPresent(JsonProperty.class) &&
+            !"".equals(method.getAnnotation(JsonProperty.class).value())) {
+            name = method.getAnnotation(JsonProperty.class).value();
+        }
+        return name;
+    }
+
+    /**
+     * Extract Java bean name from getter's name
+     * @param method method to extract name
+     * @return extracted method name
+     */
+    public String getMethodName(Method method) {
         String name;
         if (ClassUtils.isBooleanGetter(method)) {
             name = extractMethodName(method, 2);
         } else {
             name = extractMethodName(method, 3);
-        }
-
-        if (method.isAnnotationPresent(JsonProperty.class) &&
-            !"".equals(method.getAnnotation(JsonProperty.class).value())) {
-            name = method.getAnnotation(JsonProperty.class).value();
         }
         return name;
     }
