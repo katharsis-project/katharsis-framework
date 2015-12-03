@@ -84,6 +84,7 @@ public class SpringParameterProvider implements RepositoryMethodParameterProvide
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T> T provide(Method method, int parameterIndex) {
         MethodParameter methodParameter = new MethodParameter(method, parameterIndex);
         ModelAndViewContainer modelAndViewContainer = new ModelAndViewContainer();
