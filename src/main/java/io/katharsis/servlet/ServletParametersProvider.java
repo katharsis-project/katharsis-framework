@@ -22,6 +22,7 @@ public class ServletParametersProvider implements RepositoryMethodParameterProvi
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T> T provide(Method method, int parameterIndex) {
         Parameter parameter = getParameter(method, parameterIndex);
         Object returnValue = null;
