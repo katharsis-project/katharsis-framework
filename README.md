@@ -7,7 +7,7 @@ The Katharsis library adds an additional layer on top of RESTful endpoint to pro
 [![Join the chat at https://gitter.im/katharsis-project/katharsis-servlet](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/katharsis-project/katharsis-servlet?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Build Status](https://travis-ci.org/katharsis-project/katharsis-servlet.svg?branch=develop)](https://travis-ci.org/katharsis-project/katharsis-servlet)
 [![Coverage Status](https://coveralls.io/repos/katharsis-project/katharsis-servlet/badge.svg?branch=develop)](https://coveralls.io/r/katharsis-project/katharsis-servlet?branch=develop)
-[![Stories in Ready](https://badge.waffle.io/katharsis-project/katharsis-servlet.png?label=ready&title=Ready)](https://waffle.io/katharsis-project/katharsis-servlet)
+[![Dependency Status](https://www.versioneye.com/user/projects/56633a70f376cc003d0009a9/badge.svg?style=flat)](https://www.versioneye.com/user/projects/56633a70f376cc003d0009a9)
 [![Maven Central](https://img.shields.io/maven-central/v/io.katharsis/katharsis-servlet.svg)](http://mvnrepository.com/artifact/io.katharsis/katharsis-servlet)
 
 Generic Servlet Adapter of Katharsis JSON:API middleware library.
