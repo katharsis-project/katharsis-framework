@@ -6,7 +6,7 @@ The Katharsis library adds an additional layer on top of RESTful endpoint to pro
 
 [![Build Status](https://travis-ci.org/katharsis-project/katharsis-core.svg?branch=development)](https://travis-ci.org/katharsis-project/katharsis-core)
 [![Coverage Status](https://coveralls.io/repos/katharsis-project/katharsis-core/badge.svg?branch=development)](https://coveralls.io/r/katharsis-project/katharsis-core?branch=development)
-[![Dependency Status](https://www.versioneye.com/user/projects/5530cfa410e714f9e5000dc3/badge.svg?style=flat)](https://www.versioneye.com/user/projects/5530cfa410e714f9e5000dc3)
+[![Dependency Status](https://www.versioneye.com/user/projects/56633a74f376cc003c000a94/badge.svg?style=flat)](https://www.versioneye.com/user/projects/56633a74f376cc003c000a94)
 [![Maven Central](https://img.shields.io/maven-central/v/io.katharsis/katharsis-core.svg)](http://mvnrepository.com/artifact/io.katharsis/katharsis-core)
 
 Systems nowadays utilize data from various systems to leverage the business needs. To achieve that, many of them provide usually inconsistent REST interface.
