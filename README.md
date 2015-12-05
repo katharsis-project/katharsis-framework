@@ -6,7 +6,7 @@ The Katharsis library adds an additional layer on top of RESTful endpoint to pro
 
 [![Build Status](https://travis-ci.org/katharsis-project/katharsis-rs.svg?branch=development)](https://travis-ci.org/katharsis-project/katharsis-rs)
 [![Coverage Status](https://coveralls.io/repos/katharsis-project/katharsis-rs/badge.svg?branch=development)](https://coveralls.io/r/katharsis-project/katharsis-rs?branch=development)
-[![Dependency Status](https://www.versioneye.com/user/projects/55325de010e714f9e5001279/badge.svg?style=flat)](https://www.versioneye.com/user/projects/55325de010e714f9e5001279)
+[![Dependency Status](https://www.versioneye.com/user/projects/56633a6cf376cc003c000a7c/badge.svg?style=flat)](https://www.versioneye.com/user/projects/56633a6cf376cc003c000a7c)
 [![Maven Central](https://img.shields.io/maven-central/v/io.katharsis/katharsis-rs.svg)](http://mvnrepository.com/artifact/io.katharsis/katharsis-rs)
 
 JAX-RS Adapter of Katharsis JSON:API middleware library.
