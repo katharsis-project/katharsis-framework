@@ -11,11 +11,11 @@ import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.FieldPath;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathIds;
-import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.exception.RequestBodyException;
 import io.katharsis.resource.exception.RequestBodyNotFoundException;
 import io.katharsis.resource.exception.ResourceFieldNotFoundException;
 import io.katharsis.resource.exception.ResourceNotFoundException;
+import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.HttpStatus;
@@ -36,15 +36,17 @@ import java.util.Collections;
  */
 public class FieldResourcePost extends ResourceUpsert {
 
-    public FieldResourcePost(ResourceRegistry resourceRegistry, TypeParser typeParser, @SuppressWarnings("SameParameterValue") ObjectMapper objectMapper) {
+    public FieldResourcePost(ResourceRegistry resourceRegistry, TypeParser typeParser, @SuppressWarnings
+        ("SameParameterValue") ObjectMapper objectMapper) {
         super(resourceRegistry, typeParser, objectMapper);
     }
 
     @Override
     public boolean isAcceptable(JsonPath jsonPath, String requestType) {
         return !jsonPath.isCollection()
-                && FieldPath.class.equals(jsonPath.getClass())
-                && HttpMethod.POST.name().equals(requestType);
+            && FieldPath.class.equals(jsonPath.getClass())
+            && HttpMethod.POST.name()
+            .equals(requestType);
     }
 
     @Override
@@ -88,38 +90,41 @@ public class FieldResourcePost extends ResourceUpsert {
         saveRelations(savedResource, relationshipRegistryEntry, dataBody, parameterProvider);
 
         Serializable resourceId = (Serializable) PropertyUtils
-            .getProperty(savedResource, relationshipRegistryEntry.getResourceInformation().getIdField().getName());
-
-        @SuppressWarnings("unchecked")
-        Object savedResourceWithRelations = resourceRepository.findOne(resourceId, queryParams);
+            .getProperty(savedResource, relationshipRegistryEntry.getResourceInformation()
+                .getIdField()
+                .getName());
 
         RelationshipRepository relationshipRepositoryForClass = endpointRegistryEntry
             .getRelationshipRepositoryForClass(relationshipFieldClass, parameterProvider);
+
         @SuppressWarnings("unchecked")
-        Object parent = endpointRegistryEntry.getResourceRepository(parameterProvider).findOne(castedResourceId, queryParams);
+        Object parent = endpointRegistryEntry.getResourceRepository(parameterProvider)
+            .findOne(castedResourceId, queryParams);
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
             //noinspection unchecked
-            relationshipRepositoryForClass.addRelations(parent, Collections.singletonList(resourceId), jsonPath.getElementName());
+            relationshipRepositoryForClass.addRelations(parent, Collections.singletonList(resourceId), jsonPath
+                .getElementName());
         } else {
             //noinspection unchecked
             relationshipRepositoryForClass.setRelation(parent, resourceId, jsonPath.getElementName());
         }
         MetaInformation metaInformation = getMetaInformation(resourceRepository,
-            Collections.singletonList(savedResourceWithRelations), queryParams);
+            Collections.singletonList(savedResource), queryParams);
         LinksInformation linksInformation =
-            getLinksInformation(resourceRepository, Collections.singletonList(savedResourceWithRelations), queryParams);
+            getLinksInformation(resourceRepository, Collections.singletonList(savedResource), queryParams);
 
-        return new ResourceResponse(savedResourceWithRelations, jsonPath, queryParams, metaInformation, linksInformation,
+        return new ResourceResponse(savedResource, jsonPath, queryParams, metaInformation, linksInformation,
             HttpStatus.CREATED_201);
     }
 
     private Serializable getResourceId(PathIds resourceIds, RegistryEntry<?> registryEntry) {
-        String resourceId = resourceIds.getIds().get(0);
+        String resourceId = resourceIds.getIds()
+            .get(0);
         @SuppressWarnings("unchecked")
         Class<? extends Serializable> idClass = (Class<? extends Serializable>) registryEntry
-                .getResourceInformation()
-                .getIdField()
-                .getType();
+            .getResourceInformation()
+            .getIdField()
+            .getType();
         return typeParser.parse(resourceId, idClass);
     }
 }
