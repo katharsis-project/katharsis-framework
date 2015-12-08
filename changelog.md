@@ -1,5 +1,8 @@
 # katharsis-spring v2.1.2 git changelog
 
+
+**v2.1.2**  
+2015-12-09    v2.1.2 (Patryk Orwat)  
 2015-12-08    katharsis-project/katharsis-core[#186](https://github.com/katharsis-project/katharsis-spring/issues/186) made reflections optional (Patryk Orwat)  
 2015-12-06    katharsis-project/katharsis-core[#186](https://github.com/katharsis-project/katharsis-spring/issues/186) added OSGi headers (Patryk Orwat)  
 2015-12-05    more badges (Patryk Orwat)  
