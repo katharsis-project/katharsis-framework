@@ -133,7 +133,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
     private boolean isIncluded(String resourceType, TypedParams<IncludedFieldsParams> includedFields, ResourceField attributeField) {
         IncludedFieldsParams typeIncludedFields = findIncludedFields(includedFields, resourceType);
         if (typeIncludedFields == null || typeIncludedFields.getParams().isEmpty()) {
-            return includedFields == null;
+            return includedFields == null || includedFields.getParams().isEmpty();
         } else {
             return typeIncludedFields.getParams().contains(attributeField.getName());
         }
