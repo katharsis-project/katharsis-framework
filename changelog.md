@@ -1,5 +1,12 @@
-# katharsis-core v2.1.1 git changelog
+# katharsis-core v2.1.2-SNAPSHOT git changelog
 
+2015-12-05    [#186](https://github.com/katharsis-project/katharsis-core/issues/186) added OSGi definition (Patryk Orwat)  
+2015-12-05    versioneye update (Patryk Orwat)  
+2015-12-04    version up (Patryk Orwat)  
+
+**v2.1.1**  
+2015-12-03    v2.1.1 (Patryk Orwat)  
+2015-12-03    [#184](https://github.com/katharsis-project/katharsis-core/issues/184) fixed @JsonProperty handling (Patryk Orwat)  
 2015-12-02    [#179](https://github.com/katharsis-project/katharsis-core/issues/179) fixed resource type with dash problem (Patryk Orwat)  
 
 **v2.1.0**  
