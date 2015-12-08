@@ -1,5 +1,6 @@
-# io.katharsis:katharsis-servlet v2.1.1 git changelog
+# io.katharsis:katharsis-servlet v2.1.2-SNAPSHOT git changelog
 
+2015-12-05    added versioneye (Patryk Orwat)  
 
 **v2.1.1**  
 2015-12-03    v2.1.1 (Patryk Orwat)  
