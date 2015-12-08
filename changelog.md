@@ -1,5 +1,9 @@
-# katharsis-core v2.1.2-SNAPSHOT git changelog
+# katharsis-core v2.1.2 git changelog
 
+**v2.1.2**  
+2015-12-09    v2.1.2 (Patryk Orwat)  
+2015-12-08    [#188](https://github.com/katharsis-project/katharsis-core/issues/188) include and fields fix (Patryk Orwat)  
+2015-12-08    [#189](https://github.com/katharsis-project/katharsis-core/issues/189) - POST shouldn't call repository findOne method (Błażej Krysiak)  
 2015-12-08    [#186](https://github.com/katharsis-project/katharsis-core/issues/186) made reflections optional (Patryk Orwat)  
 2015-12-05    [#186](https://github.com/katharsis-project/katharsis-core/issues/186) added OSGi definition (Patryk Orwat)  
 2015-12-05    versioneye update (Patryk Orwat)  

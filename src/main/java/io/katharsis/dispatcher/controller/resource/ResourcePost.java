@@ -32,7 +32,7 @@ public class ResourcePost extends ResourceUpsert {
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Check if it is a POST request for a resource.
      */
     @Override
