@@ -18,11 +18,9 @@ import io.katharsis.response.HttpStatus;
 import io.katharsis.response.LinksInformation;
 import io.katharsis.response.MetaInformation;
 import io.katharsis.response.ResourceResponse;
-import io.katharsis.utils.PropertyUtils;
 import io.katharsis.utils.parser.TypeParser;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 
@@ -34,14 +32,15 @@ public class ResourcePost extends ResourceUpsert {
 
     /**
      * {@inheritDoc}
-     * <p>
+     * <p/>
      * Check if it is a POST request for a resource.
      */
     @Override
     public boolean isAcceptable(JsonPath jsonPath, String requestType) {
         return jsonPath.isCollection() &&
-                jsonPath instanceof ResourcePath &&
-                HttpMethod.POST.name().equals(requestType);
+            jsonPath instanceof ResourcePath &&
+            HttpMethod.POST.name()
+                .equals(requestType);
     }
 
     @Override
@@ -67,7 +66,9 @@ public class ResourcePost extends ResourceUpsert {
         }
         RegistryEntry bodyRegistryEntry = resourceRegistry.getEntry(dataBody.getType());
         verifyTypes(HttpMethod.POST, resourceEndpointName, endpointRegistryEntry, bodyRegistryEntry);
-        Object newResource = bodyRegistryEntry.getResourceInformation().getResourceClass().newInstance();
+        Object newResource = bodyRegistryEntry.getResourceInformation()
+            .getResourceClass()
+            .newInstance();
 
         setId(dataBody, newResource, bodyRegistryEntry.getResourceInformation());
         setAttributes(dataBody, newResource, bodyRegistryEntry.getResourceInformation());
@@ -75,17 +76,12 @@ public class ResourcePost extends ResourceUpsert {
         setRelations(newResource, bodyRegistryEntry, dataBody, queryParams, parameterProvider);
         Object savedResource = resourceRepository.save(newResource);
 
-        Serializable resourceId = (Serializable) PropertyUtils
-            .getProperty(savedResource, bodyRegistryEntry.getResourceInformation().getIdField().getName());
-
-        @SuppressWarnings("unchecked")
-        Object savedResourceWithRelations = resourceRepository.findOne(resourceId, queryParams);
         MetaInformation metaInformation =
-            getMetaInformation(resourceRepository, Collections.singletonList(savedResourceWithRelations), queryParams);
+            getMetaInformation(resourceRepository, Collections.singletonList(savedResource), queryParams);
         LinksInformation linksInformation =
-            getLinksInformation(resourceRepository, Collections.singletonList(savedResourceWithRelations), queryParams);
+            getLinksInformation(resourceRepository, Collections.singletonList(savedResource), queryParams);
 
-        return new ResourceResponse(savedResourceWithRelations, jsonPath, queryParams, metaInformation, linksInformation,
+        return new ResourceResponse(savedResource, jsonPath, queryParams, metaInformation, linksInformation,
             HttpStatus.CREATED_201);
     }
 }
