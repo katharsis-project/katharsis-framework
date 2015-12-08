@@ -1,5 +1,6 @@
 # katharsis-core v2.1.2 git changelog
 
+
 **v2.1.2**  
 2015-12-09    v2.1.2 (Patryk Orwat)  
 2015-12-08    [#188](https://github.com/katharsis-project/katharsis-core/issues/188) include and fields fix (Patryk Orwat)  
