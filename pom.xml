@@ -4,7 +4,7 @@
 
     <groupId>io.katharsis</groupId>
     <artifactId>katharsis-examples</artifactId>
-    <version>2.1.1</version>
+    <version>2.1.2-SNAPSHOT</version>
     <modules>
         <module>dropwizard-mongo-example</module>
         <module>jersey-example</module>
@@ -21,6 +21,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <dropwizard.version>0.8.1</dropwizard.version>
         <javaVersion>1.8</javaVersion>
+        <reflections.version>0.9.9</reflections.version>
     </properties>
 
     <build>
@@ -76,6 +77,11 @@
                     <artifactId>jackson-annotations</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.reflections</groupId>
+            <artifactId>reflections</artifactId>
+            <version>${reflections.version}</version>
         </dependency>
     </dependencies>
 
