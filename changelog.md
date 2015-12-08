@@ -1,5 +1,6 @@
 # katharsis-core v2.1.2-SNAPSHOT git changelog
 
+2015-12-08    [#186](https://github.com/katharsis-project/katharsis-core/issues/186) made reflections optional (Patryk Orwat)  
 2015-12-05    [#186](https://github.com/katharsis-project/katharsis-core/issues/186) added OSGi definition (Patryk Orwat)  
 2015-12-05    versioneye update (Patryk Orwat)  
 2015-12-04    version up (Patryk Orwat)  

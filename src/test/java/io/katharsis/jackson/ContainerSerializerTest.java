@@ -1,12 +1,11 @@
 package io.katharsis.jackson;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathBuilder;
-import io.katharsis.resource.RestrictedQueryParamsMembers;
 import io.katharsis.resource.mock.models.Project;
+import io.katharsis.resource.mock.models.Task;
 import io.katharsis.response.Container;
 import io.katharsis.response.ResourceResponse;
 import org.junit.Test;
@@ -74,5 +73,51 @@ public class ContainerSerializerTest extends BaseSerializerTest {
         // THEN
         assertThatJson(result).node("attributes.name").isEqualTo("name");
         assertThatJson(result).node("attributes.description").isAbsent();
+    }
+
+    @Test
+    public void onIncludedRelationshipInParamsShouldContainIncludedList() throws Exception {
+        // GIVEN
+        Task task = new Task();
+        task.setName("some name");
+        Project project = new Project();
+        project.setId(1L);
+        task.setProject(project);
+
+        QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder();
+        QueryParams queryParams = queryParamsBuilder.buildQueryParams(
+            Collections.singletonMap("fields[tasks]", Collections.singleton("project")));
+        JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath("/tasks");
+
+        // WHEN
+        String result = sut.writeValueAsString(new Container(task, new ResourceResponse(null, jsonPath, queryParams,
+            null, null)));
+
+        // THEN
+        assertThatJson(result).node("relationships.project").isPresent();
+        assertThatJson(result).node("attributes.name").isAbsent();
+    }
+
+    @Test
+    public void onIncludedAttributesInOtherResourceShouldNotContainFields() throws Exception {
+        // GIVEN
+        Task task = new Task();
+        task.setName("some name");
+        Project project = new Project();
+        project.setId(1L);
+        task.setProject(project);
+
+        QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder();
+        QueryParams queryParams = queryParamsBuilder.buildQueryParams(
+            Collections.singletonMap("fields[projects]", Collections.singleton("name")));
+        JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath("/tasks");
+
+        // WHEN
+        String result = sut.writeValueAsString(new Container(task, new ResourceResponse(null, jsonPath, queryParams,
+            null, null)));
+
+        // THEN
+        assertThatJson(result).node("relationships.project").isAbsent();
+        assertThatJson(result).node("attributes.name").isAbsent();
     }
 }

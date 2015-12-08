@@ -54,37 +54,19 @@ public class ContainerSerializer extends JsonSerializer<Container> {
             TypedParams<IncludedFieldsParams> includedFields = value.getResponse()
                 .getQueryParams()
                 .getIncludedFields();
-            String elementName = value.getResponse()
-                .getJsonPath()
-                .getElementName();
-            IncludedFieldsParams includedTypeFields = findIncludedFields(includedFields, elementName);
 
-            writeData(gen, value.getData(), includedTypeFields != null ? includedTypeFields.getParams() : null);
+            writeData(gen, value.getData(), includedFields);
             gen.writeEndObject();
         } else {
             gen.writeObject(null);
         }
     }
 
-    private IncludedFieldsParams findIncludedFields(TypedParams<IncludedFieldsParams> includedFields, String
-        elementName) {
-        IncludedFieldsParams includedFieldsParams = null;
-        if (includedFields != null) {
-            for (Map.Entry<String, IncludedFieldsParams> entry : includedFields.getParams()
-                .entrySet()) {
-                if (elementName.equals(entry.getKey())) {
-                    includedFieldsParams = entry.getValue();
-                }
-            }
-        }
-        return includedFieldsParams;
-    }
-
     /**
      * Writes a value. Each serialized container must contain type field whose value is string
      * <a href="http://jsonapi.org/format/#document-structure-resource-types"></a>.
      */
-    private void writeData(JsonGenerator gen, Object data, Set<String> includedFields) throws IOException {
+    private void writeData(JsonGenerator gen, Object data, TypedParams<IncludedFieldsParams> includedFields) throws IOException {
         Class<?> dataClass = data.getClass();
         String resourceType = resourceRegistry.getResourceType(dataClass);
 
@@ -107,22 +89,18 @@ public class ContainerSerializer extends JsonSerializer<Container> {
                     .collect(Collectors.toSet()));
         }
 
-        Set<ResourceField> relationshipFields = getRelationshipFields(resourceInformation, includedFields);
+        Set<ResourceField> relationshipFields = getRelationshipFields(resourceType, resourceInformation, includedFields);
         writeRelationshipFields(gen, data, relationshipFields);
         writeLinksField(gen, data);
     }
 
-    private Set<ResourceField> getRelationshipFields(ResourceInformation resourceInformation, Set<String> includedFields) {
+    private Set<ResourceField> getRelationshipFields(String resourceType, ResourceInformation resourceInformation, TypedParams<IncludedFieldsParams> includedFields) {
         Set<ResourceField> relationshipFields = resourceInformation.getRelationshipFields();
 
-        if (includedFields == null || includedFields.isEmpty()) {
-            return relationshipFields;
-        } else {
-            return relationshipFields
-                .stream()
-                .filter(field -> includedFields.contains(field.getName()))
-                .collect(Collectors.toSet());
-        }
+        return relationshipFields
+            .stream()
+            .filter(field -> isIncluded(resourceType, includedFields, field))
+            .collect(Collectors.toSet());
     }
 
     /**
@@ -136,13 +114,15 @@ public class ContainerSerializer extends JsonSerializer<Container> {
     }
 
     private void writeAttributes(JsonGenerator gen, Object data, Set<ResourceField> attributeFields,
-                                 Set<String> includedFields)
+                                 TypedParams<IncludedFieldsParams> includedFields)
         throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
+
+        String resourceType = resourceRegistry.getResourceType(data.getClass());
 
         Attributes attributesObject = new Attributes();
         attributeFields
             .stream()
-            .filter(attributeField -> isIncluded(includedFields, attributeField))
+            .filter(attributeField -> isIncluded(resourceType, includedFields, attributeField))
             .forEach(attributeField -> {
                 Object basicFieldValue = PropertyUtils.getProperty(data, attributeField.getName());
                 attributesObject.addAttribute(attributeField.getName(), basicFieldValue);
@@ -150,8 +130,27 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         gen.writeObjectField(ATTRIBUTES_FIELD_NAME, attributesObject);
     }
 
-    private boolean isIncluded(Set<String> includedFields, ResourceField attributeField) {
-        return includedFields == null || includedFields.isEmpty() || includedFields.contains(attributeField.getName());
+    private boolean isIncluded(String resourceType, TypedParams<IncludedFieldsParams> includedFields, ResourceField attributeField) {
+        IncludedFieldsParams typeIncludedFields = findIncludedFields(includedFields, resourceType);
+        if (typeIncludedFields == null || typeIncludedFields.getParams().isEmpty()) {
+            return includedFields == null;
+        } else {
+            return typeIncludedFields.getParams().contains(attributeField.getName());
+        }
+    }
+
+    private IncludedFieldsParams findIncludedFields(TypedParams<IncludedFieldsParams> includedFields, String
+        elementName) {
+        IncludedFieldsParams includedFieldsParams = null;
+        if (includedFields != null) {
+            for (Map.Entry<String, IncludedFieldsParams> entry : includedFields.getParams()
+                .entrySet()) {
+                if (elementName.equals(entry.getKey())) {
+                    includedFieldsParams = entry.getValue();
+                }
+            }
+        }
+        return includedFieldsParams;
     }
 
     private void writeRelationshipFields(JsonGenerator gen, Object data, Set<ResourceField> relationshipFields)
