@@ -1,4 +1,4 @@
-# katharsis-spring v2.1.1 git changelog
+# katharsis-spring v2.1.2-SNAPSHOT git changelog
 
 
 **v2.1.1**  
