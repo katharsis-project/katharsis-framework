@@ -2,19 +2,22 @@ package io.katharsis.rs;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
+import io.katharsis.rs.provider.RequestContextParameterProvider;
 
 import javax.ws.rs.CookieParam;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.SecurityContext;
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.util.Optional;
 
 /**
  * <p>
- * An implementation of parameter provider for JAX-RS integration. It supports the following parameters:
+ * An implementation of parameter provider for JAX-RS integration based on a registry of RequestContextParameterProvider
+ * provided by an instance of RequestContextParameterProviderRegistry.
+ * By default, the registry supports the following parameters:
  * </p>
  * <ol>
  *     <li>{@link ContainerRequestContext}</li>
@@ -32,68 +35,18 @@ public class JaxRsParameterProvider implements RepositoryMethodParameterProvider
 
     private final ObjectMapper objectMapper;
     private final ContainerRequestContext requestContext;
+    private final RequestContextParameterProviderRegistry parameterProviderRegistry;
 
-    public JaxRsParameterProvider(ObjectMapper objectMapper, ContainerRequestContext requestContext) {
+    public JaxRsParameterProvider(ObjectMapper objectMapper, ContainerRequestContext requestContext, RequestContextParameterProviderRegistry parameterProviderRegistry) {
         this.objectMapper = objectMapper;
         this.requestContext = requestContext;
+        this.parameterProviderRegistry = parameterProviderRegistry;
     }
 
     @Override
     public <T> T provide(Method method, int parameterIndex) {
         Parameter parameter = getParameter(method, parameterIndex);
-        Object returnValue = null;
-        if (ContainerRequestContext.class.isAssignableFrom(parameter.getType())) {
-            returnValue = requestContext;
-        } else if (SecurityContext.class.isAssignableFrom(parameter.getType())) {
-            returnValue = requestContext.getSecurityContext();
-        } else if (parameter.isAnnotationPresent(CookieParam.class)) {
-            returnValue = extractCookie(parameter);
-        } else if (parameter.isAnnotationPresent(HeaderParam.class)) {
-            returnValue = extractHeader(parameter);
-        }
-        return (T) returnValue;
-    }
-
-    private Object extractHeader(Parameter parameter) {
-        Object returnValue;
-        String value = requestContext.getHeaderString(parameter.getAnnotation(HeaderParam.class).value());
-        if (value == null) {
-            return null;
-        } else {
-            if (String.class.isAssignableFrom(parameter.getType())) {
-                returnValue = value;
-            } else {
-                try {
-                    returnValue = objectMapper.readValue(value, parameter.getType());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
-
-        return returnValue;
-    }
-
-    private Object extractCookie(Parameter parameter) {
-        Object returnValue;
-        String cookieName = parameter.getAnnotation(CookieParam.class).value();
-        Cookie cookie = requestContext.getCookies().get(cookieName);
-        if (cookie == null) {
-            return null;
-        } else {
-            if (Cookie.class.isAssignableFrom(parameter.getType())) {
-                returnValue = cookie;
-            } else if (String.class.isAssignableFrom(parameter.getType())) {
-                returnValue = cookie.getValue();
-            } else {
-                try {
-                    returnValue = objectMapper.readValue(cookie.getValue(), parameter.getType());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
-
-        return returnValue;
+        Optional<RequestContextParameterProvider> provider = parameterProviderRegistry.findProviderFor(parameter);
+        return provider.isPresent() ? (T) provider.get().provideValue(parameter, requestContext, objectMapper) : null;
     }
 }

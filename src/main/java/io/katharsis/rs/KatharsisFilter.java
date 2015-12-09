@@ -51,13 +51,15 @@ public class KatharsisFilter implements ContainerRequestFilter {
     private ObjectMapper objectMapper;
     private ResourceRegistry resourceRegistry;
     private RequestDispatcher requestDispatcher;
+    private RequestContextParameterProviderRegistry parameterProviderRegistry;
     private String webPathPrefix;
 
     public KatharsisFilter(ObjectMapper objectMapper, ResourceRegistry resourceRegistry, RequestDispatcher
-        requestDispatcher, String webPathPrefix) {
+            requestDispatcher, RequestContextParameterProviderRegistry parameterProviderRegistry, String webPathPrefix) {
         this.objectMapper = objectMapper;
         this.resourceRegistry = resourceRegistry;
         this.requestDispatcher = requestDispatcher;
+        this.parameterProviderRegistry = parameterProviderRegistry;
         this.webPathPrefix = parsePrefix(webPathPrefix);
     }
 
@@ -112,7 +114,7 @@ public class KatharsisFilter implements ContainerRequestFilter {
             String method = requestContext.getMethod();
             RequestBody requestBody = inputStreamToBody(requestContext.getEntityStream());
 
-            JaxRsParameterProvider parameterProvider = new JaxRsParameterProvider(objectMapper, requestContext);
+            JaxRsParameterProvider parameterProvider = new JaxRsParameterProvider(objectMapper, requestContext, parameterProviderRegistry);
             katharsisResponse = requestDispatcher
                 .dispatchRequest(jsonPath, method, requestParams, parameterProvider, requestBody);
         } catch (KatharsisMappableException e) {

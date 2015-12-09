@@ -58,6 +58,10 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.reflections</groupId>
+            <artifactId>reflections</artifactId>
+        </dependency>
+        <dependency>
             <groupId>io.katharsis</groupId>
             <artifactId>katharsis-core</artifactId>
             <version>${project.version}</version>
