@@ -98,11 +98,9 @@ public class IncludedRelationshipExtractor {
             .getIncludedRelations();
         String elementName = response.getJsonPath()
             .getElementName();
-        IncludedRelationsParams includedRelationsParams = findInclusions(includedRelations, elementName);
-        if (includedRelations != null
-            && includedRelations.getParams() != null
-            && includedRelations.getParams().size() != 0) {
-            for (Inclusion inclusion : includedRelationsParams.getParams()) {
+        Optional<IncludedRelationsParams> includedRelationsParams = findInclusions(includedRelations, elementName);
+        if (includedRelationsParams.isPresent()) {
+            for (Inclusion inclusion : includedRelationsParams.get().getParams()) {
                 //noinspection unchecked
                 includedResources.addAll(extractIncludedRelationship(resource, inclusion, response));
             }
@@ -110,30 +108,29 @@ public class IncludedRelationshipExtractor {
         return includedResources;
     }
 
-    private IncludedRelationsParams findInclusions(TypedParams<IncludedRelationsParams> queryParams,
+    private Optional<IncludedRelationsParams> findInclusions(TypedParams<IncludedRelationsParams> queryParams,
                                                    String resourceName) {
-        IncludedRelationsParams includedRelationsParams = null;
         if (queryParams != null && queryParams.getParams() != null) {
             for (Map.Entry<String, IncludedRelationsParams> entry : queryParams.getParams()
                 .entrySet()) {
                 if (resourceName.equals(entry.getKey())) {
-                    includedRelationsParams = entry.getValue();
+                    return Optional.of(entry.getValue());
                 }
             }
         }
-        return includedRelationsParams;
+        return Optional.empty();
     }
 
     private Set extractIncludedRelationship(Object resource, Inclusion inclusion, BaseResponse response)
         throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
         List<String> pathList = inclusion.getPathList();
         if (resource == null || pathList.isEmpty()) {
-            return Collections.EMPTY_SET;
+            return Collections.emptySet();
         }
         if (!(response.getJsonPath() instanceof ResourcePath)) { // the first property name is the resource itself
             pathList = pathList.subList(1, pathList.size());
             if (pathList.isEmpty()) {
-                return Collections.EMPTY_SET;
+                return Collections.emptySet();
             }
         }
         return getElements(resource, pathList, response);
