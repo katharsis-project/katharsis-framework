@@ -5,7 +5,7 @@
 
   <groupId>io.katharsis</groupId>
   <artifactId>spring-boot-simple-example</artifactId>
-  <version>2.1.2-SNAPSHOT</version>
+  <version>2.1.2</version>
   <packaging>jar</packaging>
 
   <name>Spring Boot Simple Example</name>
