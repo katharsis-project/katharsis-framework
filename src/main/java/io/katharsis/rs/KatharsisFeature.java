@@ -1,5 +1,6 @@
 package io.katharsis.rs;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.RequestDispatcher;
 import io.katharsis.dispatcher.registry.ControllerRegistry;
 import io.katharsis.dispatcher.registry.ControllerRegistryBuilder;
@@ -15,6 +16,9 @@ import io.katharsis.resource.registry.DefaultResourceLookup;
 import io.katharsis.resource.registry.ResourceLookup;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryBuilder;
+import io.katharsis.rs.parameterProvider.RequestContextParameterProviderLookup;
+import io.katharsis.rs.parameterProvider.RequestContextParameterProviderRegistry;
+import io.katharsis.rs.parameterProvider.RequestContextParameterProviderRegistryBuilder;
 import io.katharsis.utils.parser.TypeParser;
 
 import javax.ws.rs.ConstrainedTo;
@@ -23,8 +27,6 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.FeatureContext;
 import javax.ws.rs.ext.Provider;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Basic Katharsis feature that initializes core classes and provides a starting point to use the framework in
@@ -43,21 +45,29 @@ public class KatharsisFeature implements Feature {
         this.objectMapper = objectMapper;
         this.jsonServiceLocator = jsonServiceLocator;
     }
-    
+
     public ResourceLookup createResourceLookup(FeatureContext context) {
         String resourceSearchPackage = (String) context
                 .getConfiguration()
                 .getProperty(KatharsisProperties.RESOURCE_SEARCH_PACKAGE);
-    	
+
         return new DefaultResourceLookup(resourceSearchPackage);
     }
-    
+
     public ExceptionMapperLookup createExceptionMapperLookup(FeatureContext context) {
         String resourceSearchPackage = (String) context
                 .getConfiguration()
                 .getProperty(KatharsisProperties.RESOURCE_SEARCH_PACKAGE);
-    	
+
         return new DefaultExceptionMapperLookup(resourceSearchPackage);
+    }
+
+    private RequestContextParameterProviderLookup createRequestContextProviderLookup(FeatureContext context) {
+        String resourceSearchPackage = (String) context
+                .getConfiguration()
+                .getProperty(KatharsisProperties.RESOURCE_SEARCH_PACKAGE);
+
+        return new RequestContextParameterProviderLookup(resourceSearchPackage);
     }
 
     @Override
@@ -80,13 +90,20 @@ public class KatharsisFeature implements Feature {
         try {
         	ExceptionMapperLookup exceptionMapperLookup = createExceptionMapperLookup(context);
             ExceptionMapperRegistry exceptionMapperRegistry = buildExceptionMapperRegistry(exceptionMapperLookup);
-            katharsisFilter = createKatharsisFilter(resourceRegistry, exceptionMapperRegistry, webPathPrefix);
+            RequestContextParameterProviderLookup containerRequestContextProviderLookup = createRequestContextProviderLookup(context);
+            RequestContextParameterProviderRegistry parameterProviderRegistry = buildParameterProviderRegistry(containerRequestContextProviderLookup);
+            katharsisFilter = createKatharsisFilter(resourceRegistry, exceptionMapperRegistry, parameterProviderRegistry, webPathPrefix);
         } catch (Exception e) {
             throw new WebApplicationException(e);
         }
         context.register(katharsisFilter);
 
         return true;
+    }
+
+    private RequestContextParameterProviderRegistry buildParameterProviderRegistry(RequestContextParameterProviderLookup containerRequestContextProviderLookup) {
+        RequestContextParameterProviderRegistryBuilder builder = new RequestContextParameterProviderRegistryBuilder();
+        return builder.build(containerRequestContextProviderLookup);
     }
 
     private String buildServiceUrl(String resourceDefaultDomain, String webPathPrefix) {
@@ -105,10 +122,10 @@ public class KatharsisFeature implements Feature {
     }
 
     private KatharsisFilter createKatharsisFilter(ResourceRegistry resourceRegistry,
-        ExceptionMapperRegistry exceptionMapperRegistry, String webPathPrefix) throws Exception {
+        ExceptionMapperRegistry exceptionMapperRegistry, RequestContextParameterProviderRegistry parameterProviderRegistry, String webPathPrefix) throws Exception {
         RequestDispatcher requestDispatcher = createRequestDispatcher(resourceRegistry, exceptionMapperRegistry);
 
-        return new KatharsisFilter(objectMapper, resourceRegistry, requestDispatcher, webPathPrefix);
+        return new KatharsisFilter(objectMapper, resourceRegistry, requestDispatcher, parameterProviderRegistry, webPathPrefix);
     }
 
     private RequestDispatcher createRequestDispatcher(ResourceRegistry resourceRegistry,

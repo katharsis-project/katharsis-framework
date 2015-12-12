@@ -1,8 +1,7 @@
-# katharsis-rs v2.1.2 git changelog
+# katharsis-rs v2.1.3-SNAPSHOT git changelog
 
-
-**v2.1.2**  
-2015-12-09    v2.1.2 (Patryk Orwat)  
+2015-12-09    JaxRsParameterProvider uses a registry of parameter providers to provide values from the ContainerRequestContext (Cade Parker)  
+2015-12-08    v2.1.2 (Patryk Orwat)  
 2015-12-08    katharsis-project/katharsis-core[#186](https://github.com/katharsis-project/katharsis-rs/issues/186) made reflections optional (Patryk Orwat)  
 2015-12-06    katharsis-project/katharsis-core[#186](https://github.com/katharsis-project/katharsis-rs/issues/186) added OSGi headers (Patryk Orwat)  
 2015-12-05    versioneye update (Patryk Orwat)  
@@ -56,7 +55,7 @@
 **v0.9.2**  
 2015-06-25    v0.9.2 (Patryk Orwat)  
 2015-06-17    Add integration test, checking exception handling (Grzegorz Poznachowski)  
-2015-06-17    Started integration test to map exception (Grzegorz Poznachowski)  
+2015-06-16    Started integration test to map exception (Grzegorz Poznachowski)  
 2015-06-13    katharsis-core [#11](https://github.com/katharsis-project/katharsis-rs/issues/11) - included implementation (Patryk Orwat)  
 
 **v0.9.1**  
@@ -69,12 +68,12 @@
 **v0.9.0**  
 2015-06-01    v0.9.0 (Patryk Orwat)  
 2015-06-01    added repositories (Patryk Orwat)  
-2015-05-20    Added support of ExceptionMapping while request processing (Grzegorz Poznachowski)  
+2015-05-19    Added support of ExceptionMapping while request processing (Grzegorz Poznachowski)  
 2015-05-17    changed scope of jersey dependencies to test (Patryk Orwat)  
 2015-05-15    Initial implementation of error handling. (Grzegorz Poznachowski)  
 2015-05-11    Jackson serialization problem fix (Patryk Orwat)  
 2015-05-09    tests fix (Patryk Orwat)  
-2015-05-09    adjustment to core change - type parser (Patryk Orwat)  
+2015-05-08    adjustment to core change - type parser (Patryk Orwat)  
 2015-05-03    adjustment to core change (Patryk Orwat)  
 2015-05-03    added Jackson ObjectMapper configuration (Patryk Orwat)  
 2015-05-03    smallfix - jackson dep problem (Patryk Orwat)  
@@ -82,20 +81,20 @@
 2015-05-01    [#3](https://github.com/katharsis-project/katharsis-rs/issues/3) smallfix (Patryk Orwat)  
 2015-05-01    changed controller to filter, closes [#3](https://github.com/katharsis-project/katharsis-rs/issues/3) (Patryk Orwat)  
 2015-05-01    [#3](https://github.com/katharsis-project/katharsis-rs/issues/3) removed HK2 dependency (Patryk Orwat)  
-2015-04-27    pom refactored (Grzegorz Poznachowski)  
+2015-04-26    pom refactored (Grzegorz Poznachowski)  
 2015-04-20    proper -core version (Grzegorz Poznachowski)  
-2015-04-20    poms using parent (Grzegorz Poznachowski)  
+2015-04-19    poms using parent (Grzegorz Poznachowski)  
 2015-04-15    fixed RequestDispatcherFactory (Patryk Orwat)  
 2015-04-13    fixed RequestDispatcherBuilder usage (Patryk Orwat)  
 2015-04-12    Added support for query params from core (Błażej Krysiak)  
 2015-04-12    decided HK2 to be the main DI provider (Patryk Orwat)  
-2015-04-09    fixed repository (Patryk Orwat)  
-2015-04-04    improved Jackson integration (Patryk Orwat)  
-2015-04-03    improved serialization (Patryk Orwat)  
+2015-04-08    fixed repository (Patryk Orwat)  
+2015-04-03    improved Jackson integration (Patryk Orwat)  
+2015-04-02    improved serialization (Patryk Orwat)  
 2015-03-29    fixes from katharsis-core (Patryk Orwat)  
 2015-03-25    Gitter webhooks integration fix  + test updates. (Błażej Krysiak)  
 2015-03-25    Gitter webhooks integration fix. (Błażej Krysiak)  
-2015-03-25    Gitter webhooks integration (Błażej Krysiak)  
+2015-03-24    Gitter webhooks integration (Błażej Krysiak)  
 2015-03-24    Added bintray deployment. (Błażej Krysiak)  
 2015-03-23    serialization + travis fix (Patryk Orwat)  
 2015-03-19    jersey2 get tests (Patryk Orwat)  

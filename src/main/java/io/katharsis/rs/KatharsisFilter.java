@@ -12,6 +12,8 @@ import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
+import io.katharsis.rs.parameterProvider.JaxRsParameterProvider;
+import io.katharsis.rs.parameterProvider.RequestContextParameterProviderRegistry;
 import io.katharsis.rs.type.JsonApiMediaType;
 
 import javax.ws.rs.WebApplicationException;
@@ -51,13 +53,15 @@ public class KatharsisFilter implements ContainerRequestFilter {
     private ObjectMapper objectMapper;
     private ResourceRegistry resourceRegistry;
     private RequestDispatcher requestDispatcher;
+    private RequestContextParameterProviderRegistry parameterProviderRegistry;
     private String webPathPrefix;
 
     public KatharsisFilter(ObjectMapper objectMapper, ResourceRegistry resourceRegistry, RequestDispatcher
-        requestDispatcher, String webPathPrefix) {
+            requestDispatcher, RequestContextParameterProviderRegistry parameterProviderRegistry, String webPathPrefix) {
         this.objectMapper = objectMapper;
         this.resourceRegistry = resourceRegistry;
         this.requestDispatcher = requestDispatcher;
+        this.parameterProviderRegistry = parameterProviderRegistry;
         this.webPathPrefix = parsePrefix(webPathPrefix);
     }
 
@@ -112,7 +116,7 @@ public class KatharsisFilter implements ContainerRequestFilter {
             String method = requestContext.getMethod();
             RequestBody requestBody = inputStreamToBody(requestContext.getEntityStream());
 
-            JaxRsParameterProvider parameterProvider = new JaxRsParameterProvider(objectMapper, requestContext);
+            JaxRsParameterProvider parameterProvider = new JaxRsParameterProvider(objectMapper, requestContext, parameterProviderRegistry);
             katharsisResponse = requestDispatcher
                 .dispatchRequest(jsonPath, method, requestParams, parameterProvider, requestBody);
         } catch (KatharsisMappableException e) {
