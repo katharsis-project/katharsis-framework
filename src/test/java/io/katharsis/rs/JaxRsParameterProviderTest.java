@@ -1,6 +1,10 @@
 package io.katharsis.rs;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.katharsis.rs.parameterProvider.JaxRsParameterProvider;
+import io.katharsis.rs.parameterProvider.RequestContextParameterProviderLookup;
+import io.katharsis.rs.parameterProvider.RequestContextParameterProviderRegistry;
+import io.katharsis.rs.parameterProvider.RequestContextParameterProviderRegistryBuilder;
 import io.katharsis.rs.resource.provider.AuthRequest;
 import io.katharsis.rs.resource.provider.Foo;
 import org.junit.Before;
@@ -21,9 +25,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class JaxRsParameterProviderTest {

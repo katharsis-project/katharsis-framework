@@ -1,4 +1,4 @@
-package io.katharsis.rs.provider;
+package io.katharsis.rs.parameterProvider.provider;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 

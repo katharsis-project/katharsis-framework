@@ -16,6 +16,9 @@ import io.katharsis.resource.registry.DefaultResourceLookup;
 import io.katharsis.resource.registry.ResourceLookup;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryBuilder;
+import io.katharsis.rs.parameterProvider.RequestContextParameterProviderLookup;
+import io.katharsis.rs.parameterProvider.RequestContextParameterProviderRegistry;
+import io.katharsis.rs.parameterProvider.RequestContextParameterProviderRegistryBuilder;
 import io.katharsis.utils.parser.TypeParser;
 
 import javax.ws.rs.ConstrainedTo;

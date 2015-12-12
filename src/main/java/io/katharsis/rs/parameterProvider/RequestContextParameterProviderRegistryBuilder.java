@@ -1,10 +1,6 @@
-package io.katharsis.rs;
+package io.katharsis.rs.parameterProvider;
 
-import io.katharsis.rs.provider.ContainerRequestContextProvider;
-import io.katharsis.rs.provider.CookieParamProvider;
-import io.katharsis.rs.provider.HeaderParamProvider;
-import io.katharsis.rs.provider.RequestContextParameterProvider;
-import io.katharsis.rs.provider.SecurityContextProvider;
+import io.katharsis.rs.parameterProvider.provider.*;
 
 import java.util.HashSet;
 import java.util.Set;

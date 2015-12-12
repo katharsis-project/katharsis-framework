@@ -1,7 +1,7 @@
-package io.katharsis.rs;
+package io.katharsis.rs.parameterProvider;
 
 import io.katharsis.resource.exception.init.InvalidResourceException;
-import io.katharsis.rs.provider.RequestContextParameterProvider;
+import io.katharsis.rs.parameterProvider.provider.RequestContextParameterProvider;
 import org.reflections.Reflections;
 
 import java.util.Scanner;

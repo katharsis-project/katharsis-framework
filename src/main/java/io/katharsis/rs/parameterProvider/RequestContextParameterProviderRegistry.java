@@ -1,6 +1,6 @@
-package io.katharsis.rs;
+package io.katharsis.rs.parameterProvider;
 
-import io.katharsis.rs.provider.RequestContextParameterProvider;
+import io.katharsis.rs.parameterProvider.provider.RequestContextParameterProvider;
 
 import java.lang.reflect.Parameter;
 import java.util.Collection;

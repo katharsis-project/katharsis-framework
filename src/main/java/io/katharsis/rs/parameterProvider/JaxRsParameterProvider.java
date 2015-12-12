@@ -1,8 +1,8 @@
-package io.katharsis.rs;
+package io.katharsis.rs.parameterProvider;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
-import io.katharsis.rs.provider.RequestContextParameterProvider;
+import io.katharsis.rs.parameterProvider.provider.RequestContextParameterProvider;
 
 import javax.ws.rs.CookieParam;
 import javax.ws.rs.HeaderParam;

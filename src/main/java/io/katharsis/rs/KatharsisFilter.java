@@ -12,6 +12,8 @@ import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
+import io.katharsis.rs.parameterProvider.JaxRsParameterProvider;
+import io.katharsis.rs.parameterProvider.RequestContextParameterProviderRegistry;
 import io.katharsis.rs.type.JsonApiMediaType;
 
 import javax.ws.rs.WebApplicationException;
