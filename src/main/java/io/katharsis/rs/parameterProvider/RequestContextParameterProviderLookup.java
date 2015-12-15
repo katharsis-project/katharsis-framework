@@ -1,5 +1,6 @@
 package io.katharsis.rs.parameterProvider;
 
+import io.katharsis.locator.JsonServiceLocator;
 import io.katharsis.resource.exception.init.InvalidResourceException;
 import io.katharsis.rs.parameterProvider.provider.RequestContextParameterProvider;
 import org.reflections.Reflections;
@@ -11,9 +12,11 @@ import java.util.stream.Collectors;
 public class RequestContextParameterProviderLookup {
 
     private String resourceSearchPackage;
+    private JsonServiceLocator jsonServiceLocator;
 
-    public RequestContextParameterProviderLookup(String resourceSearchPackage) {
+    public RequestContextParameterProviderLookup(String resourceSearchPackage, JsonServiceLocator jsonServiceLocator) {
         this.resourceSearchPackage = resourceSearchPackage;
+        this.jsonServiceLocator = jsonServiceLocator;
     }
 
     public Set<RequestContextParameterProvider> getRequestContextProviders() {
@@ -29,7 +32,7 @@ public class RequestContextParameterProviderLookup {
 
         return parameterProviderClasses.stream().map((parameterProviderClazz) -> {
             try {
-                return parameterProviderClazz.newInstance();
+                return jsonServiceLocator.getInstance(parameterProviderClazz);
             } catch (Exception e) {
                 throw new InvalidResourceException(parameterProviderClazz.getCanonicalName() + " can not be initialized", e);
             }

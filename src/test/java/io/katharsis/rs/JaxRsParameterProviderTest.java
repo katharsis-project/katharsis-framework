@@ -1,6 +1,7 @@
 package io.katharsis.rs;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.katharsis.locator.SampleJsonServiceLocator;
 import io.katharsis.rs.parameterProvider.JaxRsParameterProvider;
 import io.katharsis.rs.parameterProvider.RequestContextParameterProviderLookup;
 import io.katharsis.rs.parameterProvider.RequestContextParameterProviderRegistry;
@@ -25,7 +26,9 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class JaxRsParameterProviderTest {
@@ -53,7 +56,7 @@ public class JaxRsParameterProviderTest {
     }
 
     private RequestContextParameterProviderLookup createRequestContextProviderLookup() {
-        return new RequestContextParameterProviderLookup("io.katharsis.rs.resource");
+        return new RequestContextParameterProviderLookup("io.katharsis.rs.resource", new SampleJsonServiceLocator());
     }
 
     private RequestContextParameterProviderRegistry buildParameterProviderRegistry(RequestContextParameterProviderLookup containerRequestContextProviderLookup) {

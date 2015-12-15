@@ -67,7 +67,7 @@ public class KatharsisFeature implements Feature {
                 .getConfiguration()
                 .getProperty(KatharsisProperties.RESOURCE_SEARCH_PACKAGE);
 
-        return new RequestContextParameterProviderLookup(resourceSearchPackage);
+        return new RequestContextParameterProviderLookup(resourceSearchPackage, jsonServiceLocator);
     }
 
     @Override
