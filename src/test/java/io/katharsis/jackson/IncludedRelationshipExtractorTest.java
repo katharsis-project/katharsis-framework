@@ -122,7 +122,7 @@ public class IncludedRelationshipExtractorTest {
     }
 
     @Test
-    public void onInclusionShouldReturnOneElement() throws Exception {
+    public void onInclusionWithDefaultInclusionShouldReturnOneElement() throws Exception {
         // GIVEN
         QueryParams queryParams = getRequestParamsWithInclusion("include[classAsWithInclusion]",
             "classBsWithInclusion");
@@ -139,8 +139,43 @@ public class IncludedRelationshipExtractorTest {
         assertThat(result).containsExactly(new Container(classBsWithInclusion, testResponse));
     }
 
-    private QueryParams getRequestParamsWithInclusion(String project1, String classBsWithInclusion) {
+    @Test
+    public void onInclusionShouldReturnOneElement() throws Exception {
+        // GIVEN
+        QueryParams queryParams = getRequestParamsWithInclusion("include[classAs]",
+            "classBs");
+
+        ResourceResponse response = new ResourceResponse(null, new ResourcePath("classAs"), queryParams,
+            null, null);
+        ClassB classBs = new ClassB(null);
+        ClassA classA = new ClassA(classBs);
+
+        // WHEN
+        Set<?> result = sut.extractIncludedResources(classA, response);
+
+        // THEN
+        assertThat(result).containsExactly(new Container(classBs, testResponse));
+    }
+
+    @Test
+    public void onDifferentTypeInclusionShouldReturnNoElements() throws Exception {
+        // GIVEN
+        QueryParams queryParams = getRequestParamsWithInclusion("include[classBsWith]",
+            "classCsWith");
+
+        ResourceResponse response = new ResourceResponse(null, new ResourcePath("classAsWith"), queryParams,
+            null, null);
+        ClassA classAWith = new ClassA(new ClassB(null));
+
+        // WHEN
+        Set<?> result = sut.extractIncludedResources(classAWith, response);
+
+        // THEN
+        assertThat(result).isEmpty();
+    }
+
+    private QueryParams getRequestParamsWithInclusion(String resourceType, String relationshipField) {
         QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder();
-        return queryParamsBuilder.buildQueryParams(Collections.singletonMap(project1, Collections.singleton(classBsWithInclusion)));
+        return queryParamsBuilder.buildQueryParams(Collections.singletonMap(resourceType, Collections.singleton(relationshipField)));
     }
 }
