@@ -9,6 +9,7 @@ import io.katharsis.servlet.ServletKatharsisInvokerContext;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 
 import javax.servlet.http.HttpServletRequest;
@@ -32,6 +33,9 @@ public class KatharsisFilter extends SampleKatharsisFilter implements BeanFactor
     private String pathPrefix;
     private ConfigurableBeanFactory beanFactory;
 
+    @Autowired
+    private KatharsisInvokerBuilder builder;
+
     @Override
     public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
         if (beanFactory instanceof ConfigurableBeanFactory) {
@@ -41,8 +45,6 @@ public class KatharsisFilter extends SampleKatharsisFilter implements BeanFactor
 
     @Override
     protected KatharsisInvokerBuilder createKatharsisInvokerBuilder() {
-        KatharsisInvokerBuilder builder = new KatharsisInvokerBuilder();
-
         builder.resourceSearchPackage(resourceSearchPackage)
             .resourceDefaultDomain(resourceDomain)
             .jsonServiceLocator(new JsonServiceLocator() {

@@ -1,5 +1,6 @@
 package io.katharsis.spring.boot;
 
+import io.katharsis.invoker.KatharsisInvokerBuilder;
 import io.katharsis.spring.KatharsisFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -22,5 +23,10 @@ public class KatharsisConfig {
         filter.setResourceDomain(properties.getDomainName());
         filter.setPathPrefix(properties.getPathPrefix());
         return filter;
+    }
+
+    @Bean
+    public KatharsisInvokerBuilder katharsisInvokerBuilder() {
+    	return new KatharsisInvokerBuilder();
     }
 }
