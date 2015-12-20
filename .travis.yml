@@ -1,11 +1,11 @@
 sudo: false
 language: java
 jdk:
-  - oraclejdk8
+  - oraclejdk7
 addons:
   apt:
     packages:
-    - oracle-java8-installer
+    - oracle-java7-installer
 after_success:
   - mvn jacoco:report coveralls:report
   - mvn deploy -DskipTests=true --settings settings.xml
