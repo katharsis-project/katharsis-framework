@@ -8,11 +8,12 @@ import io.katharsis.resource.registry.repository.AnnotatedRelationshipEntryBuild
 import io.katharsis.resource.registry.repository.AnnotatedResourceEntryBuilder;
 import io.katharsis.resource.registry.repository.RelationshipEntry;
 import io.katharsis.resource.registry.repository.ResourceEntry;
+import io.katharsis.utils.Predicate;
 
 import java.lang.annotation.Annotation;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * Repository entries builder for classes annotated with repository annotations.
@@ -26,9 +27,13 @@ public class AnnotatedRepositoryEntryBuilder implements RepositoryEntryBuilder {
     }
 
     @Override
-    public ResourceEntry<?, ?> buildResourceRepository(ResourceLookup lookup, Class<?> resourceClass) {
-        Predicate<Class<?>> classPredicate =
-            clazz -> resourceClass.equals(clazz.getAnnotation(JsonApiResourceRepository.class).value());
+    public ResourceEntry<?, ?> buildResourceRepository(ResourceLookup lookup, final Class<?> resourceClass) {
+        Predicate<Class<?>> classPredicate = new Predicate<Class<?>>() {
+            @Override
+            public boolean test(Class<?> clazz) {
+                return resourceClass.equals(clazz.getAnnotation(JsonApiResourceRepository.class).value());
+            }
+        };
 
         List<Object> repositoryObjects = findRepositoryObject(lookup, classPredicate, JsonApiResourceRepository.class);
         if (repositoryObjects.size() == 0) {
@@ -39,30 +44,36 @@ public class AnnotatedRepositoryEntryBuilder implements RepositoryEntryBuilder {
     }
 
     @Override
-    public List<RelationshipEntry<?, ?>> buildRelationshipRepositories(ResourceLookup lookup, Class<?> resourceClass) {
-        Predicate<Class<?>> classPredicate =
-            clazz -> {
-            	JsonApiRelationshipRepository annotation = clazz.getAnnotation(JsonApiRelationshipRepository.class);
-				return resourceClass.equals(annotation.source());
-            };
+    public List<RelationshipEntry<?, ?>> buildRelationshipRepositories(ResourceLookup lookup, final Class<?> resourceClass) {
+        Predicate<Class<?>> classPredicate = new Predicate<Class<?>>() {
+            @Override
+            public boolean test(Class<?> clazz) {
+                JsonApiRelationshipRepository annotation = clazz.getAnnotation(JsonApiRelationshipRepository.class);
+                return resourceClass.equals(annotation.source());
+            }
+        };
 
         List<Object> repositoryObjects = findRepositoryObject(lookup, classPredicate, JsonApiRelationshipRepository.class);
-        return repositoryObjects.stream()
-            .map(AnnotatedRelationshipEntryBuilder::new)
-            .collect(Collectors.toList());
+        List<RelationshipEntry<?, ?>> relationshipEntries = new ArrayList<>(repositoryObjects.size());
+        for (Object repositoryObject : repositoryObjects) {
+            relationshipEntries.add(new AnnotatedRelationshipEntryBuilder<>(repositoryObject));
+        }
+
+        return relationshipEntries;
     }
 
     private List<Object> findRepositoryObject(ResourceLookup lookup, Predicate<Class<?>> classPredicate, Class<? extends Annotation> annotation) {
-        return lookup.getResourceRepositoryClasses().stream()
-        	.filter((clazz) -> clazz.isAnnotationPresent(annotation))
-            .filter(classPredicate)
-            .map(clazz -> {
+        List<Object> repositoryObjects = new LinkedList<>();
+
+        for (Class<?> clazz : lookup.getResourceRepositoryClasses()) {
+            if (clazz.isAnnotationPresent(annotation) && classPredicate.test(clazz)) {
                 Object instance = jsonServiceLocator.getInstance(clazz);
                 if (instance == null) {
                     throw new RepositoryInstanceNotFoundException(clazz.getCanonicalName());
                 }
-                return instance;
-            })
-            .collect(Collectors.toList());
+                repositoryObjects.add(instance);
+            }
+        }
+        return repositoryObjects;
     }
 }

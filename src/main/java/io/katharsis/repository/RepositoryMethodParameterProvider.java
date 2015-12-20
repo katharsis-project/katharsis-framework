@@ -1,7 +1,6 @@
 package io.katharsis.repository;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 
 /**
  * Provides additional parameters for an annotated repository method. The method can accept more than the required
@@ -42,14 +41,4 @@ public interface RepositoryMethodParameterProvider {
      * @return parameter value or null if not found
      */
     <T> T provide(Method method, int parameterIndex);
-
-    /**
-     * An util method to extract a parameter object.
-     * @param method parameter's method
-     * @param parameterIndex index of the parameter
-     * @return parameter object
-     */
-    default Parameter getParameter(Method method, int parameterIndex) {
-        return method.getParameters()[parameterIndex];
-    }
 }

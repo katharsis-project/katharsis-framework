@@ -2,8 +2,8 @@ package io.katharsis.errorhandling.mapper;
 
 import io.katharsis.resource.exception.init.InvalidResourceException;
 
+import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.reflections.Reflections;
 
@@ -29,16 +29,18 @@ public class DefaultExceptionMapperLookup implements ExceptionMapperLookup {
 		}
 		Set<Class<?>> exceptionMapperClasses = reflections.getTypesAnnotatedWith(ExceptionMapperProvider.class);
 
-		return exceptionMapperClasses.stream().map((exceptionMapperClazz) -> {
+		Set<JsonApiExceptionMapper> exceptionMappers = new HashSet<>();
+		for (Class<?> exceptionMapperClazz : exceptionMapperClasses) {
 			if (!JsonApiExceptionMapper.class.isAssignableFrom(exceptionMapperClazz)) {
 				throw new InvalidResourceException(exceptionMapperClazz.getCanonicalName() + " is not an implementation of JsonApiExceptionMapper");
 			}
 			try {
-				return (JsonApiExceptionMapper<? extends Throwable>) exceptionMapperClazz.newInstance();
+				exceptionMappers.add((JsonApiExceptionMapper<? extends Throwable>) exceptionMapperClazz.newInstance());
 			} catch (Exception e) {
 				throw new InvalidResourceException(exceptionMapperClazz.getCanonicalName() + " can not be initialized", e);
 			}
-		}).collect(Collectors.toSet());
+		}
+		return exceptionMappers;
 	}
 
 }

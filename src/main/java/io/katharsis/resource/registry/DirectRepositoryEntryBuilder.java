@@ -9,11 +9,10 @@ import io.katharsis.resource.registry.repository.DirectResourceEntry;
 import io.katharsis.resource.registry.repository.RelationshipEntry;
 import io.katharsis.resource.registry.repository.ResourceEntry;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import net.jodah.typetools.TypeResolver;
 
@@ -34,22 +33,28 @@ public class DirectRepositoryEntryBuilder implements RepositoryEntryBuilder {
 
     @Override
     public ResourceEntry<?, ?> buildResourceRepository(ResourceLookup lookup, Class<?> resourceClass) {
-        Optional<Class<?>> repoClass = lookup.getResourceRepositoryClasses()
-            .stream()
-            .filter(ResourceRepository.class::isAssignableFrom)
-            .filter(clazz -> {
-                Class<?>[] typeArgs = TypeResolver.resolveRawArguments(ResourceRepository.class, clazz);
-                return typeArgs[0] == resourceClass;
-            })
-            .findFirst();
-        if (!repoClass.isPresent()) {
+        Class<?> repoClass = getRepoClassType(lookup.getResourceRepositoryClasses(), resourceClass);
+
+        if (repoClass == null) {
             return null;
         }
-        ResourceRepository<?, ?> repoInstance = (ResourceRepository<?, ?>) jsonServiceLocator.getInstance(repoClass.get());
+        ResourceRepository<?, ?> repoInstance = (ResourceRepository<?, ?>) jsonServiceLocator.getInstance(repoClass);
         if (repoInstance == null) {
-            throw new RepositoryInstanceNotFoundException(repoClass.get().getCanonicalName());
+            throw new RepositoryInstanceNotFoundException(repoClass.getCanonicalName());
         }
         return new DirectResourceEntry<>(repoInstance);
+    }
+
+    private Class<?> getRepoClassType(Set<Class<?>> repositoryClasses, Class<?> resourceClass) {
+        for (Class<?> repoClass : repositoryClasses) {
+            if (ResourceRepository.class.isAssignableFrom(repoClass)) {
+                Class<?>[] typeArgs = TypeResolver.resolveRawArguments(ResourceRepository.class, repoClass);
+                if (typeArgs[0] == resourceClass) {
+                    return repoClass;
+                }
+            }
+        }
+        return null;
     }
 
     @Override
@@ -75,11 +80,16 @@ public class DirectRepositoryEntryBuilder implements RepositoryEntryBuilder {
     }
 
     private Set<Class<?>> findRelationshipRepositories(Class resourceClass, Set<Class<?>> relationshipRepositoryClasses) {
-    	return relationshipRepositoryClasses.stream()
-    		.filter(RelationshipRepository.class::isAssignableFrom)
-    		.filter(clazz-> {
-                Class<?>[] typeArgs = TypeResolver.resolveRawArguments(RelationshipRepository.class, clazz);
-                return typeArgs[0] == resourceClass;
-    		}).collect(Collectors.toSet());
+        Set<Class<?>> relationshipRepositories = new HashSet<>();
+        for (Class<?> repoClass : relationshipRepositoryClasses) {
+            if (RelationshipRepository.class.isAssignableFrom(repoClass)) {
+                Class<?>[] typeArgs = TypeResolver.resolveRawArguments(RelationshipRepository.class, repoClass);
+                if (typeArgs[0] == resourceClass) {
+                    relationshipRepositories.add(repoClass);
+                }
+            }
+        }
+
+        return relationshipRepositories;
     }
 }

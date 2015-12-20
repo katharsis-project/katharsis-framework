@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import io.katharsis.jackson.exception.JsonSerializationException;
 import io.katharsis.queryParams.params.IncludedFieldsParams;
-import io.katharsis.queryParams.params.IncludedRelationsParams;
 import io.katharsis.queryParams.params.TypedParams;
 import io.katharsis.request.dto.Attributes;
 import io.katharsis.resource.field.ResourceField;
@@ -15,15 +14,11 @@ import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.Container;
 import io.katharsis.response.DataLinksContainer;
 import io.katharsis.utils.BeanUtils;
-import io.katharsis.utils.ClassUtils;
 import io.katharsis.utils.PropertyUtils;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.*;
 
 /**
  * This class serializes an single resource which can be included in <i>data</i> field of JSON API response.
@@ -84,9 +79,13 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         try {
             writeAttributes(gen, data, resourceInformation.getAttributeFields(), includedFields);
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            StringBuilder attributeFieldNames = new StringBuilder();
+            for (ResourceField attributeField : resourceInformation.getAttributeFields()) {
+                attributeFieldNames.append(attributeField.getName());
+                attributeFieldNames.append(" ");
+            }
             throw new JsonSerializationException("Error writing basic fields: " +
-                resourceInformation.getAttributeFields().stream().map(ResourceField::getName)
-                    .collect(Collectors.toSet()));
+                attributeFieldNames);
         }
 
         Set<ResourceField> relationshipFields = getRelationshipFields(resourceType, resourceInformation, includedFields);
@@ -95,12 +94,14 @@ public class ContainerSerializer extends JsonSerializer<Container> {
     }
 
     private Set<ResourceField> getRelationshipFields(String resourceType, ResourceInformation resourceInformation, TypedParams<IncludedFieldsParams> includedFields) {
-        Set<ResourceField> relationshipFields = resourceInformation.getRelationshipFields();
+        Set<ResourceField> relationshipFields = new HashSet<>();
+        for (ResourceField resourceField : resourceInformation.getRelationshipFields()) {
+            if (isIncluded(resourceType, includedFields, resourceField)) {
+                relationshipFields.add(resourceField);
+            }
+        }
 
-        return relationshipFields
-            .stream()
-            .filter(field -> isIncluded(resourceType, includedFields, field))
-            .collect(Collectors.toSet());
+        return relationshipFields;
     }
 
     /**
@@ -120,13 +121,13 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         String resourceType = resourceRegistry.getResourceType(data.getClass());
 
         Attributes attributesObject = new Attributes();
-        attributeFields
-            .stream()
-            .filter(attributeField -> isIncluded(resourceType, includedFields, attributeField))
-            .forEach(attributeField -> {
+        for (ResourceField attributeField : attributeFields) {
+            if (isIncluded(resourceType, includedFields, attributeField)) {
                 Object basicFieldValue = PropertyUtils.getProperty(data, attributeField.getName());
                 attributesObject.addAttribute(attributeField.getName(), basicFieldValue);
-            });
+            }
+        }
+
         gen.writeObjectField(ATTRIBUTES_FIELD_NAME, attributesObject);
     }
 

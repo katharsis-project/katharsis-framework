@@ -5,7 +5,6 @@ import io.katharsis.repository.exception.RepositoryMethodException;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.util.Arrays;
 
 public class ParametersFactory {

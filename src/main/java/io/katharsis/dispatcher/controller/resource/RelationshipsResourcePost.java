@@ -26,10 +26,11 @@ public class RelationshipsResourcePost extends RelationshipsResourceUpsert {
                                           Iterable<DataBody> dataBodies, RelationshipRepository relationshipRepositoryForClass) {
         List<Serializable> parsedIds = new LinkedList<>();
 
-        dataBodies.forEach(dataBody -> {
+        for (DataBody dataBody : dataBodies) {
             Serializable parsedId = typeParser.parse(dataBody.getId(), relationshipIdType);
             parsedIds.add(parsedId);
-        });
+        }
+
         //noinspection unchecked
         relationshipRepositoryForClass.addRelations(resource, parsedIds, elementName);
     }

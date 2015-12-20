@@ -19,7 +19,9 @@ public final class ExceptionMapperRegistryBuilder {
     
     public ExceptionMapperRegistry build(ExceptionMapperLookup exceptionMapperLookup) throws IllegalAccessException, InstantiationException {
     	addKatharsisDefaultMappers();
-    	exceptionMapperLookup.getExceptionMappers().stream().forEach(this::registerExceptionMapper);
+        for (JsonApiExceptionMapper<?> exceptionMapper : exceptionMapperLookup.getExceptionMappers()) {
+            registerExceptionMapper(exceptionMapper);
+        }
     	return new ExceptionMapperRegistry(exceptionMappers);
     }
 
