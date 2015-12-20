@@ -17,7 +17,7 @@ import io.katharsis.utils.parser.TypeParser;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 
-public class ResourceDelete implements BaseController {
+public class ResourceDelete extends BaseController {
 
     private final ResourceRegistry resourceRegistry;
     private final TypeParser typeParser;

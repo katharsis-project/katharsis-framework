@@ -6,6 +6,7 @@ import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.utils.StringUtils;
 
 import java.util.*;
 
@@ -143,15 +144,10 @@ public class PathBuilder {
             currentJsonPath = currentJsonPath.getParentResource();
         } while (currentJsonPath != null);
 
-        StringJoiner joiner = new StringJoiner(SEPARATOR, SEPARATOR, SEPARATOR);
-        Iterator<String> stringIterator = urlParts.descendingIterator();
-        while (stringIterator.hasNext()) {
-            joiner.add(stringIterator.next());
-        }
-        return joiner.toString();
+        return StringUtils.join(SEPARATOR, urlParts);
     }
 
     private static String mergeIds(PathIds ids) {
-        return String.join(PathIds.ID_SEPERATOR, ids.getIds());
+        return StringUtils.join(PathIds.ID_SEPERATOR, ids.getIds());
     }
 }

@@ -4,6 +4,7 @@ import io.katharsis.jackson.exception.ParametersDeserializationException;
 import io.katharsis.queryParams.include.Inclusion;
 import io.katharsis.queryParams.params.*;
 import io.katharsis.resource.RestrictedQueryParamsMembers;
+import io.katharsis.utils.StringUtils;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -51,7 +52,7 @@ public class QueryParams {
             List<String> propertyList = buildPropertyListFromEntry(entry, RestrictedQueryParamsMembers.filter.name());
 
             String resourceType = propertyList.get(0);
-            String propertyPath = String.join(".", propertyList.subList(1, propertyList.size()));
+            String propertyPath = StringUtils.join(".", propertyList.subList(1, propertyList.size()));
 
             if (temporaryFiltersMap.containsKey(resourceType)) {
                 Map<String, Set<String>> resourceParams = temporaryFiltersMap.get(resourceType);
@@ -101,7 +102,7 @@ public class QueryParams {
             List<String> propertyList = buildPropertyListFromEntry(entry, RestrictedQueryParamsMembers.sort.name());
 
             String resourceType = propertyList.get(0);
-            String propertyPath = String.join(".", propertyList.subList(1, propertyList.size()));
+            String propertyPath = StringUtils.join(".", propertyList.subList(1, propertyList.size()));
 
 
             if (temporarySortingMap.containsKey(resourceType)) {

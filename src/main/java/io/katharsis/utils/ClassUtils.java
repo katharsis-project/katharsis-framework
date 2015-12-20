@@ -30,7 +30,10 @@ public class ClassUtils {
         while (currentClass != null && currentClass != Object.class) {
             for (Field field : currentClass.getDeclaredFields()) {
                 if (!field.isSynthetic()) {
-                    result.putIfAbsent(field.getName(), field);
+                    Field v = result.get(field.getName());
+                    if (v == null) {
+                        result.put(field.getName(), field);
+                    }
                 }
             }
             currentClass = currentClass.getSuperclass();
@@ -85,7 +88,10 @@ public class ClassUtils {
         while (currentClass != null && currentClass != Object.class) {
             for (Method method : currentClass.getDeclaredMethods()) {
                 if (INSTANCE.isGetter(method)) {
-                    result.putIfAbsent(method.getName(), method);
+                    Method v = result.get(method.getName());
+                    if (v == null) {
+                        result.put(method.getName(), method);
+                    }
                 }
             }
             currentClass = currentClass.getSuperclass();
@@ -108,7 +114,10 @@ public class ClassUtils {
         while (currentClass != null && currentClass != Object.class) {
             for (Method method : currentClass.getDeclaredMethods()) {
                 if (INSTANCE.isSetter(method)) {
-                    result.putIfAbsent(method.getName(), method);
+                    Method v = result.get(method.getName());
+                    if (v == null) {
+                        result.put(method.getName(), method);
+                    }
                 }
             }
             currentClass = currentClass.getSuperclass();

@@ -6,7 +6,6 @@ import io.katharsis.repository.ResourceRepository;
 import io.katharsis.repository.exception.RelationshipRepositoryNotFoundException;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.repository.*;
-import net.jodah.typetools.TypeResolver;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -30,7 +29,7 @@ public class RegistryEntry<T> {
 
     public RegistryEntry(ResourceInformation resourceInformation,
                          @SuppressWarnings("SameParameterValue") ResourceEntry<T, ?> resourceEntry) {
-        this(resourceInformation, resourceEntry, new LinkedList<>());
+        this(resourceInformation, resourceEntry, new LinkedList<RelationshipEntry<T, ?>>());
     }
 
     public RegistryEntry(ResourceInformation resourceInformation,
