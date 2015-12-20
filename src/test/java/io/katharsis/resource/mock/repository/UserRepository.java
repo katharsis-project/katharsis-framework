@@ -5,9 +5,9 @@ import io.katharsis.repository.ResourceRepository;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.mock.models.User;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 public class UserRepository implements ResourceRepository<User, Long> {
 
@@ -41,10 +41,13 @@ public class UserRepository implements ResourceRepository<User, Long> {
 
     @Override
     public Iterable<User> findAll(Iterable<Long> ids, QueryParams queryParams) {
-        return THREAD_LOCAL_REPOSITORY.values()
-            .stream()
-            .filter(value -> contains(value, ids))
-            .collect(Collectors.toList());
+        List<User> values = new LinkedList<>();
+        for (User value : THREAD_LOCAL_REPOSITORY.values()) {
+            if (contains(value, ids)) {
+                values.add(value);
+            }
+        }
+        return values;
     }
 
     private boolean contains(User value, Iterable<Long> ids) {

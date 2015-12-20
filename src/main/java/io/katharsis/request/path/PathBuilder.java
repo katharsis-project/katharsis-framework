@@ -124,7 +124,7 @@ public class PathBuilder {
      * @return String representing structure provided in the input
      */
     public static String buildPath(JsonPath jsonPath) {
-        Deque<String> urlParts = new LinkedList<>();
+        List<String> urlParts = new LinkedList<>();
 
         JsonPath currentJsonPath = jsonPath;
         String pathPart;
@@ -143,8 +143,9 @@ public class PathBuilder {
 
             currentJsonPath = currentJsonPath.getParentResource();
         } while (currentJsonPath != null);
+        Collections.reverse(urlParts);
 
-        return StringUtils.join(SEPARATOR, urlParts);
+        return SEPARATOR + StringUtils.join(SEPARATOR, urlParts) + SEPARATOR;
     }
 
     private static String mergeIds(PathIds ids) {

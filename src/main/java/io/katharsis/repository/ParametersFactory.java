@@ -5,7 +5,6 @@ import io.katharsis.repository.exception.RepositoryMethodException;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 
 public class ParametersFactory {
 
@@ -36,9 +35,9 @@ public class ParametersFactory {
         for (int i = firstParameters.length; i < parametersLength; i++) {
             Class<?> parameterType = method.getParameterTypes()[i];
             if (QueryParams.class.equals(parameterType)) {
-                additionalParameters[i] = queryParams;
+                additionalParameters[i - firstParameters.length] = queryParams;
             } else {
-                additionalParameters[i] = parameterProvider.provide(method, i + firstParameters.length);
+                additionalParameters[i - firstParameters.length] = parameterProvider.provide(method, i);
             }
         }
 
@@ -63,7 +62,7 @@ public class ParametersFactory {
         int parametersToResolve = parametersLength - firstParameters.length;
         Object[] additionalParameters = new Object[parametersToResolve];
         for (int i = firstParameters.length; i < parametersLength; i++) {
-            additionalParameters[i] = parameterProvider.provide(method, i);
+            additionalParameters[i - firstParameters.length] = parameterProvider.provide(method, i);
         }
 
         return concatenate(firstParameters, additionalParameters);

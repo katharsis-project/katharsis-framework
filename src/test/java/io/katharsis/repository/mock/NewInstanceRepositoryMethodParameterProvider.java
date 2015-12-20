@@ -4,7 +4,7 @@ import io.katharsis.repository.RepositoryMethodParameterProvider;
 
 import java.lang.reflect.Method;
 
-public class NewInstanceRepositoryMethodParameterProvider extends RepositoryMethodParameterProvider {
+public class NewInstanceRepositoryMethodParameterProvider implements RepositoryMethodParameterProvider {
 
 
     @Override
