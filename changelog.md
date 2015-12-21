@@ -1,9 +1,15 @@
-# katharsis-core v2.1.2 git changelog
+# katharsis-core v2.1.3 git changelog
 
+
+2015-12-21    v2.1.3 (Patryk Orwat)  
+2015-12-20    [#48](https://github.com/katharsis-project/katharsis-core/issues/48) travis update (Patryk Orwat)  
+2015-12-20    [#48](https://github.com/katharsis-project/katharsis-core/issues/48) corporate dictatorship - finished tests (Patryk Orwat)  
+2015-12-20    [#48](https://github.com/katharsis-project/katharsis-core/issues/48) corporate dictatorship - finished main classes (Patryk Orwat)  
+2015-12-20    [#48](https://github.com/katharsis-project/katharsis-core/issues/48) first set of changed classes from main (Patryk Orwat)  
+2015-12-12    [#193](https://github.com/katharsis-project/katharsis-core/issues/193) fixed NPE when no inclusion definition for request resource passed (meshuga)  
 
 **v2.1.2**  
-2015-12-09    v2.1.2 (Patryk Orwat)  
-2015-12-08    [#188](https://github.com/katharsis-project/katharsis-core/issues/188) small fix  
+2015-12-09    [#188](https://github.com/katharsis-project/katharsis-core/issues/188) small fix (Patryk Orwat)  
 2015-12-09    v2.1.2 (Patryk Orwat)  
 2015-12-08    [#188](https://github.com/katharsis-project/katharsis-core/issues/188) include and fields fix (Patryk Orwat)  
 2015-12-08    [#189](https://github.com/katharsis-project/katharsis-core/issues/189) - POST shouldn't call repository findOne method (Błażej Krysiak)  
