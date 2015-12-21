@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.container.ContainerRequestContext;
 import java.io.IOException;
-import java.lang.reflect.Parameter;
 
 public class HeaderParamProvider implements RequestContextParameterProvider<Object> {
 

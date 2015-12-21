@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.SecurityContext;
-import java.lang.reflect.Parameter;
 
 public class SecurityContextProvider implements RequestContextParameterProvider<SecurityContext> {
 

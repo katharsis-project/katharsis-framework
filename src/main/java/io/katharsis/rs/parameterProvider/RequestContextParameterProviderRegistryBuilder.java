@@ -11,7 +11,9 @@ public class RequestContextParameterProviderRegistryBuilder {
 
     public RequestContextParameterProviderRegistry build(RequestContextParameterProviderLookup containerRequestContextProviderLookup) {
         addKatharsisDefaultProviders();
-        containerRequestContextProviderLookup.getRequestContextProviders().stream().forEach(this::registerRequestContextProvider);
+        for (RequestContextParameterProvider parameterProvider : containerRequestContextProviderLookup.getRequestContextProviders()) {
+            registerRequestContextProvider(parameterProvider);
+        }
         return new RequestContextParameterProviderRegistry(providers);
     }
 
