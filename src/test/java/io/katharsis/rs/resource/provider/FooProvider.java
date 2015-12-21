@@ -1,10 +1,10 @@
 package io.katharsis.rs.resource.provider;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.katharsis.rs.parameterProvider.provider.Parameter;
 import io.katharsis.rs.parameterProvider.provider.RequestContextParameterProvider;
 
 import javax.ws.rs.container.ContainerRequestContext;
-import java.lang.reflect.Parameter;
 
 public class FooProvider implements RequestContextParameterProvider<String> {
 

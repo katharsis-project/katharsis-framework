@@ -20,12 +20,12 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.SecurityContext;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -49,10 +49,11 @@ public class JaxRsParameterProviderTest {
         RequestContextParameterProviderRegistry parameterProviderRegistry = buildParameterProviderRegistry(containerRequestContextProviderLookup);
         sut = new JaxRsParameterProvider(objectMapper, requestContext, parameterProviderRegistry);
 
-        testMethod = Arrays.stream(TestClass.class.getDeclaredMethods())
-            .filter(method -> "testMethod".equals(method.getName()))
-            .findFirst()
-            .get();
+        for (Method method : TestClass.class.getDeclaredMethods()) {
+            if ("testMethod".equals(method.getName())) {
+                testMethod = method;
+            }
+        }
     }
 
     private RequestContextParameterProviderLookup createRequestContextProviderLookup() {
@@ -133,7 +134,7 @@ public class JaxRsParameterProviderTest {
     public void onStringHeaderShouldReturnThisInstance() throws Exception {
         // GIVEN
         UUID uuid = UUID.randomUUID();
-        when(requestContext.getHeaderString(any())).thenReturn(uuid.toString());
+        when(requestContext.getHeaderString(anyString())).thenReturn(uuid.toString());
 
         // WHEN
         Object result = sut.provide(testMethod, 5);
@@ -147,7 +148,7 @@ public class JaxRsParameterProviderTest {
     public void onUuidHeaderShouldReturnThisInstance() throws Exception {
         // GIVEN
         UUID uuid = UUID.randomUUID();
-        when(requestContext.getHeaderString(any())).thenReturn(uuid.toString());
+        when(requestContext.getHeaderString(anyString())).thenReturn(uuid.toString());
         when(objectMapper.readValue(any(String.class), any(Class.class))).thenReturn(uuid);
 
         // WHEN

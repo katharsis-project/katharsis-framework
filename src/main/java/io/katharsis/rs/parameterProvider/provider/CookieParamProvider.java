@@ -6,7 +6,6 @@ import javax.ws.rs.CookieParam;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Cookie;
 import java.io.IOException;
-import java.lang.reflect.Parameter;
 
 public class CookieParamProvider implements RequestContextParameterProvider<Object> {
 

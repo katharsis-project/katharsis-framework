@@ -3,7 +3,6 @@ package io.katharsis.rs.parameterProvider.provider;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.ws.rs.container.ContainerRequestContext;
-import java.lang.reflect.Parameter;
 
 public class ContainerRequestContextProvider implements RequestContextParameterProvider<ContainerRequestContext> {
 

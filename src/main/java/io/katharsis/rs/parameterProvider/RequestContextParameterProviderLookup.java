@@ -5,9 +5,9 @@ import io.katharsis.resource.exception.init.InvalidResourceException;
 import io.katharsis.rs.parameterProvider.provider.RequestContextParameterProvider;
 import org.reflections.Reflections;
 
+import java.util.HashSet;
 import java.util.Scanner;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class RequestContextParameterProviderLookup {
 
@@ -30,12 +30,15 @@ public class RequestContextParameterProviderLookup {
 
         Set<Class<? extends RequestContextParameterProvider>> parameterProviderClasses = reflections.getSubTypesOf(RequestContextParameterProvider.class);
 
-        return parameterProviderClasses.stream().map((parameterProviderClazz) -> {
+        Set<RequestContextParameterProvider> providers = new HashSet<>(parameterProviderClasses.size());
+        for (Class<? extends RequestContextParameterProvider> parameterProviderClazz : parameterProviderClasses) {
             try {
-                return jsonServiceLocator.getInstance(parameterProviderClazz);
+                providers.add(jsonServiceLocator.getInstance(parameterProviderClazz));
             } catch (Exception e) {
                 throw new InvalidResourceException(parameterProviderClazz.getCanonicalName() + " can not be initialized", e);
             }
-        }).collect(Collectors.<RequestContextParameterProvider>toSet());
+        }
+
+        return providers;
     }
 }

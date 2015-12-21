@@ -2,7 +2,9 @@ package io.katharsis.rs.parameterProvider;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
+import io.katharsis.rs.parameterProvider.provider.Parameter;
 import io.katharsis.rs.parameterProvider.provider.RequestContextParameterProvider;
+import io.katharsis.utils.java.Optional;
 
 import javax.ws.rs.CookieParam;
 import javax.ws.rs.HeaderParam;
@@ -10,8 +12,6 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.SecurityContext;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.util.Optional;
 
 /**
  * <p>
@@ -45,7 +45,7 @@ public class JaxRsParameterProvider implements RepositoryMethodParameterProvider
 
     @Override
     public <T> T provide(Method method, int parameterIndex) {
-        Parameter parameter = getParameter(method, parameterIndex);
+        Parameter parameter = new Parameter(method, parameterIndex);
         Optional<RequestContextParameterProvider> provider = parameterProviderRegistry.findProviderFor(parameter);
         return provider.isPresent() ? (T) provider.get().provideValue(parameter, requestContext, objectMapper) : null;
     }

@@ -1,10 +1,10 @@
 package io.katharsis.rs.parameterProvider;
 
+import io.katharsis.rs.parameterProvider.provider.Parameter;
 import io.katharsis.rs.parameterProvider.provider.RequestContextParameterProvider;
+import io.katharsis.utils.java.Optional;
 
-import java.lang.reflect.Parameter;
 import java.util.Collection;
-import java.util.Optional;
 import java.util.Set;
 
 public class RequestContextParameterProviderRegistry {
