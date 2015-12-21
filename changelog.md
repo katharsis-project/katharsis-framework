@@ -1,5 +1,8 @@
-# katharsis-spring v2.1.2 git changelog
+# katharsis-spring v2.1.3 git changelog
 
+2015-12-21    v2.1.3 (Patryk Orwat)  
+2015-12-21    katharsis-project/katharsis-core[#48](https://github.com/katharsis-project/katharsis-spring/issues/48) downgrade to Java 7 (Patryk Orwat)  
+2015-12-18    [#5](https://github.com/katharsis-project/katharsis-spring/issues/5) Let Spring create KatharsisInvokerBuilder (Collin Peters)  
 
 **v2.1.2**  
 2015-12-09    v2.1.2 (Patryk Orwat)  
