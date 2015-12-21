@@ -27,7 +27,7 @@
     <artifactId>wildfly-example</artifactId>
     <packaging>war</packaging>
 
-    <name>Katharsis Wildly Example</name>
+    <name>Katharsis Wildfly Example</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
