@@ -1,13 +1,13 @@
 package io.katharsis.dispatcher;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.collection.CollectionGet;
 import io.katharsis.dispatcher.registry.ControllerRegistry;
 import io.katharsis.errorhandling.ErrorResponse;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryTest;
 import io.katharsis.locator.SampleJsonServiceLocator;
-import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.queryParams.QueryParams;
+import io.katharsis.repository.RepositoryMethodParameterProvider;
+import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathBuilder;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
@@ -61,7 +61,7 @@ public class RequestDispatcherTest {
         sut.dispatchRequest(jsonPath, requestType, new QueryParams(), null, null);
 
         // THEN
-        verify(collectionGet, times(1)).handle(any(JsonPath.class), any(QueryParams.class), any(), any());
+        verify(collectionGet, times(1)).handle(any(JsonPath.class), any(QueryParams.class), any(RepositoryMethodParameterProvider.class), any(RequestBody.class));
     }
 
     @Test

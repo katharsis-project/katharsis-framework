@@ -4,9 +4,9 @@ import io.katharsis.errorhandling.exception.KatharsisException;
 import io.katharsis.jackson.exception.ParametersDeserializationException;
 import io.katharsis.resource.RestrictedQueryParamsMembers;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Builder responsible for parsing queryParams. The created {@link QueryParams} object contains several fields
@@ -68,10 +68,13 @@ public class QueryParamsBuilder {
      * @return Filtered query params
      */
     private Map<String, Set<String>> filterQueryParamsByKey(Map<String, Set<String>> queryParams, String queryKey) {
-        return queryParams.entrySet()
-            .stream()
-            .filter(p -> p.getKey()
-                .startsWith(queryKey))
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        Map<String, Set<String>> filteredQueryParams = new HashMap<>();
+
+        for (Map.Entry<String, Set<String>> entry : queryParams.entrySet()) {
+            if (entry.getKey().startsWith(queryKey)) {
+                filteredQueryParams.put(entry.getKey(), entry.getValue());
+            }
+        }
+        return filteredQueryParams;
     }
 }

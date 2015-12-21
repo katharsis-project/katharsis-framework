@@ -23,7 +23,7 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
-public abstract class ResourceUpsert implements BaseController {
+public abstract class ResourceUpsert extends BaseController {
     final ResourceRegistry resourceRegistry;
     final TypeParser typeParser;
     private final ObjectMapper objectMapper;

@@ -7,7 +7,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ResourceRegistryTest {
 
@@ -23,21 +23,21 @@ public class ResourceRegistryTest {
 
     @Test
     public void onExistingTypeShouldReturnEntry() {
-        resourceRegistry.addEntry(Task.class, new RegistryEntry<>(null, null, null));
+        resourceRegistry.addEntry(Task.class, new RegistryEntry(null, null, null));
         RegistryEntry tasksEntry = resourceRegistry.getEntry("tasks");
         assertThat(tasksEntry).isNotNull();
     }
 
     @Test
     public void onExistingClassShouldReturnEntry() {
-        resourceRegistry.addEntry(Task.class, new RegistryEntry<>(null, null, null));
+        resourceRegistry.addEntry(Task.class, new RegistryEntry(null, null, null));
         RegistryEntry tasksEntry = resourceRegistry.getEntry(Task.class);
         assertThat(tasksEntry).isNotNull();
     }
 
     @Test
     public void onExistingTypeShouldReturnUrl() {
-        resourceRegistry.addEntry(Task.class, new RegistryEntry<>(null, null, null));
+        resourceRegistry.addEntry(Task.class, new RegistryEntry(null, null, null));
         String resourceUrl = resourceRegistry.getResourceUrl(Task.class);
         assertThat(resourceUrl).isEqualTo(TEST_MODELS_URL + "/tasks");
     }

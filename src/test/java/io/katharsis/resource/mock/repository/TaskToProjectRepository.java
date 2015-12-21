@@ -6,7 +6,9 @@ import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.repository.util.Relation;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -34,14 +36,14 @@ public class TaskToProjectRepository implements RelationshipRepository<Task, Lon
 
     @Override
     public void addRelations(Task source, Iterable<Long> targetIds, String fieldName) {
-        targetIds.forEach(targetId ->
-                THREAD_LOCAL_REPOSITORY.put(new Relation<>(source, targetId, fieldName), 0)
-        );
+        for (Long targetId : targetIds) {
+            THREAD_LOCAL_REPOSITORY.put(new Relation<>(source, targetId, fieldName), 0);
+        }
     }
 
     @Override
     public void removeRelations(Task source, Iterable<Long> targetIds, String fieldName) {
-        targetIds.forEach(targetId -> {
+        for (Long targetId : targetIds) {
             Iterator<Relation<Task>> iterator = THREAD_LOCAL_REPOSITORY.keySet().iterator();
             while (iterator.hasNext()) {
                 Relation<Task> next = iterator.next();
@@ -49,7 +51,7 @@ public class TaskToProjectRepository implements RelationshipRepository<Task, Lon
                     iterator.remove();
                 }
             }
-        });
+        }
     }
 
     public void removeRelations(String fieldName) {
@@ -78,17 +80,13 @@ public class TaskToProjectRepository implements RelationshipRepository<Task, Lon
     @Override
     public Iterable<Project> findManyTargets(Long sourceId, String fieldName, QueryParams queryParams) {
         List<Project> projects = new LinkedList<>();
-        THREAD_LOCAL_REPOSITORY.keySet()
-            .stream()
-            .filter(relation -> relation.getSource()
-                .getId()
-                .equals(sourceId) && relation.getFieldName()
-                .equals(fieldName))
-            .forEach(relation -> {
+        for (Relation<Task> relation : THREAD_LOCAL_REPOSITORY.keySet()) {
+            if (relation.getSource().getId().equals(sourceId) && relation.getFieldName().equals(fieldName)) {
                 Project project = new Project();
                 project.setId((Long) relation.getTargetId());
                 projects.add(project);
-            });
+            }
+        }
         return projects;
     }
 }

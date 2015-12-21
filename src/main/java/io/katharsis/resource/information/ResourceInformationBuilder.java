@@ -15,7 +15,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * A builder which creates ResourceInformation instances of a specific class. It extracts information about a resource
@@ -54,37 +53,35 @@ public final class ResourceInformationBuilder {
     }
 
     private List<ResourceFieldWrapper> getFieldResourceFields(List<Field> classFields) {
-        return classFields
-            .stream()
-            .map(field -> {
-                String name = resourceFieldNameTransformer.getName(field);
-                List<Annotation> annotations = Arrays.asList(field.getAnnotations());
-                ResourceField resourceField = new ResourceField(name, field.getType(), field.getGenericType(), annotations);
-                if (Modifier.isTransient(field.getModifiers()) ||
-                    Modifier.isStatic(field.getModifiers())) {
-                    return new ResourceFieldWrapper(resourceField, true, field.getName());
-                } else {
-                    return new ResourceFieldWrapper(resourceField, false, field.getName());
-                }
-            })
-            .collect(Collectors.toList());
+        List<ResourceFieldWrapper> fieldWrappers = new ArrayList<>(classFields.size());
+        for (Field field : classFields) {
+            String name = resourceFieldNameTransformer.getName(field);
+            List<Annotation> annotations = Arrays.asList(field.getAnnotations());
+            ResourceField resourceField = new ResourceField(name, field.getType(), field.getGenericType(), annotations);
+            if (Modifier.isTransient(field.getModifiers()) ||
+                Modifier.isStatic(field.getModifiers())) {
+                fieldWrappers.add(new ResourceFieldWrapper(resourceField, true, field.getName()));
+            } else {
+                fieldWrappers.add(new ResourceFieldWrapper(resourceField, false, field.getName()));
+            }
+        }
+        return fieldWrappers;
     }
 
     private List<ResourceFieldWrapper> getGetterResourceFields(List<Method> classGetters) {
-        return classGetters
-            .stream()
-            .map(getter -> {
-                String name = resourceFieldNameTransformer.getName(getter);
-                String originalName = resourceFieldNameTransformer.getMethodName(getter);
-                List<Annotation> annotations = Arrays.asList(getter.getAnnotations());
-                ResourceField resourceField = new ResourceField(name, getter.getReturnType(), getter.getGenericReturnType(), annotations);
-                if (Modifier.isStatic(getter.getModifiers())) {
-                    return new ResourceFieldWrapper(resourceField, true, originalName);
-                } else {
-                    return new ResourceFieldWrapper(resourceField, false, originalName);
-                }
-            })
-            .collect(Collectors.toList());
+        List<ResourceFieldWrapper> fieldWrappers = new ArrayList<>(classGetters.size());
+        for (Method getter : classGetters) {
+            String name = resourceFieldNameTransformer.getName(getter);
+            String originalName = resourceFieldNameTransformer.getMethodName(getter);
+            List<Annotation> annotations = Arrays.asList(getter.getAnnotations());
+            ResourceField resourceField = new ResourceField(name, getter.getReturnType(), getter.getGenericReturnType(), annotations);
+            if (Modifier.isStatic(getter.getModifiers())) {
+                fieldWrappers.add(new ResourceFieldWrapper(resourceField, true, originalName));
+            } else {
+                fieldWrappers.add(new ResourceFieldWrapper(resourceField, false, originalName));
+            }
+        }
+        return fieldWrappers;
     }
 
     private List<ResourceField> getResourceFields(List<ResourceFieldWrapper> resourceClassFields, List<ResourceFieldWrapper> resourceGetterFields) {
@@ -92,7 +89,7 @@ public final class ResourceInformationBuilder {
 
         for (ResourceFieldWrapper fieldWrapper : resourceClassFields) {
             if (!fieldWrapper.isDiscarded())
-            resourceFieldMap.put(fieldWrapper.getOriginalName(), fieldWrapper.getResourceField());
+                resourceFieldMap.put(fieldWrapper.getOriginalName(), fieldWrapper.getResourceField());
         }
 
         for (ResourceFieldWrapper fieldWrapper : resourceGetterFields) {
@@ -107,18 +104,27 @@ public final class ResourceInformationBuilder {
             }
         }
 
-        return resourceFieldMap.values()
-            .stream()
-            .filter(field -> !field.isAnnotationPresent(JsonIgnore.class))
-            .collect(Collectors.toList());
+        return discardIgnoredField(resourceFieldMap.values());
+    }
+
+    private List<ResourceField> discardIgnoredField(Collection<ResourceField> resourceFieldValues) {
+        List<ResourceField> resourceFields = new LinkedList<>();
+        for (ResourceField resourceField : resourceFieldValues) {
+            if (!resourceField.isAnnotationPresent(JsonIgnore.class)) {
+                resourceFields.add(resourceField);
+            }
+        }
+
+        return resourceFields;
     }
 
     private boolean hasDiscardedField(ResourceFieldWrapper fieldWrapper, List<ResourceFieldWrapper> resourceClassFields) {
-        return resourceClassFields.stream()
-            .filter(resourceFieldWrapper -> fieldWrapper.getOriginalName()
-                    .equals(resourceFieldWrapper.getOriginalName()))
-            .findFirst()
-            .isPresent();
+        for (ResourceFieldWrapper resourceFieldWrapper : resourceClassFields) {
+            if (fieldWrapper.getOriginalName().equals(resourceFieldWrapper.getOriginalName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private ResourceField mergeAnnotations(ResourceField fromField, ResourceField fromMethod) {
@@ -129,9 +135,12 @@ public final class ResourceInformationBuilder {
     }
 
     private <T> ResourceField getIdField(Class<T> resourceClass, List<ResourceField> classFields) {
-        List<ResourceField> idFields = classFields.stream()
-            .filter(field -> field.isAnnotationPresent(JsonApiId.class))
-            .collect(Collectors.toList());
+        List<ResourceField> idFields = new ArrayList<>(1);
+        for (ResourceField field : classFields) {
+            if (field.isAnnotationPresent(JsonApiId.class)) {
+                idFields.add(field);
+            }
+        }
 
         if (idFields.size() == 0) {
             throw new ResourceIdNotFoundException(resourceClass.getCanonicalName());
@@ -142,18 +151,28 @@ public final class ResourceInformationBuilder {
     }
 
     private Set<ResourceField> getBasicFields(List<ResourceField> classFields, ResourceField idField) {
-        return classFields.stream()
-            .filter(field -> !field.isAnnotationPresent(JsonApiToMany.class) && !field.isAnnotationPresent
-                (JsonApiToOne.class)) // get rid of relations
-            .filter(field -> !field.equals(idField))
-            .collect(Collectors.toSet());
+        Set<ResourceField> basicFields = new HashSet<>();
+        for (ResourceField field : classFields) {
+            if (!isRelation(field) && !field.equals(idField)) {
+                basicFields.add(field);
+            }
+        }
+
+        return basicFields;
     }
 
     private Set<ResourceField> getRelationshipFields(List<ResourceField> classFields, ResourceField idField) {
-        return classFields.stream()
-            .filter(field -> field.isAnnotationPresent(JsonApiToMany.class)
-                || field.isAnnotationPresent(JsonApiToOne.class)) // get only relations
-            .filter(field -> !field.equals(idField))
-            .collect(Collectors.toSet());
+        Set<ResourceField> relationshipFields = new HashSet<>();
+        for (ResourceField field : classFields) {
+            if (isRelation(field) && !field.equals(idField)) {
+                relationshipFields.add(field);
+            }
+        }
+
+        return relationshipFields;
+    }
+
+    private boolean isRelation(ResourceField field) {
+        return field.isAnnotationPresent(JsonApiToMany.class) || field.isAnnotationPresent(JsonApiToOne.class);
     }
 }

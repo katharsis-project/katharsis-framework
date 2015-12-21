@@ -5,8 +5,9 @@ import io.katharsis.repository.annotations.*;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.mock.models.Task;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 @JsonApiResourceRepository(Task.class)
 public class TaskRepository {
@@ -40,10 +41,13 @@ public class TaskRepository {
 
     @JsonApiFindAllWithIds
     public Iterable<Task> findAll(Iterable<Long> ids, QueryParams queryParams) {
-        return THREAD_LOCAL_REPOSITORY.values()
-            .stream()
-            .filter(value -> contains(value, ids))
-            .collect(Collectors.toList());
+        List<Task> values = new LinkedList<>();
+        for (Task value : THREAD_LOCAL_REPOSITORY.values()) {
+            if (contains(value, ids)) {
+                values.add(value);
+            }
+        }
+        return values;
     }
 
     private boolean contains(Task value, Iterable<Long> ids) {

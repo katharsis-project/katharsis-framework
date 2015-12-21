@@ -25,10 +25,10 @@ public class RelationshipsResourcePatch extends RelationshipsResourceUpsert {
     public void processToManyRelationship(Object resource, Class<? extends Serializable> relationshipIdType, String elementName,
                                           Iterable<DataBody> dataBodies, RelationshipRepository relationshipRepositoryForClass) {
         List<Serializable> parsedIds = new LinkedList<>();
-        dataBodies.forEach(dataBody -> {
+        for (DataBody dataBody : dataBodies) {
             Serializable parsedId = typeParser.parse(dataBody.getId(), relationshipIdType);
             parsedIds.add(parsedId);
-        });
+        }
         //noinspection unchecked
         relationshipRepositoryForClass.setRelations(resource, parsedIds, elementName);
     }

@@ -7,7 +7,6 @@ import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 public class ResourceField {
     private final String name;
@@ -16,7 +15,7 @@ public class ResourceField {
     private List<Annotation> annotations;
 
     public ResourceField(@SuppressWarnings("SameParameterValue") String name, Class<?> type, Type genericType) {
-        this(name, type, genericType, Collections.emptyList());
+        this(name, type, genericType, Collections.<Annotation>emptyList());
     }
 
     public ResourceField(String name, Class<?> type, Type genericType, List<Annotation> annotations) {
@@ -43,22 +42,21 @@ public class ResourceField {
     }
 
     public boolean isAnnotationPresent(Class<?> annotationClass) {
-        return annotations.stream()
-            .filter(annotation -> annotation.annotationType().equals(annotationClass))
-            .findAny()
-            .isPresent();
+        for (Annotation annotation : annotations) {
+            if (annotation.annotationType().equals(annotationClass)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean isLazy() {
-        boolean isLazy = false;
-        Optional<JsonApiToMany> toManyOptional = annotations.stream()
-            .filter(annotation -> annotation.annotationType().equals(JsonApiToMany.class))
-            .map(annotation -> (JsonApiToMany) annotation)
-            .findAny();
-        if (toManyOptional.isPresent()) {
-            isLazy = toManyOptional.get().lazy();
+        for (Annotation annotation : annotations) {
+            if (annotation.annotationType().equals(JsonApiToMany.class)) {
+                return ((JsonApiToMany) annotation).lazy();
+            }
         }
-        return isLazy;
+        return false;
     }
 
     @Override

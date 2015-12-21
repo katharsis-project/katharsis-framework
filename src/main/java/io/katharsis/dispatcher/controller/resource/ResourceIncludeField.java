@@ -8,7 +8,7 @@ import io.katharsis.utils.parser.TypeParser;
 /**
  * Created by zachncst on 10/14/15.
  */
-public abstract class ResourceIncludeField implements BaseController {
+public abstract class ResourceIncludeField extends BaseController {
     protected final ResourceRegistry resourceRegistry;
     protected final TypeParser typeParser;
     protected final IncludeLookupSetter includeFieldSetter;

@@ -44,13 +44,11 @@ public class RepositoryEntryBuilderFacade implements RepositoryEntryBuilder {
         List<RelationshipEntry<?, ?>> directEntries = directRepositoryEntryBuilder
             .buildRelationshipRepositories(lookup, resourceClass);
 
-        directEntries.forEach(
-            directEntry -> {
-                if (!contains(targetEntries, directEntry)) {
-                    targetEntries.add(directEntry);
-                }
+        for (RelationshipEntry<?, ?> directEntry : directEntries) {
+            if (!contains(targetEntries, directEntry)) {
+                targetEntries.add(directEntry);
             }
-        );
+        }
 
         return targetEntries;
     }

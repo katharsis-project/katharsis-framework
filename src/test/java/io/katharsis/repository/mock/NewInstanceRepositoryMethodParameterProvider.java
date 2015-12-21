@@ -9,8 +9,10 @@ public class NewInstanceRepositoryMethodParameterProvider implements RepositoryM
 
     @Override
     public <T> T provide(Method method, int parameterIndex) {
+        Class<?> aClass = method.getParameterTypes()[parameterIndex];
+
         try {
-            return (T) getParameter(method, parameterIndex).getType().newInstance();
+            return (T) aClass.newInstance();
         } catch (InstantiationException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }

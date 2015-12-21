@@ -10,7 +10,6 @@ import io.katharsis.resource.registry.repository.ResourceEntry;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,9 +52,10 @@ public class ResourceRegistryBuilder {
     public ResourceRegistry build(ResourceLookup resourceLookup, @SuppressWarnings("SameParameterValue") String serviceUrl) {
         Set<Class<?>> jsonApiResources = resourceLookup.getResourceClasses();
         
-        Set<ResourceInformation> resourceInformationSet = jsonApiResources.stream()
-            .map(resourceInformationBuilder::build)
-            .collect(Collectors.toSet());
+        Set<ResourceInformation> resourceInformationSet = new HashSet<>(jsonApiResources.size());
+        for (Class<?> clazz : jsonApiResources) {
+            resourceInformationSet.add(resourceInformationBuilder.build(clazz));
+        }
 
         Set<RegistryEntry> registryEntries = new HashSet<>(resourceInformationSet.size());
         for (ResourceInformation resourceInformation : resourceInformationSet) {

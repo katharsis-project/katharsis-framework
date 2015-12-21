@@ -99,8 +99,9 @@ public class FieldRepositoryAdapterTest {
         // THEN
         verify(repo).addFields(eq(1L), eq(entities), eq("project"), eq(queryParams), eq(""));
         assertThat(result).isNotNull();
-        result.forEach(project -> assertThat(project.getId()).isEqualTo(1L));
-        
+        for (Project project : result) {
+            assertThat(project.getId()).isEqualTo(1L);
+        }
     }
 
     @Test(expected = RepositoryAnnotationNotFoundException.class)

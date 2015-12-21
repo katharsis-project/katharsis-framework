@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Extracts inclusions from a resource.
@@ -46,11 +45,12 @@ public class IncludedRelationshipExtractor {
 
     private List<?> extractDefaultIncludedFields(Object resource, BaseResponse response) {
         List<?> includedResources = getIncludedByDefaultResources(resource, 1);
+        List<Container> includedResourceContainers = new ArrayList<>(includedResources.size());
+        for (Object includedResource : includedResources) {
+            includedResourceContainers.add(new Container(includedResource, response));
+        }
 
-        return includedResources
-            .stream()
-            .map(includedResource -> new Container(includedResource, response))
-            .collect(Collectors.toList());
+        return includedResourceContainers;
     }
 
 
@@ -98,9 +98,9 @@ public class IncludedRelationshipExtractor {
             .getIncludedRelations();
         String elementName = response.getJsonPath()
             .getElementName();
-        Optional<IncludedRelationsParams> includedRelationsParams = findInclusions(includedRelations, elementName);
-        if (includedRelationsParams.isPresent()) {
-            for (Inclusion inclusion : includedRelationsParams.get().getParams()) {
+        IncludedRelationsParams includedRelationsParams = findInclusions(includedRelations, elementName);
+        if (includedRelationsParams != null) {
+            for (Inclusion inclusion : includedRelationsParams.getParams()) {
                 //noinspection unchecked
                 includedResources.addAll(extractIncludedRelationship(resource, inclusion, response));
             }
@@ -108,17 +108,17 @@ public class IncludedRelationshipExtractor {
         return includedResources;
     }
 
-    private Optional<IncludedRelationsParams> findInclusions(TypedParams<IncludedRelationsParams> queryParams,
+    private IncludedRelationsParams findInclusions(TypedParams<IncludedRelationsParams> queryParams,
                                                    String resourceName) {
         if (queryParams != null && queryParams.getParams() != null) {
             for (Map.Entry<String, IncludedRelationsParams> entry : queryParams.getParams()
                 .entrySet()) {
                 if (resourceName.equals(entry.getKey())) {
-                    return Optional.of(entry.getValue());
+                    return entry.getValue();
                 }
             }
         }
-        return Optional.empty();
+        return null;
     }
 
     private Set extractIncludedRelationship(Object resource, Inclusion inclusion, BaseResponse response)

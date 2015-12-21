@@ -25,7 +25,7 @@ import io.katharsis.utils.parser.TypeParser;
 import java.io.Serializable;
 import java.util.Collections;
 
-public abstract class RelationshipsResourceUpsert implements BaseController {
+public abstract class RelationshipsResourceUpsert extends BaseController {
 
     private final ResourceRegistry resourceRegistry;
     final TypeParser typeParser;

@@ -19,7 +19,7 @@ import io.katharsis.response.MetaInformation;
  * {@link BaseController#isAcceptable(io.katharsis.request.path.JsonPath, String)} method. If the method returns
  * true, the matched controller is used to handle the request.
  */
-public interface BaseController {
+public abstract class BaseController {
 
     /**
      * Checks if requested resource method is acceptable.
@@ -28,7 +28,7 @@ public interface BaseController {
      * @param requestType HTTP request type
      * @return Acceptance result in boolean
      */
-    boolean isAcceptable(JsonPath jsonPath, String requestType);
+    public abstract boolean isAcceptable(JsonPath jsonPath, String requestType);
 
     /**
      * Passes the request to controller method.
@@ -40,11 +40,11 @@ public interface BaseController {
      * @return CollectionResponse object
      * @throws Exception internal Katharsis exception
      */
-    BaseResponse<?> handle(JsonPath jsonPath, QueryParams queryParams, RepositoryMethodParameterProvider
+    public abstract BaseResponse<?> handle(JsonPath jsonPath, QueryParams queryParams, RepositoryMethodParameterProvider
         parameterProvider,
                            RequestBody requestBody) throws Exception;
 
-    default MetaInformation getMetaInformation(Object repository, Iterable<?> resources, QueryParams queryParams) {
+    public MetaInformation getMetaInformation(Object repository, Iterable<?> resources, QueryParams queryParams) {
         if (repository instanceof RepositoryAdapter) {
             if (((RepositoryAdapter) repository).metaRepositoryAvailable()) {
                 return ((MetaRepository) repository).getMetaInformation(resources, queryParams);
@@ -55,7 +55,7 @@ public interface BaseController {
         return null;
     }
 
-    default LinksInformation getLinksInformation(Object repository, Iterable<?> resources, QueryParams queryParams) {
+    public LinksInformation getLinksInformation(Object repository, Iterable<?> resources, QueryParams queryParams) {
         if (repository instanceof RepositoryAdapter) {
             if (((RepositoryAdapter) repository).linksRepositoryAvailable()) {
                 return ((LinksRepository) repository).getLinksInformation(resources, queryParams);
@@ -66,7 +66,7 @@ public interface BaseController {
         return null;
     }
 
-    default void verifyTypes(HttpMethod methodType, String resourceEndpointName, RegistryEntry endpointRegistryEntry,
+    public void verifyTypes(HttpMethod methodType, String resourceEndpointName, RegistryEntry endpointRegistryEntry,
                              RegistryEntry bodyRegistryEntry) {
         if (endpointRegistryEntry.equals(bodyRegistryEntry)) {
             return;

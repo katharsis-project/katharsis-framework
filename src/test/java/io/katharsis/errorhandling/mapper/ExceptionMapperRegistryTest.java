@@ -2,14 +2,14 @@ package io.katharsis.errorhandling.mapper;
 
 import io.katharsis.errorhandling.ErrorResponse;
 import io.katharsis.response.HttpStatus;
+import io.katharsis.utils.java.Optional;
 import org.junit.Test;
 
 import java.nio.file.ClosedFileSystemException;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ExceptionMapperRegistryTest {
 

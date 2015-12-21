@@ -8,8 +8,7 @@ import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.response.BaseResponse;
-
-import java.util.Optional;
+import io.katharsis.utils.java.Optional;
 
 /**
  * A class that can be used to integrate Katharsis with external frameworks like Jersey, Spring etc. See katharsis-rs
