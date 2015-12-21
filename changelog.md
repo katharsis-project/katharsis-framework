@@ -1,4 +1,4 @@
-# io.katharsis:katharsis-servlet v2.1.2 git changelog
+# io.katharsis:katharsis-servlet v2.1.3-SNAPSHOT git changelog
 
 
 **v2.1.2**  
