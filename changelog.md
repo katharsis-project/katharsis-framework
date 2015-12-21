@@ -1,5 +1,7 @@
-# io.katharsis:katharsis-servlet v2.1.3-SNAPSHOT git changelog
+# io.katharsis:katharsis-servlet v2.1.3 git changelog
 
+2015-12-21    v2.1.3 (Patryk Orwat)  
+2015-12-21    katharsis-project/katharsis-core[#48](https://github.com/katharsis-project/katharsis-rs/issues/48) downgrade to Java 7 (Patryk Orwat)  
 
 **v2.1.2**  
 2015-12-09    v2.1.2 (Patryk Orwat)  
