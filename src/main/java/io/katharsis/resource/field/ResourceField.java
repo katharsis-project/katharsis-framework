@@ -9,24 +9,31 @@ import java.util.List;
 import java.util.Objects;
 
 public class ResourceField {
-    private final String name;
+    private final String jsonName;
+    private final String underlyingName;
     private final Class<?> type;
     private final Type genericType;
     private List<Annotation> annotations;
 
-    public ResourceField(@SuppressWarnings("SameParameterValue") String name, Class<?> type, Type genericType) {
-        this(name, type, genericType, Collections.<Annotation>emptyList());
+    public ResourceField(@SuppressWarnings("SameParameterValue") String jsonName,
+                         @SuppressWarnings("SameParameterValue") String underlyingName, Class<?> type, Type genericType) {
+        this(jsonName, underlyingName, type, genericType, Collections.<Annotation>emptyList());
     }
 
-    public ResourceField(String name, Class<?> type, Type genericType, List<Annotation> annotations) {
-        this.name = name;
+    public ResourceField(String jsonName, String underlyingName, Class<?> type, Type genericType, List<Annotation> annotations) {
+        this.jsonName = jsonName;
+        this.underlyingName = underlyingName;
         this.type = type;
         this.genericType = genericType;
         this.annotations = annotations;
     }
 
-    public String getName() {
-        return name;
+    public String getJsonName() {
+        return jsonName;
+    }
+
+    public String getUnderlyingName() {
+        return underlyingName;
     }
 
     public Class<?> getType() {
@@ -66,7 +73,8 @@ public class ResourceField {
         if (o == null || getClass() != o.getClass())
             return false;
         ResourceField that = (ResourceField) o;
-        return Objects.equals(name, that.name) &&
+        return Objects.equals(jsonName, that.jsonName) &&
+            Objects.equals(underlyingName, that.underlyingName) &&
             Objects.equals(type, that.type) &&
             Objects.equals(genericType, that.genericType) &&
             Objects.equals(annotations, that.annotations);
@@ -74,6 +82,6 @@ public class ResourceField {
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, type, genericType, annotations);
+        return Objects.hash(jsonName, underlyingName, type, genericType, annotations);
     }
 }

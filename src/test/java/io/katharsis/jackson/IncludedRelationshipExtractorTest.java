@@ -5,7 +5,6 @@ import io.katharsis.jackson.serializer.IncludedRelationshipExtractor;
 import io.katharsis.locator.SampleJsonServiceLocator;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
-import io.katharsis.request.path.FieldPath;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathBuilder;
 import io.katharsis.request.path.ResourcePath;
@@ -21,7 +20,6 @@ import io.katharsis.resource.registry.ResourceRegistryTest;
 import io.katharsis.response.Container;
 import io.katharsis.response.ResourceResponse;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.lang.annotation.Annotation;
@@ -55,8 +53,8 @@ public class IncludedRelationshipExtractorTest {
         sut = new IncludedRelationshipExtractor(resourceRegistry);
         Field someField = Task.class.getDeclaredField("project");
         List<Annotation> declaredAnnotations = Arrays.asList(someField.getDeclaredAnnotations());
-        resourceField = new ResourceField(someField.getName(), someField.getType(), someField.getGenericType(),
-            declaredAnnotations);
+        resourceField = new ResourceField(someField.getName(), someField.getName(), someField.getType(),
+            someField.getGenericType(), declaredAnnotations);
 
         JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath("/tasks");
         testResponse = new ResourceResponse(null, jsonPath, new QueryParams(), null, null);

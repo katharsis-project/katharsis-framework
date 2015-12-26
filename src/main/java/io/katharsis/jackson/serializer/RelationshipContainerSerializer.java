@@ -62,9 +62,9 @@ public class RelationshipContainerSerializer extends JsonSerializer<Relationship
         RegistryEntry entry = resourceRegistry.getEntry(sourceClass);
         ResourceField idField = entry.getResourceInformation().getIdField();
 
-        Object sourceId = PropertyUtils.getProperty(data, idField.getName());
+        Object sourceId = PropertyUtils.getProperty(data, idField.getUnderlyingName());
         String url = resourceUrl + "/" + sourceId + (addLinks ? "/" + PathBuilder.RELATIONSHIP_MARK + "/" : "/")
-            + relationshipContainer.getRelationshipField().getName();
+            + relationshipContainer.getRelationshipField().getJsonName();
         gen.writeStringField(fieldName, url);
     }
 
@@ -105,7 +105,7 @@ public class RelationshipContainerSerializer extends JsonSerializer<Relationship
         throws IOException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         ResourceField relationshipField = relationshipContainer.getRelationshipField();
         Object targetDataObj = PropertyUtils
-            .getProperty(relationshipContainer.getDataLinksContainer().getData(), relationshipField.getName());
+            .getProperty(relationshipContainer.getDataLinksContainer().getData(), relationshipField.getUnderlyingName());
 
         gen.writeStartArray();
         if (targetDataObj != null) {
@@ -120,7 +120,7 @@ public class RelationshipContainerSerializer extends JsonSerializer<Relationship
                                    Class<?> relationshipClass, RegistryEntry relationshipEntry)
         throws IOException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         ResourceField relationshipField = relationshipContainer.getRelationshipField();
-        Object targetDataObj = PropertyUtils.getProperty(relationshipContainer.getDataLinksContainer().getData(), relationshipField.getName());
+        Object targetDataObj = PropertyUtils.getProperty(relationshipContainer.getDataLinksContainer().getData(), relationshipField.getUnderlyingName());
         if (targetDataObj == null) {
             gen.writeObject(null);
         } else {

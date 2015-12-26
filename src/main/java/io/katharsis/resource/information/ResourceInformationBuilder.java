@@ -55,14 +55,15 @@ public final class ResourceInformationBuilder {
     private List<ResourceFieldWrapper> getFieldResourceFields(List<Field> classFields) {
         List<ResourceFieldWrapper> fieldWrappers = new ArrayList<>(classFields.size());
         for (Field field : classFields) {
-            String name = resourceFieldNameTransformer.getName(field);
+            String jsonName = resourceFieldNameTransformer.getName(field);
+            String underlyingName = field.getName();
             List<Annotation> annotations = Arrays.asList(field.getAnnotations());
-            ResourceField resourceField = new ResourceField(name, field.getType(), field.getGenericType(), annotations);
+            ResourceField resourceField = new ResourceField(jsonName, underlyingName, field.getType(), field.getGenericType(), annotations);
             if (Modifier.isTransient(field.getModifiers()) ||
                 Modifier.isStatic(field.getModifiers())) {
-                fieldWrappers.add(new ResourceFieldWrapper(resourceField, true, field.getName()));
+                fieldWrappers.add(new ResourceFieldWrapper(resourceField, true));
             } else {
-                fieldWrappers.add(new ResourceFieldWrapper(resourceField, false, field.getName()));
+                fieldWrappers.add(new ResourceFieldWrapper(resourceField, false));
             }
         }
         return fieldWrappers;
@@ -71,14 +72,14 @@ public final class ResourceInformationBuilder {
     private List<ResourceFieldWrapper> getGetterResourceFields(List<Method> classGetters) {
         List<ResourceFieldWrapper> fieldWrappers = new ArrayList<>(classGetters.size());
         for (Method getter : classGetters) {
-            String name = resourceFieldNameTransformer.getName(getter);
-            String originalName = resourceFieldNameTransformer.getMethodName(getter);
+            String jsonName = resourceFieldNameTransformer.getName(getter);
+            String underlyingName = resourceFieldNameTransformer.getMethodName(getter);
             List<Annotation> annotations = Arrays.asList(getter.getAnnotations());
-            ResourceField resourceField = new ResourceField(name, getter.getReturnType(), getter.getGenericReturnType(), annotations);
+            ResourceField resourceField = new ResourceField(jsonName, underlyingName, getter.getReturnType(), getter.getGenericReturnType(), annotations);
             if (Modifier.isStatic(getter.getModifiers())) {
-                fieldWrappers.add(new ResourceFieldWrapper(resourceField, true, originalName));
+                fieldWrappers.add(new ResourceFieldWrapper(resourceField, true));
             } else {
-                fieldWrappers.add(new ResourceFieldWrapper(resourceField, false, originalName));
+                fieldWrappers.add(new ResourceFieldWrapper(resourceField, false));
             }
         }
         return fieldWrappers;
@@ -89,12 +90,12 @@ public final class ResourceInformationBuilder {
 
         for (ResourceFieldWrapper fieldWrapper : resourceClassFields) {
             if (!fieldWrapper.isDiscarded())
-                resourceFieldMap.put(fieldWrapper.getOriginalName(), fieldWrapper.getResourceField());
+                resourceFieldMap.put(fieldWrapper.getResourceField().getUnderlyingName(), fieldWrapper.getResourceField());
         }
 
         for (ResourceFieldWrapper fieldWrapper : resourceGetterFields) {
             if (!fieldWrapper.isDiscarded()) {
-                String originalName = fieldWrapper.getOriginalName();
+                String originalName = fieldWrapper.getResourceField().getUnderlyingName();
                 ResourceField field = fieldWrapper.getResourceField();
                 if (resourceFieldMap.containsKey(originalName)) {
                     resourceFieldMap.put(originalName, mergeAnnotations(resourceFieldMap.get(originalName), field));
@@ -120,7 +121,8 @@ public final class ResourceInformationBuilder {
 
     private boolean hasDiscardedField(ResourceFieldWrapper fieldWrapper, List<ResourceFieldWrapper> resourceClassFields) {
         for (ResourceFieldWrapper resourceFieldWrapper : resourceClassFields) {
-            if (fieldWrapper.getOriginalName().equals(resourceFieldWrapper.getOriginalName())) {
+            if (fieldWrapper.getResourceField().getUnderlyingName()
+                .equals(resourceFieldWrapper.getResourceField().getUnderlyingName())) {
                 return true;
             }
         }
@@ -131,7 +133,7 @@ public final class ResourceInformationBuilder {
         List<Annotation> annotations = new LinkedList<>(fromField.getAnnotations());
         annotations.addAll(fromMethod.getAnnotations());
 
-        return new ResourceField(fromField.getName(), fromField.getType(), fromField.getGenericType(), annotations);
+        return new ResourceField(fromField.getJsonName(), fromField.getUnderlyingName(), fromField.getType(), fromField.getGenericType(), annotations);
     }
 
     private <T> ResourceField getIdField(Class<T> resourceClass, List<ResourceField> classFields) {

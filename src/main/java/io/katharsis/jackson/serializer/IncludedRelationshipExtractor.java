@@ -66,7 +66,7 @@ public class IncludedRelationshipExtractor {
         for (ResourceField resourceField : relationshipFields) {
             if (resourceField.isAnnotationPresent(JsonApiIncludeByDefault.class)) {
 
-                Object targetDataObj = PropertyUtils.getProperty(resource, resourceField.getName());
+                Object targetDataObj = PropertyUtils.getProperty(resource, resourceField.getUnderlyingName());
 
                 if (targetDataObj != null) {
                     recurrenceLevel++;

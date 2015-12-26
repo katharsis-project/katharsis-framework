@@ -90,7 +90,7 @@ public class PathBuilder {
         RegistryEntry previousEntry = resourceRegistry.getEntry(previousElementName);
         Set<ResourceField> resourceFields = previousEntry.getResourceInformation().getRelationshipFields();
         for (ResourceField field : resourceFields) {
-            if (field.getName().equals(elementName)) {
+            if (field.getJsonName().equals(elementName)) {
                 if (relationshipMark) {
                     return new RelationshipsPath(elementName);
                 } else {

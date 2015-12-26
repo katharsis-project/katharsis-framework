@@ -25,7 +25,7 @@ public class DataLinksContainerSerializer extends JsonSerializer<DataLinksContai
 
         for (ResourceField field : dataLinksContainer.getRelationshipFields()) {
             RelationshipContainer relationshipContainer = new RelationshipContainer(dataLinksContainer, field);
-            gen.writeObjectField(field.getName(), relationshipContainer);
+            gen.writeObjectField(field.getJsonName(), relationshipContainer);
         }
 
         gen.writeEndObject();
