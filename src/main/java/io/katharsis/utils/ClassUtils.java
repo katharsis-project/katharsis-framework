@@ -1,11 +1,15 @@
 package io.katharsis.utils;
 
 import io.katharsis.resource.annotations.JsonApiResource;
+import io.katharsis.utils.java.Optional;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Provides reflection methods for parsing information about a class.
@@ -43,6 +47,25 @@ public class ClassUtils {
     }
 
     /**
+     * Returns an instance of bean's annotation
+     *
+     * @param beanClass       class to be searched for
+     * @param annotationClass type of an annotation
+     * @return an instance of an annotation
+     */
+    public static <T extends Annotation> Optional<T> getAnnotation(Class<?> beanClass, Class<T> annotationClass) {
+        Class<?> currentClass = beanClass;
+        while (currentClass != null && currentClass != Object.class) {
+            if (currentClass.isAnnotationPresent(annotationClass)) {
+                return Optional.of(currentClass.getAnnotation(annotationClass));
+            }
+            currentClass = currentClass.getSuperclass();
+        }
+
+        return Optional.empty();
+    }
+
+    /**
      * Tries to find a class fields. Supports inheritance and doesn't return synthetic fields.
      *
      * @param beanClass class to be searched for
@@ -68,10 +91,10 @@ public class ClassUtils {
     }
 
     /**
-     * <p>
+     * <p/>
      * Return a list of class getters. Supports inheritance and overriding, that is when a method is found on the
      * lowest level of inheritance chain, no other method can override it.
-     * <p>
+     * <p/>
      * A getter:
      * <ul>
      * <li>Starts with an <i>is</i> if returns <i>boolean</i> or {@link Boolean} value</li>
@@ -128,7 +151,8 @@ public class ClassUtils {
 
     /**
      * Return a first occurrence of a method annotated with specified annotation
-     * @param searchObject instance to be searched
+     *
+     * @param searchObject    instance to be searched
      * @param annotationClass annotation class
      * @return annotated method or null
      */
@@ -151,12 +175,13 @@ public class ClassUtils {
 
     /**
      * Returns the first clazz in the ancestor hierarchy with the JsonApiResource annotation
+     *
      * @param data instance
-     * @param <T> instance type
+     * @param <T>  instance type
      * @return class or null
      */
     public static <T> Class<? super T> getJsonApiResourceClass(final T data) {
-        return getJsonApiResourceClass((Class<? super T>)data.getClass());
+        return getJsonApiResourceClass((Class<? super T>) data.getClass());
     }
 
     public static <T> Class<? super T> getJsonApiResourceClass(final Class<T> candidateClass) {

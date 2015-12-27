@@ -1,4 +1,4 @@
-package io.katharsis.resource.information;
+package io.katharsis.resource.information.field;
 
 import io.katharsis.resource.field.ResourceField;
 

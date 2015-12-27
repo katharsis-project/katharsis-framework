@@ -1,6 +1,7 @@
 package io.katharsis.resource;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import io.katharsis.resource.annotations.JsonApiId;
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.annotations.JsonApiToOne;
@@ -156,12 +157,32 @@ public class ResourceInformationBuilderTest {
     }
 
     @Test
-    public void shouldHaveNoAttributesInfoForStaticMEthod() throws Exception {
+    public void shouldHaveNoAttributesInfoForStaticMethod() throws Exception {
         ResourceInformation resourceInformation = resourceInformationBuilder.build(IgnoredStaticGetterResource.class);
 
         assertThat(resourceInformation.getAttributeFields())
             .isNotNull()
             .hasSize(0);
+    }
+
+    @Test
+    public void shouldHaveOrderedAttributesForOrderedResource() throws Exception {
+        ResourceInformation resourceInformation = resourceInformationBuilder.build(OrderedResource.class);
+
+        assertThat(resourceInformation.getAttributeFields())
+            .isNotNull()
+            .extracting(NAME_PROPERTY)
+            .containsSequence("b", "a", "c");
+    }
+
+    @Test
+    public void shouldHaveAlphabeticAttributesForAlphabeticResource() throws Exception {
+        ResourceInformation resourceInformation = resourceInformationBuilder.build(AlphabeticResource.class);
+
+        assertThat(resourceInformation.getAttributeFields())
+            .isNotNull()
+            .extracting(NAME_PROPERTY)
+            .containsSequence("a", "b", "c");
     }
 
     @JsonApiResource(type = "duplicatedIdAnnotationResources")
@@ -275,5 +296,27 @@ public class ResourceInformationBuilderTest {
         public static int getAttribute() {
             return 0;
         }
+    }
+
+    @JsonPropertyOrder({"b", "a", "c"})
+    @JsonApiResource(type = "orderedResource")
+    private static class OrderedResource {
+        @JsonApiId
+        private Long id;
+
+        public String c;
+        public String b;
+        public String a;
+    }
+
+    @JsonPropertyOrder(alphabetic = true)
+    @JsonApiResource(type = "AlphabeticResource")
+    private static class AlphabeticResource {
+        @JsonApiId
+        private Long id;
+
+        public String c;
+        public String b;
+        public String a;
     }
 }
