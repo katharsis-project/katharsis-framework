@@ -117,7 +117,7 @@ public class KatharsisFeature implements Feature {
 
     private ResourceRegistry buildResourceRegistry(ResourceLookup lookup, String serviceUrl) {
         ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(jsonServiceLocator,
-            new ResourceInformationBuilder(new ResourceFieldNameTransformer()));
+            new ResourceInformationBuilder(new ResourceFieldNameTransformer(objectMapper.getSerializationConfig())));
         return registryBuilder.build(lookup, serviceUrl);
     }
 
