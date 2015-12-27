@@ -121,10 +121,19 @@ public class KatharsisInvokerBuilder {
         return mapperRegistryBuilder.build(resourceSearchPackage);
     }
 
+
     protected ResourceRegistry buildResourceRegistry(JsonServiceLocator jsonServiceLocator, String resourceSearchPackage, String resourceDefaultDomain) {
+        ResourceFieldNameTransformer resourceFieldNameTransformer;
+        if (objectMapper != null) {
+            resourceFieldNameTransformer =
+                new ResourceFieldNameTransformer(objectMapper.getSerializationConfig());
+        } else {
+            // As for now get default configuration if object mapper hasn't been initialized
+            resourceFieldNameTransformer =
+                new ResourceFieldNameTransformer((new ObjectMapper()).getSerializationConfig());
+        }
         ResourceRegistryBuilder registryBuilder =
-            new ResourceRegistryBuilder(jsonServiceLocator,
-                                        new ResourceInformationBuilder(new ResourceFieldNameTransformer()));
+            new ResourceRegistryBuilder(jsonServiceLocator, new ResourceInformationBuilder(resourceFieldNameTransformer));
 
         return registryBuilder.build(resourceSearchPackage, resourceDefaultDomain);
     }
