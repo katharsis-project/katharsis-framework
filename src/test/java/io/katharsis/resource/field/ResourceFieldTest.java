@@ -16,7 +16,7 @@ public class ResourceFieldTest {
     public void onWithLazyFieldClassShouldReturnTrue() throws Exception {
         // GIVEN
         List<Annotation> annotations = Arrays.asList(WithLazyFieldClass.class.getDeclaredField("value").getAnnotations());
-        ResourceField sut = new ResourceField("", String.class, String.class, annotations);
+        ResourceField sut = new ResourceField("", "", String.class, String.class, annotations);
 
         // WHEN
         boolean result = sut.isLazy();
@@ -30,7 +30,7 @@ public class ResourceFieldTest {
     public void onWithToManyEagerFieldClassShouldReturnFalse() throws Exception {
         // GIVEN
         List<Annotation> annotations = Arrays.asList(WithToManyEagerFieldClass.class.getDeclaredField("value").getAnnotations());
-        ResourceField sut = new ResourceField("", String.class, String.class, annotations);
+        ResourceField sut = new ResourceField("", "", String.class, String.class, annotations);
 
         // WHEN
         boolean result = sut.isLazy();
@@ -44,7 +44,7 @@ public class ResourceFieldTest {
     public void onWithoutToManyFieldClassShouldReturnFalse() throws Exception {
         // GIVEN
         List<Annotation> annotations = Arrays.asList(WithoutToManyFieldClass.class.getDeclaredField("value").getAnnotations());
-        ResourceField sut = new ResourceField("", String.class, String.class, annotations);
+        ResourceField sut = new ResourceField("", "", String.class, String.class, annotations);
 
         // WHEN
         boolean result = sut.isLazy();

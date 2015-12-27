@@ -118,7 +118,7 @@ public class IncludeLookupSetter {
         }
 
         ResourceField rootIdField = rootEntry.getResourceInformation().getIdField();
-        Serializable castedResourceId = (Serializable) PropertyUtils.getProperty(root, rootIdField.getName());
+        Serializable castedResourceId = (Serializable) PropertyUtils.getProperty(root, rootIdField.getUnderlyingName());
 
         Class<?> baseRelationshipFieldClass = relationshipField.getType();
         Class<?> relationshipFieldClass = Generics.getResourceClass(root.getClass(), resourceClass);

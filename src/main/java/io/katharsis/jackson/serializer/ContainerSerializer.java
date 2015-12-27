@@ -18,7 +18,9 @@ import io.katharsis.utils.PropertyUtils;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * This class serializes an single resource which can be included in <i>data</i> field of JSON API response.
@@ -73,7 +75,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
             writeId(gen, data, resourceInformation.getIdField());
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             throw new JsonSerializationException(
-                "Error writing id field: " + resourceInformation.getIdField().getName());
+                "Error writing id field: " + resourceInformation.getIdField().getUnderlyingName());
         }
 
         try {
@@ -81,7 +83,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             StringBuilder attributeFieldNames = new StringBuilder();
             for (ResourceField attributeField : resourceInformation.getAttributeFields()) {
-                attributeFieldNames.append(attributeField.getName());
+                attributeFieldNames.append(attributeField.getUnderlyingName());
                 attributeFieldNames.append(" ");
             }
             throw new JsonSerializationException("Error writing basic fields: " +
@@ -110,7 +112,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
      */
     private void writeId(JsonGenerator gen, Object data, ResourceField idField)
         throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
-        String sourceId = BeanUtils.getProperty(data, idField.getName());
+        String sourceId = BeanUtils.getProperty(data, idField.getUnderlyingName());
         gen.writeObjectField(ID_FIELD_NAME, sourceId);
     }
 
@@ -123,8 +125,8 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         Attributes attributesObject = new Attributes();
         for (ResourceField attributeField : attributeFields) {
             if (isIncluded(resourceType, includedFields, attributeField)) {
-                Object basicFieldValue = PropertyUtils.getProperty(data, attributeField.getName());
-                attributesObject.addAttribute(attributeField.getName(), basicFieldValue);
+                Object basicFieldValue = PropertyUtils.getProperty(data, attributeField.getUnderlyingName());
+                attributesObject.addAttribute(attributeField.getJsonName(), basicFieldValue);
             }
         }
 
@@ -136,7 +138,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         if (typeIncludedFields == null || typeIncludedFields.getParams().isEmpty()) {
             return includedFields == null || includedFields.getParams().isEmpty();
         } else {
-            return typeIncludedFields.getParams().contains(attributeField.getName());
+            return typeIncludedFields.getParams().contains(attributeField.getJsonName());
         }
     }
 
@@ -173,7 +175,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         RegistryEntry entry = resourceRegistry.getEntry(sourceClass);
         ResourceField idField = entry.getResourceInformation().getIdField();
 
-        Object sourceId = PropertyUtils.getProperty(data, idField.getName());
+        Object sourceId = PropertyUtils.getProperty(data, idField.getUnderlyingName());
         gen.writeStringField(SELF_FIELD_NAME, resourceUrl + "/" + sourceId);
     }
 

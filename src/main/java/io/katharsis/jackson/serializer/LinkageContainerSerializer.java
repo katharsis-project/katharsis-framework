@@ -47,7 +47,7 @@ public class LinkageContainerSerializer extends JsonSerializer<LinkageContainer>
     private void writeId(JsonGenerator gen, LinkageContainer linkageContainer)
             throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
         ResourceField idField = linkageContainer.getRelationshipEntry().getResourceInformation().getIdField();
-        String sourceId = BeanUtils.getProperty(linkageContainer.getObjectItem(), idField.getName());
+        String sourceId = BeanUtils.getProperty(linkageContainer.getObjectItem(), idField.getUnderlyingName());
         gen.writeObjectField(ID_FIELD_NAME, sourceId);
     }
 

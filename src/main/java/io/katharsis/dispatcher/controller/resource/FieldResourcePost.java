@@ -92,7 +92,7 @@ public class FieldResourcePost extends ResourceUpsert {
         Serializable resourceId = (Serializable) PropertyUtils
             .getProperty(savedResource, relationshipRegistryEntry.getResourceInformation()
                 .getIdField()
-                .getName());
+                .getUnderlyingName());
 
         RelationshipRepository relationshipRepositoryForClass = endpointRegistryEntry
             .getRelationshipRepositoryForClass(relationshipFieldClass, parameterProvider);

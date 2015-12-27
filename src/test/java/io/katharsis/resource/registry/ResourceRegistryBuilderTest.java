@@ -45,7 +45,7 @@ public class ResourceRegistryBuilderTest {
         // THEN
         RegistryEntry tasksEntry = resourceRegistry.getEntry("tasks");
         Assert.assertNotNull(tasksEntry);
-        Assert.assertEquals("id", tasksEntry.getResourceInformation().getIdField().getName());
+        Assert.assertEquals("id", tasksEntry.getResourceInformation().getIdField().getUnderlyingName());
         Assert.assertNotNull(tasksEntry.getResourceRepository(null));
         List tasksRelationshipRepositories = tasksEntry.getRelationshipEntries();
         Assert.assertEquals(1, tasksRelationshipRepositories.size());
@@ -53,7 +53,7 @@ public class ResourceRegistryBuilderTest {
 
         RegistryEntry projectsEntry = resourceRegistry.getEntry("projects");
         Assert.assertNotNull(projectsEntry);
-        Assert.assertEquals("id", projectsEntry.getResourceInformation().getIdField().getName());
+        Assert.assertEquals("id", projectsEntry.getResourceInformation().getIdField().getUnderlyingName());
         Assert.assertNotNull(tasksEntry.getResourceRepository(null));
         List ProjectRelationshipRepositories = projectsEntry.getRelationshipEntries();
         Assert.assertEquals(0, ProjectRelationshipRepositories.size());

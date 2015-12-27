@@ -1,6 +1,5 @@
 package io.katharsis.utils;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -103,19 +102,6 @@ public class PropertyUtilsTest {
     }
 
     @Test
-    public void onJacksonPropertyWithMutatorsShouldReturnValue() throws Exception {
-        // GIVEN
-        Bean bean = new Bean();
-        bean.setJacksonProperty("value");
-
-        // WHEN
-        Object result = PropertyUtils.getProperty(bean, "annotatedJacksonProperty");
-
-        // THEN
-        assertThat(result).isEqualTo("value");
-    }
-
-    @Test
     public void onMethodAccessorOnlyShouldReturnValue() throws Exception {
         // GIVEN
         GetterTest bean = new GetterTest();
@@ -125,18 +111,6 @@ public class PropertyUtilsTest {
 
         // THEN
         assertThat(result).isEqualTo("valueProperty");
-    }
-
-    @Test
-    public void onJacksonPropertyWithAccessorOnlyShouldReturnValue() throws Exception {
-        // GIVEN
-        GetterTest bean = new GetterTest();
-
-        // WHEN
-        Object result = PropertyUtils.getProperty(bean, "jacksonProperty");
-
-        // THEN
-        assertThat(result).isEqualTo("valueJackson");
     }
 
     @Test
@@ -218,18 +192,6 @@ public class PropertyUtilsTest {
 
         // THEN
         assertThat(bean.getPrivatePropertyWithMutators()).isEqualTo("value");
-    }
-
-    @Test
-    public void onJacksonPropertyWithMutatorsShouldSetValue() throws Exception {
-        // GIVEN
-        Bean bean = new Bean();
-
-        // WHEN
-        PropertyUtils.setProperty(bean, "annotatedJacksonProperty", "value");
-
-        // THEN
-        assertThat(bean.getJacksonProperty()).isEqualTo("value");
     }
 
     @Test
@@ -339,8 +301,6 @@ public class PropertyUtilsTest {
         private boolean booleanPrimitivePropertyWithMutators;
         private Boolean booleanPropertyWithMutators;
         public String publicProperty;
-        @JsonProperty("annotatedJacksonProperty")
-        private String jacksonProperty;
 
         public String getPrivatePropertyWithMutators() {
             return privatePropertyWithMutators;
@@ -365,14 +325,6 @@ public class PropertyUtilsTest {
         public void setBooleanPropertyWithMutators(@SuppressWarnings("SameParameterValue") Boolean booleanPropertyWithMutators) {
             this.booleanPropertyWithMutators = booleanPropertyWithMutators;
         }
-
-        public String getJacksonProperty() {
-            return jacksonProperty;
-        }
-
-        public void setJacksonProperty(@SuppressWarnings("SameParameterValue") String jacksonProperty) {
-            this.jacksonProperty = jacksonProperty;
-        }
     }
 
     private static class ChildBean extends Bean {
@@ -382,11 +334,6 @@ public class PropertyUtilsTest {
     private static class GetterTest {
         public String getProperty() {
             return "valueProperty";
-        }
-
-        @JsonProperty("jacksonProperty")
-        public String getAnnotatedProperty() {
-            return "valueJackson";
         }
     }
 

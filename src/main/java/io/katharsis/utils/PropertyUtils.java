@@ -1,17 +1,18 @@
 package io.katharsis.utils;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * <p>
  * A lighter version of Apache Commons PropertyUtils without additional dependencies and with support for fluent
- * setters and {@link JsonProperty} annotation.
+ * setters.
  * </p>
  */
 public class PropertyUtils {
@@ -25,14 +26,11 @@ public class PropertyUtils {
      * Get bean's property value. The sequence of searches for getting a value is as follows:
      * <ol>
      *    <li>All class fields are found using {@link ClassUtils#getClassFields(Class)}</li>
-     *    <li>Search for a field annotated with {@link JsonProperty} and value of the desired one is made</li>
      *    <li>Search for a field with the name of the desired one is made</li>
      *    <li>If a field is found and it's a non-public field, the value is returned using the accompanying getter</li>
      *    <li>If a field is found and it's a public field, the value is returned using the public field</li>
      *    <li>If a field is not found, a search for a getter is made - all class getters are found using
      *    {@link ClassUtils#getClassFields(Class)}</li>
-     *    <li>From class getters, an appropriate getter with {@link JsonProperty} and having value of the desired one
-     *    is used</li>
      *    <li>From class getters, an appropriate getter with name of the desired one is used</li>
      * </ol>
      *
@@ -83,13 +81,7 @@ public class PropertyUtils {
     private Method findGetter(Object bean, String fieldName) {
         List<Method> classGetters = ClassUtils.getClassGetters(bean.getClass());
 
-        for (Method getter : classGetters) { // The first loop tries to get name from annotation
-            if (getter.isAnnotationPresent(JsonProperty.class)
-                && fieldName.equals(getter.getAnnotation(JsonProperty.class).value())) {
-                return getter;
-            }
-        }
-        for (Method getter : classGetters) { // The second just tries to get by internal name
+        for (Method getter : classGetters) {
             String getterFieldName = getGetterFieldName(getter);
             if (getterFieldName.equals(fieldName)) {
                 return getter;
@@ -112,13 +104,7 @@ public class PropertyUtils {
 
     private Field findField(Object bean, String fieldName) {
         List<Field> classFields = ClassUtils.getClassFields(bean.getClass());
-        for (Field field : classFields) { // The first loop tries to get name from annotation
-            if (field.isAnnotationPresent(JsonProperty.class)
-                && fieldName.equals(field.getAnnotation(JsonProperty.class).value())) {
-                return field;
-            }
-        }
-        for (Field field : classFields) { // The second just tries to get by internal name
+        for (Field field : classFields) {
             if (field.getName().equals(fieldName)) {
                 return field;
             }
@@ -142,14 +128,11 @@ public class PropertyUtils {
      * Set bean's property value. The sequence of searches for setting a value is as follows:
      * <ol>
      * <li>All class fields are found using {@link ClassUtils#getClassFields(Class)}</li>
-     * <li>Search for a field annotated with {@link JsonProperty} and value of the desired one is made</li>
      * <li>Search for a field with the name of the desired one is made</li>
      * <li>If a field is found and it's a non-public field, the value is assigned using the accompanying setter</li>
      * <li>If a field is found and it's a public field, the value is assigned using the public field</li>
      * <li>If a field is not found, a search for a getter is made - all class getters are found using
      * {@link ClassUtils#getClassFields(Class)}</li>
-     * <li>From class getters, an appropriate getter with {@link JsonProperty} and having value of the desired one
-     * is searched</li>
      * <li>From class getters, an appropriate getter with name of the desired one is searched</li>
      * <li>Using the found getter, an accompanying setter is being used to assign the value</li>
      * </ol>

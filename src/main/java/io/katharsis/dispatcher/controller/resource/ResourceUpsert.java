@@ -44,7 +44,7 @@ public abstract class ResourceUpsert extends BaseController {
                     .getType();
             Serializable castedId = typeParser.parse(id, idClass);
             PropertyUtils.setProperty(instance, resourceInformation.getIdField()
-                .getName(), castedId);
+                .getUnderlyingName(), castedId);
         }
     }
 
@@ -59,8 +59,8 @@ public abstract class ResourceUpsert extends BaseController {
             while (propertyNameIterator.hasNext()) {
                 String propertyName = propertyNameIterator.next();
                 ResourceField attributeField = resourceInformation.findAttributeFieldByName(propertyName);
-                Object property = PropertyUtils.getProperty(instanceWithNewFields, attributeField.getName());
-                PropertyUtils.setProperty(instance, attributeField.getName(), property);
+                Object property = PropertyUtils.getProperty(instanceWithNewFields, attributeField.getUnderlyingName());
+                PropertyUtils.setProperty(instance, attributeField.getUnderlyingName(), property);
             }
         }
     }
@@ -116,7 +116,7 @@ public abstract class ResourceUpsert extends BaseController {
             .getRelationshipRepositoryForClass(relationshipClass, parameterProvider);
         ResourceField relationshipField = resourceInformation.findRelationshipFieldByName(property.getKey());
         //noinspection unchecked
-        relationshipRepository.setRelations(savedResource, castedRelationIds, relationshipField.getName());
+        relationshipRepository.setRelations(savedResource, castedRelationIds, relationshipField.getUnderlyingName());
     }
 
     private boolean allTypesTheSame(Iterable<LinkageData> linkages) {
@@ -160,7 +160,7 @@ public abstract class ResourceUpsert extends BaseController {
             .getRelationshipRepositoryForClass(relationshipClass, parameterProvider);
         ResourceField relationshipField = resourceInformation.findRelationshipFieldByName(property.getKey());
         //noinspection unchecked
-        relationshipRepository.setRelation(savedResource, castedRelationshipId, relationshipField.getName());
+        relationshipRepository.setRelation(savedResource, castedRelationshipId, relationshipField.getUnderlyingName());
     }
 
     private RegistryEntry getRelationRegistryEntry(String type) {

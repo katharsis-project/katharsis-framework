@@ -1,7 +1,6 @@
 package io.katharsis.resource;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import io.katharsis.resource.annotations.JsonApiId;
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.annotations.JsonApiToOne;
@@ -20,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ResourceInformationBuilderTest {
 
-    private static final String NAME_PROPERTY = "name";
+    private static final String NAME_PROPERTY = "underlyingName";
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -41,7 +40,7 @@ public class ResourceInformationBuilderTest {
     public void shouldHaveIdFieldInfoForValidResource() throws Exception {
         ResourceInformation resourceInformation = resourceInformationBuilder.build(Task.class);
 
-        assertThat(resourceInformation.getIdField().getName())
+        assertThat(resourceInformation.getIdField().getUnderlyingName())
             .isNotNull()
             .isEqualTo("id");
     }
@@ -165,17 +164,6 @@ public class ResourceInformationBuilderTest {
             .hasSize(0);
     }
 
-    @Test
-    public void shouldHaveJsonPropertyNameAttributeInfoForAttributeWithJsonProperty() throws Exception {
-        ResourceInformation resourceInformation = resourceInformationBuilder.build(AttributeWithJsonPropertyResource.class);
-
-        assertThat(resourceInformation.getAttributeFields())
-            .isNotNull()
-            .hasSize(1)
-            .extracting("name")
-            .containsOnlyOnce("my-property");
-    }
-
     @JsonApiResource(type = "duplicatedIdAnnotationResources")
     private static class DuplicatedIdResource {
         @JsonApiId
@@ -286,23 +274,6 @@ public class ResourceInformationBuilderTest {
 
         public static int getAttribute() {
             return 0;
-        }
-    }
-
-    @JsonApiResource(type = "attributeWithJsonProperty")
-    private static class AttributeWithJsonPropertyResource {
-        @JsonApiId
-        private Long id;
-
-        @JsonProperty("my-property")
-        private String property;
-
-        public String getProperty() {
-            return property;
-        }
-
-        public void setProperty(String property) {
-            this.property = property;
         }
     }
 }
