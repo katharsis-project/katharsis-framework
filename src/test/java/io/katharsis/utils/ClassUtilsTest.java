@@ -1,6 +1,9 @@
 package io.katharsis.utils;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import io.katharsis.resource.annotations.JsonApiResource;
+import io.katharsis.utils.java.Optional;
 import org.junit.Test;
 
 import java.lang.reflect.Field;
@@ -136,6 +139,34 @@ public class ClassUtilsTest {
         assertThat(clazz).isNull();
     }
 
+    @Test
+    public void onGetAnnotationShouldReturnAnnotation() {
+        // WHEN
+        Optional<JsonApiResource> result = ClassUtils.getAnnotation(ResourceClass.class, JsonApiResource.class);
+
+        // THEN
+        assertThat(result.get()).isInstanceOf(JsonApiResource.class);
+    }
+
+    @Test
+    public void onGetAnnotationShouldReturnParentAnnotation() {
+        // WHEN
+        Optional<JsonPropertyOrder> result = ClassUtils.getAnnotation(ChildClass.class, JsonPropertyOrder.class);
+
+        // THEN
+        assertThat(result.get()).isInstanceOf(JsonPropertyOrder.class);
+    }
+
+    @Test
+    public void onNonExistingAnnotationShouldReturnEmptyResult() {
+        // WHEN
+        Optional<JsonIgnore> result = ClassUtils.getAnnotation(ResourceClass.class, JsonIgnore.class);
+
+        // THEN
+        assertThat(result.isPresent()).isFalse();
+    }
+
+    @JsonPropertyOrder(alphabetic = true)
     public static class ParentClass {
 
         private String parentField;
