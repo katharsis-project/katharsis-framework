@@ -124,7 +124,7 @@ public class KatharsisInvokerBuilder {
     protected ResourceRegistry buildResourceRegistry(JsonServiceLocator jsonServiceLocator, String resourceSearchPackage, String resourceDefaultDomain) {
         ResourceRegistryBuilder registryBuilder =
             new ResourceRegistryBuilder(jsonServiceLocator,
-                                        new ResourceInformationBuilder(new ResourceFieldNameTransformer()));
+                                        new ResourceInformationBuilder(new ResourceFieldNameTransformer(objectMapper.getSerializationConfig())));
 
         return registryBuilder.build(resourceSearchPackage, resourceDefaultDomain);
     }
