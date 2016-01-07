@@ -71,7 +71,7 @@ public abstract class BaseController {
         if (endpointRegistryEntry.equals(bodyRegistryEntry)) {
             return;
         }
-        if (!bodyRegistryEntry.isParent(endpointRegistryEntry)) {
+        if (bodyRegistryEntry == null || !bodyRegistryEntry.isParent(endpointRegistryEntry)) {
             String message = String.format("Inconsistent type definition between path and body: body type: " +
                 "%s, request type: %s", methodType, resourceEndpointName);
             throw new RequestBodyException(methodType, resourceEndpointName, message);
