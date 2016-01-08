@@ -8,6 +8,7 @@ import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.dto.ResourceRelationships;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
+import io.katharsis.resource.exception.RequestBodyException;
 import io.katharsis.resource.mock.models.Memorandum;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.response.BaseResponse;
@@ -95,6 +96,47 @@ public class ResourcePatchTest extends BaseControllerTest {
         Assert.assertNotNull(response);
         assertThat(response.getData()).isExactlyInstanceOf(Task.class);
         assertThat(((Task) (response.getData())).getName()).isEqualTo("task updated");
+    }
+
+    @Test
+    public void onGivenRequestResourceShouldThrowException() throws Exception {
+        // GIVEN
+        RequestBody newTaskBody = new RequestBody();
+        DataBody data = new DataBody();
+        newTaskBody.setData(data);
+        data.setType("tasks");
+        data.setAttributes(objectMapper.createObjectNode()
+            .put("name", "sample task"));
+
+        JsonPath taskPath = pathBuilder.buildPath("/tasks");
+
+        // WHEN
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper);
+        ResourceResponse taskResponse = resourcePost.handle(taskPath, new QueryParams(), null, newTaskBody);
+        assertThat(taskResponse.getData()).isExactlyInstanceOf(Task.class);
+        Long taskId = ((Task) (taskResponse.getData())).getId();
+        assertThat(taskId).isNotNull();
+
+        // GIVEN
+        RequestBody taskPatch = new RequestBody();
+        data = new DataBody();
+        taskPatch.setData(data);
+        data.setType("WRONG_AND_MISSING_TYPE");
+        data.setAttributes(objectMapper.createObjectNode()
+            .put("name", "task updated"));
+        JsonPath jsonPath = pathBuilder.buildPath("/tasks/" + taskId);
+        ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser, objectMapper);
+
+        // WHEN
+        BaseResponse<?> response = null;
+        try {
+            response = sut.handle(jsonPath, new QueryParams(), null, taskPatch);
+            Assert.fail("Should have recieved exception.");
+        } catch (RequestBodyException rbe) {
+            // Got correct exception
+        } catch (Error ex) {
+            Assert.fail("Got bad exception: " + ex);
+        }
     }
 
     @Test
