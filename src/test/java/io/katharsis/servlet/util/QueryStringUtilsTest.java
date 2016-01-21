@@ -58,7 +58,7 @@ public class QueryStringUtilsTest {
     public void testParseQueryStringAsSingleValueMap() throws Exception {
         Map<String, Set<String>> parsedQueryStringMap = QueryStringUtils.parseQueryStringAsSingleValueMap(invokerContext);
         assertTrue("parsedQueryStringMap must contain foo[asd].", parsedQueryStringMap.containsKey("foo[asd]"));
-        assertThat(parsedQueryStringMap.get("foo[asd]")).containsOnly(FOO_PARAM_VALUES[0]);
+        assertThat(parsedQueryStringMap.get("foo[asd]")).containsOnly(FOO_PARAM_VALUES);
         assertTrue("parsedQueryStringMap must contain lux.", parsedQueryStringMap.containsKey("lux"));
         assertThat(parsedQueryStringMap.get("lux")).containsOnly(FOO_PARAM_VALUES[0]);
         assertFalse(parsedQueryStringMap.containsKey("nameonly"));

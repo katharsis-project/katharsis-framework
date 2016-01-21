@@ -21,7 +21,6 @@ import io.katharsis.jackson.exception.ParametersDeserializationException;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
@@ -67,9 +66,9 @@ public class QueryStringUtils {
             }
 
             for (Map.Entry<String, Set<String>> entry : queryParamMap.entrySet()) {
-                String queryParameter = invokerContext.getQueryParameter(entry.getKey());
+                String[] queryParameter = invokerContext.getQueryParameterValues(entry.getKey());
                 if (queryParameter != null) {
-                    entry.setValue(Collections.singleton(queryParameter));
+                    entry.setValue(new HashSet<>(Arrays.asList(queryParameter)));
                 }
             }
         }
