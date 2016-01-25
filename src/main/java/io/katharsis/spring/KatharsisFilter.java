@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletResponse;
  * by the repository class type from the underlying {@link BeanFactory}.
  * </P>
  */
+@Deprecated
 public class KatharsisFilter extends SampleKatharsisFilter implements BeanFactoryAware {
 
     private String resourceSearchPackage;
