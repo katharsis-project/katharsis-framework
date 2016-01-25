@@ -8,7 +8,6 @@ import io.katharsis.errorhandling.exception.KatharsisMappableException;
 import io.katharsis.errorhandling.exception.KatharsisMatchingException;
 import io.katharsis.errorhandling.mapper.KatharsisExceptionMapper;
 import io.katharsis.invoker.JsonApiMediaType;
-import io.katharsis.invoker.KatharsisInvokerContext;
 import io.katharsis.invoker.KatharsisInvokerException;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
@@ -18,7 +17,6 @@ import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
-import io.katharsis.servlet.util.QueryStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -52,21 +50,13 @@ public class KatharsisFilterV2 implements Filter, BeanFactoryAware {
         this.objectMapper = objectMapper;
         this.resourceRegistry = resourceRegistry;
         this.requestDispatcher = requestDispatcher;
-        this.webPathPrefix = parsePrefix(webPathPrefix);
+        this.webPathPrefix = webPathPrefix != null ? webPathPrefix : "";
     }
 
     @Override
     public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
         if (beanFactory instanceof ConfigurableBeanFactory) {
             this.beanFactory = (ConfigurableBeanFactory) beanFactory;
-        }
-    }
-
-    private String parsePrefix(String webPathPrefix) {
-        if (webPathPrefix != null && webPathPrefix.startsWith(PathBuilder.SEPARATOR)) {
-            return webPathPrefix.substring(1);
-        } else {
-            return webPathPrefix;
         }
     }
 
@@ -178,7 +168,8 @@ public class KatharsisFilterV2 implements Filter, BeanFactoryAware {
 
         // Serving with Filter, pathInfo can be null.
         if (path == null) {
-            path = request.getRequestURI().substring(request.getContextPath().length());
+            path = request.getRequestURI()
+                .substring(request.getContextPath().length() + webPathPrefix.length());
         }
 
         return path;
@@ -188,7 +179,7 @@ public class KatharsisFilterV2 implements Filter, BeanFactoryAware {
         String acceptHeader = servletRequest.getHeader(HttpHeaders.ACCEPT);
 
         if (acceptHeader != null) {
-            String [] accepts = acceptHeader.split(",");
+            String[] accepts = acceptHeader.split(",");
             MediaType acceptableType;
 
             for (String mediaTypeItem : accepts) {
@@ -206,6 +197,7 @@ public class KatharsisFilterV2 implements Filter, BeanFactoryAware {
     /**
      * This method return a list o parameters. It uses {@link ServletRequest#getParameterMap()} which can also return POST
      * body parameters, but we don't expect to receive such body.
+     *
      * @param request request body
      * @return query parameters
      */
