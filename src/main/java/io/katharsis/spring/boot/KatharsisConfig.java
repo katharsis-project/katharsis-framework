@@ -9,6 +9,10 @@ import org.springframework.context.annotation.Configuration;
 
 import javax.servlet.Filter;
 
+/**
+ * {@link KatharsisConfigV2} should be used instead
+ */
+@Deprecated
 @Configuration
 @EnableConfigurationProperties(KatharsisSpringBootProperties.class)
 public class KatharsisConfig {
@@ -27,6 +31,6 @@ public class KatharsisConfig {
 
     @Bean
     public KatharsisInvokerBuilder katharsisInvokerBuilder() {
-    	return new KatharsisInvokerBuilder();
+        return new KatharsisInvokerBuilder();
     }
 }

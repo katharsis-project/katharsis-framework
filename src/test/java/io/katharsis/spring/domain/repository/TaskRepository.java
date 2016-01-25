@@ -16,11 +16,6 @@ import java.util.TimeZone;
 @JsonApiResourceRepository(Task.class)
 public class TaskRepository {
 
-    @JsonApiFindOne
-    public Task findOne(Long aLong, @RequestHeader("User-Agent") String userAgent) {
-        return new Task(aLong, userAgent);
-    }
-
     @JsonApiFindAll
     public Iterable<Task> findAll(TimeZone timeZone, QueryParams queryParams) {
         return findAll(null, timeZone, queryParams);

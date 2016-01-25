@@ -25,10 +25,21 @@ public class SpringBootSimpleExampleApplicationTests {
 
     @Test
     public void testTestEndpointWithQueryParams() throws Exception {
-        ResponseEntity<String> response = new TestRestTemplate()
+        TestRestTemplate testRestTemplate = new TestRestTemplate();
+        ResponseEntity<String> response = testRestTemplate
             .getForEntity("http://localhost:" + this.port + "/api/tasks?filter[Task][name]=John", String.class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertThatJson(response.getBody()).node("data[0].attributes.name").isStringEqualTo("John");
+        assertThatJson(response.getBody()).node("data[0].links.self").isStringEqualTo("http://localhost:8080/api/tasks/1");
+    }
+
+    @Test
+    public void testTestCustomEndpoint() throws Exception {
+        TestRestTemplate testRestTemplate = new TestRestTemplate();
+        ResponseEntity<String> response = testRestTemplate
+            .getForEntity("http://localhost:" + this.port + "/api/tasks/1", String.class);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(response.getBody(), "hello");
     }
 
 
