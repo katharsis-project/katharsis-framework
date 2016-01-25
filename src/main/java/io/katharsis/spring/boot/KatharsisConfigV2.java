@@ -108,7 +108,8 @@ class KatharsisRegistryConfiguration {
             new ResourceRegistryBuilder(serviceLocator,
                 new ResourceInformationBuilder(new ResourceFieldNameTransformer()));
 
-        return registryBuilder.build(properties.getResourcePackage(), properties.getDomainName());
+        String serverUri = properties.getDomainName() + properties.getPathPrefix();
+        return registryBuilder.build(properties.getResourcePackage(), serverUri);
     }
 
     @Bean

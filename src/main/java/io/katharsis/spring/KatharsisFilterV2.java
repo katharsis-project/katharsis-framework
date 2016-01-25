@@ -135,29 +135,31 @@ public class KatharsisFilterV2 implements Filter, BeanFactoryAware {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             }
         } finally {
-            closeQuietly(in);
+            if (!passToFilters) {
+                closeQuietly(in);
 
-            if (katharsisResponse != null) {
-                response.setStatus(katharsisResponse.getHttpStatus());
-                response.setContentType(JsonApiMediaType.APPLICATION_JSON_API);
+                if (katharsisResponse != null) {
+                    response.setStatus(katharsisResponse.getHttpStatus());
+                    response.setContentType(JsonApiMediaType.APPLICATION_JSON_API);
 
-                ByteArrayOutputStream baos = null;
-                OutputStream out = null;
+                    ByteArrayOutputStream baos = null;
+                    OutputStream out = null;
 
-                try {
-                    // first write to a buffer first because objectMapper may fail while writing.
-                    baos = new ByteArrayOutputStream(BUFFER_SIZE);
-                    objectMapper.writeValue(baos, katharsisResponse);
+                    try {
+                        // first write to a buffer first because objectMapper may fail while writing.
+                        baos = new ByteArrayOutputStream(BUFFER_SIZE);
+                        objectMapper.writeValue(baos, katharsisResponse);
 
-                    out = response.getOutputStream();
-                    out.write(baos.toByteArray());
-                    out.flush();
-                } finally {
-                    closeQuietly(baos);
-                    closeQuietly(out);
+                        out = response.getOutputStream();
+                        out.write(baos.toByteArray());
+                        out.flush();
+                    } finally {
+                        closeQuietly(baos);
+                        closeQuietly(out);
+                    }
+                } else {
+                    response.setStatus(HttpServletResponse.SC_NO_CONTENT);
                 }
-            } else {
-                response.setStatus(HttpServletResponse.SC_NO_CONTENT);
             }
         }
         return passToFilters;
