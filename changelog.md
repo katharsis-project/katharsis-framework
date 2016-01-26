@@ -1,6 +1,6 @@
-# katharsis-core v2.1.4 git changelog
+# katharsis-core v2.1.5 git changelog
 
-2016-01-26    v2.1.4 (Patryk Orwat) 
+2016-01-26    v2.1.4 (Patryk Orwat)  
 2016-01-07    Added null check in BaseController when verifying type (Staffan Friberg)  
 2015-12-27    [#199](https://github.com/katharsis-project/katharsis-core/issues/199) added JsonPropertyOrder support (Patryk Orwat)  
 2015-12-27    [#107](https://github.com/katharsis-project/katharsis-core/issues/107) added naming strategy (Patryk Orwat)  
