@@ -1,5 +1,11 @@
-# katharsis-rs v2.1.3 git changelog
+# katharsis-rs v2.1.5 git changelog
 
+
+**v2.1.5**  
+2016-01-26    v2.1.5 (Patryk Orwat)  
+2015-12-27    katharsis-project/katharsis-core[#107](https://github.com/katharsis-project/katharsis-rs/issues/107) added PropertyNamingStrategy (Patryk Orwat)  
+
+**v2.1.3**  
 2015-12-21    v2.1.3 (Patryk Orwat)  
 2015-12-21    katharsis-project/katharsis-core[#48](https://github.com/katharsis-project/katharsis-rs/issues/48) downgrade to Java 7 (Patryk Orwat)  
 2015-12-15    use the jsonServiceLocator to instantiate the parameter providers (Cade Parker)  
