@@ -1,5 +1,13 @@
-# katharsis-spring v2.1.4 git changelog
+# katharsis-spring v2.1.5 git changelog
 
+
+**v2.1.5**  
+2016-01-26    v2.1.5 (Patryk Orwat)  
+2016-01-26    [#10](https://github.com/katharsis-project/katharsis-spring/issues/10) fixed path prefix + additional test (Patryk Orwat)  
+2016-01-25    [#10](https://github.com/katharsis-project/katharsis-spring/issues/10) fixed test (Patryk Orwat)  
+2016-01-25    [#10](https://github.com/katharsis-project/katharsis-spring/issues/10) started code refactoring (Patryk Orwat)  
+
+**v2.1.4**  
 2016-01-17    v2.1.4 (Patryk Orwat)  
 2015-12-21    v2.1.3 (Patryk Orwat)  
 2015-12-21    katharsis-project/katharsis-core[#48](https://github.com/katharsis-project/katharsis-spring/issues/48) downgrade to Java 7 (Patryk Orwat)  
