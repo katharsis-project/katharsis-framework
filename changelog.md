@@ -1,6 +1,7 @@
-# katharsis-rs v2.1.5 git changelog
+# katharsis-rs v2.1.7 git changelog
 
 
+**v2.1.7**  
 **v2.1.5**  
 2016-01-26    v2.1.5 (Patryk Orwat)  
 2015-12-27    katharsis-project/katharsis-core[#107](https://github.com/katharsis-project/katharsis-rs/issues/107) added PropertyNamingStrategy (Patryk Orwat)  
