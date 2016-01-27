@@ -1,4 +1,5 @@
-# io.katharsis:katharsis-servlet v2.1.5 git changelog
+# io.katharsis:katharsis-servlet v2.1.7 git changelog
+
 
 **v2.1.5**  
 2016-01-26    v2.1.5 (Patryk Orwat)  
