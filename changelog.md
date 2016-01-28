@@ -1,5 +1,8 @@
-# katharsis-spring v2.1.7 git changelog
+# katharsis-spring v2.1.8 git changelog
 
+
+**v2.1.7**  
+2016-01-27    v2.1.7 (Patryk Orwat)  
 
 **v2.1.5**  
 2016-01-26    v2.1.5 (Patryk Orwat)  

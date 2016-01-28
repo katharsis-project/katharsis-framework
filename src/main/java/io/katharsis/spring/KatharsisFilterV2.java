@@ -90,6 +90,9 @@ public class KatharsisFilterV2 implements Filter, BeanFactoryAware {
     }
 
     private boolean invoke(HttpServletRequest request, HttpServletResponse response) {
+        if (!isAcceptablePath(request)) {
+            return true;
+        }
         if (isAcceptableMediaType(request)) {
             try {
                 return dispatchRequest(request, response);
@@ -163,6 +166,14 @@ public class KatharsisFilterV2 implements Filter, BeanFactoryAware {
             }
         }
         return passToFilters;
+    }
+
+    private boolean isAcceptablePath(HttpServletRequest request) {
+        String contextPath = request.getContextPath();
+        if (contextPath.startsWith("/") && contextPath.length() == 1) {
+            contextPath = "";
+        }
+        return request.getRequestURI().startsWith(contextPath + webPathPrefix);
     }
 
     private String getRequestPath(HttpServletRequest request) {
