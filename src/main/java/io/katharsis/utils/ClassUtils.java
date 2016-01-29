@@ -51,6 +51,7 @@ public class ClassUtils {
      *
      * @param beanClass       class to be searched for
      * @param annotationClass type of an annotation
+     * @param <T>             type of an annotation
      * @return an instance of an annotation
      */
     public static <T extends Annotation> Optional<T> getAnnotation(Class<?> beanClass, Class<T> annotationClass) {
@@ -91,14 +92,14 @@ public class ClassUtils {
     }
 
     /**
-     * <p/>
+     * <p>
      * Return a list of class getters. Supports inheritance and overriding, that is when a method is found on the
      * lowest level of inheritance chain, no other method can override it.
-     * <p/>
+     * <p>
      * A getter:
      * <ul>
-     * <li>Starts with an <i>is</i> if returns <i>boolean</i> or {@link Boolean} value</li>
-     * <li>Starts with a <i>get</i> if returns non-boolean value</li>
+     *   <li>Starts with an <i>is</i> if returns <i>boolean</i> or {@link Boolean} value</li>
+     *   <li>Starts with a <i>get</i> if returns non-boolean value</li>
      * </ul>
      *
      * @param beanClass class to be searched for

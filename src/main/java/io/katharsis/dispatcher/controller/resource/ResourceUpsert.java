@@ -52,7 +52,7 @@ public abstract class ResourceUpsert extends BaseController {
         throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException,
         IOException {
         if (dataBody.getAttributes() != null) {
-            ObjectReader reader = objectMapper.reader(instance.getClass());
+            ObjectReader reader = objectMapper.readerFor(instance.getClass());
             Object instanceWithNewFields = reader.readValue(dataBody.getAttributes());
             Iterator<String> propertyNameIterator = dataBody.getAttributes()
                 .fieldNames();
