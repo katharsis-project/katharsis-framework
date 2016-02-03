@@ -1,5 +1,6 @@
 # katharsis-core v2.1.7 git changelog
 
+2016-02-03    Enhancement [#209](https://github.com/katharsis-project/katharsis-core/issues/209) - Provide custom QueryParamsBuilder (Razvan Dragut)  
 2016-01-27    v2.1.7 (Patryk Orwat)  
 2016-01-26    v2.1.5 (Patryk Orwat)  
 2016-01-26    v2.1.4 (Patryk Orwat)  
