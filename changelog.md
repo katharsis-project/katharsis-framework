@@ -1,7 +1,7 @@
 # io.katharsis:katharsis-servlet v2.1.7 git changelog
 
-
-**v2.1.5**  
+2016-02-03    Enhancement [#209](https://github.com/katharsis-project/katharsis-rs/issues/209) - Provide custom QueryParamsBuilder (Razvan Dragut)  
+2016-01-27    v2.1.7 (Patryk Orwat)  
 2016-01-26    v2.1.5 (Patryk Orwat)  
 2016-01-21    Fixed multi-value parameters (Razvan Dragut)  
 2015-12-27    katharsis-project/katharsis-core[#107](https://github.com/katharsis-project/katharsis-rs/issues/107) fixed object mapper initialization problem (Patryk Orwat)  
@@ -10,7 +10,7 @@
 2015-12-21    katharsis-project/katharsis-core[#48](https://github.com/katharsis-project/katharsis-rs/issues/48) downgrade to Java 7 (Patryk Orwat)  
 
 **v2.1.2**  
-2015-12-09    v2.1.2 (Patryk Orwat)  
+2015-12-08    v2.1.2 (Patryk Orwat)  
 2015-12-08    katharsis-project/katharsis-core[#186](https://github.com/katharsis-project/katharsis-rs/issues/186) made reflections optional (Patryk Orwat)  
 2015-12-06    katharsis-project/katharsis-core[#186](https://github.com/katharsis-project/katharsis-rs/issues/186) added OSGi headers (Patryk Orwat)  
 2015-12-05    added versioneye (Patryk Orwat)  
@@ -36,7 +36,7 @@
 
 **v2.0.0**  
 2015-11-15    v2.0.0 (Patryk Orwat)  
-2015-11-14    katharsis-spring-2 Spring adjustments (Patryk Orwat)  
+2015-11-13    katharsis-spring-2 Spring adjustments (Patryk Orwat)  
 2015-11-13    katharsis-core-157 ServletParameterProvider refactor (Patryk Orwat)  
 2015-11-01    katharsis-core-114 adjusted to changes in the core (Patryk Orwat)  
 2015-10-29    katharsis-core-135 repo interface update (Patryk Orwat)  
@@ -68,7 +68,7 @@
 2015-08-16    Bumped version number to 0.1.1 (Woonsan Ko)  
 2015-08-16    adding version compatibility (Woonsan Ko)  
 2015-08-15    Exception handling changes based upon katharsis-core-0.9.3 (Woonsan Ko)  
-2015-08-15    upgrading katharsis-core dep to 0.9.3; closing request entity stream (Woonsan Ko)  
+2015-08-14    upgrading katharsis-core dep to 0.9.3; closing request entity stream (Woonsan Ko)  
 2015-08-13    \[TASK\] Correct small typo (Cedric Ziel)  
 2015-07-20    log stack trace by default on Katharsis Invoker exception (Woonsan Ko)  
 2015-07-20    Exceptional QUERY_STRING handling (Woonsan Ko)  
@@ -86,8 +86,8 @@
 2015-06-16    expose jackson data binding module in the invoker builder (Woonsan Ko)  
 2015-06-16    query string handling (Woonsan Ko)  
 2015-06-15    configuring surefire-report-plugin and corbetura plugin (Woonsan Ko)  
-2015-06-13    first write to a buffer first because objectMapper may fail while writing. (Woonsan Ko)  
-2015-06-13    Registering json object mapper and fixing tests. (Woonsan Ko)  
+2015-06-12    first write to a buffer first because objectMapper may fail while writing. (Woonsan Ko)  
+2015-06-12    Registering json object mapper and fixing tests. (Woonsan Ko)  
 2015-06-12    nexus-staging-maven-plugin added (Woonsan Ko)  
 2015-06-12    adding ossrh-release profile (Woonsan Ko)  
 2015-06-12    fixing javadoc; configuring javadoc/source attaching plugins (Woonsan Ko)  

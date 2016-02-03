@@ -16,6 +16,8 @@
  */
 package io.katharsis.invoker;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.net.MediaType;
 import io.katharsis.dispatcher.RequestDispatcher;
 import io.katharsis.errorhandling.exception.KatharsisMappableException;
 import io.katharsis.errorhandling.exception.KatharsisMatchingException;
@@ -28,25 +30,15 @@ import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponse;
-import io.katharsis.servlet.ServletParametersProvider;
 import io.katharsis.servlet.util.QueryStringUtils;
-
-import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Map;
-import java.util.Scanner;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletResponse;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.net.MediaType;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.Set;
 
 /**
  * Katharsis dispatcher invoker.
@@ -58,12 +50,14 @@ public class KatharsisInvoker {
     private static int BUFFER_SIZE = 4096;
 
     private ObjectMapper objectMapper;
+    private QueryParamsBuilder queryParamsBuilder;
     private ResourceRegistry resourceRegistry;
     private RequestDispatcher requestDispatcher;
 
-    public KatharsisInvoker(ObjectMapper objectMapper, ResourceRegistry resourceRegistry,
-                            RequestDispatcher requestDispatcher) {
+    public KatharsisInvoker(ObjectMapper objectMapper, QueryParamsBuilder queryParamsBuilder,
+                            ResourceRegistry resourceRegistry, RequestDispatcher requestDispatcher) {
         this.objectMapper = objectMapper;
+        this.queryParamsBuilder = queryParamsBuilder;
         this.resourceRegistry = resourceRegistry;
         this.requestDispatcher = requestDispatcher;
     }
@@ -156,10 +150,9 @@ public class KatharsisInvoker {
     }
 
     private QueryParams createQueryParams(KatharsisInvokerContext invokerContext) {
-        QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder();
         Map<String, Set<String>> queryParameters =
             QueryStringUtils.parseQueryStringAsSingleValueMap(invokerContext);
-        return queryParamsBuilder.buildQueryParams(queryParameters);
+        return this.queryParamsBuilder.buildQueryParams(queryParameters);
     }
 
     private RequestBody inputStreamToBody(InputStream is) throws IOException {
