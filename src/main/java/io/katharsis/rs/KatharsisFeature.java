@@ -10,6 +10,7 @@ import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryBuilder;
 import io.katharsis.jackson.JsonApiModuleBuilder;
 import io.katharsis.locator.JsonServiceLocator;
+import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.registry.DefaultResourceLookup;
@@ -40,9 +41,13 @@ public class KatharsisFeature implements Feature {
 
     private final JsonServiceLocator jsonServiceLocator;
     private final ObjectMapper objectMapper;
+    private final QueryParamsBuilder queryParamsBuilder;
 
-    public KatharsisFeature(ObjectMapper objectMapper, JsonServiceLocator jsonServiceLocator) {
+    public KatharsisFeature(ObjectMapper objectMapper,
+                            QueryParamsBuilder queryParamsBuilder,
+                            JsonServiceLocator jsonServiceLocator) {
         this.objectMapper = objectMapper;
+        this.queryParamsBuilder = queryParamsBuilder;
         this.jsonServiceLocator = jsonServiceLocator;
     }
 
@@ -125,7 +130,7 @@ public class KatharsisFeature implements Feature {
         ExceptionMapperRegistry exceptionMapperRegistry, RequestContextParameterProviderRegistry parameterProviderRegistry, String webPathPrefix) throws Exception {
         RequestDispatcher requestDispatcher = createRequestDispatcher(resourceRegistry, exceptionMapperRegistry);
 
-        return new KatharsisFilter(objectMapper, resourceRegistry, requestDispatcher, parameterProviderRegistry, webPathPrefix);
+        return new KatharsisFilter(objectMapper, queryParamsBuilder, resourceRegistry, requestDispatcher, parameterProviderRegistry, webPathPrefix);
     }
 
     private RequestDispatcher createRequestDispatcher(ResourceRegistry resourceRegistry,
