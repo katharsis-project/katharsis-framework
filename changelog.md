@@ -1,5 +1,9 @@
 # katharsis-core v2.2.0 git changelog
 
+2016-02-03    v2.2.0 (Patryk Orwat)  
+2016-02-03    removed Java 8 API comment link (Razvan Dragut)  
+2016-02-03    Fixed spring boot example (Razvan Dragut)  
+2016-02-03    Enhancement [#209](https://github.com/katharsis-project/katharsis-core/issues/209) - Provide custom QueryParamsBuilder (Razvan Dragut)  
 
 **v2.1.7**  
 2016-01-27    v2.1.7 (Patryk Orwat)  
