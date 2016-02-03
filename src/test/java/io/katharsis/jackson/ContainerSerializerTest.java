@@ -1,5 +1,6 @@
 package io.katharsis.jackson;
 
+import io.katharsis.queryParams.DefaultQueryParamsParser;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.request.path.JsonPath;
@@ -61,7 +62,7 @@ public class ContainerSerializerTest extends BaseSerializerTest {
         project.setName("name");
         project.setDescription("description");
 
-        QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder();
+        QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
         QueryParams queryParams = queryParamsBuilder.buildQueryParams(
             Collections.singletonMap("fields[projects]", Collections.singleton("name")));
         JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath("/projects");
@@ -84,7 +85,7 @@ public class ContainerSerializerTest extends BaseSerializerTest {
         project.setId(1L);
         task.setProject(project);
 
-        QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder();
+        QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
         QueryParams queryParams = queryParamsBuilder.buildQueryParams(
             Collections.singletonMap("fields[tasks]", Collections.singleton("project")));
         JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath("/tasks");
@@ -107,7 +108,7 @@ public class ContainerSerializerTest extends BaseSerializerTest {
         project.setId(1L);
         task.setProject(project);
 
-        QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder();
+        QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
         QueryParams queryParams = queryParamsBuilder.buildQueryParams(
             Collections.singletonMap("fields[projects]", Collections.singleton("name")));
         JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath("/tasks");

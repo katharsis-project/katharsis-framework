@@ -19,7 +19,7 @@ public class QueryParamsBuilderTest {
     @Before
     public void prepare() {
         queryParams = new HashMap<>();
-        sut = new QueryParamsBuilder();
+        sut = new QueryParamsBuilder(new DefaultQueryParamsParser());
     }
 
     @Test
