@@ -11,6 +11,8 @@ import io.katharsis.example.dropwizard.domain.repository.TaskRepository;
 import io.katharsis.example.dropwizard.domain.repository.TaskToProjectRepository;
 import io.katharsis.example.dropwizard.managed.MongoManaged;
 import io.katharsis.locator.JsonServiceLocator;
+import io.katharsis.queryParams.DefaultQueryParamsParser;
+import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.rs.KatharsisFeature;
 
 import static io.katharsis.rs.KatharsisProperties.RESOURCE_DEFAULT_DOMAIN;
@@ -52,12 +54,14 @@ public class DropwizardService extends Application<DropwizardConfiguration> {
         environment.jersey().property(RESOURCE_SEARCH_PACKAGE, "io.katharsis.example.dropwizard.domain");
         environment.jersey().property(RESOURCE_DEFAULT_DOMAIN, "http://localhost:8080");
 
-        KatharsisFeature katharsisFeature = new KatharsisFeature(environment.getObjectMapper(), new JsonServiceLocator() {
-            @Override
-            public <T> T getInstance(Class<T> aClass) {
-                return guiceBundle.getInjector().getInstance(aClass);
-            }
-        });
+        KatharsisFeature katharsisFeature = new KatharsisFeature(environment.getObjectMapper(),
+                new QueryParamsBuilder(new DefaultQueryParamsParser()),
+                new JsonServiceLocator() {
+                    @Override
+                    public <T> T getInstance(Class<T> aClass) {
+                        return guiceBundle.getInjector().getInstance(aClass);
+                    }
+                });
         environment.jersey().register(katharsisFeature);
     }
 
