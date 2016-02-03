@@ -23,6 +23,8 @@ import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryBuilder;
 import io.katharsis.jackson.JsonApiModuleBuilder;
 import io.katharsis.locator.JsonServiceLocator;
+import io.katharsis.queryParams.DefaultQueryParamsParser;
+import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -39,6 +41,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 public class KatharsisInvokerBuilder {
 
     private ObjectMapper objectMapper;
+    private QueryParamsBuilder queryParamsBuilder;
     private ResourceRegistry resourceRegistry;
     private RequestDispatcher requestDispatcher;
     private JsonServiceLocator jsonServiceLocator;
@@ -49,6 +52,11 @@ public class KatharsisInvokerBuilder {
 
     public KatharsisInvokerBuilder objectMapper(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
+        return this;
+    }
+
+    public KatharsisInvokerBuilder queryParamsBuilder(QueryParamsBuilder queryParamsBuilder) {
+        this.queryParamsBuilder = queryParamsBuilder;
         return this;
     }
 
@@ -105,6 +113,10 @@ public class KatharsisInvokerBuilder {
             objectMapper = createObjectMapper(resourceRegistry);
         }
 
+        if (queryParamsBuilder == null) {
+            queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
+        }
+
         if (requestDispatcher == null) {
             if (exceptionMapperRegistry == null) {
                 exceptionMapperRegistry = buildExceptionMapperRegistry(resourceSearchPackage);
@@ -113,7 +125,7 @@ public class KatharsisInvokerBuilder {
             requestDispatcher = createRequestDispatcher(resourceRegistry, objectMapper, exceptionMapperRegistry);
         }
 
-        return new KatharsisInvoker(objectMapper, resourceRegistry, requestDispatcher);
+        return new KatharsisInvoker(objectMapper, queryParamsBuilder, resourceRegistry, requestDispatcher);
     }
 
     protected ExceptionMapperRegistry buildExceptionMapperRegistry(String resourceSearchPackage) throws Exception {
@@ -126,14 +138,14 @@ public class KatharsisInvokerBuilder {
         ResourceFieldNameTransformer resourceFieldNameTransformer;
         if (objectMapper != null) {
             resourceFieldNameTransformer =
-                new ResourceFieldNameTransformer(objectMapper.getSerializationConfig());
+                    new ResourceFieldNameTransformer(objectMapper.getSerializationConfig());
         } else {
             // As for now get default configuration if object mapper hasn't been initialized
             resourceFieldNameTransformer =
-                new ResourceFieldNameTransformer((new ObjectMapper()).getSerializationConfig());
+                    new ResourceFieldNameTransformer((new ObjectMapper()).getSerializationConfig());
         }
         ResourceRegistryBuilder registryBuilder =
-            new ResourceRegistryBuilder(jsonServiceLocator, new ResourceInformationBuilder(resourceFieldNameTransformer));
+                new ResourceRegistryBuilder(jsonServiceLocator, new ResourceInformationBuilder(resourceFieldNameTransformer));
 
         return registryBuilder.build(resourceSearchPackage, resourceDefaultDomain);
     }
@@ -141,7 +153,7 @@ public class KatharsisInvokerBuilder {
     protected RequestDispatcher createRequestDispatcher(ResourceRegistry resourceRegistry,
                                                         ObjectMapper objectMapper,
                                                         ExceptionMapperRegistry exceptionMapperRegistry)
-        throws Exception {
+            throws Exception {
 
         TypeParser typeParser = new TypeParser();
         ControllerRegistryBuilder controllerRegistryBuilder = new ControllerRegistryBuilder(resourceRegistry, typeParser, objectMapper);
