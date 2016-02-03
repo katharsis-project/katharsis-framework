@@ -4,6 +4,7 @@ import io.katharsis.dispatcher.controller.BaseControllerTest;
 import io.katharsis.dispatcher.controller.resource.RelationshipsResourcePost;
 import io.katharsis.dispatcher.controller.resource.ResourceGet;
 import io.katharsis.dispatcher.controller.resource.ResourcePost;
+import io.katharsis.queryParams.DefaultQueryParamsParser;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.request.dto.DataBody;
@@ -180,7 +181,7 @@ public class CollectionGetTest extends BaseControllerTest {
         Map<String, Set<String>> queryParams = new HashMap<>();
         queryParams.put(RestrictedQueryParamsMembers.include.name() + "[tasks]",
             Collections.singleton("includedProjects"));
-        QueryParams queryParams1 = new QueryParamsBuilder().buildQueryParams(queryParams);
+        QueryParams queryParams1 = new QueryParamsBuilder(new DefaultQueryParamsParser()).buildQueryParams(queryParams);
 
         // WHEN
         BaseResponse<?> response = responseGetResp.handle(jsonPath, queryParams1, null, null);
@@ -262,7 +263,7 @@ public class CollectionGetTest extends BaseControllerTest {
         Map<String, Set<String>> queryParams = new HashMap<>();
         queryParams.put(RestrictedQueryParamsMembers.include.name() + "[tasks]",
             Collections.singleton("[\"projects\"]"));
-        QueryParams requestParams = new QueryParamsBuilder().buildQueryParams(queryParams);
+        QueryParams requestParams = new QueryParamsBuilder(new DefaultQueryParamsParser()).buildQueryParams(queryParams);
 
         // WHEN
         BaseResponse<?> response = responseGetResp.handle(jsonPath, requestParams, null, null);

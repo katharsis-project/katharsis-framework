@@ -3,6 +3,7 @@ package io.katharsis.jackson;
 import io.katharsis.jackson.mock.models.*;
 import io.katharsis.jackson.serializer.IncludedRelationshipExtractor;
 import io.katharsis.locator.SampleJsonServiceLocator;
+import io.katharsis.queryParams.DefaultQueryParamsParser;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.request.path.JsonPath;
@@ -173,7 +174,7 @@ public class IncludedRelationshipExtractorTest {
     }
 
     private QueryParams getRequestParamsWithInclusion(String resourceType, String relationshipField) {
-        QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder();
+        QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
         return queryParamsBuilder.buildQueryParams(Collections.singletonMap(resourceType, Collections.singleton(relationshipField)));
     }
 }

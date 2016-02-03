@@ -1,8 +1,8 @@
 package io.katharsis.dispatcher.controller.resource;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
+import io.katharsis.queryParams.DefaultQueryParamsParser;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.request.dto.DataBody;
@@ -176,7 +176,7 @@ public class ResourceGetTest extends BaseControllerTest {
         Map<String, Set<String>> queryParams = new HashMap<>();
         queryParams.put(RestrictedQueryParamsMembers.include.name() + "[tasks]",
             Collections.singleton("includedProject"));
-        QueryParams queryParamsObject = new QueryParamsBuilder().buildQueryParams(queryParams);
+        QueryParams queryParamsObject = new QueryParamsBuilder(new DefaultQueryParamsParser()).buildQueryParams(queryParams);
 
         // WHEN
         BaseResponse<?> response = responseGetResp.handle(jsonPath, queryParamsObject, null, null);
@@ -257,7 +257,7 @@ public class ResourceGetTest extends BaseControllerTest {
         Map<String, Set<String>> queryParams = new HashMap<>();
         queryParams.put(RestrictedQueryParamsMembers.include.name() + "[tasks]",
             Collections.singleton("[\"project\"]"));
-        QueryParams requestParams = new QueryParamsBuilder().buildQueryParams(queryParams);
+        QueryParams requestParams = new QueryParamsBuilder(new DefaultQueryParamsParser()).buildQueryParams(queryParams);
 
         // WHEN
         BaseResponse<?> response = responseGetResp.handle(jsonPath, requestParams, null, null);

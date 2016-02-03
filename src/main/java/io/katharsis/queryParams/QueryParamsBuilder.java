@@ -2,20 +2,33 @@ package io.katharsis.queryParams;
 
 import io.katharsis.errorhandling.exception.KatharsisException;
 import io.katharsis.jackson.exception.ParametersDeserializationException;
-import io.katharsis.resource.RestrictedQueryParamsMembers;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
- * Builder responsible for parsing queryParams. The created {@link QueryParams} object contains several fields
- * where each of them is not-null only when this parameter has been passed with a request.
+ * Builder responsible for building queryParams. The parameter parsing is being delegated to a parser implementation.
+ * The created {@link QueryParams} object contains several fields where each of them is not-null only when
+ * this parameter has been passed with a request.
+ *
+ * ---------------------------------------------------------------------------------------------------------------------
+ * POTENTIAL IMPROVEMENT NOTE : This can be made even more flexible by implementing the builder pattern to allow
+ * provisioning of different parsers for each component as the QueryParamsBuilder is being built: I.e:
+ * QueryParamsBuilder.builder().filters(myCustomFilterParser).sorting(myOtherCustomSortingParser)...build()
+ * This way, the user can mix and match various parsing strategies for individual components.
+ * QueryParamsParser could become a one method interface and this could be particularly useful to Java 8 users who
+ * can simply pass instances of {@link Function} to implement custom parsing per component (filter/sort/group/etc etc).
  */
 public class QueryParamsBuilder {
 
+    private final QueryParamsParser queryParamsParser;
+
+    public QueryParamsBuilder(final QueryParamsParser queryParamsParser) {
+        this.queryParamsParser = queryParamsParser;
+    }
     /**
-     * Decodes passed query paramaeters
+     * Decodes passed query parameters
      *
      * @param queryParams Map of provided query params
      * @return QueryParams containing filtered query params grouped by JSON:API standard
@@ -23,32 +36,13 @@ public class QueryParamsBuilder {
      */
     public QueryParams buildQueryParams(Map<String, Set<String>> queryParams) {
         QueryParams deserializedQueryParams = new QueryParams();
-
         try {
-            String filterKey = RestrictedQueryParamsMembers.filter.name();
-            Map<String, Set<String>> filterQueryParams = filterQueryParamsByKey(queryParams, filterKey);
-            deserializedQueryParams.setFilters(filterQueryParams);
-
-            String sortingKey = RestrictedQueryParamsMembers.sort.name();
-            Map<String, Set<String>> sortingQueryParams = filterQueryParamsByKey(queryParams, sortingKey);
-            deserializedQueryParams.setSorting(sortingQueryParams);
-
-            String groupingKey = RestrictedQueryParamsMembers.group.name();
-            Map<String, Set<String>> groupingQueryParams = filterQueryParamsByKey(queryParams, groupingKey);
-            deserializedQueryParams.setGrouping(groupingQueryParams);
-
-            String pagingKey = RestrictedQueryParamsMembers.page.name();
-            Map<String, Set<String>> pagingQueryParams = filterQueryParamsByKey(queryParams, pagingKey);
-            deserializedQueryParams.setPagination(pagingQueryParams);
-
-            String sparseKey = RestrictedQueryParamsMembers.fields.name();
-            Map<String, Set<String>> sparseQueryParams = filterQueryParamsByKey(queryParams, sparseKey);
-            deserializedQueryParams.setIncludedFields(sparseQueryParams);
-
-            String includeKey = RestrictedQueryParamsMembers.include.name();
-            Map<String, Set<String>> includeQueryParams = filterQueryParamsByKey(queryParams, includeKey);
-            deserializedQueryParams.setIncludedRelations(includeQueryParams);
-
+            deserializedQueryParams.setFilters(this.queryParamsParser.parseFiltersParameters(queryParams));
+            deserializedQueryParams.setSorting(this.queryParamsParser.parseSortingParameters(queryParams));
+            deserializedQueryParams.setGrouping(this.queryParamsParser.parseGroupingParameters(queryParams));
+            deserializedQueryParams.setPagination(this.queryParamsParser.parsePaginationParameters(queryParams));
+            deserializedQueryParams.setIncludedFields(this.queryParamsParser.parseIncludedFieldsParameters(queryParams));
+            deserializedQueryParams.setIncludedRelations(this.queryParamsParser.parseIncludedRelationsParameters(queryParams));
         } catch (RuntimeException e) {
             if (e instanceof KatharsisException) {
                 throw e;
@@ -58,23 +52,5 @@ public class QueryParamsBuilder {
         }
 
         return deserializedQueryParams;
-    }
-
-    /**
-     * Filters provided query params to one starting with provided string key
-     *
-     * @param queryParams Request query params
-     * @param queryKey    Filtering key
-     * @return Filtered query params
-     */
-    private Map<String, Set<String>> filterQueryParamsByKey(Map<String, Set<String>> queryParams, String queryKey) {
-        Map<String, Set<String>> filteredQueryParams = new HashMap<>();
-
-        for (Map.Entry<String, Set<String>> entry : queryParams.entrySet()) {
-            if (entry.getKey().startsWith(queryKey)) {
-                filteredQueryParams.put(entry.getKey(), entry.getValue());
-            }
-        }
-        return filteredQueryParams;
     }
 }
