@@ -5,7 +5,6 @@ import io.katharsis.jackson.exception.ParametersDeserializationException;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 
 /**
  * Builder responsible for building queryParams. The parameter parsing is being delegated to a parser implementation.
@@ -18,7 +17,7 @@ import java.util.function.Function;
  * QueryParamsBuilder.builder().filters(myCustomFilterParser).sorting(myOtherCustomSortingParser)...build()
  * This way, the user can mix and match various parsing strategies for individual components.
  * QueryParamsParser could become a one method interface and this could be particularly useful to Java 8 users who
- * can simply pass instances of {@link Function} to implement custom parsing per component (filter/sort/group/etc etc).
+ * can simply pass instances of java.lang.Function to implement custom parsing per component (filter/sort/group/etc etc).
  */
 public class QueryParamsBuilder {
 
