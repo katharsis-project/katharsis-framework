@@ -51,14 +51,18 @@ import static io.katharsis.rs.type.JsonApiMediaType.APPLICATION_JSON_API_TYPE;
 public class KatharsisFilter implements ContainerRequestFilter {
 
     private ObjectMapper objectMapper;
+    private QueryParamsBuilder queryParamsBuilder;
     private ResourceRegistry resourceRegistry;
     private RequestDispatcher requestDispatcher;
     private RequestContextParameterProviderRegistry parameterProviderRegistry;
     private String webPathPrefix;
 
-    public KatharsisFilter(ObjectMapper objectMapper, ResourceRegistry resourceRegistry, RequestDispatcher
+    public KatharsisFilter(ObjectMapper objectMapper,
+                           QueryParamsBuilder queryParamsBuilder,
+                           ResourceRegistry resourceRegistry, RequestDispatcher
             requestDispatcher, RequestContextParameterProviderRegistry parameterProviderRegistry, String webPathPrefix) {
         this.objectMapper = objectMapper;
+        this.queryParamsBuilder = queryParamsBuilder;
         this.resourceRegistry = resourceRegistry;
         this.requestDispatcher = requestDispatcher;
         this.parameterProviderRegistry = parameterProviderRegistry;
@@ -157,8 +161,6 @@ public class KatharsisFilter implements ContainerRequestFilter {
     }
 
     private QueryParams createQueryParams(UriInfo uriInfo) {
-        QueryParamsBuilder requestParamsBuilder = new QueryParamsBuilder();
-
         MultivaluedMap<String, String> queryParametersMultiMap = uriInfo.getQueryParameters();
         Map<String, Set<String>> queryParameters = new HashMap<>();
 
@@ -166,7 +168,7 @@ public class KatharsisFilter implements ContainerRequestFilter {
             queryParameters.put(queryName, new LinkedHashSet<>(queryParametersMultiMap.get(queryName)));
         }
 
-        return requestParamsBuilder.buildQueryParams(queryParameters);
+        return queryParamsBuilder.buildQueryParams(queryParameters);
     }
 
     public RequestBody inputStreamToBody(InputStream is) throws IOException {

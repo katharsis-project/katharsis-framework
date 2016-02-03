@@ -2,6 +2,8 @@ package io.katharsis.rs.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.locator.SampleJsonServiceLocator;
+import io.katharsis.queryParams.DefaultQueryParamsParser;
+import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.rs.KatharsisFeature;
 import io.katharsis.rs.KatharsisProperties;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -35,7 +37,7 @@ public class KatharsisControllerWithPrefixTest extends KatharsisControllerTest {
             property(KatharsisProperties.RESOURCE_DEFAULT_DOMAIN, "http://test.local");
             property(KatharsisProperties.WEB_PATH_PREFIX, PREFIX);
             register(SampleControllerWithPrefix.class);
-            register(new KatharsisFeature(new ObjectMapper(), new SampleJsonServiceLocator()));
+            register(new KatharsisFeature(new ObjectMapper(), new QueryParamsBuilder(new DefaultQueryParamsParser()), new SampleJsonServiceLocator()));
 
         }
     }
