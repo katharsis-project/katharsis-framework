@@ -10,6 +10,9 @@ import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryBuilder;
 import io.katharsis.invoker.KatharsisInvokerBuilder;
 import io.katharsis.jackson.JsonApiModuleBuilder;
+import io.katharsis.queryParams.DefaultQueryParamsParser;
+import io.katharsis.queryParams.QueryParamsBuilder;
+import io.katharsis.queryParams.QueryParamsParser;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -27,6 +30,7 @@ import javax.servlet.Filter;
 
 @Configuration
 @Import({RequestDispatcherConfiguration.class,
+        QueryParamsBuilderConfiguration.class,
     JacksonConfiguration.class,
     JsonLocatorConfiguration.class,
     KatharsisRegistryConfiguration.class})
@@ -45,9 +49,12 @@ public class KatharsisConfigV2 {
     @Autowired
     private RequestDispatcher requestDispatcher;
 
+    @Autowired
+    private QueryParamsBuilder queryParamsBuilder;
+
     @Bean
     public Filter springBootSampleKatharsisFilter() {
-        return new KatharsisFilterV2(objectMapper, resourceRegistry, requestDispatcher, properties.getPathPrefix());
+        return new KatharsisFilterV2(objectMapper, queryParamsBuilder, resourceRegistry, requestDispatcher, properties.getPathPrefix());
     }
 }
 
@@ -71,6 +78,20 @@ class RequestDispatcherConfiguration {
         ControllerRegistry controllerRegistry = controllerRegistryBuilder.build();
 
         return new RequestDispatcher(controllerRegistry, exceptionMapperRegistry);
+    }
+}
+
+@Configuration
+class QueryParamsBuilderConfiguration {
+
+    @Bean
+    public QueryParamsParser queryParamsParser() {
+        return new DefaultQueryParamsParser();
+    }
+
+    @Bean
+    public QueryParamsBuilder queryParamsBuilder(QueryParamsParser queryParamsParser) {
+        return new QueryParamsBuilder(queryParamsParser);
     }
 }
 

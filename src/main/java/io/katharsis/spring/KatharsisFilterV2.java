@@ -38,6 +38,7 @@ public class KatharsisFilterV2 implements Filter, BeanFactoryAware {
     private static final int BUFFER_SIZE = 4096;
 
     private ObjectMapper objectMapper;
+    private QueryParamsBuilder queryParamsBuilder;
     private ResourceRegistry resourceRegistry;
     private RequestDispatcher requestDispatcher;
     private String webPathPrefix;
@@ -45,9 +46,12 @@ public class KatharsisFilterV2 implements Filter, BeanFactoryAware {
     private ConfigurableBeanFactory beanFactory;
 
 
-    public KatharsisFilterV2(ObjectMapper objectMapper, ResourceRegistry resourceRegistry,
+    public KatharsisFilterV2(ObjectMapper objectMapper,
+                             QueryParamsBuilder queryParamsBuilder,
+                             ResourceRegistry resourceRegistry,
                              RequestDispatcher requestDispatcher, String webPathPrefix) {
         this.objectMapper = objectMapper;
+        this.queryParamsBuilder = queryParamsBuilder;
         this.resourceRegistry = resourceRegistry;
         this.requestDispatcher = requestDispatcher;
         this.webPathPrefix = webPathPrefix != null ? webPathPrefix : "";
@@ -215,7 +219,6 @@ public class KatharsisFilterV2 implements Filter, BeanFactoryAware {
      * @return query parameters
      */
     private QueryParams createQueryParams(HttpServletRequest request) {
-        QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder();
         Map<String, String[]> params = request.getParameterMap();
 
         Map<String, Set<String>> queryParameters = new HashMap<>(params.size());
