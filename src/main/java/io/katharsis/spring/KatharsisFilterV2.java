@@ -200,10 +200,14 @@ public class KatharsisFilterV2 implements Filter, BeanFactoryAware {
             MediaType acceptableType;
 
             for (String mediaTypeItem : accepts) {
-                acceptableType = MediaType.parse(mediaTypeItem.trim());
+                try {
+                    acceptableType = MediaType.parse(mediaTypeItem.trim());
 
-                if (JsonApiMediaType.isCompatibleMediaType(acceptableType)) {
-                    return true;
+                    if (JsonApiMediaType.isCompatibleMediaType(acceptableType)) {
+                        return true;
+                    }
+                } catch (Exception e) {
+                    continue;
                 }
             }
         }
