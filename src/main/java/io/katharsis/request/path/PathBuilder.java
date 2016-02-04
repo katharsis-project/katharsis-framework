@@ -107,7 +107,7 @@ public class PathBuilder {
         return new PathIds(pathIds);
     }
 
-    private String[] splitPath(String path) {
+    private static String[] splitPath(String path) {
         if (path.startsWith(SEPARATOR)) {
             path = path.substring(1);
         }

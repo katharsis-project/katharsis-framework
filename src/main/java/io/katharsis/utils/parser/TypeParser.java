@@ -82,7 +82,7 @@ public class TypeParser {
         return parsedValue;
     }
 
-    private <T extends Serializable> boolean isEnum(Class<T> clazz) {
+    private static <T extends Serializable> boolean isEnum(Class<T> clazz) {
         return clazz.isEnum();
     }
 

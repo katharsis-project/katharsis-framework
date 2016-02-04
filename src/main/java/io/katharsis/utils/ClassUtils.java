@@ -220,7 +220,7 @@ public class ClassUtils {
         return !void.class.equals(method.getReturnType());
     }
 
-    private boolean isSetter(Method method) {
+    private static boolean isSetter(Method method) {
         if (!method.getName().startsWith("set"))
             return false;
         if (method.getName().length() < 4)

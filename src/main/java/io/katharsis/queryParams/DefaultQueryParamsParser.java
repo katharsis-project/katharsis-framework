@@ -68,7 +68,7 @@ public class DefaultQueryParamsParser implements QueryParamsParser {
      * @param queryKey    Filtering key
      * @return Filtered query params
      */
-    private Map<String, Set<String>> filterQueryParamsByKey(Map<String, Set<String>> queryParams, String queryKey) {
+    private static Map<String, Set<String>> filterQueryParamsByKey(Map<String, Set<String>> queryParams, String queryKey) {
         Map<String, Set<String>> filteredQueryParams = new HashMap<>();
 
         for (Map.Entry<String, Set<String>> entry : queryParams.entrySet()) {

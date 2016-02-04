@@ -84,7 +84,7 @@ public class ErrorResponseSerializer extends JsonSerializer<ErrorResponse> {
         }
     }
 
-    private void writeStringIfExists(String fieldName, String value, JsonGenerator gen) throws IOException {
+    private static void writeStringIfExists(String fieldName, String value, JsonGenerator gen) throws IOException {
         if (value != null) {
             gen.writeStringField(fieldName, value);
         }
