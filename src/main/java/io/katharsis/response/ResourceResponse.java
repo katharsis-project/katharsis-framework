@@ -84,8 +84,12 @@ public class ResourceResponse implements BaseResponse {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         ResourceResponse that = (ResourceResponse) o;
         return Objects.equals(data, that.data);
     }

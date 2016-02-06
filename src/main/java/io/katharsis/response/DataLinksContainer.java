@@ -39,8 +39,12 @@ public class DataLinksContainer {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         DataLinksContainer that = (DataLinksContainer) o;
         return Objects.equals(data, that.data) &&
                 Objects.equals(relationshipFields, that.relationshipFields);

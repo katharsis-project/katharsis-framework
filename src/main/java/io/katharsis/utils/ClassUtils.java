@@ -206,7 +206,9 @@ public class ClassUtils {
             return false;
         if (method.getName().length() < 3)
             return false;
-        if (method.getParameterTypes().length != 0) return false;
+        if (method.getParameterTypes().length != 0) {
+            return false;
+        }
         return boolean.class.equals(method.getReturnType()) || Boolean.class.equals(method.getReturnType());
     }
 

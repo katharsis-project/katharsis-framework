@@ -91,8 +91,12 @@ public abstract class JsonPath {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         JsonPath jsonPath = (JsonPath) o;
         return Objects.equals(elementName, jsonPath.elementName) &&
                 Objects.equals(ids, jsonPath.ids) &&
