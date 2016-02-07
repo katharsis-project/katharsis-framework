@@ -16,36 +16,71 @@
  */
 package io.katharsis.example.springboot.simple.domain.repository;
 
+import com.google.common.collect.Iterables;
 import io.katharsis.example.springboot.simple.domain.model.Project;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.ResourceRepository;
-
+import io.katharsis.repository.annotations.*;
+import io.katharsis.resource.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
+
+@JsonApiResourceRepository(Project.class)
 @Component
 public class ProjectRepository implements ResourceRepository<Project, Long> {
+    private static final Map<Long, Project> REPOSITORY = new ConcurrentHashMap<>();
+    private static final AtomicLong ID_GENERATOR = new AtomicLong(1);
+
+    public ProjectRepository() {
+        Project project = new Project();
+        project.setId(123L);
+        project.setName("hi");
+        save(project);
+    }
+
+    @JsonApiSave
     @Override
     public <S extends Project> S save(S entity) {
-        return null;
+        if (entity.getId() == null) {
+            entity.setId(ID_GENERATOR.getAndIncrement());
+        }
+        REPOSITORY.put(entity.getId(), entity);
+        return entity;
     }
 
+    @JsonApiFindOne
     @Override
-    public Project findOne(Long aLong, QueryParams requestParams) {
-        return null;
+    public Project findOne(Long projectId, QueryParams requestParams) {
+        Project project = REPOSITORY.get(projectId);
+        if (project == null) {
+            throw new ResourceNotFoundException("Project not found!");
+        }
+        return project;
     }
 
+    @JsonApiFindAll
     @Override
     public Iterable<Project> findAll(QueryParams requestParams) {
-        return null;
+        return REPOSITORY.values();
     }
 
+    @JsonApiFindAllWithIds
     @Override
     public Iterable<Project> findAll(Iterable<Long> projectIds, QueryParams requestParams) {
-        return null;
+        return REPOSITORY.entrySet()
+                .stream()
+                .filter(p -> Iterables.contains(projectIds, p.getKey()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
+                .values();
     }
 
+    @JsonApiDelete
     @Override
-    public void delete(Long aLong) {
-
+    public void delete(Long projectId) {
+        REPOSITORY.remove(projectId);
     }
 }

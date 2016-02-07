@@ -16,6 +16,7 @@
  */
 package io.katharsis.example.springboot.simple.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.katharsis.resource.annotations.JsonApiId;
 import io.katharsis.resource.annotations.JsonApiResource;
 
@@ -25,6 +26,7 @@ public class Project {
     @JsonApiId
     private Long id;
 
+    @JsonProperty
     private String name;
 
     public Long getId() {
