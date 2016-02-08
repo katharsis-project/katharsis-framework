@@ -79,7 +79,7 @@ public class ResourceFieldNameTransformer {
         return name;
     }
 
-    private AnnotationMap buildAnnotationMap(Annotation[] declaredAnnotations) {
+    private static AnnotationMap buildAnnotationMap(Annotation[] declaredAnnotations) {
         AnnotationMap annotationMap = new AnnotationMap();
         for (Annotation annotation : declaredAnnotations) {
             annotationMap.add(annotation);
@@ -103,7 +103,7 @@ public class ResourceFieldNameTransformer {
         return name;
     }
 
-    private String extractMethodName(Method method, int nameStart) {
+    private static String extractMethodName(Method method, int nameStart) {
         String resourceName = method.getName().substring(nameStart);
         return resourceName.substring(0, 1).toLowerCase() + resourceName.substring(1);
     }

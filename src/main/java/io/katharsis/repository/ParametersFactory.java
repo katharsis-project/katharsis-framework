@@ -71,7 +71,7 @@ public class ParametersFactory {
     /**
      * Source: https://stackoverflow.com/a/80503
      */
-    private Object[] concatenate(Object[] a, Object[] b) {
+    private static Object[] concatenate(Object[] a, Object[] b) {
 
         int aLen = a.length;
         int bLen = b.length;
