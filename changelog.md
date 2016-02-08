@@ -1,5 +1,8 @@
-# katharsis-spring v2.2.0 git changelog
+# katharsis-spring v2.2.1 git changelog
 
+2016-02-08    v2.2.1 (Patryk Orwat)  
+2016-02-08    [#18](https://github.com/katharsis-project/katharsis-spring/issues/18) made configuration classes public (Patryk Orwat)  
+2016-02-04    Ignore error in media type parsing (Tiago Daniel Jacobs)  
 
 **v2.2.0**  
 2016-02-03    v2.2.0 (Patryk Orwat)  
