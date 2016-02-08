@@ -18,10 +18,13 @@ package io.katharsis.example.springboot.simple.domain.repository;
 
 import com.google.common.collect.Iterables;
 import io.katharsis.example.springboot.simple.domain.model.Project;
+import io.katharsis.example.springboot.simple.domain.model.Task;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.repository.annotations.*;
 import io.katharsis.resource.exception.ResourceNotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -34,10 +37,12 @@ import java.util.stream.Collectors;
 public class ProjectRepository implements ResourceRepository<Project, Long> {
     private static final Map<Long, Project> REPOSITORY = new ConcurrentHashMap<>();
     private static final AtomicLong ID_GENERATOR = new AtomicLong(1);
+    private final TaskRepository taskRepository;
 
-    public ProjectRepository() {
-        Project project = new Project();
-        project.setId(123L);
+    @Autowired @Lazy
+    public ProjectRepository(TaskRepository taskRepository) {
+        this.taskRepository = taskRepository;
+        Project project = new Project(123L);
         project.setName("hi");
         save(project);
     }
@@ -58,6 +63,15 @@ public class ProjectRepository implements ResourceRepository<Project, Long> {
         Project project = REPOSITORY.get(projectId);
         if (project == null) {
             throw new ResourceNotFoundException("Project not found!");
+        }
+        if (project.getTasks().isEmpty()) {
+            Iterable<Task> tasks = taskRepository.findAll(null);
+            tasks.forEach(task -> {
+                if (task.getProjectId().equals(project.getId())) {
+                    project.getTasks().add(task);
+                }
+            });
+            save(project);
         }
         return project;
     }
