@@ -20,37 +20,112 @@ import io.katharsis.example.springboot.simple.domain.model.Project;
 import io.katharsis.example.springboot.simple.domain.model.Task;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.RelationshipRepository;
-
+import io.katharsis.utils.PropertyUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 @Component
 public class TaskToProjectRepository implements RelationshipRepository<Task, Long, Project, Long> {
 
+    private final TaskRepository taskRepository;
+    private final ProjectRepository projectRepository;
+
+    @Autowired
+    public TaskToProjectRepository(TaskRepository taskRepository, ProjectRepository projectRepository) {
+        this.taskRepository = taskRepository;
+        this.projectRepository = projectRepository;
+    }
+
     @Override
     public void setRelation(Task task, Long projectId, String fieldName) {
+        Project project = projectRepository.findOne(projectId, null);
+        try {
+            PropertyUtils.setProperty(task, fieldName, project);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        taskRepository.save(task);
+    }
+
+    @Override
+    public void setRelations(Task task, Iterable<Long> projectIds, String fieldName) {
+        Iterable<Project> projects = projectRepository.findAll(projectIds, null);
+        try {
+            PropertyUtils.setProperty(task, fieldName, projects);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        taskRepository.save(task);
+    }
+
+    @Override
+    public void addRelations(Task task, Iterable<Long> projectIds, String fieldName) {
+        List<Project> newProjectList = new LinkedList<>();
+        Iterable<Project> projectsToAdd = projectRepository.findAll(projectIds, null);
+        projectsToAdd.forEach(newProjectList::add);
+        try {
+            if (PropertyUtils.getProperty(task, fieldName) != null) {
+                Iterable<Project> projects = (Iterable<Project>) PropertyUtils.getProperty(task, fieldName);
+                projects.forEach(newProjectList::add);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        try {
+            PropertyUtils.setProperty(task, fieldName, newProjectList);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        taskRepository.save(task);
 
     }
 
     @Override
-    public void setRelations(Task task, Iterable<Long> projectId, String fieldName) {
+    public void removeRelations(Task task, Iterable<Long> projectIds, String fieldName) {
+        try {
+            if (PropertyUtils.getProperty(task, fieldName) != null) {
+                Iterable<Project> projects = (Iterable<Project>) PropertyUtils.getProperty(task, fieldName);
+                Iterator<Project> iterator = projects.iterator();
+                while (iterator.hasNext()) {
+                    for (Long projectIdToRemove : projectIds) {
+                        if (iterator.next().getId().equals(projectIdToRemove)) {
+                            iterator.remove();
+                            break;
+                        }
+                    }
+                }
+                List<Project> newProjectList = new LinkedList<>();
+                projects.forEach(newProjectList::add);
 
+                PropertyUtils.setProperty(task, fieldName, newProjectList);
+                taskRepository.save(task);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
-    public void addRelations(Task source, Iterable<Long> targetIds, String fieldName) {
+    public Project findOneTarget(Long taskId, String fieldName, QueryParams requestParams) {
+        Task task = taskRepository.findOne(taskId, requestParams);
+        try {
+            return (Project) PropertyUtils.getProperty(task, fieldName);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
-    public void removeRelations(Task source, Iterable<Long> targetIds, String fieldName) {
-    }
-
-    @Override
-    public Project findOneTarget(Long sourceId, String fieldName, QueryParams requestParams) {
-        return null;
-    }
-
-    @Override
-    public Iterable<Project> findManyTargets(Long sourceId, String fieldName, QueryParams requestParams) {
-        return null;
+    public Iterable<Project> findManyTargets(Long taskId, String fieldName, QueryParams requestParams) {
+        Task task = taskRepository.findOne(taskId, requestParams);
+        try {
+            return (Iterable<Project>) PropertyUtils.getProperty(task, fieldName);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

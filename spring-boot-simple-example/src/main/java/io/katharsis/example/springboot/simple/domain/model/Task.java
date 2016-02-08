@@ -31,6 +31,8 @@ public class Task {
     @JsonProperty("my-name")
     private String name;
 
+    private Long projectId;
+
     @JsonApiToOne
     @JsonApiIncludeByDefault
     private Project project;
@@ -65,5 +67,13 @@ public class Task {
 
     public void setProject(Project project) {
         this.project = project;
+    }
+
+    public Long getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(Long projectId) {
+        this.projectId = projectId;
     }
 }
