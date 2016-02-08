@@ -1,13 +1,16 @@
 package io.katharsis.example.jersey;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.katharsis.locator.SampleJsonServiceLocator;
-import io.katharsis.queryParams.DefaultQueryParamsParser;
-import io.katharsis.queryParams.QueryParamsBuilder;
-import io.katharsis.rs.KatharsisFeature;
+import io.katharsis.example.jersey.domain.repository.ProjectRepository;
+import io.katharsis.example.jersey.domain.repository.TaskRepository;
+import io.katharsis.example.jersey.domain.repository.TaskToProjectRepository;
+import io.katharsis.example.jersey.domain.repository.TaskToProjectRepositoryFactory;
 import io.katharsis.rs.KatharsisProperties;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.process.internal.RequestScoped;
 import org.glassfish.jersey.server.ResourceConfig;
 
+import javax.inject.Singleton;
 import javax.ws.rs.ApplicationPath;
 
 @ApplicationPath("/")
@@ -18,7 +21,17 @@ public class JerseyApplication extends ResourceConfig {
     public JerseyApplication() {
         property(KatharsisProperties.RESOURCE_SEARCH_PACKAGE, "io.katharsis.example.jersey.domain");
         property(KatharsisProperties.RESOURCE_DEFAULT_DOMAIN, APPLICATION_URL);
-        register(new KatharsisFeature(new ObjectMapper(), new QueryParamsBuilder(new DefaultQueryParamsParser()), new SampleJsonServiceLocator()));
+        register(KatharsisDynamicFeature.class);
+        register(new AbstractBinder() {
+            @Override
+            public void configure() {
+                bindFactory(ObjectMapperFactory.class).to(ObjectMapper.class).in(Singleton.class);
+                bind(TaskRepository.class).to(TaskRepository.class);
+                bind(ProjectRepository.class).to(ProjectRepository.class);
+                bindFactory(TaskToProjectRepositoryFactory.class).to(TaskToProjectRepository.class)
+                    .in(RequestScoped.class); // make singleton binding to make this work without IllegalStateException
+            }
+        });
 
     }
 }

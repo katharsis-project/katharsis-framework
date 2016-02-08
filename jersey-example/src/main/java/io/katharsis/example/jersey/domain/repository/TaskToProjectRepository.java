@@ -3,37 +3,29 @@ package io.katharsis.example.jersey.domain.repository;
 import io.katharsis.example.jersey.domain.model.Project;
 import io.katharsis.example.jersey.domain.model.Task;
 import io.katharsis.queryParams.QueryParams;
-import io.katharsis.repository.RelationshipRepository;
+import io.katharsis.repository.annotations.*;
 
-public class TaskToProjectRepository implements RelationshipRepository<Task, Long, Project, Long> {
+@JsonApiRelationshipRepository(source = Task.class, target = Project.class)
+public class TaskToProjectRepository {
 
-    @Override
+    @JsonApiSetRelation
     public void setRelation(Task task, Long projectId, String fieldName) {
 
     }
 
-    @Override
-    public void setRelations(Task task, Iterable<Long> projectId, String fieldName) {
-
+    @JsonApiAddRelations
+    public void addRelations(Task source, Iterable<Long> targetIds, String fieldName) {
     }
 
-    @Override
-    public void addRelations(Task task, Iterable<Long> projectIds, String fieldName) {
-
+    @JsonApiRemoveRelations
+    public void removeRelations(Task source, Iterable<Long> targetIds, String fieldName) {
     }
 
-    @Override
-    public void removeRelations(Task task, Iterable<Long> projectIds, String fieldName) {
-
-    }
-
-    @Override
+    @JsonApiFindOneTarget
     public Project findOneTarget(Long sourceId, String fieldName, QueryParams requestParams) {
-        return null;
-    }
-
-    @Override
-    public Iterable<Project> findManyTargets(Long sourceId, String fieldName, QueryParams requestParams) {
-        return null;
+        Project project = new Project();
+        project.setId(123L);
+        project.setName("Request scoped value");
+        return project;
     }
 }
