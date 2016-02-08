@@ -58,8 +58,12 @@ public final class ErrorResponse implements BaseResponse<Iterable<ErrorData>> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ErrorResponse)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof ErrorResponse)) {
+            return false;
+        }
         ErrorResponse that = (ErrorResponse) o;
         return Objects.equals(httpStatus, that.httpStatus) &&
                 Objects.equals(data, that.data);

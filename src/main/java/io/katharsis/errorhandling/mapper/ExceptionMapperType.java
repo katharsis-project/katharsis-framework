@@ -21,8 +21,12 @@ final class ExceptionMapperType {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ExceptionMapperType)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof ExceptionMapperType)) {
+            return false;
+        }
         ExceptionMapperType that = (ExceptionMapperType) o;
         return Objects.equals(exceptionMapper, that.exceptionMapper) &&
                 Objects.equals(exceptionClass, that.exceptionClass);

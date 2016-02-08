@@ -114,8 +114,12 @@ public final class ErrorData {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ErrorData)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof ErrorData)) {
+            return false;
+        }
         ErrorData that = (ErrorData) o;
         return Objects.equals(id, that.id) &&
                 Objects.equals(aboutLink, that.aboutLink) &&

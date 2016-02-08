@@ -112,8 +112,12 @@ public class RegistryEntry<T> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         RegistryEntry<?> that = (RegistryEntry<?>) o;
         return Objects.equals(resourceInformation, that.resourceInformation) &&
             Objects.equals(resourceEntry, that.resourceEntry) &&
