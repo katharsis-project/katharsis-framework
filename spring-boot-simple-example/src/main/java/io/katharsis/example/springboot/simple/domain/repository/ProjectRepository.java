@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 
 @JsonApiResourceRepository(Project.class)
 @Component
-public class ProjectRepository implements ResourceRepository<Project, Long> {
+public class ProjectRepository {
     private static final Map<Long, Project> REPOSITORY = new ConcurrentHashMap<>();
     private static final AtomicLong ID_GENERATOR = new AtomicLong(1);
     private final TaskRepository taskRepository;
@@ -48,7 +48,6 @@ public class ProjectRepository implements ResourceRepository<Project, Long> {
     }
 
     @JsonApiSave
-    @Override
     public <S extends Project> S save(S entity) {
         if (entity.getId() == null) {
             entity.setId(ID_GENERATOR.getAndIncrement());
@@ -58,7 +57,6 @@ public class ProjectRepository implements ResourceRepository<Project, Long> {
     }
 
     @JsonApiFindOne
-    @Override
     public Project findOne(Long projectId, QueryParams requestParams) {
         Project project = REPOSITORY.get(projectId);
         if (project == null) {
@@ -77,13 +75,11 @@ public class ProjectRepository implements ResourceRepository<Project, Long> {
     }
 
     @JsonApiFindAll
-    @Override
     public Iterable<Project> findAll(QueryParams requestParams) {
         return REPOSITORY.values();
     }
 
     @JsonApiFindAllWithIds
-    @Override
     public Iterable<Project> findAll(Iterable<Long> projectIds, QueryParams requestParams) {
         return REPOSITORY.entrySet()
                 .stream()
@@ -93,7 +89,6 @@ public class ProjectRepository implements ResourceRepository<Project, Long> {
     }
 
     @JsonApiDelete
-    @Override
     public void delete(Long projectId) {
         REPOSITORY.remove(projectId);
     }

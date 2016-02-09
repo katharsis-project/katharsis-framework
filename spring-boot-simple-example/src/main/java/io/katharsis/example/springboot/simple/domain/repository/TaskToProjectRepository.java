@@ -20,6 +20,7 @@ import io.katharsis.example.springboot.simple.domain.model.Project;
 import io.katharsis.example.springboot.simple.domain.model.Task;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.RelationshipRepository;
+import io.katharsis.repository.annotations.*;
 import io.katharsis.utils.PropertyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -28,8 +29,9 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+@JsonApiRelationshipRepository(source = Task.class, target = Project.class)
 @Component
-public class TaskToProjectRepository implements RelationshipRepository<Task, Long, Project, Long> {
+public class TaskToProjectRepository {
 
     private final TaskRepository taskRepository;
     private final ProjectRepository projectRepository;
@@ -40,7 +42,7 @@ public class TaskToProjectRepository implements RelationshipRepository<Task, Lon
         this.projectRepository = projectRepository;
     }
 
-    @Override
+    @JsonApiSetRelation
     public void setRelation(Task task, Long projectId, String fieldName) {
         Project project = projectRepository.findOne(projectId, null);
         try {
@@ -51,7 +53,7 @@ public class TaskToProjectRepository implements RelationshipRepository<Task, Lon
         taskRepository.save(task);
     }
 
-    @Override
+    @JsonApiSetRelations
     public void setRelations(Task task, Iterable<Long> projectIds, String fieldName) {
         Iterable<Project> projects = projectRepository.findAll(projectIds, null);
         try {
@@ -62,7 +64,7 @@ public class TaskToProjectRepository implements RelationshipRepository<Task, Lon
         taskRepository.save(task);
     }
 
-    @Override
+    @JsonApiAddRelations
     public void addRelations(Task task, Iterable<Long> projectIds, String fieldName) {
         List<Project> newProjectList = new LinkedList<>();
         Iterable<Project> projectsToAdd = projectRepository.findAll(projectIds, null);
@@ -84,7 +86,7 @@ public class TaskToProjectRepository implements RelationshipRepository<Task, Lon
 
     }
 
-    @Override
+    @JsonApiRemoveRelations
     public void removeRelations(Task task, Iterable<Long> projectIds, String fieldName) {
         try {
             if (PropertyUtils.getProperty(task, fieldName) != null) {
@@ -109,7 +111,7 @@ public class TaskToProjectRepository implements RelationshipRepository<Task, Lon
         }
     }
 
-    @Override
+    @JsonApiFindOneTarget
     public Project findOneTarget(Long taskId, String fieldName, QueryParams requestParams) {
         Task task = taskRepository.findOne(taskId, requestParams);
         try {
@@ -119,7 +121,7 @@ public class TaskToProjectRepository implements RelationshipRepository<Task, Lon
         }
     }
 
-    @Override
+    @JsonApiFindManyTargets
     public Iterable<Project> findManyTargets(Long taskId, String fieldName, QueryParams requestParams) {
         Task task = taskRepository.findOne(taskId, requestParams);
         try {
