@@ -27,14 +27,13 @@ public class ResourceRegistry {
     }
 
     public RegistryEntry getEntry(String searchType) {
-        RegistryEntry registryEntry = null;
         for (Map.Entry<Class, RegistryEntry> entry : resources.entrySet()) {
             String type = getResourceType(entry.getKey());
             if (type.equals(searchType)) {
-                registryEntry = entry.getValue();
+                return entry.getValue();
             }
         }
-        return registryEntry;
+        return null;
     }
 
     public RegistryEntry getEntry(Class clazz) {
