@@ -110,7 +110,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
      * The id MUST be written as a string
      * <a href="http://jsonapi.org/format/#document-structure-resource-ids">Resource IDs</a>.
      */
-    private void writeId(JsonGenerator gen, Object data, ResourceField idField)
+    private static void writeId(JsonGenerator gen, Object data, ResourceField idField)
         throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
         String sourceId = BeanUtils.getProperty(data, idField.getUnderlyingName());
         gen.writeObjectField(ID_FIELD_NAME, sourceId);
@@ -142,7 +142,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         }
     }
 
-    private IncludedFieldsParams findIncludedFields(TypedParams<IncludedFieldsParams> includedFields, String
+    private static IncludedFieldsParams findIncludedFields(TypedParams<IncludedFieldsParams> includedFields, String
         elementName) {
         IncludedFieldsParams includedFieldsParams = null;
         if (includedFields != null) {
@@ -156,7 +156,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         return includedFieldsParams;
     }
 
-    private void writeRelationshipFields(JsonGenerator gen, Object data, Set<ResourceField> relationshipFields)
+    private static void writeRelationshipFields(JsonGenerator gen, Object data, Set<ResourceField> relationshipFields)
         throws IOException {
         DataLinksContainer dataLinksContainer = new DataLinksContainer(data, relationshipFields);
         gen.writeObjectField(RELATIONSHIPS_FIELD_NAME, dataLinksContainer);

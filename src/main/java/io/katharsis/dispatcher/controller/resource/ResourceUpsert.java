@@ -119,7 +119,7 @@ public abstract class ResourceUpsert extends BaseController {
         relationshipRepository.setRelations(savedResource, castedRelationIds, relationshipField.getUnderlyingName());
     }
 
-    private boolean allTypesTheSame(Iterable<LinkageData> linkages) {
+    private static boolean allTypesTheSame(Iterable<LinkageData> linkages) {
         String type = linkages.iterator()
             .hasNext() ? linkages.iterator()
             .next()

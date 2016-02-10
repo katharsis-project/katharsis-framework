@@ -124,7 +124,7 @@ public final class ResourceInformationBuilder {
         return resourceFields;
     }
 
-    private boolean hasDiscardedField(ResourceFieldWrapper fieldWrapper, List<ResourceFieldWrapper> resourceClassFields) {
+    private static boolean hasDiscardedField(ResourceFieldWrapper fieldWrapper, List<ResourceFieldWrapper> resourceClassFields) {
         for (ResourceFieldWrapper resourceFieldWrapper : resourceClassFields) {
             if (fieldWrapper.getResourceField().getUnderlyingName()
                 .equals(resourceFieldWrapper.getResourceField().getUnderlyingName())) {
@@ -134,7 +134,7 @@ public final class ResourceInformationBuilder {
         return false;
     }
 
-    private ResourceField mergeAnnotations(ResourceField fromField, ResourceField fromMethod) {
+    private static ResourceField mergeAnnotations(ResourceField fromField, ResourceField fromMethod) {
         List<Annotation> annotations = new LinkedList<>(fromField.getAnnotations());
         annotations.addAll(fromMethod.getAnnotations());
 
@@ -181,7 +181,7 @@ public final class ResourceInformationBuilder {
         return relationshipFields;
     }
 
-    private Set<ResourceField> buildResourceFieldSet(Optional<JsonPropertyOrder> propertyOrderOptional) {
+    private static Set<ResourceField> buildResourceFieldSet(Optional<JsonPropertyOrder> propertyOrderOptional) {
         Set<ResourceField> basicFields;
         if (propertyOrderOptional.isPresent()) {
             JsonPropertyOrder propertyOrder = propertyOrderOptional.get();

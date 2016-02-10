@@ -342,7 +342,7 @@ public class QueryParams {
         this.includedRelations = new TypedParams<>(Collections.unmodifiableMap(decodedInclusions));
     }
 
-    private List<String> buildPropertyListFromEntry(Map.Entry<String, Set<String>> entry, String prefix) {
+    private static List<String> buildPropertyListFromEntry(Map.Entry<String, Set<String>> entry, String prefix) {
         String entryKey = entry.getKey()
             .substring(prefix.length());
 

@@ -102,7 +102,7 @@ public class PathBuilder {
         throw new ResourceFieldNotFoundException(elementName);
     }
 
-    private PathIds createPathIds(String idsString) {
+    private static PathIds createPathIds(String idsString) {
         List<String> pathIds = Arrays.asList(idsString.split(PathIds.ID_SEPERATOR));
         return new PathIds(pathIds);
     }

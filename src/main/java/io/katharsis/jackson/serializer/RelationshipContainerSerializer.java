@@ -100,7 +100,7 @@ public class RelationshipContainerSerializer extends JsonSerializer<Relationship
         }
     }
 
-    private void writeToManyLinkage(RelationshipContainer relationshipContainer, JsonGenerator gen,
+    private static void writeToManyLinkage(RelationshipContainer relationshipContainer, JsonGenerator gen,
                                     Class relationshipClass, RegistryEntry relationshipEntry)
         throws IOException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         ResourceField relationshipField = relationshipContainer.getRelationshipField();
@@ -116,7 +116,7 @@ public class RelationshipContainerSerializer extends JsonSerializer<Relationship
         gen.writeEndArray();
     }
 
-    private void writeToOneLinkage(RelationshipContainer relationshipContainer, JsonGenerator gen,
+    private static void writeToOneLinkage(RelationshipContainer relationshipContainer, JsonGenerator gen,
                                    Class<?> relationshipClass, RegistryEntry relationshipEntry)
         throws IOException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         ResourceField relationshipField = relationshipContainer.getRelationshipField();

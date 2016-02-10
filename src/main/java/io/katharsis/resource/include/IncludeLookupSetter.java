@@ -60,7 +60,7 @@ public class IncludeLookupSetter {
         }
     }
 
-    private IncludedRelationsParams findInclusions(TypedParams<IncludedRelationsParams> queryParams, String
+    private static IncludedRelationsParams findInclusions(TypedParams<IncludedRelationsParams> queryParams, String
         resourceName) {
         IncludedRelationsParams includedRelationsParams = null;
         for (Map.Entry<String, IncludedRelationsParams> entry : queryParams.getParams()
