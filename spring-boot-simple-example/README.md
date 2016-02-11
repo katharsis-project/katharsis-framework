@@ -6,5 +6,5 @@
 
 ## How to test with curl
 
-    $ curl -v http://localhost:8080/tasks/
+    $ curl -v http://localhost:8080/api/tasks/
     ...

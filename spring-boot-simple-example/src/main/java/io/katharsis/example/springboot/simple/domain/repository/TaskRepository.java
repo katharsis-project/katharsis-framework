@@ -16,39 +16,81 @@
  */
 package io.katharsis.example.springboot.simple.domain.repository;
 
+import com.google.common.collect.Iterables;
+import io.katharsis.example.springboot.simple.domain.model.Project;
 import io.katharsis.example.springboot.simple.domain.model.Task;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.ResourceRepository;
-
-import java.util.Arrays;
-
+import io.katharsis.repository.annotations.*;
+import io.katharsis.resource.exception.ResourceNotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
+
 @Component
-public class TaskRepository implements ResourceRepository<Task, Long> {
-    @Override
-    public <S extends Task> S save(S entity) {
-        return null;
+@JsonApiResourceRepository(Task.class)
+public class TaskRepository {
+    private static final Map<Long, Task> REPOSITORY = new ConcurrentHashMap<>();
+    private static final AtomicLong ID_GENERATOR = new AtomicLong(1);
+
+    private final ProjectRepository projectRepository;
+
+    @Autowired @Lazy
+    public TaskRepository(ProjectRepository projectRepository) {
+        this.projectRepository = projectRepository;
+        Task task = new Task(1L, "Create tasks");
+        task.setProjectId(123L);
+        save(task);
+        task = new Task(2L, "Make coffee");
+        task.setProjectId(123L);
+        save(task);
+        task = new Task(3L, "Do things");
+        task.setProjectId(123L);
+        save(task);
     }
 
-    @Override
-    public Task findOne(Long aLong, QueryParams requestParams) {
-        Task task = new Task(aLong, "Some task");
+    @JsonApiSave
+    public <S extends Task> S save(S entity) {
+        if (entity.getId() == null) {
+            entity.setId(ID_GENERATOR.getAndIncrement());
+        }
+        REPOSITORY.put(entity.getId(), entity);
+        return entity;
+    }
+
+    @JsonApiFindOne
+    public Task findOne(Long taskId, QueryParams requestParams) {
+        Task task = REPOSITORY.get(taskId);
+        if (task == null) {
+            throw new ResourceNotFoundException("Project not found!");
+        }
+        if (task.getProject() == null) {
+            task.setProject(projectRepository.findOne(task.getProjectId(), null));
+        }
         return task;
     }
 
-    @Override
+    @JsonApiFindAll
     public Iterable<Task> findAll(QueryParams requestParams) {
-        return findAll(null, requestParams);
+        return REPOSITORY.values();
     }
 
-    @Override
+    @JsonApiFindAllWithIds
     public Iterable<Task> findAll(Iterable<Long> taskIds, QueryParams requestParams) {
-        return Arrays.asList(new Task(1L, "First task"));
+        return REPOSITORY.entrySet()
+                .stream()
+                .filter(p -> Iterables.contains(taskIds, p.getKey()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
+                .values();
     }
 
-    @Override
-    public void delete(Long aLong) {
-
+    @JsonApiDelete
+    public void delete(Long taskId) {
+        REPOSITORY.remove(taskId);
     }
 }
