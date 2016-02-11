@@ -1,6 +1,6 @@
 package io.katharsis.dispatcher.controller.resource;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
 import io.katharsis.queryParams.QueryParams;
@@ -13,7 +13,6 @@ import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.mock.models.*;
 import io.katharsis.resource.mock.repository.TaskRepository;
-import io.katharsis.resource.mock.repository.TaskToProjectRepository;
 import io.katharsis.response.HttpStatus;
 import io.katharsis.response.ResourceResponse;
 import org.junit.Assert;
@@ -229,5 +228,58 @@ public class ResourcePostTest extends BaseControllerTest {
         assertThat(persistedMemorandum.getId()).isNotNull();
         assertThat(persistedMemorandum.getTitle()).isEqualTo("sample title");
         assertThat(persistedMemorandum.getBody()).isEqualTo("sample body");
+    }
+
+    @Test
+    public void onResourceWithCustomNamesShouldSaveParametersCorrectly() throws Exception {
+        // GIVEN - creating sample project id
+        RequestBody newProjectBody = new RequestBody();
+        DataBody data = new DataBody();
+        newProjectBody.setData(data);
+        data.setType("projects");
+        data.setAttributes(objectMapper.createObjectNode().put("name", "sample project"));
+
+        JsonPath projectPath = pathBuilder.buildPath("/projects");
+        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper);
+
+        // WHEN
+        ResourceResponse projectResponse = sut.handle(projectPath, new QueryParams(), null, newProjectBody);
+
+        // THEN
+        assertThat(projectResponse.getData()).isExactlyInstanceOf(Project.class);
+        assertThat(((Project) (projectResponse.getData())).getId()).isNotNull();
+        assertThat(((Project) (projectResponse.getData())).getName()).isEqualTo("sample project");
+        Long projectId = ((Project) (projectResponse.getData())).getId();
+
+        /* ------- */
+
+        // GIVEN
+        RequestBody pojoBody = new RequestBody();
+        DataBody pojoData = new DataBody();
+        pojoBody.setData(pojoData);
+        pojoData.setType("pojo");
+        JsonNode put = objectMapper.createObjectNode().put("value", "hello");
+        JsonNode attributes = objectMapper.createObjectNode()
+            .set("other-pojo", put);
+        pojoData.setAttributes(attributes);
+        ResourceRelationships relationships = new ResourceRelationships();
+        relationships.setAdditionalProperty("some-project", new LinkageData("projects", Long.toString(projectId)));
+        relationships.setAdditionalProperty("some-projects", Collections.singletonList(new LinkageData("projects", Long.toString(projectId))));
+        pojoData.setRelationships(relationships);
+
+        JsonPath pojoPath = pathBuilder.buildPath("/pojo");
+
+        // WHEN
+        ResourceResponse pojoResponse = sut.handle(pojoPath, new QueryParams(), null, pojoBody);
+
+        // THEN
+        assertThat(pojoResponse.getData()).isExactlyInstanceOf(Pojo.class);
+        Pojo persistedPojo = (Pojo) (pojoResponse.getData());
+        assertThat(persistedPojo.getId()).isNotNull();
+        assertThat(persistedPojo.getOtherPojo()).isEqualTo(new OtherPojo().setValue("hello"));
+        assertThat(persistedPojo.getProject()).isNotNull();
+        assertThat(persistedPojo.getProject().getId()).isEqualTo(projectId);
+        assertThat(persistedPojo.getProjects()).hasSize(1);
+        assertThat(persistedPojo.getProjects().get(0).getId()).isEqualTo(projectId);
     }
 }

@@ -226,18 +226,21 @@ public abstract class ResourceUpsert extends BaseController {
                 .findOne(castedRelationshipId, queryParams);
             relationships.add(relationObject);
         }
-        PropertyUtils.setProperty(newResource, propertyName, relationships);
+        PropertyUtils.setProperty(newResource, relationshipField.getUnderlyingName(), relationships);
     }
 
     private void setRelationField(Object newResource, RegistryEntry registryEntry,
                                   Map.Entry<String, LinkageData> property, QueryParams queryParams,
                                   RepositoryMethodParameterProvider parameterProvider) {
-        String propertyName = property.getKey();
+        String underlyingName = property.getKey();
 
         Object relationObject;
         if (property.getValue() != null) {
-            ResourceField relationshipFieldByName = registryEntry.getResourceInformation()
-                .findRelationshipFieldByName(propertyName);
+            ResourceField relationshipFieldByName;
+            relationshipFieldByName = registryEntry.getResourceInformation()
+                .findRelationshipFieldByName(property.getKey());
+            // update underlyingName since it might be different
+            underlyingName = relationshipFieldByName.getUnderlyingName();
             RegistryEntry entry = resourceRegistry.getEntry(relationshipFieldByName.getType());
             Class idFieldType = entry.getResourceInformation()
                 .getIdField()
@@ -251,6 +254,6 @@ public abstract class ResourceUpsert extends BaseController {
         }
 
 
-        PropertyUtils.setProperty(newResource, propertyName, relationObject);
+        PropertyUtils.setProperty(newResource, underlyingName, relationObject);
     }
 }
