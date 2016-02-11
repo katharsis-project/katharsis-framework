@@ -274,12 +274,12 @@ public class ResourcePostTest extends BaseControllerTest {
 
         // THEN
         assertThat(pojoResponse.getData()).isExactlyInstanceOf(Pojo.class);
-        Pojo persistedMemorandum = (Pojo) (pojoResponse.getData());
-        assertThat(persistedMemorandum.getId()).isNotNull();
-        assertThat(persistedMemorandum.getOtherPojo()).isEqualTo(new OtherPojo().setValue("hello"));
-        assertThat(persistedMemorandum.getProject()).isNotNull();
-        assertThat(persistedMemorandum.getProject().getId()).isEqualTo(projectId);
-        assertThat(persistedMemorandum.getProjects()).hasSize(1);
-        assertThat(persistedMemorandum.getProjects().get(0).getId()).isEqualTo(projectId);
+        Pojo persistedPojo = (Pojo) (pojoResponse.getData());
+        assertThat(persistedPojo.getId()).isNotNull();
+        assertThat(persistedPojo.getOtherPojo()).isEqualTo(new OtherPojo().setValue("hello"));
+        assertThat(persistedPojo.getProject()).isNotNull();
+        assertThat(persistedPojo.getProject().getId()).isEqualTo(projectId);
+        assertThat(persistedPojo.getProjects()).hasSize(1);
+        assertThat(persistedPojo.getProjects().get(0).getId()).isEqualTo(projectId);
     }
 }
