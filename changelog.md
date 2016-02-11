@@ -1,5 +1,7 @@
 # katharsis-core v2.2.0 git changelog
 
+
+**v2.2.0**  
 2016-02-03    v2.2.0 (Patryk Orwat)  
 2016-02-03    removed Java 8 API comment link (Razvan Dragut)  
 2016-02-03    Fixed spring boot example (Razvan Dragut)  

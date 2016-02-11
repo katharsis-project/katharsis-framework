@@ -226,7 +226,7 @@ public abstract class ResourceUpsert extends BaseController {
                 .findOne(castedRelationshipId, queryParams);
             relationships.add(relationObject);
         }
-        PropertyUtils.setProperty(newResource, propertyName, relationships);
+        PropertyUtils.setProperty(newResource, relationshipField.getUnderlyingName(), relationships);
     }
 
     private void setRelationField(Object newResource, RegistryEntry registryEntry,
