@@ -58,6 +58,9 @@ public class ProjectRepository {
 
     @JsonApiFindOne
     public Project findOne(Long projectId, QueryParams requestParams) {
+        if (projectId == null) {
+            return null;
+        }
         Project project = REPOSITORY.get(projectId);
         if (project == null) {
             throw new ResourceNotFoundException("Project not found!");
