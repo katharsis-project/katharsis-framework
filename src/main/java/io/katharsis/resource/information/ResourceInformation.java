@@ -58,7 +58,7 @@ public final class ResourceInformation {
         return getJsonField(name, relationshipFields);
     }
 
-    private ResourceField getJsonField(String name, Set<ResourceField> fields) {
+    private static ResourceField getJsonField(String name, Set<ResourceField> fields) {
         ResourceField foundField = null;
         for (ResourceField field : fields) {
             if (field.getJsonName().equals(name)) {

@@ -61,13 +61,13 @@ public class ErrorResponseSerializer extends JsonSerializer<ErrorResponse> {
         gen.writeEndObject();
     }
 
-    private void writeMeta(ErrorData errorData, JsonGenerator gen) throws IOException {
+    private static void writeMeta(ErrorData errorData, JsonGenerator gen) throws IOException {
         if (errorData.getMeta() != null) {
             gen.writeObjectField(META, errorData.getMeta());
         }
     }
 
-    private void writeSource(ErrorData errorData, JsonGenerator gen) throws IOException {
+    private static void writeSource(ErrorData errorData, JsonGenerator gen) throws IOException {
         if (errorData.getSourceParameter() != null || errorData.getSourcePointer() != null) {
             gen.writeObjectFieldStart(SOURCE);
             writeStringIfExists(POINTER, errorData.getSourcePointer(), gen);
@@ -76,7 +76,7 @@ public class ErrorResponseSerializer extends JsonSerializer<ErrorResponse> {
         }
     }
 
-    private void writeAboutLink(ErrorData errorData, JsonGenerator gen) throws IOException {
+    private static void writeAboutLink(ErrorData errorData, JsonGenerator gen) throws IOException {
         if (errorData.getAboutLink() != null) {
             gen.writeObjectFieldStart(LINKS);
             gen.writeStringField(ABOUT_LINK, errorData.getAboutLink());

@@ -108,7 +108,7 @@ public class IncludedRelationshipExtractor {
         return includedResources;
     }
 
-    private IncludedRelationsParams findInclusions(TypedParams<IncludedRelationsParams> queryParams,
+    private static IncludedRelationsParams findInclusions(TypedParams<IncludedRelationsParams> queryParams,
                                                    String resourceName) {
         if (queryParams != null && queryParams.getParams() != null) {
             for (Map.Entry<String, IncludedRelationsParams> entry : queryParams.getParams()
