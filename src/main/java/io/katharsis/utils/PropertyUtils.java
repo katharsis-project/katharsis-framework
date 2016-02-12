@@ -44,7 +44,7 @@ public class PropertyUtils {
         try {
             return INSTANCE.getPropertyValue(bean, field);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
+            throw new PropertyException(e, bean.getClass(), field);
         }
     }
 
@@ -71,8 +71,9 @@ public class PropertyUtils {
         } else {
             Method getter = findGetter(bean, fieldName);
             if (getter == null) {
-                throw new RuntimeException(
-                    String.format("Cannot find an getter for %s.%s", bean.getClass().getCanonicalName(), fieldName));
+                String message = String
+                    .format("Cannot find an getter for %s.%s", bean.getClass().getCanonicalName(), fieldName);
+                throw new PropertyException(message, bean.getClass(), fieldName);
             }
             return getter.invoke(bean);
         }
@@ -155,7 +156,7 @@ public class PropertyUtils {
         try {
             INSTANCE.setPropertyValue(bean, field, value);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
+            throw new PropertyException(e, bean.getClass(), field);
         }
     }
 
@@ -173,8 +174,8 @@ public class PropertyUtils {
         } else {
             Method getter = findGetter(bean, fieldName);
             if (getter == null) {
-                throw new RuntimeException(
-                    String.format("Cannot find a getter for %s.%s", bean.getClass().getCanonicalName(), fieldName));
+                String message = String.format("Cannot find a getter for %s.%s", bean.getClass().getCanonicalName(), fieldName);
+                throw new PropertyException(message, bean.getClass(), fieldName);
             }
             String getterFieldName = getGetterFieldName(getter);
             Method setter = getSetter(bean, getterFieldName, getter.getReturnType());

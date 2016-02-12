@@ -82,7 +82,7 @@ public class PropertyUtilsTest {
         Bean bean = new Bean();
 
         // THEN
-        expectedException.expect(RuntimeException.class);
+        expectedException.expect(PropertyException.class);
 
         // WHEN
         PropertyUtils.getProperty(bean, "protectedProperty");
@@ -176,7 +176,7 @@ public class PropertyUtilsTest {
         Bean bean = new Bean();
 
         // THEN
-        expectedException.expect(RuntimeException.class);
+        expectedException.expect(PropertyException.class);
 
         // WHEN
         PropertyUtils.setProperty(bean, "protectedProperty", null);
@@ -212,7 +212,7 @@ public class PropertyUtilsTest {
         Bean bean = new Bean();
 
         // THEN
-        expectedException.expect(RuntimeException.class);
+        expectedException.expect(PropertyException.class);
 
         // WHEN
         PropertyUtils.getProperty(bean, "nonExistingProperty");
