@@ -9,6 +9,7 @@ import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathBuilder;
 import io.katharsis.request.path.ResourcePath;
+import io.katharsis.resource.exception.ResourceFieldNotFoundException;
 import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.ResourceInformationBuilder;
@@ -154,6 +155,21 @@ public class IncludedRelationshipExtractorTest {
 
         // THEN
         assertThat(result).containsExactly(new Container(classBs, testResponse));
+    }
+
+    @Test(expected = ResourceFieldNotFoundException.class)
+    public void onNonExistingInclusionShouldReturnMatchingError() throws Exception {
+        // GIVEN
+        QueryParams queryParams = getRequestParamsWithInclusion("include[classAs]",
+            "asdasd");
+
+        ResourceResponse response = new ResourceResponse(null, new ResourcePath("classAs"), queryParams,
+            null, null);
+        ClassB classBs = new ClassB(null);
+        ClassA classA = new ClassA(classBs);
+
+        // WHEN
+        sut.extractIncludedResources(classA, response);
     }
 
     @Test
