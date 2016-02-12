@@ -5,6 +5,7 @@ import io.katharsis.queryParams.params.IncludedRelationsParams;
 import io.katharsis.queryParams.params.TypedParams;
 import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.annotations.JsonApiIncludeByDefault;
+import io.katharsis.resource.exception.ResourceFieldNotFoundException;
 import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.RegistryEntry;
@@ -140,7 +141,9 @@ public class IncludedRelationshipExtractor {
         throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
         Set elements = new HashSet();
 
-        Object property = PropertyUtils.getProperty(resource, pathList.get(0));
+        String fieldName = getRelationshipName(pathList.get(0), resource.getClass());
+
+        Object property = PropertyUtils.getProperty(resource, fieldName);
         if (property != null) {
             if (Iterable.class.isAssignableFrom(property.getClass())) {
                 for (Object o : ((Iterable) property)) {
@@ -155,6 +158,15 @@ public class IncludedRelationshipExtractor {
             return Collections.emptySet();
         }
         return elements;
+    }
+
+    private <T> String getRelationshipName(String jsonName, Class<T> resourceClazz) {
+        RegistryEntry resourceEntry = resourceRegistry.getEntry(resourceClazz);
+        ResourceField relationshipField = resourceEntry.getResourceInformation().findRelationshipFieldByName(jsonName);
+        if (relationshipField == null) {
+            throw new ResourceFieldNotFoundException(String.format("%s for %s has been not found", jsonName, resourceClazz));
+        }
+        return relationshipField.getUnderlyingName();
     }
 
     private Set<ResourceField> getRelationshipFields(Object resource) {
