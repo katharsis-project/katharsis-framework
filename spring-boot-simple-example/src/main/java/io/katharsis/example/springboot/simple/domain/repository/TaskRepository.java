@@ -16,27 +16,32 @@
  */
 package io.katharsis.example.springboot.simple.domain.repository;
 
-import com.google.common.collect.Iterables;
-import io.katharsis.example.springboot.simple.domain.model.Project;
 import io.katharsis.example.springboot.simple.domain.model.Task;
 import io.katharsis.queryParams.QueryParams;
-import io.katharsis.repository.ResourceRepository;
-import io.katharsis.repository.annotations.*;
+import io.katharsis.repository.annotations.JsonApiDelete;
+import io.katharsis.repository.annotations.JsonApiFindAll;
+import io.katharsis.repository.annotations.JsonApiFindAllWithIds;
+import io.katharsis.repository.annotations.JsonApiFindOne;
+import io.katharsis.repository.annotations.JsonApiResourceRepository;
+import io.katharsis.repository.annotations.JsonApiSave;
 import io.katharsis.resource.exception.ResourceNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Component;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
+
+import com.google.common.collect.Iterables;
+
 @Component
 @JsonApiResourceRepository(Task.class)
 public class TaskRepository {
     private static final Map<Long, Task> REPOSITORY = new ConcurrentHashMap<>();
-    private static final AtomicLong ID_GENERATOR = new AtomicLong(1);
+    private static final AtomicLong ID_GENERATOR = new AtomicLong(4);
 
     private final ProjectRepository projectRepository;
 
