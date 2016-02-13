@@ -14,4 +14,11 @@ public class DirectResourceEntry<T, ID extends Serializable> implements Resource
     public ResourceRepository<T, ?> getResourceRepository() {
         return resourceRepository;
     }
+
+    @Override
+    public String toString() {
+        return "DirectResourceEntry{" +
+            "resourceRepository=" + resourceRepository +
+            '}';
+    }
 }
