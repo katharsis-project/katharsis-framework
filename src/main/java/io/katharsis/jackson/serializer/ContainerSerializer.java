@@ -116,6 +116,18 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         gen.writeObjectField(ID_FIELD_NAME, sourceId);
     }
 
+    /**
+     * Writes resource attributes object taking into account <i>fields</i> query params. It doesn't allow writing
+     * <i>null</i> resource attributes.
+     * @param gen Jackson generator
+     * @param data resource object
+     * @param attributeFields resource attribute definitions
+     * @param includedFields <i>field</i> query param values
+     * @throws IllegalAccessException if couldn't access an attribute
+     * @throws InvocationTargetException if couldn't access an attribute
+     * @throws NoSuchMethodException if couldn't access an attribute
+     * @throws IOException if couldn't write attributes
+     */
     private void writeAttributes(JsonGenerator gen, Object data, Set<ResourceField> attributeFields,
                                  TypedParams<IncludedFieldsParams> includedFields)
         throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
@@ -126,13 +138,23 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         for (ResourceField attributeField : attributeFields) {
             if (isIncluded(resourceType, includedFields, attributeField)) {
                 Object basicFieldValue = PropertyUtils.getProperty(data, attributeField.getUnderlyingName());
-                attributesObject.addAttribute(attributeField.getJsonName(), basicFieldValue);
+                if (basicFieldValue != null) {
+                    attributesObject.addAttribute(attributeField.getJsonName(), basicFieldValue);
+                }
             }
         }
 
         gen.writeObjectField(ATTRIBUTES_FIELD_NAME, attributesObject);
     }
 
+    /**
+     * When <i>fields</i> filter is passed in the query params, <b>attributes</b> and <b>relationships</b> should be
+     * filtered accordingly to the requested fields.
+     * @param resourceType JSON API name of a resource
+     * @param includedFields <i>field</i> query param values
+     * @param attributeField resource attribute field
+     * @return <i>true</i> if it should be included in the response, <i>false</i> otherwise
+     */
     private boolean isIncluded(String resourceType, TypedParams<IncludedFieldsParams> includedFields, ResourceField attributeField) {
         IncludedFieldsParams typeIncludedFields = findIncludedFields(includedFields, resourceType);
         if (typeIncludedFields == null || typeIncludedFields.getParams().isEmpty()) {

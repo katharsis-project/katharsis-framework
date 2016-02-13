@@ -56,6 +56,18 @@ public class ContainerSerializerTest extends BaseSerializerTest {
     }
 
     @Test
+    public void onSimpleObjectWithNullValueShouldNotIncludeAttributes() throws Exception {
+        // GIVEN
+        Project project = new Project();
+
+        // WHEN
+        String result = sut.writeValueAsString(new Container(project, testResponse));
+
+        // THEN
+        assertThatJson(result).node("attributes.name").isAbsent();
+    }
+
+    @Test
     public void onIncludedFieldsInParamsShouldContainIncludedList() throws Exception {
         // GIVEN
         Project project = new Project();
