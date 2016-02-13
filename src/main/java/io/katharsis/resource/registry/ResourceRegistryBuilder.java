@@ -6,13 +6,12 @@ import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.registry.repository.RelationshipEntry;
 import io.katharsis.resource.registry.repository.ResourceEntry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Builder responsible for building an instance of ResourceRegistry.
@@ -55,6 +54,7 @@ public class ResourceRegistryBuilder {
         Set<ResourceInformation> resourceInformationSet = new HashSet<>(jsonApiResources.size());
         for (Class<?> clazz : jsonApiResources) {
             resourceInformationSet.add(resourceInformationBuilder.build(clazz));
+            LOGGER.info("{} registered as a resource", clazz);
         }
 
         Set<RegistryEntry> registryEntries = new HashSet<>(resourceInformationSet.size());
@@ -62,8 +62,10 @@ public class ResourceRegistryBuilder {
             Class<?> resourceClass = resourceInformation.getResourceClass();
 
             ResourceEntry<?, ?> resourceEntry = repositoryEntryBuilder.buildResourceRepository(resourceLookup, resourceClass);
+            LOGGER.info("{} has a resource repository {}", resourceInformation.getResourceClass(), resourceEntry);
             List<RelationshipEntry<?, ?>> relationshipEntries = repositoryEntryBuilder
             .buildRelationshipRepositories(resourceLookup, resourceClass);
+            LOGGER.info("{} has relationship repositories {}", resourceInformation.getResourceClass(), relationshipEntries);
 
             registryEntries.add(new RegistryEntry(resourceInformation, resourceEntry, relationshipEntries));
 

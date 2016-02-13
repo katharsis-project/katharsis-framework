@@ -17,4 +17,11 @@ public class AnnotatedResourceEntryBuilder<T, ID extends Serializable> implement
     public ResourceRepository<T, ?> build(RepositoryMethodParameterProvider parameterProvider) {
         return new ResourceRepositoryAdapter<>(repositoryImplementation, new ParametersFactory(parameterProvider));
     }
+
+    @Override
+    public String toString() {
+        return "AnnotatedResourceEntryBuilder{" +
+            "repositoryImplementation=" + repositoryImplementation +
+            '}';
+    }
 }

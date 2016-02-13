@@ -21,4 +21,11 @@ public class DirectRelationshipEntry<T, D> implements RelationshipEntry<T, D> {
     public RelationshipRepository getRelationshipRepository() {
         return relationshipRepository;
     }
+
+    @Override
+    public String toString() {
+        return "DirectRelationshipEntry{" +
+            "relationshipRepository=" + relationshipRepository +
+            '}';
+    }
 }
