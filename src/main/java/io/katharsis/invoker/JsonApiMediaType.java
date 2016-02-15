@@ -16,10 +16,11 @@
  */
 package io.katharsis.invoker;
 
+import com.google.common.net.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.net.MediaType;
+import java.nio.charset.StandardCharsets;
 
 public class JsonApiMediaType {
 
@@ -28,12 +29,14 @@ public class JsonApiMediaType {
     /**
      * A {@code String} constant representing {@value #APPLICATION_JSON_API} media type.
      */
-    public final static String APPLICATION_JSON_API = "application/vnd.api+json";
+    public final static String APPLICATION_JSON_API = "application/vnd.api+json;charset=UTF-8";
 
     /**
      * A {@link MediaType} constant representing {@value #APPLICATION_JSON_API} media type.
      */
-    public static final MediaType APPLICATION_JSON_API_TYPE = MediaType.create("application", "vnd.api+json");
+    public static final MediaType APPLICATION_JSON_API_TYPE = MediaType
+        .create("application", "vnd.api+json")
+        .withCharset(StandardCharsets.UTF_8);
 
     private static final String WILDCARD = "*";
 
@@ -46,13 +49,15 @@ public class JsonApiMediaType {
             return true;
         }
 
-        if (MediaType.ANY_APPLICATION_TYPE.type().equalsIgnoreCase(mediaType.type())) {
+        if (MediaType.ANY_APPLICATION_TYPE.type()
+            .equalsIgnoreCase(mediaType.type())) {
             log.debug("application mediaType : {}", mediaType);
             if (WILDCARD.equals(mediaType.subtype())) {
                 return true;
             }
 
-            if (APPLICATION_JSON_API_TYPE.subtype().equalsIgnoreCase(mediaType.subtype())) {
+            if (APPLICATION_JSON_API_TYPE.subtype()
+                .equalsIgnoreCase(mediaType.subtype())) {
                 log.debug("application mediaType having json api subtype : {}", mediaType);
                 return true;
             }
