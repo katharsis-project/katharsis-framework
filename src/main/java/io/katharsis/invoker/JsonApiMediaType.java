@@ -16,10 +16,11 @@
  */
 package io.katharsis.invoker;
 
-import com.google.common.base.Charsets;
 import com.google.common.net.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.nio.charset.StandardCharsets;
 
 public class JsonApiMediaType {
 
@@ -35,7 +36,7 @@ public class JsonApiMediaType {
      */
     public static final MediaType APPLICATION_JSON_API_TYPE = MediaType
         .create("application", "vnd.api+json")
-        .withCharset(Charsets.UTF_8);
+        .withCharset(StandardCharsets.UTF_8);
 
     private static final String WILDCARD = "*";
 
