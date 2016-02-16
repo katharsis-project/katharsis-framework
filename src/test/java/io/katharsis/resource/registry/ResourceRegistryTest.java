@@ -53,4 +53,10 @@ public class ResourceRegistryTest {
         expectedException.expect(ResourceNotFoundInitializationException.class);
         resourceRegistry.getEntry(Long.class);
     }
+
+    @Test
+    public void onNonExistingClassShouldReturnNull() {
+        String result = resourceRegistry.getResourceType(Long.class);
+        assertThat(result).isNull();
+    }
 }
