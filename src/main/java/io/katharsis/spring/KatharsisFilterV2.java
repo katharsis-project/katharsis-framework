@@ -3,7 +3,6 @@ package io.katharsis.spring;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.net.MediaType;
 import io.katharsis.dispatcher.RequestDispatcher;
-import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.errorhandling.exception.KatharsisMappableException;
 import io.katharsis.errorhandling.exception.KatharsisMatchingException;
 import io.katharsis.errorhandling.mapper.KatharsisExceptionMapper;
@@ -24,6 +23,7 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -135,8 +135,8 @@ public class KatharsisFilterV2 implements Filter, BeanFactoryAware {
             }
             katharsisResponse = new KatharsisExceptionMapper().toErrorResponse(e);
         } catch (KatharsisMatchingException e) {
-            // We can pass it only in case of GET request where no input stream is used
-            if (HttpMethod.GET.name().equalsIgnoreCase(request.getMethod())) {
+            // We can pass it only in case of requests where no input stream is used
+            if (isPassableMethod(request)) {
                 passToFilters = true;
             } else {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -170,6 +170,18 @@ public class KatharsisFilterV2 implements Filter, BeanFactoryAware {
             }
         }
         return passToFilters;
+    }
+
+    private boolean isPassableMethod(HttpServletRequest request) {
+        List<HttpMethod> passableMethods = Arrays.asList(HttpMethod.GET, HttpMethod.OPTIONS, HttpMethod.HEAD,
+            HttpMethod.TRACE);
+        for(HttpMethod passableMethod: passableMethods) {
+            if (passableMethod.name().equalsIgnoreCase(request.getMethod())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private boolean isAcceptablePath(HttpServletRequest request) {
