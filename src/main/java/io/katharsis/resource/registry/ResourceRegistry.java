@@ -20,12 +20,24 @@ public class ResourceRegistry {
         this.serviceUrl = serviceUrl;
     }
 
-
+    /**
+     * Adds a new resource definition to a registry.
+     * @param resource class of a resource
+     * @param registryEntry resource information
+     * @param <T> type of a resource
+     */
     public <T> void addEntry(Class<T> resource, RegistryEntry<? extends T> registryEntry) {
         resources.put(resource, registryEntry);
         logger.debug("Added resource {} to ResourceRegistry", resource.getName());
     }
 
+    /**
+     * Searches the registry for a resource identified by a JSON API resource type.
+     * If a resource cannot be found, <i>null</i> is returned.
+     *
+     * @param searchType resource type
+     * @return registry entry or <i>null</i>
+     */
     public RegistryEntry getEntry(String searchType) {
         for (Map.Entry<Class, RegistryEntry> entry : resources.entrySet()) {
             String type = getResourceType(entry.getKey());
@@ -36,8 +48,19 @@ public class ResourceRegistry {
         return null;
     }
 
+    /**
+     * Searches the registry for a resource identified by a JSON API resource class.
+     * If a resource cannot be found, {@link ResourceNotFoundInitializationException} is thrown.
+     *
+     * @param clazz resource type
+     * @throws ResourceNotFoundInitializationException if resource is not found
+     * @return registry entry
+     */
     public RegistryEntry getEntry(Class clazz) {
         Class resourceClazz = ClassUtils.getJsonApiResourceClass(clazz);
+        if (resourceClazz == null) {
+            throw new ResourceNotFoundInitializationException(clazz.getCanonicalName());
+        }
         RegistryEntry registryEntry = resources.get(resourceClazz);
         if (registryEntry != null) {
             return registryEntry;
@@ -45,8 +68,18 @@ public class ResourceRegistry {
         throw new ResourceNotFoundInitializationException(clazz.getCanonicalName());
     }
 
+    /**
+     * Returns a JSON API resource type used by Katharsis. If a class cannot be found, <i>null</i> is returned.
+     * The value is fetched from {@link JsonApiResource#type()} attribute.
+     *
+     * @param clazz resource class
+     * @return resource type or null
+     */
     public String getResourceType(Class clazz) {
         Class resourceClazz = ClassUtils.getJsonApiResourceClass(clazz);
+        if (resourceClazz == null) {
+            return null;
+        }
         Annotation[] annotations = resourceClazz.getAnnotations();
         for (Annotation annotation : annotations) {
             if (annotation instanceof JsonApiResource) {
@@ -66,6 +99,10 @@ public class ResourceRegistry {
         return serviceUrl;
     }
 
+    /**
+     * Get a list of all registered resources by Katharsis.
+     * @return resources
+     */
     public Map<Class, RegistryEntry> getResources() {
         return Collections.unmodifiableMap(resources);
     }
