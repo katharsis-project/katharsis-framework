@@ -41,6 +41,4 @@ public class SpringBootSimpleExampleApplicationTests {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(response.getBody(), "hello");
     }
-
-
 }
