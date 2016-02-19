@@ -1,7 +1,9 @@
 package io.katharsis.jackson.serializer;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import io.katharsis.jackson.exception.JsonSerializationException;
 import io.katharsis.queryParams.params.IncludedFieldsParams;
@@ -133,13 +135,14 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
 
         String resourceType = resourceRegistry.getResourceType(data.getClass());
+        Map<String, Object> dataMap = new ObjectMapper().convertValue(data, new TypeReference<Map<String, Object>>() {});
 
         Attributes attributesObject = new Attributes();
         for (ResourceField attributeField : attributeFields) {
             if (isIncluded(resourceType, includedFields, attributeField)) {
-                Object basicFieldValue = PropertyUtils.getProperty(data, attributeField.getUnderlyingName());
-                if (basicFieldValue != null) {
-                    attributesObject.addAttribute(attributeField.getJsonName(), basicFieldValue);
+                String attributeJsonName = attributeField.getJsonName();
+                if (dataMap.containsKey(attributeJsonName)) {
+                    attributesObject.addAttribute(attributeJsonName, dataMap.get(attributeJsonName));
                 }
             }
         }
