@@ -142,7 +142,9 @@ public class ContainerSerializer extends JsonSerializer<Container> {
             if (isIncluded(resourceType, includedFields, attributeField)) {
                 String attributeJsonName = attributeField.getJsonName();
                 if (dataMap.containsKey(attributeJsonName)) {
-                    attributesObject.addAttribute(attributeJsonName, dataMap.get(attributeJsonName));
+                    Object attributeJsonValue = dataMap.get(attributeJsonName);
+                    if(attributeJsonValue != null)
+                        attributesObject.addAttribute(attributeJsonName, attributeJsonValue);
                 }
             }
         }
