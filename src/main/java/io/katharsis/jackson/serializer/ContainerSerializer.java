@@ -5,6 +5,11 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.introspect.Annotated;
+import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import com.fasterxml.jackson.databind.ser.FilterProvider;
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import io.katharsis.jackson.exception.JsonSerializationException;
 import io.katharsis.queryParams.params.IncludedFieldsParams;
 import io.katharsis.queryParams.params.TypedParams;
@@ -46,7 +51,6 @@ public class ContainerSerializer extends JsonSerializer<Container> {
 
     @Override
     public void serialize(Container value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-
         if (value != null && value.getData() != null) {
             gen.writeStartObject();
 
@@ -135,8 +139,32 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
 
         String resourceType = resourceRegistry.getResourceType(data.getClass());
-        Map<String, Object> dataMap = new ObjectMapper().convertValue(data, new TypeReference<Map<String, Object>>() {});
+                
+        ObjectMapper om = new ObjectMapper();
+        
+        om.setAnnotationIntrospector(new JacksonAnnotationIntrospector() {
+            @Override
+            public Object findFilterId(Annotated a) {
+                Object filterId = super.findFilterId(a);
+                if (filterId == null) {
+                    filterId = "katharsisFilter";
+                }
+                return filterId;
+            }
+        });
 
+        Set<String> set = new HashSet<>();
+        for (ResourceField attributeField : attributeFields) {
+            if (isIncluded(resourceType, includedFields, attributeField)) {
+                set.add(attributeField.getJsonName());
+            }
+        }
+        
+        FilterProvider fp = new SimpleFilterProvider().addFilter("katharsisFilter", SimpleBeanPropertyFilter.filterOutAllExcept(set));
+        om.setFilterProvider(fp);
+        
+        Map<String, Object> dataMap = om.convertValue(data, new TypeReference<Map<String, Object>>() {});
+        
         Attributes attributesObject = new Attributes();
         for (ResourceField attributeField : attributeFields) {
             if (isIncluded(resourceType, includedFields, attributeField)) {
