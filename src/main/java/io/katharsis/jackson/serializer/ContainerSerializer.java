@@ -139,42 +139,20 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
 
         String resourceType = resourceRegistry.getResourceType(data.getClass());
-                
-        ObjectMapper om = new ObjectMapper();
         
-        om.setAnnotationIntrospector(new JacksonAnnotationIntrospector() {
-            @Override
-            public Object findFilterId(Annotated a) {
-                Object filterId = super.findFilterId(a);
-                if (filterId == null) {
-                    filterId = "katharsisFilter";
-                }
-                return filterId;
-            }
-        });
-
-        Set<String> set = new HashSet<>();
+        Set<String> allowedFields = new HashSet<>();
         for (ResourceField attributeField : attributeFields) {
             if (isIncluded(resourceType, includedFields, attributeField)) {
-                set.add(attributeField.getJsonName());
+                allowedFields.add(attributeField.getJsonName());
             }
         }
         
-        FilterProvider fp = new SimpleFilterProvider().addFilter("katharsisFilter", SimpleBeanPropertyFilter.filterOutAllExcept(set));
-        om.setFilterProvider(fp);
-        
-        Map<String, Object> dataMap = om.convertValue(data, new TypeReference<Map<String, Object>>() {});
-        
+        Map<String, Object> dataMap = generateObjectMapper(allowedFields).convertValue(data, new TypeReference<Map<String, Object>>() {});
         Attributes attributesObject = new Attributes();
-        for (ResourceField attributeField : attributeFields) {
-            if (isIncluded(resourceType, includedFields, attributeField)) {
-                String attributeJsonName = attributeField.getJsonName();
-                if (dataMap.containsKey(attributeJsonName)) {
-                    Object attributeJsonValue = dataMap.get(attributeJsonName);
-                    if(attributeJsonValue != null)
-                        attributesObject.addAttribute(attributeJsonName, attributeJsonValue);
-                }
-            }
+        for(String key : dataMap.keySet()) {
+            Object value = dataMap.get(key);
+            if(value != null)
+                attributesObject.addAttribute(key, value);
         }
 
         gen.writeObjectField(ATTRIBUTES_FIELD_NAME, attributesObject);
@@ -236,5 +214,27 @@ public class ContainerSerializer extends JsonSerializer<Container> {
 
     public Class<Container> handledType() {
         return Container.class;
+    }
+
+    /**
+     Generate a new object mapper that ignore all fields except the specified
+     */
+    private ObjectMapper generateObjectMapper(Set<String> allowedFields) {
+        ObjectMapper om = new ObjectMapper();
+        
+        om.setAnnotationIntrospector(new JacksonAnnotationIntrospector() {
+            @Override
+            public Object findFilterId(Annotated a) {
+                Object filterId = super.findFilterId(a);
+                if (filterId == null) {
+                    filterId = "katharsisFilter";
+                }
+                return filterId;
+            }
+        });
+
+        FilterProvider fp = new SimpleFilterProvider().addFilter("katharsisFilter", SimpleBeanPropertyFilter.filterOutAllExcept(allowedFields));
+        om.setFilterProvider(fp);
+        return om;
     }
 }
