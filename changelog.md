@@ -1,5 +1,11 @@
-# io.katharsis:katharsis-servlet v2.2.0 git changelog
+# io.katharsis:katharsis-servlet v2.3.0 git changelog
 
+2016-02-21    Update pom.xml (Patryk Orwat)  
+2016-02-15    Used nio charsets instead of guava's (Błażej Krysiak)  
+2016-02-15    [#20](https://github.com/katharsis-project/katharsis-rs/issues/20) - KatharsisFilterV2 does not set charset (Błażej Krysiak)  
+
+**v2.2.0**  
+2016-02-03    v2.2.0 (Patryk Orwat)  
 2016-02-03    Fixed spring boot example (Razvan Dragut)  
 2016-02-03    Enhancement [#209](https://github.com/katharsis-project/katharsis-rs/issues/209) - Provide custom QueryParamsBuilder (Razvan Dragut)  
 
