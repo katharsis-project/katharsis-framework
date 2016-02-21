@@ -1,5 +1,8 @@
-# katharsis-rs v2.2.0 git changelog
+# katharsis-rs v2.3.0 git changelog
 
+
+**v2.2.0**  
+2016-02-03    v2.2.0 (Patryk Orwat)  
 2016-02-03    Fixed spring boot example (Razvan Dragut)  
 2016-02-03    Enhancement [#209](https://github.com/katharsis-project/katharsis-rs/issues/209) - Provide custom QueryParamsBuilder (Razvan Dragut)  
 2016-01-27    v2.1.7 (Patryk Orwat)  
