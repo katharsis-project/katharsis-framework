@@ -1,5 +1,7 @@
-# katharsis-spring v2.2.1 git changelog
+# katharsis-spring v2.3.0 git changelog
 
+2016-02-16    [#21](https://github.com/katharsis-project/katharsis-spring/issues/21) allowed OPTIONS, HEAD and TRACE to be passed by Katharsis (Patryk Orwat)  
+2016-02-15    Bump deps. (Błażej Krysiak)  
 
 **v2.2.1**  
 2016-02-08    v2.2.1 (Patryk Orwat)  
