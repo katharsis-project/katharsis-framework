@@ -1,5 +1,24 @@
-# katharsis-core v2.2.0 git changelog
+# katharsis-core v2.3.0 git changelog
 
+2016-02-21    refactoring to [#241](https://github.com/katharsis-project/katharsis-core/issues/241) (Patryk Orwat)  
+2016-02-21    Improvements in attributes serializer katharsis-project/katharsis-core[#240](https://github.com/katharsis-project/katharsis-core/issues/240) and katharsis-project/katharsis-core[#233](https://github.com/katharsis-project/katharsis-core/issues/233) (Tiago Daniel Jacobs)  
+2016-02-20    Fix for JsonIgnore annotation. katharsis-project/katharsis-core[#240](https://github.com/katharsis-project/katharsis-core/issues/240) and katharsis-project/katharsis-core[#233](https://github.com/katharsis-project/katharsis-core/issues/233) (Tiago Daniel Jacobs)  
+2016-02-20    Code cleanup. katharsis-project/katharsis-core[#240](https://github.com/katharsis-project/katharsis-core/issues/240) and katharsis-project/katharsis-core[#233](https://github.com/katharsis-project/katharsis-core/issues/233) (Tiago Daniel Jacobs)  
+2016-02-20    Implement filter to avoid infinite recursion in circular referenced objects. katharsis-project/katharsis-core[#240](https://github.com/katharsis-project/katharsis-core/issues/240) and katharsis-project/katharsis-core[#233](https://github.com/katharsis-project/katharsis-core/issues/233) (Tiago Daniel Jacobs)  
+2016-02-19    Keep the behavior of not serialize null values. katharsis-project/katharsis-core[#240](https://github.com/katharsis-project/katharsis-core/issues/240) and katharsis-project/katharsis-core[#233](https://github.com/katharsis-project/katharsis-core/issues/233) (Tiago Daniel Jacobs)  
+2016-02-19    Change the attributes serialization to support annotations. katharsis-project/katharsis-core[#240](https://github.com/katharsis-project/katharsis-core/issues/240) and katharsis-project/katharsis-core[#233](https://github.com/katharsis-project/katharsis-core/issues/233) (Tiago Daniel Jacobs)  
+2016-02-16    [#229](https://github.com/katharsis-project/katharsis-core/issues/229) NPE, javadoc (Patryk Orwat)  
+2016-02-13    [#234](https://github.com/katharsis-project/katharsis-core/issues/234) disallow writing null resource attributes (Patryk Orwat)  
+2016-02-13    [#212](https://github.com/katharsis-project/katharsis-core/issues/212) added logging of resources and repositories (Patryk Orwat)  
+2016-02-12    [#215](https://github.com/katharsis-project/katharsis-core/issues/215) added a new exception for property accessing (Patryk Orwat)  
+2016-02-12    [#226](https://github.com/katharsis-project/katharsis-core/issues/226) throwing matching exception when found non-existing inclusion (Patryk Orwat)  
+2016-02-11    [#225](https://github.com/katharsis-project/katharsis-core/issues/225) fixed tests (Patryk Orwat)  
+2016-02-11    [#225](https://github.com/katharsis-project/katharsis-core/issues/225) fixed field's name introspection when upserting to-many relationships, added tests (Patryk Orwat)  
+2016-02-11    Fixes [#225](https://github.com/katharsis-project/katharsis-core/issues/225) patch for resource (Ioan Eugen Stan)  
+2016-02-10    squid:S2325 "private" methods that don't access instance data should be "static" (George Kankava)  
+2016-02-09    222: Break in ResourceRegistry (Charlie Helin)  
+2016-02-06    squid:S00122 Statements should be on separate lines (George Kankava)  
+2016-02-04    squid:S2325  "private" methods that don't access instance data should be "static" (George Kankava)  
 
 **v2.2.0**  
 2016-02-03    v2.2.0 (Patryk Orwat)  
@@ -17,6 +36,7 @@
 2015-12-27    [#199](https://github.com/katharsis-project/katharsis-core/issues/199) added JsonPropertyOrder support (Patryk Orwat)  
 2015-12-27    [#107](https://github.com/katharsis-project/katharsis-core/issues/107) added naming strategy (Patryk Orwat)  
 2015-12-26    [#107](https://github.com/katharsis-project/katharsis-core/issues/107) code refactoring (Patryk Orwat)  
+2015-12-22    include 'number' and 'size' in RestrictedPaginationKeys (Cade Parker)  
 
 **v2.1.3**  
 2015-12-21    v2.1.3 (Patryk Orwat)  
