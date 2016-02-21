@@ -44,6 +44,8 @@ public class ContainerSerializer extends JsonSerializer<Container> {
     private static final String SELF_FIELD_NAME = "self";
 
     private final ResourceRegistry resourceRegistry;
+    
+    private ObjectMapper attributesObjectMapper = null;
 
     public ContainerSerializer(ResourceRegistry resourceRegistry) {
         this.resourceRegistry = resourceRegistry;
@@ -147,7 +149,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
             }
         }
         
-        Map<String, Object> dataMap = generateObjectMapper(allowedFields).convertValue(data, new TypeReference<Map<String, Object>>() {});
+        Map<String, Object> dataMap = getObjectMapper(gen, allowedFields).convertValue(data, new TypeReference<Map<String, Object>>() {});
         Attributes attributesObject = new Attributes();
         for(String key : dataMap.keySet()) {
             Object value = dataMap.get(key);
@@ -219,22 +221,23 @@ public class ContainerSerializer extends JsonSerializer<Container> {
     /**
      Generate a new object mapper that ignore all fields except the specified
      */
-    private ObjectMapper generateObjectMapper(Set<String> allowedFields) {
-        ObjectMapper om = new ObjectMapper();
-        
-        om.setAnnotationIntrospector(new JacksonAnnotationIntrospector() {
-            @Override
-            public Object findFilterId(Annotated a) {
-                Object filterId = super.findFilterId(a);
-                if (filterId == null) {
-                    filterId = "katharsisFilter";
+    private ObjectMapper getObjectMapper(JsonGenerator gen, Set<String> allowedFields) {
+        if(attributesObjectMapper == null) {
+            attributesObjectMapper = ((ObjectMapper)gen.getCodec()).copy();
+            attributesObjectMapper.setAnnotationIntrospector(new JacksonAnnotationIntrospector() {
+                @Override
+                public Object findFilterId(Annotated a) {
+                    Object filterId = super.findFilterId(a);
+                    if (filterId == null) {
+                        filterId = "katharsisFilter";
+                    }
+                    return filterId;
                 }
-                return filterId;
-            }
-        });
+            });
 
-        FilterProvider fp = new SimpleFilterProvider().addFilter("katharsisFilter", SimpleBeanPropertyFilter.filterOutAllExcept(allowedFields));
-        om.setFilterProvider(fp);
-        return om;
+            FilterProvider fp = new SimpleFilterProvider().addFilter("katharsisFilter", SimpleBeanPropertyFilter.filterOutAllExcept(allowedFields));
+            attributesObjectMapper.setFilterProvider(fp);
+        }
+        return attributesObjectMapper;
     }
 }
