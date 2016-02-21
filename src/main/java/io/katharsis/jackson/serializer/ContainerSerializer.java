@@ -42,11 +42,12 @@ public class ContainerSerializer extends JsonSerializer<Container> {
     private static final String RELATIONSHIPS_FIELD_NAME = "relationships";
     private static final String LINKS_FIELD_NAME = "links";
     private static final String SELF_FIELD_NAME = "self";
+    private static final String JACKSON_ATTRIBUTE_FILTER_NAME = "katharsisFilter";
+    private static final TypeReference<Map<String, Object>> DEFAULT_MAP = new TypeReference<Map<String, Object>>() {
+    };
 
     private final ResourceRegistry resourceRegistry;
     
-    private ObjectMapper attributesObjectMapper = null;
-
     public ContainerSerializer(ResourceRegistry resourceRegistry) {
         this.resourceRegistry = resourceRegistry;
     }
@@ -142,14 +143,15 @@ public class ContainerSerializer extends JsonSerializer<Container> {
 
         String resourceType = resourceRegistry.getResourceType(data.getClass());
         
-        Set<String> allowedFields = new HashSet<>();
+        Set<String> allowedFields = new HashSet<>(attributeFields.size());
         for (ResourceField attributeField : attributeFields) {
             if (isIncluded(resourceType, includedFields, attributeField)) {
                 allowedFields.add(attributeField.getJsonName());
             }
         }
-        
-        Map<String, Object> dataMap = getObjectMapper(gen, allowedFields).convertValue(data, new TypeReference<Map<String, Object>>() {});
+
+        Map<String, Object> dataMap = getObjectMapper(gen, allowedFields)
+            .convertValue(data, DEFAULT_MAP);
         Attributes attributesObject = new Attributes();
         for(String key : dataMap.keySet()) {
             Object value = dataMap.get(key);
@@ -222,22 +224,23 @@ public class ContainerSerializer extends JsonSerializer<Container> {
      Generate a new object mapper that ignore all fields except the specified
      */
     private ObjectMapper getObjectMapper(JsonGenerator gen, Set<String> allowedFields) {
-        if(attributesObjectMapper == null) {
-            attributesObjectMapper = ((ObjectMapper)gen.getCodec()).copy();
-            attributesObjectMapper.setAnnotationIntrospector(new JacksonAnnotationIntrospector() {
-                @Override
-                public Object findFilterId(Annotated a) {
-                    Object filterId = super.findFilterId(a);
-                    if (filterId == null) {
-                        filterId = "katharsisFilter";
-                    }
-                    return filterId;
+        ObjectMapper attributesObjectMapper = ((ObjectMapper)gen.getCodec())
+            .copy();
+        attributesObjectMapper.setAnnotationIntrospector(new JacksonAnnotationIntrospector() {
+            @Override
+            public Object findFilterId(Annotated a) {
+                Object filterId = super.findFilterId(a);
+                if (filterId == null) {
+                    filterId = JACKSON_ATTRIBUTE_FILTER_NAME;
                 }
-            });
+                return filterId;
+            }
+        });
 
-            FilterProvider fp = new SimpleFilterProvider().addFilter("katharsisFilter", SimpleBeanPropertyFilter.filterOutAllExcept(allowedFields));
-            attributesObjectMapper.setFilterProvider(fp);
-        }
+        FilterProvider fp = new SimpleFilterProvider()
+            .addFilter(JACKSON_ATTRIBUTE_FILTER_NAME, SimpleBeanPropertyFilter.filterOutAllExcept(allowedFields));
+        attributesObjectMapper.setFilterProvider(fp);
+
         return attributesObjectMapper;
     }
 }
