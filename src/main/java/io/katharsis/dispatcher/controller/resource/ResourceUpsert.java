@@ -59,6 +59,12 @@ public abstract class ResourceUpsert extends BaseController {
             while (propertyNameIterator.hasNext()) {
                 String propertyName = propertyNameIterator.next();
                 ResourceField attributeField = resourceInformation.findAttributeFieldByName(propertyName);
+                
+                //Needed for JsonIgnore
+                if(attributeField == null) {
+                    continue;
+                }
+                
                 Object property = PropertyUtils.getProperty(instanceWithNewFields, attributeField.getUnderlyingName());
                 PropertyUtils.setProperty(instance, attributeField.getUnderlyingName(), property);
             }

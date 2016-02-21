@@ -1,8 +1,15 @@
 package io.katharsis.jackson.serializer;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.introspect.Annotated;
+import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import com.fasterxml.jackson.databind.ser.FilterProvider;
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import io.katharsis.jackson.exception.JsonSerializationException;
 import io.katharsis.queryParams.params.IncludedFieldsParams;
 import io.katharsis.queryParams.params.TypedParams;
@@ -37,6 +44,8 @@ public class ContainerSerializer extends JsonSerializer<Container> {
     private static final String SELF_FIELD_NAME = "self";
 
     private final ResourceRegistry resourceRegistry;
+    
+    private ObjectMapper attributesObjectMapper = null;
 
     public ContainerSerializer(ResourceRegistry resourceRegistry) {
         this.resourceRegistry = resourceRegistry;
@@ -44,7 +53,6 @@ public class ContainerSerializer extends JsonSerializer<Container> {
 
     @Override
     public void serialize(Container value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-
         if (value != null && value.getData() != null) {
             gen.writeStartObject();
 
@@ -133,15 +141,20 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
 
         String resourceType = resourceRegistry.getResourceType(data.getClass());
-
-        Attributes attributesObject = new Attributes();
+        
+        Set<String> allowedFields = new HashSet<>();
         for (ResourceField attributeField : attributeFields) {
             if (isIncluded(resourceType, includedFields, attributeField)) {
-                Object basicFieldValue = PropertyUtils.getProperty(data, attributeField.getUnderlyingName());
-                if (basicFieldValue != null) {
-                    attributesObject.addAttribute(attributeField.getJsonName(), basicFieldValue);
-                }
+                allowedFields.add(attributeField.getJsonName());
             }
+        }
+        
+        Map<String, Object> dataMap = getObjectMapper(gen, allowedFields).convertValue(data, new TypeReference<Map<String, Object>>() {});
+        Attributes attributesObject = new Attributes();
+        for(String key : dataMap.keySet()) {
+            Object value = dataMap.get(key);
+            if(value != null)
+                attributesObject.addAttribute(key, value);
         }
 
         gen.writeObjectField(ATTRIBUTES_FIELD_NAME, attributesObject);
@@ -203,5 +216,28 @@ public class ContainerSerializer extends JsonSerializer<Container> {
 
     public Class<Container> handledType() {
         return Container.class;
+    }
+
+    /**
+     Generate a new object mapper that ignore all fields except the specified
+     */
+    private ObjectMapper getObjectMapper(JsonGenerator gen, Set<String> allowedFields) {
+        if(attributesObjectMapper == null) {
+            attributesObjectMapper = ((ObjectMapper)gen.getCodec()).copy();
+            attributesObjectMapper.setAnnotationIntrospector(new JacksonAnnotationIntrospector() {
+                @Override
+                public Object findFilterId(Annotated a) {
+                    Object filterId = super.findFilterId(a);
+                    if (filterId == null) {
+                        filterId = "katharsisFilter";
+                    }
+                    return filterId;
+                }
+            });
+
+            FilterProvider fp = new SimpleFilterProvider().addFilter("katharsisFilter", SimpleBeanPropertyFilter.filterOutAllExcept(allowedFields));
+            attributesObjectMapper.setFilterProvider(fp);
+        }
+        return attributesObjectMapper;
     }
 }
