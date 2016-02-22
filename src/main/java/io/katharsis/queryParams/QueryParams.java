@@ -316,20 +316,16 @@ public class QueryParams {
             }
 
             String resourceType = propertyList.get(0);
-
+            Set<Inclusion> resourceParams;
             if (temporaryInclusionsMap.containsKey(resourceType)) {
-                Set<Inclusion> resourceParams = temporaryInclusionsMap.get(resourceType);
-                resourceParams.add(new Inclusion(entry.getValue()
-                    .iterator()
-                    .next()));
-                temporaryInclusionsMap.put(resourceType, resourceParams);
+                resourceParams = temporaryInclusionsMap.get(resourceType);
             } else {
-                Set<Inclusion> resourceParams = new LinkedHashSet<>();
-                resourceParams.add(new Inclusion(entry.getValue()
-                    .iterator()
-                    .next()));
-                temporaryInclusionsMap.put(resourceType, resourceParams);
+                resourceParams = new LinkedHashSet<>();
             }
+            for(String path : entry.getValue()) {
+                resourceParams.add(new Inclusion(path));
+            }
+            temporaryInclusionsMap.put(resourceType, resourceParams);
         }
 
         Map<String, IncludedRelationsParams> decodedInclusions = new LinkedHashMap<>();
