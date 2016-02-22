@@ -1,5 +1,8 @@
 # katharsis-core v2.3.0 git changelog
 
+
+**v2.3.0**  
+2016-02-21    v2.3.0 (Patryk Orwat)  
 2016-02-21    refactoring to [#241](https://github.com/katharsis-project/katharsis-core/issues/241) (Patryk Orwat)  
 2016-02-21    Improvements in attributes serializer katharsis-project/katharsis-core[#240](https://github.com/katharsis-project/katharsis-core/issues/240) and katharsis-project/katharsis-core[#233](https://github.com/katharsis-project/katharsis-core/issues/233) (Tiago Daniel Jacobs)  
 2016-02-20    Fix for JsonIgnore annotation. katharsis-project/katharsis-core[#240](https://github.com/katharsis-project/katharsis-core/issues/240) and katharsis-project/katharsis-core[#233](https://github.com/katharsis-project/katharsis-core/issues/233) (Tiago Daniel Jacobs)  
