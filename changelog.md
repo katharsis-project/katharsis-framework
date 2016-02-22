@@ -1,6 +1,9 @@
 # katharsis-rs v2.3.0 git changelog
 
 
+**v2.3.0**  
+2016-02-21    v2.3.0 (Patryk Orwat)  
+
 **v2.2.0**  
 2016-02-03    v2.2.0 (Patryk Orwat)  
 2016-02-03    Fixed spring boot example (Razvan Dragut)  
