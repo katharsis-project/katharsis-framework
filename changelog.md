@@ -1,5 +1,8 @@
 # io.katharsis:katharsis-servlet v2.3.0 git changelog
 
+
+**v2.3.0**  
+2016-02-21    v2.3.0 (Patryk Orwat)  
 2016-02-21    Update pom.xml (Patryk Orwat)  
 2016-02-15    Used nio charsets instead of guava's (Błażej Krysiak)  
 2016-02-15    [#20](https://github.com/katharsis-project/katharsis-rs/issues/20) - KatharsisFilterV2 does not set charset (Błażej Krysiak)  
