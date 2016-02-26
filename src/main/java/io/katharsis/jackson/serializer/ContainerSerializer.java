@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.introspect.Annotated;
+import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
@@ -136,7 +137,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
      * @throws NoSuchMethodException if couldn't access an attribute
      * @throws IOException if couldn't write attributes
      */
-    private void writeAttributes(JsonGenerator gen, Object data, Set<ResourceField> attributeFields,
+    private void writeAttributes(JsonGenerator gen, final Object data, Set<ResourceField> attributeFields,
                                  TypedParams<IncludedFieldsParams> includedFields)
         throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
 
@@ -145,11 +146,36 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         Set<String> allowedFields = new HashSet<>();
         for (ResourceField attributeField : attributeFields) {
             if (isIncluded(resourceType, includedFields, attributeField)) {
+                System.out.println("+ attributeField.getJsonName() = " + attributeField.getJsonName());
                 allowedFields.add(attributeField.getJsonName());
+            } else {
+                System.out.println("- attributeField.getJsonName() = " + attributeField.getJsonName());
             }
         }
         
-        Map<String, Object> dataMap = getObjectMapper(gen, allowedFields).convertValue(data, new TypeReference<Map<String, Object>>() {});
+        ObjectMapper om = getObjectMapper(gen);
+        
+        FilterProvider fp = new SimpleFilterProvider().addFilter("katharsisFilter", SimpleBeanPropertyFilter.filterOutAllExcept(allowedFields));
+        attributesObjectMapper.setFilterProvider(fp);
+        
+        attributesObjectMapper.setAnnotationIntrospector(new JacksonAnnotationIntrospector() {
+            @Override
+            public Object findFilterId(Annotated a) {
+                Object filterId = null;
+                
+                if(a instanceof AnnotatedClass) {
+                    AnnotatedClass ac = (AnnotatedClass) a;
+                    if(ac.getRawType().equals(data.getClass())) {
+                        filterId = "katharsisFilter";
+                    }
+                }
+                return filterId;
+            }
+        });
+        
+        Map<String, Object> dataMap = om.convertValue(data, new TypeReference<Map<String, Object>>() {});
+        om.setFilterProvider(null);
+        
         Attributes attributesObject = new Attributes();
         for(String key : dataMap.keySet()) {
             Object value = dataMap.get(key);
@@ -221,22 +247,9 @@ public class ContainerSerializer extends JsonSerializer<Container> {
     /**
      Generate a new object mapper that ignore all fields except the specified
      */
-    private ObjectMapper getObjectMapper(JsonGenerator gen, Set<String> allowedFields) {
+    private ObjectMapper getObjectMapper(JsonGenerator gen) {
         if(attributesObjectMapper == null) {
             attributesObjectMapper = ((ObjectMapper)gen.getCodec()).copy();
-            attributesObjectMapper.setAnnotationIntrospector(new JacksonAnnotationIntrospector() {
-                @Override
-                public Object findFilterId(Annotated a) {
-                    Object filterId = super.findFilterId(a);
-                    if (filterId == null) {
-                        filterId = "katharsisFilter";
-                    }
-                    return filterId;
-                }
-            });
-
-            FilterProvider fp = new SimpleFilterProvider().addFilter("katharsisFilter", SimpleBeanPropertyFilter.filterOutAllExcept(allowedFields));
-            attributesObjectMapper.setFilterProvider(fp);
         }
         return attributesObjectMapper;
     }
