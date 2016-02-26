@@ -137,44 +137,22 @@ public class ContainerSerializer extends JsonSerializer<Container> {
      * @throws NoSuchMethodException if couldn't access an attribute
      * @throws IOException if couldn't write attributes
      */
-    private void writeAttributes(JsonGenerator gen, final Object data, Set<ResourceField> attributeFields,
+    private void writeAttributes(JsonGenerator gen, Object data, Set<ResourceField> attributeFields,
                                  TypedParams<IncludedFieldsParams> includedFields)
         throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
 
         String resourceType = resourceRegistry.getResourceType(data.getClass());
         
-        Set<String> allowedFields = new HashSet<>();
+        Set<String> setOfIncludedFields = new HashSet<>();
         for (ResourceField attributeField : attributeFields) {
             if (isIncluded(resourceType, includedFields, attributeField)) {
-                System.out.println("+ attributeField.getJsonName() = " + attributeField.getJsonName());
-                allowedFields.add(attributeField.getJsonName());
-            } else {
-                System.out.println("- attributeField.getJsonName() = " + attributeField.getJsonName());
+                setOfIncludedFields.add(attributeField.getJsonName());
             }
         }
         
-        ObjectMapper om = getObjectMapper(gen);
-        
-        FilterProvider fp = new SimpleFilterProvider().addFilter("katharsisFilter", SimpleBeanPropertyFilter.filterOutAllExcept(allowedFields));
-        attributesObjectMapper.setFilterProvider(fp);
-        
-        attributesObjectMapper.setAnnotationIntrospector(new JacksonAnnotationIntrospector() {
-            @Override
-            public Object findFilterId(Annotated a) {
-                Object filterId = null;
-                
-                if(a instanceof AnnotatedClass) {
-                    AnnotatedClass ac = (AnnotatedClass) a;
-                    if(ac.getRawType().equals(data.getClass())) {
-                        filterId = "katharsisFilter";
-                    }
-                }
-                return filterId;
-            }
-        });
-        
+        ObjectMapper om = getObjectMapper(gen, data, setOfIncludedFields);
         Map<String, Object> dataMap = om.convertValue(data, new TypeReference<Map<String, Object>>() {});
-        om.setFilterProvider(null);
+        cleanObjectMapper(om);
         
         Attributes attributesObject = new Attributes();
         for(String key : dataMap.keySet()) {
@@ -245,12 +223,35 @@ public class ContainerSerializer extends JsonSerializer<Container> {
     }
 
     /**
-     Generate a new object mapper that ignore all fields except the specified
+     Generate a new object mapper if no object mapper exists, and configure the filter to exclude some properties.
      */
-    private ObjectMapper getObjectMapper(JsonGenerator gen) {
+    private ObjectMapper getObjectMapper(JsonGenerator gen, final Object data, Set<String> includedFields) {
         if(attributesObjectMapper == null) {
             attributesObjectMapper = ((ObjectMapper)gen.getCodec()).copy();
         }
+        
+        FilterProvider fp = new SimpleFilterProvider().addFilter("katharsisFilter", SimpleBeanPropertyFilter.filterOutAllExcept(includedFields));
+        attributesObjectMapper.setFilterProvider(fp);
+        
+        attributesObjectMapper.setAnnotationIntrospector(new JacksonAnnotationIntrospector() {
+            @Override
+            public Object findFilterId(Annotated a) {
+                Object filterId = null;
+                
+                if(a instanceof AnnotatedClass) {
+                    AnnotatedClass ac = (AnnotatedClass) a;
+                    if(ac.getRawType().equals(data.getClass())) {
+                        filterId = "katharsisFilter";
+                    }
+                }
+                return filterId;
+            }
+        });
+        
         return attributesObjectMapper;
+    }
+
+    private void cleanObjectMapper(ObjectMapper om) {
+        om.setFilterProvider(null);
     }
 }
