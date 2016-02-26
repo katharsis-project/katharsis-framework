@@ -152,7 +152,6 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         
         ObjectMapper om = getObjectMapper(gen, data, setOfIncludedFields);
         Map<String, Object> dataMap = om.convertValue(data, new TypeReference<Map<String, Object>>() {});
-        cleanObjectMapper(om);
         
         Attributes attributesObject = new Attributes();
         for(String key : dataMap.keySet()) {
@@ -249,9 +248,5 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         });
         
         return attributesObjectMapper;
-    }
-
-    private void cleanObjectMapper(ObjectMapper om) {
-        om.setFilterProvider(null);
     }
 }
