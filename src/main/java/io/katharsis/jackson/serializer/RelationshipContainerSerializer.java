@@ -40,7 +40,8 @@ public class RelationshipContainerSerializer extends JsonSerializer<Relationship
         throws IOException {
         gen.writeStartObject();
         writeLinks(relationshipContainer, gen);
-        if (!relationshipContainer.getRelationshipField().isLazy()) {
+        if (!relationshipContainer.getRelationshipField().isLazy() ||
+            relationshipContainer.isForceInclusion()) {
             writeLinkage(relationshipContainer, gen);
         }
         gen.writeEndObject();
