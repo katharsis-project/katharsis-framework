@@ -88,7 +88,7 @@ public class BaseResponseSerializer extends JsonSerializer<BaseResponse> {
         if (value != null) {
             return includedRelationshipExtractor.extractIncludedResources(value, resourceResponse);
         } else {
-            return Collections.EMPTY_SET;
+            return Collections.emptySet();
         }
     }
 

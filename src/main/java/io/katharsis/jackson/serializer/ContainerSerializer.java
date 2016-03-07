@@ -170,7 +170,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
      * @param attributeField resource attribute field
      * @return <i>true</i> if it should be included in the response, <i>false</i> otherwise
      */
-    private boolean isIncluded(String resourceType, TypedParams<IncludedFieldsParams> includedFields, ResourceField attributeField) {
+    private static boolean isIncluded(String resourceType, TypedParams<IncludedFieldsParams> includedFields, ResourceField attributeField) {
         IncludedFieldsParams typeIncludedFields = findIncludedFields(includedFields, resourceType);
         if (typeIncludedFields == null || typeIncludedFields.getParams().isEmpty()) {
             return includedFields == null || includedFields.getParams().isEmpty();
@@ -223,7 +223,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
     /**
      Generate a new object mapper that ignore all fields except the specified
      */
-    private ObjectMapper getObjectMapper(JsonGenerator gen, Set<String> allowedFields) {
+    private static ObjectMapper getObjectMapper(JsonGenerator gen, Set<String> allowedFields) {
         ObjectMapper attributesObjectMapper = ((ObjectMapper)gen.getCodec())
             .copy();
         attributesObjectMapper.setAnnotationIntrospector(new JacksonAnnotationIntrospector() {
