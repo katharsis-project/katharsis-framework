@@ -223,14 +223,13 @@ public class ContainerSerializer extends JsonSerializer<Container> {
     }
 
     /**
-     Generate a new object mapper if no object mapper exists, and configure the filter to exclude some properties.
+     Generate a new object mapper and configure the filter to exclude some properties.
      */
     private ObjectMapper getObjectMapper(JsonGenerator gen, final Object data, Set<String> includedFields) {
-        if(attributesObjectMapper == null) {
-            attributesObjectMapper = ((ObjectMapper)gen.getCodec()).copy();
-        }
+        ObjectMapper attributesObjectMapper = ((ObjectMapper)gen.getCodec())
+            .copy();
 
-        FilterProvider fp = new SimpleFilterProvider().addFilter("katharsisFilter", SimpleBeanPropertyFilter.filterOutAllExcept(includedFields));
+        FilterProvider fp = new SimpleFilterProvider().addFilter(JACKSON_ATTRIBUTE_FILTER_NAME, SimpleBeanPropertyFilter.filterOutAllExcept(includedFields));
         attributesObjectMapper.setFilterProvider(fp);
 
         attributesObjectMapper.setAnnotationIntrospector(new JacksonAnnotationIntrospector() {
@@ -241,7 +240,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
                 if(a instanceof AnnotatedClass) {
                     AnnotatedClass ac = (AnnotatedClass) a;
                     if(ac.getRawType().equals(data.getClass())) {
-                        filterId = "katharsisFilter";
+                        filterId = JACKSON_ATTRIBUTE_FILTER_NAME;
                     }
                 }
                 return filterId;
