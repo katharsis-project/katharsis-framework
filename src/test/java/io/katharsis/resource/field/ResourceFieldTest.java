@@ -1,6 +1,7 @@
 package io.katharsis.resource.field;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.katharsis.resource.annotations.JsonApiIncludeByDefault;
 import io.katharsis.resource.annotations.JsonApiToMany;
 import org.junit.Test;
 
@@ -54,9 +55,30 @@ public class ResourceFieldTest {
         assertThat(result).isFalse();
     }
 
+    @Test
+    public void onLazyRelationshipToManyAndInclusionByDefaultShouldReturnEagerFlag() throws Exception {
+        // GIVEN
+        List<Annotation> annotations = Arrays.asList(WithLazyFieldAndInclusionByDefaultClass.class.getDeclaredField("value").getAnnotations());
+        ResourceField sut = new ResourceField("", "", String.class, String.class, annotations);
+
+        // WHEN
+        boolean result = sut.isLazy();
+
+        // THEN
+
+        assertThat(result).isFalse();
+    }
+
     private static class WithLazyFieldClass {
 
         @JsonProperty("sth")
+        @JsonApiToMany
+        private String value;
+    }
+
+    private static class WithLazyFieldAndInclusionByDefaultClass {
+
+        @JsonApiIncludeByDefault
         @JsonApiToMany
         private String value;
     }

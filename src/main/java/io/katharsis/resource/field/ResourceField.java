@@ -1,5 +1,6 @@
 package io.katharsis.resource.field;
 
+import io.katharsis.resource.annotations.JsonApiIncludeByDefault;
 import io.katharsis.resource.annotations.JsonApiToMany;
 
 import java.lang.annotation.Annotation;
@@ -57,11 +58,27 @@ public class ResourceField {
         return false;
     }
 
+    /**
+     * Returns a flag which indicate if a field should not be serialized automatically.
+     *
+     * @see JsonApiToMany#lazy()
+     * @return true if a field is lazy
+     */
     public boolean isLazy() {
+        JsonApiIncludeByDefault includeByDefaultAnnotation = null;
+        JsonApiToMany toManyAnnotation = null;
         for (Annotation annotation : annotations) {
-            if (annotation.annotationType().equals(JsonApiToMany.class)) {
-                return ((JsonApiToMany) annotation).lazy();
+            if (annotation.annotationType().equals(JsonApiIncludeByDefault.class)) {
+                includeByDefaultAnnotation = (JsonApiIncludeByDefault) annotation;
             }
+            if (annotation.annotationType().equals(JsonApiToMany.class)) {
+                toManyAnnotation = (JsonApiToMany) annotation;
+            }
+        }
+        if (includeByDefaultAnnotation != null) {
+            return false;
+        } else if (toManyAnnotation != null) {
+            return toManyAnnotation.lazy();
         }
         return false;
     }

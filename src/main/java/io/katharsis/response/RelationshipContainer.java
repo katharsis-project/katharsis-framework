@@ -23,10 +23,13 @@ import java.util.Objects;
 public class RelationshipContainer {
     private final DataLinksContainer dataLinksContainer;
     private final ResourceField relationshipField;
+    private final boolean forceInclusion;
 
-    public RelationshipContainer(DataLinksContainer dataLinksContainer, ResourceField relationshipField) {
+    public RelationshipContainer(DataLinksContainer dataLinksContainer, ResourceField relationshipField,
+                                 boolean forceInclusion) {
         this.dataLinksContainer = dataLinksContainer;
         this.relationshipField = relationshipField;
+        this.forceInclusion = forceInclusion;
     }
 
     public ResourceField getRelationshipField() {
@@ -37,21 +40,22 @@ public class RelationshipContainer {
         return dataLinksContainer;
     }
 
+    public boolean isForceInclusion() {
+        return forceInclusion;
+    }
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
         RelationshipContainer that = (RelationshipContainer) o;
-        return Objects.equals(dataLinksContainer, that.dataLinksContainer) &&
-                Objects.equals(relationshipField, that.relationshipField);
+        return forceInclusion == that.forceInclusion &&
+            Objects.equals(dataLinksContainer, that.dataLinksContainer) &&
+            Objects.equals(relationshipField, that.relationshipField);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(dataLinksContainer, relationshipField);
+        return Objects.hash(dataLinksContainer, relationshipField, forceInclusion);
     }
 }
