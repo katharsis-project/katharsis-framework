@@ -352,7 +352,7 @@ public class QueryParams {
         }
 
 
-        if (matchList.size() < 1) {
+        if (matchList.isEmpty()) {
             throw new ParametersDeserializationException("Malformed filter parameter: " + entryKey);
         }
 
