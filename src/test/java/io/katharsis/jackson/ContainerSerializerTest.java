@@ -5,6 +5,8 @@ import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathBuilder;
+import io.katharsis.resource.mock.models.OtherPojo;
+import io.katharsis.resource.mock.models.Pojo;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.response.Container;
@@ -12,6 +14,7 @@ import io.katharsis.response.ResourceResponse;
 import org.junit.Test;
 
 import java.util.Collections;
+import java.util.Set;
 
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 
@@ -133,4 +136,24 @@ public class ContainerSerializerTest extends BaseSerializerTest {
         assertThatJson(result).node("relationships.project").isAbsent();
         assertThatJson(result).node("attributes.name").isAbsent();
     }
+
+    @Test
+    public void onNestedAttributesShouldSerializeCorrectly() throws Exception {
+        // GIVEN
+        Pojo pojo = new Pojo();
+        pojo.setOtherPojo(new OtherPojo()
+            .setValue("some value"));
+
+        QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
+        QueryParams queryParams = queryParamsBuilder.buildQueryParams(Collections.<String, Set<String>>emptyMap());
+        JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath("/pojo");
+
+        // WHEN
+        String result = sut.writeValueAsString(new Container(pojo, new ResourceResponse(null, jsonPath, queryParams,
+            null, null)));
+
+        // THEN
+        assertThatJson(result).node("attributes.other-pojo.value").isEqualTo("some value");
+    }
+
 }

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.introspect.Annotated;
+import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
@@ -47,7 +48,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
     };
 
     private final ResourceRegistry resourceRegistry;
-    
+
     public ContainerSerializer(ResourceRegistry resourceRegistry) {
         this.resourceRegistry = resourceRegistry;
     }
@@ -143,15 +144,16 @@ public class ContainerSerializer extends JsonSerializer<Container> {
 
         String resourceType = resourceRegistry.getResourceType(data.getClass());
         
-        Set<String> allowedFields = new HashSet<>(attributeFields.size());
+        Set<String> setOfIncludedFields = new HashSet<>(attributeFields.size());
         for (ResourceField attributeField : attributeFields) {
             if (isIncluded(resourceType, includedFields, attributeField)) {
-                allowedFields.add(attributeField.getJsonName());
+                setOfIncludedFields.add(attributeField.getJsonName());
             }
         }
+        
+        ObjectMapper om = getObjectMapper(gen, data, setOfIncludedFields);
+        Map<String, Object> dataMap = om.convertValue(data, new TypeReference<Map<String, Object>>() {});
 
-        Map<String, Object> dataMap = getObjectMapper(gen, allowedFields)
-            .convertValue(data, DEFAULT_MAP);
         Attributes attributesObject = new Attributes();
         for(String key : dataMap.keySet()) {
             Object value = dataMap.get(key);
@@ -221,25 +223,29 @@ public class ContainerSerializer extends JsonSerializer<Container> {
     }
 
     /**
-     Generate a new object mapper that ignore all fields except the specified
+     Generate a new object mapper and configure the filter to exclude some properties.
      */
-    private static ObjectMapper getObjectMapper(JsonGenerator gen, Set<String> allowedFields) {
+    private ObjectMapper getObjectMapper(JsonGenerator gen, final Object data, Set<String> includedFields) {
         ObjectMapper attributesObjectMapper = ((ObjectMapper)gen.getCodec())
             .copy();
+
+        FilterProvider fp = new SimpleFilterProvider().addFilter(JACKSON_ATTRIBUTE_FILTER_NAME, SimpleBeanPropertyFilter.filterOutAllExcept(includedFields));
+        attributesObjectMapper.setFilterProvider(fp);
+
         attributesObjectMapper.setAnnotationIntrospector(new JacksonAnnotationIntrospector() {
             @Override
             public Object findFilterId(Annotated a) {
-                Object filterId = super.findFilterId(a);
-                if (filterId == null) {
-                    filterId = JACKSON_ATTRIBUTE_FILTER_NAME;
+                Object filterId = null;
+
+                if(a instanceof AnnotatedClass) {
+                    AnnotatedClass ac = (AnnotatedClass) a;
+                    if(ac.getRawType().equals(data.getClass())) {
+                        filterId = JACKSON_ATTRIBUTE_FILTER_NAME;
+                    }
                 }
                 return filterId;
             }
         });
-
-        FilterProvider fp = new SimpleFilterProvider()
-            .addFilter(JACKSON_ATTRIBUTE_FILTER_NAME, SimpleBeanPropertyFilter.filterOutAllExcept(allowedFields));
-        attributesObjectMapper.setFilterProvider(fp);
 
         return attributesObjectMapper;
     }
