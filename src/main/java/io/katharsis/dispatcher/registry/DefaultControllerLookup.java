@@ -27,33 +27,33 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class DefaultControllerLookup implements ControllerLookup {
 
     private ResourceRegistry resourceRegistry;
-	private TypeParser typeParser;
-	private ObjectMapper objectMapper;
-	private IncludeLookupSetter includeFieldSetter;
+    private TypeParser typeParser;
+    private ObjectMapper objectMapper;
+    private IncludeLookupSetter includeFieldSetter;
 
-	public DefaultControllerLookup(ResourceRegistry resourceRegistry, TypeParser typeParser, ObjectMapper objectMapper, IncludeLookupSetter includeFieldSetter) {
-		this.resourceRegistry = resourceRegistry;
-		this.typeParser = typeParser;
-		this.objectMapper = objectMapper;
-		this.includeFieldSetter = includeFieldSetter;
-	}
-	
-	@Override
-	public Set<BaseController> getControllers() {
-		Set<BaseController> controllers = new HashSet<>();
-		controllers.add(new RelationshipsResourceDelete(resourceRegistry, typeParser));
-		controllers.add(new RelationshipsResourcePatch(resourceRegistry, typeParser));
-		controllers.add(new RelationshipsResourcePost(resourceRegistry, typeParser));
-		controllers.add(new ResourceDelete(resourceRegistry, typeParser));
-		controllers.add(new CollectionGet(resourceRegistry, typeParser, includeFieldSetter));
-		controllers.add(new FieldResourceGet(resourceRegistry, typeParser, includeFieldSetter));
-		controllers.add(new RelationshipsResourceGet(resourceRegistry, typeParser, includeFieldSetter));
-		controllers.add(new ResourceGet(resourceRegistry, typeParser, includeFieldSetter));
-		controllers.add(new FieldResourcePost(resourceRegistry, typeParser, objectMapper));
-		controllers.add(new ResourcePatch(resourceRegistry, typeParser, objectMapper));
-		controllers.add(new ResourcePost(resourceRegistry, typeParser, objectMapper));
+    public DefaultControllerLookup(ResourceRegistry resourceRegistry, TypeParser typeParser, ObjectMapper objectMapper, IncludeLookupSetter includeFieldSetter) {
+        this.resourceRegistry = resourceRegistry;
+        this.typeParser = typeParser;
+        this.objectMapper = objectMapper;
+        this.includeFieldSetter = includeFieldSetter;
+    }
 
-		return controllers;
-	}
+    @Override
+    public Set<BaseController> getControllers() {
+        Set<BaseController> controllers = new HashSet<>();
+        controllers.add(new RelationshipsResourceDelete(resourceRegistry, typeParser));
+        controllers.add(new RelationshipsResourcePatch(resourceRegistry, typeParser));
+        controllers.add(new RelationshipsResourcePost(resourceRegistry, typeParser));
+        controllers.add(new ResourceDelete(resourceRegistry, typeParser));
+        controllers.add(new CollectionGet(resourceRegistry, typeParser, includeFieldSetter));
+        controllers.add(new FieldResourceGet(resourceRegistry, typeParser, includeFieldSetter));
+        controllers.add(new RelationshipsResourceGet(resourceRegistry, typeParser, includeFieldSetter));
+        controllers.add(new ResourceGet(resourceRegistry, typeParser, includeFieldSetter));
+        controllers.add(new FieldResourcePost(resourceRegistry, typeParser, objectMapper));
+        controllers.add(new ResourcePatch(resourceRegistry, typeParser, objectMapper));
+        controllers.add(new ResourcePost(resourceRegistry, typeParser, objectMapper));
+
+        return controllers;
+    }
 
 }
