@@ -146,7 +146,7 @@ public class IncludedRelationshipExtractor {
         Object property = PropertyUtils.getProperty(resource, fieldName);
         if (property != null) {
             if (Iterable.class.isAssignableFrom(property.getClass())) {
-                for (Object o : ((Iterable) property)) {
+                for (Object o : (Iterable) property) {
                     //noinspection unchecked
                     elements.add(new Container(o, response));
                 }

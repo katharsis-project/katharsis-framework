@@ -48,7 +48,7 @@ public class ErrorResponseSerializer extends JsonSerializer<ErrorResponse> {
         gen.writeEndArray();
     }
 
-    private void serializeErrorData(ErrorData errorData, JsonGenerator gen) throws IOException {
+    private static void serializeErrorData(ErrorData errorData, JsonGenerator gen) throws IOException {
         gen.writeStartObject();
         writeStringIfExists(ID, errorData.getId(), gen);
         writeAboutLink(errorData, gen);
