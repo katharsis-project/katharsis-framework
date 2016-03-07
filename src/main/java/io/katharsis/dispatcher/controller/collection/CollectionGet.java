@@ -27,8 +27,6 @@ import java.util.List;
 
 public class CollectionGet extends ResourceIncludeField {
 
-    private static final transient Logger log = LoggerFactory.getLogger(CollectionGet.class);
-
     public CollectionGet(ResourceRegistry resourceRegistry, TypeParser typeParser, IncludeLookupSetter fieldSetter) {
         super(resourceRegistry, typeParser, fieldSetter);
     }

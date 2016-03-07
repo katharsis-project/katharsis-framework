@@ -1,13 +1,11 @@
 package io.katharsis.queryParams;
 
 import io.katharsis.jackson.exception.ParametersDeserializationException;
+import io.katharsis.queryParams.include.Inclusion;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -126,7 +124,7 @@ public class QueryParamsBuilderTest {
     }
 
     @Test
-    public void onGivenIncludedRelationsBuilderShouldReturnRequestParamsWithIncludedRelations() throws
+    public void onGivenIncludedRelationBuilderShouldReturnRequestParamsWithIncludedRelation() throws
         ParametersDeserializationException {
         // GIVEN
         queryParams.put("include[special-users]", Collections.singleton("friends"));
@@ -146,5 +144,25 @@ public class QueryParamsBuilderTest {
             .iterator()
             .next()
             .getPath()).isEqualTo("friends");
+    }
+
+    @Test
+    public void onGivenIncludedRelationsBuilderShouldReturnRequestParamsWithIncludedRelations() throws
+        ParametersDeserializationException {
+        // GIVEN
+        queryParams.put("include[special-users]", new HashSet<>(Arrays.asList("friends", "foes")));
+
+        // WHEN
+        QueryParams result = sut.buildQueryParams(queryParams);
+
+        // THEN
+        assertThat(result.getIncludedRelations()
+            .getParams()
+            .get("special-users")).isNotNull();
+
+        assertThat(result.getIncludedRelations()
+            .getParams()
+            .get("special-users")
+            .getParams()).containsExactly(new Inclusion("friends"), new Inclusion("foes"));
     }
 }

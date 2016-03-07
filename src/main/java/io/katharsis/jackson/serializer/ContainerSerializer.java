@@ -43,10 +43,11 @@ public class ContainerSerializer extends JsonSerializer<Container> {
     private static final String RELATIONSHIPS_FIELD_NAME = "relationships";
     private static final String LINKS_FIELD_NAME = "links";
     private static final String SELF_FIELD_NAME = "self";
+    private static final String JACKSON_ATTRIBUTE_FILTER_NAME = "katharsisFilter";
+    private static final TypeReference<Map<String, Object>> DEFAULT_MAP = new TypeReference<Map<String, Object>>() {
+    };
 
     private final ResourceRegistry resourceRegistry;
-    
-    private ObjectMapper attributesObjectMapper = null;
 
     public ContainerSerializer(ResourceRegistry resourceRegistry) {
         this.resourceRegistry = resourceRegistry;
@@ -143,7 +144,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
 
         String resourceType = resourceRegistry.getResourceType(data.getClass());
         
-        Set<String> setOfIncludedFields = new HashSet<>();
+        Set<String> setOfIncludedFields = new HashSet<>(attributeFields.size());
         for (ResourceField attributeField : attributeFields) {
             if (isIncluded(resourceType, includedFields, attributeField)) {
                 setOfIncludedFields.add(attributeField.getJsonName());
@@ -152,7 +153,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         
         ObjectMapper om = getObjectMapper(gen, data, setOfIncludedFields);
         Map<String, Object> dataMap = om.convertValue(data, new TypeReference<Map<String, Object>>() {});
-        
+
         Attributes attributesObject = new Attributes();
         for(String key : dataMap.keySet()) {
             Object value = dataMap.get(key);
@@ -171,7 +172,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
      * @param attributeField resource attribute field
      * @return <i>true</i> if it should be included in the response, <i>false</i> otherwise
      */
-    private boolean isIncluded(String resourceType, TypedParams<IncludedFieldsParams> includedFields, ResourceField attributeField) {
+    private static boolean isIncluded(String resourceType, TypedParams<IncludedFieldsParams> includedFields, ResourceField attributeField) {
         IncludedFieldsParams typeIncludedFields = findIncludedFields(includedFields, resourceType);
         if (typeIncludedFields == null || typeIncludedFields.getParams().isEmpty()) {
             return includedFields == null || includedFields.getParams().isEmpty();
@@ -228,15 +229,15 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         if(attributesObjectMapper == null) {
             attributesObjectMapper = ((ObjectMapper)gen.getCodec()).copy();
         }
-        
+
         FilterProvider fp = new SimpleFilterProvider().addFilter("katharsisFilter", SimpleBeanPropertyFilter.filterOutAllExcept(includedFields));
         attributesObjectMapper.setFilterProvider(fp);
-        
+
         attributesObjectMapper.setAnnotationIntrospector(new JacksonAnnotationIntrospector() {
             @Override
             public Object findFilterId(Annotated a) {
                 Object filterId = null;
-                
+
                 if(a instanceof AnnotatedClass) {
                     AnnotatedClass ac = (AnnotatedClass) a;
                     if(ac.getRawType().equals(data.getClass())) {
@@ -246,7 +247,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
                 return filterId;
             }
         });
-        
+
         return attributesObjectMapper;
     }
 }
