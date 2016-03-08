@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.ws.rs.container.ContainerRequestContext;
 
-public class ContainerRequestContextProvider implements RequestContextParameterProvider<ContainerRequestContext> {
+public class ContainerRequestContextProvider implements RequestContextParameterProvider {
 
     @Override
     public ContainerRequestContext provideValue(Parameter parameter, ContainerRequestContext requestContext, ObjectMapper objectMapper) {

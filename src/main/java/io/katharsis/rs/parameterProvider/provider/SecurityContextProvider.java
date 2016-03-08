@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.SecurityContext;
 
-public class SecurityContextProvider implements RequestContextParameterProvider<SecurityContext> {
+public class SecurityContextProvider implements RequestContextParameterProvider {
 
     @Override
     public SecurityContext provideValue(Parameter parameter, ContainerRequestContext requestContext, ObjectMapper objectMapper) {

@@ -47,4 +47,8 @@ public final class KatharsisProperties {
      * @since 0.9.4
      */
     public static final String WEB_PATH_PREFIX = "katharsis.config.web.path.prefix";
+
+    private KatharsisProperties() {
+        throw new InstantiationError("This class should not be instantiated");
+    }
 }

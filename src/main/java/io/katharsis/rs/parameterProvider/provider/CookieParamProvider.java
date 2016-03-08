@@ -7,7 +7,7 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Cookie;
 import java.io.IOException;
 
-public class CookieParamProvider implements RequestContextParameterProvider<Object> {
+public class CookieParamProvider implements RequestContextParameterProvider {
 
     @Override
     public Object provideValue(Parameter parameter, ContainerRequestContext requestContext, ObjectMapper objectMapper) {
