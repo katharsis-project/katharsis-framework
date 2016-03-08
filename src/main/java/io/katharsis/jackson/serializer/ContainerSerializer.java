@@ -45,8 +45,6 @@ public class ContainerSerializer extends JsonSerializer<Container> {
     private static final String LINKS_FIELD_NAME = "links";
     private static final String SELF_FIELD_NAME = "self";
     private static final String JACKSON_ATTRIBUTE_FILTER_NAME = "katharsisFilter";
-    private static final TypeReference<Map<String, Object>> DEFAULT_MAP = new TypeReference<Map<String, Object>>() {
-    };
 
     private final ResourceRegistry resourceRegistry;
 
@@ -166,10 +164,9 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         Map<String, Object> dataMap = om.convertValue(data, new TypeReference<Map<String, Object>>() {});
 
         Attributes attributesObject = new Attributes();
-        for(String key : dataMap.keySet()) {
-            Object value = dataMap.get(key);
-            if(value != null)
-                attributesObject.addAttribute(key, value);
+        for(Map.Entry<String,Object> entry : dataMap.entrySet()) {
+            if(entry.getValue() != null)
+                attributesObject.addAttribute(entry.getKey(), entry.getValue());
         }
 
         gen.writeObjectField(ATTRIBUTES_FIELD_NAME, attributesObject);
@@ -237,7 +234,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
     /**
      Generate a new object mapper and configure the filter to exclude some properties.
      */
-    private ObjectMapper getObjectMapper(JsonGenerator gen, final Object data, Set<String> includedFields) {
+    private static ObjectMapper getObjectMapper(JsonGenerator gen, final Object data, Set<String> includedFields) {
         ObjectMapper attributesObjectMapper = ((ObjectMapper)gen.getCodec())
             .copy();
 
