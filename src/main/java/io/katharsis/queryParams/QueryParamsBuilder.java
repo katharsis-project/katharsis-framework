@@ -42,14 +42,11 @@ public class QueryParamsBuilder {
             deserializedQueryParams.setPagination(this.queryParamsParser.parsePaginationParameters(queryParams));
             deserializedQueryParams.setIncludedFields(this.queryParamsParser.parseIncludedFieldsParameters(queryParams));
             deserializedQueryParams.setIncludedRelations(this.queryParamsParser.parseIncludedRelationsParameters(queryParams));
+        } catch (KatharsisException e) {
+            throw e;
         } catch (RuntimeException e) {
-            if (e instanceof KatharsisException) {
-                throw e;
-            } else {
-                throw new ParametersDeserializationException(e.getMessage());
-            }
+            throw new ParametersDeserializationException(e.getMessage());
         }
-
         return deserializedQueryParams;
     }
 }
