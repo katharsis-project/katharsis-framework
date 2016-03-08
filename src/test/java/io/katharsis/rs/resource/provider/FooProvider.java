@@ -6,7 +6,7 @@ import io.katharsis.rs.parameterProvider.provider.RequestContextParameterProvide
 
 import javax.ws.rs.container.ContainerRequestContext;
 
-public class FooProvider implements RequestContextParameterProvider<String> {
+public class FooProvider implements RequestContextParameterProvider {
 
     @Override
     public String provideValue(Parameter parameter, ContainerRequestContext requestContext, ObjectMapper objectMapper) {

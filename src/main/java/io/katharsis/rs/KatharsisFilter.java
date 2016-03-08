@@ -97,12 +97,10 @@ public class KatharsisFilter implements ContainerRequestFilter {
 
         try {
             dispatchRequest(requestContext);
+        } catch (WebApplicationException e) {
+            throw e;
         } catch (Exception e) {
-            if (e instanceof WebApplicationException) {
-                throw (WebApplicationException) e;
-            } else {
-                throw new WebApplicationException(e);
-            }
+            throw new WebApplicationException(e);
         }
     }
 
@@ -164,8 +162,8 @@ public class KatharsisFilter implements ContainerRequestFilter {
         MultivaluedMap<String, String> queryParametersMultiMap = uriInfo.getQueryParameters();
         Map<String, Set<String>> queryParameters = new HashMap<>();
 
-        for (String queryName : queryParametersMultiMap.keySet()) {
-            queryParameters.put(queryName, new LinkedHashSet<>(queryParametersMultiMap.get(queryName)));
+        for (Map.Entry<String, List<String>> queryEntry : queryParametersMultiMap.entrySet()) {
+            queryParameters.put(queryEntry.getKey(), new LinkedHashSet<>(queryEntry.getValue()));
         }
 
         return queryParamsBuilder.buildQueryParams(queryParameters);

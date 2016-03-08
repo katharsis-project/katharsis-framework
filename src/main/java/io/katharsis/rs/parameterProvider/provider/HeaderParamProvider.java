@@ -6,7 +6,7 @@ import javax.ws.rs.HeaderParam;
 import javax.ws.rs.container.ContainerRequestContext;
 import java.io.IOException;
 
-public class HeaderParamProvider implements RequestContextParameterProvider<Object> {
+public class HeaderParamProvider implements RequestContextParameterProvider {
 
     @Override
     public Object provideValue(Parameter parameter, ContainerRequestContext requestContext, ObjectMapper objectMapper) {
