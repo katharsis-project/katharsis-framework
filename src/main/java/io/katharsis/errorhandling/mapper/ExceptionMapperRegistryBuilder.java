@@ -8,21 +8,20 @@ import java.util.Set;
 public final class ExceptionMapperRegistryBuilder {
     private final Set<ExceptionMapperType> exceptionMappers = new HashSet<>();
 
-
     public Set<ExceptionMapperType> getExceptionMappers() {
         return exceptionMappers;
     }
-    
+
     public ExceptionMapperRegistry build(String resourceSearchPackage) throws IllegalAccessException, InstantiationException {
         return build(new DefaultExceptionMapperLookup(resourceSearchPackage));
     }
-    
+
     public ExceptionMapperRegistry build(ExceptionMapperLookup exceptionMapperLookup) throws IllegalAccessException, InstantiationException {
-    	addKatharsisDefaultMappers();
+        addKatharsisDefaultMappers();
         for (JsonApiExceptionMapper<?> exceptionMapper : exceptionMapperLookup.getExceptionMappers()) {
             registerExceptionMapper(exceptionMapper);
         }
-    	return new ExceptionMapperRegistry(exceptionMappers);
+        return new ExceptionMapperRegistry(exceptionMappers);
     }
 
     private void addKatharsisDefaultMappers() {

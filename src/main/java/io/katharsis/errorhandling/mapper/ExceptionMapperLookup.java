@@ -4,5 +4,5 @@ import java.util.Set;
 
 public interface ExceptionMapperLookup {
 
-	Set<JsonApiExceptionMapper> getExceptionMappers();
+    Set<JsonApiExceptionMapper> getExceptionMappers();
 }

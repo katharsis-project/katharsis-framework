@@ -34,11 +34,12 @@ public final class ExceptionMapperRegistry {
 
     int getDistanceBetweenExceptions(Class<?> clazz, Class<?> mapperTypeClazz) {
         int distance = 0;
+        Class<?> superClazz = clazz;
         if (!mapperTypeClazz.isAssignableFrom(clazz))
             return Integer.MAX_VALUE;
 
-        while (clazz != mapperTypeClazz) {
-            clazz = clazz.getSuperclass();
+        while (superClazz != mapperTypeClazz) {
+            superClazz = superClazz.getSuperclass();
             distance++;
         }
         return distance;
