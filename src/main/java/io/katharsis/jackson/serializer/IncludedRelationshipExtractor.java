@@ -56,6 +56,7 @@ public class IncludedRelationshipExtractor {
 
 
     private List<?> getIncludedByDefaultResources(Object resource, int recurrenceLevel) {
+        int recurrenceLevelCounter = recurrenceLevel;
         if (recurrenceLevel >= 42 || resource == null) {
             return Collections.emptyList();
         }
@@ -70,20 +71,20 @@ public class IncludedRelationshipExtractor {
                 Object targetDataObj = PropertyUtils.getProperty(resource, resourceField.getUnderlyingName());
 
                 if (targetDataObj != null) {
-                    recurrenceLevel++;
+                    recurrenceLevelCounter++;
 
                     if (targetDataObj instanceof Iterable) {
                         for (Object objectItem : (Iterable) targetDataObj) {
                             //noinspection unchecked
                             includedFields.add(objectItem);
                             //noinspection unchecked
-                            includedFields.addAll(getIncludedByDefaultResources(objectItem, recurrenceLevel));
+                            includedFields.addAll(getIncludedByDefaultResources(objectItem, recurrenceLevelCounter));
                         }
                     } else {
                         //noinspection unchecked
                         includedFields.add(targetDataObj);
                         //noinspection unchecked
-                        includedFields.addAll(getIncludedByDefaultResources(targetDataObj, recurrenceLevel));
+                        includedFields.addAll(getIncludedByDefaultResources(targetDataObj, recurrenceLevelCounter));
                     }
                 }
             }
