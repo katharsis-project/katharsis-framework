@@ -31,14 +31,18 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
+import org.springframework.validation.annotation.Validated;
 
 import com.google.common.collect.Iterables;
 
 @Component
 @JsonApiResourceRepository(Task.class)
+@Validated
 public class TaskRepository {
     private static final Map<Long, Task> REPOSITORY = new ConcurrentHashMap<>();
     private static final AtomicLong ID_GENERATOR = new AtomicLong(4);
@@ -60,7 +64,7 @@ public class TaskRepository {
     }
 
     @JsonApiSave
-    public <S extends Task> S save(S entity) {
+    public <S extends Task> S save(@Valid S entity) {
         if (entity.getId() == null) {
             entity.setId(ID_GENERATOR.getAndIncrement());
         }
