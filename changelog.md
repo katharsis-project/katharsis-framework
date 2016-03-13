@@ -1,5 +1,16 @@
-# katharsis-core v2.3.0 git changelog
+# katharsis-core v2.3.1 git changelog
 
+2016-03-09    Fixes [#258](https://github.com/katharsis-project/katharsis-core/issues/258) (NPE when looking for a target class on @JsonApiRelationshipRepository) (Sergey Zubtsovskiy)  
+2016-03-08    multiple code improvements: squid:S00105, squid:S1226, squid:S1193, squid:S1700 (George Kankava)  
+2016-03-08    multiple code improvements: squid:S1068, squid:S2864, squid:S2325, squid:S1226, squid:S00105 (George Kankava)  
+2016-03-07    [#220](https://github.com/katharsis-project/katharsis-core/issues/220) inclusion enhancements (Patryk Orwat)  
+2016-03-07    [#246](https://github.com/katharsis-project/katharsis-core/issues/246) added test for bug reproduction (Patryk Orwat)  
+2016-03-07    multiple code improvements: squid:S00105, squid:S1068, squid:S1155 (George Kankava)  
+2016-03-07    multiple code improvements: squid:S2325, squid:S1596, squid:UselessParenthesesCheck (George Kankava)  
+2016-02-26    Remove object mapper clean up, because it's configured again in next usage.  katharsis-project/katharsis-core[#246](https://github.com/katharsis-project/katharsis-core/issues/246) (Tiago Daniel Jacobs)  
+2016-02-26    Clean up of attributes serializer code that fix katharsis-project/katharsis-core[#246](https://github.com/katharsis-project/katharsis-core/issues/246) (Tiago Daniel Jacobs)  
+2016-02-26    Changed the attributes serializer to only filter attributes of the root element in order to fix katharsis-project/katharsis-core[#246](https://github.com/katharsis-project/katharsis-core/issues/246) (Tiago Daniel Jacobs)  
+2016-02-22    [#242](https://github.com/katharsis-project/katharsis-core/issues/242) allowed multiple inclusions (Patryk Orwat)  
 
 **v2.3.0**  
 2016-02-21    v2.3.0 (Patryk Orwat)  
