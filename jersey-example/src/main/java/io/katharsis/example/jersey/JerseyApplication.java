@@ -26,10 +26,13 @@ public class JerseyApplication extends ResourceConfig {
             @Override
             public void configure() {
                 bindFactory(ObjectMapperFactory.class).to(ObjectMapper.class).in(Singleton.class);
-                bind(TaskRepository.class).to(TaskRepository.class);
-                bind(ProjectRepository.class).to(ProjectRepository.class);
-                bindFactory(TaskToProjectRepositoryFactory.class).to(TaskToProjectRepository.class)
-                    .in(RequestScoped.class); // make singleton binding to make this work without IllegalStateException
+                bindService(TaskRepository.class);
+                bindService(ProjectRepository.class);
+                bindService(TaskToProjectRepository.class);
+            }
+
+            private void bindService(Class<?> serviceType) {
+                bind(serviceType).to(serviceType).proxy(true).in(RequestScoped.class);
             }
         });
 
