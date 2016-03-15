@@ -16,7 +16,7 @@ import javax.ws.rs.ApplicationPath;
 @ApplicationPath("/")
 public class JerseyApplication extends ResourceConfig {
 
-    public static final String APPLICATION_URL = "http://localhost:8080/";
+    public static final String APPLICATION_URL = "http://localhost:8080";
 
     public JerseyApplication() {
         property(KatharsisProperties.RESOURCE_SEARCH_PACKAGE, "io.katharsis.example.jersey.domain");
