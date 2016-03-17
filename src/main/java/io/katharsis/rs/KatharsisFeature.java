@@ -93,7 +93,7 @@ public class KatharsisFeature implements Feature {
 
         KatharsisFilter katharsisFilter;
         try {
-        	ExceptionMapperLookup exceptionMapperLookup = createExceptionMapperLookup(context);
+            ExceptionMapperLookup exceptionMapperLookup = createExceptionMapperLookup(context);
             ExceptionMapperRegistry exceptionMapperRegistry = buildExceptionMapperRegistry(exceptionMapperLookup);
             RequestContextParameterProviderLookup containerRequestContextProviderLookup = createRequestContextProviderLookup(context);
             RequestContextParameterProviderRegistry parameterProviderRegistry = buildParameterProviderRegistry(containerRequestContextProviderLookup);
@@ -111,11 +111,11 @@ public class KatharsisFeature implements Feature {
         return builder.build(containerRequestContextProviderLookup);
     }
 
-    private String buildServiceUrl(String resourceDefaultDomain, String webPathPrefix) {
+    private static String buildServiceUrl(String resourceDefaultDomain, String webPathPrefix) {
         return resourceDefaultDomain + (webPathPrefix != null ? webPathPrefix : "");
     }
 
-    private ExceptionMapperRegistry buildExceptionMapperRegistry(ExceptionMapperLookup exceptionMapperLookup) throws Exception {
+    private static ExceptionMapperRegistry buildExceptionMapperRegistry(ExceptionMapperLookup exceptionMapperLookup) throws Exception {
         ExceptionMapperRegistryBuilder mapperRegistryBuilder = new ExceptionMapperRegistryBuilder();
         return mapperRegistryBuilder.build(exceptionMapperLookup);
     }
