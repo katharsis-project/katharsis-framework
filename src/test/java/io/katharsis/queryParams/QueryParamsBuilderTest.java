@@ -150,7 +150,7 @@ public class QueryParamsBuilderTest {
     public void onGivenIncludedRelationsBuilderShouldReturnRequestParamsWithIncludedRelations() throws
         ParametersDeserializationException {
         // GIVEN
-        queryParams.put("include[special-users]", new HashSet<>(Arrays.asList("friends", "foes")));
+        queryParams.put("include[special-users]", new LinkedHashSet<>(Arrays.asList("friends", "foes")));
 
         // WHEN
         QueryParams result = sut.buildQueryParams(queryParams);
