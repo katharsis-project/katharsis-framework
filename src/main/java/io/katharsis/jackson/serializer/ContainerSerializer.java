@@ -43,6 +43,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
     private static final String ATTRIBUTES_FIELD_NAME = "attributes";
     private static final String RELATIONSHIPS_FIELD_NAME = "relationships";
     private static final String LINKS_FIELD_NAME = "links";
+    private static final String META_FIELD_NAME = "meta";
     private static final String SELF_FIELD_NAME = "self";
     private static final String JACKSON_ATTRIBUTE_FILTER_NAME = "katharsisFilter";
 
@@ -111,7 +112,8 @@ public class ContainerSerializer extends JsonSerializer<Container> {
 
         Set<ResourceField> relationshipFields = getRelationshipFields(resourceType, resourceInformation, includedFields);
         writeRelationshipFields(gen, data, relationshipFields, includedRelations);
-        writeLinksField(gen, data);
+        writeMetaField(gen, data, entry);
+        writeLinksField(gen, data, entry);
     }
 
     private Set<ResourceField> getRelationshipFields(String resourceType, ResourceInformation resourceInformation, TypedParams<IncludedFieldsParams> includedFields) {
@@ -210,11 +212,15 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         gen.writeObjectField(RELATIONSHIPS_FIELD_NAME, dataLinksContainer);
     }
 
-    private void writeLinksField(JsonGenerator gen, Object data) throws IOException {
+    private void writeLinksField(JsonGenerator gen, Object data, RegistryEntry entry) throws IOException {
         gen.writeFieldName(LINKS_FIELD_NAME);
-        gen.writeStartObject();
-        writeSelfLink(gen, data);
-        gen.writeEndObject();
+        if (entry.getResourceInformation().getLinksFieldName() != null) {
+            gen.writeObject(PropertyUtils.getProperty(data, entry.getResourceInformation().getLinksFieldName()));
+        } else {
+            gen.writeStartObject();
+            writeSelfLink(gen, data);
+            gen.writeEndObject();
+        }
     }
 
     private void writeSelfLink(JsonGenerator gen, Object data) throws IOException {
@@ -225,6 +231,13 @@ public class ContainerSerializer extends JsonSerializer<Container> {
 
         Object sourceId = PropertyUtils.getProperty(data, idField.getUnderlyingName());
         gen.writeStringField(SELF_FIELD_NAME, resourceUrl + "/" + sourceId);
+    }
+
+    private void writeMetaField(JsonGenerator gen, Object data, RegistryEntry entry) throws IOException {
+        if (entry.getResourceInformation().getMetaFieldName() != null) {
+            gen.writeFieldName(META_FIELD_NAME);
+            gen.writeObject(PropertyUtils.getProperty(data, entry.getResourceInformation().getMetaFieldName()));
+        }
     }
 
     public Class<Container> handledType() {

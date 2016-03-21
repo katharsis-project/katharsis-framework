@@ -1,5 +1,8 @@
 # katharsis-core v2.3.1 git changelog
 
+
+**v2.3.1**  
+2016-03-13    v2.3.1 (Patryk Orwat)  
 2016-03-09    Fixes [#258](https://github.com/katharsis-project/katharsis-core/issues/258) (NPE when looking for a target class on @JsonApiRelationshipRepository) (Sergey Zubtsovskiy)  
 2016-03-08    multiple code improvements: squid:S00105, squid:S1226, squid:S1193, squid:S1700 (George Kankava)  
 2016-03-08    multiple code improvements: squid:S1068, squid:S2864, squid:S2325, squid:S1226, squid:S00105 (George Kankava)  

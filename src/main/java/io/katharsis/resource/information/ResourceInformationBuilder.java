@@ -2,9 +2,9 @@ package io.katharsis.resource.information;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import io.katharsis.resource.annotations.JsonApiId;
-import io.katharsis.resource.annotations.JsonApiToMany;
-import io.katharsis.resource.annotations.JsonApiToOne;
+import io.katharsis.resource.annotations.*;
+import io.katharsis.resource.exception.init.MultipleJsonApiLinksInformationException;
+import io.katharsis.resource.exception.init.MultipleJsonApiMetaInformationException;
 import io.katharsis.resource.exception.init.ResourceDuplicateIdException;
 import io.katharsis.resource.exception.init.ResourceIdNotFoundException;
 import io.katharsis.resource.field.ResourceField;
@@ -41,11 +41,16 @@ public final class ResourceInformationBuilder {
         Set<ResourceField> basicFields = getBasicFields(resourceFields, idField, propertyOrder);
         Set<ResourceField> relationshipFields = getRelationshipFields(resourceFields, idField, propertyOrder);
 
+        String metaFieldName = getMetaFieldName(resourceClass, resourceFields);
+        String linksFieldName = getLinksFieldName(resourceClass, resourceFields);
+
         return new ResourceInformation(
             resourceClass,
             idField,
             basicFields,
-            relationshipFields);
+            relationshipFields,
+            metaFieldName,
+            linksFieldName);
     }
 
     private List<ResourceField> getResourceFields(Class<?> resourceClass) {
@@ -157,16 +162,54 @@ public final class ResourceInformationBuilder {
         return idFields.get(0);
     }
 
+    private <T> String getMetaFieldName(Class<T> resourceClass, List<ResourceField> classFields) {
+        List<ResourceField> metaFields = new ArrayList<>(1);
+        for (ResourceField field : classFields) {
+            if (field.isAnnotationPresent(JsonApiMetaInformation.class)) {
+                metaFields.add(field);
+            }
+        }
+
+        if (metaFields.size() == 0) {
+            return null;
+        } else if (metaFields.size() > 1) {
+            throw new MultipleJsonApiMetaInformationException(resourceClass.getCanonicalName());
+        }
+        return metaFields.get(0).getUnderlyingName();
+    }
+
+    private <T> String getLinksFieldName(Class<T> resourceClass, List<ResourceField> classFields) {
+        List<ResourceField> linksFields = new ArrayList<>(1);
+        for (ResourceField field : classFields) {
+            if (field.isAnnotationPresent(JsonApiLinksInformation.class)) {
+                linksFields.add(field);
+            }
+        }
+
+        if (linksFields.size() == 0) {
+            return null;
+        } else if (linksFields.size() > 1) {
+            throw new MultipleJsonApiLinksInformationException(resourceClass.getCanonicalName());
+        }
+        return linksFields.get(0).getUnderlyingName();
+    }
+
     private Set<ResourceField> getBasicFields(List<ResourceField> classFields, ResourceField idField,
                                               Optional<JsonPropertyOrder> propertyOrder) {
         Set<ResourceField> basicFields = buildResourceFieldSet(propertyOrder);
         for (ResourceField field : classFields) {
-            if (!isRelation(field) && !field.equals(idField)) {
+            if (isBasicField(field) && !field.equals(idField)) {
                 basicFields.add(field);
             }
         }
 
         return basicFields;
+    }
+
+    private boolean isBasicField(ResourceField field) {
+        return !isRelation(field) &&
+            !field.isAnnotationPresent(JsonApiMetaInformation.class) &&
+            !field.isAnnotationPresent(JsonApiLinksInformation.class);
     }
 
     private Set<ResourceField> getRelationshipFields(List<ResourceField> classFields, ResourceField idField,

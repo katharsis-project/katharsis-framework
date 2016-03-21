@@ -2,9 +2,9 @@ package io.katharsis.resource;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import io.katharsis.resource.annotations.JsonApiId;
-import io.katharsis.resource.annotations.JsonApiResource;
-import io.katharsis.resource.annotations.JsonApiToOne;
+import io.katharsis.resource.annotations.*;
+import io.katharsis.resource.exception.init.MultipleJsonApiLinksInformationException;
+import io.katharsis.resource.exception.init.MultipleJsonApiMetaInformationException;
 import io.katharsis.resource.exception.init.ResourceDuplicateIdException;
 import io.katharsis.resource.exception.init.ResourceIdNotFoundException;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
@@ -185,6 +185,36 @@ public class ResourceInformationBuilderTest {
             .containsSequence("a", "b", "c");
     }
 
+    @Test
+    public void shouldContainMetaInformationField() throws Exception {
+        ResourceInformation resourceInformation = resourceInformationBuilder.build(Task.class);
+
+        assertThat(resourceInformation.getMetaFieldName())
+            .isEqualTo("metaInformation");
+    }
+
+    @Test
+    public void shouldThrowExceptionOnMultipleMetaInformationFields() throws Exception {
+        ResourceInformation resourceInformation = resourceInformationBuilder.build(Task.class);
+
+        assertThat(resourceInformation.getMetaFieldName())
+            .isEqualTo("metaInformation");
+    }
+
+    @Test
+    public void shouldContainLinksInformationField() throws Exception {
+        expectedException.expect(MultipleJsonApiMetaInformationException.class);
+
+        resourceInformationBuilder.build(MultipleMetaInformationResource.class);
+    }
+
+    @Test
+    public void shouldThrowExceptionOnMultipleLinksInformationFields() throws Exception {
+        expectedException.expect(MultipleJsonApiLinksInformationException.class);
+
+        resourceInformationBuilder.build(MultipleLinksInformationResource.class);
+    }
+
     @JsonApiResource(type = "duplicatedIdAnnotationResources")
     private static class DuplicatedIdResource {
         @JsonApiId
@@ -318,5 +348,29 @@ public class ResourceInformationBuilderTest {
         public String c;
         public String b;
         public String a;
+    }
+
+    @JsonApiResource(type = "multipleMetaInformationResource")
+    private static class MultipleMetaInformationResource {
+        @JsonApiId
+        private Long id;
+
+        @JsonApiMetaInformation
+        public String c;
+
+        @JsonApiMetaInformation
+        public String b;
+    }
+
+    @JsonApiResource(type = "multipleLinksInformationResource")
+    private static class MultipleLinksInformationResource {
+        @JsonApiId
+        private Long id;
+
+        @JsonApiLinksInformation
+        public String c;
+
+        @JsonApiLinksInformation
+        public String b;
     }
 }

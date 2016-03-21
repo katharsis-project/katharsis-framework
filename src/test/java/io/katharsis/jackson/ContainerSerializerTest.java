@@ -10,6 +10,8 @@ import io.katharsis.resource.mock.models.Pojo;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.response.Container;
+import io.katharsis.response.LinksInformation;
+import io.katharsis.response.MetaInformation;
 import io.katharsis.response.ResourceResponse;
 import org.junit.Test;
 
@@ -156,4 +158,61 @@ public class ContainerSerializerTest extends BaseSerializerTest {
         assertThatJson(result).node("attributes.other-pojo.value").isEqualTo("some value");
     }
 
+    @Test
+    public void onMetaInformationShouldSerializeCorrectly() throws Exception {
+        // GIVEN
+        Task task = new Task();
+        task.setMetaInformation(new MetaInformation() {
+            public String name = "value";
+        });
+
+        QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
+        QueryParams queryParams = queryParamsBuilder.buildQueryParams(Collections.<String, Set<String>>emptyMap());
+        JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath("/tasks");
+
+        // WHEN
+        String result = sut.writeValueAsString(new Container(task, new ResourceResponse(null, jsonPath, queryParams,
+            null, null)));
+
+        // THEN
+        assertThatJson(result).node("meta.name").isEqualTo("value");
+    }
+
+    @Test
+    public void onLinksInformationShouldSerializeCorrectly() throws Exception {
+        // GIVEN
+        Task task = new Task();
+        task.setLinksInformation(new LinksInformation() {
+            public String name = "value";
+        });
+
+        QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
+        QueryParams queryParams = queryParamsBuilder.buildQueryParams(Collections.<String, Set<String>>emptyMap());
+        JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath("/tasks");
+
+        // WHEN
+        String result = sut.writeValueAsString(new Container(task, new ResourceResponse(null, jsonPath, queryParams,
+            null, null)));
+
+        // THEN
+        assertThatJson(result).node("links.name").isEqualTo("value");
+    }
+
+    @Test
+    public void onNoLinksInformationShouldSerializeWithDefaultLinks() throws Exception {
+        // GIVEN
+        Project project = new Project()
+            .setId(1L);
+
+        QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
+        QueryParams queryParams = queryParamsBuilder.buildQueryParams(Collections.<String, Set<String>>emptyMap());
+        JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath("/projects");
+
+        // WHEN
+        String result = sut.writeValueAsString(new Container(project, new ResourceResponse(null, jsonPath, queryParams,
+            null, null)));
+
+        // THEN
+        assertThatJson(result).node("links.self").isEqualTo("https://service.local/projects/1");
+    }
 }
