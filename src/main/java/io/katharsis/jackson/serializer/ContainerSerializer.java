@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
-import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import io.katharsis.jackson.exception.JsonSerializationException;
 import io.katharsis.queryParams.params.IncludedFieldsParams;
@@ -251,7 +250,8 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         ObjectMapper attributesObjectMapper = ((ObjectMapper)gen.getCodec())
             .copy();
 
-        FilterProvider fp = new SimpleFilterProvider().addFilter(JACKSON_ATTRIBUTE_FILTER_NAME, SimpleBeanPropertyFilter.filterOutAllExcept(includedFields));
+        FilterProvider fp = new SimpleFilterProvider()
+            .addFilter(JACKSON_ATTRIBUTE_FILTER_NAME, new KatharsisFieldPropertyFilter(includedFields, data));
         attributesObjectMapper.setFilterProvider(fp);
 
         attributesObjectMapper.setAnnotationIntrospector(new JacksonAnnotationIntrospector() {

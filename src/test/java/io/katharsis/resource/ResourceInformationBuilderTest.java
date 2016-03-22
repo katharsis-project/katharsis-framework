@@ -67,9 +67,9 @@ public class ResourceInformationBuilderTest {
 
         assertThat(resourceInformation.getAttributeFields())
             .isNotNull()
-            .hasSize(1)
+            .hasSize(2)
             .extracting(NAME_PROPERTY)
-            .containsOnly("name");
+            .containsOnly("name", "otherTasks");
     }
 
     @Test

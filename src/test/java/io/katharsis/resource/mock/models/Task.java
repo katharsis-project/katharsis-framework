@@ -35,6 +35,17 @@ public class Task {
     @JsonApiLinksInformation
     private LinksInformation linksInformation;
 
+    private List<Task> otherTasks;
+
+    public List<Task> getOtherTasks() {
+        return otherTasks;
+    }
+
+    public Task setOtherTasks(List<Task> otherTasks) {
+        this.otherTasks = otherTasks;
+        return this;
+    }
+
     public Long getId() {
         return id;
     }
