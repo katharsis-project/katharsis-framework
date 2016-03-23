@@ -19,6 +19,8 @@ public class QueryParamProvider implements RequestContextParameterProvider {
       if (String.class.isAssignableFrom(parameter.getType())) {
         // Given a query string: ?x=y&x=z, JAX-RS will return a value of y.
         returnValue = value.get(0);
+      } else if (Iterable.class.isAssignableFrom(parameter.getType())) {
+        returnValue = value;
       } else {
         try {
           returnValue = objectMapper.readValue(value.get(0), parameter.getType());
