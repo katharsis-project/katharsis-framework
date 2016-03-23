@@ -1,5 +1,8 @@
 # katharsis-rs v2.3.1 git changelog
 
+
+**v2.3.1**  
+2016-03-13    v2.3.1 (Patryk Orwat)  
 2016-03-08    Multiple code improvements - squid:S2864, squid:S1193, squid:S1118, squid:S2326 (George Kankava)  
 
 **v2.3.0**  
