@@ -69,7 +69,7 @@ public class KatharsisFilter implements ContainerRequestFilter {
         this.webPathPrefix = parsePrefix(webPathPrefix);
     }
 
-    private String parsePrefix(String webPathPrefix) {
+    private static String parsePrefix(String webPathPrefix) {
         if (webPathPrefix != null && webPathPrefix.startsWith(PathBuilder.SEPARATOR)) {
             return webPathPrefix.substring(1);
         } else {
