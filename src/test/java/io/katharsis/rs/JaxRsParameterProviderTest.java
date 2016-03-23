@@ -16,11 +16,16 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.ws.rs.CookieParam;
 import javax.ws.rs.HeaderParam;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Cookie;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.SecurityContext;
+import javax.ws.rs.core.UriInfo;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,6 +43,12 @@ public class JaxRsParameterProviderTest {
 
     @Mock
     private ContainerRequestContext requestContext;
+
+    @Mock
+    private UriInfo uriInfo;
+
+    @Mock
+    private MultivaluedMap<String,String> queryParams;
 
     private JaxRsParameterProvider sut;
 
@@ -184,10 +195,49 @@ public class JaxRsParameterProviderTest {
         assertThat(result).isEqualTo(authRequest);
     }
 
+    @Test
+    public void onSingleValuedQueryParameterShouldReturnThisInstance() throws Exception {
+        List<String> singleValue1 = Arrays.asList("singleValue1");
+        List<String> singleValue2 = Arrays.asList("singleValue2");
+
+        when(queryParams.get("singleValuedParam1")).thenReturn(singleValue1);
+        when(queryParams.get("singleValuedParam2")).thenReturn(singleValue2);
+        when(uriInfo.getQueryParameters()).thenReturn(queryParams);
+        when(requestContext.getUriInfo()).thenReturn(uriInfo);
+
+        // WHEN
+        Object result1 = sut.provide(testMethod, 9);
+        Object result2 = sut.provide(testMethod, 10);
+
+        // THEN
+        verify(queryParams).get("singleValuedParam1");
+        verify(queryParams).get("singleValuedParam2");
+        assertThat(result1).isEqualTo(singleValue1.get(0));
+        assertThat(result2).isEqualTo(singleValue2.get(0));
+    }
+
+    @Test
+    public void onMultiValuedQueryParameterShouldReturnThisInstance() throws Exception {
+        List<String> values = Arrays.asList("value1", "value2");
+        when(queryParams.get("multiValuedParam")).thenReturn(values);
+        when(uriInfo.getQueryParameters()).thenReturn(queryParams);
+        when(requestContext.getUriInfo()).thenReturn(uriInfo);
+
+        // WHEN
+        Object result = sut.provide(testMethod, 11);
+
+        // THEN
+        verify(queryParams).get("multiValuedParam");
+        assertThat(result).isEqualTo(values);
+    }
+
     public static class TestClass {
         public void testMethod(ContainerRequestContext requestContext, SecurityContext securityContext,
                                @CookieParam("sid") Cookie objectCookie, @CookieParam("sid") String StringCookie,
                                @CookieParam("sid") Long longCookie, @HeaderParam("cid") String StringHeader,
-                               @HeaderParam("cid") UUID UuidHeader, @Foo String foo, AuthRequest authRequest) {}
+                               @HeaderParam("cid") UUID UuidHeader, @Foo String foo, AuthRequest authRequest,
+                               @QueryParam("singleValuedParam1") String paramValue1,
+                               @QueryParam("singleValuedParam2") String paramValue2,
+                               @QueryParam("multiValuedParam") List<String> paramValues) {}
     }
 }

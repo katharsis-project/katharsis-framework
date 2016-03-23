@@ -8,6 +8,7 @@ import io.katharsis.utils.java.Optional;
 
 import javax.ws.rs.CookieParam;
 import javax.ws.rs.HeaderParam;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.SecurityContext;
@@ -24,6 +25,7 @@ import java.lang.reflect.Method;
  *     <li>{@link SecurityContext}</li>
  *     <li>Values annotated with {@link CookieParam}</li>
  *     <li>Values annotated with {@link HeaderParam}</li>
+ *     <li>Values annotated with {@link QueryParam}</li>
  * </ol>
  * <p>
  * Value casting for values annotated with {@link CookieParam} and {@link HeaderParam} does <b>not</b> conform with the

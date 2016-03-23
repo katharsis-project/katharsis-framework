@@ -22,6 +22,7 @@ public class RequestContextParameterProviderRegistryBuilder {
         registerRequestContextProvider(new SecurityContextProvider());
         registerRequestContextProvider(new CookieParamProvider());
         registerRequestContextProvider(new HeaderParamProvider());
+        registerRequestContextProvider(new QueryParamProvider());
     }
 
     private void registerRequestContextProvider(RequestContextParameterProvider requestContextParameterProvider) {
