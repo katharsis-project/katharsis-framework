@@ -82,8 +82,9 @@ public class IncludeLookupSetter {
                 return;
             }
             Object property = PropertyUtils.getProperty(resource, field.getName());
-            //attempt to load relationship if it's null
-            if (property == null && field.isAnnotationPresent(JsonApiLookupIncludeAutomatically.class)) {
+            //attempt to load relationship if it's null or JsonApiLookupIncludeAutomatically.overwrite() == true
+            if (field.isAnnotationPresent(JsonApiLookupIncludeAutomatically.class)
+                    && (property == null || field.getAnnotation(JsonApiLookupIncludeAutomatically.class).overwrite())) {
                 try {
                     property = loadRelationship(resource, field, queryParams, parameterProvider);
                     PropertyUtils.setProperty(resource, field.getName(), property);
