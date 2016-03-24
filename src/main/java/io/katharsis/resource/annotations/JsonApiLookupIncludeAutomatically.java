@@ -16,4 +16,11 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.METHOD})
 public @interface JsonApiLookupIncludeAutomatically {
+
+    /**
+     * Defines whether Katharsis should overwrite the value of the related object on the resource when setting inclusions
+     *
+     * @return true if the related object field is to be overwritten, false otherwise
+     */
+    boolean overwrite() default false;
 }

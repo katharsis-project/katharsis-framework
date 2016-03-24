@@ -1,5 +1,8 @@
-# katharsis-core v2.3.1 git changelog
+# katharsis-core v2.3.2-SNAPSHOT git changelog
 
+2016-03-22    [#243](https://github.com/katharsis-project/katharsis-core/issues/243) javadoc for JsonApiLookupIncludeAutomatically (Patryk Orwat)  
+2016-03-22    [#263](https://github.com/katharsis-project/katharsis-core/issues/263) Non-annotated nested resource ID and relationships are now returned (Patryk Orwat)  
+2016-03-21    [#262](https://github.com/katharsis-project/katharsis-core/issues/262) added meta and links information per resource (Patryk Orwat)  
 
 **v2.3.1**  
 2016-03-13    v2.3.1 (Patryk Orwat)  
