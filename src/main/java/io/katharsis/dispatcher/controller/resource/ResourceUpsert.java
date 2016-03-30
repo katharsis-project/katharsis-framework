@@ -11,6 +11,7 @@ import io.katharsis.request.dto.LinkageData;
 import io.katharsis.resource.exception.ResourceException;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.field.ResourceField;
+import io.katharsis.resource.field.attribute.ResourceAttributesBridge;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -56,16 +57,16 @@ public abstract class ResourceUpsert extends BaseController {
             Object instanceWithNewFields = reader.readValue(dataBody.getAttributes());
             Iterator<String> propertyNameIterator = dataBody.getAttributes()
                 .fieldNames();
+            ResourceAttributesBridge resourceAttributesBridge = resourceInformation.getAttributeFields();
             while (propertyNameIterator.hasNext()) {
                 String propertyName = propertyNameIterator.next();
-                ResourceField attributeField = resourceInformation.findAttributeFieldByName(propertyName);
-                
+                Object property = PropertyUtils.getProperty(instanceWithNewFields, attributeField.getUnderlyingName());
+                resourceAttributesBridge.setProperty(instance ,propertyName, property);
                 //Needed for JsonIgnore
                 if(attributeField == null) {
                     continue;
                 }
-                
-                Object property = PropertyUtils.getProperty(instanceWithNewFields, attributeField.getUnderlyingName());
+
                 PropertyUtils.setProperty(instance, attributeField.getUnderlyingName(), property);
             }
         }

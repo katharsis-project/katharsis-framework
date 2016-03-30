@@ -97,11 +97,12 @@ public class ContainerSerializer extends JsonSerializer<Container> {
                 "Error writing id field: " + resourceInformation.getIdField().getUnderlyingName());
         }
 
+        Set<ResourceField> attributeFields = resourceInformation.getAttributeFields().getAttributes(data);
         try {
-            writeAttributes(gen, data, resourceInformation.getAttributeFields(), includedFields);
+            writeAttributes(gen, data, attributeFields, includedFields);
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             StringBuilder attributeFieldNames = new StringBuilder();
-            for (ResourceField attributeField : resourceInformation.getAttributeFields()) {
+            for (ResourceField attributeField : attributeFields) {
                 attributeFieldNames.append(attributeField.getUnderlyingName());
                 attributeFieldNames.append(" ");
             }

@@ -21,6 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ResourceInformationBuilderTest {
 
     private static final String NAME_PROPERTY = "underlyingName";
+    private Object resource = new Object();
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -65,7 +66,7 @@ public class ResourceInformationBuilderTest {
     public void shouldHaveProperBasicFieldInfoForValidResource() throws Exception {
         ResourceInformation resourceInformation = resourceInformationBuilder.build(Task.class);
 
-        assertThat(resourceInformation.getAttributeFields())
+        assertThat(resourceInformation.getAttributeFields().getAttributes(resource))
             .isNotNull()
             .hasSize(2)
             .extracting(NAME_PROPERTY)
@@ -94,7 +95,7 @@ public class ResourceInformationBuilderTest {
     public void shouldHaveNoAttributesInfoForIgnoredField() throws Exception {
         ResourceInformation resourceInformation = resourceInformationBuilder.build(AccessorGetterResource.class);
 
-        assertThat(resourceInformation.getAttributeFields())
+        assertThat(resourceInformation.getAttributeFields().getAttributes(resource))
             .isNotNull()
             .hasSize(1)
             .extracting(NAME_PROPERTY)
@@ -105,7 +106,7 @@ public class ResourceInformationBuilderTest {
     public void shouldNotReturnFieldBasedOnAccessorGetterWhenGetterIsIgnored() throws Exception {
         ResourceInformation resourceInformation = resourceInformationBuilder.build(IgnoredAccessorGetterResource.class);
 
-        assertThat(resourceInformation.getAttributeFields())
+        assertThat(resourceInformation.getAttributeFields().getAttributes(resource))
             .isNotNull()
             .isEmpty();
     }
@@ -114,7 +115,7 @@ public class ResourceInformationBuilderTest {
     public void shouldReturnFieldBasedOnFieldOnlyAndIgnoreGetter() throws Exception {
         ResourceInformation resourceInformation = resourceInformationBuilder.build(FieldWithAccessorGetterResource.class);
 
-        assertThat(resourceInformation.getAttributeFields())
+        assertThat(resourceInformation.getAttributeFields().getAttributes(resource))
             .isNotNull()
             .hasSize(1)
             .extracting(NAME_PROPERTY)
@@ -142,7 +143,7 @@ public class ResourceInformationBuilderTest {
     public void shouldHaveNoAttributesInfoForTransientField() throws Exception {
         ResourceInformation resourceInformation = resourceInformationBuilder.build(IgnoredTransientAttributeResource.class);
 
-        assertThat(resourceInformation.getAttributeFields())
+        assertThat(resourceInformation.getAttributeFields().getAttributes(resource))
             .isNotNull()
             .hasSize(0);
     }
@@ -151,7 +152,7 @@ public class ResourceInformationBuilderTest {
     public void shouldHaveNoAttributesInfoForStaticField() throws Exception {
         ResourceInformation resourceInformation = resourceInformationBuilder.build(IgnoredStaticAttributeResource.class);
 
-        assertThat(resourceInformation.getAttributeFields())
+        assertThat(resourceInformation.getAttributeFields().getAttributes(resource))
             .isNotNull()
             .hasSize(0);
     }
@@ -160,7 +161,7 @@ public class ResourceInformationBuilderTest {
     public void shouldHaveNoAttributesInfoForStaticMethod() throws Exception {
         ResourceInformation resourceInformation = resourceInformationBuilder.build(IgnoredStaticGetterResource.class);
 
-        assertThat(resourceInformation.getAttributeFields())
+        assertThat(resourceInformation.getAttributeFields().getAttributes(resource))
             .isNotNull()
             .hasSize(0);
     }
@@ -169,7 +170,7 @@ public class ResourceInformationBuilderTest {
     public void shouldHaveOrderedAttributesForOrderedResource() throws Exception {
         ResourceInformation resourceInformation = resourceInformationBuilder.build(OrderedResource.class);
 
-        assertThat(resourceInformation.getAttributeFields())
+        assertThat(resourceInformation.getAttributeFields().getAttributes(resource))
             .isNotNull()
             .extracting(NAME_PROPERTY)
             .containsSequence("b", "a", "c");
@@ -179,7 +180,7 @@ public class ResourceInformationBuilderTest {
     public void shouldHaveAlphabeticAttributesForAlphabeticResource() throws Exception {
         ResourceInformation resourceInformation = resourceInformationBuilder.build(AlphabeticResource.class);
 
-        assertThat(resourceInformation.getAttributeFields())
+        assertThat(resourceInformation.getAttributeFields().getAttributes(resource))
             .isNotNull()
             .extracting(NAME_PROPERTY)
             .containsSequence("a", "b", "c");

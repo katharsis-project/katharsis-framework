@@ -28,7 +28,7 @@ public class FieldRepositoryAdapter<T, T_ID, D, D_ID>
     public D addField(T_ID resource, D field, String fieldName, QueryParams queryParams) {
         Class<JsonApiAddField> annotationType = JsonApiAddField.class;
         if (addFieldMethod == null) {
-            addFieldMethod = ClassUtils.findMethodWith(implementationObject, annotationType);
+            addFieldMethod = ClassUtils.findMethodWith(implementationClass, annotationType);
         }
         Object[] firstParameters = {resource, field, fieldName};
         return invokeOperation(addFieldMethod, annotationType, firstParameters, queryParams);
@@ -38,7 +38,7 @@ public class FieldRepositoryAdapter<T, T_ID, D, D_ID>
     public Iterable<D> addFields(T_ID resource, Iterable<D> fields, String fieldName, QueryParams queryParams) {
         Class<JsonApiAddFields> annotationType = JsonApiAddFields.class;
         if (addFieldsMethod == null) {
-            addFieldsMethod = ClassUtils.findMethodWith(implementationObject, annotationType);
+            addFieldsMethod = ClassUtils.findMethodWith(implementationClass, annotationType);
         }
         Object[] firstParameters = {resource, fields, fieldName};
         return invokeOperation(addFieldsMethod, annotationType, firstParameters, queryParams);
@@ -48,7 +48,7 @@ public class FieldRepositoryAdapter<T, T_ID, D, D_ID>
     public void deleteField(T_ID resource, String fieldName, QueryParams queryParams) {
         Class<JsonApiDeleteField> annotationType = JsonApiDeleteField.class;
         if (deleteFieldMethod == null) {
-            deleteFieldMethod = ClassUtils.findMethodWith(implementationObject, annotationType);
+            deleteFieldMethod = ClassUtils.findMethodWith(implementationClass, annotationType);
         }
         Object[] firstParameters = {resource, fieldName};
         invokeOperation(deleteFieldMethod, annotationType, firstParameters, queryParams);
@@ -58,7 +58,7 @@ public class FieldRepositoryAdapter<T, T_ID, D, D_ID>
     public void deleteFields(T_ID resource, Iterable<D_ID> targetIds, String fieldName, QueryParams queryParams) {
         Class<JsonApiDeleteFields> annotationType = JsonApiDeleteFields.class;
         if (deleteFieldsMethod == null) {
-            deleteFieldsMethod = ClassUtils.findMethodWith(implementationObject, annotationType);
+            deleteFieldsMethod = ClassUtils.findMethodWith(implementationClass, annotationType);
         }
         Object[] firstParameters = {resource, targetIds, fieldName};
         invokeOperation(deleteFieldsMethod, annotationType, firstParameters, queryParams);

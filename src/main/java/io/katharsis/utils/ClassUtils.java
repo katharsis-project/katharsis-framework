@@ -153,22 +153,21 @@ public class ClassUtils {
     /**
      * Return a first occurrence of a method annotated with specified annotation
      *
-     * @param searchObject    instance to be searched
+     * @param searchClass    class to be searched
      * @param annotationClass annotation class
      * @return annotated method or null
      */
-    public static Method findMethodWith(Object searchObject, Class<? extends Annotation> annotationClass) {
+    public static Method findMethodWith(Class<?> searchClass, Class<? extends Annotation> annotationClass) {
         Method foundMethod = null;
-        Class<?> currentClass = searchObject.getClass();
         methodFinder:
-        while (currentClass != null && currentClass != Object.class) {
-            for (Method method : currentClass.getDeclaredMethods()) {
+        while (searchClass != null && searchClass != Object.class) {
+            for (Method method : searchClass.getDeclaredMethods()) {
                 if (method.isAnnotationPresent(annotationClass)) {
                     foundMethod = method;
                     break methodFinder;
                 }
             }
-            currentClass = currentClass.getSuperclass();
+            searchClass = searchClass.getSuperclass();
         }
 
         return foundMethod;
