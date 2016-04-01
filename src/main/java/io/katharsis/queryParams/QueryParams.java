@@ -2,11 +2,23 @@ package io.katharsis.queryParams;
 
 import io.katharsis.jackson.exception.ParametersDeserializationException;
 import io.katharsis.queryParams.include.Inclusion;
-import io.katharsis.queryParams.params.*;
+import io.katharsis.queryParams.params.FilterParams;
+import io.katharsis.queryParams.params.GroupingParams;
+import io.katharsis.queryParams.params.IncludedFieldsParams;
+import io.katharsis.queryParams.params.IncludedRelationsParams;
+import io.katharsis.queryParams.params.SortingParams;
+import io.katharsis.queryParams.params.TypedParams;
 import io.katharsis.resource.RestrictedQueryParamsMembers;
 import io.katharsis.utils.StringUtils;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -342,7 +354,7 @@ public class QueryParams {
         String entryKey = entry.getKey()
             .substring(prefix.length());
 
-        String pattern = "[\\w-]+(?<!\\[)(?=\\])";
+        String pattern = "[\\w\\-!@#$%^&*()=+]+(?<!\\[)(?=\\])";
         Pattern regexp = Pattern.compile(pattern);
         Matcher matcher = regexp.matcher(entryKey);
         List<String> matchList = new LinkedList<>();

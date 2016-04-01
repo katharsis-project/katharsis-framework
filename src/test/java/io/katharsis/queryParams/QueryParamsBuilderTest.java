@@ -5,7 +5,12 @@ import io.katharsis.queryParams.include.Inclusion;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -127,7 +132,7 @@ public class QueryParamsBuilderTest {
     public void onGivenIncludedRelationBuilderShouldReturnRequestParamsWithIncludedRelation() throws
         ParametersDeserializationException {
         // GIVEN
-        queryParams.put("include[special-users]", Collections.singleton("friends"));
+        queryParams.put("include[special-users!@#$%^&*()_+=]", Collections.singleton("friends"));
 
         // WHEN
         QueryParams result = sut.buildQueryParams(queryParams);
@@ -135,11 +140,11 @@ public class QueryParamsBuilderTest {
         // THEN
         assertThat(result.getIncludedRelations()
             .getParams()
-            .get("special-users")).isNotNull();
+            .get("special-users!@#$%^&*()_+=")).isNotNull();
 
         assertThat(result.getIncludedRelations()
             .getParams()
-            .get("special-users")
+            .get("special-users!@#$%^&*()_+=")
             .getParams()
             .iterator()
             .next()
