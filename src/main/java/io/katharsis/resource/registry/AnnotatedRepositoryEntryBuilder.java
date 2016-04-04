@@ -8,7 +8,7 @@ import io.katharsis.resource.registry.repository.AnnotatedRelationshipEntryBuild
 import io.katharsis.resource.registry.repository.AnnotatedResourceEntryBuilder;
 import io.katharsis.resource.registry.repository.RelationshipEntry;
 import io.katharsis.resource.registry.repository.ResourceEntry;
-import io.katharsis.utils.Predicate;
+import io.katharsis.utils.Predicate1;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
@@ -28,7 +28,7 @@ public class AnnotatedRepositoryEntryBuilder implements RepositoryEntryBuilder {
 
     @Override
     public ResourceEntry<?, ?> buildResourceRepository(ResourceLookup lookup, final Class<?> resourceClass) {
-        Predicate<Class<?>> classPredicate = new Predicate<Class<?>>() {
+        Predicate1<Class<?>> classPredicate = new Predicate1<Class<?>>() {
             @Override
             public boolean test(Class<?> clazz) {
                 return resourceClass.equals(clazz.getAnnotation(JsonApiResourceRepository.class).value());
@@ -45,7 +45,7 @@ public class AnnotatedRepositoryEntryBuilder implements RepositoryEntryBuilder {
 
     @Override
     public List<RelationshipEntry<?, ?>> buildRelationshipRepositories(ResourceLookup lookup, final Class<?> resourceClass) {
-        Predicate<Class<?>> classPredicate = new Predicate<Class<?>>() {
+        Predicate1<Class<?>> classPredicate = new Predicate1<Class<?>>() {
             @Override
             public boolean test(Class<?> clazz) {
                 JsonApiRelationshipRepository annotation = clazz.getAnnotation(JsonApiRelationshipRepository.class);
@@ -62,7 +62,7 @@ public class AnnotatedRepositoryEntryBuilder implements RepositoryEntryBuilder {
         return relationshipEntries;
     }
 
-    private List<Object> findRepositoryObject(ResourceLookup lookup, Predicate<Class<?>> classPredicate, Class<? extends Annotation> annotation) {
+    private List<Object> findRepositoryObject(ResourceLookup lookup, Predicate1<Class<?>> classPredicate, Class<? extends Annotation> annotation) {
         List<Object> repositoryObjects = new LinkedList<>();
 
         for (Class<?> clazz : lookup.getResourceRepositoryClasses()) {

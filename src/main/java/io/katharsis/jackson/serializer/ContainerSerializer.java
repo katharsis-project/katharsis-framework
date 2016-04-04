@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
+import com.fasterxml.jackson.databind.ser.PropertyWriter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import io.katharsis.jackson.exception.JsonSerializationException;
 import io.katharsis.queryParams.params.IncludedFieldsParams;
@@ -22,7 +23,9 @@ import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.Container;
 import io.katharsis.response.DataLinksContainer;
 import io.katharsis.utils.BeanUtils;
+import io.katharsis.utils.Predicate2;
 import io.katharsis.utils.PropertyUtils;
+import io.katharsis.utils.java.Optional;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -97,17 +100,11 @@ public class ContainerSerializer extends JsonSerializer<Container> {
                 "Error writing id field: " + resourceInformation.getIdField().getUnderlyingName());
         }
 
-        Set<ResourceField> attributeFields = resourceInformation.getAttributeFields().getAttributes(data);
+        Set<String> notAttributesFields = relationshipsAndIdName(entry.getResourceInformation());
         try {
-            writeAttributes(gen, data, attributeFields, includedFields);
+            writeAttributes(gen, data, includedFields, notAttributesFields);
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            StringBuilder attributeFieldNames = new StringBuilder();
-            for (ResourceField attributeField : attributeFields) {
-                attributeFieldNames.append(attributeField.getUnderlyingName());
-                attributeFieldNames.append(" ");
-            }
-            throw new JsonSerializationException("Error writing basic fields: " +
-                attributeFieldNames);
+            throw new JsonSerializationException("Error writing basic fields for: " + data.getClass().getCanonicalName());
         }
 
         Set<ResourceField> relationshipFields = getRelationshipFields(resourceType, resourceInformation, includedFields);
@@ -116,12 +113,27 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         writeLinksField(gen, data, entry);
     }
 
-    private Set<ResourceField> getRelationshipFields(String resourceType, ResourceInformation resourceInformation, TypedParams<IncludedFieldsParams> includedFields) {
+    private Set<String> relationshipsAndIdName(ResourceInformation resourceInformation) {
+        Set<String> relationshipsAndIdName = new HashSet<>();
+        for (ResourceField relationshipField : resourceInformation.getRelationshipFields()) {
+            relationshipsAndIdName.add(relationshipField.getJsonName());
+        }
+        relationshipsAndIdName.add(resourceInformation.getIdField().getJsonName());
+        return relationshipsAndIdName;
+    }
+
+    private Set<ResourceField> getRelationshipFields(String resourceType, ResourceInformation resourceInformation,
+                                                     TypedParams<IncludedFieldsParams> includedFields) {
         Set<ResourceField> relationshipFields = new HashSet<>();
-        for (ResourceField resourceField : resourceInformation.getRelationshipFields()) {
-            if (isIncluded(resourceType, includedFields, resourceField)) {
-                relationshipFields.add(resourceField);
+        Optional<Set<String>> fields = includedFields(resourceType, includedFields);
+        if (fields.isPresent()) {
+            for (ResourceField resourceField : resourceInformation.getRelationshipFields()) {
+                if (fields.get().contains(resourceField.getJsonName())) {
+                    relationshipFields.add(resourceField);
+                }
             }
+        } else {
+            relationshipFields.addAll(resourceInformation.getRelationshipFields());
         }
 
         return relationshipFields;
@@ -142,28 +154,43 @@ public class ContainerSerializer extends JsonSerializer<Container> {
      * <i>null</i> resource attributes.
      * @param gen Jackson generator
      * @param data resource object
-     * @param attributeFields resource attribute definitions
      * @param includedFields <i>field</i> query param values
+     * @param notAttributesFields names of relationships and id field
      * @throws IllegalAccessException if couldn't access an attribute
      * @throws InvocationTargetException if couldn't access an attribute
      * @throws NoSuchMethodException if couldn't access an attribute
      * @throws IOException if couldn't write attributes
      */
-    private void writeAttributes(JsonGenerator gen, Object data, Set<ResourceField> attributeFields,
-                                 TypedParams<IncludedFieldsParams> includedFields)
+    private void writeAttributes(JsonGenerator gen, final Object data, TypedParams<IncludedFieldsParams> includedFields,
+                                 final Set<String> notAttributesFields)
         throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
 
         String resourceType = resourceRegistry.getResourceType(data.getClass());
-        
-        Set<String> setOfIncludedFields = new HashSet<>(attributeFields.size());
-        for (ResourceField attributeField : attributeFields) {
-            if (isIncluded(resourceType, includedFields, attributeField)) {
-                setOfIncludedFields.add(attributeField.getJsonName());
-            }
+
+        final Optional<Set<String>> fields = includedFields(resourceType, includedFields);
+
+        Map<String, Object> dataMap;
+        if (fields.isPresent()) {
+            Predicate2<Object, PropertyWriter> includeChecker = new Predicate2<Object, PropertyWriter>() {
+                @Override
+                public boolean test(Object bean, PropertyWriter writer) {
+                    return bean != data || ( fields.get().contains(writer.getName()) &&
+                        !notAttributesFields.contains(writer.getName()));
+                }
+            };
+            ObjectMapper om = getObjectMapper(gen, data, includeChecker);
+            dataMap = om.convertValue(data, new TypeReference<Map<String, Object>>() {});
+        } else {
+            Predicate2<Object, PropertyWriter> includeChecker = new Predicate2<Object, PropertyWriter>() {
+                @Override
+                public boolean test(Object bean, PropertyWriter writer) {
+                    return bean != data || !notAttributesFields.contains(writer.getName());
+                }
+            };
+            ObjectMapper om = getObjectMapper(gen, data, includeChecker);
+            dataMap = om.convertValue(data, new TypeReference<Map<String, Object>>() {});
         }
-        
-        ObjectMapper om = getObjectMapper(gen, data, setOfIncludedFields);
-        Map<String, Object> dataMap = om.convertValue(data, new TypeReference<Map<String, Object>>() {});
+
 
         Attributes attributesObject = new Attributes();
         for(Map.Entry<String,Object> entry : dataMap.entrySet()) {
@@ -179,15 +206,14 @@ public class ContainerSerializer extends JsonSerializer<Container> {
      * filtered accordingly to the requested fields.
      * @param resourceType JSON API name of a resource
      * @param includedFields <i>field</i> query param values
-     * @param attributeField resource attribute field
      * @return <i>true</i> if it should be included in the response, <i>false</i> otherwise
      */
-    private static boolean isIncluded(String resourceType, TypedParams<IncludedFieldsParams> includedFields, ResourceField attributeField) {
+    private static Optional<Set<String>> includedFields(String resourceType, TypedParams<IncludedFieldsParams> includedFields) {
         IncludedFieldsParams typeIncludedFields = findIncludedFields(includedFields, resourceType);
         if (typeIncludedFields == null || typeIncludedFields.getParams().isEmpty()) {
-            return includedFields == null || includedFields.getParams().isEmpty();
+            return Optional.empty();
         } else {
-            return typeIncludedFields.getParams().contains(attributeField.getJsonName());
+            return Optional.of(typeIncludedFields.getParams());
         }
     }
 
@@ -247,12 +273,13 @@ public class ContainerSerializer extends JsonSerializer<Container> {
     /**
      Generate a new object mapper and configure the filter to exclude some properties.
      */
-    private static ObjectMapper getObjectMapper(JsonGenerator gen, final Object data, Set<String> includedFields) {
+    private static ObjectMapper getObjectMapper(JsonGenerator gen, final Object data,
+                                                Predicate2<Object, PropertyWriter> includedFields) {
         ObjectMapper attributesObjectMapper = ((ObjectMapper)gen.getCodec())
             .copy();
 
         FilterProvider fp = new SimpleFilterProvider()
-            .addFilter(JACKSON_ATTRIBUTE_FILTER_NAME, new KatharsisFieldPropertyFilter(includedFields, data));
+            .addFilter(JACKSON_ATTRIBUTE_FILTER_NAME, new KatharsisFieldPropertyFilter(includedFields));
         attributesObjectMapper.setFilterProvider(fp);
 
         attributesObjectMapper.setAnnotationIntrospector(new JacksonAnnotationIntrospector() {

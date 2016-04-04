@@ -1,7 +1,7 @@
 package io.katharsis.resource.information;
 
+import io.katharsis.resource.field.ResourceAttributesBridge;
 import io.katharsis.resource.field.ResourceField;
-import io.katharsis.resource.field.attribute.ResourceAttributesBridge;
 
 import java.util.Objects;
 import java.util.Set;
@@ -67,10 +67,6 @@ public final class ResourceInformation {
 
     public Set<ResourceField> getRelationshipFields() {
         return relationshipFields;
-    }
-
-    public ResourceField findAttributeFieldByName(Object resource, String name) {
-        return getJsonField(name, attributeFields.getAttributes(resource));
     }
 
     public ResourceField findRelationshipFieldByName(String name) {

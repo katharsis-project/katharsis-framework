@@ -1,7 +1,6 @@
 package io.katharsis.dispatcher.controller.resource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
 import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.RelationshipRepository;
@@ -10,8 +9,8 @@ import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.LinkageData;
 import io.katharsis.resource.exception.ResourceException;
 import io.katharsis.resource.exception.ResourceNotFoundException;
+import io.katharsis.resource.field.ResourceAttributesBridge;
 import io.katharsis.resource.field.ResourceField;
-import io.katharsis.resource.field.attribute.ResourceAttributesBridge;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -22,7 +21,10 @@ import io.katharsis.utils.parser.TypeParser;
 import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 public abstract class ResourceUpsert extends BaseController {
     final ResourceRegistry resourceRegistry;
@@ -53,22 +55,8 @@ public abstract class ResourceUpsert extends BaseController {
         throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException,
         IOException {
         if (dataBody.getAttributes() != null) {
-            ObjectReader reader = objectMapper.readerFor(instance.getClass());
-            Object instanceWithNewFields = reader.readValue(dataBody.getAttributes());
-            Iterator<String> propertyNameIterator = dataBody.getAttributes()
-                .fieldNames();
             ResourceAttributesBridge resourceAttributesBridge = resourceInformation.getAttributeFields();
-            while (propertyNameIterator.hasNext()) {
-                String propertyName = propertyNameIterator.next();
-                Object property = PropertyUtils.getProperty(instanceWithNewFields, attributeField.getUnderlyingName());
-                resourceAttributesBridge.setProperty(instance ,propertyName, property);
-                //Needed for JsonIgnore
-                if(attributeField == null) {
-                    continue;
-                }
-
-                PropertyUtils.setProperty(instance, attributeField.getUnderlyingName(), property);
-            }
+            resourceAttributesBridge.setProperties(objectMapper, instance, dataBody.getAttributes());
         }
     }
 
