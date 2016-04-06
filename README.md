@@ -46,6 +46,14 @@ Add dependency to your `pom.xml`:
 ## Documentation and examples
 Documentation, along with example projects and project details are available on project website  [katharsis.io](http://katharsis.io) 
 
+## Contributing
+
+Please submit pull-requests for new features and/or bugs.
+
+The project uses `git flow` development wher `master` branch builds the latest stable release and `develop` contains the latest features getting worked on and soon to be released. Please make pull requests on `develop` branch. 
+
+Git flow tools and detailed description is available at [git flow](https://github.com/nvie/gitflow) .
+
 ## Chat
 Need to directly talk to us? Write on gitter: 
 
