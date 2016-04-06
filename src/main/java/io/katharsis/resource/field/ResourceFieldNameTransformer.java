@@ -1,7 +1,6 @@
 package io.katharsis.resource.field;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
@@ -30,15 +29,15 @@ public class ResourceFieldNameTransformer {
     }
 
     public String getName(Field field) {
+
         String name = field.getName();
         if (field.isAnnotationPresent(JsonProperty.class) &&
             !"".equals(field.getAnnotation(JsonProperty.class).value())) {
             name = field.getAnnotation(JsonProperty.class).value();
         } else if (serializationConfig != null && serializationConfig.getPropertyNamingStrategy() != null) {
             AnnotationMap annotationMap = buildAnnotationMap(field.getDeclaredAnnotations());
-            boolean useAnnotations = serializationConfig.isAnnotationProcessingEnabled();
-            AnnotationIntrospector aintr = useAnnotations ? serializationConfig.getAnnotationIntrospector() : null;
-            AnnotatedClass annotatedClass = AnnotatedClass.construct(field.getDeclaringClass(), aintr, serializationConfig);
+
+            AnnotatedClass annotatedClass = AnnotatedClassBuilder.build(field.getDeclaringClass(), serializationConfig);
             AnnotatedField annotatedField = new AnnotatedField(annotatedClass, field, annotationMap);
             name = serializationConfig.getPropertyNamingStrategy().nameForField(serializationConfig, annotatedField, name);
         }
@@ -70,9 +69,7 @@ public class ResourceFieldNameTransformer {
                 paramAnnotations[i] = parameterAnnotationMap;
             }
 
-            boolean useAnnotations = serializationConfig.isAnnotationProcessingEnabled();
-            AnnotationIntrospector aintr = useAnnotations ? serializationConfig.getAnnotationIntrospector() : null;
-            AnnotatedClass annotatedClass = AnnotatedClass.construct(method.getDeclaringClass(), aintr, serializationConfig);
+            AnnotatedClass annotatedClass = AnnotatedClassBuilder.build(method.getDeclaringClass(), serializationConfig);
             AnnotatedMethod annotatedField = new AnnotatedMethod(annotatedClass, method, annotationMap, paramAnnotations);
             name = serializationConfig.getPropertyNamingStrategy().nameForGetterMethod(serializationConfig, annotatedField, name);
         }
