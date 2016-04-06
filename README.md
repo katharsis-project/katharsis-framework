@@ -50,7 +50,7 @@ Documentation, along with example projects and project details are available on 
 
 Please submit pull-requests for new features and/or bugs.
 
-The project uses `git flow` development wher `master` branch builds the latest stable release and `develop` contains the latest features getting worked on and soon to be released. Please make pull requests on `develop` branch. 
+The project uses `git flow` development where `master` branch builds the latest stable release and `develop` contains the latest features getting worked on and soon to be released. Please make pull requests on `develop` branch. 
 
 Git flow tools and detailed description is available at [git flow](https://github.com/nvie/gitflow) .
 
