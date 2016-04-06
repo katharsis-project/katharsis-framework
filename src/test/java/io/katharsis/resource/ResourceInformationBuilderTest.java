@@ -2,7 +2,11 @@ package io.katharsis.resource;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import io.katharsis.resource.annotations.*;
+import io.katharsis.resource.annotations.JsonApiId;
+import io.katharsis.resource.annotations.JsonApiLinksInformation;
+import io.katharsis.resource.annotations.JsonApiMetaInformation;
+import io.katharsis.resource.annotations.JsonApiResource;
+import io.katharsis.resource.annotations.JsonApiToOne;
 import io.katharsis.resource.exception.init.MultipleJsonApiLinksInformationException;
 import io.katharsis.resource.exception.init.MultipleJsonApiMetaInformationException;
 import io.katharsis.resource.exception.init.ResourceDuplicateIdException;
@@ -62,17 +66,6 @@ public class ResourceInformationBuilderTest {
     }
 
     @Test
-    public void shouldHaveProperBasicFieldInfoForValidResource() throws Exception {
-        ResourceInformation resourceInformation = resourceInformationBuilder.build(Task.class);
-
-        assertThat(resourceInformation.getAttributeFields())
-            .isNotNull()
-            .hasSize(2)
-            .extracting(NAME_PROPERTY)
-            .containsOnly("name", "otherTasks");
-    }
-
-    @Test
     public void shouldHaveProperRelationshipFieldInfoForValidResource() throws Exception {
         ResourceInformation resourceInformation = resourceInformationBuilder.build(Task.class);
 
@@ -91,37 +84,6 @@ public class ResourceInformationBuilderTest {
     }
 
     @Test
-    public void shouldHaveNoAttributesInfoForIgnoredField() throws Exception {
-        ResourceInformation resourceInformation = resourceInformationBuilder.build(AccessorGetterResource.class);
-
-        assertThat(resourceInformation.getAttributeFields())
-            .isNotNull()
-            .hasSize(1)
-            .extracting(NAME_PROPERTY)
-            .containsOnly("accessorField");
-    }
-
-    @Test
-    public void shouldNotReturnFieldBasedOnAccessorGetterWhenGetterIsIgnored() throws Exception {
-        ResourceInformation resourceInformation = resourceInformationBuilder.build(IgnoredAccessorGetterResource.class);
-
-        assertThat(resourceInformation.getAttributeFields())
-            .isNotNull()
-            .isEmpty();
-    }
-
-    @Test
-    public void shouldReturnFieldBasedOnFieldOnlyAndIgnoreGetter() throws Exception {
-        ResourceInformation resourceInformation = resourceInformationBuilder.build(FieldWithAccessorGetterResource.class);
-
-        assertThat(resourceInformation.getAttributeFields())
-            .isNotNull()
-            .hasSize(1)
-            .extracting(NAME_PROPERTY)
-            .containsOnly("accessorField");
-    }
-
-    @Test
     public void shouldReturnIdFieldBasedOnFieldGetter() throws Exception {
         ResourceInformation resourceInformation = resourceInformationBuilder.build(IdFieldWithAccessorGetterResource.class);
 
@@ -136,53 +98,6 @@ public class ResourceInformationBuilderTest {
         assertThat(resourceInformation.getRelationshipFields())
             .isNotNull()
             .hasSize(0);
-    }
-
-    @Test
-    public void shouldHaveNoAttributesInfoForTransientField() throws Exception {
-        ResourceInformation resourceInformation = resourceInformationBuilder.build(IgnoredTransientAttributeResource.class);
-
-        assertThat(resourceInformation.getAttributeFields())
-            .isNotNull()
-            .hasSize(0);
-    }
-
-    @Test
-    public void shouldHaveNoAttributesInfoForStaticField() throws Exception {
-        ResourceInformation resourceInformation = resourceInformationBuilder.build(IgnoredStaticAttributeResource.class);
-
-        assertThat(resourceInformation.getAttributeFields())
-            .isNotNull()
-            .hasSize(0);
-    }
-
-    @Test
-    public void shouldHaveNoAttributesInfoForStaticMethod() throws Exception {
-        ResourceInformation resourceInformation = resourceInformationBuilder.build(IgnoredStaticGetterResource.class);
-
-        assertThat(resourceInformation.getAttributeFields())
-            .isNotNull()
-            .hasSize(0);
-    }
-
-    @Test
-    public void shouldHaveOrderedAttributesForOrderedResource() throws Exception {
-        ResourceInformation resourceInformation = resourceInformationBuilder.build(OrderedResource.class);
-
-        assertThat(resourceInformation.getAttributeFields())
-            .isNotNull()
-            .extracting(NAME_PROPERTY)
-            .containsSequence("b", "a", "c");
-    }
-
-    @Test
-    public void shouldHaveAlphabeticAttributesForAlphabeticResource() throws Exception {
-        ResourceInformation resourceInformation = resourceInformationBuilder.build(AlphabeticResource.class);
-
-        assertThat(resourceInformation.getAttributeFields())
-            .isNotNull()
-            .extracting(NAME_PROPERTY)
-            .containsSequence("a", "b", "c");
     }
 
     @Test

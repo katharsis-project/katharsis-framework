@@ -3,7 +3,12 @@ package io.katharsis.resource.registry;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.repository.exception.RelationshipRepositoryNotFoundException;
 import io.katharsis.resource.information.ResourceInformation;
-import io.katharsis.resource.mock.models.*;
+import io.katharsis.resource.mock.models.Document;
+import io.katharsis.resource.mock.models.Memorandum;
+import io.katharsis.resource.mock.models.Project;
+import io.katharsis.resource.mock.models.Task;
+import io.katharsis.resource.mock.models.Thing;
+import io.katharsis.resource.mock.models.User;
 import io.katharsis.resource.mock.repository.TaskRepository;
 import io.katharsis.resource.mock.repository.TaskToProjectRepository;
 import io.katharsis.resource.registry.repository.AnnotatedResourceEntryBuilder;
@@ -85,6 +90,7 @@ public class RegistryEntryTest {
         RegistryEntry red = new RegistryEntry(new ResourceInformation(Long.class, null, null, null), null);
         EqualsVerifier.forClass(RegistryEntry.class)
                 .withPrefabValues(RegistryEntry.class, blue, red)
+                .withPrefabValues(ResourceInformation.class, new ResourceInformation(String.class, null, null, null), new ResourceInformation(Long.class, null, null, null))
                 .withPrefabValues(Field.class, String.class.getDeclaredField("value"), String.class.getDeclaredField("hash"))
                 .usingGetClass()
                 .suppress(Warning.NONFINAL_FIELDS)

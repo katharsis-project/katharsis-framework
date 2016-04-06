@@ -2,11 +2,16 @@ package io.katharsis.resource.information;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import io.katharsis.resource.annotations.*;
+import io.katharsis.resource.annotations.JsonApiId;
+import io.katharsis.resource.annotations.JsonApiLinksInformation;
+import io.katharsis.resource.annotations.JsonApiMetaInformation;
+import io.katharsis.resource.annotations.JsonApiToMany;
+import io.katharsis.resource.annotations.JsonApiToOne;
 import io.katharsis.resource.exception.init.MultipleJsonApiLinksInformationException;
 import io.katharsis.resource.exception.init.MultipleJsonApiMetaInformationException;
 import io.katharsis.resource.exception.init.ResourceDuplicateIdException;
 import io.katharsis.resource.exception.init.ResourceIdNotFoundException;
+import io.katharsis.resource.field.ResourceAttributesBridge;
 import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.field.FieldOrderedComparator;
@@ -18,7 +23,16 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * A builder which creates ResourceInformation instances of a specific class. It extracts information about a resource
@@ -40,6 +54,7 @@ public final class ResourceInformationBuilder {
         Optional<JsonPropertyOrder> propertyOrder = ClassUtils.getAnnotation(resourceClass, JsonPropertyOrder.class);
         Set<ResourceField> basicFields = getBasicFields(resourceFields, idField, propertyOrder);
         Set<ResourceField> relationshipFields = getRelationshipFields(resourceFields, idField, propertyOrder);
+        ResourceAttributesBridge<?> attributesBridge = new ResourceAttributesBridge(basicFields, resourceClass);
 
         String metaFieldName = getMetaFieldName(resourceClass, resourceFields);
         String linksFieldName = getLinksFieldName(resourceClass, resourceFields);
@@ -47,7 +62,7 @@ public final class ResourceInformationBuilder {
         return new ResourceInformation(
             resourceClass,
             idField,
-            basicFields,
+            attributesBridge,
             relationshipFields,
             metaFieldName,
             linksFieldName);

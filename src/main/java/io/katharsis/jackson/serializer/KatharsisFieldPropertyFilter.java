@@ -5,17 +5,14 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.ser.PropertyWriter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
-
-import java.util.Set;
+import io.katharsis.utils.Predicate2;
 
 public class KatharsisFieldPropertyFilter extends SimpleBeanPropertyFilter {
 
-    private final Set<String> properties;
-    private final Object resource;
+    private final Predicate2<Object, PropertyWriter> includeChecker;
 
-    public KatharsisFieldPropertyFilter(Set<String> properties, Object resource) {
-        this.properties = properties;
-        this.resource = resource;
+    public KatharsisFieldPropertyFilter(Predicate2<Object, PropertyWriter> includeChecker) {
+        this.includeChecker = includeChecker;
     }
 
     @Override
@@ -35,6 +32,6 @@ public class KatharsisFieldPropertyFilter extends SimpleBeanPropertyFilter {
     }
 
     private boolean include(Object bean, PropertyWriter writer) {
-        return bean != resource || properties.contains(writer.getName());
+        return includeChecker.test(bean, writer);
     }
 }

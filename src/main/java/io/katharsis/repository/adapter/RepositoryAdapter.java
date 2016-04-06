@@ -17,14 +17,16 @@ import java.lang.reflect.Method;
 
 public abstract class RepositoryAdapter<T> implements LinksRepository<T>, MetaRepository<T> {
 
-    protected final Object implementationObject;
-    protected final ParametersFactory parametersFactory;
+    final Object implementationObject;
+    final Class<?> implementationClass;
+    final ParametersFactory parametersFactory;
 
     private Method linksMethod;
     private Method metaMethod;
 
     public RepositoryAdapter(Object implementationObject, ParametersFactory parametersFactory) {
         this.implementationObject = implementationObject;
+        this.implementationClass = implementationObject.getClass();
         this.parametersFactory = parametersFactory;
     }
 
@@ -47,7 +49,7 @@ public abstract class RepositoryAdapter<T> implements LinksRepository<T>, MetaRe
 
     private void assignLinksMethod() {
         if (linksMethod == null) {
-            linksMethod = ClassUtils.findMethodWith(implementationObject, JsonApiLinks.class);
+            linksMethod = ClassUtils.findMethodWith(implementationClass, JsonApiLinks.class);
         }
     }
 
@@ -70,7 +72,7 @@ public abstract class RepositoryAdapter<T> implements LinksRepository<T>, MetaRe
 
     private void assignMetaMethod() {
         if (metaMethod == null) {
-            metaMethod = ClassUtils.findMethodWith(implementationObject, JsonApiMeta.class);
+            metaMethod = ClassUtils.findMethodWith(implementationClass, JsonApiMeta.class);
         }
     }
 

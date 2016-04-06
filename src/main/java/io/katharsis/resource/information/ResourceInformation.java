@@ -1,5 +1,6 @@
 package io.katharsis.resource.information;
 
+import io.katharsis.resource.field.ResourceAttributesBridge;
 import io.katharsis.resource.field.ResourceField;
 
 import java.util.Objects;
@@ -19,7 +20,7 @@ public final class ResourceInformation {
     /**
      * A set of resource's attribute fields.
      */
-    private final Set<ResourceField> attributeFields;
+    private final ResourceAttributesBridge attributeFields;
 
     /**
      * A set of fields that contains non-standard Java types (List, Set, custom classes, ...).
@@ -37,12 +38,12 @@ public final class ResourceInformation {
      */
     private final String linksFieldName;
 
-    public ResourceInformation(Class<?> resourceClass, ResourceField idField, Set<ResourceField> attributeFields,
+    public ResourceInformation(Class<?> resourceClass, ResourceField idField, ResourceAttributesBridge attributeFields,
                                Set<ResourceField> relationshipFields) {
         this(resourceClass, idField, attributeFields, relationshipFields, null, null);
     }
 
-    public ResourceInformation(Class<?> resourceClass, ResourceField idField, Set<ResourceField> attributeFields,
+    public ResourceInformation(Class<?> resourceClass, ResourceField idField, ResourceAttributesBridge attributeFields,
                                Set<ResourceField> relationshipFields, String metaFieldName, String linksFieldName) {
         this.resourceClass = resourceClass;
         this.idField = idField;
@@ -60,16 +61,12 @@ public final class ResourceInformation {
         return idField;
     }
 
-    public Set<ResourceField> getAttributeFields() {
+    public ResourceAttributesBridge getAttributeFields() {
         return attributeFields;
     }
 
     public Set<ResourceField> getRelationshipFields() {
         return relationshipFields;
-    }
-
-    public ResourceField findAttributeFieldByName(String name) {
-        return getJsonField(name, attributeFields);
     }
 
     public ResourceField findRelationshipFieldByName(String name) {
