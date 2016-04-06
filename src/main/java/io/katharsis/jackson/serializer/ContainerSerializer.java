@@ -29,6 +29,7 @@ import io.katharsis.utils.java.Optional;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -152,14 +153,15 @@ public class ContainerSerializer extends JsonSerializer<Container> {
     /**
      * Writes resource attributes object taking into account <i>fields</i> query params. It doesn't allow writing
      * <i>null</i> resource attributes.
-     * @param gen Jackson generator
-     * @param data resource object
-     * @param includedFields <i>field</i> query param values
+     *
+     * @param gen                 Jackson generator
+     * @param data                resource object
+     * @param includedFields      <i>field</i> query param values
      * @param notAttributesFields names of relationships and id field
-     * @throws IllegalAccessException if couldn't access an attribute
+     * @throws IllegalAccessException    if couldn't access an attribute
      * @throws InvocationTargetException if couldn't access an attribute
-     * @throws NoSuchMethodException if couldn't access an attribute
-     * @throws IOException if couldn't write attributes
+     * @throws NoSuchMethodException     if couldn't access an attribute
+     * @throws IOException               if couldn't write attributes
      */
     private void writeAttributes(JsonGenerator gen, final Object data, TypedParams<IncludedFieldsParams> includedFields,
                                  final Set<String> notAttributesFields)
@@ -174,12 +176,13 @@ public class ContainerSerializer extends JsonSerializer<Container> {
             Predicate2<Object, PropertyWriter> includeChecker = new Predicate2<Object, PropertyWriter>() {
                 @Override
                 public boolean test(Object bean, PropertyWriter writer) {
-                    return bean != data || ( fields.get().contains(writer.getName()) &&
+                    return bean != data || (fields.get().contains(writer.getName()) &&
                         !notAttributesFields.contains(writer.getName()));
                 }
             };
             ObjectMapper om = getObjectMapper(gen, data, includeChecker);
-            dataMap = om.convertValue(data, new TypeReference<Map<String, Object>>() {});
+            dataMap = om.convertValue(data, new TypeReference<Map<String, Object>>() {
+            });
         } else {
             Predicate2<Object, PropertyWriter> includeChecker = new Predicate2<Object, PropertyWriter>() {
                 @Override
@@ -188,13 +191,14 @@ public class ContainerSerializer extends JsonSerializer<Container> {
                 }
             };
             ObjectMapper om = getObjectMapper(gen, data, includeChecker);
-            dataMap = om.convertValue(data, new TypeReference<Map<String, Object>>() {});
+            dataMap = om.convertValue(data, new TypeReference<Map<String, Object>>() {
+            });
         }
 
 
         Attributes attributesObject = new Attributes();
-        for(Map.Entry<String,Object> entry : dataMap.entrySet()) {
-            if(entry.getValue() != null)
+        for (Map.Entry<String, Object> entry : dataMap.entrySet()) {
+            if (entry.getValue() != null)
                 attributesObject.addAttribute(entry.getKey(), entry.getValue());
         }
 
@@ -203,20 +207,55 @@ public class ContainerSerializer extends JsonSerializer<Container> {
 
     /**
      * When <i>fields</i> filter is passed in the query params, <b>attributes</b> and <b>relationships</b> should be
-     * filtered accordingly to the requested fields.
-     * @param resourceType JSON API name of a resource
+     * filtered accordingly to the requested fields. If there are included fields defined for other resources but not
+     * for the current one, empty set is returned
+     *
+     * @param resourceType   JSON API name of a resource
      * @param includedFields <i>field</i> query param values
-     * @return <i>true</i> if it should be included in the response, <i>false</i> otherwise
+     * @return true if it should be included in the response, false otherwise
      */
     private static Optional<Set<String>> includedFields(String resourceType, TypedParams<IncludedFieldsParams> includedFields) {
         IncludedFieldsParams typeIncludedFields = findIncludedFields(includedFields, resourceType);
-        if (typeIncludedFields == null || typeIncludedFields.getParams().isEmpty()) {
+        if (fieldsForOtherResourceSpecified(includedFields, typeIncludedFields)) {
+            return Optional.of(Collections.<String>emptySet());
+        } else if (noResourceIncludedFieldsSpecified(typeIncludedFields)) {
             return Optional.empty();
         } else {
             return Optional.of(typeIncludedFields.getParams());
         }
     }
 
+    /**
+     * Checks if fields for other resource has been specified but not for the processed one
+     *
+     * @param includedFields     fields to be included
+     * @param typeIncludedFields resource fields to be included
+     * @return true if fields for other resource has been specified but not for the processed one, false otherwise
+     */
+    private static boolean fieldsForOtherResourceSpecified(TypedParams<IncludedFieldsParams> includedFields,
+                                                           IncludedFieldsParams typeIncludedFields) {
+        return includedFields != null &&
+            !includedFields.getParams().isEmpty() &&
+            noResourceIncludedFieldsSpecified(typeIncludedFields);
+    }
+
+    /**
+     * Checks if a value has included fields for a resource
+     *
+     * @param typeIncludedFields found fields set to be checked
+     * @return true if there are no resource fields for inclusion, false otherwise
+     */
+    private static boolean noResourceIncludedFieldsSpecified(IncludedFieldsParams typeIncludedFields) {
+        return typeIncludedFields == null || typeIncludedFields.getParams().isEmpty();
+    }
+
+    /**
+     * Returns included elements for a resource
+     *
+     * @param includedFields included fields from request
+     * @param elementName    resource name
+     * @return included field params
+     */
     private static IncludedFieldsParams findIncludedFields(TypedParams<IncludedFieldsParams> includedFields, String
         elementName) {
         IncludedFieldsParams includedFieldsParams = null;
@@ -271,11 +310,11 @@ public class ContainerSerializer extends JsonSerializer<Container> {
     }
 
     /**
-     Generate a new object mapper and configure the filter to exclude some properties.
+     * Generate a new object mapper and configure the filter to exclude some properties.
      */
     private static ObjectMapper getObjectMapper(JsonGenerator gen, final Object data,
                                                 Predicate2<Object, PropertyWriter> includedFields) {
-        ObjectMapper attributesObjectMapper = ((ObjectMapper)gen.getCodec())
+        ObjectMapper attributesObjectMapper = ((ObjectMapper) gen.getCodec())
             .copy();
 
         FilterProvider fp = new SimpleFilterProvider()
@@ -287,9 +326,9 @@ public class ContainerSerializer extends JsonSerializer<Container> {
             public Object findFilterId(Annotated a) {
                 Object filterId = null;
 
-                if(a instanceof AnnotatedClass) {
+                if (a instanceof AnnotatedClass) {
                     AnnotatedClass ac = (AnnotatedClass) a;
-                    if(ac.getRawType().equals(data.getClass())) {
+                    if (ac.getRawType().equals(data.getClass())) {
                         filterId = JACKSON_ATTRIBUTE_FILTER_NAME;
                     }
                 }
