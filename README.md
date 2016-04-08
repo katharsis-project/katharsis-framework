@@ -13,7 +13,7 @@ Systems nowadays utilize data from various systems to leverage the business need
 
 __Providing homogeneous REST interface__
 
-Katharsis implements JSON API standard which introduce consistent REST interface definition. Now it can be easy to integrate with other systems through uniform mechanisms.
+Katharsis implements JSON API standard which introduces consistent REST interface definition. Now it can be easy to integrate with other systems through uniform mechanisms.
 
 __Use the purest form of REST__
 
@@ -52,7 +52,7 @@ Please submit pull-requests for new features and/or bugs.
 
 The project uses `git flow` development where `master` branch builds the latest stable release and `develop` contains the latest features getting worked on and soon to be released. Please make pull requests on `develop` branch. 
 
-Git flow tools and detailed description is available at [git flow](https://github.com/nvie/gitflow) .
+Git flow tools and detailed description are available at [git flow](https://github.com/nvie/gitflow) .
 
 ## Chat
 Need to directly talk to us? Write on gitter: 
