@@ -3,6 +3,7 @@ package io.katharsis.resource.information;
 import io.katharsis.resource.field.ResourceAttributesBridge;
 import io.katharsis.resource.field.ResourceField;
 
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -90,6 +91,26 @@ public final class ResourceInformation {
 
     public String getLinksFieldName() {
         return linksFieldName;
+    }
+
+    /**
+     * Returns a set of field names which are not basic fields (resource attributes)
+     *
+     * @return not basic attribute names
+     */
+    public Set<String> getNotAttributeFields() {
+        Set<String> notAttributeFields = new HashSet<>();
+        for (ResourceField relationshipField : relationshipFields) {
+            notAttributeFields.add(relationshipField.getJsonName());
+        }
+        notAttributeFields.add(idField.getJsonName());
+        if (metaFieldName != null) {
+            notAttributeFields.add(metaFieldName);
+        }
+        if (linksFieldName != null) {
+            notAttributeFields.add(linksFieldName);
+        }
+        return notAttributeFields;
     }
 
     @Override

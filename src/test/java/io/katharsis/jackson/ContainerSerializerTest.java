@@ -52,12 +52,24 @@ public class ContainerSerializerTest extends BaseSerializerTest {
         // GIVEN
         Project project = new Project();
         project.setName("name");
+        project.setMetaInformation(new MetaInformation() {
+            public long getCount() {
+                return 42;
+            }
+        });
+        project.setLinksInformation(new LinksInformation() {
+            public String getSpaceBubble() {
+                return "value";
+            }
+        });
 
         // WHEN
         String result = sut.writeValueAsString(new Container(project, testResponse));
 
         // THEN
         assertThatJson(result).node("attributes.name").isEqualTo("name");
+        assertThatJson(result).node("attributes.metaInformation").isAbsent();
+        assertThatJson(result).node("attributes.linksInformation").isAbsent();
     }
 
     @Test
