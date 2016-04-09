@@ -9,6 +9,7 @@ import io.katharsis.resource.mock.models.OtherPojo;
 import io.katharsis.resource.mock.models.Pojo;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
+import io.katharsis.resource.mock.models.User;
 import io.katharsis.response.Container;
 import io.katharsis.response.LinksInformation;
 import io.katharsis.response.MetaInformation;
@@ -50,21 +51,21 @@ public class ContainerSerializerTest extends BaseSerializerTest {
     @Test
     public void onSimpleObjectShouldIncludeAttributes() throws Exception {
         // GIVEN
-        Project project = new Project();
-        project.setName("name");
-        project.setMetaInformation(new MetaInformation() {
+        User user = new User();
+        user.setName("name");
+        user.setMetaInformation(new MetaInformation() {
             public long getCount() {
                 return 42;
             }
         });
-        project.setLinksInformation(new LinksInformation() {
+        user.setLinksInformation(new LinksInformation() {
             public String getSpaceBubble() {
                 return "value";
             }
         });
 
         // WHEN
-        String result = sut.writeValueAsString(new Container(project, testResponse));
+        String result = sut.writeValueAsString(new Container(user, testResponse));
 
         // THEN
         assertThatJson(result).node("attributes.name").isEqualTo("name");

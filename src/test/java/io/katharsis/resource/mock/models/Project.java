@@ -1,11 +1,7 @@
 package io.katharsis.resource.mock.models;
 
 import io.katharsis.resource.annotations.JsonApiId;
-import io.katharsis.resource.annotations.JsonApiLinksInformation;
-import io.katharsis.resource.annotations.JsonApiMetaInformation;
 import io.katharsis.resource.annotations.JsonApiResource;
-import io.katharsis.response.LinksInformation;
-import io.katharsis.response.MetaInformation;
 
 @JsonApiResource(type = "projects")
 public class Project {
@@ -16,12 +12,6 @@ public class Project {
     private String name;
 
     private String description;
-
-    @JsonApiMetaInformation
-    private MetaInformation metaInformation;
-
-    @JsonApiLinksInformation
-    private LinksInformation linksInformation;
 
     private ProjectData data;
 
@@ -48,24 +38,6 @@ public class Project {
 
     public void setDescription(@SuppressWarnings("SameParameterValue") String description) {
         this.description = description;
-    }
-
-    public MetaInformation getMetaInformation() {
-        return metaInformation;
-    }
-
-    public Project setMetaInformation(MetaInformation metaInformation) {
-        this.metaInformation = metaInformation;
-        return this;
-    }
-
-    public LinksInformation getLinksInformation() {
-        return linksInformation;
-    }
-
-    public Project setLinksInformation(LinksInformation linksInformation) {
-        this.linksInformation = linksInformation;
-        return this;
     }
 
     public ProjectData getData() {
