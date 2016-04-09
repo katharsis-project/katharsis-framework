@@ -101,7 +101,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
                 "Error writing id field: " + resourceInformation.getIdField().getUnderlyingName());
         }
 
-        Set<String> notAttributesFields = relationshipsAndIdName(entry.getResourceInformation());
+        Set<String> notAttributesFields = entry.getResourceInformation().getNotAttributeFields();
         try {
             writeAttributes(gen, data, includedFields, notAttributesFields);
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
@@ -112,15 +112,6 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         writeRelationshipFields(gen, data, relationshipFields, includedRelations);
         writeMetaField(gen, data, entry);
         writeLinksField(gen, data, entry);
-    }
-
-    private Set<String> relationshipsAndIdName(ResourceInformation resourceInformation) {
-        Set<String> relationshipsAndIdName = new HashSet<>();
-        for (ResourceField relationshipField : resourceInformation.getRelationshipFields()) {
-            relationshipsAndIdName.add(relationshipField.getJsonName());
-        }
-        relationshipsAndIdName.add(resourceInformation.getIdField().getJsonName());
-        return relationshipsAndIdName;
     }
 
     private Set<ResourceField> getRelationshipFields(String resourceType, ResourceInformation resourceInformation,
