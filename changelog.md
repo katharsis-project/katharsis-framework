@@ -1,5 +1,16 @@
-# katharsis-core v2.3.2-SNAPSHOT git changelog
+# katharsis-core v2.3.2 git changelog
 
+2016-04-09    [#262](https://github.com/katharsis-project/katharsis-core/issues/262) fixed tests (Patryk Orwat)  
+2016-04-09    [#262](https://github.com/katharsis-project/katharsis-core/issues/262) meta and links aren't basic fields (Patryk Orwat)  
+2016-04-08    Update katharsis version in README.md (David Martin)  
+2016-04-06    [#280](https://github.com/katharsis-project/katharsis-core/issues/280) allow Katharsis to use Jackson 2.7+ (Patryk Orwat)  
+2016-04-06    [#267](https://github.com/katharsis-project/katharsis-core/issues/267) code refactoring for resource serialization (Patryk Orwat)  
+2016-04-04    [#267](https://github.com/katharsis-project/katharsis-core/issues/267) compiling code (Patryk Orwat)  
+2016-04-01    [#274](https://github.com/katharsis-project/katharsis-core/issues/274) additional characters for query params (Patryk Orwat)  
+2016-03-31    Fixes more cases for [#225](https://github.com/katharsis-project/katharsis-core/issues/225) (Ioan Eugen Stan)  
+2016-03-30    [#267](https://github.com/katharsis-project/katharsis-core/issues/267) dynamic attributes WIP (Patryk Orwat)  
+2016-03-24    [#271](https://github.com/katharsis-project/katharsis-core/issues/271) added tests for lookup override (Patryk Orwat)  
+2016-03-23    add option to overwrite an included value with the value of the relationship repository (Cade Parker)  
 2016-03-22    [#243](https://github.com/katharsis-project/katharsis-core/issues/243) javadoc for JsonApiLookupIncludeAutomatically (Patryk Orwat)  
 2016-03-22    [#263](https://github.com/katharsis-project/katharsis-core/issues/263) Non-annotated nested resource ID and relationships are now returned (Patryk Orwat)  
 2016-03-21    [#262](https://github.com/katharsis-project/katharsis-core/issues/262) added meta and links information per resource (Patryk Orwat)  
