@@ -1,4 +1,4 @@
-# katharsis-spring v2.3.1 git changelog
+# katharsis-spring v2.3.2 git changelog
 
 
 **v2.3.1**  
