@@ -73,12 +73,7 @@ public class ResourceAttributesBridge<T> {
         }
         Iterator<String> propertyNameIterator = attributes.fieldNames();
         while (propertyNameIterator.hasNext()) {
-            try {
-                setProperty(instance, instanceWithNewFields, propertyNameIterator);
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                throw new ResourceException(
-                    String.format("Exception while reading %s: %s", instance.getClass(), e.getMessage()));
-            }
+            setProperty(instance, instanceWithNewFields, propertyNameIterator);
         }
 
         setAnyProperties(instance, instanceWithNewFields);
@@ -91,11 +86,8 @@ public class ResourceAttributesBridge<T> {
      * @param instance              instance of a resource
      * @param instanceWithNewFields a temporary instance with fields to be set
      * @param propertyNameIterator  set of properties
-     * @throws IllegalAccessException
-     * @throws InvocationTargetException
      */
-    private void setProperty(T instance, T instanceWithNewFields, Iterator<String> propertyNameIterator)
-        throws IllegalAccessException, InvocationTargetException {
+    private void setProperty(T instance, T instanceWithNewFields, Iterator<String> propertyNameIterator) {
         String propertyName = propertyNameIterator.next();
         Optional<ResourceField> staticField = findStaticField(propertyName);
         if (staticField.isPresent()) {

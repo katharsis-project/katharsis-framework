@@ -8,17 +8,20 @@ import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.FieldPath;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathIds;
-import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.exception.ResourceFieldNotFoundException;
+import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.include.IncludeLookupSetter;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.response.*;
+import io.katharsis.response.BaseResponse;
+import io.katharsis.response.CollectionResponse;
+import io.katharsis.response.LinksInformation;
+import io.katharsis.response.MetaInformation;
+import io.katharsis.response.ResourceResponse;
 import io.katharsis.utils.Generics;
 import io.katharsis.utils.parser.TypeParser;
 
 import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 
 public class FieldResourceGet extends ResourceIncludeField {
@@ -36,8 +39,7 @@ public class FieldResourceGet extends ResourceIncludeField {
 
     @Override
     public BaseResponse handle(JsonPath jsonPath, QueryParams queryParams, RepositoryMethodParameterProvider 
-        parameterProvider, RequestBody requestBody)
-            throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException, NoSuchFieldException {
+        parameterProvider, RequestBody requestBody) {
         String resourceName = jsonPath.getResourceName();
         PathIds resourceIds = jsonPath.getIds();
 

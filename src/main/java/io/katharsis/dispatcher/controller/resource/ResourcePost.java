@@ -18,10 +18,9 @@ import io.katharsis.response.HttpStatus;
 import io.katharsis.response.LinksInformation;
 import io.katharsis.response.MetaInformation;
 import io.katharsis.response.ResourceResponse;
+import io.katharsis.utils.ClassUtils;
 import io.katharsis.utils.parser.TypeParser;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 
 public class ResourcePost extends ResourceUpsert {
@@ -45,9 +44,7 @@ public class ResourcePost extends ResourceUpsert {
 
     @Override
     public ResourceResponse handle(JsonPath jsonPath, QueryParams queryParams,
-                                   RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody)
-        throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException,
-        IOException {
+                                   RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody){
         String resourceEndpointName = jsonPath.getResourceName();
         RegistryEntry endpointRegistryEntry = resourceRegistry.getEntry(resourceEndpointName);
         if (endpointRegistryEntry == null) {
@@ -66,9 +63,7 @@ public class ResourcePost extends ResourceUpsert {
         }
         RegistryEntry bodyRegistryEntry = resourceRegistry.getEntry(dataBody.getType());
         verifyTypes(HttpMethod.POST, resourceEndpointName, endpointRegistryEntry, bodyRegistryEntry);
-        Object newResource = bodyRegistryEntry.getResourceInformation()
-            .getResourceClass()
-            .newInstance();
+        Object newResource = ClassUtils.newInstance(bodyRegistryEntry.getResourceInformation().getResourceClass());
 
         setId(dataBody, newResource, bodyRegistryEntry.getResourceInformation());
         setAttributes(dataBody, newResource, bodyRegistryEntry.getResourceInformation());

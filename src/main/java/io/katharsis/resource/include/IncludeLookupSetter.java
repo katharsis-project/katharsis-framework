@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
 import java.util.Map;
@@ -34,16 +33,11 @@ public class IncludeLookupSetter {
     }
 
     public void setIncludedElements(String resourceName, Object resource, QueryParams queryParams,
-                                    RepositoryMethodParameterProvider parameterProvider)
-            throws InvocationTargetException, NoSuchMethodException, NoSuchFieldException, IllegalAccessException {
+                                    RepositoryMethodParameterProvider parameterProvider) {
         if (resource != null && queryParams.getIncludedRelations() != null) {
             if (Iterable.class.isAssignableFrom(resource.getClass())) {
                 for (Object target : (Iterable<?>) resource) {
-                    try {
-                        setIncludedElements(resourceName, target, queryParams, parameterProvider);
-                    } catch (InvocationTargetException | NoSuchMethodException | NoSuchFieldException | IllegalAccessException e) {
-                        logger.error("Error with spliterator", e);
-                    }
+                    setIncludedElements(resourceName, target, queryParams, parameterProvider);
                 }
             } else {
                 IncludedRelationsParams includedRelationsParams = findInclusions(queryParams.getIncludedRelations(),
@@ -73,8 +67,7 @@ public class IncludeLookupSetter {
     }
 
     private void getElements(Object resource, List<String> pathList, QueryParams queryParams,
-                             RepositoryMethodParameterProvider parameterProvider)
-            throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
+                             RepositoryMethodParameterProvider parameterProvider) {
         if (!pathList.isEmpty()) {
             Field field = ClassUtils.findClassField(resource.getClass(), pathList.get(0));
             if (field == null) {
@@ -85,12 +78,8 @@ public class IncludeLookupSetter {
             //attempt to load relationship if it's null or JsonApiLookupIncludeAutomatically.overwrite() == true
             if (field.isAnnotationPresent(JsonApiLookupIncludeAutomatically.class)
                     && (property == null || field.getAnnotation(JsonApiLookupIncludeAutomatically.class).overwrite())) {
-                try {
-                    property = loadRelationship(resource, field, queryParams, parameterProvider);
-                    PropertyUtils.setProperty(resource, field.getName(), property);
-                } catch( Exception e ) {
-                    logger.error("Error loading relationship, couldn't automatically include", e);
-                }
+                property = loadRelationship(resource, field, queryParams, parameterProvider);
+                PropertyUtils.setProperty(resource, field.getName(), property);
             }
 
             if (property != null) {

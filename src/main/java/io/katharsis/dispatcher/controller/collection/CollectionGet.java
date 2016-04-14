@@ -2,8 +2,8 @@ package io.katharsis.dispatcher.controller.collection;
 
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.dispatcher.controller.resource.ResourceIncludeField;
-import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.queryParams.QueryParams;
+import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
@@ -17,11 +17,8 @@ import io.katharsis.response.CollectionResponse;
 import io.katharsis.response.LinksInformation;
 import io.katharsis.response.MetaInformation;
 import io.katharsis.utils.parser.TypeParser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -44,8 +41,7 @@ public class CollectionGet extends ResourceIncludeField {
     @Override
     @SuppressWarnings("unchecked")
     public BaseResponse<?> handle(JsonPath jsonPath, QueryParams queryParams, RepositoryMethodParameterProvider 
-        parameterProvider, RequestBody requestBody)
-            throws NoSuchMethodException, NoSuchFieldException, IllegalAccessException, InvocationTargetException {
+        parameterProvider, RequestBody requestBody) {
         String resourceName = jsonPath.getElementName();
         RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
         if (registryEntry == null) {

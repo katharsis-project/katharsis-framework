@@ -33,12 +33,10 @@ public class RequestDispatcher {
      * @param queryParams       built object containing query parameters of the request
      * @param requestBody       deserialized body of the client request
      * @return the response form the Katharsis
-     * @throws Exception exception thrown while processing the request
      */
     public BaseResponse<?> dispatchRequest(JsonPath jsonPath, String requestType, QueryParams queryParams,
                                            RepositoryMethodParameterProvider parameterProvider,
-                                           @SuppressWarnings("SameParameterValue") RequestBody requestBody) throws
-        Exception {
+                                           @SuppressWarnings("SameParameterValue") RequestBody requestBody) {
 
         try {
             return controllerRegistry

@@ -38,11 +38,9 @@ public abstract class BaseController {
      * @param queryParams       Params specifying request
      * @param requestBody       Top-level JSON object from method's body of the request passed as {@link RequestBody}
      * @return CollectionResponse object
-     * @throws Exception internal Katharsis exception
      */
     public abstract BaseResponse<?> handle(JsonPath jsonPath, QueryParams queryParams, RepositoryMethodParameterProvider
-        parameterProvider,
-                           RequestBody requestBody) throws Exception;
+        parameterProvider, RequestBody requestBody);
 
     public MetaInformation getMetaInformation(Object repository, Iterable<?> resources, QueryParams queryParams) {
         if (repository instanceof RepositoryAdapter) {

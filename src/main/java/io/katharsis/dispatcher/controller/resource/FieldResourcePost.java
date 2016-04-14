@@ -26,9 +26,7 @@ import io.katharsis.utils.Generics;
 import io.katharsis.utils.PropertyUtils;
 import io.katharsis.utils.parser.TypeParser;
 
-import java.io.IOException;
 import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 
 /**
@@ -51,9 +49,7 @@ public class FieldResourcePost extends ResourceUpsert {
 
     @Override
     public ResourceResponse handle(JsonPath jsonPath, QueryParams queryParams,
-                                   RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody)
-        throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException,
-        IOException {
+                                   RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody) {
         String resourceEndpointName = jsonPath.getResourceName();
         PathIds resourceIds = jsonPath.getIds();
         RegistryEntry endpointRegistryEntry = resourceRegistry.getEntry(resourceEndpointName);

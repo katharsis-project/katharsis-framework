@@ -1,4 +1,4 @@
-# katharsis-core v2.3.2 git changelog
+# katharsis-core v2.4.0-SNAPSHOT git changelog
 
 
 **v2.3.2**  
