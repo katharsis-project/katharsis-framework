@@ -1,5 +1,8 @@
 # katharsis-rs v2.3.2 git changelog
 
+
+**v2.3.2**  
+2016-04-10    v2.3.2 (Patryk Orwat)  
 2016-03-23    added unit test for QueryParamProvider (Serban Tatu)  
 2016-03-23    Fix support for multiple values for a single parameter. (Christopher Creighton)  
 2016-03-23    Add support for JAX-RS @QueryParam (Christopher Creighton)  
