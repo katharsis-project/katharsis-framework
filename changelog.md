@@ -1,5 +1,8 @@
 # katharsis-core v2.3.2 git changelog
 
+
+**v2.3.2**  
+2016-04-10    v2.3.2 (Patryk Orwat)  
 2016-04-09    [#262](https://github.com/katharsis-project/katharsis-core/issues/262) fixed tests (Patryk Orwat)  
 2016-04-09    [#262](https://github.com/katharsis-project/katharsis-core/issues/262) meta and links aren't basic fields (Patryk Orwat)  
 2016-04-08    Update katharsis version in README.md (David Martin)  
