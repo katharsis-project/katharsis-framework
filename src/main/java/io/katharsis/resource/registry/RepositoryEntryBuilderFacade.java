@@ -2,6 +2,7 @@ package io.katharsis.resource.registry;
 
 import io.katharsis.locator.JsonServiceLocator;
 import io.katharsis.repository.NotFoundRepository;
+import io.katharsis.repository.RepositoryInstanceBuilder;
 import io.katharsis.resource.registry.repository.DirectResourceEntry;
 import io.katharsis.resource.registry.repository.RelationshipEntry;
 import io.katharsis.resource.registry.repository.ResourceEntry;
@@ -24,13 +25,20 @@ public class RepositoryEntryBuilderFacade implements RepositoryEntryBuilder {
     }
 
     @Override
-    public ResourceEntry<?, ?> buildResourceRepository(ResourceLookup lookup, Class<?> resourceClass) {
+    @SuppressWarnings("unchecked")
+    public ResourceEntry<?, ?> buildResourceRepository(ResourceLookup lookup, final Class<?> resourceClass) {
     	ResourceEntry<?, ?> resourceEntry =  annotatedRepositoryEntryBuilder.buildResourceRepository(lookup, resourceClass);
         if (resourceEntry == null) {
             resourceEntry = directRepositoryEntryBuilder.buildResourceRepository(lookup, resourceClass);
         }
         if (resourceEntry == null) {
-            resourceEntry = new DirectResourceEntry<>(new NotFoundRepository<>(resourceClass));
+            RepositoryInstanceBuilder repositoryInstanceBuilder = new RepositoryInstanceBuilder<>(new JsonServiceLocator() {
+                @Override
+                public <T> T getInstance(Class<T> clazz) {
+                    return (T) new NotFoundRepository<>(resourceClass);
+                }
+            }, NotFoundRepository.class);
+            resourceEntry = new DirectResourceEntry(repositoryInstanceBuilder);
         }
 
         return resourceEntry;

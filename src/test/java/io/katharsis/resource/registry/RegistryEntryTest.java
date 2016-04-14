@@ -1,6 +1,8 @@
 package io.katharsis.resource.registry;
 
+import io.katharsis.locator.SampleJsonServiceLocator;
 import io.katharsis.repository.RelationshipRepository;
+import io.katharsis.repository.RepositoryInstanceBuilder;
 import io.katharsis.repository.exception.RelationshipRepositoryNotFoundException;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.mock.models.Document;
@@ -24,6 +26,7 @@ import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@SuppressWarnings("unchecked")
 public class RegistryEntryTest {
 
     @Rule
@@ -32,7 +35,9 @@ public class RegistryEntryTest {
     @Test
     public void onValidRelationshipClassShouldReturnRelationshipRepository() throws Exception {
         // GIVEN
-        RegistryEntry<Task> sut = new RegistryEntry(null, new AnnotatedResourceEntryBuilder<>(new TaskRepository()), Collections.singletonList(new DirectRelationshipEntry<>(new TaskToProjectRepository())));
+        RegistryEntry<Task> sut = new RegistryEntry(null, new AnnotatedResourceEntryBuilder<>(
+            new RepositoryInstanceBuilder(new SampleJsonServiceLocator(), TaskRepository.class)),
+            Collections.singletonList(new DirectRelationshipEntry<>(new RepositoryInstanceBuilder(new SampleJsonServiceLocator(), TaskToProjectRepository.class))));
 
         // WHEN
         RelationshipRepository<Task, ?, ?, ?> relationshipRepository = sut.getRelationshipRepositoryForClass(Project.class, null);
@@ -46,7 +51,8 @@ public class RegistryEntryTest {
         // GIVEN
         ResourceInformation resourceInformation = new ResourceInformation(Task.class, null, null, null);
         RegistryEntry<Task> sut = new RegistryEntry(resourceInformation, null,
-            Collections.singletonList(new DirectRelationshipEntry<>(new TaskToProjectRepository())));
+            Collections.singletonList(new DirectRelationshipEntry<>(
+                new RepositoryInstanceBuilder(new SampleJsonServiceLocator(), TaskToProjectRepository.class))));
 
         // THEN
         expectedException.expect(RelationshipRepositoryNotFoundException.class);

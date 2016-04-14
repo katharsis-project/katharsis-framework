@@ -1,24 +1,25 @@
 package io.katharsis.resource.registry.repository;
 
+import io.katharsis.repository.RepositoryInstanceBuilder;
 import io.katharsis.repository.ResourceRepository;
 
 import java.io.Serializable;
 
 public class DirectResourceEntry<T, ID extends Serializable> implements ResourceEntry<T, ID> {
-    private final ResourceRepository<T, ID> resourceRepository;
+    private final RepositoryInstanceBuilder<ResourceRepository<T, ID>> repositoryInstanceBuilder;
 
-    public DirectResourceEntry(ResourceRepository<T, ID> resourceRepository) {
-        this.resourceRepository = resourceRepository;
+    public DirectResourceEntry(RepositoryInstanceBuilder<ResourceRepository<T, ID>> repositoryInstanceBuilder) {
+        this.repositoryInstanceBuilder = repositoryInstanceBuilder;
     }
 
     public ResourceRepository<T, ?> getResourceRepository() {
-        return resourceRepository;
+        return repositoryInstanceBuilder.buildRepository();
     }
 
     @Override
     public String toString() {
         return "DirectResourceEntry{" +
-            "resourceRepository=" + resourceRepository +
+            "repositoryInstanceBuilder=" + repositoryInstanceBuilder +
             '}';
     }
 }

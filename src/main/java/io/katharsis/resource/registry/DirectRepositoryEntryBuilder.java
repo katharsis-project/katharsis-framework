@@ -2,22 +2,21 @@ package io.katharsis.resource.registry;
 
 import io.katharsis.locator.JsonServiceLocator;
 import io.katharsis.repository.RelationshipRepository;
+import io.katharsis.repository.RepositoryInstanceBuilder;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.repository.exception.RepositoryInstanceNotFoundException;
 import io.katharsis.resource.registry.repository.DirectRelationshipEntry;
 import io.katharsis.resource.registry.repository.DirectResourceEntry;
 import io.katharsis.resource.registry.repository.RelationshipEntry;
 import io.katharsis.resource.registry.repository.ResourceEntry;
+import net.jodah.typetools.TypeResolver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-
-import net.jodah.typetools.TypeResolver;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Repository entries builder for classes implementing repository interfaces.
@@ -38,11 +37,10 @@ public class DirectRepositoryEntryBuilder implements RepositoryEntryBuilder {
         if (repoClass == null) {
             return null;
         }
-        ResourceRepository<?, ?> repoInstance = (ResourceRepository<?, ?>) jsonServiceLocator.getInstance(repoClass);
-        if (repoInstance == null) {
-            throw new RepositoryInstanceNotFoundException(repoClass.getCanonicalName());
-        }
-        return new DirectResourceEntry<>(repoInstance);
+        @SuppressWarnings("unchecked")
+        DirectResourceEntry directResourceEntry = new DirectResourceEntry(
+            new RepositoryInstanceBuilder(jsonServiceLocator, repoClass));
+        return directResourceEntry;
     }
 
     private Class<?> getRepoClassType(Set<Class<?>> repositoryClasses, Class<?> resourceClass) {
@@ -74,7 +72,10 @@ public class DirectRepositoryEntryBuilder implements RepositoryEntryBuilder {
             LOGGER.debug("Assigned {} RelationshipRepository  to {} resource class",
                 relationshipRepositoryClass.getCanonicalName(), resourceClass.getCanonicalName());
 
-            relationshipEntries.add(new DirectRelationshipEntry<>(relationshipRepository));
+            @SuppressWarnings("unchecked")
+            DirectRelationshipEntry<Object, Object> relationshipEntry = new DirectRelationshipEntry<>(
+                new RepositoryInstanceBuilder<>(jsonServiceLocator, (Class<RelationshipRepository>) relationshipRepositoryClass));
+            relationshipEntries.add(relationshipEntry);
         }
         return relationshipEntries;
     }
