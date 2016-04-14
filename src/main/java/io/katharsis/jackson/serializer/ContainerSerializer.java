@@ -303,7 +303,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
 
         FilterProvider fp = new SimpleFilterProvider()
             .addFilter(JACKSON_ATTRIBUTE_FILTER_NAME, new KatharsisFieldPropertyFilter(includedFields));
-        attributesObjectMapper.setFilterProvider(fp);
+        attributesObjectMapper.setFilters(fp);
 
         attributesObjectMapper.setAnnotationIntrospector(new JacksonAnnotationIntrospector() {
             @Override
