@@ -1,19 +1,22 @@
 package io.katharsis.resource.registry.repository;
 
+import io.katharsis.locator.JsonServiceLocator;
+import io.katharsis.locator.SampleJsonServiceLocator;
+import io.katharsis.repository.RepositoryInstanceBuilder;
 import io.katharsis.repository.annotations.JsonApiRelationshipRepository;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
+@SuppressWarnings("unchecked")
 public class AnnotatedRelationshipEntryBuilderTest {
 
     @Test
     public void onInstanceOfAnnotatedRelationshipRepositoryShouldReturnTargetClass() {
 
         // GIVEN
-        final SimpleRelationshipRepository repositoryInstance = new SimpleRelationshipRepository();
-        final AnnotatedRelationshipEntryBuilder builder = new AnnotatedRelationshipEntryBuilder(repositoryInstance);
+        final AnnotatedRelationshipEntryBuilder builder = new AnnotatedRelationshipEntryBuilder(
+            new RepositoryInstanceBuilder(new SampleJsonServiceLocator(), SimpleRelationshipRepository.class));
 
 
         // WHEN
@@ -27,8 +30,14 @@ public class AnnotatedRelationshipEntryBuilderTest {
     public void onInstanceOfAnonymousDescendantOfAnnotatedRelationshipRepositoryShouldReturnTargetClass() {
 
         // GIVEN
-        final Object repositoryInstance = new SimpleRelationshipRepository() {};
-        final AnnotatedRelationshipEntryBuilder builder = new AnnotatedRelationshipEntryBuilder(repositoryInstance);
+        final AnnotatedRelationshipEntryBuilder builder = new AnnotatedRelationshipEntryBuilder(
+            new RepositoryInstanceBuilder(new JsonServiceLocator() {
+                @Override
+                public <T> T getInstance(Class<T> clazz) {
+                    return (T) new SimpleRelationshipRepository() {};
+                }
+            }, SimpleRelationshipRepository.class)
+        );
 
         // WHEN
         final Class<?> targetClass = builder.getTargetAffiliation();
@@ -42,8 +51,14 @@ public class AnnotatedRelationshipEntryBuilderTest {
     public void onInstanceOfNonAnnotatedClassShouldThrowIllegalArgumentException() {
 
         // GIVEN
-        final Object repositoryInstance = new Object();
-        final AnnotatedRelationshipEntryBuilder builder = new AnnotatedRelationshipEntryBuilder(repositoryInstance);
+        final AnnotatedRelationshipEntryBuilder builder = new AnnotatedRelationshipEntryBuilder(
+            new RepositoryInstanceBuilder(new JsonServiceLocator() {
+                @Override
+                public <T> T getInstance(Class<T> clazz) {
+                    return (T) new Object();
+                }
+            }, SimpleRelationshipRepository.class)
+        );
 
         // WHEN
         try {

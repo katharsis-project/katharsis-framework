@@ -1,31 +1,32 @@
 package io.katharsis.resource.registry.repository;
 
 import io.katharsis.repository.RelationshipRepository;
+import io.katharsis.repository.RepositoryInstanceBuilder;
 import net.jodah.typetools.TypeResolver;
 
 public class DirectRelationshipEntry<T, D> implements RelationshipEntry<T, D> {
 
-    private RelationshipRepository relationshipRepository;
+    private RepositoryInstanceBuilder<RelationshipRepository> repositoryInstanceBuilder;
 
-    public DirectRelationshipEntry(RelationshipRepository relationshipRepository) {
-        this.relationshipRepository = relationshipRepository;
+    public DirectRelationshipEntry(RepositoryInstanceBuilder<RelationshipRepository> repositoryInstanceBuilder) {
+        this.repositoryInstanceBuilder = repositoryInstanceBuilder;
     }
 
     @Override
     public Class<?> getTargetAffiliation() {
         Class<?>[] typeArgs = TypeResolver
-            .resolveRawArguments(RelationshipRepository.class, relationshipRepository.getClass());
+            .resolveRawArguments(RelationshipRepository.class, repositoryInstanceBuilder.getRepositoryClass());
         return typeArgs[RelationshipRepository.TARGET_TYPE_GENERIC_PARAMETER_IDX];
     }
 
-    public RelationshipRepository getRelationshipRepository() {
-        return relationshipRepository;
+    public RelationshipRepository getRepositoryInstanceBuilder() {
+        return repositoryInstanceBuilder.buildRepository();
     }
 
     @Override
     public String toString() {
         return "DirectRelationshipEntry{" +
-            "relationshipRepository=" + relationshipRepository +
+            "repositoryInstanceBuilder=" + repositoryInstanceBuilder +
             '}';
     }
 }
