@@ -1,5 +1,7 @@
 # katharsis-core v2.4.0-SNAPSHOT git changelog
 
+2016-04-14    [#290](https://github.com/katharsis-project/katharsis-core/issues/290) getting a repository instance at request time (Patryk Orwat)  
+2016-04-14    [#264](https://github.com/katharsis-project/katharsis-core/issues/264) [#289](https://github.com/katharsis-project/katharsis-core/issues/289) exceptions handling refactoring (Patryk Orwat)  
 
 **v2.3.2**  
 2016-04-10    v2.3.2 (Patryk Orwat)  
