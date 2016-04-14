@@ -38,7 +38,7 @@ public class ResourcePatch extends ResourceUpsert {
 
     @Override
     public BaseResponse<?> handle(JsonPath jsonPath, QueryParams queryParams,
-                                  RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody) throws Exception {
+                                  RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody) {
 
         String resourceEndpointName = jsonPath.getResourceName();
         RegistryEntry endpointRegistryEntry = resourceRegistry.getEntry(resourceEndpointName);

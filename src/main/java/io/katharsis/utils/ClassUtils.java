@@ -1,6 +1,7 @@
 package io.katharsis.utils;
 
 import io.katharsis.resource.annotations.JsonApiResource;
+import io.katharsis.resource.exception.ResourceException;
 import io.katharsis.utils.java.Optional;
 
 import java.lang.annotation.Annotation;
@@ -194,6 +195,21 @@ public class ClassUtils {
         }
 
         return null;
+    }
+
+    /**
+     * Create a new instance of a resource using a default constructor
+     *
+     * @param clazz new instance class
+     * @param <T> new instance class
+     * @return new instance
+     */
+    public static <T> T newInstance(Class<T> clazz) {
+        try {
+            return clazz.newInstance();
+        } catch (InstantiationException | IllegalAccessException e) {
+            throw new ResourceException(String.format("couldn't create a new instance of %s", clazz));
+        }
     }
 
     private boolean isGetter(Method method) {

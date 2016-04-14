@@ -44,7 +44,7 @@ public class PropertyUtils {
         try {
             return INSTANCE.getPropertyValue(bean, field);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            throw new PropertyException(e, bean.getClass(), field);
+            throw handleReflectionException(bean, field, e);
         }
     }
 
@@ -156,8 +156,16 @@ public class PropertyUtils {
         try {
             INSTANCE.setPropertyValue(bean, field, value);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            throw new PropertyException(e, bean.getClass(), field);
+            throw handleReflectionException(bean, field, e);
         }
+    }
+
+    private static RuntimeException handleReflectionException(Object bean, String field, ReflectiveOperationException e) {
+        if (e instanceof InvocationTargetException &&
+            ((InvocationTargetException) e).getTargetException() instanceof RuntimeException) {
+            return (RuntimeException) ((InvocationTargetException) e).getTargetException();
+        }
+        return new PropertyException(e, bean.getClass(), field);
     }
 
     private void setPropertyValue(Object bean, String fieldName, Object value)

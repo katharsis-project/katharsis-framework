@@ -102,11 +102,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         }
 
         Set<String> notAttributesFields = entry.getResourceInformation().getNotAttributeFields();
-        try {
-            writeAttributes(gen, data, includedFields, notAttributesFields);
-        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            throw new JsonSerializationException("Error writing basic fields for: " + data.getClass().getCanonicalName());
-        }
+        writeAttributes(gen, data, includedFields, notAttributesFields);
 
         Set<ResourceField> relationshipFields = getRelationshipFields(resourceType, resourceInformation, includedFields);
         writeRelationshipFields(gen, data, relationshipFields, includedRelations);
@@ -149,14 +145,11 @@ public class ContainerSerializer extends JsonSerializer<Container> {
      * @param data                resource object
      * @param includedFields      <i>field</i> query param values
      * @param notAttributesFields names of relationships and id field
-     * @throws IllegalAccessException    if couldn't access an attribute
-     * @throws InvocationTargetException if couldn't access an attribute
-     * @throws NoSuchMethodException     if couldn't access an attribute
      * @throws IOException               if couldn't write attributes
      */
     private void writeAttributes(JsonGenerator gen, final Object data, TypedParams<IncludedFieldsParams> includedFields,
                                  final Set<String> notAttributesFields)
-        throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
+        throws IOException {
 
         String resourceType = resourceRegistry.getResourceType(data.getClass());
 

@@ -296,6 +296,54 @@ public class PropertyUtilsTest {
         assertThat(bean.getProperty()).isEqualTo(value);
     }
 
+    @Test
+    public void onFieldWithThrowingUncheckedExceptionGetterShouldThrowException() throws Exception {
+        // GIVEN
+        Bean bean = new Bean();
+
+        // THEN
+        expectedException.expect(IllegalStateException.class);
+
+        // WHEN
+        PropertyUtils.getProperty(bean, "uncheckedExceptionalField");
+    }
+
+    @Test
+    public void onFieldWithThrowingUncheckedExceptionSetterShouldThrowException() throws Exception {
+        // GIVEN
+        Bean bean = new Bean();
+
+        // THEN
+        expectedException.expect(IllegalStateException.class);
+
+        // WHEN
+        PropertyUtils.setProperty(bean, "uncheckedExceptionalField", "value");
+    }
+
+    @Test
+    public void onFieldWithThrowingCheckedExceptionGetterShouldThrowException() throws Exception {
+        // GIVEN
+        Bean bean = new Bean();
+
+        // THEN
+        expectedException.expect(PropertyException.class);
+
+        // WHEN
+        PropertyUtils.getProperty(bean, "PropertyException");
+    }
+
+    @Test
+    public void onFieldWithThrowingCheckedExceptionSetterShouldThrowException() throws Exception {
+        // GIVEN
+        Bean bean = new Bean();
+
+        // THEN
+        expectedException.expect(PropertyException.class);
+
+        // WHEN
+        PropertyUtils.setProperty(bean, "checkedExceptionalField", "value");
+    }
+
     public static class Bean {
         private String privatePropertyWithMutators;
         private boolean booleanPrimitivePropertyWithMutators;
@@ -324,6 +372,22 @@ public class PropertyUtilsTest {
 
         public void setBooleanPropertyWithMutators(@SuppressWarnings("SameParameterValue") Boolean booleanPropertyWithMutators) {
             this.booleanPropertyWithMutators = booleanPropertyWithMutators;
+        }
+
+        public String getUncheckedExceptionalField() {
+            throw new IllegalStateException();
+        }
+
+        public void setUncheckedExceptionalField(String value) {
+            throw new IllegalStateException();
+        }
+
+        public String getCheckedExceptionalField() throws IllegalAccessException {
+            throw new IllegalAccessException();
+        }
+
+        public void setCheckedExceptionalField(String value) throws IllegalAccessException {
+            throw new IllegalAccessException();
         }
     }
 

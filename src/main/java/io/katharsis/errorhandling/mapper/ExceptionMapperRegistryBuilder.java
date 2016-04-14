@@ -12,11 +12,11 @@ public final class ExceptionMapperRegistryBuilder {
         return exceptionMappers;
     }
 
-    public ExceptionMapperRegistry build(String resourceSearchPackage) throws IllegalAccessException, InstantiationException {
+    public ExceptionMapperRegistry build(String resourceSearchPackage) {
         return build(new DefaultExceptionMapperLookup(resourceSearchPackage));
     }
 
-    public ExceptionMapperRegistry build(ExceptionMapperLookup exceptionMapperLookup) throws IllegalAccessException, InstantiationException {
+    public ExceptionMapperRegistry build(ExceptionMapperLookup exceptionMapperLookup) {
         addKatharsisDefaultMappers();
         for (JsonApiExceptionMapper<?> exceptionMapper : exceptionMapperLookup.getExceptionMappers()) {
             registerExceptionMapper(exceptionMapper);

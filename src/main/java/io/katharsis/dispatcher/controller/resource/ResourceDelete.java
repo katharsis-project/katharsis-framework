@@ -15,7 +15,6 @@ import io.katharsis.response.BaseResponse;
 import io.katharsis.utils.parser.TypeParser;
 
 import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
 
 public class ResourceDelete extends BaseController {
 
@@ -41,8 +40,7 @@ public class ResourceDelete extends BaseController {
 
     @Override
     public BaseResponse<?> handle(JsonPath jsonPath, QueryParams queryParams,
-                                  RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody)
-            throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+                                  RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody) {
         String resourceName = jsonPath.getElementName();
         PathIds resourceIds = jsonPath.getIds();
         RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);

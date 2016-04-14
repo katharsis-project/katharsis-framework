@@ -18,9 +18,7 @@ import io.katharsis.utils.Generics;
 import io.katharsis.utils.PropertyUtils;
 import io.katharsis.utils.parser.TypeParser;
 
-import java.io.IOException;
 import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -51,9 +49,7 @@ public abstract class ResourceUpsert extends BaseController {
         }
     }
 
-    void setAttributes(DataBody dataBody, Object instance, ResourceInformation resourceInformation)
-        throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException,
-        IOException {
+    void setAttributes(DataBody dataBody, Object instance, ResourceInformation resourceInformation) {
         if (dataBody.getAttributes() != null) {
             ResourceAttributesBridge resourceAttributesBridge = resourceInformation.getAttributeFields();
             resourceAttributesBridge.setProperties(objectMapper, instance, dataBody.getAttributes());
@@ -61,8 +57,7 @@ public abstract class ResourceUpsert extends BaseController {
     }
 
     protected void saveRelations(Object savedResource, RegistryEntry registryEntry, DataBody dataBody,
-                                 RepositoryMethodParameterProvider parameterProvider)
-        throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+                                 RepositoryMethodParameterProvider parameterProvider) {
         if (dataBody.getRelationships() != null) {
             Map<String, Object> additionalProperties = dataBody.getRelationships()
                 .getAdditionalProperties();
@@ -85,8 +80,7 @@ public abstract class ResourceUpsert extends BaseController {
     private void saveRelationsField(Object savedResource, RegistryEntry registryEntry,
                                     Map.Entry<String, Iterable<LinkageData>> property,
                                     ResourceInformation resourceInformation,
-                                    RepositoryMethodParameterProvider parameterProvider)
-        throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+                                    RepositoryMethodParameterProvider parameterProvider) {
         if (!allTypesTheSame(property.getValue())) {
             throw new ResourceException("Not all types are the same for linkage: " + property.getKey());
         }
@@ -136,8 +130,7 @@ public abstract class ResourceUpsert extends BaseController {
 
     private void saveRelationField(Object savedResource, RegistryEntry registryEntry,
                                    Map.Entry<String, LinkageData> property, ResourceInformation resourceInformation,
-                                   RepositoryMethodParameterProvider parameterProvider)
-        throws NoSuchMethodException, IllegalAccessException, InstantiationException, InvocationTargetException {
+                                   RepositoryMethodParameterProvider parameterProvider) {
         RegistryEntry relationRegistryEntry = getRelationRegistryEntry(property.getValue()
             .getType());
 
@@ -166,24 +159,28 @@ public abstract class ResourceUpsert extends BaseController {
         return relationRegistryEntry;
     }
 
-    Object buildNewResource(RegistryEntry registryEntry, DataBody dataBody, String resourceName)
-        throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException {
+    Object buildNewResource(RegistryEntry registryEntry, DataBody dataBody, String resourceName) {
         if (dataBody == null) {
-            throw new RuntimeException("No data field in the body.");
+            throw new ResourceException("No data field in the body.");
         }
         if (!resourceName.equals(dataBody.getType())) {
-            throw new RuntimeException(String.format("Inconsistent type definition between path and body: body type: " +
+            throw new ResourceException(String.format("Inconsistent type definition between path and body: body type: " +
                 "%s, request type: %s", dataBody.getType(), resourceName));
         }
-        return registryEntry.getResourceInformation()
-            .getResourceClass()
-            .newInstance();
+        try {
+            return registryEntry.getResourceInformation()
+                .getResourceClass()
+                .newInstance();
+        } catch (InstantiationException | IllegalAccessException e) {
+            throw new ResourceException(
+                String.format("couldn't create a new instance of %s", registryEntry.getResourceInformation()
+                    .getResourceClass()));
+        }
     }
 
     protected void setRelations(Object newResource, RegistryEntry registryEntry, DataBody dataBody, QueryParams
         queryParams,
-                                RepositoryMethodParameterProvider parameterProvider)
-        throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+                                RepositoryMethodParameterProvider parameterProvider) {
         if (dataBody.getRelationships() != null) {
             Map<String, Object> additionalProperties = dataBody.getRelationships()
                 .getAdditionalProperties();

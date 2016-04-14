@@ -1,5 +1,6 @@
 package io.katharsis.dispatcher.registry;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.errorhandling.mapper.DefaultExceptionMapperLookup;
 import io.katharsis.resource.include.IncludeLookupSetter;
@@ -8,8 +9,6 @@ import io.katharsis.utils.parser.TypeParser;
 
 import java.util.LinkedList;
 import java.util.List;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * A builder class which holds all of the Katharsis controllers, which must be placed in
@@ -34,9 +33,8 @@ public class ControllerRegistryBuilder {
      * Uses the {@link DefaultExceptionMapperLookup} to collect all controllers.
      *
      * @return an instance of {@link ControllerRegistry} with initialized controllers
-     * @throws Exception initialization exception
      */
-    public ControllerRegistry build() throws Exception {
+    public ControllerRegistry build() {
         return build(new DefaultControllerLookup(resourceRegistry, typeParser, objectMapper, includeFieldSetter));
     }
 
@@ -45,9 +43,8 @@ public class ControllerRegistryBuilder {
      *
      * @param lookup an instance of a lookup class to get the controllers
      * @return an instance of {@link ControllerRegistry} with initialized controllers
-     * @throws Exception initialization exception
      */
-    private static ControllerRegistry build(ControllerLookup lookup) throws Exception {
+    private static ControllerRegistry build(ControllerLookup lookup) {
         List<BaseController> controllers = new LinkedList<>();
         controllers.addAll(lookup.getControllers());
         return new ControllerRegistry(controllers);

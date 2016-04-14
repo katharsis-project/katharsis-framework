@@ -20,7 +20,6 @@ import io.katharsis.response.ResourceResponse;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -60,8 +59,7 @@ public class CollectionGetTest extends BaseControllerTest {
     }
 
     @Test
-    public void onGivenRequestCollectionGetShouldHandleIt()
-            throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, NoSuchFieldException {
+    public void onGivenRequestCollectionGetShouldHandleIt() {
         // GIVEN
 
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/");
@@ -75,8 +73,7 @@ public class CollectionGetTest extends BaseControllerTest {
     }
 
     @Test
-    public void onGivenRequestCollectionWithIdsGetShouldHandleIt()
-            throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, NoSuchFieldException {
+    public void onGivenRequestCollectionWithIdsGetShouldHandleIt() {
         // GIVEN
 
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/1,2");

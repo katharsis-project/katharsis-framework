@@ -3,6 +3,7 @@ package io.katharsis.utils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import io.katharsis.resource.annotations.JsonApiResource;
+import io.katharsis.resource.exception.ResourceException;
 import io.katharsis.utils.java.Optional;
 import org.junit.Test;
 
@@ -166,6 +167,27 @@ public class ClassUtilsTest {
         assertThat(result.isPresent()).isFalse();
     }
 
+    @Test
+    public void onValidClassShouldCreateNewInstance() throws Exception {
+        // WHEN
+        ResourceClass result = ClassUtils.newInstance(ResourceClass.class);
+
+        // THEN
+        assertThat(result).isInstanceOf(ResourceClass.class);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void onClassWithCrushingConstructorShouldThrowException() throws Exception {
+        // WHEN
+        ClassUtils.newInstance(ClassWithCrashingConstructor.class);
+    }
+
+    @Test(expected = ResourceException.class)
+    public void onClassWithoutDefaultConstructorShouldThrowException() throws Exception {
+        // WHEN
+        ClassUtils.newInstance(ClassWithoutDefaultConstructor.class);
+    }
+
     @JsonPropertyOrder(alphabetic = true)
     public static class ParentClass {
 
@@ -225,6 +247,17 @@ public class ClassUtilsTest {
     @JsonApiResource(type = "resource")
     public static class ResourceClass {
 
+    }
+
+    public static class ClassWithCrashingConstructor {
+        public ClassWithCrashingConstructor() {
+            throw new IllegalStateException();
+        }
+    }
+
+    public static class ClassWithoutDefaultConstructor {
+        public ClassWithoutDefaultConstructor(String value) {
+        }
     }
 
     public static class ResourceClass$Proxy extends ResourceClass{
