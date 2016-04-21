@@ -132,7 +132,7 @@ public class QueryParamsBuilderTest {
     public void onGivenIncludedRelationBuilderShouldReturnRequestParamsWithIncludedRelation() throws
         ParametersDeserializationException {
         // GIVEN
-        queryParams.put("include[special-users!@#$%^&*()_+=]", Collections.singleton("friends"));
+        queryParams.put("include[special-users!@#$%^&*()_+=.]", Collections.singleton("friends"));
 
         // WHEN
         QueryParams result = sut.buildQueryParams(queryParams);
@@ -140,11 +140,11 @@ public class QueryParamsBuilderTest {
         // THEN
         assertThat(result.getIncludedRelations()
             .getParams()
-            .get("special-users!@#$%^&*()_+=")).isNotNull();
+            .get("special-users!@#$%^&*()_+=.")).isNotNull();
 
         assertThat(result.getIncludedRelations()
             .getParams()
-            .get("special-users!@#$%^&*()_+=")
+            .get("special-users!@#$%^&*()_+=.")
             .getParams()
             .iterator()
             .next()
