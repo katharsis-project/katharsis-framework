@@ -18,4 +18,11 @@ public class TypedParams<T> {
     public Map<String, T> getParams() {
         return params;
     }
+
+    @Override
+    public String toString() {
+        return "TypedParams{" +
+            "params=" + params +
+            '}';
+    }
 }

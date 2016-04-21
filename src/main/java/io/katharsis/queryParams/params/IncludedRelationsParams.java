@@ -14,4 +14,11 @@ public class IncludedRelationsParams {
     public Set<Inclusion> getParams() {
         return params;
     }
+
+    @Override
+    public String toString() {
+        return "IncludedRelationsParams{" +
+            "params=" + params +
+            '}';
+    }
 }

@@ -15,4 +15,11 @@ public class SortingParams {
     public Map<String, RestrictedSortingValues> getParams() {
         return params;
     }
+
+    @Override
+    public String toString() {
+        return "SortingParams{" +
+            "params=" + params +
+            '}';
+    }
 }

@@ -14,4 +14,11 @@ public class FilterParams {
     public Map<String, Set<String>> getParams() {
         return params;
     }
+
+    @Override
+    public String toString() {
+        return "FilterParams{" +
+            "params=" + params +
+            '}';
+    }
 }

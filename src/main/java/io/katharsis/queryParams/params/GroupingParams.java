@@ -13,4 +13,11 @@ public class GroupingParams {
     public Set<String> getParams() {
         return params;
     }
+
+    @Override
+    public String toString() {
+        return "GroupingParams{" +
+            "params=" + params +
+            '}';
+    }
 }
