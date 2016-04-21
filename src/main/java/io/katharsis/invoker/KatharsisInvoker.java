@@ -29,7 +29,7 @@ import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.response.BaseResponse;
+import io.katharsis.response.BaseResponseContext;
 import io.katharsis.servlet.util.QueryStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,7 +75,7 @@ public class KatharsisInvoker {
     }
 
     private void dispatchRequest(KatharsisInvokerContext invokerContext) throws Exception {
-        BaseResponse<?> katharsisResponse = null;
+        BaseResponseContext katharsisResponse = null;
 
         boolean passToMethodMatcher = false;
 
