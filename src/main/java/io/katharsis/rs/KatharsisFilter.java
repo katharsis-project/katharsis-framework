@@ -11,7 +11,7 @@ import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.response.BaseResponse;
+import io.katharsis.response.BaseResponseContext;
 import io.katharsis.rs.parameterProvider.JaxRsParameterProvider;
 import io.katharsis.rs.parameterProvider.RequestContextParameterProviderRegistry;
 import io.katharsis.rs.type.JsonApiMediaType;
@@ -106,7 +106,7 @@ public class KatharsisFilter implements ContainerRequestFilter {
 
     private void dispatchRequest(ContainerRequestContext requestContext) throws Exception {
         UriInfo uriInfo = requestContext.getUriInfo();
-        BaseResponse<?> katharsisResponse = null;
+        BaseResponseContext katharsisResponse = null;
         boolean passToMethodMatcher = false;
         //TODO: Refactor
         try {
@@ -141,7 +141,7 @@ public class KatharsisFilter implements ContainerRequestFilter {
         }
     }
 
-    private void abortWithResponse(ContainerRequestContext requestContext, BaseResponse<?> katharsisResponse)
+    private void abortWithResponse(ContainerRequestContext requestContext, BaseResponseContext katharsisResponse)
         throws IOException {
         Response response;
         if (katharsisResponse != null) {
