@@ -1,16 +1,16 @@
 package io.katharsis.resource.registry;
 
-import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
-import io.katharsis.repository.ResourceRepository;
 import io.katharsis.repository.exception.RelationshipRepositoryNotFoundException;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.repository.AnnotatedRelationshipEntryBuilder;
 import io.katharsis.resource.registry.repository.AnnotatedResourceEntryBuilder;
-import io.katharsis.resource.registry.repository.DirectRelationshipEntry;
-import io.katharsis.resource.registry.repository.DirectResourceEntry;
-import io.katharsis.resource.registry.repository.RelationshipEntry;
+import io.katharsis.resource.registry.repository.DirectResponseRelationshipEntry;
+import io.katharsis.resource.registry.repository.DirectResponseResourceEntry;
 import io.katharsis.resource.registry.repository.ResourceEntry;
+import io.katharsis.resource.registry.repository.ResponseRelationshipEntry;
+import io.katharsis.resource.registry.responseRepository.RelationshipRepositoryAdapter;
+import io.katharsis.resource.registry.responseRepository.ResourceRepositoryAdapter;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -29,39 +29,42 @@ import java.util.Objects;
 public class RegistryEntry<T> {
     private final ResourceInformation resourceInformation;
     private final ResourceEntry<T, ?> resourceEntry;
-    private final List<RelationshipEntry<T, ?>> relationshipEntries;
+    private final List<ResponseRelationshipEntry<T, ?>> relationshipEntries;
     private RegistryEntry parentRegistryEntry = null;
 
     public RegistryEntry(ResourceInformation resourceInformation,
                          @SuppressWarnings("SameParameterValue") ResourceEntry<T, ?> resourceEntry) {
-        this(resourceInformation, resourceEntry, new LinkedList<RelationshipEntry<T, ?>>());
+        this(resourceInformation, resourceEntry, new LinkedList<ResponseRelationshipEntry<T, ?>>());
     }
 
     public RegistryEntry(ResourceInformation resourceInformation,
                          ResourceEntry<T, ?> resourceEntry,
-                         List<RelationshipEntry<T, ?>> relationshipEntries) {
+                         List<ResponseRelationshipEntry<T, ?>> relationshipEntries) {
         this.resourceInformation = resourceInformation;
         this.resourceEntry = resourceEntry;
         this.relationshipEntries = relationshipEntries;
     }
 
-    public ResourceRepository<T, ?> getResourceRepository(RepositoryMethodParameterProvider parameterProvider) {
-        ResourceRepository<T, ?> repoInstance = null;
-        if (resourceEntry instanceof DirectResourceEntry) {
-            repoInstance = ((DirectResourceEntry<T, ?>) resourceEntry).getResourceRepository();
+    @SuppressWarnings("unchecked")
+    public ResourceRepositoryAdapter getResourceRepository(RepositoryMethodParameterProvider parameterProvider) {
+        Object repoInstance = null;
+        if (resourceEntry instanceof DirectResponseResourceEntry) {
+            repoInstance = ((DirectResponseResourceEntry<T, ?>) resourceEntry).getResourceRepository();
         } else if (resourceEntry instanceof AnnotatedResourceEntryBuilder) {
             repoInstance = ((AnnotatedResourceEntryBuilder<T, ?>) resourceEntry).build(parameterProvider);
         }
-        return repoInstance;
+        return new ResourceRepositoryAdapter(repoInstance);
     }
 
-    public List<RelationshipEntry<T, ?>> getRelationshipEntries() {
+    public List<ResponseRelationshipEntry<T, ?>> getRelationshipEntries() {
         return relationshipEntries;
     }
 
-    public RelationshipRepository<T, ?, ?, ?> getRelationshipRepositoryForClass(Class clazz, RepositoryMethodParameterProvider parameterProvider) {
-        RelationshipEntry<T, ?> foundRelationshipEntry = null;
-        for (RelationshipEntry<T, ?> relationshipEntry : relationshipEntries) {
+    @SuppressWarnings("unchecked")
+    public RelationshipRepositoryAdapter getRelationshipRepositoryForClass(Class clazz,
+                                                                                     RepositoryMethodParameterProvider parameterProvider) {
+        ResponseRelationshipEntry<T, ?> foundRelationshipEntry = null;
+        for (ResponseRelationshipEntry<T, ?> relationshipEntry : relationshipEntries) {
             if (clazz == relationshipEntry.getTargetAffiliation()) {
                 foundRelationshipEntry = relationshipEntry;
                 break;
@@ -71,14 +74,13 @@ public class RegistryEntry<T> {
             throw new RelationshipRepositoryNotFoundException(resourceInformation.getResourceClass(), clazz);
         }
 
-        RelationshipRepository<T, ?, ?, ?> repoInstance = null;
-        if (foundRelationshipEntry instanceof DirectRelationshipEntry) {
-            repoInstance = ((DirectRelationshipEntry<T, ?>) foundRelationshipEntry).getRepositoryInstanceBuilder();
-        } else if (foundRelationshipEntry instanceof AnnotatedRelationshipEntryBuilder) {
+        Object repoInstance;
+         if (foundRelationshipEntry instanceof AnnotatedRelationshipEntryBuilder) {
             repoInstance = ((AnnotatedRelationshipEntryBuilder<T, ?>) foundRelationshipEntry).build(parameterProvider);
-        }
-
-        return repoInstance;
+        } else {
+             repoInstance = ((DirectResponseRelationshipEntry<T, ?>) foundRelationshipEntry).getRepositoryInstanceBuilder();
+         }
+        return new RelationshipRepositoryAdapter(repoInstance);
     }
 
     public ResourceInformation getResourceInformation() {

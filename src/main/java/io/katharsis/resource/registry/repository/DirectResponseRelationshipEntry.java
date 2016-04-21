@@ -4,11 +4,11 @@ import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.repository.RepositoryInstanceBuilder;
 import net.jodah.typetools.TypeResolver;
 
-public class DirectRelationshipEntry<T, D> implements RelationshipEntry<T, D> {
+public class DirectResponseRelationshipEntry<T, D> implements ResponseRelationshipEntry<T, D> {
 
     private RepositoryInstanceBuilder<RelationshipRepository> repositoryInstanceBuilder;
 
-    public DirectRelationshipEntry(RepositoryInstanceBuilder<RelationshipRepository> repositoryInstanceBuilder) {
+    public DirectResponseRelationshipEntry(RepositoryInstanceBuilder<RelationshipRepository> repositoryInstanceBuilder) {
         this.repositoryInstanceBuilder = repositoryInstanceBuilder;
     }
 
@@ -25,7 +25,7 @@ public class DirectRelationshipEntry<T, D> implements RelationshipEntry<T, D> {
 
     @Override
     public String toString() {
-        return "DirectRelationshipEntry{" +
+        return "DirectResponseRelationshipEntry{" +
             "repositoryInstanceBuilder=" + repositoryInstanceBuilder +
             '}';
     }

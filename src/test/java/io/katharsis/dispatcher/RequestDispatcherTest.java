@@ -16,7 +16,7 @@ import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryBuilder;
 import io.katharsis.resource.registry.ResourceRegistryBuilderTest;
 import io.katharsis.resource.registry.ResourceRegistryTest;
-import io.katharsis.response.BaseResponse;
+import io.katharsis.response.BaseResponseContext;
 import io.katharsis.response.HttpStatus;
 import org.junit.Before;
 import org.junit.Rule;
@@ -24,7 +24,13 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class RequestDispatcherTest {
 
@@ -74,7 +80,7 @@ public class RequestDispatcherTest {
         RequestDispatcher requestDispatcher = new RequestDispatcher(controllerRegistry,
             ExceptionMapperRegistryTest.exceptionMapperRegistry);
 
-        BaseResponse<?> response = requestDispatcher.dispatchRequest(null, null, null, null, null);
+        BaseResponseContext response = requestDispatcher.dispatchRequest(null, null, null, null, null);
         assertThat(response)
             .isNotNull()
             .isExactlyInstanceOf(ErrorResponse.class);
@@ -95,6 +101,6 @@ public class RequestDispatcherTest {
 
         expectedException.expect(ArithmeticException.class);
 
-        BaseResponse<?> response = requestDispatcher.dispatchRequest(null, null, null, null, null);
+        BaseResponseContext response = requestDispatcher.dispatchRequest(null, null, null, null, null);
     }
 }

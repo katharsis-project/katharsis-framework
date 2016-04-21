@@ -4,8 +4,8 @@ import io.katharsis.locator.JsonServiceLocator;
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.information.ResourceInformationBuilder;
-import io.katharsis.resource.registry.repository.RelationshipEntry;
 import io.katharsis.resource.registry.repository.ResourceEntry;
+import io.katharsis.resource.registry.repository.ResponseRelationshipEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,13 +19,10 @@ import java.util.Set;
 public class ResourceRegistryBuilder {
     private static final Logger LOGGER = LoggerFactory.getLogger(ResourceRegistryBuilder.class);
 
-    private final JsonServiceLocator jsonServiceLocator;
     private final ResourceInformationBuilder resourceInformationBuilder;
-
     private final RepositoryEntryBuilderFacade repositoryEntryBuilder;
 
     public ResourceRegistryBuilder(JsonServiceLocator jsonServiceLocator, ResourceInformationBuilder resourceInformationBuilder) {
-        this.jsonServiceLocator = jsonServiceLocator;
         this.resourceInformationBuilder = resourceInformationBuilder;
         this.repositoryEntryBuilder = new RepositoryEntryBuilderFacade(jsonServiceLocator);
     }
@@ -63,7 +60,7 @@ public class ResourceRegistryBuilder {
 
             ResourceEntry<?, ?> resourceEntry = repositoryEntryBuilder.buildResourceRepository(resourceLookup, resourceClass);
             LOGGER.info("{} has a resource repository {}", resourceInformation.getResourceClass(), resourceEntry);
-            List<RelationshipEntry<?, ?>> relationshipEntries = repositoryEntryBuilder
+            List<ResponseRelationshipEntry<?, ?>> relationshipEntries = repositoryEntryBuilder
             .buildRelationshipRepositories(resourceLookup, resourceClass);
             LOGGER.info("{} has relationship repositories {}", resourceInformation.getResourceClass(), relationshipEntries);
 

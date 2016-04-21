@@ -12,7 +12,14 @@ import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.models.User;
 import io.katharsis.resource.registry.RegistryEntry;
-import io.katharsis.response.*;
+import io.katharsis.response.BaseResponseContext;
+import io.katharsis.response.CollectionResponseContext;
+import io.katharsis.response.Container;
+import io.katharsis.response.JsonApiResponse;
+import io.katharsis.response.LinkageContainer;
+import io.katharsis.response.LinksInformation;
+import io.katharsis.response.MetaInformation;
+import io.katharsis.response.ResourceResponseContext;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -43,7 +50,7 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
 
         // WHEN
         String result = sut
-            .writeValueAsString(new ResourceResponse(task, new ResourcePath("projects"), REQUEST_PARAMS, null, null));
+            .writeValueAsString(new ResourceResponseContext(buildResponse(task), new ResourcePath("projects"), REQUEST_PARAMS));
 
         // THEN
         assertThatJson(result).node("data").isPresent();
@@ -69,8 +76,7 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
         JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath("/tasks");
 
         // WHEN
-        String result = sut.writeValueAsString(new Container(task, new ResourceResponse(null, jsonPath, queryParams,
-            null, null)));
+        String result = sut.writeValueAsString(new Container(task, new ResourceResponseContext(null, jsonPath, queryParams)));
 
         // THEN
         assertThatJson(result).node("id").isEqualTo("\"1\"");
@@ -95,7 +101,7 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
 
         // WHEN
         String result = sut
-            .writeValueAsString(new ResourceResponse(user, new ResourcePath("projects"), REQUEST_PARAMS, null, null));
+            .writeValueAsString(new ResourceResponseContext(buildResponse(user), new ResourcePath("projects"), REQUEST_PARAMS));
 
         // THEN
         assertThatJson(result).node("data").isPresent();
@@ -114,8 +120,8 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
         task2.setName("Sample task");
 
         // WHEN
-        String result = sut.writeValueAsString(new CollectionResponse(Arrays.asList(task1, task2),
-            new ResourcePath("tasks"), REQUEST_PARAMS, null, null));
+        String result = sut.writeValueAsString(new CollectionResponseContext(buildResponse(Arrays.asList(task1, task2)),
+            new ResourcePath("tasks"), REQUEST_PARAMS));
 
         // THEN
         assertThatJson(result).node("data").isArray().ofLength(2);
@@ -130,8 +136,8 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
         LinkageContainer linkageContainer2 = new LinkageContainer(new Task().setId(2L), Task.class, entry);
 
         // WHEN
-        String result = sut.writeValueAsString(new CollectionResponse(Arrays.asList(linkageContainer1, linkageContainer2),
-            new ResourcePath("tasks"), REQUEST_PARAMS, null, null));
+        JsonApiResponse response = buildResponse(Arrays.asList(linkageContainer1, linkageContainer2));
+        String result = sut.writeValueAsString(new CollectionResponseContext(response, new ResourcePath("tasks"), REQUEST_PARAMS));
 
         // THEN
         assertThatJson(result).node("data").isArray().ofLength(2);
@@ -146,8 +152,8 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
         LinkageContainer linkageContainer1 = new LinkageContainer(new Task().setId(1L), Task.class, entry);
 
         // WHEN
-        String result = sut.writeValueAsString(new ResourceResponse(linkageContainer1,
-            new ResourcePath("tasks"), REQUEST_PARAMS, null, null));
+        String result = sut.writeValueAsString(new ResourceResponseContext(buildResponse(linkageContainer1),
+            new ResourcePath("tasks"), REQUEST_PARAMS));
 
         // THEN
         assertThatJson(result).node("data.id").isStringEqualTo("1");
@@ -158,7 +164,7 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
     public void onSingleResponseWithNoResourcesShouldReturnEmptyArray() throws Exception {
         // WHEN
         String result = sut
-            .writeValueAsString(new CollectionResponse(null, new ResourcePath("projects"), REQUEST_PARAMS, null, null));
+            .writeValueAsString(new CollectionResponseContext(new JsonApiResponse(), new ResourcePath("projects"), REQUEST_PARAMS));
 
         // THEN
         assertThatJson(result).node("data").isArray().ofLength(0);
@@ -168,7 +174,7 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
     public void onSingleResponseWithNoResourceShouldReturnNull() throws Exception {
         // WHEN
         String result = sut
-            .writeValueAsString(new ResourceResponse(null, new ResourcePath("projects"), REQUEST_PARAMS, null, null));
+            .writeValueAsString(new ResourceResponseContext(new JsonApiResponse(), new ResourcePath("projects"), REQUEST_PARAMS));
 
         // THEN
         assertThatJson(result).node("data").isEqualTo(null);
@@ -176,9 +182,13 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
 
     @Test
     public void onMetaInformationShouldReturnMetaObject() throws Exception {
+        // GIVEN
+        JsonApiResponse response = new JsonApiResponse()
+            .setMetaInformation(new MetaData("Humpty Dumpty"));
+
         // WHEN
         String result = sut.writeValueAsString(
-            new ResourceResponse(null, new ResourcePath("projects"), REQUEST_PARAMS, new MetaData("Humpty Dumpty"), null));
+            new ResourceResponseContext(response, new ResourcePath("projects"), REQUEST_PARAMS));
 
         // THEN
         assertThatJson(result).node("meta.author").isEqualTo("Humpty Dumpty");
@@ -186,9 +196,13 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
 
     @Test
     public void onLinksInformationShouldReturnLinksObject() throws Exception {
+        // GIVEN
+        JsonApiResponse response = new JsonApiResponse()
+            .setLinksInformation(new LinksData("/sth/123"));
+
         // WHEN
         String result = sut.writeValueAsString(
-            new ResourceResponse(null, new ResourcePath("projects"), REQUEST_PARAMS, null, new LinksData("/sth/123")));
+            new ResourceResponseContext(response, new ResourcePath("projects"), REQUEST_PARAMS));
 
         // THEN
         assertThatJson(result).node("links.self").isEqualTo("/sth/123");
@@ -198,7 +212,7 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
     public void onNoMetaInformationShouldReturnNoMetaObject() throws Exception {
         // WHEN
         String result = sut.writeValueAsString(
-            new ResourceResponse(null, new ResourcePath("projects"), REQUEST_PARAMS, null, null));
+            new ResourceResponseContext(new JsonApiResponse(), new ResourcePath("projects"), REQUEST_PARAMS));
 
         // THEN
         assertThatJson(result).node("meta").isAbsent();
@@ -208,7 +222,7 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
     public void onNoLinksInformationShouldReturnNoLinksObject() throws Exception {
         // WHEN
         String result = sut.writeValueAsString(
-            new ResourceResponse(null, new ResourcePath("projects"), REQUEST_PARAMS, null, null));
+            new ResourceResponseContext(new JsonApiResponse(), new ResourcePath("projects"), REQUEST_PARAMS));
 
         // THEN
         assertThatJson(result).node("links").isAbsent();
@@ -220,14 +234,14 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
         expectedException.expect(JsonMappingException.class);
 
         // WHEN
-        sut.writeValueAsString(new BaseResponse<Object>() {
+        sut.writeValueAsString(new BaseResponseContext() {
             @Override
             public int getHttpStatus() {
                 return 0;
             }
 
             @Override
-            public Object getData() {
+            public JsonApiResponse getResponse() {
                 return null;
             }
 
@@ -238,16 +252,6 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
 
             @Override
             public QueryParams getQueryParams() {
-                return null;
-            }
-
-            @Override
-            public MetaInformation getMetaInformation() {
-                return null;
-            }
-
-            @Override
-            public LinksInformation getLinksInformation() {
                 return null;
             }
         });

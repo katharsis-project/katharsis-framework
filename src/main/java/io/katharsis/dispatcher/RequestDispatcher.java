@@ -7,7 +7,7 @@ import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
-import io.katharsis.response.BaseResponse;
+import io.katharsis.response.BaseResponseContext;
 import io.katharsis.utils.java.Optional;
 
 /**
@@ -34,9 +34,9 @@ public class RequestDispatcher {
      * @param requestBody       deserialized body of the client request
      * @return the response form the Katharsis
      */
-    public BaseResponse<?> dispatchRequest(JsonPath jsonPath, String requestType, QueryParams queryParams,
-                                           RepositoryMethodParameterProvider parameterProvider,
-                                           @SuppressWarnings("SameParameterValue") RequestBody requestBody) {
+    public BaseResponseContext dispatchRequest(JsonPath jsonPath, String requestType, QueryParams queryParams,
+                                                  RepositoryMethodParameterProvider parameterProvider,
+                                                  @SuppressWarnings("SameParameterValue") RequestBody requestBody) {
 
         try {
             return controllerRegistry

@@ -1,6 +1,10 @@
 package io.katharsis.jackson;
 
-import io.katharsis.jackson.mock.models.*;
+import io.katharsis.jackson.mock.models.ClassA;
+import io.katharsis.jackson.mock.models.ClassAWithInclusion;
+import io.katharsis.jackson.mock.models.ClassB;
+import io.katharsis.jackson.mock.models.ClassBWithInclusion;
+import io.katharsis.jackson.mock.models.ClassCWithInclusion;
 import io.katharsis.jackson.serializer.IncludedRelationshipExtractor;
 import io.katharsis.locator.SampleJsonServiceLocator;
 import io.katharsis.queryParams.DefaultQueryParamsParser;
@@ -20,7 +24,8 @@ import io.katharsis.resource.registry.ResourceRegistryBuilder;
 import io.katharsis.resource.registry.ResourceRegistryBuilderTest;
 import io.katharsis.resource.registry.ResourceRegistryTest;
 import io.katharsis.response.Container;
-import io.katharsis.response.ResourceResponse;
+import io.katharsis.response.JsonApiResponse;
+import io.katharsis.response.ResourceResponseContext;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -37,7 +42,7 @@ public class IncludedRelationshipExtractorTest {
 
     private IncludedRelationshipExtractor sut;
     private ResourceField resourceField;
-    private ResourceResponse testResponse;
+    private ResourceResponseContext testResponse;
 
     @Before
     public void setUp() throws Exception {
@@ -59,7 +64,7 @@ public class IncludedRelationshipExtractorTest {
             someField.getGenericType(), declaredAnnotations);
 
         JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath("/tasks");
-        testResponse = new ResourceResponse(null, jsonPath, new QueryParams(), null, null);
+        testResponse = new ResourceResponseContext(new JsonApiResponse(), jsonPath, new QueryParams());
     }
 
     @Test
@@ -127,8 +132,8 @@ public class IncludedRelationshipExtractorTest {
         QueryParams queryParams = getRequestParamsWithInclusion("include[classAsWithInclusion]",
             "classBsWithInclusion");
 
-        ResourceResponse response = new ResourceResponse(null, new ResourcePath("classAsWithInclusion"), queryParams,
-            null, null);
+        ResourceResponseContext response = new ResourceResponseContext(new JsonApiResponse(),
+            new ResourcePath("classAsWithInclusion"), queryParams);
         ClassBWithInclusion classBsWithInclusion = new ClassBWithInclusion();
         ClassAWithInclusion classAWithInclusion = new ClassAWithInclusion(classBsWithInclusion);
 
@@ -145,8 +150,8 @@ public class IncludedRelationshipExtractorTest {
         QueryParams queryParams = getRequestParamsWithInclusion("include[classAs]",
             "classBs");
 
-        ResourceResponse response = new ResourceResponse(null, new ResourcePath("classAs"), queryParams,
-            null, null);
+        ResourceResponseContext response = new ResourceResponseContext(new JsonApiResponse(),
+            new ResourcePath("classAs"), queryParams);
         ClassB classBs = new ClassB(null);
         ClassA classA = new ClassA(classBs);
 
@@ -163,8 +168,8 @@ public class IncludedRelationshipExtractorTest {
         QueryParams queryParams = getRequestParamsWithInclusion("include[classAs]",
             "asdasd");
 
-        ResourceResponse response = new ResourceResponse(null, new ResourcePath("classAs"), queryParams,
-            null, null);
+        ResourceResponseContext response = new ResourceResponseContext(new JsonApiResponse(),
+            new ResourcePath("classAs"), queryParams);
         ClassB classBs = new ClassB(null);
         ClassA classA = new ClassA(classBs);
 
@@ -178,8 +183,8 @@ public class IncludedRelationshipExtractorTest {
         QueryParams queryParams = getRequestParamsWithInclusion("include[classBsWith]",
             "classCsWith");
 
-        ResourceResponse response = new ResourceResponse(null, new ResourcePath("classAsWith"), queryParams,
-            null, null);
+        ResourceResponseContext response = new ResourceResponseContext(new JsonApiResponse(),
+            new ResourcePath("classAsWith"), queryParams);
         ClassA classAWith = new ClassA(new ClassB(null));
 
         // WHEN

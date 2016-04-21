@@ -9,7 +9,8 @@ import io.katharsis.resource.mock.models.LazyTask;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.response.Container;
-import io.katharsis.response.ResourceResponse;
+import io.katharsis.response.JsonApiResponse;
+import io.katharsis.response.ResourceResponseContext;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -50,8 +51,8 @@ public class LinkageDataContainerSerializerTest extends BaseSerializerTest {
         JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath("/lazy_tasks");
 
         // WHEN
-        String result = sut.writeValueAsString(new Container(task, new ResourceResponse(null, jsonPath, queryParams,
-            null, null)));
+        String result = sut.writeValueAsString(new Container(task,
+            new ResourceResponseContext(new JsonApiResponse(), jsonPath, queryParams)));
 
         // THEN
         assertThatJson(result).node("relationships.projects.data[0].type").isEqualTo("projects");

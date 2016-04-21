@@ -15,8 +15,8 @@ import io.katharsis.resource.RestrictedQueryParamsMembers;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.repository.TaskToProjectRepository;
-import io.katharsis.response.BaseResponse;
-import io.katharsis.response.ResourceResponse;
+import io.katharsis.response.BaseResponseContext;
+import io.katharsis.response.ResourceResponseContext;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -66,7 +66,7 @@ public class CollectionGetTest extends BaseControllerTest {
         CollectionGet sut = new CollectionGet(resourceRegistry, typeParser, includeFieldSetter);
 
         // WHEN
-        BaseResponse<?> response = sut.handle(jsonPath, new QueryParams(), null, null);
+        BaseResponseContext response = sut.handle(jsonPath, new QueryParams(), null, null);
 
         // THEN
         Assert.assertNotNull(response);
@@ -80,7 +80,7 @@ public class CollectionGetTest extends BaseControllerTest {
         CollectionGet sut = new CollectionGet(resourceRegistry, typeParser, includeFieldSetter);
 
         // WHEN
-        BaseResponse<?> response = sut.handle(jsonPath, new QueryParams(), null, null);
+        BaseResponseContext response = sut.handle(jsonPath, new QueryParams(), null, null);
 
         // THEN
         Assert.assertNotNull(response);
@@ -100,11 +100,11 @@ public class CollectionGetTest extends BaseControllerTest {
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper);
 
         // WHEN -- adding a task
-        BaseResponse taskResponse = resourcePost.handle(taskPath, new QueryParams(), null, requestBody);
+        BaseResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParams(), null, requestBody);
 
         // THEN
-        assertThat(taskResponse.getData()).isExactlyInstanceOf(Task.class);
-        Long persistedTaskId = ((Task) (taskResponse.getData())).getId();
+        assertThat(taskResponse.getResponse().getEntity()).isExactlyInstanceOf(Task.class);
+        Long persistedTaskId = ((Task) (taskResponse.getResponse().getEntity())).getId();
         assertThat(persistedTaskId).isEqualTo(taskId);
     }
 
@@ -122,11 +122,11 @@ public class CollectionGetTest extends BaseControllerTest {
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper);
 
         // WHEN -- adding a task
-        BaseResponse taskResponse = resourcePost.handle(taskPath, new QueryParams(), null, newTaskBody);
+        BaseResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParams(), null, newTaskBody);
 
         // THEN
-        assertThat(taskResponse.getData()).isExactlyInstanceOf(Task.class);
-        Long taskId = ((Task) (taskResponse.getData())).getId();
+        assertThat(taskResponse.getResponse().getEntity()).isExactlyInstanceOf(Task.class);
+        Long taskId = ((Task) (taskResponse.getResponse().getEntity())).getId();
         assertThat(taskId).isNotNull();
 
         /* ------- */
@@ -141,13 +141,13 @@ public class CollectionGetTest extends BaseControllerTest {
         JsonPath projectPath = pathBuilder.buildPath("/projects");
 
         // WHEN -- adding a project
-        ResourceResponse projectResponse = resourcePost.handle(projectPath, new QueryParams(), null, newProjectBody);
+        ResourceResponseContext projectResponse = resourcePost.handle(projectPath, new QueryParams(), null, newProjectBody);
 
         // THEN
-        assertThat(projectResponse.getData()).isExactlyInstanceOf(Project.class);
-        assertThat(((Project) (projectResponse.getData())).getId()).isNotNull();
-        assertThat(((Project) (projectResponse.getData())).getName()).isEqualTo("sample project");
-        Long projectId = ((Project) (projectResponse.getData())).getId();
+        assertThat(projectResponse.getResponse().getEntity()).isExactlyInstanceOf(Project.class);
+        assertThat(((Project) (projectResponse.getResponse().getEntity())).getId()).isNotNull();
+        assertThat(((Project) (projectResponse.getResponse().getEntity())).getName()).isEqualTo("sample project");
+        Long projectId = ((Project) (projectResponse.getResponse().getEntity())).getId();
         assertThat(projectId).isNotNull();
 
         /* ------- */
@@ -163,7 +163,7 @@ public class CollectionGetTest extends BaseControllerTest {
         RelationshipsResourcePost sut = new RelationshipsResourcePost(resourceRegistry, typeParser);
 
         // WHEN -- adding a relation between task and project
-        BaseResponse projectRelationshipResponse = sut.handle(savedTaskPath, new QueryParams(), null,
+        BaseResponseContext projectRelationshipResponse = sut.handle(savedTaskPath, new QueryParams(), null,
             newTaskToProjectBody);
         assertThat(projectRelationshipResponse).isNotNull();
 
@@ -181,14 +181,14 @@ public class CollectionGetTest extends BaseControllerTest {
         QueryParams queryParams1 = new QueryParamsBuilder(new DefaultQueryParamsParser()).buildQueryParams(queryParams);
 
         // WHEN
-        BaseResponse<?> response = responseGetResp.handle(jsonPath, queryParams1, null, null);
+        BaseResponseContext response = responseGetResp.handle(jsonPath, queryParams1, null, null);
 
         // THEN
         Assert.assertNotNull(response);
-        assertThat(response.getData()).isExactlyInstanceOf(Task.class);
-        assertThat(((Task)(taskResponse.getData())).getIncludedProjects()).isNotNull();
-        assertThat(((Task)(taskResponse.getData())).getIncludedProjects().size()).isEqualTo(1);
-        assertThat(((Task)(taskResponse.getData())).getIncludedProjects().get(0).getId()).isEqualTo(projectId);
+        assertThat(response.getResponse().getEntity()).isExactlyInstanceOf(Task.class);
+        assertThat(((Task)(taskResponse.getResponse().getEntity())).getIncludedProjects()).isNotNull();
+        assertThat(((Task)(taskResponse.getResponse().getEntity())).getIncludedProjects().size()).isEqualTo(1);
+        assertThat(((Task)(taskResponse.getResponse().getEntity())).getIncludedProjects().get(0).getId()).isEqualTo(projectId);
     }
 
     @Test
@@ -205,11 +205,11 @@ public class CollectionGetTest extends BaseControllerTest {
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper);
 
         // WHEN -- adding a task
-        BaseResponse taskResponse = resourcePost.handle(taskPath, new QueryParams(), null, newTaskBody);
+        BaseResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParams(), null, newTaskBody);
 
         // THEN
-        assertThat(taskResponse.getData()).isExactlyInstanceOf(Task.class);
-        Long taskId = ((Task) (taskResponse.getData())).getId();
+        assertThat(taskResponse.getResponse().getEntity()).isExactlyInstanceOf(Task.class);
+        Long taskId = ((Task) (taskResponse.getResponse().getEntity())).getId();
         assertThat(taskId).isNotNull();
 
         /* ------- */
@@ -224,13 +224,13 @@ public class CollectionGetTest extends BaseControllerTest {
         JsonPath projectPath = pathBuilder.buildPath("/projects");
 
         // WHEN -- adding a project
-        ResourceResponse projectResponse = resourcePost.handle(projectPath, new QueryParams(), null, newProjectBody);
+        ResourceResponseContext projectResponse = resourcePost.handle(projectPath, new QueryParams(), null, newProjectBody);
 
         // THEN
-        assertThat(projectResponse.getData()).isExactlyInstanceOf(Project.class);
-        assertThat(((Project) (projectResponse.getData())).getId()).isNotNull();
-        assertThat(((Project) (projectResponse.getData())).getName()).isEqualTo("sample project");
-        Long projectId = ((Project) (projectResponse.getData())).getId();
+        assertThat(projectResponse.getResponse().getEntity()).isExactlyInstanceOf(Project.class);
+        assertThat(((Project) (projectResponse.getResponse().getEntity())).getId()).isNotNull();
+        assertThat(((Project) (projectResponse.getResponse().getEntity())).getName()).isEqualTo("sample project");
+        Long projectId = ((Project) (projectResponse.getResponse().getEntity())).getId();
         assertThat(projectId).isNotNull();
 
         /* ------- */
@@ -246,7 +246,7 @@ public class CollectionGetTest extends BaseControllerTest {
         RelationshipsResourcePost sut = new RelationshipsResourcePost(resourceRegistry, typeParser);
 
         // WHEN -- adding a relation between task and project
-        BaseResponse projectRelationshipResponse = sut.handle(savedTaskPath, new QueryParams(), null, newTaskToProjectBody);
+        BaseResponseContext projectRelationshipResponse = sut.handle(savedTaskPath, new QueryParams(), null, newTaskToProjectBody);
         assertThat(projectRelationshipResponse).isNotNull();
 
         // THEN
@@ -263,11 +263,11 @@ public class CollectionGetTest extends BaseControllerTest {
         QueryParams requestParams = new QueryParamsBuilder(new DefaultQueryParamsParser()).buildQueryParams(queryParams);
 
         // WHEN
-        BaseResponse<?> response = responseGetResp.handle(jsonPath, requestParams, null, null);
+        BaseResponseContext response = responseGetResp.handle(jsonPath, requestParams, null, null);
 
         // THEN
         Assert.assertNotNull(response);
-        assertThat(response.getData()).isExactlyInstanceOf(Task.class);
-        assertThat(((Task)(taskResponse.getData())).getProjects()).isNull();
+        assertThat(response.getResponse().getEntity()).isExactlyInstanceOf(Task.class);
+        assertThat(((Task)(taskResponse.getResponse().getEntity())).getProjects()).isNull();
     }
 }

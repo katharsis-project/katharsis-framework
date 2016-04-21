@@ -23,7 +23,7 @@ public class ErrorResponseBuilderTest {
                 .setSingleErrorData(ErrorDataMother.fullyPopulatedErrorData())
                 .build();
 
-        assertThat(response.getData())
+        assertThat((Iterable<?>) response.getResponse().getEntity())
                 .hasSize(1)
                 .containsExactly(ErrorDataMother.fullyPopulatedErrorData());
     }
@@ -34,7 +34,7 @@ public class ErrorResponseBuilderTest {
                 .setErrorData(ErrorDataMother.oneSizeCollectionOfErrorData())
                 .build();
 
-        assertThat(response.getData())
+        assertThat((Iterable<?>) response.getResponse().getEntity())
                 .hasSize(1)
                 .containsExactly(ErrorDataMother.fullyPopulatedErrorData());
     }

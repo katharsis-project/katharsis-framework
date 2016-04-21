@@ -36,7 +36,7 @@ public class ErrorResponseSerializer extends JsonSerializer<ErrorResponse> {
     }
 
     private void serializeErrorCollection(ErrorResponse errorResponse, JsonGenerator gen) throws IOException {
-        Iterable<ErrorData> values = errorResponse.getData();
+        Iterable<ErrorData> values = (Iterable<ErrorData>) errorResponse.getResponse().getEntity();
 
         if (values == null) {
             values = Collections.emptyList();

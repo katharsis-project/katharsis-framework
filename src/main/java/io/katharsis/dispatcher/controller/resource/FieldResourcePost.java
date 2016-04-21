@@ -3,9 +3,7 @@ package io.katharsis.dispatcher.controller.resource;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.QueryParams;
-import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
-import io.katharsis.repository.ResourceRepository;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.FieldPath;
@@ -18,10 +16,11 @@ import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.resource.registry.responseRepository.RelationshipRepositoryAdapter;
+import io.katharsis.resource.registry.responseRepository.ResourceRepositoryAdapter;
 import io.katharsis.response.HttpStatus;
-import io.katharsis.response.LinksInformation;
-import io.katharsis.response.MetaInformation;
-import io.katharsis.response.ResourceResponse;
+import io.katharsis.response.JsonApiResponse;
+import io.katharsis.response.ResourceResponseContext;
 import io.katharsis.utils.Generics;
 import io.katharsis.utils.PropertyUtils;
 import io.katharsis.utils.parser.TypeParser;
@@ -48,8 +47,8 @@ public class FieldResourcePost extends ResourceUpsert {
     }
 
     @Override
-    public ResourceResponse handle(JsonPath jsonPath, QueryParams queryParams,
-                                   RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody) {
+    public ResourceResponseContext handle(JsonPath jsonPath, QueryParams queryParams,
+                                          RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody) {
         String resourceEndpointName = jsonPath.getResourceName();
         PathIds resourceIds = jsonPath.getIds();
         RegistryEntry endpointRegistryEntry = resourceRegistry.getEntry(resourceEndpointName);
@@ -81,36 +80,30 @@ public class FieldResourcePost extends ResourceUpsert {
         DataBody dataBody = requestBody.getSingleData();
         Object resource = buildNewResource(relationshipRegistryEntry, dataBody, relationshipResourceType);
         setAttributes(dataBody, resource, relationshipRegistryEntry.getResourceInformation());
-        ResourceRepository resourceRepository = relationshipRegistryEntry.getResourceRepository(parameterProvider);
-        Object savedResource = resourceRepository.save(resource);
-        saveRelations(savedResource, relationshipRegistryEntry, dataBody, parameterProvider);
+        ResourceRepositoryAdapter resourceRepository = relationshipRegistryEntry.getResourceRepository(parameterProvider);
+        JsonApiResponse savedResourceResponse = resourceRepository.save(resource, queryParams);
+        saveRelations(queryParams, extractResource(savedResourceResponse), relationshipRegistryEntry, dataBody, parameterProvider);
 
         Serializable resourceId = (Serializable) PropertyUtils
-            .getProperty(savedResource, relationshipRegistryEntry.getResourceInformation()
+            .getProperty(extractResource(savedResourceResponse), relationshipRegistryEntry.getResourceInformation()
                 .getIdField()
                 .getUnderlyingName());
 
-        RelationshipRepository relationshipRepositoryForClass = endpointRegistryEntry
+        RelationshipRepositoryAdapter relationshipRepositoryForClass = endpointRegistryEntry
             .getRelationshipRepositoryForClass(relationshipFieldClass, parameterProvider);
 
         @SuppressWarnings("unchecked")
-        Object parent = endpointRegistryEntry.getResourceRepository(parameterProvider)
+        JsonApiResponse parent = endpointRegistryEntry.getResourceRepository(parameterProvider)
             .findOne(castedResourceId, queryParams);
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
             //noinspection unchecked
-            relationshipRepositoryForClass.addRelations(parent, Collections.singletonList(resourceId), jsonPath
-                .getElementName());
+            relationshipRepositoryForClass.addRelations(parent.getEntity(), Collections.singletonList(resourceId), jsonPath
+                .getElementName(), queryParams);
         } else {
             //noinspection unchecked
-            relationshipRepositoryForClass.setRelation(parent, resourceId, jsonPath.getElementName());
+            relationshipRepositoryForClass.setRelation(parent.getEntity(), resourceId, jsonPath.getElementName(), queryParams);
         }
-        MetaInformation metaInformation = getMetaInformation(resourceRepository,
-            Collections.singletonList(savedResource), queryParams);
-        LinksInformation linksInformation =
-            getLinksInformation(resourceRepository, Collections.singletonList(savedResource), queryParams);
-
-        return new ResourceResponse(savedResource, jsonPath, queryParams, metaInformation, linksInformation,
-            HttpStatus.CREATED_201);
+        return new ResourceResponseContext(savedResourceResponse, jsonPath, queryParams, HttpStatus.CREATED_201);
     }
 
     private Serializable getResourceId(PathIds resourceIds, RegistryEntry<?> registryEntry) {

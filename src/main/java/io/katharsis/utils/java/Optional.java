@@ -23,6 +23,7 @@ public class Optional<T> {
         return value;
     }
 
+    @SuppressWarnings("unchecked")
     public static<T> Optional<T> empty() {
         return (Optional<T>) EMPTY;
     }

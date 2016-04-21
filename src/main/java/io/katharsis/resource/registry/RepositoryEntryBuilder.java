@@ -1,7 +1,7 @@
 package io.katharsis.resource.registry;
 
-import io.katharsis.resource.registry.repository.RelationshipEntry;
 import io.katharsis.resource.registry.repository.ResourceEntry;
+import io.katharsis.resource.registry.repository.ResponseRelationshipEntry;
 
 import java.util.List;
 
@@ -13,5 +13,5 @@ public interface RepositoryEntryBuilder {
 
     ResourceEntry<?, ?> buildResourceRepository(ResourceLookup lookup, Class<?> resourceClass);
 
-    List<RelationshipEntry<?, ?>> buildRelationshipRepositories(ResourceLookup lookup, Class<?> resourceClass);
+    List<ResponseRelationshipEntry<?, ?>> buildRelationshipRepositories(ResourceLookup lookup, Class<?> resourceClass);
 }

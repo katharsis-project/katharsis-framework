@@ -1,11 +1,10 @@
 package io.katharsis.errorhandling.mapper;
 
 import io.katharsis.resource.exception.init.InvalidResourceException;
+import org.reflections.Reflections;
 
 import java.util.HashSet;
 import java.util.Set;
-
-import org.reflections.Reflections;
 
 /**
  * Exception mapper lookup which scans the classpath for exception mappers which

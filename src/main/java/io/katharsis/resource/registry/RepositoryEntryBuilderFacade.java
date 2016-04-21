@@ -3,9 +3,9 @@ package io.katharsis.resource.registry;
 import io.katharsis.locator.JsonServiceLocator;
 import io.katharsis.repository.NotFoundRepository;
 import io.katharsis.repository.RepositoryInstanceBuilder;
-import io.katharsis.resource.registry.repository.DirectResourceEntry;
-import io.katharsis.resource.registry.repository.RelationshipEntry;
+import io.katharsis.resource.registry.repository.DirectResponseResourceEntry;
 import io.katharsis.resource.registry.repository.ResourceEntry;
+import io.katharsis.resource.registry.repository.ResponseRelationshipEntry;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -38,21 +38,21 @@ public class RepositoryEntryBuilderFacade implements RepositoryEntryBuilder {
                     return (T) new NotFoundRepository<>(resourceClass);
                 }
             }, NotFoundRepository.class);
-            resourceEntry = new DirectResourceEntry(repositoryInstanceBuilder);
+            resourceEntry = new DirectResponseResourceEntry(repositoryInstanceBuilder);
         }
 
         return resourceEntry;
     }
 
     @Override
-    public List<RelationshipEntry<?, ?>> buildRelationshipRepositories(ResourceLookup lookup, Class<?> resourceClass) {
-        List<RelationshipEntry<?, ?>> annotationEntries = annotatedRepositoryEntryBuilder
+    public List<ResponseRelationshipEntry<?, ?>> buildRelationshipRepositories(ResourceLookup lookup, Class<?> resourceClass) {
+        List<ResponseRelationshipEntry<?, ?>> annotationEntries = annotatedRepositoryEntryBuilder
             .buildRelationshipRepositories(lookup, resourceClass);
-        List<RelationshipEntry<?, ?>> targetEntries = new LinkedList<>(annotationEntries);
-        List<RelationshipEntry<?, ?>> directEntries = directRepositoryEntryBuilder
+        List<ResponseRelationshipEntry<?, ?>> targetEntries = new LinkedList<>(annotationEntries);
+        List<ResponseRelationshipEntry<?, ?>> directEntries = directRepositoryEntryBuilder
             .buildRelationshipRepositories(lookup, resourceClass);
 
-        for (RelationshipEntry<?, ?> directEntry : directEntries) {
+        for (ResponseRelationshipEntry<?, ?> directEntry : directEntries) {
             if (!contains(targetEntries, directEntry)) {
                 targetEntries.add(directEntry);
             }
@@ -61,9 +61,9 @@ public class RepositoryEntryBuilderFacade implements RepositoryEntryBuilder {
         return targetEntries;
     }
 
-    private boolean contains(List<RelationshipEntry<?, ?>> targetEntries, RelationshipEntry<?, ?> directEntry) {
+    private boolean contains(List<ResponseRelationshipEntry<?, ?>> targetEntries, ResponseRelationshipEntry<?, ?> directEntry) {
         boolean contains = false;
-        for (RelationshipEntry<?, ?> targetEntry : targetEntries) {
+        for (ResponseRelationshipEntry<?, ?> targetEntry : targetEntries) {
             if (targetEntry.getTargetAffiliation().equals(directEntry.getTargetAffiliation())) {
                 contains = true;
                 break;

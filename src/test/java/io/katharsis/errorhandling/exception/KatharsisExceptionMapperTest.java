@@ -20,7 +20,7 @@ public class KatharsisExceptionMapperTest {
         ErrorResponse response = mapper.toErrorResponse(new SampleKatharsisException());
 
         assertThat(response.getHttpStatus()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR_500);
-        assertThat(response.getData())
+        assertThat((Iterable<?>) response.getResponse().getEntity())
                 .hasSize(1)
                 .extracting("title", "detail")
                 .containsExactly(tuple(TITLE1, DETAIL1));

@@ -1,5 +1,6 @@
 package io.katharsis.dispatcher.registry;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.dispatcher.controller.collection.CollectionGet;
 import io.katharsis.dispatcher.controller.resource.FieldResourceGet;
@@ -18,8 +19,6 @@ import io.katharsis.utils.parser.TypeParser;
 
 import java.util.HashSet;
 import java.util.Set;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * This lookup gets all predefined Katharsis controllers.

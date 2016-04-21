@@ -4,7 +4,6 @@ import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.dispatcher.controller.resource.ResourceIncludeField;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
-import io.katharsis.repository.ResourceRepository;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
@@ -12,15 +11,13 @@ import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.include.IncludeLookupSetter;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.response.BaseResponse;
-import io.katharsis.response.CollectionResponse;
-import io.katharsis.response.LinksInformation;
-import io.katharsis.response.MetaInformation;
+import io.katharsis.resource.registry.responseRepository.ResourceRepositoryAdapter;
+import io.katharsis.response.BaseResponseContext;
+import io.katharsis.response.CollectionResponseContext;
+import io.katharsis.response.JsonApiResponse;
 import io.katharsis.utils.parser.TypeParser;
 
 import java.io.Serializable;
-import java.util.LinkedList;
-import java.util.List;
 
 public class CollectionGet extends ResourceIncludeField {
 
@@ -40,35 +37,26 @@ public class CollectionGet extends ResourceIncludeField {
 
     @Override
     @SuppressWarnings("unchecked")
-    public BaseResponse<?> handle(JsonPath jsonPath, QueryParams queryParams, RepositoryMethodParameterProvider 
+    public BaseResponseContext handle(JsonPath jsonPath, QueryParams queryParams, RepositoryMethodParameterProvider
         parameterProvider, RequestBody requestBody) {
         String resourceName = jsonPath.getElementName();
         RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
         if (registryEntry == null) {
             throw new ResourceNotFoundException(resourceName);
         }
-        Iterable<?> resources;
-        ResourceRepository resourceRepository = registryEntry.getResourceRepository(parameterProvider);
+        JsonApiResponse response;
+        ResourceRepositoryAdapter resourceRepository = registryEntry.getResourceRepository(parameterProvider);
         if (jsonPath.getIds() == null || jsonPath.getIds().getIds().isEmpty()) {
-            resources = resourceRepository.findAll(queryParams);
+            response = resourceRepository.findAll(queryParams);
         } else {
             Class<? extends Serializable> idType = (Class<? extends Serializable>)registryEntry
                 .getResourceInformation().getIdField().getType();
             Iterable<? extends Serializable> parsedIds = typeParser.parse((Iterable<String>) jsonPath.getIds().getIds(),
                 idType);
-            resources = resourceRepository.findAll(parsedIds, queryParams);
+            response = resourceRepository.findAll(parsedIds, queryParams);
         }
+        includeFieldSetter.setIncludedElements(resourceName, response, queryParams, parameterProvider);
 
-        List containers = new LinkedList();
-        if (resources != null) {
-            includeFieldSetter.setIncludedElements(resourceName, resources, queryParams, parameterProvider);
-            for (Object element : resources) {
-                containers.add(element);
-            }
-        }
-        MetaInformation metaInformation = getMetaInformation(resourceRepository, resources, queryParams);
-        LinksInformation linksInformation = getLinksInformation(resourceRepository, resources, queryParams);
-
-        return new CollectionResponse(containers, jsonPath, queryParams, metaInformation, linksInformation);
+        return new CollectionResponseContext(response, jsonPath, queryParams);
     }
 }

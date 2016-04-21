@@ -1,13 +1,12 @@
 package io.katharsis.dispatcher.controller.resource;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.include.IncludeLookupSetter;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.response.BaseResponse;
+import io.katharsis.response.BaseResponseContext;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -70,7 +69,7 @@ public class FieldResourceGetTest extends BaseControllerTest {
         FieldResourceGet sut = new FieldResourceGet(resourceRegistry, typeParser, includeFieldSetter);
 
         // WHEN
-        BaseResponse<?> response = sut.handle(jsonPath, new QueryParams(), null, null);
+        BaseResponseContext response = sut.handle(jsonPath, new QueryParams(), null, null);
 
         // THEN
         Assert.assertNotNull(response);
@@ -84,7 +83,7 @@ public class FieldResourceGetTest extends BaseControllerTest {
         FieldResourceGet sut = new FieldResourceGet(resourceRegistry, typeParser, includeFieldSetter);
 
         // WHEN
-        BaseResponse<?> response = sut.handle(jsonPath, new QueryParams(), null, null);
+        BaseResponseContext response = sut.handle(jsonPath, new QueryParams(), null, null);
 
         // THEN
         Assert.assertNotNull(response);

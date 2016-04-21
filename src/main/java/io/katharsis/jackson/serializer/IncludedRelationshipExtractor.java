@@ -10,14 +10,20 @@ import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.response.BaseResponse;
+import io.katharsis.response.BaseResponseContext;
 import io.katharsis.response.Container;
 import io.katharsis.utils.PropertyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Extracts inclusions from a resource.
@@ -30,7 +36,7 @@ public class IncludedRelationshipExtractor {
         this.resourceRegistry = resourceRegistry;
     }
 
-    public Set<?> extractIncludedResources(Object resource, BaseResponse response) {
+    public Set<?> extractIncludedResources(Object resource, BaseResponseContext response) {
         Set includedResources = new HashSet<>();
         //noinspection unchecked
         includedResources.addAll(extractDefaultIncludedFields(resource, response));
@@ -44,7 +50,7 @@ public class IncludedRelationshipExtractor {
         return includedResources;
     }
 
-    private List<?> extractDefaultIncludedFields(Object resource, BaseResponse response) {
+    private List<?> extractDefaultIncludedFields(Object resource, BaseResponseContext response) {
         List<?> includedResources = getIncludedByDefaultResources(resource, 1);
         List<Container> includedResourceContainers = new ArrayList<>(includedResources.size());
         for (Object includedResource : includedResources) {
@@ -93,7 +99,7 @@ public class IncludedRelationshipExtractor {
         return includedFields;
     }
 
-    private List<?> extractIncludedRelationships(Object resource, BaseResponse response)
+    private List<?> extractIncludedRelationships(Object resource, BaseResponseContext response)
         throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
         List<?> includedResources = new LinkedList<>();
         TypedParams<IncludedRelationsParams> includedRelations = response.getQueryParams()
@@ -123,7 +129,7 @@ public class IncludedRelationshipExtractor {
         return null;
     }
 
-    private Set extractIncludedRelationship(Object resource, Inclusion inclusion, BaseResponse response)
+    private Set extractIncludedRelationship(Object resource, Inclusion inclusion, BaseResponseContext response)
         throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
         List<String> pathList = inclusion.getPathList();
         if (resource == null || pathList.isEmpty()) {
@@ -138,7 +144,7 @@ public class IncludedRelationshipExtractor {
         return getElements(resource, pathList, response);
     }
 
-    private Set getElements(Object resource, List<String> pathList, BaseResponse response)
+    private Set getElements(Object resource, List<String> pathList, BaseResponseContext response)
         throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
         Set elements = new HashSet();
 

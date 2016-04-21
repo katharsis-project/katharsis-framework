@@ -1,7 +1,6 @@
 package io.katharsis.response;
 
 import io.katharsis.jackson.serializer.ContainerSerializer;
-import io.katharsis.queryParams.QueryParams;
 
 import java.util.Objects;
 
@@ -11,21 +10,21 @@ import java.util.Objects;
  */
 public class Container {
     private Object data;
-    private BaseResponse response;
+    private BaseResponseContext response;
 
     public Container() {
     }
 
-    public Container(Object data, BaseResponse response) {
+    public Container(Object data, BaseResponseContext response) {
         this.data = data;
         this.response = response;
     }
 
-    public BaseResponse getResponse() {
+    public BaseResponseContext getResponse() {
         return response;
     }
 
-    public void setResponse(BaseResponse response) {
+    public void setResponse(BaseResponseContext response) {
         this.response = response;
     }
 

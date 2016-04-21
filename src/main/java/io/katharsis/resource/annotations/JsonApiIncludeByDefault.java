@@ -2,7 +2,11 @@ package io.katharsis.resource.annotations;
 
 import io.katharsis.resource.exception.ResourceException;
 
-import java.lang.annotation.*;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * Indicates additional resources that should be included by default with every primary resource.

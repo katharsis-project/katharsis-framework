@@ -1,4 +1,4 @@
-package io.katharsis.repository.adapter;
+package io.katharsis.repository.annotated;
 
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.LinksRepository;
@@ -15,7 +15,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-public abstract class RepositoryAdapter<T> implements LinksRepository<T>, MetaRepository<T> {
+public abstract class AnnotatedRepositoryAdapter<T> implements LinksRepository<T>, MetaRepository<T> {
 
     final Object implementationObject;
     final Class<?> implementationClass;
@@ -24,7 +24,7 @@ public abstract class RepositoryAdapter<T> implements LinksRepository<T>, MetaRe
     private Method linksMethod;
     private Method metaMethod;
 
-    public RepositoryAdapter(Object implementationObject, ParametersFactory parametersFactory) {
+    public AnnotatedRepositoryAdapter(Object implementationObject, ParametersFactory parametersFactory) {
         this.implementationObject = implementationObject;
         this.implementationClass = implementationObject.getClass();
         this.parametersFactory = parametersFactory;

@@ -5,10 +5,10 @@ import io.katharsis.repository.ResourceRepository;
 
 import java.io.Serializable;
 
-public class DirectResourceEntry<T, ID extends Serializable> implements ResourceEntry<T, ID> {
+public class DirectResponseResourceEntry<T, ID extends Serializable> implements ResourceEntry<T, ID> {
     private final RepositoryInstanceBuilder<ResourceRepository<T, ID>> repositoryInstanceBuilder;
 
-    public DirectResourceEntry(RepositoryInstanceBuilder<ResourceRepository<T, ID>> repositoryInstanceBuilder) {
+    public DirectResponseResourceEntry(RepositoryInstanceBuilder<ResourceRepository<T, ID>> repositoryInstanceBuilder) {
         this.repositoryInstanceBuilder = repositoryInstanceBuilder;
     }
 
@@ -18,7 +18,7 @@ public class DirectResourceEntry<T, ID extends Serializable> implements Resource
 
     @Override
     public String toString() {
-        return "DirectResourceEntry{" +
+        return "DirectResponseResourceEntry{" +
             "repositoryInstanceBuilder=" + repositoryInstanceBuilder +
             '}';
     }

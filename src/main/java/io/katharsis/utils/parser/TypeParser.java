@@ -12,16 +12,16 @@ import java.util.List;
  * Parses {@link String} into an instance of provided {@link Class}. It support the following classes:
  * <ol>
  *     <li>{@link String}</li>
- *     <li>{@link Byte} and {@link byte}</li>
- *     <li>{@link Short} and {@link short}</li>
- *     <li>{@link Integer} and {@link int}</li>
- *     <li>{@link Long} and {@link long}</li>
- *     <li>{@link Float} and {@link float}</li>
- *     <li>{@link Double} and {@link double}</li>
+ *     <li>{@link Byte} and <i>byte</i></li>
+ *     <li>{@link Short} and <i>short</i></li>
+ *     <li>{@link Integer} and <i>int</i></li>
+ *     <li>{@link Long} and <i>long</i></li>
+ *     <li>{@link Float} and <i>float</i></li>
+ *     <li>{@link Double} and <i>double</i></li>
  *     <li>{@link BigInteger}</li>
  *     <li>{@link BigDecimal}</li>
- *     <li>{@link Character} and {@link char}</li>
- *     <li>{@link Boolean} and {@link boolean}</li>
+ *     <li>{@link Character} and <i>char</i></li>
+ *     <li>{@link Boolean} and <i>boolean</i></li>
  *     <li>{@link java.util.UUID}</li>
  *     <li>An {@link Enum}</li>
  *     <li>A class with a {@link String} only constructor</li>

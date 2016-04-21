@@ -5,11 +5,10 @@ import io.katharsis.repository.ResourceRepository;
 import io.katharsis.repository.annotations.JsonApiRelationshipRepository;
 import io.katharsis.repository.annotations.JsonApiResourceRepository;
 import io.katharsis.resource.annotations.JsonApiResource;
+import org.reflections.Reflections;
 
 import java.util.HashSet;
 import java.util.Set;
-
-import org.reflections.Reflections;
 
 /**
  * Scans all classes in provided package and finds all resources and repositories associated with found resource.

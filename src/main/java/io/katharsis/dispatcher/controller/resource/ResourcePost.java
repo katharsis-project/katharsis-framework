@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
-import io.katharsis.repository.ResourceRepository;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
@@ -14,14 +13,12 @@ import io.katharsis.resource.exception.RequestBodyNotFoundException;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.resource.registry.responseRepository.ResourceRepositoryAdapter;
 import io.katharsis.response.HttpStatus;
-import io.katharsis.response.LinksInformation;
-import io.katharsis.response.MetaInformation;
-import io.katharsis.response.ResourceResponse;
+import io.katharsis.response.JsonApiResponse;
+import io.katharsis.response.ResourceResponseContext;
 import io.katharsis.utils.ClassUtils;
 import io.katharsis.utils.parser.TypeParser;
-
-import java.util.Collections;
 
 public class ResourcePost extends ResourceUpsert {
 
@@ -43,8 +40,8 @@ public class ResourcePost extends ResourceUpsert {
     }
 
     @Override
-    public ResourceResponse handle(JsonPath jsonPath, QueryParams queryParams,
-                                   RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody){
+    public ResourceResponseContext handle(JsonPath jsonPath, QueryParams queryParams,
+                                          RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody){
         String resourceEndpointName = jsonPath.getResourceName();
         RegistryEntry endpointRegistryEntry = resourceRegistry.getEntry(resourceEndpointName);
         if (endpointRegistryEntry == null) {
@@ -67,16 +64,10 @@ public class ResourcePost extends ResourceUpsert {
 
         setId(dataBody, newResource, bodyRegistryEntry.getResourceInformation());
         setAttributes(dataBody, newResource, bodyRegistryEntry.getResourceInformation());
-        ResourceRepository resourceRepository = endpointRegistryEntry.getResourceRepository(parameterProvider);
+        ResourceRepositoryAdapter resourceRepository = endpointRegistryEntry.getResourceRepository(parameterProvider);
         setRelations(newResource, bodyRegistryEntry, dataBody, queryParams, parameterProvider);
-        Object savedResource = resourceRepository.save(newResource);
+        JsonApiResponse response = resourceRepository.save(newResource, queryParams);
 
-        MetaInformation metaInformation =
-            getMetaInformation(resourceRepository, Collections.singletonList(savedResource), queryParams);
-        LinksInformation linksInformation =
-            getLinksInformation(resourceRepository, Collections.singletonList(savedResource), queryParams);
-
-        return new ResourceResponse(savedResource, jsonPath, queryParams, metaInformation, linksInformation,
-            HttpStatus.CREATED_201);
+        return new ResourceResponseContext(response, jsonPath, queryParams, HttpStatus.CREATED_201);
     }
 }

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
-import io.katharsis.repository.ResourceRepository;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
@@ -14,14 +13,13 @@ import io.katharsis.resource.exception.RequestBodyNotFoundException;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.response.BaseResponse;
-import io.katharsis.response.LinksInformation;
-import io.katharsis.response.MetaInformation;
-import io.katharsis.response.ResourceResponse;
+import io.katharsis.resource.registry.responseRepository.ResourceRepositoryAdapter;
+import io.katharsis.response.BaseResponseContext;
+import io.katharsis.response.JsonApiResponse;
+import io.katharsis.response.ResourceResponseContext;
 import io.katharsis.utils.parser.TypeParser;
 
 import java.io.Serializable;
-import java.util.Collections;
 
 public class ResourcePatch extends ResourceUpsert {
 
@@ -37,8 +35,8 @@ public class ResourcePatch extends ResourceUpsert {
     }
 
     @Override
-    public BaseResponse<?> handle(JsonPath jsonPath, QueryParams queryParams,
-                                  RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody) {
+    public BaseResponseContext handle(JsonPath jsonPath, QueryParams queryParams,
+                                         RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody) {
 
         String resourceEndpointName = jsonPath.getResourceName();
         RegistryEntry endpointRegistryEntry = resourceRegistry.getEntry(resourceEndpointName);
@@ -67,20 +65,15 @@ public class ResourcePatch extends ResourceUpsert {
             .getType();
         Serializable resourceId = typeParser.parse(idString, (Class<? extends Serializable>) type);
 
-        ResourceRepository resourceRepository = endpointRegistryEntry.getResourceRepository(parameterProvider);
+        ResourceRepositoryAdapter resourceRepository = endpointRegistryEntry.getResourceRepository(parameterProvider);
         @SuppressWarnings("unchecked")
-        Object resource = resourceRepository.findOne(resourceId, queryParams);
+        Object resource = extractResource(resourceRepository.findOne(resourceId, queryParams));
 
 
         setAttributes(dataBody, resource, bodyRegistryEntry.getResourceInformation());
         setRelations(resource, bodyRegistryEntry, dataBody, queryParams, parameterProvider);
-        Object savedResource = resourceRepository.save(resource);
+        JsonApiResponse response = resourceRepository.save(resource, queryParams);
 
-        MetaInformation metaInformation =
-            getMetaInformation(resourceRepository, Collections.singletonList(savedResource), queryParams);
-        LinksInformation linksInformation =
-            getLinksInformation(resourceRepository, Collections.singletonList(savedResource), queryParams);
-
-        return new ResourceResponse(savedResource, jsonPath, queryParams, metaInformation, linksInformation);
+        return new ResourceResponseContext(response, jsonPath, queryParams);
     }
 }

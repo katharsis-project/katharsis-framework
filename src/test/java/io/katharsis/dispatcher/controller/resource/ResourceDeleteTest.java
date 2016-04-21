@@ -1,12 +1,11 @@
 package io.katharsis.dispatcher.controller.resource;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.response.BaseResponse;
+import io.katharsis.response.BaseResponseContext;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,7 +51,7 @@ public class ResourceDeleteTest extends BaseControllerTest {
         ResourceDelete sut = new ResourceDelete(resourceRegistry, typeParser);
 
         // WHEN
-        BaseResponse<?> response = sut.handle(jsonPath, new QueryParams(), null, null);
+        BaseResponseContext response = sut.handle(jsonPath, new QueryParams(), null, null);
 
         // THEN
         assertThat(response).isNull();

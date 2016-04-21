@@ -14,13 +14,18 @@ import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.models.TaskWithLookup;
 import io.katharsis.resource.mock.repository.TaskToProjectRepository;
-import io.katharsis.response.BaseResponse;
-import io.katharsis.response.ResourceResponse;
+import io.katharsis.response.BaseResponseContext;
+import io.katharsis.response.ResourceResponseContext;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -87,9 +92,9 @@ public class ResourceGetTest extends BaseControllerTest {
 
         // WHEN
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper);
-        ResourceResponse taskResponse = resourcePost.handle(taskPath, new QueryParams(), null, newTaskBody);
-        assertThat(taskResponse.getData()).isExactlyInstanceOf(Task.class);
-        Long taskId = ((Task) (taskResponse.getData())).getId();
+        ResourceResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParams(), null, newTaskBody);
+        assertThat(taskResponse.getResponse().getEntity()).isExactlyInstanceOf(Task.class);
+        Long taskId = ((Task) (taskResponse.getResponse().getEntity())).getId();
         assertThat(taskId).isNotNull();
 
         // GIVEN
@@ -97,7 +102,7 @@ public class ResourceGetTest extends BaseControllerTest {
         ResourceGet sut = new ResourceGet(resourceRegistry, typeParser, includeFieldSetter);
 
         // WHEN
-        BaseResponse<?> response = sut.handle(jsonPath, new QueryParams(), null, null);
+        BaseResponseContext response = sut.handle(jsonPath, new QueryParams(), null, null);
 
         // THEN
         Assert.assertNotNull(response);
@@ -114,12 +119,12 @@ public class ResourceGetTest extends BaseControllerTest {
         QueryParams queryParamsObject = new QueryParamsBuilder(new DefaultQueryParamsParser()).buildQueryParams(queryParams);
 
         // WHEN
-        BaseResponse<?> response = responseGetResp.handle(jsonPath, queryParamsObject, null, null);
+        BaseResponseContext response = responseGetResp.handle(jsonPath, queryParamsObject, null, null);
 
         // THEN
         Assert.assertNotNull(response);
-        assertThat(response.getData()).isExactlyInstanceOf(TaskWithLookup.class);
-        TaskWithLookup responseData = (TaskWithLookup) (response.getData());
+        assertThat(response.getResponse().getEntity()).isExactlyInstanceOf(TaskWithLookup.class);
+        TaskWithLookup responseData = (TaskWithLookup) (response.getResponse().getEntity());
         assertThat(responseData.getProject().getId()).isEqualTo(42L);
         assertThat(responseData.getProjectNull().getId()).isEqualTo(1L);
         assertThat(responseData.getProjectOverridden().getId()).isEqualTo(1L);
@@ -140,11 +145,11 @@ public class ResourceGetTest extends BaseControllerTest {
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper);
 
         // WHEN -- adding a task
-        BaseResponse taskResponse = resourcePost.handle(taskPath, new QueryParams(), null, newTaskBody);
+        BaseResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParams(), null, newTaskBody);
 
         // THEN
-        assertThat(taskResponse.getData()).isExactlyInstanceOf(Task.class);
-        Long taskId = ((Task) (taskResponse.getData())).getId();
+        assertThat(taskResponse.getResponse().getEntity()).isExactlyInstanceOf(Task.class);
+        Long taskId = ((Task) (taskResponse.getResponse().getEntity())).getId();
         assertThat(taskId).isNotNull();
 
         /* ------- */
@@ -159,13 +164,13 @@ public class ResourceGetTest extends BaseControllerTest {
         JsonPath projectPath = pathBuilder.buildPath("/projects");
 
         // WHEN -- adding a project
-        ResourceResponse projectResponse = resourcePost.handle(projectPath, new QueryParams(), null, newProjectBody);
+        ResourceResponseContext projectResponse = resourcePost.handle(projectPath, new QueryParams(), null, newProjectBody);
 
         // THEN
-        assertThat(projectResponse.getData()).isExactlyInstanceOf(Project.class);
-        assertThat(((Project) (projectResponse.getData())).getId()).isNotNull();
-        assertThat(((Project) (projectResponse.getData())).getName()).isEqualTo("sample project");
-        Long projectId = ((Project) (projectResponse.getData())).getId();
+        assertThat(projectResponse.getResponse().getEntity()).isExactlyInstanceOf(Project.class);
+        assertThat(((Project) (projectResponse.getResponse().getEntity())).getId()).isNotNull();
+        assertThat(((Project) (projectResponse.getResponse().getEntity())).getName()).isEqualTo("sample project");
+        Long projectId = ((Project) (projectResponse.getResponse().getEntity())).getId();
         assertThat(projectId).isNotNull();
 
         /* ------- */
@@ -181,7 +186,7 @@ public class ResourceGetTest extends BaseControllerTest {
         RelationshipsResourcePost sut = new RelationshipsResourcePost(resourceRegistry, typeParser);
 
         // WHEN -- adding a relation between task and project
-        BaseResponse projectRelationshipResponse = sut.handle(savedTaskPath, new QueryParams(), null, newTaskToProjectBody);
+        BaseResponseContext projectRelationshipResponse = sut.handle(savedTaskPath, new QueryParams(), null, newTaskToProjectBody);
         assertThat(projectRelationshipResponse).isNotNull();
 
         // THEN
@@ -198,12 +203,12 @@ public class ResourceGetTest extends BaseControllerTest {
         QueryParams requestParams = new QueryParamsBuilder(new DefaultQueryParamsParser()).buildQueryParams(queryParams);
 
         // WHEN
-        BaseResponse<?> response = responseGetResp.handle(jsonPath, requestParams, null, null);
+        BaseResponseContext response = responseGetResp.handle(jsonPath, requestParams, null, null);
 
         // THEN
         Assert.assertNotNull(response);
-        assertThat(response.getData()).isExactlyInstanceOf(Task.class);
-        assertThat(((Task)(taskResponse.getData())).getProject()).isNull();
+        assertThat(response.getResponse().getEntity()).isExactlyInstanceOf(Task.class);
+        assertThat(((Task)(taskResponse.getResponse().getEntity())).getProject()).isNull();
     }
 
 }

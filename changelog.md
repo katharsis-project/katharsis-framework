@@ -1,5 +1,14 @@
 # katharsis-core v2.4.0-SNAPSHOT git changelog
 
+2016-04-21    [#288](https://github.com/katharsis-project/katharsis-core/issues/288) javadoc, name refactoring (Patryk Orwat)  
+2016-04-21    [#288](https://github.com/katharsis-project/katharsis-core/issues/288) fixed tests (Patryk Orwat)  
+2016-04-21    [#277](https://github.com/katharsis-project/katharsis-core/issues/277) final query params regex definition (Patryk Orwat)  
+2016-04-20    [#288](https://github.com/katharsis-project/katharsis-core/issues/288) fixed current tests (Patryk Orwat)  
+2016-04-20    [#288](https://github.com/katharsis-project/katharsis-core/issues/288) finished adding new adapter for repository responses (Patryk Orwat)  
+2016-04-18    [#288](https://github.com/katharsis-project/katharsis-core/issues/288) oh my blob, so long class names (Patryk Orwat)  
+2016-04-17    [#288](https://github.com/katharsis-project/katharsis-core/issues/288) finished code refactoring (Patryk Orwat)  
+2016-04-16    [#288](https://github.com/katharsis-project/katharsis-core/issues/288) added JsonApiResponse, started controllers refactoring (Patryk Orwat)  
+2016-04-15    [#250](https://github.com/katharsis-project/katharsis-core/issues/250) allowed using Jackson 2.5 (Patryk Orwat)  
 2016-04-14    [#290](https://github.com/katharsis-project/katharsis-core/issues/290) getting a repository instance at request time (Patryk Orwat)  
 2016-04-14    [#264](https://github.com/katharsis-project/katharsis-core/issues/264) [#289](https://github.com/katharsis-project/katharsis-core/issues/289) exceptions handling refactoring (Patryk Orwat)  
 
