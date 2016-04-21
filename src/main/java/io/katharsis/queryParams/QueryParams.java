@@ -354,7 +354,7 @@ public class QueryParams {
         String entryKey = entry.getKey()
             .substring(prefix.length());
 
-        String pattern = "[\\w\\-!@#$%^&*()=+]+(?<!\\[)(?=\\])";
+        String pattern = "[^\\]\\[]+(?<!\\[)(?=\\])";
         Pattern regexp = Pattern.compile(pattern);
         Matcher matcher = regexp.matcher(entryKey);
         List<String> matchList = new LinkedList<>();
