@@ -1,6 +1,6 @@
 package io.katharsis.jackson;
 
-import io.katharsis.queryParams.QueryParams;
+import io.katharsis.resource.mock.models.FancyProject;
 import io.katharsis.resource.mock.models.LazyTask;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
@@ -9,6 +9,7 @@ import io.katharsis.response.Container;
 import org.junit.Test;
 
 import java.util.Collections;
+import java.util.List;
 
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 
@@ -132,5 +133,21 @@ public class RelationshipContainerSerializerTest extends BaseSerializerTest {
 
         // THEN
         assertThatJson(result).node("relationships.assignedProjects.data").isArray().ofLength(0);
+    }
+
+    @Test
+    public void onInheritedResourceShouldSerializeInheritedType() throws Exception {
+        // GIVEN
+        Task task = new Task();
+        FancyProject fancyProject = new FancyProject();
+        task.setProject(fancyProject);
+        task.setProjects((List)Collections.singletonList(fancyProject));
+
+        // WHEN
+        String result = sut.writeValueAsString(new Container(task, testResponse));
+
+        // THEN
+        assertThatJson(result).node("relationships.project.data.type").isStringEqualTo("fancy-projects");
+        assertThatJson(result).node("relationships.projects.data[0].type").isStringEqualTo("fancy-projects");
     }
 }
