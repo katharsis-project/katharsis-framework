@@ -12,4 +12,11 @@ public class IncludedFieldsParams {
     public Set<String> getParams() {
         return params;
     }
+
+    @Override
+    public String toString() {
+        return "IncludedFieldsParams{" +
+            "params=" + params +
+            '}';
+    }
 }

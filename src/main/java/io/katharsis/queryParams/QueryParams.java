@@ -371,4 +371,15 @@ public class QueryParams {
         return matchList;
     }
 
+    @Override
+    public String toString() {
+        return "QueryParams{" +
+            "filters=" + filters +
+            ", sorting=" + sorting +
+            ", grouping=" + grouping +
+            ", includedFields=" + includedFields +
+            ", includedRelations=" + includedRelations +
+            ", pagination=" + pagination +
+            '}';
+    }
 }
