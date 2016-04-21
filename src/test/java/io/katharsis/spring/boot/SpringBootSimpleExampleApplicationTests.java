@@ -31,6 +31,7 @@ public class SpringBootSimpleExampleApplicationTests {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertThatJson(response.getBody()).node("data[0].attributes.name").isStringEqualTo("John");
         assertThatJson(response.getBody()).node("data[0].links.self").isStringEqualTo("http://localhost:8080/api/tasks/1");
+        assertThatJson(response.getBody()).node("meta.name").isStringEqualTo("meta information");
     }
 
     @Test
