@@ -15,7 +15,7 @@ import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.response.BaseResponse;
+import io.katharsis.response.BaseResponseContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -109,7 +109,7 @@ public class KatharsisFilterV2 implements Filter, BeanFactoryAware {
     }
 
     private boolean dispatchRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        BaseResponse<?> katharsisResponse = null;
+        BaseResponseContext katharsisResponse = null;
 
         boolean passToFilters = false;
 
