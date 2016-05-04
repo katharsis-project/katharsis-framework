@@ -3,6 +3,8 @@ package io.katharsis.jackson.serializer;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import io.katharsis.jackson.serializer.include.IncludedRelationshipExtractor;
+import io.katharsis.jackson.serializer.include.ResourceDigest;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponseContext;
 import io.katharsis.response.CollectionResponseContext;
@@ -12,12 +14,7 @@ import io.katharsis.response.LinkageContainer;
 import io.katharsis.response.ResourceResponseContext;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Serializes top-level JSON object and provides ability to include compound documents
@@ -32,12 +29,11 @@ public class BaseResponseSerializer extends JsonSerializer<BaseResponseContext> 
     private final IncludedRelationshipExtractor includedRelationshipExtractor;
 
     public BaseResponseSerializer(ResourceRegistry resourceRegistry) {
-        includedRelationshipExtractor = new IncludedRelationshipExtractor(resourceRegistry);
+        this.includedRelationshipExtractor = new IncludedRelationshipExtractor(resourceRegistry);
     }
 
     @Override
     public void serialize(BaseResponseContext context, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-        Set<?> includedResources = new HashSet<>();
         JsonApiResponse response = context.getResponse();
 
         gen.writeStartObject();
@@ -45,7 +41,7 @@ public class BaseResponseSerializer extends JsonSerializer<BaseResponseContext> 
         if (isLinkageContainer(context)) {
             gen.writeObjectField(DATA_FIELD_NAME, response.getEntity());
         } else {
-            writeResponseWithResources(context, gen, includedResources);
+            writeResponseWithResources(context, gen);
         }
 
         if (response.getMetaInformation() != null) {
@@ -75,49 +71,46 @@ public class BaseResponseSerializer extends JsonSerializer<BaseResponseContext> 
         }
     }
 
-    private void writeResponseWithResources(BaseResponseContext value, JsonGenerator gen, Set<?> includedResources) throws IOException {
+    private void writeResponseWithResources(BaseResponseContext value, JsonGenerator gen) throws IOException {
+        Map<ResourceDigest, Container> includedResources;
         if (value instanceof ResourceResponseContext) {
-            Set included = serializeSingle((ResourceResponseContext) value, gen);
-            //noinspection unchecked
-            includedResources.addAll(included);
+            includedResources = serializeSingle((ResourceResponseContext) value, gen);
         } else if (value instanceof CollectionResponseContext) {
-            Set included = serializeResourceCollection((CollectionResponseContext) value, gen);
-            //noinspection unchecked
-            includedResources.addAll(included);
+            includedResources = serializeResourceCollection((CollectionResponseContext) value, gen);
         } else {
             throw new IllegalArgumentException(String.format("JsonApiResponse can be either %s or %s. Got %s",
                     ResourceResponseContext.class, CollectionResponseContext.class, value.getClass()));
         }
 
-        gen.writeObjectField(INCLUDED_FIELD_NAME, includedResources);
+        gen.writeObjectField(INCLUDED_FIELD_NAME, includedResources.values());
     }
 
-    private Set<?> serializeSingle(ResourceResponseContext resourceResponseContext, JsonGenerator gen) throws IOException {
-        Object value = resourceResponseContext.getResponse().getEntity();
-        gen.writeObjectField(DATA_FIELD_NAME, new Container(value, resourceResponseContext));
+    private Map<ResourceDigest, Container> serializeSingle(ResourceResponseContext responseContext, JsonGenerator gen)
+            throws IOException {
+        Object value = responseContext.getResponse().getEntity();
+        gen.writeObjectField(DATA_FIELD_NAME, new Container(value, responseContext));
 
         if (value != null) {
-            return includedRelationshipExtractor.extractIncludedResources(value, resourceResponseContext);
+            return includedRelationshipExtractor.extractIncludedResources(value, responseContext);
         } else {
-            return Collections.emptySet();
+            return Collections.emptyMap();
         }
     }
 
-    private Set serializeResourceCollection(CollectionResponseContext collectionResponseContext, JsonGenerator gen) throws IOException {
-        Iterable values = (Iterable) collectionResponseContext.getResponse().getEntity();
-        Set includedFields = new HashSet<>();
-        if (values != null) {
-            for (Object value : values) {
-                //noinspection unchecked
-                includedFields.addAll(includedRelationshipExtractor.extractIncludedResources(value, collectionResponseContext));
-            }
-        } else {
+    private Map<ResourceDigest, Container> serializeResourceCollection(CollectionResponseContext responseContext, JsonGenerator gen)
+            throws IOException {
+        Iterable values = (Iterable) responseContext.getResponse().getEntity();
+        Map<ResourceDigest, Container> includedFields = new HashMap<>();
+        List<Container> containers = new ArrayList<>();
+
+        if (values == null) {
             values = Collections.emptyList();
         }
 
-        List<Container> containers = new LinkedList<>();
         for (Object value : values) {
-            containers.add(new Container(value, collectionResponseContext));
+            //noinspection unchecked
+            includedFields.putAll(includedRelationshipExtractor.extractIncludedResources(value, responseContext));
+            containers.add(new Container(value, responseContext));
         }
 
         gen.writeObjectField(DATA_FIELD_NAME, containers);

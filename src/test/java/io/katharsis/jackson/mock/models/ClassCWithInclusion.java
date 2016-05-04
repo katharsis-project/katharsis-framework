@@ -28,8 +28,9 @@ public class ClassCWithInclusion {
         return id;
     }
 
-    public void setId(Long id) {
+    public ClassCWithInclusion setId(Long id) {
         this.id = id;
+        return this;
     }
 
     public List<ClassCWithInclusion> getClassCsWithInclusion() {

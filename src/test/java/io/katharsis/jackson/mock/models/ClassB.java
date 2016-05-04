@@ -24,8 +24,9 @@ public class ClassB {
         return id;
     }
 
-    public void setId(Long id) {
+    public ClassB setId(Long id) {
         this.id = id;
+        return this;
     }
 
     public List<ClassC> getClassCs() {

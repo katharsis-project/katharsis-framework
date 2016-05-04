@@ -257,6 +257,33 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
         });
     }
 
+    @Test
+    public void onDoubledIncludedResourcesShouldReturnUniqueValues() throws Exception {
+        // GIVEN
+        Project project = new Project();
+        project.setId(2L);
+        project.setName("Sample project");
+        Task task = new Task();
+        task.setId(1L);
+        task.setName("Sample task");
+        task.setProject(project);
+        task.setProjects(Collections.singletonList(project));
+
+        QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
+        QueryParams queryParams = queryParamsBuilder.buildQueryParams(
+                Collections.singletonMap("include[tasks]", Collections.singleton("projects")));
+
+        // WHEN
+        String result = sut
+                .writeValueAsString(new ResourceResponseContext(buildResponse(task), new ResourcePath("projects"), queryParams));
+
+        // THEN
+        assertThatJson(result).node("data").isPresent();
+        assertThatJson(result).node("data.id").isEqualTo("\"1\"");
+        assertThatJson(result).node("included").isArray().ofLength(1);
+        assertThatJson(result).node("included[0].id").isEqualTo("\"2\"");
+    }
+
     public static class MetaData implements MetaInformation {
         private String author;
 

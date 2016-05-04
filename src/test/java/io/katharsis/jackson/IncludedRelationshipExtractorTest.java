@@ -5,7 +5,8 @@ import io.katharsis.jackson.mock.models.ClassAWithInclusion;
 import io.katharsis.jackson.mock.models.ClassB;
 import io.katharsis.jackson.mock.models.ClassBWithInclusion;
 import io.katharsis.jackson.mock.models.ClassCWithInclusion;
-import io.katharsis.jackson.serializer.IncludedRelationshipExtractor;
+import io.katharsis.jackson.serializer.include.IncludedRelationshipExtractor;
+import io.katharsis.jackson.serializer.include.ResourceDigest;
 import io.katharsis.locator.SampleJsonServiceLocator;
 import io.katharsis.queryParams.DefaultQueryParamsParser;
 import io.katharsis.queryParams.QueryParams;
@@ -14,11 +15,9 @@ import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathBuilder;
 import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.exception.ResourceFieldNotFoundException;
-import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.mock.models.Project;
-import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryBuilder;
 import io.katharsis.resource.registry.ResourceRegistryBuilderTest;
@@ -29,19 +28,13 @@ import io.katharsis.response.ResourceResponseContext;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class IncludedRelationshipExtractorTest {
 
     private IncludedRelationshipExtractor sut;
-    private ResourceField resourceField;
     private ResourceResponseContext testResponse;
 
     @Before
@@ -58,10 +51,6 @@ public class IncludedRelationshipExtractorTest {
             .build(resourceSearchPackage, ResourceRegistryTest.TEST_MODELS_URL);
 
         sut = new IncludedRelationshipExtractor(resourceRegistry);
-        Field someField = Task.class.getDeclaredField("project");
-        List<Annotation> declaredAnnotations = Arrays.asList(someField.getDeclaredAnnotations());
-        resourceField = new ResourceField(someField.getName(), someField.getName(), someField.getType(),
-            someField.getGenericType(), declaredAnnotations);
 
         JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath("/tasks");
         testResponse = new ResourceResponseContext(new JsonApiResponse(), jsonPath, new QueryParams());
@@ -70,7 +59,7 @@ public class IncludedRelationshipExtractorTest {
     @Test
     public void onEmptyInclusionShouldReturnEmptySet() throws Exception {
         // WHEN
-        Set result = sut.extractIncludedResources(new Project(), testResponse);
+        Map<ResourceDigest, Container> result = sut.extractIncludedResources(new Project(), testResponse);
 
         // THEN
         assertThat(result).isEmpty();
@@ -79,7 +68,7 @@ public class IncludedRelationshipExtractorTest {
     @Test
     public void onDefaultNullInclusionShouldReturnEmptySet() throws Exception {
         // WHEN
-        Set result = sut.extractIncludedResources(new ClassAWithInclusion(), testResponse);
+        Map<ResourceDigest, Container> result = sut.extractIncludedResources(new ClassAWithInclusion(), testResponse);
 
         // THEN
         assertThat(result).isEmpty();
@@ -88,42 +77,53 @@ public class IncludedRelationshipExtractorTest {
     @Test
     public void onDefaultInclusionShouldReturnOneElement() throws Exception {
         // GIVEN
-        ClassBWithInclusion classBsWithInclusion = new ClassBWithInclusion();
+        ClassBWithInclusion classBsWithInclusion = new ClassBWithInclusion()
+                .setId(42L);
         ClassAWithInclusion classAWithInclusion = new ClassAWithInclusion(classBsWithInclusion);
 
         // WHEN
-        Set<?> result = sut.extractIncludedResources(classAWithInclusion, testResponse);
+        Map<ResourceDigest, Container> result = sut.extractIncludedResources(classAWithInclusion, testResponse);
 
         // THEN
-        assertThat(result).containsExactly(new Container(classBsWithInclusion, testResponse));
+        assertThat(result).hasSize(1);
+        assertThat(result).containsKey(new ResourceDigest(42L, "classBsWithInclusion"));
+        assertThat(result).containsValue(new Container(classBsWithInclusion, testResponse));
     }
 
     @Test
     public void onDefaultInclusionShouldReturnTwoElements() throws Exception {
         // GIVEN
-        ClassCWithInclusion classCWithInclusion = new ClassCWithInclusion();
-        ClassBWithInclusion classBWithInclusion = new ClassBWithInclusion(classCWithInclusion);
+        ClassCWithInclusion classCWithInclusion = new ClassCWithInclusion()
+                .setId(43L);
+        ClassBWithInclusion classBWithInclusion = new ClassBWithInclusion(classCWithInclusion)
+                .setId(42L);
         ClassAWithInclusion classAWithInclusion = new ClassAWithInclusion(classBWithInclusion);
 
         // WHEN
-        Set<?> result = sut.extractIncludedResources(classAWithInclusion, testResponse);
+        Map<ResourceDigest, Container> result = sut.extractIncludedResources(classAWithInclusion, testResponse);
 
         // THEN
-        assertThat(result).containsOnly(new Container(classBWithInclusion, testResponse),
+        assertThat(result).hasSize(2);
+        assertThat(result).containsKeys(new ResourceDigest(42L, "classBsWithInclusion"),
+                new ResourceDigest(43L, "classCsWithInclusion"));
+        assertThat(result).containsValues(new Container(classBWithInclusion, testResponse),
             new Container(classCWithInclusion, testResponse));
     }
 
     @Test
     public void onDefaultInclusionWithLoopShouldReturnOneElement() throws Exception {
         // GIVEN
-        ClassCWithInclusion classCWithInclusion = new ClassCWithInclusion();
+        ClassCWithInclusion classCWithInclusion = new ClassCWithInclusion()
+                .setId(42L);
         classCWithInclusion.setClassCsWithInclusion(Collections.singletonList(classCWithInclusion));
 
         // WHEN
-        Set<?> result = sut.extractIncludedResources(classCWithInclusion, testResponse);
+        Map<ResourceDigest, Container> result = sut.extractIncludedResources(classCWithInclusion, testResponse);
 
         // THEN
-        assertThat(result).containsExactly(new Container(classCWithInclusion, testResponse));
+        assertThat(result).hasSize(1);
+        assertThat(result).containsKey(new ResourceDigest(42L, "classCsWithInclusion"));
+        assertThat(result).containsValues(new Container(classCWithInclusion, testResponse));
     }
 
     @Test
@@ -134,14 +134,17 @@ public class IncludedRelationshipExtractorTest {
 
         ResourceResponseContext response = new ResourceResponseContext(new JsonApiResponse(),
             new ResourcePath("classAsWithInclusion"), queryParams);
-        ClassBWithInclusion classBsWithInclusion = new ClassBWithInclusion();
+        ClassBWithInclusion classBsWithInclusion = new ClassBWithInclusion()
+                .setId(42L);
         ClassAWithInclusion classAWithInclusion = new ClassAWithInclusion(classBsWithInclusion);
 
         // WHEN
-        Set<?> result = sut.extractIncludedResources(classAWithInclusion, response);
+        Map<ResourceDigest, Container> result = sut.extractIncludedResources(classAWithInclusion, response);
 
         // THEN
-        assertThat(result).containsExactly(new Container(classBsWithInclusion, testResponse));
+        assertThat(result).hasSize(1);
+        assertThat(result).containsKey(new ResourceDigest(42L, "classBsWithInclusion"));
+        assertThat(result).containsValue(new Container(classBsWithInclusion, testResponse));
     }
 
     @Test
@@ -152,14 +155,17 @@ public class IncludedRelationshipExtractorTest {
 
         ResourceResponseContext response = new ResourceResponseContext(new JsonApiResponse(),
             new ResourcePath("classAs"), queryParams);
-        ClassB classBs = new ClassB(null);
+        ClassB classBs = new ClassB(null)
+                .setId(42L);
         ClassA classA = new ClassA(classBs);
 
         // WHEN
-        Set<?> result = sut.extractIncludedResources(classA, response);
+        Map<ResourceDigest, Container> result = sut.extractIncludedResources(classA, response);
 
         // THEN
-        assertThat(result).containsExactly(new Container(classBs, testResponse));
+        assertThat(result).hasSize(1);
+        assertThat(result).containsKey(new ResourceDigest(42L, "classBs"));
+        assertThat(result).containsValue(new Container(classBs, testResponse));
     }
 
     @Test(expected = ResourceFieldNotFoundException.class)
@@ -188,7 +194,7 @@ public class IncludedRelationshipExtractorTest {
         ClassA classAWith = new ClassA(new ClassB(null));
 
         // WHEN
-        Set<?> result = sut.extractIncludedResources(classAWith, response);
+        Map<ResourceDigest, Container> result = sut.extractIncludedResources(classAWith, response);
 
         // THEN
         assertThat(result).isEmpty();
