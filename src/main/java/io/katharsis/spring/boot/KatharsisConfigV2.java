@@ -52,9 +52,14 @@ public class KatharsisConfigV2 {
     @Autowired
     private QueryParamsBuilder queryParamsBuilder;
 
+    @Autowired
+    private Module parameterNamesModule;
+
     @Bean
     public Filter springBootSampleKatharsisFilter() {
-        return new KatharsisFilterV2(objectMapper, queryParamsBuilder, resourceRegistry, requestDispatcher, properties.getPathPrefix());
+        objectMapper.registerModule(parameterNamesModule);
+        return new KatharsisFilterV2(objectMapper, queryParamsBuilder, resourceRegistry, requestDispatcher,
+                properties.getPathPrefix());
     }
 }
 

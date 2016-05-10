@@ -1,5 +1,6 @@
 package io.katharsis.spring.boot;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryBuilder;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
@@ -22,11 +23,14 @@ public class KatharsisRegistryConfiguration {
     @Autowired
     private SpringServiceLocator serviceLocator;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @Bean
     public ResourceRegistry resourceRegistry() {
         ResourceRegistryBuilder registryBuilder =
             new ResourceRegistryBuilder(serviceLocator,
-                new ResourceInformationBuilder(new ResourceFieldNameTransformer()));
+                new ResourceInformationBuilder(new ResourceFieldNameTransformer(objectMapper.getSerializationConfig())));
 
         String serverUri = properties.getDomainName() + properties.getPathPrefix();
         return registryBuilder.build(properties.getResourcePackage(), serverUri);
