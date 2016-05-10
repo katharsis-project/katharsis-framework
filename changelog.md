@@ -1,5 +1,8 @@
-# katharsis-core v2.4.0-SNAPSHOT git changelog
+# katharsis-core v2.4.0 git changelog
 
+2016-05-04    [#305](https://github.com/katharsis-project/katharsis-core/issues/305) checking for duplicate inclusion entries ([#306](https://github.com/katharsis-project/katharsis-core/issues/306)) (Patryk Orwat)  
+2016-04-21    [#297](https://github.com/katharsis-project/katharsis-core/issues/297) corrected relationship type returned with inheritance ([#302](https://github.com/katharsis-project/katharsis-core/issues/302)) (Patryk Orwat)  
+2016-04-21    [#294](https://github.com/katharsis-project/katharsis-core/issues/294) toString for QueryParams (Patryk Orwat)  
 2016-04-21    [#288](https://github.com/katharsis-project/katharsis-core/issues/288) Allowed repositories to fill in top level JSON meta and links information  (Patryk Orwat)  
 2016-04-21    [#277](https://github.com/katharsis-project/katharsis-core/issues/277) final query params regex definition (Patryk Orwat)  
 2016-04-15    [#250](https://github.com/katharsis-project/katharsis-core/issues/250) allowed using Jackson 2.5 (Patryk Orwat)  
@@ -22,8 +25,6 @@
 2016-03-22    [#243](https://github.com/katharsis-project/katharsis-core/issues/243) javadoc for JsonApiLookupIncludeAutomatically (Patryk Orwat)  
 2016-03-22    [#263](https://github.com/katharsis-project/katharsis-core/issues/263) Non-annotated nested resource ID and relationships are now returned (Patryk Orwat)  
 2016-03-21    [#262](https://github.com/katharsis-project/katharsis-core/issues/262) added meta and links information per resource (Patryk Orwat)  
-
-**v2.3.1**  
 2016-03-13    v2.3.1 (Patryk Orwat)  
 2016-03-09    Fixes [#258](https://github.com/katharsis-project/katharsis-core/issues/258) (NPE when looking for a target class on @JsonApiRelationshipRepository) (Sergey Zubtsovskiy)  
 2016-03-08    multiple code improvements: squid:S00105, squid:S1226, squid:S1193, squid:S1700 (George Kankava)  
@@ -58,9 +59,9 @@
 2016-02-09    222: Break in ResourceRegistry (Charlie Helin)  
 2016-02-06    squid:S00122 Statements should be on separate lines (George Kankava)  
 2016-02-04    squid:S2325  "private" methods that don't access instance data should be "static" (George Kankava)  
+2016-02-03    v2.2.0 (Patryk Orwat)  
 
 **v2.2.0**  
-2016-02-03    v2.2.0 (Patryk Orwat)  
 2016-02-03    removed Java 8 API comment link (Razvan Dragut)  
 2016-02-03    Fixed spring boot example (Razvan Dragut)  
 2016-02-03    Enhancement [#209](https://github.com/katharsis-project/katharsis-core/issues/209) - Provide custom QueryParamsBuilder (Razvan Dragut)  
@@ -84,9 +85,9 @@
 2015-12-20    [#48](https://github.com/katharsis-project/katharsis-core/issues/48) corporate dictatorship - finished main classes (Patryk Orwat)  
 2015-12-20    [#48](https://github.com/katharsis-project/katharsis-core/issues/48) first set of changed classes from main (Patryk Orwat)  
 2015-12-12    [#193](https://github.com/katharsis-project/katharsis-core/issues/193) fixed NPE when no inclusion definition for request resource passed (meshuga)  
+2015-12-09    [#188](https://github.com/katharsis-project/katharsis-core/issues/188) small fix (Patryk Orwat)  
 
 **v2.1.2**  
-2015-12-09    [#188](https://github.com/katharsis-project/katharsis-core/issues/188) small fix (Patryk Orwat)  
 2015-12-09    v2.1.2 (Patryk Orwat)  
 2015-12-08    [#188](https://github.com/katharsis-project/katharsis-core/issues/188) include and fields fix (Patryk Orwat)  
 2015-12-08    [#189](https://github.com/katharsis-project/katharsis-core/issues/189) - POST shouldn't call repository findOne method (Błażej Krysiak)  
