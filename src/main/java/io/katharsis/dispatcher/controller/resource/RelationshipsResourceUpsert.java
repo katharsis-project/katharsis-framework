@@ -51,6 +51,7 @@ public abstract class RelationshipsResourceUpsert extends BaseController {
      * @param relationshipIdType             {@link Class} class of the relationship's id field
      * @param elementName                    field's name
      * @param dataBodies                     Data bodies with relationships
+     * @param queryParams                    query params
      * @param relationshipRepositoryForClass Relationship repository
      */
     protected abstract void processToManyRelationship(Object resource, Class<? extends Serializable> relationshipIdType,
@@ -64,6 +65,7 @@ public abstract class RelationshipsResourceUpsert extends BaseController {
      * @param relationshipIdType             {@link Class} class of the relationship's id field
      * @param elementName                    field's name
      * @param dataBody                       Data body with a relationship
+     * @param queryParams                    query params
      * @param relationshipRepositoryForClass Relationship repository
      */
     protected abstract void processToOneRelationship(Object resource, Class<? extends Serializable> relationshipIdType,

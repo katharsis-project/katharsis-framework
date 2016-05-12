@@ -1,7 +1,7 @@
 package io.katharsis.jackson.serializer.include;
 
 /**
- * Contains two fields by which it is possible to differentiate a resource: <i>type</i> and <id>id</id>.
+ * Contains two fields by which it is possible to differentiate a resource: <i>type</i> and <i>id</i>.
  */
 public class ResourceDigest {
     private Object id;

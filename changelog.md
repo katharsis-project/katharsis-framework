@@ -1,8 +1,8 @@
 # katharsis-core v2.4.0 git changelog
 
+2016-05-10    v2.4.0 (Patryk Orwat)  
 
 **v2.4.0**  
-2016-05-10    v2.4.0 (Patryk Orwat)  
 2016-05-04    [#305](https://github.com/katharsis-project/katharsis-core/issues/305) checking for duplicate inclusion entries ([#306](https://github.com/katharsis-project/katharsis-core/issues/306)) (Patryk Orwat)  
 2016-04-21    [#297](https://github.com/katharsis-project/katharsis-core/issues/297) corrected relationship type returned with inheritance ([#302](https://github.com/katharsis-project/katharsis-core/issues/302)) (Patryk Orwat)  
 2016-04-21    [#294](https://github.com/katharsis-project/katharsis-core/issues/294) toString for QueryParams (Patryk Orwat)  
