@@ -1,5 +1,8 @@
 # katharsis-rs v2.4.0 git changelog
 
+
+**v2.4.0**  
+2016-05-10    v2.4.0 (Patryk Orwat)  
 2016-04-21    katharsis-project/katharsis-core[#288](https://github.com/katharsis-project/katharsis-rs/issues/288) changed response type (Patryk Orwat)  
 
 **v2.3.2**  

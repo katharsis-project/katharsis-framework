@@ -126,7 +126,7 @@ public class KatharsisFeature implements Feature {
         return registryBuilder.build(lookup, serviceUrl);
     }
 
-    private KatharsisFilter createKatharsisFilter(ResourceRegistry resourceRegistry,
+    protected KatharsisFilter createKatharsisFilter(ResourceRegistry resourceRegistry,
         ExceptionMapperRegistry exceptionMapperRegistry, RequestContextParameterProviderRegistry parameterProviderRegistry, String webPathPrefix) throws Exception {
         RequestDispatcher requestDispatcher = createRequestDispatcher(resourceRegistry, exceptionMapperRegistry);
 
