@@ -57,6 +57,13 @@
 
     <dependencies>
 
+        <!-- Workaround to solve java.lang.NoClassDefFoundError: com/google/common/base/Predicate error -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>19.0</version>
+        </dependency>
+
         <!-- Import the CDI API, we use provided scope as the API is included in JBoss WildFly -->
         <dependency>
             <groupId>javax.enterprise</groupId>
