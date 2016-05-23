@@ -16,6 +16,7 @@ import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponseContext;
+import io.katharsis.servlet.util.BufferedRequestWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -23,7 +24,6 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -72,7 +72,7 @@ public class KatharsisFilterV2 implements Filter, BeanFactoryAware {
     @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
         if (req instanceof HttpServletRequest && res instanceof HttpServletResponse) {
-            HttpServletRequest request = (HttpServletRequest) req;
+            HttpServletRequest request = new BufferedRequestWrapper((HttpServletRequest) req);
             HttpServletResponse response = (HttpServletResponse) res;
             req.setCharacterEncoding("UTF-8");
 
@@ -135,12 +135,7 @@ public class KatharsisFilterV2 implements Filter, BeanFactoryAware {
             }
             katharsisResponse = new KatharsisExceptionMapper().toErrorResponse(e);
         } catch (KatharsisMatchingException e) {
-            // We can pass it only in case of requests where no input stream is used
-            if (isPassableMethod(request)) {
-                passToFilters = true;
-            } else {
-                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            }
+            passToFilters = true;
         } finally {
             if (!passToFilters) {
                 closeQuietly(in);
@@ -170,18 +165,6 @@ public class KatharsisFilterV2 implements Filter, BeanFactoryAware {
             }
         }
         return passToFilters;
-    }
-
-    private boolean isPassableMethod(HttpServletRequest request) {
-        List<HttpMethod> passableMethods = Arrays.asList(HttpMethod.GET, HttpMethod.OPTIONS, HttpMethod.HEAD,
-            HttpMethod.TRACE);
-        for(HttpMethod passableMethod: passableMethods) {
-            if (passableMethod.name().equalsIgnoreCase(request.getMethod())) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private boolean isAcceptablePath(HttpServletRequest request) {
