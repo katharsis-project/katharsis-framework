@@ -1,5 +1,6 @@
-# io.katharsis:katharsis-servlet v2.4.0 git changelog
+# io.katharsis:katharsis-servlet v2.4.1-SNAPSHOT git changelog
 
+2016-05-23    katharsis-project/katharsis-spring[#10](https://github.com/katharsis-project/katharsis-rs/issues/10) added request wrapper (Patryk Orwat)  
 
 **v2.4.0**  
 2016-05-10    v2.4.0 (Patryk Orwat)  
