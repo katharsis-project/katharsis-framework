@@ -1,5 +1,8 @@
 # katharsis-core v2.4.1 git changelog
 
+
+**v2.4.1**  
+2016-06-19    v2.4.1 (Patryk Orwat)  
 2016-06-19    Fix problem with missing attributes in contained object on PATCH. ([#340](https://github.com/katharsis-project/katharsis-core/issues/340)) (Patryk Orwat)  
 2016-05-16    Version bump (Błażej Krysiak)  
 

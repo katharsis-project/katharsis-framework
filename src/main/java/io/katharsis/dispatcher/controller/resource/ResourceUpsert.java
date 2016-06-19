@@ -3,6 +3,7 @@ package io.katharsis.dispatcher.controller.resource;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.queryParams.QueryParams;
+import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.LinkageData;
@@ -28,8 +29,6 @@ public abstract class ResourceUpsert extends BaseController {
     final ResourceRegistry resourceRegistry;
     final TypeParser typeParser;
     protected final ObjectMapper objectMapper;
-    private final RepositoryMethodParameterProvider parameterProvider;
-    private final QueryParamsBuilder paramsBuilder;
 
     public ResourceUpsert(ResourceRegistry resourceRegistry, TypeParser typeParser, ObjectMapper objectMapper) {
         this.resourceRegistry = resourceRegistry;

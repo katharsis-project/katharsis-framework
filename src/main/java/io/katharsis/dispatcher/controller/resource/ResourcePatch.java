@@ -94,11 +94,6 @@ public class ResourcePatch extends ResourceUpsert {
         return new ResourceResponseContext(response, jsonPath, queryParams);
     }
 
-    @Override
-    public BaseResponseContext handle(Request request) {
-        throw new UnsupportedOperationException("Not implemented");
-    }
-
     private String extractAttributesFromResourceAsJson(Object resource, JsonPath jsonPath, QueryParams queryParams) throws Exception {
 
         JsonApiResponse response = new JsonApiResponse();

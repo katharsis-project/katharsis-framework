@@ -237,9 +237,8 @@ public class ResourcePatchTest extends BaseControllerTest {
         JsonPath complexPojoPath = pathBuilder.buildPath("/complexpojos/1");
 
         // WHEN
-        ResourceGet resourceGet = new ResourceGet(resourceRegistry, parameterProvider, typeParser, includeFieldSetter,
-                        queryParamsBuilder);
-        BaseResponseContext complexPojoResponse = resourceGet.handle(complexPojoPath, new QueryParams(), null);
+        ResourceGet resourceGet = new ResourceGet(resourceRegistry, typeParser, includeFieldSetter);
+        BaseResponseContext complexPojoResponse = resourceGet.handle(complexPojoPath, new QueryParams(), null, null);
         assertThat(complexPojoResponse.getResponse().getEntity()).isExactlyInstanceOf(ComplexPojo.class);
         Long complexPojoId = ((ComplexPojo) (complexPojoResponse.getResponse().getEntity())).getId();
         assertThat(complexPojoId).isNotNull();
@@ -253,10 +252,10 @@ public class ResourcePatchTest extends BaseControllerTest {
         JsonNode patchAttributes = objectMapper.readTree("{\"containedPojo\": { \"updateableProperty1\":\"updated value\"}}");
         data.setAttributes(patchAttributes);
         JsonPath jsonPath = pathBuilder.buildPath("/complexpojos/" + complexPojoId);
-        ResourcePatch sut = new ResourcePatch(resourceRegistry, parameterProvider, typeParser, objectMapper, queryParamsBuilder);
+        ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser, objectMapper);
 
         // WHEN
-        BaseResponseContext response = sut.handle(jsonPath, new QueryParams(), complexPojoPatch);
+        BaseResponseContext response = sut.handle(jsonPath, new QueryParams(), null, complexPojoPatch);
 
         // THEN
         Assert.assertNotNull(response);

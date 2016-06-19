@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.resource.exception.ResourceException;
 import io.katharsis.resource.exception.init.InvalidResourceException;
+import io.katharsis.resource.mock.models.OtherPojo;
+import io.katharsis.resource.mock.models.Pojo;
 import io.katharsis.resource.mock.models.Task;
 import org.junit.Test;
 
