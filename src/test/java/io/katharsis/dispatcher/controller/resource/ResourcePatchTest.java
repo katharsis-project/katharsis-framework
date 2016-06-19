@@ -1,6 +1,7 @@
 package io.katharsis.dispatcher.controller.resource;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.JsonNode;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.request.dto.DataBody;
@@ -11,6 +12,7 @@ import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.exception.RequestBodyException;
 import io.katharsis.resource.mock.models.Memorandum;
 import io.katharsis.resource.mock.models.Task;
+import io.katharsis.resource.mock.models.ComplexPojo;
 import io.katharsis.response.BaseResponseContext;
 import io.katharsis.response.ResourceResponseContext;
 import org.junit.Assert;
@@ -228,4 +230,39 @@ public class ResourcePatchTest extends BaseControllerTest {
         assertThat(((Task) (response.getResponse().getEntity())).getName()).isEqualTo("task updated");
         assertThat(((Task) (response.getResponse().getEntity())).getProject()).isNull();
     }
+
+    @Test
+    public void onGivenRequestResourcePatchShouldHandleMissingFields() throws Exception {
+
+        JsonPath complexPojoPath = pathBuilder.buildPath("/complexpojos/1");
+
+        // WHEN
+        ResourceGet resourceGet = new ResourceGet(resourceRegistry, parameterProvider, typeParser, includeFieldSetter,
+                        queryParamsBuilder);
+        BaseResponseContext complexPojoResponse = resourceGet.handle(complexPojoPath, new QueryParams(), null);
+        assertThat(complexPojoResponse.getResponse().getEntity()).isExactlyInstanceOf(ComplexPojo.class);
+        Long complexPojoId = ((ComplexPojo) (complexPojoResponse.getResponse().getEntity())).getId();
+        assertThat(complexPojoId).isNotNull();
+        assertThat(((ComplexPojo) (complexPojoResponse.getResponse().getEntity())).getContainedPojo().getUpdateableProperty1()).isEqualTo("value from repository mock");
+
+        // GIVEN
+        RequestBody complexPojoPatch = new RequestBody();
+        DataBody data = new DataBody();
+        complexPojoPatch.setData(data);
+        data.setType("complexpojos");
+        JsonNode patchAttributes = objectMapper.readTree("{\"containedPojo\": { \"updateableProperty1\":\"updated value\"}}");
+        data.setAttributes(patchAttributes);
+        JsonPath jsonPath = pathBuilder.buildPath("/complexpojos/" + complexPojoId);
+        ResourcePatch sut = new ResourcePatch(resourceRegistry, parameterProvider, typeParser, objectMapper, queryParamsBuilder);
+
+        // WHEN
+        BaseResponseContext response = sut.handle(jsonPath, new QueryParams(), complexPojoPatch);
+
+        // THEN
+        Assert.assertNotNull(response);
+        assertThat(response.getResponse().getEntity()).isExactlyInstanceOf(ComplexPojo.class);
+        assertThat(((ComplexPojo) (response.getResponse().getEntity())).getContainedPojo().getUpdateableProperty1()).isEqualTo("updated value");
+        assertThat(((ComplexPojo) (response.getResponse().getEntity())).getContainedPojo().getUpdateableProperty2()).isEqualTo("value from repository mock");
+    }
+
 }

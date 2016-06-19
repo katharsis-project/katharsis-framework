@@ -1,5 +1,6 @@
 package io.katharsis.dispatcher.controller.resource;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.QueryParams;
@@ -20,6 +21,7 @@ import io.katharsis.response.ResourceResponseContext;
 import io.katharsis.utils.parser.TypeParser;
 
 import java.io.Serializable;
+import java.util.Map;
 
 public class ResourcePatch extends ResourceUpsert {
 
@@ -69,6 +71,21 @@ public class ResourcePatch extends ResourceUpsert {
         @SuppressWarnings("unchecked")
         Object resource = extractResource(resourceRepository.findOne(resourceId, queryParams));
 
+        String attributesFromFindOne = null;
+        try {
+            // extract attributes from find one without any manipulation by query params (such as sparse fieldsets)
+            attributesFromFindOne = this.extractAttributesFromResourceAsJson(resource, jsonPath, new QueryParams());
+            Map<String,Object> attributesToUpdate = objectMapper.readValue(attributesFromFindOne, Map.class);
+            // get the JSON form the request and deserialize into a map
+            String attributesAsJson = objectMapper.writeValueAsString(dataBody.getAttributes());
+            Map<String,Object> attributesFromRequest = objectMapper.readValue(attributesAsJson, Map.class);;
+            // walk the source map and apply target values from request
+            updateValues(attributesToUpdate, attributesFromRequest);
+            JsonNode upsertedAttributes = objectMapper.valueToTree(attributesToUpdate);
+            dataBody.setAttributes(upsertedAttributes);
+        } catch (Exception e) {
+            attributesFromFindOne = "";
+        }
 
         setAttributes(dataBody, resource, bodyRegistryEntry.getResourceInformation());
         setRelations(resource, bodyRegistryEntry, dataBody, queryParams, parameterProvider);
@@ -76,4 +93,41 @@ public class ResourcePatch extends ResourceUpsert {
 
         return new ResourceResponseContext(response, jsonPath, queryParams);
     }
+
+    @Override
+    public BaseResponseContext handle(Request request) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    private String extractAttributesFromResourceAsJson(Object resource, JsonPath jsonPath, QueryParams queryParams) throws Exception {
+
+        JsonApiResponse response = new JsonApiResponse();
+        response.setEntity(resource);
+        ResourceResponseContext katharsisResponse = new ResourceResponseContext(response, jsonPath, queryParams);
+        // deserialize using the objectMapper so it becomes json-api
+        String newRequestBody = objectMapper.writeValueAsString(katharsisResponse);
+        JsonNode node = objectMapper.readTree(newRequestBody);
+        JsonNode attributes = node.findValue("attributes");
+        return objectMapper.writeValueAsString(attributes);
+
+    }
+
+    private void updateValues(Map<String, Object> source,
+                    Map<String, Object> updates) {
+
+        for (Map.Entry<String, Object> entry : source.entrySet()) {
+            if (!updates.containsKey(entry.getKey())) {
+                continue;
+            }
+            Object obj = entry.getValue();
+            Object upd = updates.get(entry.getKey());
+            if (obj instanceof Map) {
+                updateValues((Map<String, Object>)obj, (Map<String, Object>)upd);
+                continue;
+            }
+            source.put(entry.getKey(), upd);
+        }
+
+    }
+
 }
