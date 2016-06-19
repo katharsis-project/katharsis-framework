@@ -1,5 +1,6 @@
-# katharsis-spring v2.4.0 git changelog
+# katharsis-spring v2.4.1 git changelog
 
+2016-05-23    closes [#10](https://github.com/katharsis-project/katharsis-spring/issues/10) allowed passing of POST/PUT messages in case of not matching requests ([#28](https://github.com/katharsis-project/katharsis-spring/issues/28)) (Patryk Orwat)  
 
 **v2.4.0**  
 2016-05-10    v2.4.0 (Patryk Orwat)  
