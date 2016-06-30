@@ -232,6 +232,10 @@ public abstract class ResourceUpsert extends BaseController {
         ResourceField relationshipFieldByName = registryEntry.getResourceInformation()
                 .findRelationshipFieldByName(property.getKey());
 
+        if(relationshipFieldByName == null) {
+            throw new ResourceException(String.format("Invalid relationship name: %s", property.getKey()));
+        }
+
         Object relationObject;
         if (property.getValue() != null) {
             RegistryEntry entry = resourceRegistry.getEntry(relationshipFieldByName.getType());

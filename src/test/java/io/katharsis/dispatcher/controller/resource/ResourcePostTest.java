@@ -10,6 +10,7 @@ import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.dto.ResourceRelationships;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
+import io.katharsis.resource.exception.ResourceException;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.mock.models.Memorandum;
 import io.katharsis.resource.mock.models.OtherPojo;
@@ -287,5 +288,52 @@ public class ResourcePostTest extends BaseControllerTest {
         assertThat(persistedPojo.getProject().getId()).isEqualTo(projectId);
         assertThat(persistedPojo.getProjects()).hasSize(1);
         assertThat(persistedPojo.getProjects().get(0).getId()).isEqualTo(projectId);
+    }
+
+    @Test
+    public void onResourceWithInvalidRelationshipNameShouldThrowException() throws Exception {
+        // GIVEN - creating sample project id
+        RequestBody newProjectBody = new RequestBody();
+        DataBody data = new DataBody();
+        newProjectBody.setData(data);
+        data.setType("projects");
+        data.setAttributes(objectMapper.createObjectNode().put("name", "sample project"));
+
+        JsonPath projectPath = pathBuilder.buildPath("/projects");
+        ResourcePost sut = new ResourcePost(resourceRegistry, parameterProvider, typeParser, objectMapper, queryParamsBuilder);
+
+        // WHEN
+        ResourceResponseContext projectResponse = sut.handle(projectPath, new QueryParams(), newProjectBody);
+
+        // THEN
+        assertThat(projectResponse.getResponse().getEntity()).isExactlyInstanceOf(Project.class);
+        assertThat(((Project) (projectResponse.getResponse().getEntity())).getId()).isNotNull();
+        assertThat(((Project) (projectResponse.getResponse().getEntity())).getName()).isEqualTo("sample project");
+        Long projectId = ((Project) (projectResponse.getResponse().getEntity())).getId();
+
+        /* ------- */
+
+        // GIVEN
+        RequestBody pojoBody = new RequestBody();
+        DataBody pojoData = new DataBody();
+        pojoBody.setData(pojoData);
+        pojoData.setType("pojo");
+        JsonNode put = objectMapper.createObjectNode().put("value", "hello");
+        JsonNode attributes = objectMapper.createObjectNode()
+                .set("other-pojo", put);
+        pojoData.setAttributes(attributes);
+        ResourceRelationships relationships = new ResourceRelationships();
+        String invalidRelationshipName = "invalid-relationship";
+        relationships.setAdditionalProperty(invalidRelationshipName, new LinkageData("projects", Long.toString(projectId)));
+        pojoData.setRelationships(relationships);
+
+        JsonPath pojoPath = pathBuilder.buildPath("/pojo");
+
+        // THEN
+        expectedException.expect(ResourceException.class);
+        expectedException.expectMessage(String.format("Invalid relationship name: %s", invalidRelationshipName));
+
+        // WHEN
+        sut.handle(pojoPath, new QueryParams(), pojoBody);
     }
 }
