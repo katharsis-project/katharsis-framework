@@ -23,6 +23,7 @@ import io.katharsis.resource.registry.ResourceRegistryBuilder;
 import io.katharsis.resource.registry.ResourceRegistryBuilderTest;
 import io.katharsis.resource.registry.ResourceRegistryTest;
 import io.katharsis.response.Container;
+import io.katharsis.response.HttpStatus;
 import io.katharsis.response.JsonApiResponse;
 import io.katharsis.response.ResourceResponseContext;
 import org.junit.Before;
@@ -181,6 +182,17 @@ public class IncludedRelationshipExtractorTest {
 
         // WHEN
         sut.extractIncludedResources(classA, response);
+    }
+
+    @Test
+    public void onNullJsonPathShouldReturnNoElements() throws Exception {
+        // GIVEN
+        ResourceResponseContext response = new ResourceResponseContext(new JsonApiResponse(), HttpStatus.NO_CONTENT_204);
+        ClassA classA = new ClassA(null);
+        // WHEN
+        Map<ResourceDigest, Container> result = sut.extractIncludedResources(classA, response);
+
+        assertThat(result).isEmpty();
     }
 
     @Test

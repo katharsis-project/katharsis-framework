@@ -97,6 +97,9 @@ public class IncludedRelationshipExtractor {
 
     private Map<ResourceDigest, Container> extractIncludedRelationships(Object resource, BaseResponseContext response)
         throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
+        if (response.getQueryParams() == null || response.getJsonPath() == null) {
+            return Collections.emptyMap();
+        }
         Map<ResourceDigest, Container> includedResources = new HashMap<>();
         TypedParams<IncludedRelationsParams> includedRelations = response.getQueryParams()
             .getIncludedRelations();

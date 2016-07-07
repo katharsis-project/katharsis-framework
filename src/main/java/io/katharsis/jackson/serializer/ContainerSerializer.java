@@ -61,17 +61,21 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         if (value != null && value.getData() != null) {
             gen.writeStartObject();
 
-            TypedParams<IncludedFieldsParams> includedFields = value.getResponse()
-                .getQueryParams()
-                .getIncludedFields();
-            TypedParams<IncludedRelationsParams> includedRelations = value.getResponse()
-                .getQueryParams()
-                .getIncludedRelations();
+            TypedParams<IncludedFieldsParams> includedFields = null;
             IncludedRelationsParams includedRelationsParams = null;
-            Class<?> dataClass = value.getData().getClass();
-            String resourceType = resourceRegistry.getResourceType(dataClass);
-            if (includedRelations != null && includedRelations.getParams().containsKey(resourceType)) {
-                includedRelationsParams = includedRelations.getParams().get(resourceType);
+            if (value.getResponse().getQueryParams() != null) {
+                includedFields = value.getResponse()
+                        .getQueryParams()
+                        .getIncludedFields();
+                TypedParams<IncludedRelationsParams> includedRelations = value.getResponse()
+                        .getQueryParams()
+                        .getIncludedRelations();
+
+                Class<?> dataClass = value.getData().getClass();
+                String resourceType = resourceRegistry.getResourceType(dataClass);
+                if (includedRelations != null && includedRelations.getParams().containsKey(resourceType)) {
+                    includedRelationsParams = includedRelations.getParams().get(resourceType);
+                }
             }
 
             writeData(gen, value.getData(), includedFields, includedRelationsParams);
