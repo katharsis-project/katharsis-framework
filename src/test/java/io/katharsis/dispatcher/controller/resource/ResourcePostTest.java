@@ -300,10 +300,10 @@ public class ResourcePostTest extends BaseControllerTest {
         data.setAttributes(objectMapper.createObjectNode().put("name", "sample project"));
 
         JsonPath projectPath = pathBuilder.buildPath("/projects");
-        ResourcePost sut = new ResourcePost(resourceRegistry, parameterProvider, typeParser, objectMapper, queryParamsBuilder);
+        ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper);
 
         // WHEN
-        ResourceResponseContext projectResponse = sut.handle(projectPath, new QueryParams(), newProjectBody);
+        ResourceResponseContext projectResponse = sut.handle(projectPath, new QueryParams(), null, newProjectBody);
 
         // THEN
         assertThat(projectResponse.getResponse().getEntity()).isExactlyInstanceOf(Project.class);
@@ -334,6 +334,6 @@ public class ResourcePostTest extends BaseControllerTest {
         expectedException.expectMessage(String.format("Invalid relationship name: %s", invalidRelationshipName));
 
         // WHEN
-        sut.handle(pojoPath, new QueryParams(), pojoBody);
+        sut.handle(pojoPath, new QueryParams(), null, pojoBody);
     }
 }

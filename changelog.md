@@ -1,5 +1,7 @@
-# katharsis-core v2.4.1 git changelog
+# katharsis-core v2.4.2-SNAPSHOT git changelog
 
+2016-07-10    Setting a relationship causes a NullPointerException exception [#345](https://github.com/katharsis-project/katharsis-core/issues/345) ([#346](https://github.com/katharsis-project/katharsis-core/issues/346)) (Patryk Orwat)  
+2016-07-10    Preventing a NullPointerException from being thrown when an invalid relationship name is received. Instead, throwing a ResourceException with a helpful message about the invalid relationship name. (cherry picked from commit 35e73bf) (Patryk Orwat)  
 
 **v2.4.1**  
 2016-06-19    v2.4.1 (Patryk Orwat)  
