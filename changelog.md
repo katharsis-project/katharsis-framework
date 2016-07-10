@@ -1,5 +1,8 @@
 # io.katharsis:katharsis-servlet v2.4.1 git changelog
 
+
+**v2.4.1**  
+2016-06-19    v2.4.1 (Patryk Orwat)  
 2016-05-23    Katharsis spring 10 ([#25](https://github.com/katharsis-project/katharsis-rs/issues/25)) (Patryk Orwat)  
 
 **v2.4.0**  
