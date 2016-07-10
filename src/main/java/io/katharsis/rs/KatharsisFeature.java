@@ -97,7 +97,9 @@ public class KatharsisFeature implements Feature {
             ExceptionMapperRegistry exceptionMapperRegistry = buildExceptionMapperRegistry(exceptionMapperLookup);
             RequestContextParameterProviderLookup containerRequestContextProviderLookup = createRequestContextProviderLookup(context);
             RequestContextParameterProviderRegistry parameterProviderRegistry = buildParameterProviderRegistry(containerRequestContextProviderLookup);
-            katharsisFilter = createKatharsisFilter(resourceRegistry, exceptionMapperRegistry, parameterProviderRegistry, webPathPrefix);
+            RequestDispatcher requestDispatcher = createRequestDispatcher(resourceRegistry, exceptionMapperRegistry);
+
+            katharsisFilter = createKatharsisFilter(resourceRegistry, parameterProviderRegistry, webPathPrefix, requestDispatcher);
         } catch (Exception e) {
             throw new WebApplicationException(e);
         }
@@ -127,9 +129,7 @@ public class KatharsisFeature implements Feature {
     }
 
     protected KatharsisFilter createKatharsisFilter(ResourceRegistry resourceRegistry,
-        ExceptionMapperRegistry exceptionMapperRegistry, RequestContextParameterProviderRegistry parameterProviderRegistry, String webPathPrefix) throws Exception {
-        RequestDispatcher requestDispatcher = createRequestDispatcher(resourceRegistry, exceptionMapperRegistry);
-
+        RequestContextParameterProviderRegistry parameterProviderRegistry, String webPathPrefix, RequestDispatcher requestDispatcher) throws Exception {
         return new KatharsisFilter(objectMapper, queryParamsBuilder, resourceRegistry, requestDispatcher, parameterProviderRegistry, webPathPrefix);
     }
 

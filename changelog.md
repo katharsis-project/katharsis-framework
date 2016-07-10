@@ -1,5 +1,7 @@
-# katharsis-rs v2.4.0 git changelog
+# katharsis-rs v2.4.1 git changelog
 
+2016-06-19    v2.4.1 (Patryk Orwat)  
+2016-05-16    [#36](https://github.com/katharsis-project/katharsis-rs/issues/36) allowed overriding filter definition in KatharsisFeature ([#37](https://github.com/katharsis-project/katharsis-rs/issues/37)) (Patryk Orwat)  
 
 **v2.4.0**  
 2016-05-10    v2.4.0 (Patryk Orwat)  
