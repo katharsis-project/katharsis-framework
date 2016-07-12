@@ -25,12 +25,14 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.http.HttpHeaders;
 
+import javax.annotation.Priority;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.util.*;
 
+@Priority(20)
 public class KatharsisFilterV2 implements Filter, BeanFactoryAware {
 
     private static final Logger log = LoggerFactory.getLogger(KatharsisFilterV2.class);
@@ -76,15 +78,7 @@ public class KatharsisFilterV2 implements Filter, BeanFactoryAware {
             HttpServletResponse response = (HttpServletResponse) res;
             req.setCharacterEncoding("UTF-8");
 
-            boolean passToFilters = false;
-            try {
-                passToFilters = invoke(request, response);
-            } catch (KatharsisInvokerException e) {
-                log.warn("Katharsis Invoker exception.", e);
-                response.setStatus(e.getStatusCode());
-            } catch (Exception e) {
-                throw new ServletException("Katharsis invocation failed.", e);
-            }
+            boolean passToFilters = invoke(request, response);
             if (passToFilters) {
                 chain.doFilter(req, res);
             }

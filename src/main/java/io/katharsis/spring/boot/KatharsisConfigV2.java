@@ -17,6 +17,7 @@ import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryBuilder;
+import io.katharsis.spring.ErrorHandlerFilter;
 import io.katharsis.spring.KatharsisFilterV2;
 import io.katharsis.spring.SpringServiceLocator;
 import io.katharsis.utils.parser.TypeParser;
@@ -47,6 +48,9 @@ public class KatharsisConfigV2 {
     private ResourceRegistry resourceRegistry;
 
     @Autowired
+    private ExceptionMapperRegistry exceptionMapperRegistry;
+
+    @Autowired
     private RequestDispatcher requestDispatcher;
 
     @Autowired
@@ -61,6 +65,9 @@ public class KatharsisConfigV2 {
         return new KatharsisFilterV2(objectMapper, queryParamsBuilder, resourceRegistry, requestDispatcher,
                 properties.getPathPrefix());
     }
+
+    @Bean
+    public Filter errorHandlerFilter() {
+        return new ErrorHandlerFilter(objectMapper, exceptionMapperRegistry);
+    }
 }
-
-
