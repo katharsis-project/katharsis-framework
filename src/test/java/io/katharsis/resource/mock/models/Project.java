@@ -2,6 +2,10 @@ package io.katharsis.resource.mock.models;
 
 import io.katharsis.resource.annotations.JsonApiId;
 import io.katharsis.resource.annotations.JsonApiResource;
+import io.katharsis.resource.annotations.JsonApiToMany;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @JsonApiResource(type = "projects")
 public class Project {
@@ -14,6 +18,12 @@ public class Project {
     private String description;
 
     private ProjectData data;
+
+    @JsonApiToMany
+    private List<Task> tasks = new ArrayList<>();
+
+    @JsonApiToMany
+    private Task task;
 
     public Long getId() {
         return id;
@@ -46,5 +56,21 @@ public class Project {
 
     public void setData(ProjectData data) {
         this.data = data;
+    }
+
+    public List<Task> getTasks() {
+        return tasks;
+    }
+
+    public void setTasks(List<Task> tasks) {
+        this.tasks = tasks;
+    }
+
+    public Task getTask() {
+        return task;
+    }
+
+    public void setTask(Task task) {
+        this.task = task;
     }
 }

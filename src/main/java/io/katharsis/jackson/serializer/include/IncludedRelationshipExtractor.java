@@ -3,8 +3,10 @@ package io.katharsis.jackson.serializer.include;
 import io.katharsis.queryParams.include.Inclusion;
 import io.katharsis.queryParams.params.IncludedRelationsParams;
 import io.katharsis.queryParams.params.TypedParams;
+import io.katharsis.request.path.FieldPath;
 import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.annotations.JsonApiIncludeByDefault;
+import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.exception.ResourceFieldNotFoundException;
 import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
@@ -14,6 +16,7 @@ import io.katharsis.response.BaseResponseContext;
 import io.katharsis.response.Container;
 import io.katharsis.utils.ClassUtils;
 import io.katharsis.utils.PropertyUtils;
+import io.katharsis.utils.java.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -105,6 +108,15 @@ public class IncludedRelationshipExtractor {
             .getIncludedRelations();
         String elementName = response.getJsonPath()
             .getElementName();
+
+        // handle field paths differently because the element name is not its type but field name (#357)
+        if (response.getJsonPath() instanceof FieldPath) {
+            // extract the resource's resource type name
+            Optional<JsonApiResource> optional = ClassUtils.getAnnotation(resource.getClass(), JsonApiResource.class);
+            if (optional.isPresent()) {
+                elementName = optional.get().type();
+            }
+        }
         IncludedRelationsParams includedRelationsParams = findInclusions(includedRelations, elementName);
         if (includedRelationsParams != null) {
             for (Inclusion inclusion : includedRelationsParams.getParams()) {
@@ -134,7 +146,8 @@ public class IncludedRelationshipExtractor {
         if (resource == null || pathList.isEmpty()) {
             return Collections.emptyMap();
         }
-        if (!(response.getJsonPath() instanceof ResourcePath)) { // the first property name is the resource itself
+        if (!(response.getJsonPath() instanceof ResourcePath) && !(response.getJsonPath() instanceof FieldPath)) {
+            // the first property name is the resource itself
             pathList = pathList.subList(1, pathList.size());
             if (pathList.isEmpty()) {
                 return Collections.emptyMap();

@@ -84,7 +84,7 @@ public class ResourceField {
             return false;
         } else if (toManyAnnotation != null) {
             return toManyAnnotation.lazy();
-        } else if(toOneAnnotation != null) {
+        } else if (toOneAnnotation != null) {
             return true;
         }
         return false;
