@@ -13,6 +13,9 @@ public class LazyTask {
     @JsonApiToMany
     private List<Project> projects;
 
+    @JsonApiToOne
+    private Project project;
+
     public Long getId() {
         return id;
     }
@@ -27,5 +30,13 @@ public class LazyTask {
 
     public void setProjects(List<Project> projects) {
         this.projects = projects;
+    }
+
+    public Project getProject() {
+        return project;
+    }
+
+    public void setProject(Project project) {
+        this.project = project;
     }
 }

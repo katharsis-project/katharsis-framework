@@ -5,21 +5,16 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import io.katharsis.queryParams.DefaultQueryParamsParser;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
+import io.katharsis.request.path.FieldPath;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathBuilder;
 import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.mock.models.Project;
+import io.katharsis.resource.mock.models.ProjectEager;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.models.User;
 import io.katharsis.resource.registry.RegistryEntry;
-import io.katharsis.response.BaseResponseContext;
-import io.katharsis.response.CollectionResponseContext;
-import io.katharsis.response.Container;
-import io.katharsis.response.JsonApiResponse;
-import io.katharsis.response.LinkageContainer;
-import io.katharsis.response.LinksInformation;
-import io.katharsis.response.MetaInformation;
-import io.katharsis.response.ResourceResponseContext;
+import io.katharsis.response.*;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -282,6 +277,122 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
         assertThatJson(result).node("data.id").isEqualTo("\"1\"");
         assertThatJson(result).node("included").isArray().ofLength(1);
         assertThatJson(result).node("included[0].id").isEqualTo("\"2\"");
+    }
+
+
+    @Test
+    public void onFieldResourcesWithQueryParamsShouldReturnIncludedValues() throws Exception {
+        // GIVEN
+        Project project = new Project();
+        project.setId(1L);
+        project.setName("Sample project");
+
+        Task task1 = new Task();
+        task1.setId(1L);
+        task1.setName("Sample task 1");
+        Task task2 = new Task();
+        task2.setId(2L);
+        task2.setName("Sample task 2");
+        project.setTasks(Arrays.asList(task1, task2));
+
+        QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
+        QueryParams queryParams = queryParamsBuilder.buildQueryParams(
+                Collections.singletonMap("include[projects]", Collections.singleton("tasks")));
+
+        // WHEN
+        String result = sut
+                .writeValueAsString(new ResourceResponseContext(buildResponse(project), new FieldPath("project"), queryParams));
+
+        // THEN
+        assertThatJson(result).node("data").isPresent();
+        assertThatJson(result).node("data.id").isEqualTo("\"1\"");
+        assertThatJson(result).node("data.relationships.tasks").isPresent();
+        assertThatJson(result).node("data.relationships.tasks.data").isArray().ofLength(2);
+        assertThatJson(result).node("included").isArray().ofLength(2);
+        assertThatJson(result).node("included[0].type").isEqualTo("tasks");
+    }
+
+    @Test
+    public void onFieldResourcesWithQueryParamsShouldReturnIncludedValue() throws Exception {
+        // GIVEN
+        Project project = new Project();
+        project.setId(1L);
+        project.setName("Sample project");
+
+        Task task = new Task();
+        task.setId(1L);
+        task.setName("Sample task");
+        project.setTask(task);
+        QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
+        QueryParams queryParams = queryParamsBuilder.buildQueryParams(
+                Collections.singletonMap("include[projects]", Collections.singleton("task")));
+
+        // WHEN
+        String result = sut
+                .writeValueAsString(new ResourceResponseContext(buildResponse(project), new FieldPath("project"), queryParams));
+
+        // THEN
+        assertThatJson(result).node("data").isPresent();
+        assertThatJson(result).node("data.id").isEqualTo("\"1\"");
+        assertThatJson(result).node("data.relationships.tasks").isPresent();
+        assertThatJson(result).node("data.relationships.task.data.type").isEqualTo("tasks");
+        assertThatJson(result).node("included").isArray().ofLength(1);
+        assertThatJson(result).node("included[0].type").isEqualTo("tasks");
+    }
+
+    @Test
+    public void onFieldResourcesShouldNotReturnIncludedValues() throws Exception {
+        // GIVEN
+        Project project = new Project();
+        project.setId(1L);
+        project.setName("Sample project");
+
+        Task task1 = new Task();
+        task1.setId(1L);
+        task1.setName("Sample task1");
+        Task task2 = new Task();
+        task2.setId(2L);
+        task2.setName("Sample task2");
+        project.setTasks(Arrays.asList(task1, task2));
+
+        // WHEN
+        String result = sut
+                .writeValueAsString(new ResourceResponseContext(buildResponse(project), new FieldPath("project"), new QueryParams()));
+
+        // THEN
+        assertThatJson(result).node("data").isPresent();
+        assertThatJson(result).node("data.id").isEqualTo("\"1\"");
+        assertThatJson(result).node("data.relationships.tasks").isPresent();
+        assertThatJson(result).node("data.relationships.tasks.data").isAbsent();
+        assertThatJson(result).node("included").isArray().ofLength(0);
+    }
+
+    @Test
+    public void onEagerFieldResourcesShouldReturnIncludedValues() throws Exception {
+        // GIVEN
+        ProjectEager projectEager = new ProjectEager();
+        projectEager.setId(1L);
+        projectEager.setName("Sample project");
+
+        Task task1 = new Task();
+        task1.setId(1L);
+        task1.setName("Sample task1");
+        Task task2 = new Task();
+        task2.setId(2L);
+        task2.setName("Sample task2");
+        projectEager.setTasks(Arrays.asList(task1, task2));
+
+        // WHEN
+        String result = sut
+                .writeValueAsString(new ResourceResponseContext(buildResponse(projectEager), new FieldPath("project"), new QueryParams()));
+
+        // THEN
+        assertThatJson(result).node("data").isPresent();
+        assertThatJson(result).node("data.id").isEqualTo("\"1\"");
+        assertThatJson(result).node("data.relationships.tasks").isPresent();
+        assertThatJson(result).node("data.relationships.tasks.data").isArray().ofLength(2);
+        assertThatJson(result).node("included").isArray().ofLength(2);
+        assertThatJson(result).node("included[0].type").isEqualTo("tasks");
     }
 
     public static class MetaData implements MetaInformation {

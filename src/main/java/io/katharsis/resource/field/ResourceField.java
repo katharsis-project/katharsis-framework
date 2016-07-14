@@ -2,6 +2,7 @@ package io.katharsis.resource.field;
 
 import io.katharsis.resource.annotations.JsonApiIncludeByDefault;
 import io.katharsis.resource.annotations.JsonApiToMany;
+import io.katharsis.resource.annotations.JsonApiToOne;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
@@ -67,6 +68,7 @@ public class ResourceField {
     public boolean isLazy() {
         JsonApiIncludeByDefault includeByDefaultAnnotation = null;
         JsonApiToMany toManyAnnotation = null;
+        JsonApiToOne toOneAnnotation = null;
         for (Annotation annotation : annotations) {
             if (annotation.annotationType().equals(JsonApiIncludeByDefault.class)) {
                 includeByDefaultAnnotation = (JsonApiIncludeByDefault) annotation;
@@ -74,11 +76,16 @@ public class ResourceField {
             if (annotation.annotationType().equals(JsonApiToMany.class)) {
                 toManyAnnotation = (JsonApiToMany) annotation;
             }
+            if (annotation.annotationType().equals(JsonApiToOne.class)) {
+                toOneAnnotation = (JsonApiToOne) annotation;
+            }
         }
         if (includeByDefaultAnnotation != null) {
             return false;
         } else if (toManyAnnotation != null) {
             return toManyAnnotation.lazy();
+        } else if (toOneAnnotation != null) {
+            return true;
         }
         return false;
     }

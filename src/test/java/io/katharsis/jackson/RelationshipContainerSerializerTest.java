@@ -1,10 +1,6 @@
 package io.katharsis.jackson;
 
-import io.katharsis.resource.mock.models.FancyProject;
-import io.katharsis.resource.mock.models.LazyTask;
-import io.katharsis.resource.mock.models.Project;
-import io.katharsis.resource.mock.models.Task;
-import io.katharsis.resource.mock.models.User;
+import io.katharsis.resource.mock.models.*;
 import io.katharsis.response.Container;
 import org.junit.Test;
 
@@ -107,6 +103,19 @@ public class RelationshipContainerSerializerTest extends BaseSerializerTest {
     }
 
     @Test
+    public void onToOneNullRelationshipShouldNotIncludeNullToOneRelationshipLinkage() throws Exception {
+        // GIVEN
+        LazyTask lazyTask = new LazyTask();
+        lazyTask.setId(1L);
+
+        // WHEN
+        String result = sut.writeValueAsString(new Container(lazyTask, testResponse));
+
+        // THEN
+        assertThatJson(result).node("relationships.project.data").isAbsent();
+    }
+
+    @Test
     public void onToManyRelationshipShouldIncludeToManyRelationshipLinkage() throws Exception {
         // GIVEN
         User user = new User();
@@ -141,7 +150,7 @@ public class RelationshipContainerSerializerTest extends BaseSerializerTest {
         Task task = new Task();
         FancyProject fancyProject = new FancyProject();
         task.setProject(fancyProject);
-        task.setProjects((List)Collections.singletonList(fancyProject));
+        task.setProjects((List) Collections.singletonList(fancyProject));
 
         // WHEN
         String result = sut.writeValueAsString(new Container(task, testResponse));
