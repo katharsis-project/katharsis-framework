@@ -186,8 +186,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
 
         Attributes attributesObject = new Attributes();
         for (Map.Entry<String, Object> entry : dataMap.entrySet()) {
-            if (entry.getValue() != null)
-                attributesObject.addAttribute(entry.getKey(), entry.getValue());
+            attributesObject.addAttribute(entry.getKey(), entry.getValue());
         }
 
         gen.writeObjectField(ATTRIBUTES_FIELD_NAME, attributesObject);
