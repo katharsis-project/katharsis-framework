@@ -1,5 +1,6 @@
-# katharsis-spring v2.4.1 git changelog
+# katharsis-spring v2.4.2 git changelog
 
+2016-06-28    Use a separate Filter to handle errors anywhere in KatharsisFilterV2 (PJ Weisberg)  
 
 **v2.4.1**  
 2016-06-19    v2.4.1 (Patryk Orwat)  
