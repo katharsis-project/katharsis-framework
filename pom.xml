@@ -28,7 +28,7 @@
 
   <groupId>io.katharsis</groupId>
   <artifactId>katharsis-servlet</artifactId>
-  <version>2.4.2-SNAPSHOT</version>
+  <version>2.4.2</version>
   <packaging>bundle</packaging>
 
   <name>${project.groupId}:${project.artifactId}</name>
