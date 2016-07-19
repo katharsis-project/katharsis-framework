@@ -1,6 +1,12 @@
-# katharsis-rs v2.4.1 git changelog
+# katharsis-rs v2.4.2 git changelog
 
+
+**v2.4.1**  
 2016-06-19    v2.4.1 (Patryk Orwat)  
+
+**vv2.4.1**  
+2016-06-19    vv2.4.1 (Patryk Orwat)  
+2016-05-21    [#36](https://github.com/katharsis-project/katharsis-rs/issues/36) Moving the creation of RequestDispatcher outside createKatharsisFilter method ([#38](https://github.com/katharsis-project/katharsis-rs/issues/38)) (Patryk Orwat)  
 2016-05-16    [#36](https://github.com/katharsis-project/katharsis-rs/issues/36) allowed overriding filter definition in KatharsisFeature ([#37](https://github.com/katharsis-project/katharsis-rs/issues/37)) (Patryk Orwat)  
 
 **v2.4.0**  
