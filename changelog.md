@@ -1,5 +1,9 @@
-# katharsis-core v2.4.2-SNAPSHOT git changelog
+# katharsis-core v2.4.2 git changelog
 
+2016-07-19    Issue 353 - Control serialization if null attributes through Jackson. (cherry picked from commit d63ed17) (Patryk Orwat)  
+2016-07-14    Fix the include parameter with a field path to populate the included attribute [#357](https://github.com/katharsis-project/katharsis-core/issues/357) (Nick Mitchell)  
+2016-07-13    Fix lazy single relationship field from being written to the relationships data attribute. [#356](https://github.com/katharsis-project/katharsis-core/issues/356) (Nick Mitchell)  
+2016-07-10    2.4.2-SNAPSHOT (Patryk Orwat)  
 2016-07-10    Setting a relationship causes a NullPointerException exception [#345](https://github.com/katharsis-project/katharsis-core/issues/345) ([#346](https://github.com/katharsis-project/katharsis-core/issues/346)) (Patryk Orwat)  
 2016-07-10    Preventing a NullPointerException from being thrown when an invalid relationship name is received. Instead, throwing a ResourceException with a helpful message about the invalid relationship name. (cherry picked from commit 35e73bf) (Patryk Orwat)  
 
