@@ -1,0 +1,123 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>io.katharsis</groupId>
+        <artifactId>katharsis-parent</artifactId>
+        <version>1.0.5</version>
+    </parent>
+
+    <groupId>io.katharsis</groupId>
+    <artifactId>katharsis-core</artifactId>
+    <version>2.4.2</version>
+    <packaging>bundle</packaging>
+
+    <name>katharsis-core</name>
+    <url>https://github.com/katharsis-project/katharsis-core</url>
+
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/katharsis-project/katharsis-core/issues</url>
+    </issueManagement>
+
+    <properties>
+        <equalsverifier-version>1.7.2</equalsverifier-version>
+        <json-unit-fluent.version>1.5.3</json-unit-fluent.version>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.eluder.coveralls</groupId>
+                <artifactId>coveralls-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <artifactId>maven-source-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <artifactId>maven-javadoc-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <artifactId>maven-deploy-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>com.github.danielflower.mavenplugins</groupId>
+                <artifactId>gitlog-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <configuration>
+                    <instructions>
+                        <Export-Package>io.katharsis.dispatcher.*,io.katharsis.errorhandling.*,io.katharsis.jackson.*,io.katharsis.locator.*,io.katharsis.queryParams.*,io.katharsis.repository.*,io.katharsis.request.*,io.katharsis.resource.*,io.katharsis.response.*,io.katharsis.utils.*</Export-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.reflections</groupId>
+            <artifactId>reflections</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>net.jodah</groupId>
+            <artifactId>typetools</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>${slf4j.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.javacrumbs.json-unit</groupId>
+            <artifactId>json-unit-fluent</artifactId>
+            <version>${json-unit-fluent.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>nl.jqno.equalsverifier</groupId>
+            <artifactId>equalsverifier</artifactId>
+            <version>${equalsverifier-version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <repositories>
+        <repository>
+            <id>sonatype-nexus-snapshots</id>
+            <name>Sonatype Nexus Snapshots</name>
+            <url>http://oss.sonatype.org/content/repositories/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+</project>
