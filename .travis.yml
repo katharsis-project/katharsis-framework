@@ -1,0 +1,6 @@
+sudo: false
+language: java
+jdk:
+  - oraclejdk8
+after_success:
+  - mvn deploy -DskipTests=true --settings settings.xml
