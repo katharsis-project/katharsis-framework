@@ -27,10 +27,11 @@ import io.katharsis.repository.annotations.JsonApiResourceRepository;
 import io.katharsis.repository.annotations.JsonApiSave;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -73,11 +74,11 @@ public class ProjectRepository {
         }
         if (project.getTasks().isEmpty()) {
             Iterable<Task> tasks = taskRepository.findAll(null);
-            tasks.forEach(task -> {
+            for (Task task: tasks) {
                 if (task.getProjectId().equals(project.getId())) {
                     project.getTasks().add(task);
                 }
-            });
+            }
             save(project);
         }
         return project;
@@ -90,11 +91,15 @@ public class ProjectRepository {
 
     @JsonApiFindAllWithIds
     public Iterable<Project> findAll(Iterable<Long> projectIds, QueryParams requestParams) {
-        return REPOSITORY.entrySet()
-                .stream()
-                .filter(p -> Iterables.contains(projectIds, p.getKey()))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
-                .values();
+        List<Project> foundProjects = new ArrayList<>();
+        for (Map.Entry<Long, Project> entry: REPOSITORY.entrySet()) {
+            for (Long projectId: projectIds) {
+                if (projectId.equals(entry.getKey())) {
+                    foundProjects.add(entry.getValue());
+                }
+            }
+        }
+        return foundProjects;
     }
 
     @JsonApiDelete

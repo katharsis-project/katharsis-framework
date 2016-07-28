@@ -8,6 +8,7 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.bson.types.ObjectId;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -58,11 +59,15 @@ public class TaskToProjectRepository implements RelationshipRepository<Task, Obj
     public void addRelations(Task task, Iterable<ObjectId> projectIds, String fieldName) {
         List<Project> newProjectList = new LinkedList<>();
         Iterable<Project> projectsToAdd = projectRepository.findAll(projectIds, null);
-        projectsToAdd.forEach(newProjectList::add);
+        for (Project project: projectsToAdd) {
+            newProjectList.add(project);
+        }
         try {
             if (PropertyUtils.getProperty(task, fieldName) != null) {
                 Iterable<Project> projects = (Iterable<Project>) PropertyUtils.getProperty(task, fieldName);
-                projects.forEach(newProjectList::add);
+                for (Project project: projects) {
+                    newProjectList.add(project);
+                }
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -98,8 +103,10 @@ public class TaskToProjectRepository implements RelationshipRepository<Task, Obj
                         }
                     }
                 }
-                List<Project> newProjectList = new LinkedList<>();
-                projects.forEach(newProjectList::add);
+                List<Project> newProjectList = new ArrayList<>();
+                for (Project project: projects) {
+                    newProjectList.add(project);
+                }
 
                 PropertyUtils.setProperty(task, fieldName, newProjectList);
                 taskRepository.save(task);

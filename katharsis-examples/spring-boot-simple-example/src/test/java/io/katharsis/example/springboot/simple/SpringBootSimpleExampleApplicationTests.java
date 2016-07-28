@@ -51,7 +51,7 @@ public class SpringBootSimpleExampleApplicationTests extends BaseTest {
             .put("description", "12345678901234567890")
             .build();
         
-        Map<String, Object> dataMap = ImmutableMap
+        Map dataMap = ImmutableMap
             .of("data", ImmutableMap
               .of("type", "tasks", "attributes", attributeMap));
         
@@ -74,7 +74,7 @@ public class SpringBootSimpleExampleApplicationTests extends BaseTest {
             .put("description", "12345678901234567890")
             .build();
         
-        Map<String, Object> dataMap = ImmutableMap
+        Map dataMap = ImmutableMap
             .of("data", ImmutableMap
                 .of("type", "tasks", "id", 1, "attributes", attributeMap));
         
@@ -93,7 +93,7 @@ public class SpringBootSimpleExampleApplicationTests extends BaseTest {
             .put("description", "123456789012345678901")
             .build();
         
-        Map<String, Object> dataMap = ImmutableMap
+        Map dataMap = ImmutableMap
             .of("data", ImmutableMap
                 .of("type", "tasks", "id", 1, "attributes", attributeMap));
         

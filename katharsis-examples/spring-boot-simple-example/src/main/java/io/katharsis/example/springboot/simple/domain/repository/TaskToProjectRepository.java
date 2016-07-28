@@ -68,11 +68,15 @@ public class TaskToProjectRepository {
     public void addRelations(Task task, Iterable<Long> projectIds, String fieldName) {
         List<Project> newProjectList = new LinkedList<>();
         Iterable<Project> projectsToAdd = projectRepository.findAll(projectIds, null);
-        projectsToAdd.forEach(newProjectList::add);
+        for (Project project: projectsToAdd) {
+            newProjectList.add(project);
+        }
         try {
             if (PropertyUtils.getProperty(task, fieldName) != null) {
                 Iterable<Project> projects = (Iterable<Project>) PropertyUtils.getProperty(task, fieldName);
-                projects.forEach(newProjectList::add);
+                for (Project project: projects) {
+                    newProjectList.add(project);
+                }
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -101,7 +105,9 @@ public class TaskToProjectRepository {
                     }
                 }
                 List<Project> newProjectList = new LinkedList<>();
-                projects.forEach(newProjectList::add);
+                for (Project project: projects) {
+                    newProjectList.add(project);
+                }
 
                 PropertyUtils.setProperty(task, fieldName, newProjectList);
                 taskRepository.save(task);

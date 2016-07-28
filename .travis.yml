@@ -1,0 +1,18 @@
+sudo: false
+language: java
+jdk:
+  - oraclejdk7
+addons:
+  apt:
+    packages:
+    - oracle-java7-installer
+after_success:
+  - mvn jacoco:report coveralls:report
+  - mvn deploy -DskipTests=true --settings settings.xml
+notifications:
+  webhooks:
+    urls:
+      - https://webhooks.gitter.im/e/ef8645d0a8959f3f49c2
+    on_success: change
+    on_failure: always
+    on_start: false

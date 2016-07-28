@@ -26,10 +26,11 @@ import io.katharsis.repository.annotations.JsonApiResourceRepository;
 import io.katharsis.repository.annotations.JsonApiSave;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
@@ -91,11 +92,15 @@ public class TaskRepository {
 
     @JsonApiFindAllWithIds
     public Iterable<Task> findAll(Iterable<Long> taskIds, QueryParams requestParams) {
-        return REPOSITORY.entrySet()
-                .stream()
-                .filter(p -> Iterables.contains(taskIds, p.getKey()))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
-                .values();
+        List<Task> foundTasks = new ArrayList<>();
+        for (Map.Entry<Long, Task> entry: REPOSITORY.entrySet()) {
+            for (Long id: taskIds) {
+                if (id.equals(entry.getKey())) {
+                    foundTasks.add(entry.getValue());
+                }
+            }
+        }
+        return foundTasks;
     }
 
     @JsonApiDelete

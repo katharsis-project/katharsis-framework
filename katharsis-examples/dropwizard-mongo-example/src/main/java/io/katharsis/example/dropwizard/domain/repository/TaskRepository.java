@@ -19,7 +19,7 @@ public class TaskRepository implements ResourceRepository<Task, ObjectId> {
     }
 
     public <S extends Task> S save(S entity) {
-        Key<Task> saveKey = datastore.save(entity);
+        Key<Task> saveKey = (Key<Task>) datastore.save(entity);
         return (S) datastore.getByKey(Task.class, saveKey);
     }
 

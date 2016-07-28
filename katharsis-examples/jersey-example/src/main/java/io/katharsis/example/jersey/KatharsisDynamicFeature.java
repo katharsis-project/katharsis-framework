@@ -12,7 +12,7 @@ import javax.inject.Inject;
 public class KatharsisDynamicFeature extends KatharsisFeature {
 
     @Inject
-    public KatharsisDynamicFeature(ObjectMapper objectMapper, ServiceLocator ServiceLocator) {
+    public KatharsisDynamicFeature(ObjectMapper objectMapper, final ServiceLocator ServiceLocator) {
         super(objectMapper, new QueryParamsBuilder(new DefaultQueryParamsParser()), new JsonServiceLocator() {
             @Override
             public <T> T getInstance(Class<T> clazz) {

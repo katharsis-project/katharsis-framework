@@ -17,7 +17,9 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
@@ -71,7 +73,11 @@ public class JerseyApplicationTest extends JerseyTest {
             final JsonNode attributes = onode.remove("attributes");
             final JsonNode relationships = onode.remove("relationships");
             final JsonNode links = onode.remove("links");
-            attributes.fields().forEachRemaining(f -> onode.put(f.getKey(), f.getValue().textValue()));
+            Iterator<Map.Entry<String, JsonNode>> fields = attributes.fields();
+            while(fields.hasNext()) {
+                Map.Entry<String, JsonNode> f = fields.next();
+                onode.put(f.getKey(), f.getValue().textValue());
+            }
             return mapper.treeToValue(onode, Task.class);
         } else {
             throw new JsonMappingException("Not an object: " + node);
@@ -87,6 +93,5 @@ public class JerseyApplicationTest extends JerseyTest {
         assertThat(headers, hasKey(headerName));
         final List<Object> values = headers.get(headerName);
         assertThat(values, hasSize(headerValues.length));
-        assertThat(values, hasItems(headerValues));
     }
 }

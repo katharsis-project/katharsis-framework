@@ -6,10 +6,11 @@ import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 
 public class ProjectRepository implements ResourceRepository<Project, Long> {
 
@@ -39,11 +40,14 @@ public class ProjectRepository implements ResourceRepository<Project, Long> {
 
     @Override
     public Iterable<Project> findAll(Iterable<Long> iterable, QueryParams requestParams) {
-        return REPOSITORY.entrySet()
-                .stream()
-                .filter(p -> Iterables.contains(iterable, p.getKey()))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
-                .values();
+        Set<Map.Entry<Long, Project>> entries = REPOSITORY.entrySet();
+        Map<Long, Project> map = new HashMap<>();
+        for (Map.Entry<Long, Project> entry: entries) {
+            if (Iterables.contains(iterable, entry.getKey())) {
+                map.put(entry.getKey(), entry. getValue());
+            }
+        }
+        return map.values();
     }
 
     public void delete(Long id) {

@@ -6,8 +6,6 @@ import io.katharsis.repository.ResourceRepository;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 public class UserRepository implements ResourceRepository<User, String> {
 
@@ -24,10 +22,12 @@ public class UserRepository implements ResourceRepository<User, String> {
 
     @Override
     public synchronized User findOne(String id, QueryParams requestParams) {
-        return users.stream()
-                .filter(u -> u.getId().equals(id))
-                .findFirst()
-            .orElseThrow(() -> new ResourceNotFoundException("users/" + id));
+        for (User user : users) {
+            if (user.getId().equals(id)) {
+                return user;
+            }
+        }
+        throw new ResourceNotFoundException("users/" + id);
     }
 
     @Override
@@ -37,13 +37,15 @@ public class UserRepository implements ResourceRepository<User, String> {
 
     @Override
     public synchronized Iterable<User> findAll(Iterable<String> ids, QueryParams requestParams) {
-        return users.stream()
-                .filter(u ->
-                        StreamSupport.stream(ids.spliterator(), false)
-                                .filter(id -> u.getId().equals(id))
-                                .findFirst()
-                                .isPresent())
-                .collect(Collectors.toList());
+        List<User> foundUsers = new ArrayList<>();
+        for (User user : users) {
+            for (String id: ids) {
+                if (id.equals(user.getId())) {
+                    foundUsers.add(user);
+                }
+            }
+        }
+        return foundUsers;
     }
 
     @Override
