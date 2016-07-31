@@ -2,7 +2,7 @@ package io.katharsis.spring;
 
 import io.katharsis.invoker.KatharsisInvokerBuilder;
 import io.katharsis.invoker.KatharsisInvokerContext;
-import io.katharsis.locator.JsonServiceLocator;
+import io.katharsis.locator.RepositoryFactory;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.servlet.SampleKatharsisFilter;
 import io.katharsis.servlet.ServletKatharsisInvokerContext;
@@ -17,12 +17,12 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * Simple Spring enabled example KatharsisFilter implementation.
- * <p>
+ * <p/>
  * This filter simply extends {@link SampleKatharsisFilter} and overrides {@link #createKatharsisInvokerBuilder()}
- * in order to register a custom {@link JsonServiceLocator} component.
+ * in order to register a custom {@link RepositoryFactory} component.
  * </P>
- * <p>
- * The custom {@link JsonServiceLocator} component created here simply retrieve a bean component
+ * <p/>
+ * The custom {@link RepositoryFactory} component created here simply retrieve a bean component
  * by the repository class type from the underlying {@link BeanFactory}.
  * </P>
  */
@@ -47,16 +47,21 @@ public class KatharsisFilter extends SampleKatharsisFilter implements BeanFactor
     @Override
     protected KatharsisInvokerBuilder createKatharsisInvokerBuilder() {
         builder.resourceSearchPackage(resourceSearchPackage)
-            .resourceDefaultDomain(resourceDomain)
-            .repositoryFactory(new JsonServiceLocator() {
+                .resourceDefaultDomain(resourceDomain)
+                .repositoryFactory(new RepositoryFactory() {
 
-                @Override
-                public <T> T getInstance(Class<T> clazz) {
-                    // Simply retrieve a bean by the repository class type.
-                    return beanFactory.getBean(clazz);
-                }
+                    @Override
+                    public <T> T getInstance(Class<T> clazz) {
+                        // Simply retrieve a bean by the repository class type.
+                        return beanFactory.getBean(clazz);
+                    }
 
-            });
+                    @Override
+                    public Object build(Class clazz) {
+                        return beanFactory.getBean(clazz);
+                    }
+
+                });
 
         return builder;
     }

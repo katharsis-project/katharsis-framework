@@ -1,12 +1,12 @@
 package io.katharsis.spring;
 
-import io.katharsis.locator.JsonServiceLocator;
+import io.katharsis.locator.RepositoryFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 
-public class SpringServiceLocator implements BeanFactoryAware, JsonServiceLocator {
+public class SpringServiceLocator implements BeanFactoryAware, RepositoryFactory {
 
     private ConfigurableBeanFactory beanFactory;
 
@@ -19,6 +19,11 @@ public class SpringServiceLocator implements BeanFactoryAware, JsonServiceLocato
 
     @Override
     public <T> T getInstance(Class<T> clazz) {
+        return beanFactory.getBean(clazz);
+    }
+
+    @Override
+    public Object build(Class clazz) {
         return beanFactory.getBean(clazz);
     }
 }

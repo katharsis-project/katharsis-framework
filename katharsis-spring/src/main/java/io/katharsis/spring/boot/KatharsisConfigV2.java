@@ -2,25 +2,11 @@ package io.katharsis.spring.boot;
 
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import io.katharsis.dispatcher.RequestDispatcher;
-import io.katharsis.dispatcher.registry.ControllerRegistry;
-import io.katharsis.dispatcher.registry.ControllerRegistryBuilder;
+import io.katharsis.dispatcher.JsonApiDispatcher;
+import io.katharsis.dispatcher.registry.api.RepositoryRegistry;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
-import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryBuilder;
-import io.katharsis.invoker.KatharsisInvokerBuilder;
-import io.katharsis.jackson.JsonApiModuleBuilder;
-import io.katharsis.queryParams.DefaultQueryParamsParser;
-import io.katharsis.queryParams.QueryParamsBuilder;
-import io.katharsis.queryParams.QueryParamsParser;
-import io.katharsis.resource.field.ResourceFieldNameTransformer;
-import io.katharsis.resource.information.ResourceInformationBuilder;
-import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.resource.registry.ResourceRegistryBuilder;
 import io.katharsis.spring.ErrorHandlerFilter;
 import io.katharsis.spring.KatharsisFilterV2;
-import io.katharsis.spring.SpringServiceLocator;
-import io.katharsis.utils.parser.TypeParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -31,10 +17,9 @@ import javax.servlet.Filter;
 
 @Configuration
 @Import({RequestDispatcherConfiguration.class,
-        QueryParamsBuilderConfiguration.class,
-    JacksonConfiguration.class,
-    JsonLocatorConfiguration.class,
-    KatharsisRegistryConfiguration.class})
+        JacksonConfiguration.class,
+        JsonLocatorConfiguration.class,
+        KatharsisRegistryConfiguration.class})
 @EnableConfigurationProperties(KatharsisSpringBootProperties.class)
 public class KatharsisConfigV2 {
 
@@ -45,16 +30,13 @@ public class KatharsisConfigV2 {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private ResourceRegistry resourceRegistry;
+    private RepositoryRegistry repositoryRegistry;
 
     @Autowired
     private ExceptionMapperRegistry exceptionMapperRegistry;
 
     @Autowired
-    private RequestDispatcher requestDispatcher;
-
-    @Autowired
-    private QueryParamsBuilder queryParamsBuilder;
+    private JsonApiDispatcher requestDispatcher;
 
     @Autowired
     private Module parameterNamesModule;
@@ -62,8 +44,7 @@ public class KatharsisConfigV2 {
     @Bean
     public Filter springBootSampleKatharsisFilter() {
         objectMapper.registerModule(parameterNamesModule);
-        return new KatharsisFilterV2(objectMapper, queryParamsBuilder, resourceRegistry, requestDispatcher,
-                properties.getPathPrefix());
+        return new KatharsisFilterV2(objectMapper, repositoryRegistry, requestDispatcher, properties.getPathPrefix());
     }
 
     @Bean

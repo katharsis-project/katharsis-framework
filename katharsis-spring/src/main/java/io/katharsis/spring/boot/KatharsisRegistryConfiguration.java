@@ -1,13 +1,9 @@
 package io.katharsis.spring.boot;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import io.katharsis.dispatcher.registry.DefaultRepositoryRegistry;
+import io.katharsis.dispatcher.registry.api.RepositoryRegistry;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryBuilder;
-import io.katharsis.resource.field.ResourceFieldNameTransformer;
-import io.katharsis.resource.information.ResourceInformationBuilder;
-import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.resource.registry.ResourceRegistryBuilder;
-import io.katharsis.spring.SpringServiceLocator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -20,20 +16,10 @@ public class KatharsisRegistryConfiguration {
     @Autowired
     private KatharsisSpringBootProperties properties;
 
-    @Autowired
-    private SpringServiceLocator serviceLocator;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
     @Bean
-    public ResourceRegistry resourceRegistry() {
-        ResourceRegistryBuilder registryBuilder =
-            new ResourceRegistryBuilder(serviceLocator,
-                new ResourceInformationBuilder(new ResourceFieldNameTransformer(objectMapper.getSerializationConfig())));
-
+    public RepositoryRegistry repositoryRegistry() {
         String serverUri = properties.getDomainName() + properties.getPathPrefix();
-        return registryBuilder.build(properties.getResourcePackage(), serverUri);
+        return DefaultRepositoryRegistry.build(properties.getResourcePackage(), serverUri);
     }
 
     @Bean

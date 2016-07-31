@@ -2,20 +2,14 @@ package io.katharsis.spring;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.net.MediaType;
-import io.katharsis.dispatcher.RequestDispatcher;
-import io.katharsis.errorhandling.exception.KatharsisMappableException;
-import io.katharsis.errorhandling.exception.KatharsisMatchingException;
-import io.katharsis.errorhandling.mapper.KatharsisExceptionMapper;
+import io.katharsis.dispatcher.JsonApiDispatcher;
+import io.katharsis.dispatcher.ResponseContext;
+import io.katharsis.dispatcher.registry.api.RepositoryRegistry;
 import io.katharsis.invoker.JsonApiMediaType;
 import io.katharsis.invoker.KatharsisInvokerException;
-import io.katharsis.queryParams.QueryParams;
-import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
-import io.katharsis.request.dto.RequestBody;
-import io.katharsis.request.path.JsonPath;
-import io.katharsis.request.path.PathBuilder;
-import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.response.BaseResponseContext;
+import io.katharsis.request.Request;
+import io.katharsis.request.path.JsonApiPath;
 import io.katharsis.servlet.util.BufferedRequestWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,11 +20,19 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.http.HttpHeaders;
 
 import javax.annotation.Priority;
-import javax.servlet.*;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
-import java.util.*;
+import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 @Priority(20)
 public class KatharsisFilterV2 implements Filter, BeanFactoryAware {
@@ -40,20 +42,17 @@ public class KatharsisFilterV2 implements Filter, BeanFactoryAware {
     private static final int BUFFER_SIZE = 4096;
 
     private ObjectMapper objectMapper;
-    private QueryParamsBuilder queryParamsBuilder;
-    private ResourceRegistry resourceRegistry;
-    private RequestDispatcher requestDispatcher;
+    private RepositoryRegistry resourceRegistry;
+    private JsonApiDispatcher requestDispatcher;
     private String webPathPrefix;
 
     private ConfigurableBeanFactory beanFactory;
 
 
     public KatharsisFilterV2(ObjectMapper objectMapper,
-                             QueryParamsBuilder queryParamsBuilder,
-                             ResourceRegistry resourceRegistry,
-                             RequestDispatcher requestDispatcher, String webPathPrefix) {
+                             RepositoryRegistry resourceRegistry,
+                             JsonApiDispatcher requestDispatcher, String webPathPrefix) {
         this.objectMapper = objectMapper;
-        this.queryParamsBuilder = queryParamsBuilder;
         this.resourceRegistry = resourceRegistry;
         this.requestDispatcher = requestDispatcher;
         this.webPathPrefix = webPathPrefix != null ? webPathPrefix : "";
@@ -102,41 +101,36 @@ public class KatharsisFilterV2 implements Filter, BeanFactoryAware {
         }
     }
 
-    private boolean dispatchRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        BaseResponseContext katharsisResponse = null;
+    private boolean dispatchRequest(HttpServletRequest req, HttpServletResponse res) throws Exception {
+        ResponseContext katharsisResponse = null;
 
         boolean passToFilters = false;
 
         InputStream in = null;
 
         try {
-            JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath(getRequestPath(request));
 
-            QueryParams queryParams = createQueryParams(request);
+            String httpMethod = req.getMethod();
 
-            in = request.getInputStream();
-            RequestBody requestBody = inputStreamToBody(in);
+            RepositoryMethodParameterProvider parameterProvider = new SpringParameterProvider(beanFactory, req);
 
-            String method = request.getMethod();
-            RepositoryMethodParameterProvider parameterProvider = new SpringParameterProvider(beanFactory, request);
-            katharsisResponse = requestDispatcher.dispatchRequest(jsonPath, method, queryParams, parameterProvider,
-                requestBody);
-        } catch (KatharsisMappableException e) {
-            if (log.isDebugEnabled()) {
-                log.warn("Error occurred while dispatching katharsis request. " + e, e);
-            } else {
-                log.warn("Error occurred while dispatching katharsis request. " + e);
-            }
-            katharsisResponse = new KatharsisExceptionMapper().toErrorResponse(e);
-        } catch (KatharsisMatchingException e) {
-            passToFilters = true;
+            JsonApiPath path = JsonApiPath.parsePathFromStringUrl(req.getRequestURI(), webPathPrefix);
+
+            in = req.getInputStream();
+            Request request = new Request(path, httpMethod, in, parameterProvider);
+
+            katharsisResponse = requestDispatcher.handle(request);
+
+        } catch (Exception e) {
+            //TODO: ieugen: handle exception
+            log.error("Exception {}", e);
         } finally {
             if (!passToFilters) {
                 closeQuietly(in);
 
                 if (katharsisResponse != null) {
-                    response.setStatus(katharsisResponse.getHttpStatus());
-                    response.setContentType(JsonApiMediaType.APPLICATION_JSON_API);
+                    res.setStatus(katharsisResponse.getHttpStatus());
+                    res.setContentType(JsonApiMediaType.APPLICATION_JSON_API);
 
                     ByteArrayOutputStream baos = null;
                     OutputStream out = null;
@@ -146,7 +140,7 @@ public class KatharsisFilterV2 implements Filter, BeanFactoryAware {
                         baos = new ByteArrayOutputStream(BUFFER_SIZE);
                         objectMapper.writeValue(baos, katharsisResponse);
 
-                        out = response.getOutputStream();
+                        out = res.getOutputStream();
                         out.write(baos.toByteArray());
                         out.flush();
                     } finally {
@@ -154,7 +148,7 @@ public class KatharsisFilterV2 implements Filter, BeanFactoryAware {
                         closeQuietly(out);
                     }
                 } else {
-                    response.setStatus(HttpServletResponse.SC_NO_CONTENT);
+                    res.setStatus(HttpServletResponse.SC_NO_CONTENT);
                 }
             }
         }
@@ -175,7 +169,7 @@ public class KatharsisFilterV2 implements Filter, BeanFactoryAware {
         // Serving with Filter, pathInfo can be null.
         if (path == null) {
             path = request.getRequestURI()
-                .substring(request.getContextPath().length() + webPathPrefix.length());
+                    .substring(request.getContextPath().length() + webPathPrefix.length());
         }
 
         return path;
@@ -202,38 +196,6 @@ public class KatharsisFilterV2 implements Filter, BeanFactoryAware {
         }
 
         return false;
-    }
-
-    /**
-     * This method return a list o parameters. It uses {@link ServletRequest#getParameterMap()} which can also return POST
-     * body parameters, but we don't expect to receive such body.
-     *
-     * @param request request body
-     * @return query parameters
-     */
-    private QueryParams createQueryParams(HttpServletRequest request) {
-        Map<String, String[]> params = request.getParameterMap();
-
-        Map<String, Set<String>> queryParameters = new HashMap<>(params.size());
-        for (Map.Entry<String, String[]> entry : params.entrySet()) {
-            queryParameters.put(entry.getKey(), new HashSet<>(Arrays.asList(entry.getValue())));
-        }
-        return queryParamsBuilder.buildQueryParams(queryParameters);
-    }
-
-    private RequestBody inputStreamToBody(InputStream is) throws IOException {
-        if (is == null) {
-            return null;
-        }
-
-        Scanner s = new Scanner(is).useDelimiter("\\A");
-        String requestBody = s.hasNext() ? s.next() : "";
-
-        if (requestBody == null || requestBody.isEmpty()) {
-            return null;
-        }
-
-        return objectMapper.readValue(requestBody, RequestBody.class);
     }
 
     private void closeQuietly(Closeable closeable) {

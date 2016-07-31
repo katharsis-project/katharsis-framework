@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.JsonApiDispatcher;
 import io.katharsis.dispatcher.ResponseContext;
 import io.katharsis.errorhandling.exception.KatharsisInitializationException;
-import io.katharsis.errorhandling.exception.KatharsisMatchingException;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.Request;
 import io.katharsis.request.path.JsonApiPath;
@@ -112,8 +111,6 @@ public class KatharsisFilter implements ContainerRequestFilter {
 
             katharsisResponse = requestDispatcher.handle(request);
 
-        } catch (KatharsisMatchingException e) {
-            passToMethodMatcher = true;
         } catch (Exception e) {
             log.error("Exception {}", e);
         } finally {
