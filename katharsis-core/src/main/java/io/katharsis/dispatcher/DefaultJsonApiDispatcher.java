@@ -26,6 +26,18 @@ public class DefaultJsonApiDispatcher implements JsonApiDispatcher {
     private final JsonApiDelete apiDelete;
     private ExceptionMapperRegistry exceptionMapperRegistry;
 
+    public DefaultJsonApiDispatcher(@NonNull JsonApiGet apiGet,
+                                    @NonNull JsonApiPost apiPost,
+                                    @NonNull JsonApiPatch apiPatch,
+                                    @NonNull JsonApiDelete apiDelete,
+                                    @NonNull ExceptionMapperRegistry exceptionMapperRegistry) {
+        this.apiGet = apiGet;
+        this.apiPost = apiPost;
+        this.apiPatch = apiPatch;
+        this.apiDelete = apiDelete;
+        this.exceptionMapperRegistry = exceptionMapperRegistry;
+    }
+
     /**
      * Dispatch the request from a client
      *

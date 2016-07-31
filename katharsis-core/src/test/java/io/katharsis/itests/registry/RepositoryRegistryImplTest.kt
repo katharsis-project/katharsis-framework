@@ -1,6 +1,6 @@
 package io.katharsis.itests.registry;
 
-import io.katharsis.dispatcher.registry.RepositoryRegistryImpl
+import io.katharsis.dispatcher.registry.DefaultRepositoryRegistry
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import kotlin.test.assertNotNull
@@ -11,7 +11,7 @@ class RepositoryRegistryImplTest {
 
     @Test
     fun testTwoRepositoriesAreFoundAndCreated() {
-        val registry = RepositoryRegistryImpl.build(tck, "/api")
+        val registry = DefaultRepositoryRegistry.build(tck, "/api")
 
         assertThat(registry.adapters.size).isEqualTo(2);
 
@@ -24,7 +24,7 @@ class RepositoryRegistryImplTest {
 
     @Test
     fun testTasksRepositoryHasFindOne() {
-        val registry = RepositoryRegistryImpl.build(tck, "/api")
+        val registry = DefaultRepositoryRegistry.build(tck, "/api")
 
         val tasks = registry.get("tasks");
         assertNotNull(tasks)

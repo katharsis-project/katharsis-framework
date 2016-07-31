@@ -16,7 +16,7 @@ import java.util.Map;
 
 @Slf4j
 @Data
-public class RepositoryRegistryImpl implements RepositoryRegistry {
+public class DefaultRepositoryRegistry implements RepositoryRegistry {
 
     private Map<String, AnnotatedResourceRepositoryAdapter> adapters;
     private Map<String, Map<String, AnnotatedRelationshipRepositoryAdapter>> relationshipRepoAdapters;
@@ -24,15 +24,15 @@ public class RepositoryRegistryImpl implements RepositoryRegistry {
     private String packages;
     private String apiMountUrl;
 
-    public RepositoryRegistryImpl(@NonNull String apiMountUrl,
-                                  @NonNull Map<String, AnnotatedResourceRepositoryAdapter> adapters,
-                                  @NonNull Map<String, Map<String, AnnotatedRelationshipRepositoryAdapter>> relationshipAdapters) {
+    public DefaultRepositoryRegistry(@NonNull String apiMountUrl,
+                                     @NonNull Map<String, AnnotatedResourceRepositoryAdapter> adapters,
+                                     @NonNull Map<String, Map<String, AnnotatedRelationshipRepositoryAdapter>> relationshipAdapters) {
         this.apiMountUrl = apiMountUrl;
         this.adapters = adapters;
         this.relationshipRepoAdapters = relationshipAdapters;
     }
 
-    public static RepositoryRegistryImpl build(String packages, String apiMountUrl) {
+    public static DefaultRepositoryRegistry build(String packages, String apiMountUrl) {
         DefaultResourceLookup resourceLookup = new DefaultResourceLookup();
         ResourceRegistry holder = resourceLookup.scan(packages.split(","));
 
@@ -42,7 +42,7 @@ public class RepositoryRegistryImpl implements RepositoryRegistry {
         Map<String, Map<String, AnnotatedRelationshipRepositoryAdapter>> relationshipAdapters =
                 buildRelationshipAdapters();
 
-        return new RepositoryRegistryImpl(apiMountUrl, adapters, relationshipAdapters);
+        return new DefaultRepositoryRegistry(apiMountUrl, adapters, relationshipAdapters);
     }
 
     private static Map<String, Map<String, AnnotatedRelationshipRepositoryAdapter>> buildRelationshipAdapters() {

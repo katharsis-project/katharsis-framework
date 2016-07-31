@@ -8,8 +8,9 @@ import io.katharsis.dispatcher.handlers.JsonApiDelete
 import io.katharsis.dispatcher.handlers.JsonApiGet
 import io.katharsis.dispatcher.handlers.JsonApiPatch
 import io.katharsis.dispatcher.handlers.JsonApiPost
-import io.katharsis.dispatcher.registry.RepositoryRegistryImpl
+import io.katharsis.dispatcher.registry.DefaultRepositoryRegistry
 import io.katharsis.dispatcher.registry.api.RepositoryRegistry
+import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryBuilder
 import io.katharsis.itests.tck.ProjectRepository
 import io.katharsis.itests.tck.TaskRepository
 import io.katharsis.jackson.JsonApiModuleBuilder
@@ -67,7 +68,7 @@ open class IntegrationConfig {
 
     @Bean
     open fun resourceRegistry(): RepositoryRegistry {
-        val resourceRegistry = RepositoryRegistryImpl.build("io.katharsis.itests.tck", "")
+        val resourceRegistry = DefaultRepositoryRegistry.build("io.katharsis.itests.tck", "")
         return resourceRegistry
     }
 
@@ -87,7 +88,9 @@ open class IntegrationConfig {
     @Autowired
     open fun requestDispatcher(objectMapper: ObjectMapper, registry: RepositoryRegistry): DefaultJsonApiDispatcher {
 //        exceptionMapperRegistry, resourceRegistry,        TypeParser(), objectMapper, QueryParamsBuilder(DefaultQueryParamsParser())
-        return DefaultJsonApiDispatcher(JsonApiGet(registry), JsonApiPost(registry), JsonApiPatch(registry), JsonApiDelete(registry));
+        val exceptionMapperBuilder = ExceptionMapperRegistryBuilder()
+        val exceptionMapperRegistry = exceptionMapperBuilder.build("io.katharsis.itests.tck")
+        return DefaultJsonApiDispatcher(JsonApiGet(registry), JsonApiPost(registry), JsonApiPatch(registry), JsonApiDelete(registry), exceptionMapperRegistry);
     }
 }
 

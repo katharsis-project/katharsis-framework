@@ -34,7 +34,7 @@ public class KatharsisControllerWithoutPrefixTest extends KatharsisControllerTes
 
     @Override
     protected String getPrefix() {
-        return null;
+        return "/";
     }
 
     @Test
@@ -66,6 +66,7 @@ public class KatharsisControllerWithoutPrefixTest extends KatharsisControllerTes
         public TestApplication() {
             property(KatharsisProperties.RESOURCE_SEARCH_PACKAGE, "io.katharsis.rs.resource");
             property(KatharsisProperties.RESOURCE_DEFAULT_DOMAIN, "http://test.local");
+            property(KatharsisProperties.WEB_PATH_PREFIX, "/");
             register(SampleControllerWithoutPrefix.class);
             register(SampleOverlayingController.class);
             register(new KatharsisFeature(new ObjectMapper(), new QueryParamsBuilder(new DefaultQueryParamsParser()),

@@ -3,6 +3,7 @@ package io.katharsis.rs;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.JsonApiDispatcher;
 import io.katharsis.dispatcher.ResponseContext;
+import io.katharsis.errorhandling.exception.KatharsisInitializationException;
 import io.katharsis.errorhandling.exception.KatharsisMatchingException;
 import io.katharsis.repository.RepositoryParameterProvider;
 import io.katharsis.request.Request;
@@ -10,6 +11,7 @@ import io.katharsis.request.path.JsonApiPath;
 import io.katharsis.rs.parameterProvider.JaxRsParameterProvider;
 import io.katharsis.rs.parameterProvider.RequestContextParameterProviderRegistry;
 import io.katharsis.rs.type.JsonApiMediaType;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -39,6 +41,7 @@ import static io.katharsis.rs.type.JsonApiMediaType.APPLICATION_JSON_API_TYPE;
  * Wildcards are not accepted.
  * </p>
  */
+@Slf4j
 @PreMatching
 public class KatharsisFilter implements ContainerRequestFilter {
 
@@ -54,14 +57,14 @@ public class KatharsisFilter implements ContainerRequestFilter {
         this.objectMapper = objectMapper;
         this.requestDispatcher = requestDispatcher;
         this.parameterProviderRegistry = parameterProviderRegistry;
-        this.webPathPrefix = parsePrefix(webPathPrefix);
+        this.webPathPrefix = checkPath(webPathPrefix);
     }
 
-    private static String parsePrefix(String webPathPrefix) {
+    private static String checkPath(String webPathPrefix) {
         if (webPathPrefix != null && webPathPrefix.startsWith("/")) {
-            return webPathPrefix.substring(1);
-        } else {
             return webPathPrefix;
+        } else {
+            throw new KatharsisInitializationException("API mount path must be absolute: " + webPathPrefix);
         }
     }
 
@@ -111,6 +114,8 @@ public class KatharsisFilter implements ContainerRequestFilter {
 
         } catch (KatharsisMatchingException e) {
             passToMethodMatcher = true;
+        } catch (Exception e) {
+            log.error("Exception {}", e);
         } finally {
             if (!passToMethodMatcher) {
                 abortWithResponse(requestContext, katharsisResponse);

@@ -98,7 +98,7 @@ public class JsonApiPath {
      * @return
      */
     protected static JsonApiPath parsePath(String requestPath, String requestQuery) {
-        String[] pathParts = splitPath(requestPath.toString());
+        String[] pathParts = splitPath(requestPath);
 
         validatePath(pathParts);
 
