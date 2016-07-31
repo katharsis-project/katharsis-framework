@@ -122,3 +122,5 @@ buildNumber.properties
 
 .idea/
 *.iml
+
+.gradle/
