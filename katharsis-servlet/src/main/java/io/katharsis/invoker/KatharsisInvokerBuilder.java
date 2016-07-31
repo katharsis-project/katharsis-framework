@@ -16,24 +16,22 @@
  */
 package io.katharsis.invoker;
 
-import io.katharsis.dispatcher.RequestDispatcher;
-import io.katharsis.dispatcher.registry.ControllerRegistry;
-import io.katharsis.dispatcher.registry.ControllerRegistryBuilder;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.katharsis.dispatcher.DefaultJsonApiDispatcher;
+import io.katharsis.dispatcher.JsonApiDispatcher;
+import io.katharsis.dispatcher.handlers.JsonApiDelete;
+import io.katharsis.dispatcher.handlers.JsonApiGet;
+import io.katharsis.dispatcher.handlers.JsonApiPatch;
+import io.katharsis.dispatcher.handlers.JsonApiPost;
+import io.katharsis.dispatcher.registry.api.RepositoryRegistry;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryBuilder;
 import io.katharsis.jackson.JsonApiModuleBuilder;
-import io.katharsis.locator.JsonServiceLocator;
-import io.katharsis.queryParams.DefaultQueryParamsParser;
-import io.katharsis.queryParams.QueryParamsBuilder;
+import io.katharsis.locator.RepositoryFactory;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryBuilder;
-import io.katharsis.utils.parser.TypeParser;
-
-import com.fasterxml.jackson.databind.Module;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 
 /**
  * KatharsisInvoker builder.
@@ -41,36 +39,26 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 public class KatharsisInvokerBuilder {
 
     private ObjectMapper objectMapper;
-    private QueryParamsBuilder queryParamsBuilder;
-    private ResourceRegistry resourceRegistry;
-    private RequestDispatcher requestDispatcher;
-    private JsonServiceLocator jsonServiceLocator;
+    private RepositoryRegistry repositoryRegistry;
+    private JsonApiDispatcher requestDispatcher;
+    private RepositoryFactory jsonServiceLocator;
     private ExceptionMapperRegistry exceptionMapperRegistry;
 
     private String resourceSearchPackage;
     private String resourceDefaultDomain;
+    private String apiPath;
 
     public KatharsisInvokerBuilder objectMapper(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
         return this;
     }
 
-    public KatharsisInvokerBuilder queryParamsBuilder(QueryParamsBuilder queryParamsBuilder) {
-        this.queryParamsBuilder = queryParamsBuilder;
-        return this;
-    }
-
-    public KatharsisInvokerBuilder resourceRegistry(ResourceRegistry resourceRegistry) {
-        this.resourceRegistry = resourceRegistry;
-        return this;
-    }
-
-    public KatharsisInvokerBuilder requestDispatcher(RequestDispatcher requestDispatcher) {
+    public KatharsisInvokerBuilder requestDispatcher(JsonApiDispatcher requestDispatcher) {
         this.requestDispatcher = requestDispatcher;
         return this;
     }
 
-    public KatharsisInvokerBuilder jsonServiceLocator(JsonServiceLocator jsonServiceLocator) {
+    public KatharsisInvokerBuilder repositoryFactory(RepositoryFactory jsonServiceLocator) {
         this.jsonServiceLocator = jsonServiceLocator;
         return this;
     }
@@ -91,30 +79,8 @@ public class KatharsisInvokerBuilder {
     }
 
     public KatharsisInvoker build() throws Exception {
-        if (resourceRegistry == null || requestDispatcher == null || exceptionMapperRegistry == null) {
-            if (resourceSearchPackage == null) {
-                throw new IllegalArgumentException("Resource Search Package should not be null.");
-            }
-
-            if (resourceDefaultDomain == null) {
-                throw new IllegalArgumentException("Resource Default Domain should not be null.");
-            }
-        }
-
-        if (resourceRegistry == null) {
-            if (jsonServiceLocator == null) {
-                throw new IllegalArgumentException("JsonServiceLocator should be provided!");
-            }
-
-            resourceRegistry = buildResourceRegistry(jsonServiceLocator, resourceSearchPackage, resourceDefaultDomain);
-        }
-
         if (objectMapper == null) {
-            objectMapper = createObjectMapper(resourceRegistry);
-        }
-
-        if (queryParamsBuilder == null) {
-            queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
+            objectMapper = createObjectMapper();
         }
 
         if (requestDispatcher == null) {
@@ -122,10 +88,10 @@ public class KatharsisInvokerBuilder {
                 exceptionMapperRegistry = buildExceptionMapperRegistry(resourceSearchPackage);
             }
 
-            requestDispatcher = createRequestDispatcher(resourceRegistry, objectMapper, exceptionMapperRegistry);
+            requestDispatcher = createRequestDispatcher(repositoryRegistry, exceptionMapperRegistry);
         }
 
-        return new KatharsisInvoker(objectMapper, queryParamsBuilder, resourceRegistry, requestDispatcher);
+        return new KatharsisInvoker(objectMapper, requestDispatcher, apiPath);
     }
 
     protected ExceptionMapperRegistry buildExceptionMapperRegistry(String resourceSearchPackage) throws Exception {
@@ -134,7 +100,7 @@ public class KatharsisInvokerBuilder {
     }
 
 
-    protected ResourceRegistry buildResourceRegistry(JsonServiceLocator jsonServiceLocator, String resourceSearchPackage, String resourceDefaultDomain) {
+    protected ResourceRegistry buildResourceRegistry(RepositoryFactory jsonServiceLocator, String resourceSearchPackage, String resourceDefaultDomain) {
         ResourceFieldNameTransformer resourceFieldNameTransformer;
         if (objectMapper != null) {
             resourceFieldNameTransformer =
@@ -150,27 +116,21 @@ public class KatharsisInvokerBuilder {
         return registryBuilder.build(resourceSearchPackage, resourceDefaultDomain);
     }
 
-    protected RequestDispatcher createRequestDispatcher(ResourceRegistry resourceRegistry,
-                                                        ObjectMapper objectMapper,
+    protected JsonApiDispatcher createRequestDispatcher(RepositoryRegistry repositoryRegistry,
                                                         ExceptionMapperRegistry exceptionMapperRegistry)
             throws Exception {
 
-        TypeParser typeParser = new TypeParser();
-        ControllerRegistryBuilder controllerRegistryBuilder = new ControllerRegistryBuilder(resourceRegistry, typeParser, objectMapper);
-        ControllerRegistry controllerRegistry = controllerRegistryBuilder.build();
-
-        return new RequestDispatcher(controllerRegistry, exceptionMapperRegistry);
+        return new DefaultJsonApiDispatcher(new JsonApiGet(repositoryRegistry),
+                new JsonApiPost(repositoryRegistry),
+                new JsonApiPatch(repositoryRegistry),
+                new JsonApiDelete(repositoryRegistry),
+                exceptionMapperRegistry);
     }
 
-    protected ObjectMapper createObjectMapper(ResourceRegistry resourceRegistry) {
+    protected ObjectMapper createObjectMapper() {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(createDataBindingModule(resourceRegistry));
+        mapper.registerModule(JsonApiModuleBuilder.create());
         return mapper;
     }
 
-    protected Module createDataBindingModule(ResourceRegistry resourceRegistry) {
-        JsonApiModuleBuilder jsonApiModuleBuilder = new JsonApiModuleBuilder();
-        SimpleModule simpleModule = jsonApiModuleBuilder.build(resourceRegistry);
-        return simpleModule;
-    }
 }

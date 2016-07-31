@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
-import io.katharsis.repository.RepositoryParameterProvider;
+import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.Request;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.LinkageData;
@@ -179,7 +179,7 @@ public abstract class ResourceUpsert extends BaseController {
                                 RegistryEntry registryEntry,
                                 DataBody dataBody,
                                 QueryParams queryParams,
-                                RepositoryParameterProvider parameterProvider) {
+                                RepositoryMethodParameterProvider parameterProvider) {
         if (dataBody.getRelationships() != null) {
             Map<String, Object> additionalProperties = dataBody.getRelationships()
                     .getAdditionalProperties();
@@ -200,7 +200,7 @@ public abstract class ResourceUpsert extends BaseController {
     private void setRelationsField(Object newResource, RegistryEntry registryEntry,
                                    Map.Entry<String, Iterable<LinkageData>> property,
                                    QueryParams queryParams,
-                                   RepositoryParameterProvider parameterProvider) {
+                                   RepositoryMethodParameterProvider parameterProvider) {
         String propertyName = property.getKey();
         ResourceField relationshipField = registryEntry.getResourceInformation()
                 .findRelationshipFieldByName(propertyName);
@@ -223,7 +223,7 @@ public abstract class ResourceUpsert extends BaseController {
     private void setRelationField(Object newResource, RegistryEntry registryEntry,
                                   Map.Entry<String, LinkageData> property,
                                   QueryParams queryParams,
-                                  RepositoryParameterProvider parameterProvider) {
+                                  RepositoryMethodParameterProvider parameterProvider) {
 
         ResourceField relationshipFieldByName = registryEntry.getResourceInformation()
                 .findRelationshipFieldByName(property.getKey());

@@ -9,7 +9,7 @@ import io.katharsis.locator.NewInstanceRepositoryFactory;
 import io.katharsis.queryParams.DefaultQueryParamsParser;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
-import io.katharsis.repository.RepositoryParameterProvider;
+import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.repository.mock.NewInstanceRepositoryParameterProvider;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.include.IncludeLookupSetter;
@@ -34,7 +34,7 @@ public abstract class BaseControllerTest {
     protected ResourceRegistry resourceRegistry;
     protected TypeParser typeParser;
     protected IncludeLookupSetter includeFieldSetter;
-    protected RepositoryParameterProvider parameterProvider;
+    protected RepositoryMethodParameterProvider parameterProvider;
     protected QueryParamsBuilder queryParamsBuilder;
     ParametersFactory parametersFactory = new ParametersFactory();
 

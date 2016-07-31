@@ -1,10 +1,10 @@
 package io.katharsis.repository.mock;
 
-import io.katharsis.repository.RepositoryParameterProvider;
+import io.katharsis.repository.RepositoryMethodParameterProvider;
 
 import java.lang.reflect.Method;
 
-public class NewInstanceRepositoryParameterProvider implements RepositoryParameterProvider {
+public class NewInstanceRepositoryParameterProvider implements RepositoryMethodParameterProvider {
 
     @Override
     public <T> T provide(Method method, int parameterIndex) {

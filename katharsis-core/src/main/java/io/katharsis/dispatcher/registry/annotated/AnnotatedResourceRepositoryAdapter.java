@@ -2,7 +2,7 @@ package io.katharsis.dispatcher.registry.annotated;
 
 import io.katharsis.errorhandling.exception.KatharsisInitializationException;
 import io.katharsis.query.QueryParams;
-import io.katharsis.repository.RepositoryParameterProvider;
+import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.repository.annotations.JsonApiDelete;
 import io.katharsis.repository.annotations.JsonApiFindAll;
 import io.katharsis.repository.annotations.JsonApiFindAllWithIds;
@@ -41,27 +41,27 @@ public class AnnotatedResourceRepositoryAdapter<T, ID extends Serializable> exte
         deleteMethod = ClassUtils.findMethodWith(implementationClass, JsonApiDelete.class);
     }
 
-    public Object findOne(RepositoryParameterProvider parameterProvider, ID id, QueryParams queryParams) {
+    public Object findOne(RepositoryMethodParameterProvider parameterProvider, ID id, QueryParams queryParams) {
         checkIfNotNull(findOneMethod, JsonApiFindOne.class);
         return invokeOperation(parameterProvider, findOneMethod, new Object[]{id}, queryParams);
     }
 
-    public Object findAll(RepositoryParameterProvider parameterProvider, QueryParams queryParams) {
+    public Object findAll(RepositoryMethodParameterProvider parameterProvider, QueryParams queryParams) {
         checkIfNotNull(findAllMethod, JsonApiFindAll.class);
         return invokeOperation(parameterProvider, findAllMethod, new Object[]{}, queryParams);
     }
 
-    public Object findAll(RepositoryParameterProvider parameterProvider, Iterable<ID> ids, QueryParams queryParams) {
+    public Object findAll(RepositoryMethodParameterProvider parameterProvider, Iterable<ID> ids, QueryParams queryParams) {
         checkIfNotNull(findAllWithIds, JsonApiFindAllWithIds.class);
         return invokeOperation(parameterProvider, findAllWithIds, new Object[]{ids}, queryParams);
     }
 
-    public <S extends T> Object save(RepositoryParameterProvider parameterProvider, S entity) {
+    public <S extends T> Object save(RepositoryMethodParameterProvider parameterProvider, S entity) {
         checkIfNotNull(saveMethod, JsonApiSave.class);
         return invokeOperation(parameterProvider, saveMethod, new Object[]{entity});
     }
 
-    public void delete(RepositoryParameterProvider parameterProvider, ID id, QueryParams queryParams) {
+    public void delete(RepositoryMethodParameterProvider parameterProvider, ID id, QueryParams queryParams) {
         checkIfNotNull(deleteMethod, JsonApiDelete.class);
         invokeOperation(parameterProvider, deleteMethod, new Object[]{id}, queryParams);
     }

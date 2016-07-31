@@ -5,7 +5,7 @@ import io.katharsis.dispatcher.JsonApiDispatcher;
 import io.katharsis.dispatcher.ResponseContext;
 import io.katharsis.errorhandling.exception.KatharsisInitializationException;
 import io.katharsis.errorhandling.exception.KatharsisMatchingException;
-import io.katharsis.repository.RepositoryParameterProvider;
+import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.Request;
 import io.katharsis.request.path.JsonApiPath;
 import io.katharsis.rs.parameterProvider.JaxRsParameterProvider;
@@ -104,7 +104,7 @@ public class KatharsisFilter implements ContainerRequestFilter {
 
             String httpMethod = requestContext.getMethod();
 
-            RepositoryParameterProvider parameterProvider = new JaxRsParameterProvider(objectMapper, requestContext, parameterProviderRegistry);
+            RepositoryMethodParameterProvider parameterProvider = new JaxRsParameterProvider(objectMapper, requestContext, parameterProviderRegistry);
 
             JsonApiPath path = JsonApiPath.parsePathFromStringUrl(uriInfo.getAbsolutePath().toURL(), webPathPrefix);
 

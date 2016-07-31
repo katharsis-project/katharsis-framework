@@ -3,7 +3,7 @@ package io.katharsis.dispatcher.registry.api;
 import io.katharsis.domain.api.LinksInformation;
 import io.katharsis.query.QueryParams;
 import io.katharsis.repository.RelationshipRepository;
-import io.katharsis.repository.RepositoryParameterProvider;
+import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.repository.ResourceRepository;
 
 /**
@@ -18,5 +18,5 @@ public interface LinksRepository<T> {
      * @param queryParams parameters sent along with the request
      * @return meta information object
      */
-    LinksInformation getLinksInformation(RepositoryParameterProvider parameterProvider, Iterable<T> resources, QueryParams queryParams);
+    LinksInformation getLinksInformation(RepositoryMethodParameterProvider parameterProvider, Iterable<T> resources, QueryParams queryParams);
 }

@@ -18,48 +18,40 @@ package io.katharsis.invoker;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.net.MediaType;
-import io.katharsis.dispatcher.RequestDispatcher;
-import io.katharsis.errorhandling.exception.KatharsisMappableException;
+import io.katharsis.dispatcher.JsonApiDispatcher;
+import io.katharsis.dispatcher.ResponseContext;
 import io.katharsis.errorhandling.exception.KatharsisMatchingException;
-import io.katharsis.errorhandling.mapper.KatharsisExceptionMapper;
-import io.katharsis.queryParams.QueryParams;
-import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
-import io.katharsis.request.dto.RequestBody;
-import io.katharsis.request.path.JsonPath;
-import io.katharsis.request.path.PathBuilder;
-import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.response.BaseResponseContext;
-import io.katharsis.servlet.util.QueryStringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.katharsis.request.Request;
+import io.katharsis.request.path.JsonApiPath;
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
-import java.util.Map;
-import java.util.Scanner;
-import java.util.Set;
+import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * Katharsis dispatcher invoker.
  */
+@Slf4j
 public class KatharsisInvoker {
-
-    private static Logger log = LoggerFactory.getLogger(KatharsisInvoker.class);
 
     private static int BUFFER_SIZE = 4096;
 
     private ObjectMapper objectMapper;
-    private QueryParamsBuilder queryParamsBuilder;
-    private ResourceRegistry resourceRegistry;
-    private RequestDispatcher requestDispatcher;
+    private JsonApiDispatcher requestDispatcher;
+    private String apiMountPath;
 
-    public KatharsisInvoker(ObjectMapper objectMapper, QueryParamsBuilder queryParamsBuilder,
-                            ResourceRegistry resourceRegistry, RequestDispatcher requestDispatcher) {
+    public KatharsisInvoker(@NonNull ObjectMapper objectMapper,
+                            @NonNull JsonApiDispatcher requestDispatcher,
+                            @NonNull String apiMountPath) {
         this.objectMapper = objectMapper;
-        this.queryParamsBuilder = queryParamsBuilder;
-        this.resourceRegistry = resourceRegistry;
         this.requestDispatcher = requestDispatcher;
+        this.apiMountPath = apiMountPath;
     }
 
     public void invoke(KatharsisInvokerContext invokerContext) throws KatharsisInvokerException {
@@ -75,33 +67,26 @@ public class KatharsisInvoker {
     }
 
     private void dispatchRequest(KatharsisInvokerContext invokerContext) throws Exception {
-        BaseResponseContext katharsisResponse = null;
-
-        boolean passToMethodMatcher = false;
-
+        ResponseContext katharsisResponse = null;
         InputStream in = null;
 
         try {
-            JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath(invokerContext.getRequestPath());
-
-            QueryParams queryParams = createQueryParams(invokerContext);
-
             in = invokerContext.getRequestEntityStream();
-            RequestBody requestBody = inputStreamToBody(in);
 
             String method = invokerContext.getRequestMethod();
             RepositoryMethodParameterProvider parameterProvider = invokerContext.getParameterProvider();
-            katharsisResponse = requestDispatcher.dispatchRequest(jsonPath, method, queryParams, parameterProvider,
-                                                                  requestBody);
-        } catch (KatharsisMappableException e) {
-            if (log.isDebugEnabled()) {
-                log.warn("Error occurred while dispatching katharsis request. " + e, e);
-            } else {
-                log.warn("Error occurred while dispatching katharsis request. " + e);
-            }
-            katharsisResponse = new KatharsisExceptionMapper().toErrorResponse(e);
+
+            JsonApiPath path = JsonApiPath.parsePathFromStringUrl(invokerContext.getRequestPath(), apiMountPath);
+            Request request = new Request(path, method, in, parameterProvider);
+
+            katharsisResponse = requestDispatcher.handle(request);
+
         } catch (KatharsisMatchingException e) {
-            passToMethodMatcher = true;
+            //TODO: ieugen: handle exception
+            log.error("Exception {}", e);
+        } catch (Exception ex) {
+            //TODO: ieugen: handle exception
+            log.error("Exception {}", ex);
         } finally {
             closeQuietly(in);
 
@@ -134,7 +119,7 @@ public class KatharsisInvoker {
         String acceptHeader = invokerContext.getRequestHeader("Accept");
 
         if (acceptHeader != null) {
-            String [] accepts = acceptHeader.split(",");
+            String[] accepts = acceptHeader.split(",");
             MediaType acceptableType;
 
             for (String mediaTypeItem : accepts) {
@@ -147,27 +132,6 @@ public class KatharsisInvoker {
         }
 
         return false;
-    }
-
-    private QueryParams createQueryParams(KatharsisInvokerContext invokerContext) {
-        Map<String, Set<String>> queryParameters =
-            QueryStringUtils.parseQueryStringAsSingleValueMap(invokerContext);
-        return this.queryParamsBuilder.buildQueryParams(queryParameters);
-    }
-
-    private RequestBody inputStreamToBody(InputStream is) throws IOException {
-        if (is == null) {
-            return null;
-        }
-
-        Scanner s = new Scanner(is).useDelimiter("\\A");
-        String requestBody = s.hasNext() ? s.next() : "";
-
-        if (requestBody == null || requestBody.isEmpty()) {
-            return null;
-        }
-
-        return objectMapper.readValue(requestBody, RequestBody.class);
     }
 
     private void closeQuietly(Closeable closeable) {

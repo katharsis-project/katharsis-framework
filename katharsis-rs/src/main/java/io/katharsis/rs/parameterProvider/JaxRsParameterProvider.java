@@ -1,7 +1,7 @@
 package io.katharsis.rs.parameterProvider;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.katharsis.repository.RepositoryParameterProvider;
+import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.rs.parameterProvider.provider.Parameter;
 import io.katharsis.rs.parameterProvider.provider.RequestContextParameterProvider;
 import io.katharsis.utils.java.Optional;
@@ -33,7 +33,7 @@ import java.lang.reflect.Method;
  * {@link CookieParam}, an instance of {@link ObjectMapper} is used to map the value to the desired type.
  * </p>
  */
-public class JaxRsParameterProvider implements RepositoryParameterProvider {
+public class JaxRsParameterProvider implements RepositoryMethodParameterProvider {
 
     private final ObjectMapper objectMapper;
     private final ContainerRequestContext requestContext;

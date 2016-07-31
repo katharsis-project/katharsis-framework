@@ -17,7 +17,7 @@ import java.lang.reflect.Method;
  * parameter to be a resource identifier to be found. However, it is not the only parameter that can be defined.
  * It's possible to pass additional, web framework dependant objects associated with a request. When using JAX-RS
  * integration, it's possible to pass <b>javax.ws.rs.core.SecurityContext</b>. To allow doing that, JAX-RS adapter
- * has implemented {@link RepositoryParameterProvider} to pass several framework classes to the repository method.
+ * has implemented {@link RepositoryMethodParameterProvider} to pass several framework classes to the repository method.
  * An example below shows a sample repository which makes use of JAX-RS integration:
  * <pre>
  * {@code
@@ -31,7 +31,7 @@ import java.lang.reflect.Method;
  *     This interface has to be implemented for every Katharsis web framework integration.
  * </p>
  */
-public interface RepositoryParameterProvider {
+public interface RepositoryMethodParameterProvider {
 
     /**
      * Return an instance of a custom parameter.

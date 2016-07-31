@@ -2,7 +2,7 @@ package io.katharsis.resource.registry;
 
 import io.katharsis.dispatcher.registry.annotated.ParametersFactory;
 import io.katharsis.locator.NewInstanceRepositoryFactory;
-import io.katharsis.repository.RepositoryParameterProvider;
+import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.repository.exception.RepositoryInstanceNotFoundException;
 import io.katharsis.repository.mock.NewInstanceRepositoryParameterProvider;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
@@ -32,7 +32,7 @@ public class ResourceRegistryBuilderTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
     private ResourceInformationBuilder resourceInformationBuilder;
-    private RepositoryParameterProvider provider = new NewInstanceRepositoryParameterProvider();
+    private RepositoryMethodParameterProvider provider = new NewInstanceRepositoryParameterProvider();
     ParametersFactory parametersFactory = new ParametersFactory();
 
     @Before

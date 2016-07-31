@@ -14,7 +14,7 @@ import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryBuilder
 import io.katharsis.itests.tck.ProjectRepository
 import io.katharsis.itests.tck.TaskRepository
 import io.katharsis.jackson.JsonApiModuleBuilder
-import io.katharsis.repository.RepositoryParameterProvider
+import io.katharsis.repository.RepositoryMethodParameterProvider
 import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
@@ -80,7 +80,7 @@ open class IntegrationConfig {
     }
 
     @Bean
-    open fun paramProvider(): RepositoryParameterProvider {
+    open fun paramProvider(): RepositoryMethodParameterProvider {
         return ParamProvider(context)
     }
 
@@ -94,7 +94,7 @@ open class IntegrationConfig {
     }
 }
 
-class ParamProvider(val context: ApplicationContext) : RepositoryParameterProvider {
+class ParamProvider(val context: ApplicationContext) : RepositoryMethodParameterProvider {
 
     override fun <T> provide(method: Method?, parameterIndex: Int): T {
         val aClass = method!!.getParameterTypes()[parameterIndex]

@@ -5,7 +5,7 @@ import io.katharsis.dispatcher.registry.api.MetaRepository;
 import io.katharsis.domain.api.LinksInformation;
 import io.katharsis.domain.api.MetaInformation;
 import io.katharsis.query.QueryParams;
-import io.katharsis.repository.RepositoryParameterProvider;
+import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.repository.annotations.JsonApiLinks;
 import io.katharsis.repository.annotations.JsonApiMeta;
 import io.katharsis.repository.exception.RepositoryAnnotationNotFoundException;
@@ -34,7 +34,7 @@ public abstract class AnnotatedRepositoryAdapter<T> implements LinksRepository<T
     }
 
     @Override
-    public LinksInformation getLinksInformation(RepositoryParameterProvider parameterProvider, Iterable<T> resources, QueryParams queryParams) {
+    public LinksInformation getLinksInformation(RepositoryMethodParameterProvider parameterProvider, Iterable<T> resources, QueryParams queryParams) {
         checkIfNotNull(linksMethod, JsonApiLinks.class);
 
         Object[] methodParameters = parametersFactory
@@ -44,7 +44,7 @@ public abstract class AnnotatedRepositoryAdapter<T> implements LinksRepository<T
     }
 
     @Override
-    public MetaInformation getMetaInformation(RepositoryParameterProvider parameterProvider, Iterable<T> resources, QueryParams queryParams) {
+    public MetaInformation getMetaInformation(RepositoryMethodParameterProvider parameterProvider, Iterable<T> resources, QueryParams queryParams) {
         checkIfNotNull(metaMethod, JsonApiMeta.class);
 
         Object[] methodParameters = parametersFactory
@@ -60,12 +60,12 @@ public abstract class AnnotatedRepositoryAdapter<T> implements LinksRepository<T
         }
     }
 
-    protected <TYPE> TYPE invokeOperation(RepositoryParameterProvider parameterProvider, Method foundMethod, Object[] firstParameters) {
+    protected <TYPE> TYPE invokeOperation(RepositoryMethodParameterProvider parameterProvider, Method foundMethod, Object[] firstParameters) {
         Object[] methodParameters = parametersFactory.buildParameters(parameterProvider, firstParameters, foundMethod);
         return invoke(foundMethod, methodParameters);
     }
 
-    protected <TYPE> TYPE invokeOperation(RepositoryParameterProvider parameterProvider, Method foundMethod, Object[] firstParameters, QueryParams queryParams) {
+    protected <TYPE> TYPE invokeOperation(RepositoryMethodParameterProvider parameterProvider, Method foundMethod, Object[] firstParameters, QueryParams queryParams) {
         Object[] methodParameters = parametersFactory.buildParameters(parameterProvider, firstParameters, foundMethod, queryParams);
         return invoke(foundMethod, methodParameters);
     }

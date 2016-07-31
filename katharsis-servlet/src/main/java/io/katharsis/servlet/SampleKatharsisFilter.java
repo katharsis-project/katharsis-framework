@@ -16,9 +16,9 @@
  */
 package io.katharsis.servlet;
 
+import io.katharsis.dispatcher.registry.annotated.ParametersFactory;
 import io.katharsis.invoker.KatharsisInvokerBuilder;
-import io.katharsis.locator.JsonServiceLocator;
-import io.katharsis.locator.SampleJsonServiceLocator;
+import io.katharsis.locator.NewInstanceRepositoryFactory;
 
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
@@ -54,16 +54,16 @@ public class SampleKatharsisFilter extends AbstractKatharsisFilter {
     }
 
     /**
-     * NOTE: A class extending this must provide a platform specific {@link JsonServiceLocator}
-     *       instead of the (testing-purpose) {@link SampleJsonServiceLocator} below
-     *       in order to provide advanced dependency injections for the repositories.
+     * NOTE: A class extending this must provide a platform specific {@link io.katharsis.locator.RepositoryFactory}
+     * instead of the (testing-purpose) {@link io.katharsis.locator.RepositoryFactory} below
+     * in order to provide advanced dependency injections for the repositories.
      */
     @Override
     protected KatharsisInvokerBuilder createKatharsisInvokerBuilder() {
         return new KatharsisInvokerBuilder()
                 .resourceSearchPackage(getResourceSearchPackage())
                 .resourceDefaultDomain(getResourceDefaultDomain())
-                .jsonServiceLocator(new SampleJsonServiceLocator());
+                .repositoryFactory(new NewInstanceRepositoryFactory(new ParametersFactory()));
     }
 
 }

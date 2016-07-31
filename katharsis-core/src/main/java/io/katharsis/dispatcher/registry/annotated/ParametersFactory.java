@@ -1,7 +1,7 @@
 package io.katharsis.dispatcher.registry.annotated;
 
 import io.katharsis.query.QueryParams;
-import io.katharsis.repository.RepositoryParameterProvider;
+import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.repository.exception.RepositoryMethodException;
 
 import java.lang.reflect.Method;
@@ -31,7 +31,7 @@ public class ParametersFactory {
      * @param queryParams     {@link QueryParams} object associated with the request
      * @return array of resolved parameters
      */
-    public Object[] buildParameters(RepositoryParameterProvider parameterProvider, Object[] firstParameters, Method method, QueryParams queryParams) {
+    public Object[] buildParameters(RepositoryMethodParameterProvider parameterProvider, Object[] firstParameters, Method method, QueryParams queryParams) {
         int parametersLength = method.getParameterTypes().length;
         if (firstParameters.length > 0 && parametersLength < 1) {
             throw new RepositoryMethodException(
@@ -58,7 +58,7 @@ public class ParametersFactory {
      * @param method          repository method
      * @return array of resolved parameters
      */
-    public Object[] buildParameters(RepositoryParameterProvider parameterProvider, Object[] firstParameters, Method method) {
+    public Object[] buildParameters(RepositoryMethodParameterProvider parameterProvider, Object[] firstParameters, Method method) {
         int parametersLength = method.getParameterTypes().length;
         if (firstParameters.length > 0 && parametersLength < 1) {
             throw new RepositoryMethodException(

@@ -2,7 +2,7 @@ package io.katharsis.resource.registry.repository;
 
 import io.katharsis.repository.ParametersFactory;
 import io.katharsis.repository.RepositoryInstanceBuilder;
-import io.katharsis.repository.RepositoryParameterProvider;
+import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.repository.annotated.AnnotatedRelationshipRepositoryAdapter;
 import io.katharsis.repository.annotations.JsonApiRelationshipRepository;
 import io.katharsis.utils.ClassUtils;
@@ -34,7 +34,7 @@ public class AnnotatedRelationshipEntryBuilder<T, D> implements ResponseRelation
         }
     }
 
-    public AnnotatedRelationshipRepositoryAdapter build(RepositoryParameterProvider parameterProvider) {
+    public AnnotatedRelationshipRepositoryAdapter build(RepositoryMethodParameterProvider parameterProvider) {
         return new AnnotatedRelationshipRepositoryAdapter<>(repositoryInstanceBuilder.buildRepository(),
                 new ParametersFactory(parameterProvider));
     }

@@ -48,7 +48,7 @@ public class KatharsisFilter extends SampleKatharsisFilter implements BeanFactor
     protected KatharsisInvokerBuilder createKatharsisInvokerBuilder() {
         builder.resourceSearchPackage(resourceSearchPackage)
             .resourceDefaultDomain(resourceDomain)
-            .jsonServiceLocator(new JsonServiceLocator() {
+            .repositoryFactory(new JsonServiceLocator() {
 
                 @Override
                 public <T> T getInstance(Class<T> clazz) {

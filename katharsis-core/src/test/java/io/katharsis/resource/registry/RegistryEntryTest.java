@@ -3,7 +3,7 @@ package io.katharsis.resource.registry;
 import io.katharsis.dispatcher.registry.annotated.ParametersFactory;
 import io.katharsis.locator.NewInstanceRepositoryFactory;
 import io.katharsis.repository.RepositoryInstanceBuilder;
-import io.katharsis.repository.RepositoryParameterProvider;
+import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.repository.exception.RelationshipRepositoryNotFoundException;
 import io.katharsis.repository.mock.NewInstanceRepositoryParameterProvider;
 import io.katharsis.resource.information.ResourceInformation;
@@ -35,7 +35,7 @@ public class RegistryEntryTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
-    RepositoryParameterProvider provider = new NewInstanceRepositoryParameterProvider();
+    RepositoryMethodParameterProvider provider = new NewInstanceRepositoryParameterProvider();
 
     ParametersFactory parametersFactory = new ParametersFactory();
 

@@ -1,6 +1,6 @@
 package io.katharsis.resource.registry;
 
-import io.katharsis.repository.RepositoryParameterProvider;
+import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.repository.exception.RelationshipRepositoryNotFoundException;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.repository.AnnotatedRelationshipEntryBuilder;
@@ -47,7 +47,7 @@ public class RegistryEntry<T> {
     }
 
     @SuppressWarnings("unchecked")
-    public ResourceRepositoryAdapter getResourceRepository(RepositoryParameterProvider parameterProvider) {
+    public ResourceRepositoryAdapter getResourceRepository(RepositoryMethodParameterProvider parameterProvider) {
         Object repoInstance = null;
         if (resourceEntry instanceof DirectResponseResourceEntry) {
             repoInstance = ((DirectResponseResourceEntry<T, ?>) resourceEntry).getResourceRepository();
@@ -62,7 +62,7 @@ public class RegistryEntry<T> {
     }
 
     @SuppressWarnings("unchecked")
-    public RelationshipRepositoryAdapter getRelationshipRepositoryForClass(Class clazz, RepositoryParameterProvider parameterProvider) {
+    public RelationshipRepositoryAdapter getRelationshipRepositoryForClass(Class clazz, RepositoryMethodParameterProvider parameterProvider) {
         ResponseRelationshipEntry<T, ?> foundRelationshipEntry = null;
         for (ResponseRelationshipEntry<T, ?> relationshipEntry : relationshipEntries) {
             if (clazz == relationshipEntry.getTargetAffiliation()) {
