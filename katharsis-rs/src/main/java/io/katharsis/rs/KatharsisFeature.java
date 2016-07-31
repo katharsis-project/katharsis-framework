@@ -1,15 +1,19 @@
 package io.katharsis.rs;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.katharsis.dispatcher.DefaultJsonApiDispatcher;
+import io.katharsis.dispatcher.JsonApiDispatcher;
 import io.katharsis.dispatcher.RequestDispatcher;
-import io.katharsis.dispatcher.registry.ControllerRegistry;
-import io.katharsis.dispatcher.registry.ControllerRegistryBuilder;
+import io.katharsis.dispatcher.handlers.JsonApiDelete;
+import io.katharsis.dispatcher.handlers.JsonApiGet;
+import io.katharsis.dispatcher.handlers.JsonApiPatch;
+import io.katharsis.dispatcher.handlers.JsonApiPost;
 import io.katharsis.errorhandling.mapper.DefaultExceptionMapperLookup;
 import io.katharsis.errorhandling.mapper.ExceptionMapperLookup;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryBuilder;
 import io.katharsis.jackson.JsonApiModuleBuilder;
-import io.katharsis.locator.JsonServiceLocator;
+import io.katharsis.locator.RepositoryFactory;
 import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.ResourceInformationBuilder;
@@ -34,18 +38,18 @@ import javax.ws.rs.ext.Provider;
  * another projects.
  * <p>
  * This feature has NO {@link Provider} annotation, thus it require to provide an instance of  {@link ObjectMapper} and
- * {@link JsonServiceLocator} to provide instances of resources.
+ * {@link RepositoryFactory} to provide instances of resources.
  */
 @ConstrainedTo(RuntimeType.SERVER)
 public class KatharsisFeature implements Feature {
 
-    private final JsonServiceLocator jsonServiceLocator;
+    private final RepositoryFactory jsonServiceLocator;
     private final ObjectMapper objectMapper;
     private final QueryParamsBuilder queryParamsBuilder;
 
     public KatharsisFeature(ObjectMapper objectMapper,
                             QueryParamsBuilder queryParamsBuilder,
-                            JsonServiceLocator jsonServiceLocator) {
+                            RepositoryFactory jsonServiceLocator) {
         this.objectMapper = objectMapper;
         this.queryParamsBuilder = queryParamsBuilder;
         this.jsonServiceLocator = jsonServiceLocator;
@@ -97,7 +101,7 @@ public class KatharsisFeature implements Feature {
             ExceptionMapperRegistry exceptionMapperRegistry = buildExceptionMapperRegistry(exceptionMapperLookup);
             RequestContextParameterProviderLookup containerRequestContextProviderLookup = createRequestContextProviderLookup(context);
             RequestContextParameterProviderRegistry parameterProviderRegistry = buildParameterProviderRegistry(containerRequestContextProviderLookup);
-            RequestDispatcher requestDispatcher = createRequestDispatcher(resourceRegistry, exceptionMapperRegistry);
+            JsonApiDispatcher requestDispatcher = createRequestDispatcher(resourceRegistry, exceptionMapperRegistry);
 
             katharsisFilter = createKatharsisFilter(resourceRegistry, parameterProviderRegistry, webPathPrefix, requestDispatcher);
         } catch (Exception e) {
@@ -129,16 +133,23 @@ public class KatharsisFeature implements Feature {
     }
 
     protected KatharsisFilter createKatharsisFilter(ResourceRegistry resourceRegistry,
-        RequestContextParameterProviderRegistry parameterProviderRegistry, String webPathPrefix, RequestDispatcher requestDispatcher) throws Exception {
-        return new KatharsisFilter(objectMapper, queryParamsBuilder, resourceRegistry, requestDispatcher, parameterProviderRegistry, webPathPrefix);
+                                                    RequestContextParameterProviderRegistry parameterProviderRegistry,
+                                                    String webPathPrefix,
+                                                    JsonApiDispatcher requestDispatcher) throws Exception {
+
+        return new KatharsisFilter(objectMapper,  requestDispatcher, parameterProviderRegistry, webPathPrefix);
     }
 
-    private RequestDispatcher createRequestDispatcher(ResourceRegistry resourceRegistry,
-        ExceptionMapperRegistry exceptionMapperRegistry) throws Exception {
+    private JsonApiDispatcher createRequestDispatcher(ResourceRegistry resourceRegistry,
+                                                      ExceptionMapperRegistry exceptionMapperRegistry) throws Exception {
         TypeParser typeParser = new TypeParser();
-        ControllerRegistryBuilder controllerRegistryBuilder = new ControllerRegistryBuilder(resourceRegistry,
-            typeParser, objectMapper);
-        ControllerRegistry controllerRegistry = controllerRegistryBuilder.build();
-        return new RequestDispatcher(controllerRegistry, exceptionMapperRegistry);
+
+//        ControllerRegistryBuilder controllerRegistryBuilder = new ControllerRegistryBuilder(resourceRegistry,
+//            typeParser, objectMapper);
+//        ControllerRegistry controllerRegistry = controllerRegistryBuilder.build();
+//
+//        return new RequestDispatcher(controllerRegistry, exceptionMapperRegistry);
+
+        return new DefaultJsonApiDispatcher(new JsonApiGet(null),new JsonApiPost(null),new JsonApiPatch(null),new JsonApiDelete(null));
     }
 }

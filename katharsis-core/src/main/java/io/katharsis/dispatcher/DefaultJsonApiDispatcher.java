@@ -18,7 +18,7 @@ import lombok.NonNull;
  * and katharsis-servlet for usage.
  */
 @Data
-public class JsonApiDispatcherImpl implements JsonApiDispatcher {
+public class DefaultJsonApiDispatcher implements JsonApiDispatcher {
 
     private final JsonApiGet apiGet;
     private final JsonApiPost apiPost;

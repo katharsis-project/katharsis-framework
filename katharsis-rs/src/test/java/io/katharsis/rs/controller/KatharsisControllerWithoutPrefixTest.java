@@ -1,7 +1,8 @@
 package io.katharsis.rs.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.katharsis.locator.SampleJsonServiceLocator;
+import io.katharsis.dispatcher.registry.annotated.ParametersFactory;
+import io.katharsis.locator.NewInstanceRepositoryFactory;
 import io.katharsis.queryParams.DefaultQueryParamsParser;
 import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.rs.KatharsisFeature;
@@ -31,20 +32,9 @@ public class KatharsisControllerWithoutPrefixTest extends KatharsisControllerTes
         return new TestApplication();
     }
 
-    @Override protected String getPrefix() {
+    @Override
+    protected String getPrefix() {
         return null;
-    }
-
-    @ApplicationPath("/")
-    private static class TestApplication extends ResourceConfig {
-        public TestApplication() {
-            property(KatharsisProperties.RESOURCE_SEARCH_PACKAGE, "io.katharsis.rs.resource");
-            property(KatharsisProperties.RESOURCE_DEFAULT_DOMAIN, "http://test.local");
-            register(SampleControllerWithoutPrefix.class);
-            register(SampleOverlayingController.class);
-            register(new KatharsisFeature(new ObjectMapper(), new QueryParamsBuilder(new DefaultQueryParamsParser()), new SampleJsonServiceLocator()));
-
-        }
     }
 
     @Test
@@ -69,5 +59,18 @@ public class KatharsisControllerWithoutPrefixTest extends KatharsisControllerTes
 
         // THEN
         assertThat(response).isEqualTo(SampleOverlayingController.NON_KATHARSIS_RESOURCE_OVERLAY_RESPONSE);
+    }
+
+    @ApplicationPath("/")
+    private static class TestApplication extends ResourceConfig {
+        public TestApplication() {
+            property(KatharsisProperties.RESOURCE_SEARCH_PACKAGE, "io.katharsis.rs.resource");
+            property(KatharsisProperties.RESOURCE_DEFAULT_DOMAIN, "http://test.local");
+            register(SampleControllerWithoutPrefix.class);
+            register(SampleOverlayingController.class);
+            register(new KatharsisFeature(new ObjectMapper(), new QueryParamsBuilder(new DefaultQueryParamsParser()),
+                    new NewInstanceRepositoryFactory(new ParametersFactory())));
+
+        }
     }
 }

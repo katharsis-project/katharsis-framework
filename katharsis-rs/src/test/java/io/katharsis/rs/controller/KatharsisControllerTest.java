@@ -1,6 +1,5 @@
 package io.katharsis.rs.controller;
 
-import io.katharsis.request.path.PathBuilder;
 import io.katharsis.response.HttpStatus;
 import io.katharsis.rs.resource.exception.ExampleException;
 import org.glassfish.jersey.test.JerseyTest;
@@ -9,11 +8,10 @@ import org.junit.Test;
 
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.net.URLEncoder;
 
 import static io.katharsis.rs.type.JsonApiMediaType.APPLICATION_JSON_API_TYPE;
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public abstract class KatharsisControllerTest extends JerseyTest {
 
@@ -21,8 +19,8 @@ public abstract class KatharsisControllerTest extends JerseyTest {
     public void onSimpleCollectionGetShouldReturnCollectionOfResources() {
         // WHEN
         String taskCollectionResponse = target(getPrefixForPath() + "tasks/")
-            .request(APPLICATION_JSON_API_TYPE)
-            .get(String.class);
+                .request(APPLICATION_JSON_API_TYPE)
+                .get(String.class);
 
         // THEN
         Assert.assertNotNull(taskCollectionResponse);
@@ -33,23 +31,23 @@ public abstract class KatharsisControllerTest extends JerseyTest {
         // WHEN
         String headerTestValue = "test value";
         String taskResourceResponse = target(getPrefixForPath() + "tasks/1")
-            .queryParam("filter")
-            .request(APPLICATION_JSON_API_TYPE)
-            .header("X-test", headerTestValue)
-            .get(String.class);
+                .queryParam("filter")
+                .request(APPLICATION_JSON_API_TYPE)
+                .header("X-test", headerTestValue)
+                .get(String.class);
 
         assertThatJson(taskResourceResponse)
-        .node("data").isPresent()
-        .node("data.attributes.name").isStringEqualTo(headerTestValue);
+                .node("data").isPresent()
+                .node("data.attributes.name").isStringEqualTo(headerTestValue);
     }
 
     @Test
     public void onCollectionRequestWithParamsGetShouldReturnCollection() {
         // WHEN
         String taskResourceResponse = target(getPrefixForPath() + "tasks")
-            .queryParam("filter[name]", "John")
-            .request(APPLICATION_JSON_API_TYPE)
-            .get(String.class);
+                .queryParam("filter[name]", "John")
+                .request(APPLICATION_JSON_API_TYPE)
+                .get(String.class);
 
         // THEN
         Assert.assertNotNull(taskResourceResponse);
@@ -60,14 +58,14 @@ public abstract class KatharsisControllerTest extends JerseyTest {
 
         //Getting task of id = 5, simulates error and is throwing an exception we want to check.
         Response errorResponse = target(getPrefixForPath() + "tasks/5")
-            .request(APPLICATION_JSON_API_TYPE)
-            .get();
+                .request(APPLICATION_JSON_API_TYPE)
+                .get();
 
         assertThat(errorResponse.getStatus()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR_500);
         String errorBody = errorResponse.readEntity(String.class);
         assertThatJson(errorBody)
-            .node("errors").isPresent()
-            .node("errors[0].id").isStringEqualTo(ExampleException.ERROR_ID);
+                .node("errors").isPresent()
+                .node("errors[0].id").isStringEqualTo(ExampleException.ERROR_ID);
         assertThatJson(errorBody).node("errors[0].title").isStringEqualTo(ExampleException.ERROR_TITLE);
     }
 
@@ -75,8 +73,8 @@ public abstract class KatharsisControllerTest extends JerseyTest {
     public void onNonJsonApiRequestShouldReturnOk() {
         // WHEN
         String response = target(getPrefixForPath() + "tasks/sample")
-            .request()
-            .get(String.class);
+                .request()
+                .get(String.class);
 
         // THEN
         assertThat(response).isEqualTo(SampleControllerWithoutPrefix.NON_KATHARSIS_RESOURCE_RESPONSE);
@@ -84,7 +82,7 @@ public abstract class KatharsisControllerTest extends JerseyTest {
 
     private String getPrefixForPath() {
         String prefix = getPrefix();
-        return prefix != null ? prefix + PathBuilder.SEPARATOR : "";
+        return prefix != null ? prefix + "/" : "";
     }
 
     protected abstract String getPrefix();

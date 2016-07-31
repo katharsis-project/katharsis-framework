@@ -3,7 +3,7 @@ package io.katharsis.itests
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.common.base.Throwables
-import io.katharsis.dispatcher.JsonApiDispatcherImpl
+import io.katharsis.dispatcher.DefaultJsonApiDispatcher
 import io.katharsis.dispatcher.handlers.JsonApiDelete
 import io.katharsis.dispatcher.handlers.JsonApiGet
 import io.katharsis.dispatcher.handlers.JsonApiPatch
@@ -38,7 +38,7 @@ open class KatharsisIntegrationSupport {
     lateinit var projectRepository: ProjectRepository
 
     @Autowired
-    lateinit var requestDispatcher: JsonApiDispatcherImpl
+    lateinit var requestDispatcher: DefaultJsonApiDispatcher
 
     @Autowired
     lateinit var paramProvider: ParamProvider
@@ -85,9 +85,9 @@ open class IntegrationConfig {
 
     @Bean
     @Autowired
-    open fun requestDispatcher(objectMapper: ObjectMapper, registry: RepositoryRegistry): JsonApiDispatcherImpl {
+    open fun requestDispatcher(objectMapper: ObjectMapper, registry: RepositoryRegistry): DefaultJsonApiDispatcher {
 //        exceptionMapperRegistry, resourceRegistry,        TypeParser(), objectMapper, QueryParamsBuilder(DefaultQueryParamsParser())
-        return JsonApiDispatcherImpl(JsonApiGet(registry), JsonApiPost(registry), JsonApiPatch(registry), JsonApiDelete(registry));
+        return DefaultJsonApiDispatcher(JsonApiGet(registry), JsonApiPost(registry), JsonApiPatch(registry), JsonApiDelete(registry));
     }
 }
 

@@ -1,6 +1,6 @@
 package io.katharsis.rs.parameterProvider;
 
-import io.katharsis.locator.JsonServiceLocator;
+import io.katharsis.locator.RepositoryFactory;
 import io.katharsis.resource.exception.init.InvalidResourceException;
 import io.katharsis.rs.parameterProvider.provider.RequestContextParameterProvider;
 import org.reflections.Reflections;
@@ -12,9 +12,9 @@ import java.util.Set;
 public class RequestContextParameterProviderLookup {
 
     private String resourceSearchPackage;
-    private JsonServiceLocator jsonServiceLocator;
+    private RepositoryFactory jsonServiceLocator;
 
-    public RequestContextParameterProviderLookup(String resourceSearchPackage, JsonServiceLocator jsonServiceLocator) {
+    public RequestContextParameterProviderLookup(String resourceSearchPackage, RepositoryFactory jsonServiceLocator) {
         this.resourceSearchPackage = resourceSearchPackage;
         this.jsonServiceLocator = jsonServiceLocator;
     }

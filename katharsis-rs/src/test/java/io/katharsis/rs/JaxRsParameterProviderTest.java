@@ -1,7 +1,8 @@
 package io.katharsis.rs;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.katharsis.locator.SampleJsonServiceLocator;
+import io.katharsis.dispatcher.registry.annotated.ParametersFactory;
+import io.katharsis.locator.NewInstanceRepositoryFactory;
 import io.katharsis.rs.parameterProvider.JaxRsParameterProvider;
 import io.katharsis.rs.parameterProvider.RequestContextParameterProviderLookup;
 import io.katharsis.rs.parameterProvider.RequestContextParameterProviderRegistry;
@@ -68,7 +69,8 @@ public class JaxRsParameterProviderTest {
     }
 
     private RequestContextParameterProviderLookup createRequestContextProviderLookup() {
-        return new RequestContextParameterProviderLookup("io.katharsis.rs.resource", new SampleJsonServiceLocator());
+        return new RequestContextParameterProviderLookup("io.katharsis.rs.resource",
+                new NewInstanceRepositoryFactory(new ParametersFactory()));
     }
 
     private RequestContextParameterProviderRegistry buildParameterProviderRegistry(RequestContextParameterProviderLookup containerRequestContextProviderLookup) {
