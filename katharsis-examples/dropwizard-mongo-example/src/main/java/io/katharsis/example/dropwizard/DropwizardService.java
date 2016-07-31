@@ -10,7 +10,7 @@ import io.katharsis.example.dropwizard.domain.repository.ProjectRepository;
 import io.katharsis.example.dropwizard.domain.repository.TaskRepository;
 import io.katharsis.example.dropwizard.domain.repository.TaskToProjectRepository;
 import io.katharsis.example.dropwizard.managed.MongoManaged;
-import io.katharsis.locator.JsonServiceLocator;
+import io.katharsis.locator.RepositoryFactory;
 import io.katharsis.queryParams.DefaultQueryParamsParser;
 import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.rs.KatharsisFeature;
@@ -56,10 +56,15 @@ public class DropwizardService extends Application<DropwizardConfiguration> {
 
         KatharsisFeature katharsisFeature = new KatharsisFeature(environment.getObjectMapper(),
                 new QueryParamsBuilder(new DefaultQueryParamsParser()),
-                new JsonServiceLocator() {
+                new RepositoryFactory() {
                     @Override
                     public <T> T getInstance(Class<T> aClass) {
                         return guiceBundle.getInjector().getInstance(aClass);
+                    }
+
+                    @Override
+                    public Object build(Class clazz) {
+                        return guiceBundle.getInjector().getInstance(clazz);
                     }
                 });
         environment.jersey().register(katharsisFeature);

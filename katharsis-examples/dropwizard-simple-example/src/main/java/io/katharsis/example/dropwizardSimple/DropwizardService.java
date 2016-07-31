@@ -2,7 +2,8 @@ package io.katharsis.example.dropwizardSimple;
 
 import io.dropwizard.Application;
 import io.dropwizard.setup.Environment;
-import io.katharsis.locator.SampleJsonServiceLocator;
+import io.katharsis.dispatcher.registry.annotated.ParametersFactory;
+import io.katharsis.locator.NewInstanceRepositoryFactory;
 import io.katharsis.queryParams.DefaultQueryParamsParser;
 import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.rs.KatharsisFeature;
@@ -20,7 +21,7 @@ public class DropwizardService extends Application<DropwizardConfiguration> {
 
         KatharsisFeature katharsisFeature = new KatharsisFeature(environment.getObjectMapper(),
                 new QueryParamsBuilder(new DefaultQueryParamsParser()),
-                new SampleJsonServiceLocator());
+                new NewInstanceRepositoryFactory(new ParametersFactory()));
         environment.jersey().register(katharsisFeature);
     }
 

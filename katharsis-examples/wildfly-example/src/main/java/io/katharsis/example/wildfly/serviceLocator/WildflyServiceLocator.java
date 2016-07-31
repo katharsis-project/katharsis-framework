@@ -1,13 +1,13 @@
 package io.katharsis.example.wildfly.serviceLocator;
 
-import io.katharsis.locator.JsonServiceLocator;
+import io.katharsis.locator.RepositoryFactory;
 
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.inject.spi.CDI;
 
-public class WildflyServiceLocator implements JsonServiceLocator {
+public class WildflyServiceLocator implements RepositoryFactory {
 
     @Override
     public <T> T getInstance(Class<T> aClass) {
@@ -16,5 +16,10 @@ public class WildflyServiceLocator implements JsonServiceLocator {
         CreationalContext creationalContext = beanManager.createCreationalContext(bean);
 
         return (T) beanManager.getReference(bean, aClass, creationalContext);
+    }
+
+    @Override
+    public Object build(Class clazz) {
+        return getInstance(clazz);
     }
 }
