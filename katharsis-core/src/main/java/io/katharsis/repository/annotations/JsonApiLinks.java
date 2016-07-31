@@ -1,5 +1,7 @@
 package io.katharsis.repository.annotations;
 
+import io.katharsis.domain.api.LinksInformation;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -19,7 +21,7 @@ import java.lang.annotation.Target;
  *     <li>A list of resources</li>
  * </ol>
  * <p>
- * The return value must be an instance of {@link io.katharsis.response.LinksInformation} type.
+ * The return value must be an instance of {@link LinksInformation} type.
  * </p>
  *
  * @see io.katharsis.repository.LinksRepository

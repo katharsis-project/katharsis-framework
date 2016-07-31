@@ -1,5 +1,6 @@
 package io.katharsis.jackson;
 
+import io.katharsis.dispatcher.registry.annotated.ParametersFactory;
 import io.katharsis.jackson.mock.models.ClassA;
 import io.katharsis.jackson.mock.models.ClassAWithInclusion;
 import io.katharsis.jackson.mock.models.ClassB;
@@ -7,13 +8,11 @@ import io.katharsis.jackson.mock.models.ClassBWithInclusion;
 import io.katharsis.jackson.mock.models.ClassCWithInclusion;
 import io.katharsis.jackson.serializer.include.IncludedRelationshipExtractor;
 import io.katharsis.jackson.serializer.include.ResourceDigest;
-import io.katharsis.locator.SampleJsonServiceLocator;
+import io.katharsis.locator.NewInstanceRepositoryFactory;
 import io.katharsis.queryParams.DefaultQueryParamsParser;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
-import io.katharsis.request.path.JsonPath;
-import io.katharsis.request.path.PathBuilder;
-import io.katharsis.request.path.ResourcePath;
+import io.katharsis.request.path.JsonApiPath;
 import io.katharsis.resource.exception.ResourceFieldNotFoundException;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.ResourceInformationBuilder;
@@ -29,31 +28,33 @@ import io.katharsis.response.ResourceResponseContext;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class IncludedRelationshipExtractorTest {
 
+    ParametersFactory parametersFactory = new ParametersFactory();
     private IncludedRelationshipExtractor sut;
     private ResourceResponseContext testResponse;
 
     @Before
     public void setUp() throws Exception {
         ResourceInformationBuilder resourceInformationBuilder = new ResourceInformationBuilder(
-            new ResourceFieldNameTransformer());
+                new ResourceFieldNameTransformer());
 
-        ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonServiceLocator(),
-            resourceInformationBuilder);
+        ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(
+                new NewInstanceRepositoryFactory(parametersFactory), resourceInformationBuilder);
 
         String resourceSearchPackage = String.format("%s,%s", ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE,
-            "io.katharsis.jackson.mock");
+                "io.katharsis.jackson.mock");
         ResourceRegistry resourceRegistry = registryBuilder
-            .build(resourceSearchPackage, ResourceRegistryTest.TEST_MODELS_URL);
+                .build(resourceSearchPackage, ResourceRegistryTest.TEST_MODELS_URL);
 
         sut = new IncludedRelationshipExtractor(resourceRegistry);
 
-        JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath("/tasks");
+        JsonApiPath jsonPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/task");
         testResponse = new ResourceResponseContext(new JsonApiResponse(), jsonPath, new QueryParams());
     }
 
@@ -108,7 +109,7 @@ public class IncludedRelationshipExtractorTest {
         assertThat(result).containsKeys(new ResourceDigest(42L, "classBsWithInclusion"),
                 new ResourceDigest(43L, "classCsWithInclusion"));
         assertThat(result).containsValues(new Container(classBWithInclusion, testResponse),
-            new Container(classCWithInclusion, testResponse));
+                new Container(classCWithInclusion, testResponse));
     }
 
     @Test
@@ -131,10 +132,12 @@ public class IncludedRelationshipExtractorTest {
     public void onInclusionWithDefaultInclusionShouldReturnOneElement() throws Exception {
         // GIVEN
         QueryParams queryParams = getRequestParamsWithInclusion("include[classAsWithInclusion]",
-            "classBsWithInclusion");
+                "classBsWithInclusion");
 
+        JsonApiPath jsonPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/classAsWithInclusion");
         ResourceResponseContext response = new ResourceResponseContext(new JsonApiResponse(),
-            new ResourcePath("classAsWithInclusion"), queryParams);
+                jsonPath, queryParams);
+
         ClassBWithInclusion classBsWithInclusion = new ClassBWithInclusion()
                 .setId(42L);
         ClassAWithInclusion classAWithInclusion = new ClassAWithInclusion(classBsWithInclusion);
@@ -152,10 +155,11 @@ public class IncludedRelationshipExtractorTest {
     public void onInclusionShouldReturnOneElement() throws Exception {
         // GIVEN
         QueryParams queryParams = getRequestParamsWithInclusion("include[classAs]",
-            "classBs");
+                "classBs");
 
+        JsonApiPath jsonPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/classAs");
         ResourceResponseContext response = new ResourceResponseContext(new JsonApiResponse(),
-            new ResourcePath("classAs"), queryParams);
+                jsonPath, queryParams);
         ClassB classBs = new ClassB(null)
                 .setId(42L);
         ClassA classA = new ClassA(classBs);
@@ -173,10 +177,10 @@ public class IncludedRelationshipExtractorTest {
     public void onNonExistingInclusionShouldReturnMatchingError() throws Exception {
         // GIVEN
         QueryParams queryParams = getRequestParamsWithInclusion("include[classAs]",
-            "asdasd");
-
+                "asdasd");
+        JsonApiPath jsonPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/classAs");
         ResourceResponseContext response = new ResourceResponseContext(new JsonApiResponse(),
-            new ResourcePath("classAs"), queryParams);
+                jsonPath, queryParams);
         ClassB classBs = new ClassB(null);
         ClassA classA = new ClassA(classBs);
 
@@ -199,10 +203,10 @@ public class IncludedRelationshipExtractorTest {
     public void onDifferentTypeInclusionShouldReturnNoElements() throws Exception {
         // GIVEN
         QueryParams queryParams = getRequestParamsWithInclusion("include[classBsWith]",
-            "classCsWith");
-
+                "classCsWith");
+        JsonApiPath jsonPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/classAsWith");
         ResourceResponseContext response = new ResourceResponseContext(new JsonApiResponse(),
-            new ResourcePath("classAsWith"), queryParams);
+                jsonPath, queryParams);
         ClassA classAWith = new ClassA(new ClassB(null));
 
         // WHEN

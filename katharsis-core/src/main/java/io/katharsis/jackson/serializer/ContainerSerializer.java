@@ -156,9 +156,30 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         throws IOException {
 
         String resourceType = resourceRegistry.getResourceType(data.getClass());
-
         final Optional<Set<String>> fields = includedFields(resourceType, includedFields);
+        Attributes attributesObject = buildAttributesObject(gen, data, notAttributesFields, fields);
 
+        gen.writeObjectField(ATTRIBUTES_FIELD_NAME, attributesObject);
+    }
+
+    private Attributes buildAttributesObject(JsonGenerator gen,
+                                             final Object data,
+                                             final Set<String> notAttributesFields,
+                                             final Optional<Set<String>> fields) throws IOException {
+        Map<String, Object> dataMap = getDataAttributesMap(gen, data, notAttributesFields, fields);
+
+        Attributes attributesObject = new Attributes();
+        for (Map.Entry<String, Object> entry : dataMap.entrySet()) {
+            if (entry.getValue() != null)
+                attributesObject.addAttribute(entry.getKey(), entry.getValue());
+        }
+        return attributesObject;
+    }
+
+    private Map<String, Object> getDataAttributesMap(JsonGenerator gen,
+                                                     final Object data,
+                                                     final Set<String> notAttributesFields,
+                                                     final Optional<Set<String>> fields) throws IOException {
         Map<String, Object> dataMap;
         if (fields.isPresent()) {
             Predicate2<Object, PropertyWriter> includeChecker = new Predicate2<Object, PropertyWriter>() {
@@ -190,6 +211,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         }
 
         gen.writeObjectField(ATTRIBUTES_FIELD_NAME, attributesObject);
+        return dataMap;
     }
 
     /**

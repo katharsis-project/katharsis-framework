@@ -1,10 +1,10 @@
 package io.katharsis.jackson;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.katharsis.locator.SampleJsonServiceLocator;
+import io.katharsis.dispatcher.registry.annotated.ParametersFactory;
+import io.katharsis.locator.NewInstanceRepositoryFactory;
 import io.katharsis.queryParams.QueryParams;
-import io.katharsis.request.path.JsonPath;
-import io.katharsis.request.path.PathBuilder;
+import io.katharsis.request.path.JsonApiPath;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -17,31 +17,32 @@ import org.junit.Before;
 
 public abstract class BaseSerializerTest {
 
-    ObjectMapper sut;
     protected ResourceRegistry resourceRegistry;
-
     protected ResourceResponseContext testResponse;
+    ParametersFactory parametersFactory = new ParametersFactory();
+    ObjectMapper sut;
 
     @Before
     public void setUp() throws Exception {
         ResourceInformationBuilder resourceInformationBuilder = new ResourceInformationBuilder(
-            new ResourceFieldNameTransformer());
-        ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonServiceLocator(),
-            resourceInformationBuilder);
+                new ResourceFieldNameTransformer());
+        ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(
+                new NewInstanceRepositoryFactory(parametersFactory), resourceInformationBuilder);
+
         resourceRegistry = registryBuilder
-            .build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, ResourceRegistryTest.TEST_MODELS_URL);
+                .build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, ResourceRegistryTest.TEST_MODELS_URL);
 
         JsonApiModuleBuilder jsonApiModuleBuilder = new JsonApiModuleBuilder();
 
         sut = new ObjectMapper();
         sut.registerModule(jsonApiModuleBuilder.build(resourceRegistry));
 
-        JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath("/tasks");
+        JsonApiPath jsonPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks");
         testResponse = new ResourceResponseContext(buildResponse(null), jsonPath, new QueryParams());
     }
 
     protected JsonApiResponse buildResponse(Object resource) {
         return new JsonApiResponse()
-            .setEntity(resource);
+                .setEntity(resource);
     }
 }

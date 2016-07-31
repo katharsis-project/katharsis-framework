@@ -9,5 +9,26 @@ public enum HttpMethod {
     POST,
     DELETE,
     PUT,
-    PATCH
+    PATCH;
+
+    public static io.katharsis.dispatcher.controller.HttpMethod parse(String method) {
+        if (method == null) {
+            throw new IllegalStateException("Method should not be null.");
+        }
+        switch (method.toLowerCase()) {
+            case "get":
+                return GET;
+            case "post":
+                return POST;
+            case "put":
+                return PUT;
+            case "patch":
+                return PATCH;
+            case "delete":
+                return DELETE;
+            default:
+                throw new IllegalArgumentException("Method not supported " + method);
+        }
+
+    }
 }

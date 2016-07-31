@@ -1,9 +1,12 @@
 package io.katharsis.errorhandling;
 
+import lombok.ToString;
+
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 
+@ToString
 public final class ErrorData {
 
     /**

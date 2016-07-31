@@ -1,12 +1,12 @@
 package io.katharsis.resource.registry.responseRepository;
 
+import io.katharsis.domain.api.LinksInformation;
+import io.katharsis.domain.api.MetaInformation;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.LinksRepository;
 import io.katharsis.repository.MetaRepository;
 import io.katharsis.repository.annotated.AnnotatedRepositoryAdapter;
 import io.katharsis.response.JsonApiResponse;
-import io.katharsis.response.LinksInformation;
-import io.katharsis.response.MetaInformation;
 
 import java.util.Collections;
 

@@ -1,6 +1,6 @@
 package io.katharsis.resource.registry;
 
-import io.katharsis.locator.JsonServiceLocator;
+import io.katharsis.locator.RepositoryFactory;
 import io.katharsis.repository.NotFoundRepository;
 import io.katharsis.repository.RepositoryInstanceBuilder;
 import io.katharsis.resource.registry.repository.DirectResponseResourceEntry;
@@ -19,23 +19,28 @@ public class RepositoryEntryBuilderFacade implements RepositoryEntryBuilder {
     private final DirectRepositoryEntryBuilder directRepositoryEntryBuilder;
     private final AnnotatedRepositoryEntryBuilder annotatedRepositoryEntryBuilder;
 
-    public RepositoryEntryBuilderFacade(JsonServiceLocator jsonServiceLocator) {
-        this.directRepositoryEntryBuilder = new DirectRepositoryEntryBuilder(jsonServiceLocator);
-        this.annotatedRepositoryEntryBuilder = new AnnotatedRepositoryEntryBuilder(jsonServiceLocator);
+    public RepositoryEntryBuilderFacade(RepositoryFactory repositoryFactory) {
+        this.directRepositoryEntryBuilder = new DirectRepositoryEntryBuilder(repositoryFactory);
+        this.annotatedRepositoryEntryBuilder = new AnnotatedRepositoryEntryBuilder(repositoryFactory);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public ResourceEntry<?, ?> buildResourceRepository(ResourceLookup lookup, final Class<?> resourceClass) {
-    	ResourceEntry<?, ?> resourceEntry =  annotatedRepositoryEntryBuilder.buildResourceRepository(lookup, resourceClass);
+        ResourceEntry<?, ?> resourceEntry = annotatedRepositoryEntryBuilder.buildResourceRepository(lookup, resourceClass);
         if (resourceEntry == null) {
             resourceEntry = directRepositoryEntryBuilder.buildResourceRepository(lookup, resourceClass);
         }
         if (resourceEntry == null) {
-            RepositoryInstanceBuilder repositoryInstanceBuilder = new RepositoryInstanceBuilder<>(new JsonServiceLocator() {
+            RepositoryInstanceBuilder repositoryInstanceBuilder = new RepositoryInstanceBuilder<>(new RepositoryFactory() {
                 @Override
                 public <T> T getInstance(Class<T> clazz) {
                     return (T) new NotFoundRepository<>(resourceClass);
+                }
+
+                @Override
+                public Object build(Class clazz) {
+                    return new NotFoundRepository<>(resourceClass);
                 }
             }, NotFoundRepository.class);
             resourceEntry = new DirectResponseResourceEntry(repositoryInstanceBuilder);
@@ -47,10 +52,10 @@ public class RepositoryEntryBuilderFacade implements RepositoryEntryBuilder {
     @Override
     public List<ResponseRelationshipEntry<?, ?>> buildRelationshipRepositories(ResourceLookup lookup, Class<?> resourceClass) {
         List<ResponseRelationshipEntry<?, ?>> annotationEntries = annotatedRepositoryEntryBuilder
-            .buildRelationshipRepositories(lookup, resourceClass);
+                .buildRelationshipRepositories(lookup, resourceClass);
         List<ResponseRelationshipEntry<?, ?>> targetEntries = new LinkedList<>(annotationEntries);
         List<ResponseRelationshipEntry<?, ?>> directEntries = directRepositoryEntryBuilder
-            .buildRelationshipRepositories(lookup, resourceClass);
+                .buildRelationshipRepositories(lookup, resourceClass);
 
         for (ResponseRelationshipEntry<?, ?> directEntry : directEntries) {
             if (!contains(targetEntries, directEntry)) {

@@ -13,6 +13,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class RequestBodyDeserializer extends JsonDeserializer<RequestBody> {
+
     @Override
     public RequestBody deserialize(JsonParser jp, DeserializationContext deserializationContext) throws IOException {
         JsonNode node = jp.readValueAsTree();

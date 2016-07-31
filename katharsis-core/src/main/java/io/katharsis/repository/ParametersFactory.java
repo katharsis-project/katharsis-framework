@@ -8,9 +8,9 @@ import java.lang.reflect.Method;
 
 public class ParametersFactory {
 
-    private final RepositoryMethodParameterProvider parameterProvider;
+    private final RepositoryParameterProvider parameterProvider;
 
-    public ParametersFactory(RepositoryMethodParameterProvider parameterProvider) {
+    public ParametersFactory(RepositoryParameterProvider parameterProvider) {
         this.parameterProvider = parameterProvider;
     }
 

@@ -1,0 +1,49 @@
+@startuml
+
+package "Request Dispatcher" {
+ [Exception Mapping Registry]
+ [Controller Registry]
+}
+
+package "Request processing" {
+    [Query Params Parser]
+    [Json Path]
+    [Resource Information]
+
+}
+
+note right of [Exception Mapping Registry]
+    In case request processing fails. This is used to generate a
+    proper JSON-API error.
+    It maps an Exception to a Response.
+end note
+
+note left of [Controller Registry]
+ Process Requests and create Responses by delegating to Controllers.
+ Each Controller is responsible for  performing one JSON-API operation on a resource.
+ These include: get one element, get a collection, save, delete, etc.
+end note
+
+note right of [Query Params Parser]
+  Extracts parameters from the request like:
+  - filter parameters
+  - sorting parameters
+  - grouping parameters
+  - included fields paramters
+  - pagination parameters
+end note
+
+note left of [Json Path]
+  It is used to parse a JSON API path and identify parts of it:
+  - what resource, path ids (if any), relationship or field
+end note
+
+note left of [Resource Information]
+  Holds information about a resource. It is created after parsing HTTP request.
+  It is used when processing the request to create the response.
+  Contains:
+  - meta field
+  - links field
+end note
+
+@enduml

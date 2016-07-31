@@ -1,24 +1,14 @@
 package io.katharsis.queryParams.params;
 
 import io.katharsis.queryParams.include.Inclusion;
+import lombok.Value;
 
 import java.util.Set;
 
+
+@Value
 public class IncludedRelationsParams {
+
     private Set<Inclusion> params;
 
-    public IncludedRelationsParams(Set<Inclusion> params) {
-        this.params = params;
-    }
-
-    public Set<Inclusion> getParams() {
-        return params;
-    }
-
-    @Override
-    public String toString() {
-        return "IncludedRelationsParams{" +
-            "params=" + params +
-            '}';
-    }
 }

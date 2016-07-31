@@ -1,14 +1,12 @@
 package io.katharsis.dispatcher.controller.resource;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
-import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.QueryParams;
+import io.katharsis.request.Request;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.dto.ResourceRelationships;
-import io.katharsis.request.path.JsonPath;
-import io.katharsis.request.path.ResourcePath;
+import io.katharsis.request.path.JsonApiPath;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.models.User;
@@ -17,29 +15,32 @@ import io.katharsis.resource.mock.repository.UserToProjectRepository;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponseContext;
 import io.katharsis.response.HttpStatus;
-import io.katharsis.response.ResourceResponseContext;
 import org.junit.Test;
 
 import java.util.Collections;
 
+import static io.katharsis.dispatcher.controller.HttpMethod.DELETE;
+import static io.katharsis.dispatcher.controller.HttpMethod.POST;
+import static io.katharsis.request.path.JsonApiPath.parsePathFromStringUrl;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class RelationshipsResourceDeleteTest extends BaseControllerTest {
 
-    private static final String REQUEST_TYPE = HttpMethod.DELETE.name();
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final QueryParams REQUEST_PARAMS = new QueryParams();
 
     @Test
     public void onValidRequestShouldAcceptIt() {
         // GIVEN
-        JsonPath jsonPath = pathBuilder.buildPath("tasks/1/relationships/project");
+        Request request = new Request(parsePathFromStringUrl("http://domain.local/tasks/1/relationships/project"),
+                DELETE.name(), null, parameterProvider);
+
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-        RelationshipsResourceDelete sut = new RelationshipsResourceDelete(resourceRegistry, typeParser);
+        RelationshipsResourceDelete sut = new RelationshipsResourceDelete(resourceRegistry, typeParser,
+                queryParamsBuilder, objectMapper);
 
         // WHEN
-        boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
+        boolean result = sut.isAcceptable(request);
 
         // THEN
         assertThat(result).isTrue();
@@ -48,12 +49,13 @@ public class RelationshipsResourceDeleteTest extends BaseControllerTest {
     @Test
     public void onNonRelationRequestShouldDenyIt() {
         // GIVEN
-        JsonPath jsonPath = new ResourcePath("tasks");
+        Request request = new Request(parsePathFromStringUrl("http://domain.local/tasks"), DELETE.name(), null, parameterProvider);
+
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-        RelationshipsResourceDelete sut = new RelationshipsResourceDelete(resourceRegistry, typeParser);
+        RelationshipsResourceDelete sut = new RelationshipsResourceDelete(resourceRegistry, typeParser, queryParamsBuilder, objectMapper);
 
         // WHEN
-        boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
+        boolean result = sut.isAcceptable(request);
 
         // THEN
         assertThat(result).isFalse();
@@ -62,18 +64,20 @@ public class RelationshipsResourceDeleteTest extends BaseControllerTest {
     @Test
     public void onExistingToOneRelationshipShouldRemoveIt() throws Exception {
         // GIVEN
-        RequestBody newTaskBody = new RequestBody();
-        DataBody data = new DataBody();
-        newTaskBody.setData(data);
-        data.setType("tasks");
-        data.setAttributes(OBJECT_MAPPER.createObjectNode().put("name", "sample task"));
-        data.setRelationships(new ResourceRelationships());
 
-        JsonPath taskPath = pathBuilder.buildPath("/tasks");
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
+        RequestBody newTaskBody = new RequestBody(DataBody.builder()
+                .type("tasks")
+                .attributes(objectMapper.createObjectNode().put("name", "sample task"))
+                .relationships(new ResourceRelationships())
+                .build());
+
+        JsonApiPath path = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks");
+        Request request = new Request(path, POST.name(), serialize(newTaskBody), parameterProvider);
+
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, queryParamsBuilder, objectMapper);
 
         // WHEN -- adding a task
-        BaseResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParams(), null, newTaskBody);
+        BaseResponseContext taskResponse = resourcePost.handle(request);
 
         // THEN
         assertThat(taskResponse.getResponse().getEntity()).isExactlyInstanceOf(Task.class);
@@ -83,16 +87,14 @@ public class RelationshipsResourceDeleteTest extends BaseControllerTest {
         /* ------- */
 
         // GIVEN
-        RequestBody newProjectBody = new RequestBody();
-        data = new DataBody();
-        newProjectBody.setData(data);
-        data.setType("projects");
-        data.setAttributes(OBJECT_MAPPER.createObjectNode().put("name", "sample project"));
-
-        JsonPath projectPath = pathBuilder.buildPath("/projects");
-
+        RequestBody newProjectBody = new RequestBody(DataBody.builder()
+                .type("projects")
+                .attributes(objectMapper.createObjectNode().put("name", "sample project"))
+                .build());
+        path = JsonApiPath.parsePathFromStringUrl("http://domain.local/projects");
+        request = new Request(path, POST.name(), serialize(newProjectBody), parameterProvider);
         // WHEN -- adding a project
-        ResourceResponseContext projectResponse = resourcePost.handle(projectPath, new QueryParams(), null, newProjectBody);
+        BaseResponseContext projectResponse = resourcePost.handle(request);
 
         // THEN
         assertThat(projectResponse.getResponse().getEntity()).isExactlyInstanceOf(Project.class);
@@ -104,17 +106,18 @@ public class RelationshipsResourceDeleteTest extends BaseControllerTest {
         /* ------- */
 
         // GIVEN
-        RequestBody newTaskToProjectBody = new RequestBody();
-        data = new DataBody();
-        newTaskToProjectBody.setData(data);
-        data.setType("projects");
-        data.setId(projectId.toString());
+        RequestBody newTaskToProjectBody = new RequestBody(DataBody.builder()
+                .id(projectId.toString())
+                .type("projects")
+                .build());
 
-        JsonPath savedTaskPath = pathBuilder.buildPath("/tasks/" + taskId + "/relationships/project");
-        RelationshipsResourcePost relationshipsResourcePost = new RelationshipsResourcePost(resourceRegistry, typeParser);
+        JsonApiPath savedTaskPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/tasks/" + taskId + "/relationships/project");
+        request = new Request(savedTaskPath, POST.name(), serialize(newTaskToProjectBody), parameterProvider);
+        RelationshipsResourcePost relationshipsResourcePost =
+                new RelationshipsResourcePost(resourceRegistry, typeParser, queryParamsBuilder, objectMapper);
 
         // WHEN -- adding a relation between task and project
-        BaseResponseContext projectRelationshipResponse = relationshipsResourcePost.handle(savedTaskPath, new QueryParams(), null, newTaskToProjectBody);
+        BaseResponseContext projectRelationshipResponse = relationshipsResourcePost.handle(request);
         assertThat(projectRelationshipResponse).isNotNull();
 
         // THEN
@@ -125,10 +128,10 @@ public class RelationshipsResourceDeleteTest extends BaseControllerTest {
         /* ------- */
 
         // GIVEN
-        RelationshipsResourceDelete sut = new RelationshipsResourceDelete(resourceRegistry, typeParser);
-
+        RelationshipsResourceDelete sut = new RelationshipsResourceDelete(resourceRegistry, typeParser, queryParamsBuilder, objectMapper);
+        request = new Request(savedTaskPath, DELETE.name(), serialize(newTaskToProjectBody), parameterProvider);
         // WHEN -- removing a relation between task and project
-        BaseResponseContext result = sut.handle(savedTaskPath, new QueryParams(), null, newTaskToProjectBody);
+        BaseResponseContext result = sut.handle(request);
         assertThat(result).isNotNull();
 
         // THEN
@@ -140,18 +143,18 @@ public class RelationshipsResourceDeleteTest extends BaseControllerTest {
     @Test
     public void onExistingToManyRelationshipShouldRemoveIt() throws Exception {
         // GIVEN
-        RequestBody newUserBody = new RequestBody();
-        DataBody data = new DataBody();
-        newUserBody.setData(data);
-        data.setType("users");
-        data.setAttributes(OBJECT_MAPPER.createObjectNode().put("name", "sample task"));
-        data.setRelationships(new ResourceRelationships());
+        RequestBody newUserBody = new RequestBody(DataBody.builder()
+                .type("users")
+                .attributes(objectMapper.createObjectNode().put("name", "sample task"))
+                .relationships(new ResourceRelationships())
+                .build());
 
-        JsonPath taskPath = pathBuilder.buildPath("/users");
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
+        JsonApiPath taskPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/users");
+        Request request = new Request(taskPath, DELETE.name(), serialize(newUserBody), parameterProvider);
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, queryParamsBuilder, objectMapper);
 
         // WHEN -- adding a user
-        BaseResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParams(), null, newUserBody);
+        BaseResponseContext taskResponse = resourcePost.handle(request);
 
         // THEN
         assertThat(taskResponse.getResponse().getEntity()).isExactlyInstanceOf(User.class);
@@ -161,16 +164,15 @@ public class RelationshipsResourceDeleteTest extends BaseControllerTest {
         /* ------- */
 
         // GIVEN
-        RequestBody newProjectBody = new RequestBody();
-        data = new DataBody();
-        newProjectBody.setData(data);
-        data.setType("projects");
-        data.setAttributes(OBJECT_MAPPER.createObjectNode().put("name", "sample project"));
+        RequestBody newProjectBody = new RequestBody(DataBody.builder()
+                .type("projects")
+                .attributes(objectMapper.createObjectNode().put("name", "sample project"))
+                .build());
 
-        JsonPath projectPath = pathBuilder.buildPath("/projects");
-
+        JsonApiPath projectPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/projects");
+        request = new Request(projectPath, DELETE.name(), serialize(newProjectBody), parameterProvider);
         // WHEN -- adding a project
-        ResourceResponseContext projectResponse = resourcePost.handle(projectPath, new QueryParams(), null, newProjectBody);
+        BaseResponseContext projectResponse = resourcePost.handle(request);
 
         // THEN
         assertThat(projectResponse.getResponse().getEntity()).isExactlyInstanceOf(Project.class);
@@ -182,17 +184,18 @@ public class RelationshipsResourceDeleteTest extends BaseControllerTest {
         /* ------- */
 
         // GIVEN
-        RequestBody newTaskToProjectBody = new RequestBody();
-        data = new DataBody();
-        newTaskToProjectBody.setData(Collections.singletonList(data));
-        data.setType("projects");
-        data.setId(projectId.toString());
+        RequestBody newTaskToProjectBody = new RequestBody(Collections.singletonList(DataBody.builder()
+                .type("projects")
+                .id(projectId.toString())
+                .build()));
 
-        JsonPath savedTaskPath = pathBuilder.buildPath("/users/" + userId + "/relationships/assignedProjects");
-        RelationshipsResourcePost relationshipsResourcePost = new RelationshipsResourcePost(resourceRegistry, typeParser);
+        JsonApiPath savedTaskPath = JsonApiPath.parsePathFromStringUrl("http://domain.local/users/" + userId + "/relationships/assignedProjects");
+        request = new Request(savedTaskPath, DELETE.name(), serialize(newTaskToProjectBody), parameterProvider);
+        RelationshipsResourcePost relationshipsResourcePost =
+                new RelationshipsResourcePost(resourceRegistry, typeParser, queryParamsBuilder, objectMapper);
 
         // WHEN -- adding a relation between user and project
-        BaseResponseContext projectRelationshipResponse = relationshipsResourcePost.handle(savedTaskPath, new QueryParams(), null, newTaskToProjectBody);
+        BaseResponseContext projectRelationshipResponse = relationshipsResourcePost.handle(request);
         assertThat(projectRelationshipResponse).isNotNull();
 
         // THEN
@@ -203,10 +206,11 @@ public class RelationshipsResourceDeleteTest extends BaseControllerTest {
         /* ------- */
 
         // GIVEN
-        RelationshipsResourceDelete sut = new RelationshipsResourceDelete(resourceRegistry, typeParser);
+        RelationshipsResourceDelete sut = new RelationshipsResourceDelete(resourceRegistry, typeParser, queryParamsBuilder, objectMapper);
+        request = new Request(savedTaskPath, DELETE.name(), serialize(newTaskToProjectBody), parameterProvider);
 
         // WHEN -- removing a relation between task and project
-        BaseResponseContext result = sut.handle(savedTaskPath, new QueryParams(), null, newTaskToProjectBody);
+        BaseResponseContext result = sut.handle(request);
         assertThat(result).isNotNull();
 
         // THEN

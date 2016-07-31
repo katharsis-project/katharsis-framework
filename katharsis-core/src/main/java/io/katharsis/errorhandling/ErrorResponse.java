@@ -1,12 +1,14 @@
 package io.katharsis.errorhandling;
 
 import io.katharsis.queryParams.QueryParams;
-import io.katharsis.request.path.JsonPath;
+import io.katharsis.request.path.JsonApiPath;
 import io.katharsis.response.BaseResponseContext;
 import io.katharsis.response.JsonApiResponse;
+import lombok.ToString;
 
 import java.util.Objects;
 
+@ToString
 public final class ErrorResponse implements BaseResponseContext {
 
     public static final String ERRORS = "errors";
@@ -19,29 +21,35 @@ public final class ErrorResponse implements BaseResponseContext {
         this.httpStatus = httpStatus;
     }
 
+    public static ErrorResponseBuilder builder() {
+        return new ErrorResponseBuilder();
+    }
+
     @Override
     public int getHttpStatus() {
         return httpStatus;
     }
 
     @Override
-    public JsonApiResponse getResponse() {
-        return new JsonApiResponse()
-            .setEntity(data);
+    public void setHttpStatus(int newStatus) {
+        //TODO: ieugen: refactor this empyt method
     }
 
     @Override
-    public JsonPath getJsonPath() {
+    public JsonApiResponse getResponse() {
+        return new JsonApiResponse()
+                .setEntity(data);
+    }
+
+    @Override
+    public JsonApiPath getPath() {
         return null;
+//        throw new UnsupportedOperationException("Not implemented");
     }
 
     @Override
     public QueryParams getQueryParams() {
         return null;
-    }
-
-    public static ErrorResponseBuilder builder() {
-        return new ErrorResponseBuilder();
     }
 
     @Override

@@ -1,8 +1,8 @@
 package io.katharsis.resource.mock.models;
 
+import io.katharsis.domain.api.LinksInformation;
+import io.katharsis.domain.api.MetaInformation;
 import io.katharsis.resource.annotations.*;
-import io.katharsis.response.LinksInformation;
-import io.katharsis.response.MetaInformation;
 
 import java.util.List;
 

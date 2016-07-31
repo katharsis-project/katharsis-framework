@@ -66,7 +66,7 @@ public class BaseResponseSerializer extends JsonSerializer<BaseResponseContext> 
                 return iterator.hasNext() && iterator.next() instanceof LinkageContainer;
             }
         } else {
-            throw new IllegalArgumentException(String.format("JsonApiResponse can be either %s or %s. Got %s",
+            throw new IllegalArgumentException(String.format("JsonApiSerializable can be either %s or %s. Got %s",
                 ResourceResponseContext.class, CollectionResponseContext.class, context.getClass()));
         }
     }
@@ -78,7 +78,7 @@ public class BaseResponseSerializer extends JsonSerializer<BaseResponseContext> 
         } else if (value instanceof CollectionResponseContext) {
             includedResources = serializeResourceCollection((CollectionResponseContext) value, gen);
         } else {
-            throw new IllegalArgumentException(String.format("JsonApiResponse can be either %s or %s. Got %s",
+            throw new IllegalArgumentException(String.format("JsonApiSerializable can be either %s or %s. Got %s",
                     ResourceResponseContext.class, CollectionResponseContext.class, value.getClass()));
         }
 

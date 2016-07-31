@@ -1,7 +1,10 @@
 package io.katharsis.queryParams.params;
 
+import lombok.Value;
+
 import java.util.Set;
 
+@Value
 public class IncludedFieldsParams {
     private Set<String> params;
 
@@ -13,10 +16,4 @@ public class IncludedFieldsParams {
         return params;
     }
 
-    @Override
-    public String toString() {
-        return "IncludedFieldsParams{" +
-            "params=" + params +
-            '}';
-    }
 }

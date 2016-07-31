@@ -1,5 +1,7 @@
 package io.katharsis.repository.annotations;
 
+import io.katharsis.domain.api.MetaInformation;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -19,7 +21,7 @@ import java.lang.annotation.Target;
  *     <li>A list of resources</li>
  * </ol>
  * <p>
- * The return value must be an instance of {@link io.katharsis.response.MetaInformation} type.
+ * The return value must be an instance of {@link MetaInformation} type.
  * </p>
  *
  * @see io.katharsis.repository.MetaRepository

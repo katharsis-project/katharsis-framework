@@ -12,6 +12,7 @@ import io.katharsis.resource.RestrictedQueryParamsMembers;
 import io.katharsis.utils.StringUtils;
 
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -26,22 +27,43 @@ import java.util.regex.Pattern;
  * Contains a set of parameters passed along with the request.
  */
 public class QueryParams {
+
     private TypedParams<FilterParams> filters;
     private TypedParams<SortingParams> sorting;
     private TypedParams<GroupingParams> grouping;
     private TypedParams<IncludedFieldsParams> includedFields;
     private TypedParams<IncludedRelationsParams> includedRelations;
-    private Map<RestrictedPaginationKeys, Integer> pagination;
+    private Map<PaginationKey, String> pagination;
 
+    private static List<String> buildPropertyListFromEntry(Map.Entry<String, Set<String>> entry, String prefix) {
+        String entryKey = entry.getKey()
+                .substring(prefix.length());
+
+        String pattern = "[^\\]\\[]+(?<!\\[)(?=\\])";
+        Pattern regexp = Pattern.compile(pattern);
+        Matcher matcher = regexp.matcher(entryKey);
+        List<String> matchList = new LinkedList<>();
+
+        while (matcher.find()) {
+            matchList.add(matcher.group());
+        }
+
+
+        if (matchList.isEmpty()) {
+            throw new ParametersDeserializationException("Malformed filter parameter: " + entryKey);
+        }
+
+        return matchList;
+    }
 
     /**
      * <strong>Important!</strong> Katharsis implementation differs form JSON API
      * <a href="http://jsonapi.org/format/#fetching-filtering">definition of filtering</a>
      * in order to fit standard query parameter serializing strategy and maximize effective processing of data.
-     * <p>
+     * <p/>
      * Filter params can be send with following format (Katharsis does not specify or implement any operators): <br>
      * <strong>filter[ResourceType][property|operator]([property|operator])* = "value"</strong><br>
-     * <p>
+     * <p/>
      * Examples of accepted filtering of resources:
      * <ul>
      * <li>{@code GET /tasks/?filter[tasks][name]=Super task}</li>
@@ -90,10 +112,10 @@ public class QueryParams {
      * <strong>Important!</strong> Katharsis implementation differs form JSON API
      * <a href="http://jsonapi.org/format/#fetching-sorting">definition of sorting</a>
      * in order to fit standard query parameter serializing strategy and maximize effective processing of data.
-     * <p>
+     * <p/>
      * Sort params can be send with following format: <br>
      * <strong>sort[ResourceType][property]([property])* = "asc|desc"</strong>
-     * <p>
+     * <p/>
      * Examples of accepted sorting of resources:
      * <ul>
      * <li>{@code GET /tasks/?sort[tasks][name]=asc}</li>
@@ -120,21 +142,21 @@ public class QueryParams {
             if (temporarySortingMap.containsKey(resourceType)) {
                 Map<String, RestrictedSortingValues> resourceParams = temporarySortingMap.get(resourceType);
                 resourceParams.put(propertyPath, RestrictedSortingValues.valueOf(entry.getValue()
-                    .iterator()
-                    .next()));
+                        .iterator()
+                        .next()));
             } else {
                 Map<String, RestrictedSortingValues> resourceParams = new HashMap<>();
                 temporarySortingMap.put(resourceType, resourceParams);
                 resourceParams.put(propertyPath, RestrictedSortingValues.valueOf(entry.getValue()
-                    .iterator()
-                    .next()));
+                        .iterator()
+                        .next()));
             }
         }
 
         Map<String, SortingParams> decodedSortingMap = new LinkedHashMap<>();
 
         for (Map.Entry<String, Map<String, RestrictedSortingValues>> resourceTypesMap : temporarySortingMap.entrySet
-            ()) {
+                ()) {
             Map<String, RestrictedSortingValues> sortingMap = Collections.unmodifiableMap(resourceTypesMap.getValue());
             decodedSortingMap.put(resourceTypesMap.getKey(), new SortingParams(sortingMap));
         }
@@ -147,10 +169,10 @@ public class QueryParams {
     /**
      * <strong>Important: </strong> Grouping itself is not specified by JSON API itself, but the
      * keyword and format it reserved for today and future use in Katharsis.
-     * <p>
+     * <p/>
      * Group params can be send with following format: <br>
      * <strong>group[ResourceType] = "property(.property)*"</strong>
-     * <p>
+     * <p/>
      * Examples of accepted grouping of resources:
      * <ul>
      * <li>{@code GET /tasks/?group[tasks]=name}</li>
@@ -172,7 +194,7 @@ public class QueryParams {
 
             if (propertyList.size() > 1) {
                 throw new ParametersDeserializationException("Exceeded maximum level of nesting of 'group' parameter " +
-                    "(1) eg. group[tasks][name] <-- #2 level and more are not allowed");
+                        "(1) eg. group[tasks][name] <-- #2 level and more are not allowed");
             }
 
             String resourceType = propertyList.get(0);
@@ -203,51 +225,74 @@ public class QueryParams {
      * <strong>Important!</strong> Katharsis implementation sets on strategy of pagination whereas JSON API
      * <a href="http://jsonapi.org/format/#fetching-pagination">definition of pagination</a>
      * is agnostic about pagination strategies.
-     * <p>
+     * <p/>
      * Pagination params can be send with following format: <br>
-     * <strong>page[offset|limit] = "value"</strong>, where value is an integer
-     * <p>
+     * <strong>page[offset|limit|number|size|cursor] = "value"</strong>
+     * <p/>
      * Examples of accepted grouping of resources:
      * <ul>
      * <li>{@code GET /projects/?page[offset]=0&page[limit]=10}</li>
+     * <li>{@code GET /projects/?page[number]=4&page[size]=10}</li>
+     * <li>{@code GET /projects/?page[cursor]=opaquestring}</li>
      * </ul>
      *
      * @return {@link Map} Map of pagination keys passed to request
      */
-    public Map<RestrictedPaginationKeys, Integer> getPagination() {
+    public Map<PaginationKey, String> getPagination() {
         return pagination;
     }
 
     void setPagination(Map<String, Set<String>> pagination) {
-        Map<RestrictedPaginationKeys, Integer> decodedPagination = new LinkedHashMap<>();
+        Map<PaginationKey, String> decodedPagination =
+                new EnumMap<>(PaginationKey.class);
 
         for (Map.Entry<String, Set<String>> entry : pagination.entrySet()) {
             List<String> propertyList = buildPropertyListFromEntry(entry, RestrictedQueryParamsMembers.page.name());
 
             if (propertyList.size() > 1) {
                 throw new ParametersDeserializationException("Exceeded maximum level of nesting of 'page' parameter " +
-                    "(1) eg. page[offset][minimal] <-- #2 level and more are not allowed");
+                        "(1) eg. page[offset][minimal] <-- #2 level and more are not allowed");
             }
 
             String resourceType = propertyList.get(0);
-
-            decodedPagination.put(RestrictedPaginationKeys.valueOf(resourceType), Integer.parseInt(entry
-                .getValue()
-                .iterator()
-                .next()));
+            String paramValue = entry.getValue().iterator().next();
+            decodedPagination.put(PaginationKey.valueOf(resourceType), paramValue);
         }
 
         this.pagination = Collections.unmodifiableMap(decodedPagination);
     }
 
     /**
+     * @return the request parameter value for key converted to an Integer, or null if the parameter was not provided
+     * @throws NumberFormatException if the parameter cannot be converted to an Integer
+     */
+    public Integer getPaginationAsInt(PaginationKey key) {
+        return pagination.containsKey(key) ? Integer.parseInt(pagination.get(key)) : null;
+    }
+
+    /**
+     * @return the request parameter value for key converted to a Long, or null if the parameter was not provided
+     * @throws NumberFormatException if the parameter cannot be converted to a Long
+     */
+    public Long getPaginationAsLong(PaginationKey key) {
+        return pagination.containsKey(key) ? Long.parseLong(pagination.get(key)) : null;
+    }
+
+    /**
+     * @return the request parameter value for key, or null if the parameter was not provided
+     */
+    public String getPaginationAsString(PaginationKey key) {
+        return pagination.get(key);
+    }
+
+    /**
      * <strong>Important!</strong> Katharsis implementation differs form JSON API
      * <a href="http://jsonapi.org/format/#fetching-sparse-fieldsets">definition of sparse field set</a>
      * in order to fit standard query parameter serializing strategy and maximize effective processing of data.
-     * <p>
+     * <p/>
      * Sparse field set params can be send with following format: <br>
      * <strong>fields[ResourceType] = "property(.property)*"</strong><br>
-     * <p>
+     * <p/>
      * Examples of accepted sparse field sets of resources:
      * <ul>
      * <li>{@code GET /tasks/?fields[tasks]=name}</li>
@@ -269,7 +314,7 @@ public class QueryParams {
 
             if (propertyList.size() > 1) {
                 throw new ParametersDeserializationException("Exceeded maximum level of nesting of 'fields' " +
-                    "parameter (1) eg. fields[tasks][name] <-- #2 level and more are not allowed");
+                        "parameter (1) eg. fields[tasks][name] <-- #2 level and more are not allowed");
             }
 
             String resourceType = propertyList.get(0);
@@ -299,10 +344,10 @@ public class QueryParams {
      * <strong>Important!</strong> Katharsis implementation differs form JSON API
      * <a href="http://jsonapi.org/format/#fetching-includes">definition of includes</a>
      * in order to fit standard query parameter serializing strategy and maximize effective processing of data.
-     * <p>
+     * <p/>
      * Included field set params can be send with following format: <br>
      * <strong>include[ResourceType] = "property(.property)*"</strong><br>
-     * <p>
+     * <p/>
      * Examples of accepted sparse field sets of resources:
      * <ul>
      * <li>{@code GET /tasks/?include[tasks]=author}</li>
@@ -324,7 +369,7 @@ public class QueryParams {
 
             if (propertyList.size() > 1) {
                 throw new ParametersDeserializationException("Exceeded maximum level of nesting of 'include' " +
-                    "parameter (1)");
+                        "parameter (1)");
             }
 
             String resourceType = propertyList.get(0);
@@ -334,7 +379,7 @@ public class QueryParams {
             } else {
                 resourceParams = new LinkedHashSet<>();
             }
-            for(String path : entry.getValue()) {
+            for (String path : entry.getValue()) {
                 resourceParams.add(new Inclusion(path));
             }
             temporaryInclusionsMap.put(resourceType, resourceParams);
@@ -350,36 +395,19 @@ public class QueryParams {
         this.includedRelations = new TypedParams<>(Collections.unmodifiableMap(decodedInclusions));
     }
 
-    private static List<String> buildPropertyListFromEntry(Map.Entry<String, Set<String>> entry, String prefix) {
-        String entryKey = entry.getKey()
-            .substring(prefix.length());
-
-        String pattern = "[^\\]\\[]+(?<!\\[)(?=\\])";
-        Pattern regexp = Pattern.compile(pattern);
-        Matcher matcher = regexp.matcher(entryKey);
-        List<String> matchList = new LinkedList<>();
-
-        while (matcher.find()) {
-            matchList.add(matcher.group());
-        }
-
-
-        if (matchList.isEmpty()) {
-            throw new ParametersDeserializationException("Malformed filter parameter: " + entryKey);
-        }
-
-        return matchList;
+    public boolean hasIncludedRelations() {
+        return !includedRelations.getParams().isEmpty();
     }
 
     @Override
     public String toString() {
         return "QueryParams{" +
-            "filters=" + filters +
-            ", sorting=" + sorting +
-            ", grouping=" + grouping +
-            ", includedFields=" + includedFields +
-            ", includedRelations=" + includedRelations +
-            ", pagination=" + pagination +
-            '}';
+                "filters=" + filters +
+                ", sorting=" + sorting +
+                ", grouping=" + grouping +
+                ", includedFields=" + includedFields +
+                ", includedRelations=" + includedRelations +
+                ", pagination=" + pagination +
+                '}';
     }
 }

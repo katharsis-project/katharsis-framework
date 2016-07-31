@@ -11,7 +11,7 @@ import io.katharsis.repository.annotations.JsonApiSetRelation;
 import io.katharsis.repository.annotations.JsonApiSetRelations;
 import io.katharsis.repository.exception.RepositoryAnnotationNotFoundException;
 import io.katharsis.repository.exception.RepositoryMethodException;
-import io.katharsis.repository.mock.NewInstanceRepositoryMethodParameterProvider;
+import io.katharsis.repository.mock.NewInstanceRepositoryParameterProvider;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
 import org.junit.Before;
@@ -25,13 +25,14 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
 public class AnnotatedRelationshipRepositoryAdapterTest {
+
     private QueryParams queryParams;
     private ParametersFactory parameterProvider;
 
     @Before
     public void setUp() throws Exception {
         queryParams = new QueryParams();
-        parameterProvider = new ParametersFactory(new NewInstanceRepositoryMethodParameterProvider());
+        parameterProvider = new ParametersFactory(new NewInstanceRepositoryParameterProvider());
     }
 
     @Test(expected = RepositoryAnnotationNotFoundException.class)
@@ -207,7 +208,7 @@ public class AnnotatedRelationshipRepositoryAdapterTest {
         // THEN
         verify(repo).findOneTarget(1L, "project", queryParams, "");
         assertThat(project).isNotNull();
-        assertThat(((Project)project).getId()).isEqualTo(42L);
+        assertThat(((Project) project).getId()).isEqualTo(42L);
     }
 
     @Test(expected = RepositoryAnnotationNotFoundException.class)
@@ -330,7 +331,7 @@ public class AnnotatedRelationshipRepositoryAdapterTest {
         @JsonApiFindOneTarget
         public Project findOneTarget(Long id, String fieldName, QueryParams queryParams, String sth) {
             return new Project()
-                .setId(42L);
+                    .setId(42L);
         }
     }
 
@@ -348,7 +349,7 @@ public class AnnotatedRelationshipRepositoryAdapterTest {
         @JsonApiFindManyTargets
         public Iterable<Project> findManyTargets(Long id, String fieldName, QueryParams queryParams, String sth) {
             return Collections.singleton(new Project()
-                .setId(42L));
+                    .setId(42L));
         }
     }
 }

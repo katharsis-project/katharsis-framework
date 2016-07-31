@@ -1,7 +1,9 @@
 package io.katharsis.response;
 
 import io.katharsis.queryParams.QueryParams;
-import io.katharsis.request.path.JsonPath;
+import io.katharsis.request.path.JsonApiPath;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.Objects;
 
@@ -16,20 +18,19 @@ import java.util.Objects;
  * }
  * </pre>
  */
+@ToString
+@NoArgsConstructor
 public class CollectionResponseContext implements BaseResponseContext {
 
+    private int httpStatus;
     private JsonApiResponse response;
-
-    private JsonPath jsonPath;
-
+    private JsonApiPath path;
     private QueryParams queryParams;
 
-    public CollectionResponseContext() {
-    }
-
-    public CollectionResponseContext(JsonApiResponse response, JsonPath jsonPath, QueryParams queryParams) {
+    public CollectionResponseContext(JsonApiResponse response, JsonApiPath path, QueryParams queryParams) {
+        this.httpStatus = HttpStatus.OK_200;
         this.response = response;
-        this.jsonPath = jsonPath;
+        this.path = path;
         this.queryParams = queryParams;
     }
 
@@ -40,12 +41,17 @@ public class CollectionResponseContext implements BaseResponseContext {
 
     @Override
     public int getHttpStatus() {
-        return HttpStatus.OK_200;
+        return httpStatus;
     }
 
     @Override
-    public JsonPath getJsonPath() {
-        return jsonPath;
+    public void setHttpStatus(int newStatus) {
+        httpStatus = newStatus;
+    }
+
+    @Override
+    public JsonApiPath getPath() {
+        return path;
     }
 
     @Override

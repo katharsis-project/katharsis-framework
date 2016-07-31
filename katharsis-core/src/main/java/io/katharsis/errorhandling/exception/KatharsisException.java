@@ -8,4 +8,12 @@ public abstract class KatharsisException extends RuntimeException {
     public KatharsisException(String message) {
         super(message);
     }
+
+    public KatharsisException(Throwable cause) {
+        super(cause);
+    }
+
+    public KatharsisException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

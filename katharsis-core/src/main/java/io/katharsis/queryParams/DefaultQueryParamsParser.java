@@ -17,13 +17,67 @@
 
 package io.katharsis.queryParams;
 
+import io.katharsis.errorhandling.exception.QueryParseException;
+import io.katharsis.query.QueryParams;
 import io.katharsis.resource.RestrictedQueryParamsMembers;
+import lombok.NonNull;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
 public class DefaultQueryParamsParser implements QueryParamsParser {
+
+    /**
+     * Filters provided query params to one starting with provided string key
+     *
+     * @param queryParams Request query params
+     * @param queryKey    Filtering key
+     * @return Filtered query params
+     */
+    private static Map<String, Set<String>> filterQueryParamsByKey(Map<String, Set<String>> queryParams, String queryKey) {
+        Map<String, Set<String>> filteredQueryParams = new HashMap<>();
+
+        for (Map.Entry<String, Set<String>> entry : queryParams.entrySet()) {
+            if (entry.getKey().startsWith(queryKey)) {
+                filteredQueryParams.put(entry.getKey(), entry.getValue());
+            }
+        }
+        return filteredQueryParams;
+    }
+
+    /**
+     * Code adapted from http://stackoverflow.com/questions/13592236/parse-a-uri-string-into-name-value-collection
+     *
+     * @return
+     * @throws UnsupportedEncodingException
+     */
+    public static Map<String, Set<String>> splitQuery(String query) {
+        final Map<String, Set<String>> query_pairs = new LinkedHashMap<>();
+        final String[] pairs = extractQueryKeyValuePairs(query);
+        try {
+            for (String pair : pairs) {
+                final int idx = pair.indexOf("=");
+                final String key = idx > 0 ? URLDecoder.decode(pair.substring(0, idx), "UTF-8") : pair;
+                if (!query_pairs.containsKey(key)) {
+                    query_pairs.put(key, new LinkedHashSet<String>());
+                }
+                final String value = idx > 0 && pair.length() > idx + 1 ? URLDecoder.decode(pair.substring(idx + 1), "UTF-8") : null;
+                query_pairs.get(key).add(value);
+            }
+            return query_pairs;
+        } catch (UnsupportedEncodingException e) {
+            throw new QueryParseException(String.format("Could not parse query %s. %s", query, e.getMessage()));
+        }
+    }
+
+    private static String[] extractQueryKeyValuePairs(String query) {
+        return query != null ? query.split("&") : new String[]{};
+    }
 
     @Override
     public Map<String, Set<String>> parseFiltersParameters(final Map<String, Set<String>> queryParams) {
@@ -61,21 +115,13 @@ public class DefaultQueryParamsParser implements QueryParamsParser {
         return filterQueryParamsByKey(queryParams, pagingKey);
     }
 
-    /**
-     * Filters provided query params to one starting with provided string key
-     *
-     * @param queryParams Request query params
-     * @param queryKey    Filtering key
-     * @return Filtered query params
-     */
-    private static Map<String, Set<String>> filterQueryParamsByKey(Map<String, Set<String>> queryParams, String queryKey) {
-        Map<String, Set<String>> filteredQueryParams = new HashMap<>();
-
-        for (Map.Entry<String, Set<String>> entry : queryParams.entrySet()) {
-            if (entry.getKey().startsWith(queryKey)) {
-                filteredQueryParams.put(entry.getKey(), entry.getValue());
-            }
-        }
-        return filteredQueryParams;
+    public QueryParams parse(@NonNull String query) {
+        QueryParams params = new QueryParams(splitQueryParams(query));
+        return params;
     }
+
+    public Map<String, Set<String>> splitQueryParams(@NonNull String query) {
+        return splitQuery(query);
+    }
+
 }

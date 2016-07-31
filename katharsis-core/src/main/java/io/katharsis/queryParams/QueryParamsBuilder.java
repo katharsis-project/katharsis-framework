@@ -2,6 +2,7 @@ package io.katharsis.queryParams;
 
 import io.katharsis.errorhandling.exception.KatharsisException;
 import io.katharsis.jackson.exception.ParametersDeserializationException;
+import io.katharsis.utils.java.Optional;
 
 import java.util.Map;
 import java.util.Set;
@@ -10,7 +11,7 @@ import java.util.Set;
  * Builder responsible for building queryParams. The parameter parsing is being delegated to a parser implementation.
  * The created {@link QueryParams} object contains several fields where each of them is not-null only when
  * this parameter has been passed with a request.
- *
+ * <p>
  * ---------------------------------------------------------------------------------------------------------------------
  * POTENTIAL IMPROVEMENT NOTE : This can be made even more flexible by implementing the builder pattern to allow
  * provisioning of different parsers for each component as the QueryParamsBuilder is being built: I.e:
@@ -26,6 +27,7 @@ public class QueryParamsBuilder {
     public QueryParamsBuilder(final QueryParamsParser queryParamsParser) {
         this.queryParamsParser = queryParamsParser;
     }
+
     /**
      * Decodes passed query parameters
      *
@@ -49,4 +51,15 @@ public class QueryParamsBuilder {
         }
         return deserializedQueryParams;
     }
+
+    /**
+     * Decodes passed query parameters
+     *
+     * @return QueryParams containing filtered query params grouped by JSON:API standard
+     * @throws ParametersDeserializationException thrown when unsupported input format is detected
+     */
+    public QueryParams parseQuery(Optional<String> query) throws KatharsisException {
+        return buildQueryParams(DefaultQueryParamsParser.splitQuery(query.orElse("")));
+    }
+
 }

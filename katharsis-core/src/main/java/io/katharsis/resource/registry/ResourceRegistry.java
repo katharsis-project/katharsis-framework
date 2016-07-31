@@ -3,18 +3,18 @@ package io.katharsis.resource.registry;
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.exception.init.ResourceNotFoundInitializationException;
 import io.katharsis.utils.ClassUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 public class ResourceRegistry {
+
     private final Map<Class, RegistryEntry> resources = new HashMap<>();
     private final String serviceUrl;
-    private final Logger logger = LoggerFactory.getLogger(ResourceRegistry.class);
 
     public ResourceRegistry(String serviceUrl) {
         this.serviceUrl = serviceUrl;
@@ -22,13 +22,14 @@ public class ResourceRegistry {
 
     /**
      * Adds a new resource definition to a registry.
-     * @param resource class of a resource
+     *
+     * @param resource      class of a resource
      * @param registryEntry resource information
-     * @param <T> type of a resource
+     * @param <T>           type of a resource
      */
     public <T> void addEntry(Class<T> resource, RegistryEntry<? extends T> registryEntry) {
         resources.put(resource, registryEntry);
-        logger.debug("Added resource {} to ResourceRegistry", resource.getName());
+        log.debug("Added resource {} to ResourceRegistry", resource.getName());
     }
 
     /**
@@ -53,8 +54,8 @@ public class ResourceRegistry {
      * If a resource cannot be found, {@link ResourceNotFoundInitializationException} is thrown.
      *
      * @param clazz resource type
-     * @throws ResourceNotFoundInitializationException if resource is not found
      * @return registry entry
+     * @throws ResourceNotFoundInitializationException if resource is not found
      */
     public RegistryEntry getEntry(Class clazz) {
         Class resourceClazz = ClassUtils.getJsonApiResourceClass(clazz);
@@ -101,6 +102,7 @@ public class ResourceRegistry {
 
     /**
      * Get a list of all registered resources by Katharsis.
+     *
      * @return resources
      */
     public Map<Class, RegistryEntry> getResources() {

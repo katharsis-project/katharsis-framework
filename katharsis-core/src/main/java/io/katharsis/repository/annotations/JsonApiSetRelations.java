@@ -15,9 +15,9 @@ import java.lang.annotation.Target;
  * The requirements for the method parameters are as follows:
  * </p>
  * <ol>
- *     <li>Instance of a source resource</li>
- *     <li>{@link Iterable} of relationships to be set</li>
- *     <li>Relationship's filed name</li>
+ * <li>Instance of a source resource</li>
+ * <li>{@link Iterable} of relationships to be set</li>
+ * <li>Relationship's filed name</li>
  * </ol>
  * <p>
  * The method's return value should be <i>void</i>.
@@ -29,4 +29,10 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface JsonApiSetRelations {
+    /**
+     * target resource model class type
+     *
+     * @return class
+     */
+    Class<?> target() default Object.class;
 }

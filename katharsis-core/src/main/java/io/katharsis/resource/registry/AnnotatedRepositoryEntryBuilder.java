@@ -1,6 +1,6 @@
 package io.katharsis.resource.registry;
 
-import io.katharsis.locator.JsonServiceLocator;
+import io.katharsis.locator.RepositoryFactory;
 import io.katharsis.repository.RepositoryInstanceBuilder;
 import io.katharsis.repository.annotations.JsonApiRelationshipRepository;
 import io.katharsis.repository.annotations.JsonApiResourceRepository;
@@ -9,6 +9,7 @@ import io.katharsis.resource.registry.repository.AnnotatedResourceEntryBuilder;
 import io.katharsis.resource.registry.repository.ResourceEntry;
 import io.katharsis.resource.registry.repository.ResponseRelationshipEntry;
 import io.katharsis.utils.Predicate1;
+import lombok.Value;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
@@ -18,13 +19,10 @@ import java.util.List;
 /**
  * Repository entries builder for classes annotated with repository annotations.
  */
+@Value
 public class AnnotatedRepositoryEntryBuilder implements RepositoryEntryBuilder {
 
-    private final JsonServiceLocator jsonServiceLocator;
-
-    public AnnotatedRepositoryEntryBuilder(JsonServiceLocator jsonServiceLocator) {
-        this.jsonServiceLocator = jsonServiceLocator;
-    }
+    private final RepositoryFactory repositoryFactory;
 
     @Override
     public ResourceEntry<?, ?> buildResourceRepository(ResourceLookup lookup, final Class<?> resourceClass) {
@@ -39,7 +37,7 @@ public class AnnotatedRepositoryEntryBuilder implements RepositoryEntryBuilder {
         if (repositoryClasses.size() == 0) {
             return null;
         } else {
-            return new AnnotatedResourceEntryBuilder<>(new RepositoryInstanceBuilder<>(jsonServiceLocator, repositoryClasses.get(0)));
+            return new AnnotatedResourceEntryBuilder<>(new RepositoryInstanceBuilder<>(repositoryFactory, repositoryClasses.get(0)));
         }
     }
 
@@ -56,7 +54,7 @@ public class AnnotatedRepositoryEntryBuilder implements RepositoryEntryBuilder {
         List<Class<?>> repositoryClasses = findRepositoryClasses(lookup, classPredicate, JsonApiRelationshipRepository.class);
         List<ResponseRelationshipEntry<?, ?>> relationshipEntries = new ArrayList<>(repositoryClasses.size());
         for (Class<?> repositoryClass : repositoryClasses) {
-            relationshipEntries.add(new AnnotatedRelationshipEntryBuilder<>(new RepositoryInstanceBuilder<>(jsonServiceLocator, repositoryClass)));
+            relationshipEntries.add(new AnnotatedRelationshipEntryBuilder<>(new RepositoryInstanceBuilder<>(repositoryFactory, repositoryClass)));
         }
 
         return relationshipEntries;

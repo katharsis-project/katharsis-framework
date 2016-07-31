@@ -28,7 +28,7 @@ public class AnnotatedResourceRepositoryAdapter<T, ID extends Serializable>
     public AnnotatedResourceRepositoryAdapter(Object implementationObject, ParametersFactory parametersFactory) {
         super(implementationObject, parametersFactory);
     }
-
+    
     public Object findOne(ID id, QueryParams queryParams) {
         Class<JsonApiFindOne> annotationType = JsonApiFindOne.class;
         if (findOneMethod == null) {

@@ -18,8 +18,8 @@ import java.lang.annotation.Target;
  * The requirements for the method parameters are as follows:
  * </p>
  * <ol>
- *     <li>An identifier of a source resource</li>
- *     <li>Relationship's field name</li>
+ * <li>An identifier of a source resource</li>
+ * <li>Relationship's field name</li>
  * </ol>
  * <p>
  * The return value must be an {@link Iterable} of resources of {@link JsonApiRelationshipRepository#target()} type.
@@ -31,4 +31,11 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface JsonApiFindManyTargets {
+
+    /**
+     * target resource model class type
+     *
+     * @return class
+     */
+    Class<?> target() default Object.class;
 }

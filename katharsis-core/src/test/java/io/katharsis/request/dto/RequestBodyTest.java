@@ -3,6 +3,8 @@ package io.katharsis.request.dto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -129,5 +131,51 @@ public class RequestBodyTest {
         while (iter.hasNext())
             copy.add(iter.next());
         return copy;
+    }
+
+    @Test
+    public void testRequestBodySerializeAndDeserializeSingleBody() throws Exception {
+        RequestBody body = new RequestBody(DataBody.builder()
+                .id("1")
+                .type("test")
+                .relationships(new ResourceRelationships())
+                .attributes(objectMapper.createObjectNode().put("name", "sample project"))
+                .build());
+
+        String json = objectMapper.writeValueAsString(body);
+
+        System.out.println(json);
+
+        RequestBody result = objectMapper.readValue(new ByteArrayInputStream(json.getBytes()), RequestBody.class);
+
+        assertThat(result.isMultiple()).isEqualTo(false);
+
+        DataBody data = (DataBody) result.getData();
+        assertThat(data.getId()).isEqualTo("1");
+        assertThat(data.getAttributes().get("name").asText()).isEqualTo("sample project");
+    }
+
+    @Test
+    public void testRequestBodySerializeAndDeserializeCollectionDataBody() throws Exception {
+        RequestBody body = new RequestBody(Collections.singleton(DataBody.builder()
+                .id("1")
+                .type("test")
+                .relationships(new ResourceRelationships())
+                .attributes(objectMapper.createObjectNode().put("name", "sample project"))
+                .build()));
+
+        String json = objectMapper.writeValueAsString(body);
+
+        System.out.println(json);
+
+        RequestBody result = objectMapper.readValue(new ByteArrayInputStream(json.getBytes()), RequestBody.class);
+
+        assertThat(result.isMultiple()).isEqualTo(true);
+
+        Iterable<DataBody> dataList = result.getMultipleData();
+        for (DataBody data: dataList){
+            assertThat(data.getId()).isEqualTo("1");
+            assertThat(data.getAttributes().get("name").asText()).isEqualTo("sample project");
+        }
     }
 }

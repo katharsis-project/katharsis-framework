@@ -1,8 +1,11 @@
 package io.katharsis.resource.registry;
 
-import io.katharsis.locator.SampleJsonServiceLocator;
+import io.katharsis.dispatcher.registry.annotated.ParametersFactory;
+import io.katharsis.locator.NewInstanceRepositoryFactory;
 import io.katharsis.repository.RepositoryInstanceBuilder;
+import io.katharsis.repository.RepositoryParameterProvider;
 import io.katharsis.repository.exception.RelationshipRepositoryNotFoundException;
+import io.katharsis.repository.mock.NewInstanceRepositoryParameterProvider;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.mock.models.Document;
 import io.katharsis.resource.mock.models.Memorandum;
@@ -32,15 +35,25 @@ public class RegistryEntryTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
+    RepositoryParameterProvider provider = new NewInstanceRepositoryParameterProvider();
+
+    ParametersFactory parametersFactory = new ParametersFactory();
+
     @Test
     public void onValidRelationshipClassShouldReturnRelationshipRepository() throws Exception {
         // GIVEN
-        RegistryEntry<Task> sut = new RegistryEntry(null, new AnnotatedResourceEntryBuilder<>(
-            new RepositoryInstanceBuilder(new SampleJsonServiceLocator(), TaskRepository.class)),
-            Collections.singletonList(new DirectResponseRelationshipEntry<>(new RepositoryInstanceBuilder(new SampleJsonServiceLocator(), TaskToProjectRepository.class))));
+
+        RepositoryInstanceBuilder repos = new RepositoryInstanceBuilder(
+                new NewInstanceRepositoryFactory(parametersFactory),
+                TaskToProjectRepository.class);
+        RepositoryInstanceBuilder annotatedRepos = new RepositoryInstanceBuilder(
+                new NewInstanceRepositoryFactory(parametersFactory), TaskRepository.class);
+
+        RegistryEntry<Task> sut = new RegistryEntry(null, new AnnotatedResourceEntryBuilder<>(annotatedRepos),
+                Collections.singletonList(new DirectResponseRelationshipEntry<>(repos)));
 
         // WHEN
-        RelationshipRepositoryAdapter<Task, ?, ?, ?> relationshipRepository = sut.getRelationshipRepositoryForClass(Project.class, null);
+        RelationshipRepositoryAdapter<Task, ?, ?, ?> relationshipRepository = sut.getRelationshipRepositoryForClass(Project.class, provider);
 
         // THEN
         assertThat(relationshipRepository).isExactlyInstanceOf(RelationshipRepositoryAdapter.class);
@@ -51,14 +64,14 @@ public class RegistryEntryTest {
         // GIVEN
         ResourceInformation resourceInformation = new ResourceInformation(Task.class, null, null, null);
         RegistryEntry<Task> sut = new RegistryEntry(resourceInformation, null,
-            Collections.singletonList(new DirectResponseRelationshipEntry<>(
-                new RepositoryInstanceBuilder(new SampleJsonServiceLocator(), TaskToProjectRepository.class))));
+                Collections.singletonList(new DirectResponseRelationshipEntry<>(new RepositoryInstanceBuilder(
+                        new NewInstanceRepositoryFactory(parametersFactory), TaskToProjectRepository.class))));
 
         // THEN
         expectedException.expect(RelationshipRepositoryNotFoundException.class);
 
         // WHEN
-        sut.getRelationshipRepositoryForClass(User.class, null);
+        sut.getRelationshipRepositoryForClass(User.class, provider);
     }
 
     @Test
@@ -81,6 +94,7 @@ public class RegistryEntryTest {
     public void onInvalidParentShouldReturnFalse() throws Exception {
         // GIVEN
         RegistryEntry<Document> document = new RegistryEntry<>(new ResourceInformation(Document.class, null, null, null), null);
+
         RegistryEntry<Task> task = new RegistryEntry<>(new ResourceInformation(Task.class, null, null, null), null);
 
         // WHEN

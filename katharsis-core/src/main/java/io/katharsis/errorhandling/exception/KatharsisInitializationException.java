@@ -5,11 +5,11 @@ package io.katharsis.errorhandling.exception;
  */
 public class KatharsisInitializationException extends RuntimeException {
 
-    protected KatharsisInitializationException(String message) {
+    public KatharsisInitializationException(String message) {
         super(message);
     }
-    
-    protected KatharsisInitializationException(String message, Exception e) {
+
+    public KatharsisInitializationException(String message, Exception e) {
         super(message, e);
     }
 }

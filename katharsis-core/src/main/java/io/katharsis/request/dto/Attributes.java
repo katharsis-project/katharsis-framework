@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Attributes {
+
     private final Map<String, Object> attributesMap = new HashMap<>();
 
     @JsonAnyGetter

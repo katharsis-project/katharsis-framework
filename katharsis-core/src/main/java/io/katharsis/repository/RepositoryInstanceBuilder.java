@@ -1,23 +1,26 @@
 package io.katharsis.repository;
 
-import io.katharsis.locator.JsonServiceLocator;
+import io.katharsis.locator.RepositoryFactory;
 import io.katharsis.repository.exception.RepositoryInstanceNotFoundException;
 
 /**
  * This builder is responsible for creating a new instance of a repository
+ * <p/>
+ * Use Repository Factory instead of this class.
  */
+@Deprecated
 public class RepositoryInstanceBuilder<T> {
 
-    private final JsonServiceLocator jsonServiceLocator;
+    private final RepositoryFactory repositoryFactory;
     private final Class<T> repositoryClass;
 
-    public RepositoryInstanceBuilder(JsonServiceLocator jsonServiceLocator, Class<T> repositoryClass) {
-        this.jsonServiceLocator = jsonServiceLocator;
+    public RepositoryInstanceBuilder(RepositoryFactory repositoryFactory, Class<T> repositoryClass) {
+        this.repositoryFactory = repositoryFactory;
         this.repositoryClass = repositoryClass;
     }
 
     public T buildRepository() {
-        T repoInstance = jsonServiceLocator.getInstance(repositoryClass);
+        T repoInstance = repositoryFactory.getInstance(repositoryClass);
         if (repoInstance == null) {
             throw new RepositoryInstanceNotFoundException(repositoryClass.getCanonicalName());
         }

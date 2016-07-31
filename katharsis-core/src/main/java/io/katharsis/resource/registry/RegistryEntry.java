@@ -1,6 +1,6 @@
 package io.katharsis.resource.registry;
 
-import io.katharsis.repository.RepositoryMethodParameterProvider;
+import io.katharsis.repository.RepositoryParameterProvider;
 import io.katharsis.repository.exception.RelationshipRepositoryNotFoundException;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.repository.AnnotatedRelationshipEntryBuilder;
@@ -27,6 +27,7 @@ import java.util.Objects;
  * @param <T> resource type
  */
 public class RegistryEntry<T> {
+
     private final ResourceInformation resourceInformation;
     private final ResourceEntry<T, ?> resourceEntry;
     private final List<ResponseRelationshipEntry<T, ?>> relationshipEntries;
@@ -46,7 +47,7 @@ public class RegistryEntry<T> {
     }
 
     @SuppressWarnings("unchecked")
-    public ResourceRepositoryAdapter getResourceRepository(RepositoryMethodParameterProvider parameterProvider) {
+    public ResourceRepositoryAdapter getResourceRepository(RepositoryParameterProvider parameterProvider) {
         Object repoInstance = null;
         if (resourceEntry instanceof DirectResponseResourceEntry) {
             repoInstance = ((DirectResponseResourceEntry<T, ?>) resourceEntry).getResourceRepository();
@@ -61,8 +62,7 @@ public class RegistryEntry<T> {
     }
 
     @SuppressWarnings("unchecked")
-    public RelationshipRepositoryAdapter getRelationshipRepositoryForClass(Class clazz,
-                                                                                     RepositoryMethodParameterProvider parameterProvider) {
+    public RelationshipRepositoryAdapter getRelationshipRepositoryForClass(Class clazz, RepositoryParameterProvider parameterProvider) {
         ResponseRelationshipEntry<T, ?> foundRelationshipEntry = null;
         for (ResponseRelationshipEntry<T, ?> relationshipEntry : relationshipEntries) {
             if (clazz == relationshipEntry.getTargetAffiliation()) {
@@ -75,11 +75,11 @@ public class RegistryEntry<T> {
         }
 
         Object repoInstance;
-         if (foundRelationshipEntry instanceof AnnotatedRelationshipEntryBuilder) {
+        if (foundRelationshipEntry instanceof AnnotatedRelationshipEntryBuilder) {
             repoInstance = ((AnnotatedRelationshipEntryBuilder<T, ?>) foundRelationshipEntry).build(parameterProvider);
         } else {
-             repoInstance = ((DirectResponseRelationshipEntry<T, ?>) foundRelationshipEntry).getRepositoryInstanceBuilder();
-         }
+            repoInstance = ((DirectResponseRelationshipEntry<T, ?>) foundRelationshipEntry).getRepositoryInstanceBuilder();
+        }
         return new RelationshipRepositoryAdapter(repoInstance);
     }
 
@@ -127,9 +127,9 @@ public class RegistryEntry<T> {
         }
         RegistryEntry<?> that = (RegistryEntry<?>) o;
         return Objects.equals(resourceInformation, that.resourceInformation) &&
-            Objects.equals(resourceEntry, that.resourceEntry) &&
-            Objects.equals(relationshipEntries, that.relationshipEntries) &&
-            Objects.equals(parentRegistryEntry, that.parentRegistryEntry);
+                Objects.equals(resourceEntry, that.resourceEntry) &&
+                Objects.equals(relationshipEntries, that.relationshipEntries) &&
+                Objects.equals(parentRegistryEntry, that.parentRegistryEntry);
     }
 
     @Override

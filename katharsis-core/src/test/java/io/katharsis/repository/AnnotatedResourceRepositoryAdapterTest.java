@@ -10,7 +10,7 @@ import io.katharsis.repository.annotations.JsonApiResourceRepository;
 import io.katharsis.repository.annotations.JsonApiSave;
 import io.katharsis.repository.exception.RepositoryAnnotationNotFoundException;
 import io.katharsis.repository.exception.RepositoryMethodException;
-import io.katharsis.repository.mock.NewInstanceRepositoryMethodParameterProvider;
+import io.katharsis.repository.mock.NewInstanceRepositoryParameterProvider;
 import io.katharsis.resource.mock.models.Project;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,7 +30,7 @@ public class AnnotatedResourceRepositoryAdapterTest {
     @Before
     public void setUp() throws Exception {
         queryParams = new QueryParams();
-        parameterProvider = new ParametersFactory(new NewInstanceRepositoryMethodParameterProvider());
+        parameterProvider = new ParametersFactory(new NewInstanceRepositoryParameterProvider());
     }
 
     @Test(expected = RepositoryAnnotationNotFoundException.class)

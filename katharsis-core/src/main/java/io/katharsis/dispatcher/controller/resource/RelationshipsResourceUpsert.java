@@ -1,18 +1,18 @@
 package io.katharsis.dispatcher.controller.resource;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.dispatcher.controller.HttpMethod;
+import io.katharsis.dispatcher.controller.Utils;
 import io.katharsis.queryParams.QueryParams;
-import io.katharsis.repository.RepositoryMethodParameterProvider;
+import io.katharsis.queryParams.QueryParamsBuilder;
+import io.katharsis.request.Request;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.RequestBody;
-import io.katharsis.request.path.JsonPath;
-import io.katharsis.request.path.PathIds;
-import io.katharsis.request.path.RelationshipsPath;
+import io.katharsis.request.path.JsonApiPath;
 import io.katharsis.resource.exception.RequestBodyException;
 import io.katharsis.resource.exception.RequestBodyNotFoundException;
 import io.katharsis.resource.exception.ResourceFieldNotFoundException;
-import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -24,17 +24,27 @@ import io.katharsis.response.JsonApiResponse;
 import io.katharsis.response.ResourceResponseContext;
 import io.katharsis.utils.Generics;
 import io.katharsis.utils.parser.TypeParser;
+import lombok.Getter;
 
 import java.io.Serializable;
+import java.util.List;
 
+@Getter
 public abstract class RelationshipsResourceUpsert extends BaseController {
 
+    private final TypeParser typeParser;
     private final ResourceRegistry resourceRegistry;
-    final TypeParser typeParser;
+    private final QueryParamsBuilder paramsBuilder;
 
-    RelationshipsResourceUpsert(ResourceRegistry resourceRegistry, TypeParser typeParser) {
+    RelationshipsResourceUpsert(ResourceRegistry resourceRegistry,
+                                TypeParser typeParser,
+                                QueryParamsBuilder paramsBuilder,
+                                ObjectMapper objectMapper) {
+        super(objectMapper);
         this.resourceRegistry = resourceRegistry;
         this.typeParser = typeParser;
+        this.paramsBuilder = paramsBuilder;
+
     }
 
     /**
@@ -48,13 +58,13 @@ public abstract class RelationshipsResourceUpsert extends BaseController {
      * Processes To-Many field
      *
      * @param resource                       source resource
-     * @param relationshipIdType             {@link Class} class of the relationship's id field
+     * @param relationshipEntry              {@link Class} class of the relationship's id field
      * @param elementName                    field's name
      * @param dataBodies                     Data bodies with relationships
      * @param queryParams                    query params
      * @param relationshipRepositoryForClass Relationship repository
      */
-    protected abstract void processToManyRelationship(Object resource, Class<? extends Serializable> relationshipIdType,
+    protected abstract void processToManyRelationship(Object resource, RegistryEntry relationshipEntry,
                                                       String elementName, Iterable<DataBody> dataBodies, QueryParams queryParams,
                                                       RelationshipRepositoryAdapter relationshipRepositoryForClass);
 
@@ -62,82 +72,95 @@ public abstract class RelationshipsResourceUpsert extends BaseController {
      * Processes To-One field
      *
      * @param resource                       source resource
-     * @param relationshipIdType             {@link Class} class of the relationship's id field
+     * @param relationshipEntry              {@link Class} class of the relationship's id field
      * @param elementName                    field's name
      * @param dataBody                       Data body with a relationship
      * @param queryParams                    query params
      * @param relationshipRepositoryForClass Relationship repository
      */
-    protected abstract void processToOneRelationship(Object resource, Class<? extends Serializable> relationshipIdType,
+    protected abstract void processToOneRelationship(Object resource, RegistryEntry relationshipEntry,
                                                      String elementName, DataBody dataBody, QueryParams queryParams,
                                                      RelationshipRepositoryAdapter relationshipRepositoryForClass);
 
     @Override
-    public final boolean isAcceptable(JsonPath jsonPath, String requestType) {
-        return !jsonPath.isCollection()
-                && RelationshipsPath.class.equals(jsonPath.getClass())
-                && method().name().equals(requestType);
+    public boolean isAcceptable(Request request) {
+        return (request.getMethod() == HttpMethod.POST ||
+                request.getMethod() == HttpMethod.PATCH ||
+                request.getMethod() == HttpMethod.DELETE) &&
+                request.getPath().isRelationshipResource();
     }
 
     @Override
-    public final BaseResponseContext handle(JsonPath jsonPath, QueryParams queryParams,
-                                               RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody) {
-        String resourceName = jsonPath.getResourceName();
-        PathIds resourceIds = jsonPath.getIds();
-        RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
+    public BaseResponseContext handle(Request request) {
+        JsonApiPath path = request.getPath();
+        RegistryEntry registryEntry = resourceRegistry.getEntry(path.getResource());
+        Utils.checkResourceExists(registryEntry, path.getResource());
 
-        if (registryEntry == null) {
-            throw new ResourceNotFoundException(resourceName);
-        }
-        if (requestBody == null) {
-            throw new RequestBodyNotFoundException(HttpMethod.POST, resourceName);
-        }
+        RequestBody requestBody = checkRequestBodyExists(request);
 
-        Serializable castedResourceId = getResourceId(resourceIds, registryEntry);
-        ResourceField relationshipField = registryEntry.getResourceInformation().findRelationshipFieldByName(jsonPath
-            .getElementName());
+        Serializable castedResourceId = getResourceId(registryEntry, path.getIds().get());
+        ResourceField relationshipField = registryEntry.getResourceInformation()
+                .findRelationshipFieldByName(path.getRelationship().get());
+
         if (relationshipField == null) {
-            throw new ResourceFieldNotFoundException(jsonPath.getElementName());
+            throw new ResourceFieldNotFoundException(path.getRelationship().get());
         }
-        ResourceRepositoryAdapter resourceRepository = registryEntry.getResourceRepository(parameterProvider);
+        ResourceRepositoryAdapter resourceRepository = registryEntry.getResourceRepository(request.getParameterProvider());
+
+        QueryParams queryParams = getQueryParamsBuilder().parseQuery(path.getQuery());
+
         @SuppressWarnings("unchecked")
         JsonApiResponse response = resourceRepository.findOne(castedResourceId, queryParams);
         Object resource = extractResource(response);
 
         Class<?> baseRelationshipFieldClass = relationshipField.getType();
         Class<?> relationshipFieldClass = Generics
-            .getResourceClass(relationshipField.getGenericType(), baseRelationshipFieldClass);
-        @SuppressWarnings("unchecked") Class<? extends Serializable> relationshipIdType = (Class<? extends Serializable>) resourceRegistry
-                .getEntry(relationshipFieldClass).getResourceInformation().getIdField().getType();
+                .getResourceClass(relationshipField.getGenericType(), baseRelationshipFieldClass);
+
+        RegistryEntry relationshipEntry = resourceRegistry.getEntry(relationshipFieldClass);
 
         @SuppressWarnings("unchecked")
         RelationshipRepositoryAdapter relationshipRepositoryForClass = registryEntry
-            .getRelationshipRepositoryForClass(relationshipFieldClass, parameterProvider);
+                .getRelationshipRepositoryForClass(relationshipFieldClass, request.getParameterProvider());
+
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
             if (!requestBody.isMultiple()) {
-                throw new RequestBodyException(HttpMethod.POST, resourceName, "Non-multiple data in body");
+                throw new RequestBodyException(HttpMethod.POST, path.getResource(), "Non-multiple data in body");
             }
             Iterable<DataBody> dataBodies = requestBody.getMultipleData();
-            processToManyRelationship(resource, relationshipIdType, jsonPath.getElementName(), dataBodies, queryParams,
-                relationshipRepositoryForClass);
+            processToManyRelationship(resource, relationshipEntry, path.getRelationship().get(), dataBodies, queryParams,
+                    relationshipRepositoryForClass);
         } else {
             if (requestBody.isMultiple()) {
-                throw new RequestBodyException(HttpMethod.POST, resourceName, "Multiple data in body");
+                throw new RequestBodyException(HttpMethod.POST, path.getResource(), "Multiple data in body");
             }
             DataBody dataBody = requestBody.getSingleData();
-            processToOneRelationship(resource, relationshipIdType, jsonPath.getElementName(), dataBody, queryParams,
-                relationshipRepositoryForClass);
+            processToOneRelationship(resource, relationshipEntry, path.getRelationship().get(), dataBody, queryParams,
+                    relationshipRepositoryForClass);
         }
 
         return new ResourceResponseContext(response, HttpStatus.NO_CONTENT_204);
     }
 
-    private Serializable getResourceId(PathIds resourceIds, RegistryEntry<?> registryEntry) {
-        String resourceId = resourceIds.getIds().get(0);
-        @SuppressWarnings("unchecked") Class<? extends Serializable> idClass = (Class<? extends Serializable>) registryEntry
-                .getResourceInformation()
-                .getIdField()
-                .getType();
-        return typeParser.parse(resourceId, idClass);
+    private RequestBody checkRequestBodyExists(Request request) {
+        if (!request.getBody().isPresent()) {
+            throw new RequestBodyNotFoundException(HttpMethod.POST, request.getPath().getResource());
+        }
+        return parseBody(request.getBody().get());
+    }
+
+    private Serializable getResourceId(RegistryEntry<?> registryEntry, List<String> ids) {
+        String resourceId = ids.get(0);
+        return parseId(registryEntry, resourceId);
+    }
+
+    @Override
+    public TypeParser getTypeParser() {
+        return typeParser;
+    }
+
+    @Override
+    public QueryParamsBuilder getQueryParamsBuilder() {
+        return paramsBuilder;
     }
 }

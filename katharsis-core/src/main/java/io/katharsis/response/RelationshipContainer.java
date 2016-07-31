@@ -2,6 +2,8 @@ package io.katharsis.response;
 
 import io.katharsis.jackson.serializer.RelationshipContainerSerializer;
 import io.katharsis.resource.field.ResourceField;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
 import java.util.Objects;
 
@@ -20,29 +22,13 @@ import java.util.Objects;
  *
  * @see RelationshipContainerSerializer
  */
+@Data
+@AllArgsConstructor
 public class RelationshipContainer {
+
     private final DataLinksContainer dataLinksContainer;
     private final ResourceField relationshipField;
     private final boolean forceInclusion;
-
-    public RelationshipContainer(DataLinksContainer dataLinksContainer, ResourceField relationshipField,
-                                 boolean forceInclusion) {
-        this.dataLinksContainer = dataLinksContainer;
-        this.relationshipField = relationshipField;
-        this.forceInclusion = forceInclusion;
-    }
-
-    public ResourceField getRelationshipField() {
-        return relationshipField;
-    }
-
-    public DataLinksContainer getDataLinksContainer() {
-        return dataLinksContainer;
-    }
-
-    public boolean isForceInclusion() {
-        return forceInclusion;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -50,8 +36,8 @@ public class RelationshipContainer {
         if (o == null || getClass() != o.getClass()) return false;
         RelationshipContainer that = (RelationshipContainer) o;
         return forceInclusion == that.forceInclusion &&
-            Objects.equals(dataLinksContainer, that.dataLinksContainer) &&
-            Objects.equals(relationshipField, that.relationshipField);
+                Objects.equals(dataLinksContainer, that.dataLinksContainer) &&
+                Objects.equals(relationshipField, that.relationshipField);
     }
 
     @Override

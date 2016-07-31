@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import io.katharsis.jackson.exception.JsonSerializationException;
-import io.katharsis.request.path.PathBuilder;
 import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -65,7 +64,7 @@ public class RelationshipContainerSerializer extends JsonSerializer<Relationship
         ResourceField idField = entry.getResourceInformation().getIdField();
 
         Object sourceId = PropertyUtils.getProperty(data, idField.getUnderlyingName());
-        String url = resourceUrl + "/" + sourceId + (addLinks ? "/" + PathBuilder.RELATIONSHIP_MARK + "/" : "/")
+        String url = resourceUrl + "/" + sourceId + (addLinks ? "/relationships/" : "/")
             + relationshipContainer.getRelationshipField().getJsonName();
         gen.writeStringField(fieldName, url);
     }

@@ -1,13 +1,11 @@
 package io.katharsis.dispatcher.controller.resource;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.QueryParams;
-import io.katharsis.repository.RepositoryMethodParameterProvider;
-import io.katharsis.request.dto.RequestBody;
-import io.katharsis.request.path.JsonPath;
-import io.katharsis.request.path.PathIds;
-import io.katharsis.request.path.ResourcePath;
-import io.katharsis.resource.exception.ResourceNotFoundException;
+import io.katharsis.queryParams.QueryParamsBuilder;
+import io.katharsis.request.Request;
+import io.katharsis.request.path.JsonApiPath;
 import io.katharsis.resource.include.IncludeLookupSetter;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -18,51 +16,52 @@ import io.katharsis.response.ResourceResponseContext;
 import io.katharsis.utils.parser.TypeParser;
 
 import java.io.Serializable;
+import java.util.List;
+
+import static io.katharsis.dispatcher.controller.Utils.checkResourceExists;
 
 public class ResourceGet extends ResourceIncludeField {
 
-    public ResourceGet(ResourceRegistry resourceRegistry, TypeParser typeParser, IncludeLookupSetter fieldSetter) {
-        super(resourceRegistry, typeParser, fieldSetter);
+    public ResourceGet(ResourceRegistry resourceRegistry,
+                       TypeParser typeParser,
+                       IncludeLookupSetter fieldSetter,
+                       QueryParamsBuilder paramsBuilder,
+                       ObjectMapper objectMapper) {
+        super(resourceRegistry, typeParser, fieldSetter, paramsBuilder, objectMapper);
     }
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * Checks if requested resource method is acceptable - is a GET request for a resource.
      */
     @Override
-    public boolean isAcceptable(JsonPath jsonPath, String requestType) {
-        return !jsonPath.isCollection()
-                && jsonPath instanceof ResourcePath
-                && HttpMethod.GET.name().equals(requestType);
+    public boolean isAcceptable(Request request) {
+        return request.getMethod() == HttpMethod.GET && !request.getPath().isCollection();
     }
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * Passes the request to controller method.
      */
     @Override
-    public BaseResponseContext handle(JsonPath jsonPath, QueryParams queryParams, RepositoryMethodParameterProvider
-        parameterProvider, RequestBody requestBody) {
-        String resourceName = jsonPath.getElementName();
-        PathIds resourceIds = jsonPath.getIds();
-        RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
-        if (registryEntry == null) {
-            throw new ResourceNotFoundException(resourceName);
-        }
-        String id = resourceIds.getIds().get(0);
+    public BaseResponseContext handle(Request request) {
+        JsonApiPath path = request.getPath();
 
-        @SuppressWarnings("unchecked") Class<? extends Serializable> idClass = (Class<? extends Serializable>) registryEntry
-                .getResourceInformation()
-                .getIdField()
-                .getType();
-        Serializable castedId = typeParser.parse(id, idClass);
-        ResourceRepositoryAdapter resourceRepository = registryEntry.getResourceRepository(parameterProvider);
+        RegistryEntry registryEntry = resourceRegistry.getEntry(path.getResource());
+        checkResourceExists(registryEntry, path.getResource());
+
+        List<String> resourceIds = request.getPath().getIds().get();
+        Serializable castedId = parseId(registryEntry, resourceIds.get(0));
+        ResourceRepositoryAdapter resourceRepository = registryEntry.getResourceRepository(request.getParameterProvider());
+
+        QueryParams params = getQueryParamsBuilder().parseQuery(path.getQuery());
         @SuppressWarnings("unchecked")
-        JsonApiResponse response = resourceRepository.findOne(castedId, queryParams);
-        includeFieldSetter.setIncludedElements(resourceName, response, queryParams, parameterProvider);
+        JsonApiResponse response = resourceRepository.findOne(castedId, params);
+        includeFieldSetter.injectIncludedRelationshipsInResource(response, request, params);
 
-        return new ResourceResponseContext(response, jsonPath, queryParams);
+        return new ResourceResponseContext(response, path, params);
     }
+
 }

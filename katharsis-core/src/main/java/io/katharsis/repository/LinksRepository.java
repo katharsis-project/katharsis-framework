@@ -1,7 +1,7 @@
 package io.katharsis.repository;
 
+import io.katharsis.domain.api.LinksInformation;
 import io.katharsis.queryParams.QueryParams;
-import io.katharsis.response.LinksInformation;
 
 /**
  * An optional interface that can be implemented along with {@link ResourceRepository} or {@link

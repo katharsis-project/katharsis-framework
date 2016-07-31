@@ -1,9 +1,13 @@
 package io.katharsis.queryParams;
 
+import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -110,4 +114,18 @@ public class DefaultQueryParamsParserTest {
         assertThat(result.entrySet().iterator().next().getValue().equals(Collections.singleton("name")));
     }
 
+    @Test
+    public void testIncludeRelationshipWithPathShouldIncludePathInTheResult() throws Exception {
+        // GIVEN
+        // include[candidates][]=candidate-assessments&include[candidates][]=candidate-assessments.assessment-template
+        Set<String> included = Sets.newHashSet("candidate-assessments", "candidate-assessments.assessment-template");
+        queryParams.put("include[candidates]", included);
+
+        // WHEN
+        Map<String, Set<String>> result = parser.parseIncludedRelationsParameters(queryParams);
+
+        // THEN
+        assertThat(result.entrySet().size()).isEqualTo(1);
+
+    }
 }

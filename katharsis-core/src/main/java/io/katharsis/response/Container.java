@@ -1,6 +1,10 @@
 package io.katharsis.response;
 
 import io.katharsis.jackson.serializer.ContainerSerializer;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import java.util.Objects;
 
@@ -8,33 +12,14 @@ import java.util.Objects;
  * A class responsible for representing a single data filed within top-level JSON object returned by Katharsis. The
  * resulting JSON is serialized using {@link ContainerSerializer}.
  */
+@Data
+@EqualsAndHashCode(of = "data")
+@NoArgsConstructor
+@AllArgsConstructor
 public class Container {
+
     private Object data;
     private BaseResponseContext response;
-
-    public Container() {
-    }
-
-    public Container(Object data, BaseResponseContext response) {
-        this.data = data;
-        this.response = response;
-    }
-
-    public BaseResponseContext getResponse() {
-        return response;
-    }
-
-    public void setResponse(BaseResponseContext response) {
-        this.response = response;
-    }
-
-    public Object getData() {
-        return data;
-    }
-
-    public void setData(Object data) {
-        this.data = data;
-    }
 
     @Override
     public boolean equals(Object o) {

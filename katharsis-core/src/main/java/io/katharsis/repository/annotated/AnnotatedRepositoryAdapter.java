@@ -1,5 +1,7 @@
 package io.katharsis.repository.annotated;
 
+import io.katharsis.domain.api.LinksInformation;
+import io.katharsis.domain.api.MetaInformation;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.LinksRepository;
 import io.katharsis.repository.MetaRepository;
@@ -7,8 +9,6 @@ import io.katharsis.repository.ParametersFactory;
 import io.katharsis.repository.annotations.JsonApiLinks;
 import io.katharsis.repository.annotations.JsonApiMeta;
 import io.katharsis.repository.exception.RepositoryAnnotationNotFoundException;
-import io.katharsis.response.LinksInformation;
-import io.katharsis.response.MetaInformation;
 import io.katharsis.utils.ClassUtils;
 
 import java.lang.annotation.Annotation;
@@ -83,7 +83,8 @@ public abstract class AnnotatedRepositoryAdapter<T> implements LinksRepository<T
         }
     }
 
-    protected <TYPE> TYPE invokeOperation(Method foundMethod, Class<? extends Annotation> annotationType,
+    protected <TYPE> TYPE invokeOperation(Method foundMethod,
+                                          Class<? extends Annotation> annotationType,
                                           Object[] firstParameters) {
         checkIfNotNull(annotationType, foundMethod);
         Object[] methodParameters = parametersFactory
@@ -91,8 +92,11 @@ public abstract class AnnotatedRepositoryAdapter<T> implements LinksRepository<T
         return invoke(foundMethod, methodParameters);
     }
 
-    protected <TYPE> TYPE invokeOperation(Method foundMethod, Class<? extends Annotation> annotationType,
-                                          Object[] firstParameters, QueryParams queryParams) {
+    protected <TYPE> TYPE invokeOperation(Method foundMethod,
+                                          Class<? extends Annotation> annotationType,
+                                          Object[] firstParameters,
+                                          QueryParams queryParams) {
+
         checkIfNotNull(annotationType, foundMethod);
         Object[] methodParameters = parametersFactory
             .buildParameters(firstParameters, foundMethod, queryParams, annotationType);
