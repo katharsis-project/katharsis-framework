@@ -7,6 +7,8 @@ import io.katharsis.jackson.deserializer.ResourceRelationshipsDeserializer;
 public class DataBody {
     private String id;
     private String type;
+	private JsonNode links;
+	private JsonNode meta;
 
     @JsonDeserialize(using = ResourceRelationshipsDeserializer.class)
     private ResourceRelationships relationships;
@@ -44,4 +46,20 @@ public class DataBody {
     public void setAttributes(JsonNode attributes) {
         this.attributes = attributes;
     }
+    
+	public JsonNode getLinks() {
+		return links;
+	}
+
+	public void setLinks(JsonNode links) {
+		this.links = links;
+	}
+	
+	public JsonNode getMeta() {
+		return meta;
+	}
+
+	public void setMeta(JsonNode meta) {
+		this.meta = meta;
+	}
 }
