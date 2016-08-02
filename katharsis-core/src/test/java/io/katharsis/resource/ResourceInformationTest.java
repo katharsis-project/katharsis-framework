@@ -17,7 +17,7 @@ public class ResourceInformationTest {
         // GIVEN
         Field field = String.class.getDeclaredField("value");
         ResourceField resourceField = new ResourceField("value", "value", field.getType(), field.getGenericType());
-        ResourceInformation sut = new ResourceInformation(Task.class, null, null, Collections.singleton(resourceField));
+        ResourceInformation sut = new ResourceInformation(Task.class, null, null, null, Collections.singleton(resourceField));
 
         // WHEN
         ResourceField result = sut.findRelationshipFieldByName("value");

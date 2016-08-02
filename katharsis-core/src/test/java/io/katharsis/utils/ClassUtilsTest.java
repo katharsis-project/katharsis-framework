@@ -108,39 +108,6 @@ public class ClassUtilsTest {
     }
 
     @Test
-    public void onGetJsonApiResourceClassReturnCorrectClass() {
-        // WHEN
-        Class<? super ResourceClass$Proxy> clazz = ClassUtils.getJsonApiResourceClass(ResourceClass$Proxy.class);
-
-        // THEN
-        assertThat(clazz).isNotNull();
-        assertThat(clazz).hasAnnotation(JsonApiResource.class);
-        assertThat(clazz).isEqualTo(ResourceClass.class);
-    }
-
-    @Test
-    public void onGetJsonApiResourceClassReturnCorrectInstanceClass() {
-        ResourceClass$Proxy resource = new ResourceClass$Proxy();
-
-        // WHEN
-        Class<? super ResourceClass$Proxy> clazz = ClassUtils.getJsonApiResourceClass(resource);
-
-        // THEN
-        assertThat(clazz).isEqualTo(ResourceClass.class);
-    }
-
-    @Test
-    public void onGetJsonApiResourceClassReturnNoInstanceClass() {
-        ParentClass resource = new ParentClass();
-
-        // WHEN
-        Class<? super ParentClass> clazz = ClassUtils.getJsonApiResourceClass(resource);
-
-        // THEN
-        assertThat(clazz).isNull();
-    }
-
-    @Test
     public void onGetAnnotationShouldReturnAnnotation() {
         // WHEN
         Optional<JsonApiResource> result = ClassUtils.getAnnotation(ResourceClass.class, JsonApiResource.class);

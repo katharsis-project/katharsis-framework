@@ -17,7 +17,10 @@ public class ClassA {
     private final List<ClassB> classBs;
 
     public ClassA(ClassB classBs) {
-        this.classBs = Collections.singletonList(classBs);
+    	if(classBs != null)
+    		this.classBs = Collections.singletonList(classBs);
+    	else
+    		this.classBs = Collections.emptyList();
     }
 
     public Long getId() {

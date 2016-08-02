@@ -17,4 +17,5 @@ public interface BaseResponseContext {
     JsonPath getJsonPath();
 
     QueryParams getQueryParams();
+	
 }

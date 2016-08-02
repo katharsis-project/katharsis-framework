@@ -23,6 +23,8 @@ import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryBuilder;
 import io.katharsis.jackson.JsonApiModuleBuilder;
 import io.katharsis.locator.JsonServiceLocator;
+import io.katharsis.module.CoreModule;
+import io.katharsis.module.ModuleRegistry;
 import io.katharsis.queryParams.DefaultQueryParamsParser;
 import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
@@ -40,6 +42,8 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
  */
 public class KatharsisInvokerBuilder {
 
+	private ModuleRegistry moduleRegistry = new ModuleRegistry();
+	
     private ObjectMapper objectMapper;
     private QueryParamsBuilder queryParamsBuilder;
     private ResourceRegistry resourceRegistry;
@@ -50,6 +54,11 @@ public class KatharsisInvokerBuilder {
     private String resourceSearchPackage;
     private String resourceDefaultDomain;
 
+    public KatharsisInvokerBuilder module(io.katharsis.module.Module module){
+    	moduleRegistry.addModule(module);
+    	return this;
+    }
+    
     public KatharsisInvokerBuilder objectMapper(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
         return this;
@@ -100,23 +109,28 @@ public class KatharsisInvokerBuilder {
                 throw new IllegalArgumentException("Resource Default Domain should not be null.");
             }
         }
+        
+        ResourceFieldNameTransformer buildResourceFieldNameTransformer = buildResourceFieldNameTransformer();
+    	moduleRegistry.addModule(new CoreModule(resourceSearchPackage, buildResourceFieldNameTransformer));
 
         if (resourceRegistry == null) {
             if (jsonServiceLocator == null) {
                 throw new IllegalArgumentException("JsonServiceLocator should be provided!");
             }
 
-            resourceRegistry = buildResourceRegistry(jsonServiceLocator, resourceSearchPackage, resourceDefaultDomain);
+            resourceRegistry = buildResourceRegistry(jsonServiceLocator, resourceDefaultDomain);
         }
 
         if (objectMapper == null) {
             objectMapper = createObjectMapper(resourceRegistry);
         }
-
+        
+        moduleRegistry.init(objectMapper, resourceRegistry);
+        
         if (queryParamsBuilder == null) {
             queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
         }
-
+        
         if (requestDispatcher == null) {
             if (exceptionMapperRegistry == null) {
                 exceptionMapperRegistry = buildExceptionMapperRegistry(resourceSearchPackage);
@@ -133,19 +147,23 @@ public class KatharsisInvokerBuilder {
         return mapperRegistryBuilder.build(resourceSearchPackage);
     }
 
+    protected ResourceFieldNameTransformer buildResourceFieldNameTransformer(){
+    	 ResourceFieldNameTransformer resourceFieldNameTransformer;
+         if (objectMapper != null) {
+             resourceFieldNameTransformer =
+                     new ResourceFieldNameTransformer(objectMapper.getSerializationConfig());
+         } else {
+             // As for now get default configuration if object mapper hasn't been initialized
+             resourceFieldNameTransformer =
+                     new ResourceFieldNameTransformer((new ObjectMapper()).getSerializationConfig());
+         }
+         return resourceFieldNameTransformer;
+    }
 
-    protected ResourceRegistry buildResourceRegistry(JsonServiceLocator jsonServiceLocator, String resourceSearchPackage, String resourceDefaultDomain) {
-        ResourceFieldNameTransformer resourceFieldNameTransformer;
-        if (objectMapper != null) {
-            resourceFieldNameTransformer =
-                    new ResourceFieldNameTransformer(objectMapper.getSerializationConfig());
-        } else {
-            // As for now get default configuration if object mapper hasn't been initialized
-            resourceFieldNameTransformer =
-                    new ResourceFieldNameTransformer((new ObjectMapper()).getSerializationConfig());
-        }
+    protected ResourceRegistry buildResourceRegistry(JsonServiceLocator jsonServiceLocator, String resourceDefaultDomain) {
+       
         ResourceRegistryBuilder registryBuilder =
-                new ResourceRegistryBuilder(jsonServiceLocator, new ResourceInformationBuilder(resourceFieldNameTransformer));
+                new ResourceRegistryBuilder(jsonServiceLocator, moduleRegistry.getResourceInformationBuilder());
 
         return registryBuilder.build(resourceSearchPackage, resourceDefaultDomain);
     }
@@ -159,7 +177,7 @@ public class KatharsisInvokerBuilder {
         ControllerRegistryBuilder controllerRegistryBuilder = new ControllerRegistryBuilder(resourceRegistry, typeParser, objectMapper);
         ControllerRegistry controllerRegistry = controllerRegistryBuilder.build();
 
-        return new RequestDispatcher(controllerRegistry, exceptionMapperRegistry);
+        return new RequestDispatcher(moduleRegistry, controllerRegistry, exceptionMapperRegistry);
     }
 
     protected ObjectMapper createObjectMapper(ResourceRegistry resourceRegistry) {

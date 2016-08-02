@@ -1,6 +1,7 @@
 package io.katharsis.resource.registry;
 
 import io.katharsis.resource.exception.init.ResourceNotFoundInitializationException;
+import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.mock.models.Task;
 import org.junit.Before;
 import org.junit.Rule;
@@ -23,21 +24,21 @@ public class ResourceRegistryTest {
 
     @Test
     public void onExistingTypeShouldReturnEntry() {
-        resourceRegistry.addEntry(Task.class, new RegistryEntry(null, null, null));
+    	resourceRegistry.addEntry(Task.class, new RegistryEntry(new ResourceInformation(Task.class, "tasks", null, null, null), null, null));
         RegistryEntry tasksEntry = resourceRegistry.getEntry("tasks");
         assertThat(tasksEntry).isNotNull();
     }
 
     @Test
     public void onExistingClassShouldReturnEntry() {
-        resourceRegistry.addEntry(Task.class, new RegistryEntry(null, null, null));
+    	resourceRegistry.addEntry(Task.class, new RegistryEntry(new ResourceInformation(Task.class, "tasks", null, null, null), null, null));
         RegistryEntry tasksEntry = resourceRegistry.getEntry(Task.class);
         assertThat(tasksEntry).isNotNull();
     }
 
     @Test
     public void onExistingTypeShouldReturnUrl() {
-        resourceRegistry.addEntry(Task.class, new RegistryEntry(null, null, null));
+        resourceRegistry.addEntry(Task.class, new RegistryEntry(new ResourceInformation(Task.class, "tasks", null, null, null), null, null));
         String resourceUrl = resourceRegistry.getResourceUrl(Task.class);
         assertThat(resourceUrl).isEqualTo(TEST_MODELS_URL + "/tasks");
     }

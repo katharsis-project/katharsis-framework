@@ -20,6 +20,10 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable> extends Respo
         this.resourceRepository = resourceRepository;
         this.isAnnotated = resourceRepository instanceof AnnotatedResourceRepositoryAdapter;
     }
+    
+    public Object getResourceRepository(){
+    	return resourceRepository;
+    }
 
     public JsonApiResponse findOne(ID id, QueryParams queryParams) {
         Object resource;

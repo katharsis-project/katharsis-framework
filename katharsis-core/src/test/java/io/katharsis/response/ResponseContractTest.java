@@ -31,8 +31,8 @@ public class ResponseContractTest {
 
     @Test
     public void LinkageContainerContainerEqualsContract() throws NoSuchFieldException {
-        ResourceInformation resourceInformationRed = new ResourceInformation(String.class, null, null, null);
-        ResourceInformation resourceInformationBlack = new ResourceInformation(Integer.class, null, null, null);
+        ResourceInformation resourceInformationRed = new ResourceInformation(String.class, null, null, null, null);
+        ResourceInformation resourceInformationBlack = new ResourceInformation(Integer.class, null, null, null, null);
 
         @SuppressWarnings("unchecked") RegistryEntry registryEntryRed = new RegistryEntry(resourceInformationRed, null, null);
         @SuppressWarnings("unchecked") RegistryEntry registryEntryBlack = new RegistryEntry(resourceInformationBlack, null, null);

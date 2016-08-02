@@ -28,7 +28,7 @@ public class ResourceResponseContext implements BaseResponseContext {
     private QueryParams queryParams;
 
     private int httpStatus;
-
+    
     public ResourceResponseContext(JsonApiResponse response, int httpStatus) {
         this(response, null, null, httpStatus);
     }
