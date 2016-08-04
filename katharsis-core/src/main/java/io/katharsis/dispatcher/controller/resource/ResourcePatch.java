@@ -21,6 +21,7 @@ import io.katharsis.response.ResourceResponseContext;
 import io.katharsis.utils.parser.TypeParser;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 
 public class ResourcePatch extends ResourceUpsert {
@@ -107,22 +108,28 @@ public class ResourcePatch extends ResourceUpsert {
 
     }
 
-    private void updateValues(Map<String, Object> source,
-                    Map<String, Object> updates) {
+    private void updateValues(Map<String, Object> source, Map<String, Object> updates) {
 
-        for (Map.Entry<String, Object> entry : source.entrySet()) {
-            if (!updates.containsKey(entry.getKey())) {
+        for (Map.Entry<String, Object> entry : updates.entrySet()) {
+            String fieldName = entry.getKey();
+            Object updatedValue = entry.getValue();
+
+            // updating an embedded object
+            if (updatedValue instanceof Map) {
+
+                // source may lack the whole entry yet
+                if (!source.containsKey(fieldName)) {
+                    source.put(fieldName, new HashMap<>());
+                }
+
+                Object sourceMap = source.get(fieldName);
+                updateValues((Map<String, Object>)sourceMap, (Map<String, Object>)updatedValue);
                 continue;
             }
-            Object obj = entry.getValue();
-            Object upd = updates.get(entry.getKey());
-            if (obj instanceof Map) {
-                updateValues((Map<String, Object>)obj, (Map<String, Object>)upd);
-                continue;
-            }
-            source.put(entry.getKey(), upd);
+
+            // updating a simple value
+            source.put(fieldName, updatedValue);
         }
-
     }
 
 }

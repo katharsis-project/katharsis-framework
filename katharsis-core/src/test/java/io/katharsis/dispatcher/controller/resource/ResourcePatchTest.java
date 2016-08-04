@@ -249,7 +249,17 @@ public class ResourcePatchTest extends BaseControllerTest {
         DataBody data = new DataBody();
         complexPojoPatch.setData(data);
         data.setType("complexpojos");
-        JsonNode patchAttributes = objectMapper.readTree("{\"containedPojo\": { \"updateableProperty1\":\"updated value\"}}");
+
+        String rawPatchData = "" +
+                "{" +
+                "  'containedPojo':{" +
+                "    'updateableProperty1':'updated value'" +
+                "  }," +
+                "  'updateableProperty':'wasNullBefore'" +
+                "}";
+        rawPatchData = rawPatchData.replaceAll("'", "\"");
+
+        JsonNode patchAttributes = objectMapper.readTree(rawPatchData);
         data.setAttributes(patchAttributes);
         JsonPath jsonPath = pathBuilder.buildPath("/complexpojos/" + complexPojoId);
         ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser, objectMapper);
@@ -262,6 +272,7 @@ public class ResourcePatchTest extends BaseControllerTest {
         assertThat(response.getResponse().getEntity()).isExactlyInstanceOf(ComplexPojo.class);
         assertThat(((ComplexPojo) (response.getResponse().getEntity())).getContainedPojo().getUpdateableProperty1()).isEqualTo("updated value");
         assertThat(((ComplexPojo) (response.getResponse().getEntity())).getContainedPojo().getUpdateableProperty2()).isEqualTo("value from repository mock");
+        assertThat(((ComplexPojo) (response.getResponse().getEntity())).getUpdateableProperty()).isEqualTo("wasNullBefore");
     }
 
 }
