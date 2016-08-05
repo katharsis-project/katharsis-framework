@@ -60,14 +60,6 @@ public class KatharsisFeature implements Feature {
     	moduleRegistry.addModule(module);
     }
 
-    public ExceptionMapperLookup createExceptionMapperLookup(FeatureContext context) {
-        String resourceSearchPackage = (String) context
-                .getConfiguration()
-                .getProperty(KatharsisProperties.RESOURCE_SEARCH_PACKAGE);
-
-        return new DefaultExceptionMapperLookup(resourceSearchPackage);
-    }
-
     private RequestContextParameterProviderLookup createRequestContextProviderLookup(FeatureContext context) {
         String resourceSearchPackage = (String) context
                 .getConfiguration()
@@ -102,7 +94,7 @@ public class KatharsisFeature implements Feature {
 
         KatharsisFilter katharsisFilter;
         try {
-            ExceptionMapperLookup exceptionMapperLookup = createExceptionMapperLookup(context);
+            ExceptionMapperLookup exceptionMapperLookup = moduleRegistry.getExceptionMapperLookup();
             ExceptionMapperRegistry exceptionMapperRegistry = buildExceptionMapperRegistry(exceptionMapperLookup);
             RequestContextParameterProviderLookup containerRequestContextProviderLookup = createRequestContextProviderLookup(context);
             RequestContextParameterProviderRegistry parameterProviderRegistry = buildParameterProviderRegistry(containerRequestContextProviderLookup);
