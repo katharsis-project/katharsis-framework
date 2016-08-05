@@ -203,27 +203,11 @@ public class ContainerSerializer extends JsonSerializer<Container> {
      */
     private static Optional<Set<String>> includedFields(String resourceType, TypedParams<IncludedFieldsParams> includedFields) {
         IncludedFieldsParams typeIncludedFields = findIncludedFields(includedFields, resourceType);
-        if (fieldsForOtherResourceSpecified(includedFields, typeIncludedFields)) {
-            return Optional.of(Collections.<String>emptySet());
-        } else if (noResourceIncludedFieldsSpecified(typeIncludedFields)) {
+        if (noResourceIncludedFieldsSpecified(typeIncludedFields)) {
             return Optional.empty();
         } else {
             return Optional.of(typeIncludedFields.getParams());
         }
-    }
-
-    /**
-     * Checks if fields for other resource has been specified but not for the processed one
-     *
-     * @param includedFields     fields to be included
-     * @param typeIncludedFields resource fields to be included
-     * @return true if fields for other resource has been specified but not for the processed one, false otherwise
-     */
-    private static boolean fieldsForOtherResourceSpecified(TypedParams<IncludedFieldsParams> includedFields,
-                                                           IncludedFieldsParams typeIncludedFields) {
-        return includedFields != null &&
-            !includedFields.getParams().isEmpty() &&
-            noResourceIncludedFieldsSpecified(typeIncludedFields);
     }
 
     /**

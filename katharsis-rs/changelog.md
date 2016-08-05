@@ -1,5 +1,11 @@
 # katharsis-rs v2.5.0-SNAPSHOT git changelog
 
+2016-08-05    Created first draft of contribution guide. (cherry picked from commit f277cbc) (Patryk Orwat)  
+2016-08-05    Smallfix (cherry picked from commit 34ac31a) (Patryk Orwat)  
+2016-08-05    Create README.md (cherry picked from commit 4cb5118) (Patryk Orwat)  
+2016-08-05    add maven-enforcer-plugin - mvn validate goal will trigger the enforcer - ensures the JDK used to compile is the version we claim to support (cherry picked from commit fdc42a7) (Patryk Orwat)  
+2016-08-05    fixed maven warnings (cherry picked from commit f70fd39) (Patryk Orwat)  
+2016-07-28    adjusted maven for submodules + adjusted examples to work with Java 7 (Patryk Orwat)  
 2016-07-28    Moved katharsis-examples files into subdir (Patryk Orwat)  
 2016-07-28    Moved katharsis-parent files into subdir (Patryk Orwat)  
 2016-07-28    Moved katharsis-spring files into subdir (Patryk Orwat)  
@@ -114,6 +120,8 @@
 2016-02-10    squid:S2325 "private" methods that don't access instance data should be "static" (George Kankava)  
 2016-02-09    222: Break in ResourceRegistry (Charlie Helin)  
 2016-02-09    replaced all JsonApi interfaces with annotations (Markus Vieghofer)  
+
+**v2.2.1**  
 2016-02-08    v2.2.1 (Patryk Orwat)  
 2016-02-08    [#18](https://github.com/katharsis-project/katharsis-rs/issues/18) made configuration classes public (Patryk Orwat)  
 2016-02-08    service locator failure - DO NOT MERGE (Patryk Orwat)  
@@ -131,7 +139,11 @@
 2016-02-03    removed Java 8 API comment link (Razvan Dragut)  
 2016-02-03    Fixed spring boot example (Razvan Dragut)  
 2016-02-03    Enhancement [#209](https://github.com/katharsis-project/katharsis-rs/issues/209) - Provide custom QueryParamsBuilder (Razvan Dragut)  
+
+**v2.1.8**  
 2016-01-28    [#13](https://github.com/katharsis-project/katharsis-rs/issues/13) v2.1.8 (Patryk Orwat)  
+
+**v2.1.7**  
 2016-01-27    v2.1.7 (Patryk Orwat)  
 
 **v2.1.5**  
@@ -162,8 +174,6 @@
 2015-12-21    katharsis-project/katharsis-core[#48](https://github.com/katharsis-project/katharsis-rs/issues/48) downgrade to Java 7 (Patryk Orwat)  
 2015-12-20    [#48](https://github.com/katharsis-project/katharsis-rs/issues/48) travis update (Patryk Orwat)  
 2015-12-20    [#48](https://github.com/katharsis-project/katharsis-rs/issues/48) corporate dictatorship - finished tests (Patryk Orwat)  
-
-**v1.0.5**  
 2015-12-20    katharsis-project/katharsis-core[#48](https://github.com/katharsis-project/katharsis-rs/issues/48) assertj downgrade (Patryk Orwat)  
 2015-12-20    [#48](https://github.com/katharsis-project/katharsis-rs/issues/48) corporate dictatorship - finished main classes (Patryk Orwat)  
 2015-12-20    [#48](https://github.com/katharsis-project/katharsis-rs/issues/48) first set of changed classes from main (Patryk Orwat)  
@@ -195,8 +205,6 @@
 2015-12-05    katharsis-core-186 review (Patryk Orwat)  
 2015-12-04    version up (Patryk Orwat)  
 2015-12-04    Added maven bundle plugin to parent pom. Plugin can be used to add OSGi headers. katharsis-project/katharsis-core issue [#186](https://github.com/katharsis-project/katharsis-rs/issues/186) (Cornelis Hoeflake)  
-
-**v2.1.1**  
 2015-12-03    v2.1.1 (Patryk Orwat)  
 2015-12-03    v2.1.1 (Patryk Orwat)  
 2015-12-03    v2.1.1 (Patryk Orwat)  
