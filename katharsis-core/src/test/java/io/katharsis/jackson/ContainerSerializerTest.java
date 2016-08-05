@@ -157,27 +157,6 @@ public class ContainerSerializerTest extends BaseSerializerTest {
     }
 
     @Test
-    public void onIncludedAttributesInOtherResourceShouldNotContainFields() throws Exception {
-        // GIVEN
-        Task task = new Task();
-        task.setName("some name");
-        Project project = new Project();
-        project.setId(1L);
-        task.setProject(project);
-
-        QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
-        QueryParams queryParams = queryParamsBuilder.buildQueryParams(Collections.singletonMap("fields[projects]", Collections.singleton("name")));
-        JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath("/tasks");
-
-        // WHEN
-        String result = sut.writeValueAsString(new Container(task, new ResourceResponseContext(new JsonApiResponse(), jsonPath, queryParams)));
-
-        // THEN
-        assertThatJson(result).node("relationships.project").isAbsent();
-        assertThatJson(result).node("attributes.name").isAbsent();
-    }
-
-    @Test
     public void onNestedAttributesShouldSerializeCorrectly() throws Exception {
         // GIVEN
         Pojo pojo = new Pojo();
