@@ -33,4 +33,6 @@ public interface MetaDataObject extends MetaType {
 
 	MetaProjection asProjection();
 
+	boolean hasAttribute(String name);
+
 }

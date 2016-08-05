@@ -4,7 +4,7 @@ import java.beans.PropertyDescriptor;
 
 public class MetaEntityAttributeImpl extends AbstractMetaEntityAttributeImpl {
 	
-	public MetaEntityAttributeImpl(MetaEntityImpl parent, PropertyDescriptor desc) {
+	public MetaEntityAttributeImpl(AbstractMetaEntityImpl parent, PropertyDescriptor desc) {
 		super(parent, desc);
 	}
 }

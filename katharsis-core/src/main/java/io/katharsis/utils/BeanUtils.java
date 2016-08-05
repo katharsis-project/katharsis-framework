@@ -17,7 +17,7 @@ public class BeanUtils {
     public static String getProperty(Object bean, String field) {
         Object property = PropertyUtils.getProperty(bean, field);
         if (property == null) {
-            return "null";
+            return null;
         }
 
         return property.toString();

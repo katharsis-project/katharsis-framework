@@ -102,6 +102,7 @@ public class JpaEndToEndTest extends JerseyTest {
 		}
 	}
 
+	
 	@Test
 	public void testIncludeRelations() throws InstantiationException, IllegalAccessException {
 		addTestWithOneRelation();
@@ -163,7 +164,7 @@ public class JpaEndToEndTest extends JerseyTest {
 		Assert.assertEquals(task.getId(), savedTask.getId());
 		Assert.assertEquals(task.getStringValue(), savedTask.getStringValue());
 	}
-
+	
 	@Test
 	public void testDelete() {
 		TestEntity test = new TestEntity();

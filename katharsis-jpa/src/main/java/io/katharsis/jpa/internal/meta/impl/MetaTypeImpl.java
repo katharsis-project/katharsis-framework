@@ -7,7 +7,7 @@ import java.util.Set;
 import io.katharsis.jpa.internal.meta.MetaCollectionType;
 import io.katharsis.jpa.internal.meta.MetaType;
 
-public abstract class MetaTypeImpl extends MetaElementImpl implements MetaType {
+public class MetaTypeImpl extends MetaElementImpl implements MetaType {
 
 	private Class<?> implClass;
 	private Type implType;
@@ -39,7 +39,9 @@ public abstract class MetaTypeImpl extends MetaElementImpl implements MetaType {
 	}
 
 	@Override
-	public abstract Object fromString(String value);
+	public  Object fromString(String value){
+		throw new UnsupportedOperationException();
+	}
 
 	@Override
 	public Set<Object> fromString(Set<String> values) {
@@ -49,7 +51,6 @@ public abstract class MetaTypeImpl extends MetaElementImpl implements MetaType {
 		}
 		return result;
 	}
-	
 
 	@Override
 	public boolean isCollection() {

@@ -9,14 +9,18 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.persistence.Embeddable;
 import javax.persistence.Entity;
+import javax.persistence.MappedSuperclass;
 
+import io.katharsis.jpa.internal.meta.impl.MetaArrayTypeImpl;
 import io.katharsis.jpa.internal.meta.impl.MetaCollectionTypeImpl;
 import io.katharsis.jpa.internal.meta.impl.MetaDataObjectImpl;
 import io.katharsis.jpa.internal.meta.impl.MetaElementImpl;
 import io.katharsis.jpa.internal.meta.impl.MetaEmbeddableImpl;
 import io.katharsis.jpa.internal.meta.impl.MetaEntityImpl;
 import io.katharsis.jpa.internal.meta.impl.MetaMapTypeImpl;
+import io.katharsis.jpa.internal.meta.impl.MetaMappedSuperclassImpl;
 import io.katharsis.jpa.internal.meta.impl.MetaPrimitiveType;
+import io.katharsis.jpa.internal.meta.impl.MetaTypeImpl;
 import io.katharsis.jpa.internal.util.KatharsisAssert;
 
 public class MetaLookup {
@@ -41,7 +45,15 @@ public class MetaLookup {
 						// TODO support other types
 						Entity entityAnnotation = clazz.getAnnotation(Entity.class);
 						Embeddable embAnnotation = clazz.getAnnotation(Embeddable.class);
-						if (entityAnnotation != null) {
+						MappedSuperclass mappedSuperclassAnnotation = clazz.getAnnotation(MappedSuperclass.class);
+						if (mappedSuperclassAnnotation != null) {
+							Class<?> superClazz = clazz.getSuperclass();
+							MetaElement superMeta = null;
+							if (superClazz != Object.class) {
+								superMeta = getMeta(superClazz);
+							}
+							meta = new MetaMappedSuperclassImpl(clazz, type, (MetaDataObjectImpl) superMeta);
+						} else if (entityAnnotation != null) {
 							Class<?> superClazz = clazz.getSuperclass();
 							MetaElement superMeta = null;
 							if (superClazz != Object.class) {
@@ -59,8 +71,13 @@ public class MetaLookup {
 								|| TemporalAccessor.class.isAssignableFrom(clazz)
 								|| Number.class.isAssignableFrom(clazz)) {
 							meta = new MetaPrimitiveType(clazz, type);
+						} else if (clazz.isArray()) {
+							Class<?> elementClass = ((Class<?>) type).getComponentType();
+
+							MetaType elementType = getMeta(elementClass).asType();
+							meta = new MetaArrayTypeImpl(null, (Class<?>) type, type, elementType);
 						} else {
-							throw new IllegalArgumentException("unable to get meta data for " + clazz.getName());
+							return new MetaTypeImpl(null, (Class<?>) type, type);
 						}
 					} else if (type instanceof ParameterizedType) {
 						ParameterizedType paramType = (ParameterizedType) type;

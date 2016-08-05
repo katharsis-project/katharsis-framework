@@ -41,8 +41,12 @@ public abstract class AbstractInheritanceTest<B, C> extends AbstractJpaTest {
 
 		Assert.assertNotNull(baseMeta.getAttribute("id"));
 		Assert.assertNotNull(baseMeta.getAttribute("stringValue"));
-		Assert.assertNull(baseMeta.getAttribute("intValue"));
-
+		try {
+			Assert.assertNull(baseMeta.getAttribute("intValue"));
+			Assert.fail();
+		} catch (Exception e) {
+			// ok
+		}
 		Assert.assertNotNull(childMeta.getAttribute("id"));
 		Assert.assertNotNull(childMeta.getAttribute("stringValue"));
 		Assert.assertNotNull(childMeta.getAttribute("intValue"));
@@ -58,8 +62,10 @@ public abstract class AbstractInheritanceTest<B, C> extends AbstractJpaTest {
 		// FIXME subtype lookup
 		MetaLookup.INSTANCE.getMeta(childClass).asEntity();
 
-		assertEquals(1, baseBuilder().addFilter("intValue", FilterOperator.EQUAL, 2).buildExecutor().getResultList().size());
-		assertEquals(3, baseBuilder().addFilter("intValue", FilterOperator.GREATER, 1).buildExecutor().getResultList().size());
+		assertEquals(1,
+				baseBuilder().addFilter("intValue", FilterOperator.EQUAL, 2).buildExecutor().getResultList().size());
+		assertEquals(3,
+				baseBuilder().addFilter("intValue", FilterOperator.GREATER, 1).buildExecutor().getResultList().size());
 	}
 
 	@Test

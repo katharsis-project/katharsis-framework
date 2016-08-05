@@ -43,8 +43,8 @@ public class JpaResourceInformationBuilderTest {
 		ArrayList<ResourceField> attrFields = new ArrayList<ResourceField>(
 				(Collection) field.get(attributeFieldsBridge));
 		Collections.sort(attrFields, ResourceFieldComparator.INSTANCE);
-		assertEquals(4, attrFields.size());
-		ResourceField embField = attrFields.get(0);
+		assertEquals(5, attrFields.size());
+		ResourceField embField = attrFields.get(1);
 		assertEquals(TestEntity.ATTR_embValue, embField.getJsonName());
 		assertEquals(TestEntity.ATTR_embValue, embField.getUnderlyingName());
 		assertEquals(TestEmbeddable.class, embField.getType());

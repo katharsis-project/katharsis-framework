@@ -24,6 +24,7 @@ import io.katharsis.jpa.internal.meta.MetaMapAttribute;
 import io.katharsis.jpa.internal.meta.MetaMapType;
 import io.katharsis.jpa.internal.meta.MetaProjection;
 import io.katharsis.jpa.internal.meta.MetaType;
+import io.katharsis.jpa.internal.util.KatharsisAssert;
 
 public abstract class MetaDataObjectImpl extends MetaTypeImpl implements MetaDataObject {
 
@@ -86,7 +87,9 @@ public abstract class MetaDataObjectImpl extends MetaTypeImpl implements MetaDat
 	}
 
 	public MetaAttribute getAttribute(String name) {
-		return attrMap.get(name);
+		 MetaAttributeImpl attr = attrMap.get(name);
+		 KatharsisAssert.assertNotNull(getName() + "." + name, attr);
+		 return attr;
 	}
 
 	public String toString(Object entity) {
@@ -224,20 +227,24 @@ public abstract class MetaDataObjectImpl extends MetaTypeImpl implements MetaDat
 	}
 
 	private MetaAttribute findAttribute(String name, boolean includeSubTypes) {
-		MetaAttribute attr = getAttribute(name);
-		if (attr != null)
-			return attr;
+		if(hasAttribute(name))
+			return getAttribute(name);
 
 		if (includeSubTypes) {
 			List<? extends MetaDataObject> subTypes = getSubTypes(true, true);
 			for (MetaDataObject subType : subTypes) {
-				attr = subType.getAttribute(name);
-				if (attr != null)
-					return attr;
+				if(subType.hasAttribute(name)){
+					return subType.getAttribute(name);
+				}
 			}
 		}
 
 		throw new IllegalStateException("attribute " + name + " not found in " + getName());
+	}
+
+	@Override
+	public boolean hasAttribute(String name) {
+		return attrMap.containsKey(name);
 	}
 
 	@Override

@@ -15,7 +15,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
 @Entity
-public class TestEntity {
+public class TestEntity extends TestMappedSuperclass {
 
 	public static final String ATTR_id = "id";
 
@@ -41,10 +41,10 @@ public class TestEntity {
 	private Long id;
 
 	@Column
-	private String stringValue;
+	private long longValue;
 
 	@Column
-	private long longValue;
+	private byte[] bytesValue;
 
 	@Column
 	private TestEmbeddable embValue;
@@ -55,7 +55,7 @@ public class TestEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn
 	private RelatedEntity oneRelatedValue;
-	
+
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn
 	private RelatedEntity eagerRelatedValue;
@@ -93,22 +93,12 @@ public class TestEntity {
 		this.oneRelatedValue = oneRelatedValue;
 	}
 
-	public String getStringValue() {
-		return stringValue;
-	}
-
-	
-	
 	public RelatedEntity getEagerRelatedValue() {
 		return eagerRelatedValue;
 	}
 
 	public void setEagerRelatedValue(RelatedEntity eagerRelatedValue) {
 		this.eagerRelatedValue = eagerRelatedValue;
-	}
-
-	public void setStringValue(String stringValue) {
-		this.stringValue = stringValue;
 	}
 
 	public long getLongValue() {
@@ -135,5 +125,13 @@ public class TestEntity {
 
 	public void setManyRelatedValues(List<RelatedEntity> manyRelatedValues) {
 		this.manyRelatedValues = manyRelatedValues;
+	}
+
+	public byte[] getBytesValue() {
+		return bytesValue;
+	}
+
+	public void setBytesValue(byte[] bytesValue) {
+		this.bytesValue = bytesValue;
 	}
 }

@@ -49,6 +49,10 @@ public class AbstractMetaEntityAttributeImpl extends MetaAttributeImpl {
 				mappedBy = oneOneAnnotation.mappedBy();
 				oneOneAnnotation.fetch();
 			}
+			
+			if(mappedBy != null && mappedBy.length() == 0){
+				mappedBy = null;
+			}
 
 			association = manyManyAnnotation != null || manyOneAnnotation != null || oneManyAnnotation != null
 					|| oneOneAnnotation != null;
