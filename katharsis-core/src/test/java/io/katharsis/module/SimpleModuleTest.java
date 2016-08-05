@@ -1,5 +1,9 @@
 package io.katharsis.module;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -8,6 +12,10 @@ import com.fasterxml.jackson.databind.Module;
 
 import io.katharsis.dispatcher.filter.Filter;
 import io.katharsis.dispatcher.filter.TestFilter;
+import io.katharsis.errorhandling.mapper.ExceptionMapper;
+import io.katharsis.errorhandling.mapper.ExceptionMapperLookup;
+import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
+import io.katharsis.errorhandling.mapper.KatharsisExceptionMapper;
 import io.katharsis.module.Module.ModuleContext;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.repository.ResourceRepository;
@@ -115,6 +123,31 @@ public class SimpleModuleTest {
 		Assert.assertEquals(0, context.numJacksonModules);
 		Assert.assertEquals(0, context.numResourceRepositoreis);
 		Assert.assertEquals(1, context.numRelationshipRepositories);
+		Assert.assertEquals(0, context.numExceptionMapperLookup);
+	}
+	
+	@Test
+	public void testExceptionMapperLookup() {
+		module.addExceptionMapperLookup(new TestExceptionMapperLookup());
+		Assert.assertEquals(1, module.getExceptionMapperLookups().size());
+		module.setupModule(context);
+
+		Assert.assertEquals(0, context.numResourceInformationBuilds);
+		Assert.assertEquals(0, context.numResourceLookups);
+		Assert.assertEquals(0, context.numFilters);
+		Assert.assertEquals(0, context.numJacksonModules);
+		Assert.assertEquals(0, context.numResourceRepositoreis);
+		Assert.assertEquals(0, context.numRelationshipRepositories);
+		Assert.assertEquals(1, context.numExceptionMapperLookup);
+	}
+	
+	class TestExceptionMapperLookup implements ExceptionMapperLookup	{
+
+		@SuppressWarnings("rawtypes")
+		@Override
+		public Set<JsonApiExceptionMapper> getExceptionMappers() {
+			return new HashSet<JsonApiExceptionMapper>( Arrays.asList(new KatharsisExceptionMapper()));
+		}
 	}
 
 	class TestModuleContext implements ModuleContext {
@@ -125,6 +158,7 @@ public class SimpleModuleTest {
 		private int numResourceRepositoreis = 0;
 		private int numRelationshipRepositories = 0;
 		private int numFilters = 0;
+		private int numExceptionMapperLookup = 0;
 
 		@Override
 		public void addResourceInformationBuilder(ResourceInformationBuilder resourceInformationBuilder) {
@@ -162,5 +196,14 @@ public class SimpleModuleTest {
 			return new ResourceRegistry(null);
 		}
 
+		@Override
+		public void addExceptionMapperLookup(ExceptionMapperLookup exceptionMapperLookup) {
+			numExceptionMapperLookup++;
+		}
+
+		@Override
+		public void addExceptionMapper(ExceptionMapper<?> exceptionMapper) {
+			numExceptionMapperLookup++;
+		}
 	}
 }

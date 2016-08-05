@@ -1,5 +1,6 @@
 package io.katharsis.module;
 
+import io.katharsis.errorhandling.mapper.DefaultExceptionMapperLookup;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
 import io.katharsis.resource.registry.DefaultResourceLookup;
@@ -15,6 +16,6 @@ public class CoreModule extends SimpleModule {
 		super(MODULE_NAME);
 		this.addResourceLookup(new DefaultResourceLookup(resourceSearchPackage));
 		this.addResourceInformationBuilder(new AnnotationResourceInformationBuilder(resourceFieldNameTransformer));
+		this.addExceptionMapperLookup(new DefaultExceptionMapperLookup(resourceSearchPackage));
 	}
-
 }

@@ -5,6 +5,9 @@ import java.util.Collections;
 import java.util.List;
 
 import io.katharsis.dispatcher.filter.Filter;
+import io.katharsis.errorhandling.mapper.ExceptionMapperLookup;
+import io.katharsis.errorhandling.mapper.ExceptionMapperLookupFactory;
+import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.resource.information.ResourceInformationBuilder;
@@ -21,6 +24,7 @@ public class SimpleModule implements Module {
 	private List<com.fasterxml.jackson.databind.Module> jacksonModules = new ArrayList<com.fasterxml.jackson.databind.Module>();
 	private List<RelationshipRepositoryRegistration> relationshipRepositoryRegistrations = new ArrayList<RelationshipRepositoryRegistration>();
 	private List<ResourceRepositoryRegistration> resourceRepositoryRegistrations = new ArrayList<ResourceRepositoryRegistration>();
+	private List<ExceptionMapperLookup> exceptionMapperLookups = new ArrayList<ExceptionMapperLookup>();
 
 	private String moduleName;
 
@@ -53,6 +57,9 @@ public class SimpleModule implements Module {
 		for (RelationshipRepositoryRegistration reg : relationshipRepositoryRegistrations) {
 			context.addRepository(reg.sourceType, reg.targetType, reg.repository);
 		}
+		for (ExceptionMapperLookup exceptionMapperLookup : exceptionMapperLookups) {
+			context.addExceptionMapperLookup(exceptionMapperLookup);
+		}
 	}
 
 	/**
@@ -64,6 +71,16 @@ public class SimpleModule implements Module {
 		resourceInformationBuilders.add(resourceInformationBuilder);
 	}
 
+
+	public void addExceptionMapperLookup(ExceptionMapperLookup exceptionMapperLookup) {
+		exceptionMapperLookups.add(exceptionMapperLookup);
+	}
+	
+	public void addExceptionMapper(@SuppressWarnings("rawtypes") JsonApiExceptionMapper exceptionMapper) {
+		ExceptionMapperLookup exceptionMapperLookup = ExceptionMapperLookupFactory.toExceptionMapperLookup(exceptionMapper);
+		exceptionMapperLookups.add(exceptionMapperLookup);
+	}
+	
 	protected List<ResourceInformationBuilder> getResourceInformationBuilders() {
 		return Collections.unmodifiableList(resourceInformationBuilders);
 	}
@@ -159,4 +176,9 @@ public class SimpleModule implements Module {
 			return repository;
 		}
 	}
+
+	public List<ExceptionMapperLookup> getExceptionMapperLookups() {
+		return Collections.unmodifiableList(exceptionMapperLookups);
+	}
+
 }

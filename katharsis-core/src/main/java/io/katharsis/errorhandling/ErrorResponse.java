@@ -1,11 +1,11 @@
 package io.katharsis.errorhandling;
 
+import java.util.Objects;
+
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.response.BaseResponseContext;
 import io.katharsis.response.JsonApiResponse;
-
-import java.util.Objects;
 
 public final class ErrorResponse implements BaseResponseContext {
 
@@ -17,6 +17,10 @@ public final class ErrorResponse implements BaseResponseContext {
     public ErrorResponse(Iterable<ErrorData> data, int httpStatus) {
         this.data = data;
         this.httpStatus = httpStatus;
+    }
+    
+    public Iterable<ErrorData> getErrors(){
+    	return data;
     }
 
     @Override

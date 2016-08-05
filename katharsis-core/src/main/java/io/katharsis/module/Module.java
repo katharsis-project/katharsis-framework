@@ -1,6 +1,8 @@
 package io.katharsis.module;
 
 import io.katharsis.dispatcher.filter.Filter;
+import io.katharsis.errorhandling.mapper.ExceptionMapper;
+import io.katharsis.errorhandling.mapper.ExceptionMapperLookup;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.resource.information.ResourceInformationBuilder;
@@ -60,6 +62,16 @@ public interface Module {
 		public void addRepository(Class<?> sourceResourceClass, Class<?> targetResourceClass, RelationshipRepository<?, ?, ?, ?> repository);
 
 		/**
+		 * Adds a new exception mapper lookup.
+		 */
+		public void addExceptionMapperLookup(ExceptionMapperLookup exceptionMapperLookup);
+		
+		/**
+		 * Adds a new exception mapper lookup.
+		 */
+		public void addExceptionMapper(ExceptionMapper<?> exceptionMapper);
+		
+		/**
 		 * Adds a filter to intercept requests.
 		 */
 		public void addFilter(Filter filter);
@@ -72,5 +84,6 @@ public interface Module {
 		 * @return ResourceRegistry
 		 */
 		ResourceRegistry getResourceRegistry();
+
 	}
 }

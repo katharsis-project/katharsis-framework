@@ -9,6 +9,9 @@ import java.util.Set;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.katharsis.dispatcher.filter.Filter;
+import io.katharsis.errorhandling.mapper.ExceptionMapper;
+import io.katharsis.errorhandling.mapper.ExceptionMapperLookup;
+import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
 import io.katharsis.module.SimpleModule.RelationshipRepositoryRegistration;
 import io.katharsis.module.SimpleModule.ResourceRepositoryRegistration;
 import io.katharsis.repository.RelationshipRepository;
@@ -96,6 +99,16 @@ public class ModuleRegistry {
 		public void addFilter(Filter filter) {
 			aggregatedModule.addFilter(filter);			
 		}
+
+		@Override
+		public void addExceptionMapperLookup(ExceptionMapperLookup exceptionMapperLookup) {
+			aggregatedModule.addExceptionMapperLookup(exceptionMapperLookup);			
+		}
+
+		@Override
+		public void addExceptionMapper(ExceptionMapper<?> exceptionMapper) {
+			aggregatedModule.addExceptionMapper(exceptionMapper);			
+		}
 	}
 
 	/**
@@ -162,9 +175,32 @@ public class ModuleRegistry {
 			throw new UnsupportedOperationException(
 					"no ResourceInformationBuilder for " + resourceClass.getName() + " available");
 		}
-
 	}
 
+	
+	/**
+	 * Combines all {@link ExceptionMapperLookup} instances provided by the registered
+	 * {@link Module}.
+	 */
+	static class CombinedExceptionMapperLookup implements ExceptionMapperLookup {
+
+		private Collection<ExceptionMapperLookup> lookups;
+
+		public CombinedExceptionMapperLookup(List<ExceptionMapperLookup> lookups) {
+			this.lookups = lookups;
+		}
+
+		@SuppressWarnings("rawtypes")
+		@Override
+		public  Set<JsonApiExceptionMapper> getExceptionMappers() {
+			Set<JsonApiExceptionMapper> set = new HashSet<JsonApiExceptionMapper>();
+			for(ExceptionMapperLookup lookup : lookups){
+				set.addAll(lookup.getExceptionMappers());
+			}
+			return set;
+		}
+	}
+	
 	/**
 	 * Combines all {@link ResourceLookup} instances provided by the registered
 	 * {@link Module}.
@@ -251,10 +287,17 @@ public class ModuleRegistry {
 	}
 
 	/**
-	 * @return filters added by all modules
+	 * @return {@link Filter} added by all modules
 	 */
 	public List<Filter> getFilters() {
 		return aggregatedModule.getFilters();
+	}
+
+	/**
+	 * @return combined {@link ExceptionMapperLookup} added by all modules
+	 */
+	public ExceptionMapperLookup getExceptionMapperLookup() {
+		return new CombinedExceptionMapperLookup(aggregatedModule.getExceptionMapperLookups());
 	}
 	
 }
