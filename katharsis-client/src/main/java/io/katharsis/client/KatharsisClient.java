@@ -11,9 +11,14 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.squareup.okhttp.OkHttpClient;
 
 import io.katharsis.client.internal.BaseResponseDeserializer;
+import io.katharsis.client.internal.ErrorResponseDeserializer;
 import io.katharsis.client.internal.RelationshipRepositoryStubImpl;
 import io.katharsis.client.internal.RequestUrlBuilder;
 import io.katharsis.client.internal.ResourceRepositoryStubImpl;
+import io.katharsis.errorhandling.ErrorResponse;
+import io.katharsis.errorhandling.mapper.ExceptionMapperLookup;
+import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
+import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryBuilder;
 import io.katharsis.jackson.JsonApiModuleBuilder;
 import io.katharsis.module.CoreModule;
 import io.katharsis.module.Module;
@@ -49,6 +54,8 @@ public class KatharsisClient {
 
 	private boolean initialized = false;
 
+	private ExceptionMapperRegistry exceptionMapperRegistry;
+
 	/**
 	 * @param serviceUrl
 	 * @param resourcePackageName
@@ -72,6 +79,7 @@ public class KatharsisClient {
 		SimpleModule jsonApiModule = moduleBuilder.build(resourceRegistry);
 		jsonApiModule.addDeserializer(BaseResponseContext.class,
 				new BaseResponseDeserializer(resourceRegistry, objectMapper));
+		jsonApiModule.addDeserializer(ErrorResponse.class, new ErrorResponseDeserializer());
 
 		// TODO add to official module
 		SimpleModule clientModule = new SimpleModule();
@@ -80,19 +88,32 @@ public class KatharsisClient {
 		objectMapper.registerModule(clientModule);
 	}
 
-	private void init() {
+	protected void init() {
 		if (initialized)
 			return;
 		initialized = true;
 
-		moduleRegistry.init(objectMapper, resourceRegistry);
+		initModuleRegistry();
+		initRepositories();
+		initExceptionMapperRegistry();
+	}
 
+	private void initModuleRegistry() {
+		moduleRegistry.init(objectMapper, resourceRegistry);
+	}
+
+	private void initRepositories() {
 		// register all resources
 		ResourceLookup resourceLookup = moduleRegistry.getResourceLookup();
 		Set<Class<?>> resourceClasses = resourceLookup.getResourceClasses();
 		for (Class<?> resourceClass : resourceClasses) {
 			allocateRepository(resourceClass);
 		}
+	}
+
+	private void initExceptionMapperRegistry() {
+		ExceptionMapperLookup exceptionMapperLookup = moduleRegistry.getExceptionMapperLookup();
+		exceptionMapperRegistry = new ExceptionMapperRegistryBuilder().build(exceptionMapperLookup);
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -111,7 +132,7 @@ public class KatharsisClient {
 		Set<ResourceField> relationshipFields = resourceInformation.getRelationshipFields();
 		List<ResponseRelationshipEntry<T, ?>> relationshipEntries = new ArrayList<ResponseRelationshipEntry<T, ?>>();
 		RegistryEntry<T> registryEntry = new RegistryEntry<T>(resourceInformation, resourceEntry, relationshipEntries);
-		
+
 		for (ResourceField relationshipField : relationshipFields) {
 			final Class<?> targetClass = relationshipField.getType();
 			final RelationshipRepositoryStubImpl relationshipRepositoryStub = new RelationshipRepositoryStubImpl(this,
@@ -124,7 +145,7 @@ public class KatharsisClient {
 				}
 			};
 			DirectResponseRelationshipEntry relationshipEntry = new DirectResponseRelationshipEntry(
-					relationshipRepositoryInstanceBuilder){
+					relationshipRepositoryInstanceBuilder) {
 
 				@Override
 				public Class<?> getTargetAffiliation() {
@@ -196,5 +217,9 @@ public class KatharsisClient {
 	 */
 	public void addModule(Module module) {
 		this.moduleRegistry.addModule(module);
+	}
+
+	public ExceptionMapperRegistry getExceptionMapperRegistry() {
+		return exceptionMapperRegistry;
 	}
 }

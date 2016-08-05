@@ -6,65 +6,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
-import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.core.Application;
-
-import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.katharsis.client.mock.models.Project;
 import io.katharsis.client.mock.models.Task;
-import io.katharsis.client.mock.repository.TaskRepository;
-import io.katharsis.locator.SampleJsonServiceLocator;
-import io.katharsis.queryParams.DefaultQueryParamsParser;
 import io.katharsis.queryParams.QueryParams;
-import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.resource.exception.ResourceException;
-import io.katharsis.rs.KatharsisFeature;
-import io.katharsis.rs.KatharsisProperties;
 
-public class ClientTest extends JerseyTest {
-
-	private KatharsisClient client;
-	private ResourceRepositoryStub<Task, Long> taskRepo;
-	private ResourceRepositoryStub<Project, Long> projectRepo;
-	private RelationshipRepositoryStub<Task, Long, Project, Long> relRepo;
-
-	private QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
-
-	@Before
-	public void setup() {
-		client = new KatharsisClient(getBaseUri().toString(), "io.katharsis.client.mock");
-		taskRepo = client.getRepository(Task.class);
-		projectRepo = client.getRepository(Project.class);
-		relRepo = client.getRepository(Task.class, Project.class);
-		TaskRepository.map.clear();
-
-		client.getHttpClient().setReadTimeout(1000000, TimeUnit.MILLISECONDS);
-	}
-
-	@Override
-	protected Application configure() {
-		return new TestApplication();
-	}
-
-	@ApplicationPath("/")
-	private static class TestApplication extends ResourceConfig {
-		public TestApplication() {
-			property(KatharsisProperties.RESOURCE_SEARCH_PACKAGE, "io.katharsis.client.mock");
-			property(KatharsisProperties.RESOURCE_DEFAULT_DOMAIN, "http://test.local");
-			register(new KatharsisFeature(new ObjectMapper(), new QueryParamsBuilder(new DefaultQueryParamsParser()),
-					new SampleJsonServiceLocator()));
-
-		}
-	}
+public class ClientTest extends AbstractClientTest {
 
 	@Test
 	public void testFindEmpty() {
@@ -107,6 +58,15 @@ public class ClientTest extends JerseyTest {
 		savedTask = taskRepo.findOne(1L, new QueryParams());
 		Assert.assertEquals(task.getId(), savedTask.getId());
 		Assert.assertEquals(task.getName(), savedTask.getName());
+	}
+
+	@Test
+	public void testGeneratedId() {
+		Task task = new Task();
+		task.setId(null);
+		task.setName("test");
+		Task savedTask = taskRepo.save(task);
+		Assert.assertNotNull(savedTask.getId());
 	}
 
 	@Test
@@ -202,6 +162,11 @@ public class ClientTest extends JerseyTest {
 		// relProjects = relRepo.findManyTargets(task.getId(), "projects", new
 		// QueryParams());
 		// Assert.assertEquals(0, relProjects.size());
+	}
+
+	@Test
+	public void testValidationException() {
+
 	}
 
 	private void addParams(Map<String, Set<String>> params, String key, String value) {
