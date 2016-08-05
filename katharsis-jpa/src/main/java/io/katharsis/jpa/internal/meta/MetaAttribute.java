@@ -23,4 +23,6 @@ public interface MetaAttribute extends MetaElement {
 
 	public boolean isLazy();
 
+	public boolean isVersion();
+
 }

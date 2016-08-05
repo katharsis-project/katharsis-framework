@@ -15,6 +15,9 @@ import javax.persistence.FetchType;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OptimisticLockException;
+
+import com.fasterxml.jackson.databind.JsonNode;
 
 import io.katharsis.jpa.internal.meta.MetaAttribute;
 import io.katharsis.jpa.internal.meta.MetaElement;
@@ -84,6 +87,20 @@ public class JpaResourceInformationBuilder implements ResourceInformationBuilder
 					Serializable id = typeParser.parse(strId, (Class) implClass);
 					Object entity = em.find(resourceClass, id);
 					if (entity != null) {
+						// version check
+						MetaAttribute versionAttr = meta.getVersionAttribute();
+						if (versionAttr != null) {
+							JsonNode versionNode = body.getAttributes().get(versionAttr.getName());
+							if (versionNode != null) {
+								Object requestVersion = typeParser.parse(versionNode.asText(),
+										(Class) versionAttr.getType().getImplementationClass());
+								Object currentVersion = versionAttr.getValue(entity);
+								if (!currentVersion.equals(requestVersion))
+									throw new OptimisticLockException(strId + " changed from version " + requestVersion
+											+ " to " + currentVersion);
+							}
+						}
+
 						return entity;
 					}
 				}

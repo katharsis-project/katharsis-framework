@@ -97,4 +97,9 @@ public class MetaMapAttributeImpl extends MetaElementImpl implements MetaMapAttr
 	public MetaAttribute getOppositeAttribute() {
 		throw new UnsupportedOperationException();
 	}
+
+	@Override
+	public boolean isVersion() {
+		throw new UnsupportedOperationException();
+	}
 }

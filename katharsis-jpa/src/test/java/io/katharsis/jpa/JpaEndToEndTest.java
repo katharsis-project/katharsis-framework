@@ -1,5 +1,6 @@
 package io.katharsis.jpa;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.OptimisticLockException;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
@@ -28,6 +30,7 @@ import io.katharsis.client.KatharsisClient;
 import io.katharsis.client.ResourceRepositoryStub;
 import io.katharsis.jpa.model.RelatedEntity;
 import io.katharsis.jpa.model.TestEntity;
+import io.katharsis.jpa.model.VersionedEntity;
 import io.katharsis.jpa.query.AbstractJpaTest;
 import io.katharsis.jpa.util.EntityManagerProducer;
 import io.katharsis.jpa.util.SpringTransactionRunner;
@@ -102,7 +105,6 @@ public class JpaEndToEndTest extends JerseyTest {
 		}
 	}
 
-	
 	@Test
 	public void testIncludeRelations() throws InstantiationException, IllegalAccessException {
 		addTestWithOneRelation();
@@ -164,7 +166,38 @@ public class JpaEndToEndTest extends JerseyTest {
 		Assert.assertEquals(task.getId(), savedTask.getId());
 		Assert.assertEquals(task.getStringValue(), savedTask.getStringValue());
 	}
-	
+
+	@Test
+	public void testOptimisticLocking() {
+		ResourceRepositoryStub<VersionedEntity, Serializable> repo = client.getRepository(VersionedEntity.class);
+		VersionedEntity entity = new VersionedEntity();
+		entity.setId(1L);
+		entity.setLongValue(13L);
+		VersionedEntity saved = repo.save(entity);
+		Assert.assertEquals(0, saved.getVersion());
+
+		saved.setLongValue(14L);
+		saved = repo.save(saved);
+		Assert.assertEquals(1, saved.getVersion());
+
+		saved.setLongValue(15L);
+		saved = repo.save(saved);
+		Assert.assertEquals(2, saved.getVersion());
+
+		saved.setLongValue(16L);
+		saved.setVersion(saved.getVersion() - 1);
+		try {
+			saved = repo.save(saved);
+			Assert.fail();
+		} catch (OptimisticLockException e) {
+			// ok
+		}
+
+		VersionedEntity persisted = repo.findOne(1L, new QueryParams());
+		Assert.assertEquals(2, persisted.getVersion());
+		Assert.assertEquals(15L, persisted.getLongValue());
+	}
+
 	@Test
 	public void testDelete() {
 		TestEntity test = new TestEntity();
@@ -208,7 +241,7 @@ public class JpaEndToEndTest extends JerseyTest {
 		test.setStringValue("test");
 		test.setEagerRelatedValue(related);
 		testRepo.save(test);
-		
+
 		TestEntity savedTest = testRepo.findOne(2L, new QueryParams());
 		Assert.assertEquals(test.getId(), savedTest.getId());
 		Assert.assertEquals(test.getStringValue(), savedTest.getStringValue());

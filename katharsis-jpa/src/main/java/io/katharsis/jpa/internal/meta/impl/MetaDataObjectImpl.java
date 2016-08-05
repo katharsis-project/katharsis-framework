@@ -66,6 +66,15 @@ public abstract class MetaDataObjectImpl extends MetaTypeImpl implements MetaDat
 		}
 	}
 
+	@Override
+	public MetaAttribute getVersionAttribute() {
+		for (MetaAttributeImpl attr : getAttributes()) {
+			if (attr.isVersion())
+				return attr;
+		}
+		return null;
+	}
+
 	private void addSubType(MetaDataObjectImpl subType) {
 		this.subTypes.add(subType);
 		this.clearCache();
@@ -87,9 +96,9 @@ public abstract class MetaDataObjectImpl extends MetaTypeImpl implements MetaDat
 	}
 
 	public MetaAttribute getAttribute(String name) {
-		 MetaAttributeImpl attr = attrMap.get(name);
-		 KatharsisAssert.assertNotNull(getName() + "." + name, attr);
-		 return attr;
+		MetaAttributeImpl attr = attrMap.get(name);
+		KatharsisAssert.assertNotNull(getName() + "." + name, attr);
+		return attr;
 	}
 
 	public String toString(Object entity) {
@@ -98,7 +107,8 @@ public abstract class MetaDataObjectImpl extends MetaTypeImpl implements MetaDat
 		b.append('[');
 
 		for (MetaAttributeImpl attr : getAttributes()) {
-			// FIXME remo DECIDE: should be print one-relation as well? would probably require access to HibernateProxy,
+			// FIXME remo DECIDE: should be print one-relation as well? would
+			// probably require access to HibernateProxy,
 			// etc. to prevent lazy
 			// loading
 			if (attr.isAssociation())
@@ -135,7 +145,8 @@ public abstract class MetaDataObjectImpl extends MetaTypeImpl implements MetaDat
 		}
 	}
 
-	protected abstract MetaAttributeImpl newAttributeAttribute(MetaDataObjectImpl metaDataObject, PropertyDescriptor desc);
+	protected abstract MetaAttributeImpl newAttributeAttribute(MetaDataObjectImpl metaDataObject,
+			PropertyDescriptor desc);
 
 	@Override
 	public MetaAttributePath resolvePath(String attrPath, boolean includeSubTypes) {
@@ -166,10 +177,12 @@ public abstract class MetaDataObjectImpl extends MetaTypeImpl implements MetaDat
 					if (MetaUtils.isMapKeyAttribute(attrName)) {
 						MetaMapAttribute keyAttr;
 						if (currentAttr instanceof MetaAttributeProjection)
-							keyAttr = new MetaMapAttributeProjectionImpl(mapType, (MetaAttributeProjection) currentAttr, null, false);
+							keyAttr = new MetaMapAttributeProjectionImpl(mapType, (MetaAttributeProjection) currentAttr,
+									null, false);
 						else
 							keyAttr = new MetaMapAttributeImpl(mapType, currentAttr, null, false);
-						// ((MetaElement) keyAttr).setParent((MetaElement) currentAttr.getParent());
+						// ((MetaElement) keyAttr).setParent((MetaElement)
+						// currentAttr.getParent());
 						list.add(keyAttr);
 					} else if (i < attributeNames.length - 1) {
 						// next "attribute" will be a key of a map
@@ -177,10 +190,12 @@ public abstract class MetaDataObjectImpl extends MetaTypeImpl implements MetaDat
 
 						MetaMapAttribute keyAttr;
 						if (currentAttr instanceof MetaAttributeProjection)
-							keyAttr = new MetaMapAttributeProjectionImpl(mapType, (MetaAttributeProjection) currentAttr, keyString, true);
+							keyAttr = new MetaMapAttributeProjectionImpl(mapType, (MetaAttributeProjection) currentAttr,
+									keyString, true);
 						else
 							keyAttr = new MetaMapAttributeImpl(mapType, currentAttr, keyString, true);
-						// ((MetaElement) keyAttr).setParent((MetaElement) currentAttr.getParent());
+						// ((MetaElement) keyAttr).setParent((MetaElement)
+						// currentAttr.getParent());
 						list.add(keyAttr);
 						i++;
 						MetaType valueType = mapType.getValueType();
@@ -191,10 +206,12 @@ public abstract class MetaDataObjectImpl extends MetaTypeImpl implements MetaDat
 					} else {
 						// IMetaMapAttribute keyAttr;
 						// if (currentAttr instanceof IMetaAttributeProjection)
-						// keyAttr = new MetaMapAttributeProjection(mapType, (IMetaAttributeProjection) currentAttr);
+						// keyAttr = new MetaMapAttributeProjection(mapType,
+						// (IMetaAttributeProjection) currentAttr);
 						// else
 						// keyAttr = new MetaMapAttribute(mapType, currentAttr);
-						// ((MetaElement) keyAttr).setParent((MetaElement) currentAttr.getParent());
+						// ((MetaElement) keyAttr).setParent((MetaElement)
+						// currentAttr.getParent());
 						// list.add(keyAttr);
 						// currentMdo = mapType.getValueType().asDataObject();
 						throw new IllegalStateException("not implemented");
@@ -227,13 +244,13 @@ public abstract class MetaDataObjectImpl extends MetaTypeImpl implements MetaDat
 	}
 
 	private MetaAttribute findAttribute(String name, boolean includeSubTypes) {
-		if(hasAttribute(name))
+		if (hasAttribute(name))
 			return getAttribute(name);
 
 		if (includeSubTypes) {
 			List<? extends MetaDataObject> subTypes = getSubTypes(true, true);
 			for (MetaDataObject subType : subTypes) {
-				if(subType.hasAttribute(name)){
+				if (subType.hasAttribute(name)) {
 					return subType.getAttribute(name);
 				}
 			}

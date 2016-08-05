@@ -19,6 +19,7 @@ import io.katharsis.dispatcher.filter.FilterChain;
 import io.katharsis.dispatcher.filter.FilterRequestContext;
 import io.katharsis.jpa.internal.DefaultQueryParamsProcessor;
 import io.katharsis.jpa.internal.JpaResourceInformationBuilder;
+import io.katharsis.jpa.internal.OptimisticLockExceptionMapper;
 import io.katharsis.jpa.internal.meta.MetaAttribute;
 import io.katharsis.jpa.internal.meta.MetaElement;
 import io.katharsis.jpa.internal.meta.MetaEntity;
@@ -133,7 +134,8 @@ public class JpaModule implements Module {
 		this.context = context;
 		// context.addResourceLookup(getResourceLookup());
 		context.addResourceInformationBuilder(getResourceInformationBuilder());
-
+		context.addExceptionMapper(new OptimisticLockExceptionMapper());
+		
 		if (resourceSearchPackage != null) {
 			setupClientResourceLookup();
 		} else {

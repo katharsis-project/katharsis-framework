@@ -10,6 +10,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.Version;
 
 import io.katharsis.jpa.internal.meta.MetaAttribute;
 import io.katharsis.jpa.internal.meta.MetaEntity;
@@ -24,6 +25,7 @@ public class AbstractMetaEntityAttributeImpl extends MetaAttributeImpl {
 	private boolean lazy = false;
 	private String mappedBy = null;
 	private MetaAttribute oppositeAttr;
+	private boolean version = false;
 
 	public AbstractMetaEntityAttributeImpl(MetaDataObjectImpl parent, PropertyDescriptor desc) {
 		super(parent, desc);
@@ -36,7 +38,10 @@ public class AbstractMetaEntityAttributeImpl extends MetaAttributeImpl {
 			ManyToOne manyOneAnnotation = field.getAnnotation(ManyToOne.class);
 			OneToMany oneManyAnnotation = field.getAnnotation(OneToMany.class);
 			OneToOne oneOneAnnotation = field.getAnnotation(OneToOne.class);
+			Version versionAnnotation = field.getAnnotation(Version.class);
 			ElementCollection elemCollectionAnnotation = field.getAnnotation(ElementCollection.class);
+
+			version = versionAnnotation != null;
 
 			FetchType fetchType = null;
 			if (manyManyAnnotation != null) {
@@ -49,8 +54,8 @@ public class AbstractMetaEntityAttributeImpl extends MetaAttributeImpl {
 				mappedBy = oneOneAnnotation.mappedBy();
 				oneOneAnnotation.fetch();
 			}
-			
-			if(mappedBy != null && mappedBy.length() == 0){
+
+			if (mappedBy != null && mappedBy.length() == 0) {
 				mappedBy = null;
 			}
 
@@ -118,5 +123,10 @@ public class AbstractMetaEntityAttributeImpl extends MetaAttributeImpl {
 	public void removeValue(Object dataObject, Object value) {
 		Collection col = (Collection) getValue(dataObject);
 		col.remove(value);
+	}
+
+	@Override
+	public boolean isVersion() {
+		return version;
 	}
 }

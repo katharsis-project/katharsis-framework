@@ -35,4 +35,6 @@ public interface MetaDataObject extends MetaType {
 
 	boolean hasAttribute(String name);
 
+	MetaAttribute getVersionAttribute();
+
 }
