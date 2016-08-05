@@ -1,13 +1,19 @@
 package io.katharsis.client.mock.repository;
 
-import io.katharsis.queryParams.QueryParams;
-import io.katharsis.repository.annotations.*;
-import io.katharsis.resource.exception.ResourceNotFoundException;
-import io.katharsis.client.mock.models.Task;
-
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+
+import io.katharsis.client.mock.models.Task;
+import io.katharsis.client.module.TestException;
+import io.katharsis.queryParams.QueryParams;
+import io.katharsis.repository.annotations.JsonApiDelete;
+import io.katharsis.repository.annotations.JsonApiFindAll;
+import io.katharsis.repository.annotations.JsonApiFindAllWithIds;
+import io.katharsis.repository.annotations.JsonApiFindOne;
+import io.katharsis.repository.annotations.JsonApiResourceRepository;
+import io.katharsis.repository.annotations.JsonApiSave;
+import io.katharsis.resource.exception.ResourceNotFoundException;
 
 @JsonApiResourceRepository(Task.class)
 public class TaskRepository {
@@ -16,10 +22,22 @@ public class TaskRepository {
 
 	@JsonApiSave
 	public <S extends Task> S save(S entity) {
+
 		if (entity.getId() == null) {
 			entity.setId((long) (map.size() + 1));
 		}
 		map.put(entity.getId(), entity);
+
+		if (entity.getId() == 10000) {
+			throw new TestException("msg");
+			// } else if (entity.getId() == 10001) {
+			// Set<ConstraintViolation<?>> constraintViolations = new
+			// HashSet<ConstraintViolation<?>>();
+			// constraintViolations.add(new TestConstraintViolation(null,
+			// null));
+			// throw new ConstraintViolationException("msg",
+			// constraintViolations);
+		}
 
 		return entity;
 	}
