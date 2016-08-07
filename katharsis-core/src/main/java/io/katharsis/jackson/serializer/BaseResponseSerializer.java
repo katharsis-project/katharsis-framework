@@ -25,6 +25,7 @@ public class BaseResponseSerializer extends JsonSerializer<BaseResponseContext> 
     private static final String DATA_FIELD_NAME = "data";
     private static final String META_FIELD_NAME = "meta";
     private static final String LINKS_FIELD_NAME = "links";
+    private static final String ERRORS_FIELD_NAME = "errors";
 
     private final IncludedRelationshipExtractor includedRelationshipExtractor;
 
@@ -49,6 +50,9 @@ public class BaseResponseSerializer extends JsonSerializer<BaseResponseContext> 
         }
         if (response.getLinksInformation() != null) {
             gen.writeObjectField(LINKS_FIELD_NAME, response.getLinksInformation());
+        }
+        if (response.getErrors() != null) {
+            gen.writeObjectField(ERRORS_FIELD_NAME, response.getErrors());
         }
 
         gen.writeEndObject();
