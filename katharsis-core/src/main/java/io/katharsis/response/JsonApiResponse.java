@@ -1,10 +1,13 @@
 package io.katharsis.response;
 
+import io.katharsis.errorhandling.ErrorData;
+
 public class JsonApiResponse {
 
     private Object entity;
     private MetaInformation metaInformation;
     private LinksInformation linksInformation;
+    private Iterable<ErrorData> errors;
 
     public JsonApiResponse() {
     }
@@ -39,6 +42,15 @@ public class JsonApiResponse {
 
     public JsonApiResponse setLinksInformation(LinksInformation linksInformation) {
         this.linksInformation = linksInformation;
+        return this;
+    }
+
+    public Iterable<ErrorData> getErrors() {
+        return errors;
+    }
+
+    public JsonApiResponse setErrors(Iterable<ErrorData> errors) {
+        this.errors = errors;
         return this;
     }
 }
