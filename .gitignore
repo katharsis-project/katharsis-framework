@@ -121,4 +121,8 @@ buildNumber.properties
 .mvn/timing.properties
 
 .idea/
+
 *.iml
+
+.gradle
+build
