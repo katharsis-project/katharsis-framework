@@ -8,6 +8,8 @@ import com.squareup.okhttp.HttpUrl;
 import com.squareup.okhttp.HttpUrl.Builder;
 
 import io.katharsis.queryParams.QueryParams;
+import io.katharsis.resource.information.ResourceInformation;
+import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.utils.StringUtils;
 
@@ -37,16 +39,21 @@ public class RequestUrlBuilder {
 		urlBuilder.port(repositoryUrl.port());
 		urlBuilder.scheme(repositoryUrl.scheme());
 		
+		RegistryEntry<?> entry = resourceRegistry.getEntry(resourceClass);
+		ResourceInformation resourceInformation = entry.getResourceInformation();
+		
 		String encodedPath;
 		if (id instanceof Collection) {
 			Collection<?> ids = (Collection<?>) id;
 			Collection<String> strIds = new ArrayList<String>();
 			for (Object idElem : ids) {
-				strIds.add(idElem.toString());
+				String strIdElem = resourceInformation.toIdString(idElem);
+				strIds.add(strIdElem);
 			}
 			encodedPath = repositoryUrl.encodedPath() + StringUtils.join(",", strIds) + "/";
 		} else if (id != null) {
-			encodedPath = repositoryUrl.encodedPath() + id + "/";
+			String strId = resourceInformation.toIdString(id);
+			encodedPath = repositoryUrl.encodedPath() +  strId + "/";
 		} else {
 			encodedPath = repositoryUrl.encodedPath();
 		}

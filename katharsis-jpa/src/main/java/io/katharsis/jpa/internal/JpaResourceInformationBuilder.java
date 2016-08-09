@@ -82,9 +82,7 @@ public class JpaResourceInformationBuilder implements ResourceInformationBuilder
 
 				// use managed entities on the server-side
 				if (strId != null && em != null) {
-					MetaAttribute primaryKeyAttr = meta.getPrimaryKey().getUniqueElement();
-					Class<?> implClass = primaryKeyAttr.getType().getImplementationClass();
-					Serializable id = typeParser.parse(strId, (Class) implClass);
+					Object id = meta.getPrimaryKey().fromKeyString(strId);
 					Object entity = em.find(resourceClass, id);
 					if (entity != null) {
 						// version check
@@ -108,8 +106,48 @@ public class JpaResourceInformationBuilder implements ResourceInformationBuilder
 			}
 		};
 
-		return new ResourceInformation(resourceClass, resourceType, instanceBuilder, idField,
+		return new JpaResourceInformation(meta, resourceClass, resourceType, instanceBuilder, idField,
 				new ResourceAttributesBridge(attributeFields, resourceClass), relationshipFields);
+	}
+	
+	class JpaResourceInformation extends ResourceInformation{
+
+		private MetaEntity meta;
+
+		public JpaResourceInformation(MetaEntity meta, Class<?> resourceClass, String resourceType, ResourceField idField, ResourceAttributesBridge attributeFields,
+	            Set<ResourceField> relationshipFields) {
+		this(meta, resourceClass, resourceType, null, idField, attributeFields, relationshipFields, null, null);
+		}
+		
+	    public JpaResourceInformation(MetaEntity meta, Class<?> resourceClass, String resourceType, ResourceInstanceBuilder<?> instanceBuilder, ResourceField idField, ResourceAttributesBridge attributeFields,
+	                               Set<ResourceField> relationshipFields) {
+	        this(meta, resourceClass, resourceType, instanceBuilder, idField, attributeFields, relationshipFields, null, null);
+	    }
+		
+		public JpaResourceInformation(MetaEntity meta, Class<?> resourceClass, String resourceType,
+				ResourceInstanceBuilder<?> instanceBuilder, ResourceField idField,
+				ResourceAttributesBridge attributeFields, Set<ResourceField> relationshipFields, String metaFieldName,
+				String linksFieldName) {
+			super(resourceClass, resourceType, instanceBuilder, idField, attributeFields, relationshipFields, metaFieldName,
+					linksFieldName);
+			this.meta = meta;
+		}
+		
+		/**
+		 * Specialized ID handling to take care of embeddables and compound primary keys.
+		 */
+		@Override
+		public Serializable parseIdString(String id) {
+			return (Serializable) meta.getPrimaryKey().fromKeyString(id);
+		}
+		
+		/**
+		 * Specialized ID handling to take care of embeddables and compound primary keys.
+		 */
+		@Override
+		public String toIdString(Object id){
+			return meta.getPrimaryKey().toKeyString(id);
+		}
 	}
 
 	protected String getResourceType(Class<?> entityClass) {

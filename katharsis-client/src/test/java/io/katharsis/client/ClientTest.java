@@ -13,7 +13,6 @@ import org.junit.Test;
 import io.katharsis.client.mock.models.Project;
 import io.katharsis.client.mock.models.Task;
 import io.katharsis.queryParams.QueryParams;
-import io.katharsis.resource.exception.ResourceException;
 
 public class ClientTest extends AbstractClientTest {
 
@@ -28,7 +27,7 @@ public class ClientTest extends AbstractClientTest {
 		try {
 			taskRepo.findOne(1L, new QueryParams());
 			Assert.fail();
-		} catch (ResourceException e) {
+		} catch (ClientException e) {
 			Assert.assertEquals("Not Found", e.getMessage());
 		}
 	}

@@ -27,7 +27,9 @@ import io.katharsis.jpa.model.TablePerClassBaseEntity;
 import io.katharsis.jpa.model.TablePerClassChildEntity;
 import io.katharsis.jpa.model.TestAnyType;
 import io.katharsis.jpa.model.TestEmbeddable;
+import io.katharsis.jpa.model.TestEmbeddedIdEntity;
 import io.katharsis.jpa.model.TestEntity;
+import io.katharsis.jpa.model.TestIdEmbeddable;
 import io.katharsis.jpa.model.TestNestedEmbeddable;
 import io.katharsis.jpa.util.SpringTransactionRunner;
 import io.katharsis.jpa.util.TestConfig;
@@ -68,6 +70,12 @@ public abstract class AbstractJpaTest {
 
 		clear();
 		for (int i = 0; i < numTestEntities; i++) {
+
+			TestEmbeddedIdEntity idEntity = new TestEmbeddedIdEntity();
+			idEntity.setId(new TestIdEmbeddable(i, "test" + i));
+			idEntity.setLongValue(100L + i);
+			em.persist(idEntity);
+
 			RelatedEntity related = new RelatedEntity();
 			related.setId(100L + i);
 			related.setStringValue("related" + i);

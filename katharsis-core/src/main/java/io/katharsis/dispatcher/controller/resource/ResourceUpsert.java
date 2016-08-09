@@ -51,7 +51,9 @@ public abstract class ResourceUpsert extends BaseController {
                 resourceInformation
                     .getIdField()
                     .getType();
-            Serializable castedId = typeParser.parse(id, idClass);
+            
+            
+            Serializable castedId = resourceInformation.parseIdString(id);
             PropertyUtils.setProperty(instance, resourceInformation.getIdField()
                 .getUnderlyingName(), castedId);
         }

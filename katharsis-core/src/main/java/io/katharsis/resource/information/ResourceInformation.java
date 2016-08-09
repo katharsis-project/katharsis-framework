@@ -1,16 +1,19 @@
 package io.katharsis.resource.information;
 
-import io.katharsis.resource.field.ResourceAttributesBridge;
-import io.katharsis.resource.field.ResourceField;
-
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+import io.katharsis.resource.annotations.JsonApiResource;
+import io.katharsis.resource.field.ResourceAttributesBridge;
+import io.katharsis.resource.field.ResourceField;
+import io.katharsis.utils.parser.TypeParser;
+
 /**
  * Holds information about the type of the resource.
  */
-public final class ResourceInformation {
+public class ResourceInformation {
     private final Class<?> resourceClass;
     
     /**
@@ -159,5 +162,24 @@ public final class ResourceInformation {
 
 	public String getResourceType() {
 		return resourceType;
+	}
+	
+	 /**
+     * Converts the given id string into its object representation.
+     */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public Serializable parseIdString(String id) {
+		TypeParser parser = new TypeParser();
+		Class idType = getIdField().getType();
+		return parser.parse(id, idType);
+	}
+	
+	/**
+	 * Converts the given id to a string
+	 */
+	public String toIdString(Object id){
+		if(id == null)
+			return null;
+		return id.toString();
 	}
 }

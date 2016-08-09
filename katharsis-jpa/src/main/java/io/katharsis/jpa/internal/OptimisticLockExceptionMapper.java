@@ -1,6 +1,8 @@
 package io.katharsis.jpa.internal;
 
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import javax.persistence.OptimisticLockException;
 
@@ -11,12 +13,18 @@ import io.katharsis.response.HttpStatus;
 
 public class OptimisticLockExceptionMapper implements ExceptionMapper<OptimisticLockException> {
 
+	private static final String META_TYPE_KEY = "type";
+
 	// assign ID do identity among different CONFLICT_409 results
-	private static final String JPA_OPTIMISTIC_LOCK_EXCEPTION_ID = "io.katharsis.jpa.optimisticLockException";
+	private static final String JPA_OPTIMISTIC_LOCK_EXCEPTION_TYPE = "OptimisticLockException";
 
 	@Override
 	public ErrorResponse toErrorResponse(OptimisticLockException cve) {
-		ErrorData error = ErrorData.builder().setId(JPA_OPTIMISTIC_LOCK_EXCEPTION_ID).setDetail(cve.getMessage()).build();
+		HashMap<String,Object> meta = new HashMap<String,Object>();
+		meta.put(META_TYPE_KEY, JPA_OPTIMISTIC_LOCK_EXCEPTION_TYPE);
+		
+		ErrorData error = ErrorData.builder().setMeta(meta).setDetail(cve.getMessage())
+				.build();
 		return ErrorResponse.builder().setStatus(HttpStatus.CONFLICT_409).setSingleErrorData(error).build();
 	}
 
@@ -40,8 +48,8 @@ public class OptimisticLockExceptionMapper implements ExceptionMapper<Optimistic
 			return false;
 		ErrorData errorData = iterator.next();
 
-		String id = errorData.getId();
-		return id != null && id.equals(JPA_OPTIMISTIC_LOCK_EXCEPTION_ID);
+		Map<String, Object> meta = errorData.getMeta();
+		return meta != null && JPA_OPTIMISTIC_LOCK_EXCEPTION_TYPE.equals(meta.get(META_TYPE_KEY));
 	}
 
 }

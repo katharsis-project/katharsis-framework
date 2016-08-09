@@ -3,6 +3,9 @@ package io.katharsis.resource.field;
 import java.lang.reflect.Type;
 import java.util.Objects;
 
+import io.katharsis.resource.annotations.JsonApiLookupIncludeAutomatically;
+
+
 public class ResourceField {
 	
 	public enum LookupIncludeBehavior{

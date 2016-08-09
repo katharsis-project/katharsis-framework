@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import javax.persistence.EmbeddedId;
 import javax.persistence.Id;
 
 import io.katharsis.jpa.internal.meta.MetaAttribute;
@@ -49,7 +50,7 @@ public class AbstractMetaEntityImpl extends MetaDataObjectImpl {
 			Field[] fields = getImplementationClass().getDeclaredFields();
 			ArrayList<MetaAttribute> pkElements = new ArrayList<MetaAttribute>();
 			for (Field field : fields) {
-				if (field.getAnnotation(Id.class) != null) {
+				if (field.getAnnotation(EmbeddedId.class) != null || field.getAnnotation(Id.class) != null) {
 					pkElements.add(getAttribute(field.getName()));
 				}
 			}

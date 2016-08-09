@@ -29,7 +29,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.client.KatharsisClient;
 import io.katharsis.client.ResourceRepositoryStub;
 import io.katharsis.jpa.model.RelatedEntity;
+import io.katharsis.jpa.model.TestEmbeddedIdEntity;
 import io.katharsis.jpa.model.TestEntity;
+import io.katharsis.jpa.model.TestIdEmbeddable;
 import io.katharsis.jpa.model.VersionedEntity;
 import io.katharsis.jpa.query.AbstractJpaTest;
 import io.katharsis.jpa.util.EntityManagerProducer;
@@ -248,6 +250,38 @@ public class JpaEndToEndTest extends JerseyTest {
 		Assert.assertNull(savedTest.getOneRelatedValue());
 		Assert.assertNotNull(savedTest.getEagerRelatedValue());
 		Assert.assertEquals(1L, savedTest.getEagerRelatedValue().getId().longValue());
+	}
+
+	@Test
+	public void testEmbeddableIds() throws InstantiationException, IllegalAccessException {
+		ResourceRepositoryStub<TestEmbeddedIdEntity, Serializable> rep = client.getRepository(TestEmbeddedIdEntity.class);
+
+		// add
+		TestEmbeddedIdEntity entity = new TestEmbeddedIdEntity();
+		entity.setId(new TestIdEmbeddable(13, "test"));
+		entity.setLongValue(100L);
+		rep.save(entity);
+		
+		List<TestEmbeddedIdEntity> list = rep.findAll(new QueryParams());
+		Assert.assertEquals(1, list.size());
+		TestEmbeddedIdEntity savedEntity = list.get(0);
+		Assert.assertNotNull(savedEntity);
+		Assert.assertEquals(100L, savedEntity.getLongValue());
+		Assert.assertEquals(13, savedEntity.getId().getEmbIntValue().intValue());
+		Assert.assertEquals("test", savedEntity.getId().getEmbStringValue());
+		
+		// update
+		savedEntity.setLongValue(101L);
+		rep.save(savedEntity);
+		list = rep.findAll(new QueryParams());
+		Assert.assertEquals(1, list.size());
+		savedEntity = list.get(0);
+		Assert.assertEquals(101L, savedEntity.getLongValue());
+		
+		// delete
+		rep.delete(entity.getId());
+		list = rep.findAll(new QueryParams());
+		Assert.assertEquals(0, list.size());
 	}
 
 	private TestEntity addTestWithOneRelation() {

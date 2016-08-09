@@ -99,7 +99,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         RegistryEntry entry = resourceRegistry.getEntry(dataClass);
         ResourceInformation resourceInformation = entry.getResourceInformation();
         try {
-            writeId(gen, data, resourceInformation.getIdField());
+            writeId(gen, data, resourceInformation);
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             throw new JsonSerializationException(
                 "Error writing id field: " + resourceInformation.getIdField().getUnderlyingName());
@@ -135,10 +135,14 @@ public class ContainerSerializer extends JsonSerializer<Container> {
      * The id MUST be written as a string
      * <a href="http://jsonapi.org/format/#document-structure-resource-ids">Resource IDs</a>.
      */
-    private static void writeId(JsonGenerator gen, Object data, ResourceField idField)
+    private static void writeId(JsonGenerator gen, Object data, ResourceInformation resourceInformation)
         throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
-        String sourceId = BeanUtils.getProperty(data, idField.getUnderlyingName());
-        gen.writeObjectField(ID_FIELD_NAME, sourceId);
+    	
+    	ResourceField idField = resourceInformation.getIdField();
+        Object sourceId = PropertyUtils.getProperty(data, idField.getUnderlyingName());
+    	String strSourceId = resourceInformation.toIdString(sourceId);
+        
+        gen.writeObjectField(ID_FIELD_NAME, strSourceId);
     }
 
     /**
@@ -279,10 +283,12 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         Class<?> sourceClass = data.getClass();
         String resourceUrl = resourceRegistry.getResourceUrl(sourceClass);
         RegistryEntry entry = resourceRegistry.getEntry(sourceClass);
-        ResourceField idField = entry.getResourceInformation().getIdField();
+        ResourceInformation resourceInformation = entry.getResourceInformation();
+        ResourceField idField = resourceInformation.getIdField();
 
         Object sourceId = PropertyUtils.getProperty(data, idField.getUnderlyingName());
-        gen.writeStringField(SELF_FIELD_NAME, resourceUrl + "/" + sourceId);
+        String strSourceId = resourceInformation.toIdString(sourceId);
+        gen.writeStringField(SELF_FIELD_NAME, resourceUrl + "/" + strSourceId);
     }
 
     private void writeMetaField(JsonGenerator gen, Object data, RegistryEntry entry) throws IOException {
