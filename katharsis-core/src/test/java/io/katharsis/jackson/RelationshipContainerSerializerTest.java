@@ -103,7 +103,7 @@ public class RelationshipContainerSerializerTest extends BaseSerializerTest {
     }
 
     @Test
-    public void onToOneNullRelationshipShouldNotIncludeNullToOneRelationshipLinkage() throws Exception {
+    public void onToOneNullRelationshipShouldIncludeToOneRelationshipLinkage() throws Exception {
         // GIVEN
         LazyTask lazyTask = new LazyTask();
         lazyTask.setId(1L);
@@ -112,7 +112,20 @@ public class RelationshipContainerSerializerTest extends BaseSerializerTest {
         String result = sut.writeValueAsString(new Container(lazyTask, testResponse));
 
         // THEN
-        assertThatJson(result).node("relationships.project.data").isAbsent();
+        assertThatJson(result).node("relationships.project.data").isPresent();
+    }
+
+    @Test
+    public void onToOneNullRelationshipShouldNotIncludeLazyToOneRelationshipLinkage() throws Exception {
+        // GIVEN
+        LazyTask lazyTask = new LazyTask();
+        lazyTask.setId(1L);
+
+        // WHEN
+        String result = sut.writeValueAsString(new Container(lazyTask, testResponse));
+
+        // THEN
+        assertThatJson(result).node("relationships.lazyProject.data").isAbsent();
     }
 
     @Test
