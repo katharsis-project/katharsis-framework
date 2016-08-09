@@ -1,17 +1,25 @@
 package io.katharsis.resource.information;
 
-import io.katharsis.resource.field.ResourceAttributesBridge;
-import io.katharsis.resource.field.ResourceField;
-
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+import io.katharsis.resource.annotations.JsonApiResource;
+import io.katharsis.resource.field.ResourceAttributesBridge;
+import io.katharsis.resource.field.ResourceField;
+import io.katharsis.utils.parser.TypeParser;
+
 /**
  * Holds information about the type of the resource.
  */
-public final class ResourceInformation {
+public class ResourceInformation {
     private final Class<?> resourceClass;
+    
+    /**
+     * Type name of the resource. Corresponds to {@link JsonApiResource.type} for annotated resources.
+     */
+    private String resourceType;
 
     /**
      * Found field of the id. Each resource has to contain a field marked by JsonApiId annotation.
@@ -39,19 +47,40 @@ public final class ResourceInformation {
      */
     private final String linksFieldName;
 
-    public ResourceInformation(Class<?> resourceClass, ResourceField idField, ResourceAttributesBridge attributeFields,
+    /**
+     * Creates a new instance of the given resource.
+     */
+	private ResourceInstanceBuilder<?> instanceBuilder;
+
+	public ResourceInformation(Class<?> resourceClass, String resourceType, ResourceField idField, ResourceAttributesBridge attributeFields,
+	            Set<ResourceField> relationshipFields) {
+	this(resourceClass, resourceType, null, idField, attributeFields, relationshipFields, null, null);
+	}
+	
+    public ResourceInformation(Class<?> resourceClass, String resourceType, ResourceInstanceBuilder<?> instanceBuilder, ResourceField idField, ResourceAttributesBridge attributeFields,
                                Set<ResourceField> relationshipFields) {
-        this(resourceClass, idField, attributeFields, relationshipFields, null, null);
+        this(resourceClass, resourceType, instanceBuilder, idField, attributeFields, relationshipFields, null, null);
     }
 
-    public ResourceInformation(Class<?> resourceClass, ResourceField idField, ResourceAttributesBridge attributeFields,
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	public ResourceInformation(Class<?> resourceClass, String resourceType, ResourceInstanceBuilder<?> instanceBuilder, ResourceField idField, ResourceAttributesBridge attributeFields,
                                Set<ResourceField> relationshipFields, String metaFieldName, String linksFieldName) {
         this.resourceClass = resourceClass;
+        this.resourceType = resourceType;
+        this.instanceBuilder = instanceBuilder;
         this.idField = idField;
         this.attributeFields = attributeFields;
         this.relationshipFields = relationshipFields;
         this.metaFieldName = metaFieldName;
         this.linksFieldName = linksFieldName;
+        
+        if(instanceBuilder == null){
+        	instanceBuilder = new DefaultResourceInstanceBuilder(resourceClass);
+        }
+    }
+    
+    public ResourceInstanceBuilder<?> getInstanceBuilder(){
+    	return instanceBuilder;
     }
 
     public Class<?> getResourceClass() {
@@ -73,7 +102,7 @@ public final class ResourceInformation {
     public ResourceField findRelationshipFieldByName(String name) {
         return getJsonField(name, relationshipFields);
     }
-
+    
     private static ResourceField getJsonField(String name, Set<ResourceField> fields) {
         ResourceField foundField = null;
         for (ResourceField field : fields) {
@@ -130,4 +159,27 @@ public final class ResourceInformation {
     public int hashCode() {
         return Objects.hash(resourceClass, idField, attributeFields, relationshipFields, metaFieldName, linksFieldName);
     }
+
+	public String getResourceType() {
+		return resourceType;
+	}
+	
+	 /**
+     * Converts the given id string into its object representation.
+     */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public Serializable parseIdString(String id) {
+		TypeParser parser = new TypeParser();
+		Class idType = getIdField().getType();
+		return parser.parse(id, idType);
+	}
+	
+	/**
+	 * Converts the given id to a string
+	 */
+	public String toIdString(Object id){
+		if(id == null)
+			return null;
+		return id.toString();
+	}
 }

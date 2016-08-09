@@ -11,6 +11,7 @@ import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.exception.RequestBodyException;
 import io.katharsis.resource.exception.RequestBodyNotFoundException;
 import io.katharsis.resource.exception.ResourceNotFoundException;
+import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.responseRepository.ResourceRepositoryAdapter;
@@ -58,9 +59,10 @@ public class ResourcePost extends ResourceUpsert {
         if (dataBody == null) {
             throw new RequestBodyException(HttpMethod.POST, resourceEndpointName, "No data field in the body.");
         }
+        
         RegistryEntry bodyRegistryEntry = resourceRegistry.getEntry(dataBody.getType());
         verifyTypes(HttpMethod.POST, resourceEndpointName, endpointRegistryEntry, bodyRegistryEntry);
-        Object newResource = ClassUtils.newInstance(bodyRegistryEntry.getResourceInformation().getResourceClass());
+        Object newResource = newResource(bodyRegistryEntry.getResourceInformation(), dataBody);
 
         setId(dataBody, newResource, bodyRegistryEntry.getResourceInformation());
         setAttributes(dataBody, newResource, bodyRegistryEntry.getResourceInformation());

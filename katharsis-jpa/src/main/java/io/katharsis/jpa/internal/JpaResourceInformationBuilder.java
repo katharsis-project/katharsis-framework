@@ -1,0 +1,218 @@
+package io.katharsis.jpa.internal;
+
+import java.io.Serializable;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.lang.reflect.Type;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.persistence.ElementCollection;
+import javax.persistence.EntityManager;
+import javax.persistence.FetchType;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OptimisticLockException;
+
+import com.fasterxml.jackson.databind.JsonNode;
+
+import io.katharsis.jpa.internal.meta.MetaAttribute;
+import io.katharsis.jpa.internal.meta.MetaElement;
+import io.katharsis.jpa.internal.meta.MetaEntity;
+import io.katharsis.jpa.internal.meta.MetaKey;
+import io.katharsis.jpa.internal.meta.MetaLookup;
+import io.katharsis.request.dto.DataBody;
+import io.katharsis.resource.field.ResourceAttributesBridge;
+import io.katharsis.resource.field.ResourceField;
+import io.katharsis.resource.field.ResourceField.LookupIncludeBehavior;
+import io.katharsis.resource.information.AnnotationResourceInformationBuilder.AnnotatedResourceField;
+import io.katharsis.resource.information.DefaultResourceInstanceBuilder;
+import io.katharsis.resource.information.ResourceInformation;
+import io.katharsis.resource.information.ResourceInformationBuilder;
+import io.katharsis.resource.information.ResourceInstanceBuilder;
+import io.katharsis.utils.parser.TypeParser;
+
+/**
+ * Extracts resource information from JPA and Katharsis annotations. Katharsis
+ * annotations take precedence.
+ */
+public class JpaResourceInformationBuilder implements ResourceInformationBuilder {
+
+	private static final String ENTITY_NAME_SUFFIX = "Entity";
+
+	private TypeParser typeParser = new TypeParser();
+
+	private EntityManager em;
+
+	public JpaResourceInformationBuilder(EntityManager em) {
+		this.em = em;
+	}
+
+	@Override
+	public boolean accept(Class<?> resourceClass) {
+		MetaElement meta = MetaLookup.INSTANCE.getMeta(resourceClass);
+		if (meta instanceof MetaEntity) {
+			MetaEntity metaEntity = meta.asEntity();
+			MetaKey primaryKey = metaEntity.getPrimaryKey();
+			return primaryKey != null && primaryKey.getElements().size() == 1;
+		} else {
+			return false;
+		}
+	}
+
+	@Override
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public ResourceInformation build(final Class<?> resourceClass) {
+		final MetaEntity meta = MetaLookup.INSTANCE.getMeta(resourceClass).asEntity();
+
+		String resourceType = getResourceType(resourceClass);
+
+		ResourceField idField = getIdField(meta);
+		Set<ResourceField> attributeFields = getAttributeFields(meta, false);
+		Set<ResourceField> relationshipFields = getAttributeFields(meta, true);
+
+		// make sure that existing managed object are used where available
+		ResourceInstanceBuilder<?> instanceBuilder = new DefaultResourceInstanceBuilder<Object>((Class) resourceClass) {
+			@Override
+			public Object buildResource(DataBody body) {
+				String strId = body.getId();
+
+				// use managed entities on the server-side
+				if (strId != null && em != null) {
+					Object id = meta.getPrimaryKey().fromKeyString(strId);
+					Object entity = em.find(resourceClass, id);
+					if (entity != null) {
+						// version check
+						MetaAttribute versionAttr = meta.getVersionAttribute();
+						if (versionAttr != null) {
+							JsonNode versionNode = body.getAttributes().get(versionAttr.getName());
+							if (versionNode != null) {
+								Object requestVersion = typeParser.parse(versionNode.asText(),
+										(Class) versionAttr.getType().getImplementationClass());
+								Object currentVersion = versionAttr.getValue(entity);
+								if (!currentVersion.equals(requestVersion))
+									throw new OptimisticLockException(strId + " changed from version " + requestVersion
+											+ " to " + currentVersion);
+							}
+						}
+
+						return entity;
+					}
+				}
+				return super.buildResource(body);
+			}
+		};
+
+		return new JpaResourceInformation(meta, resourceClass, resourceType, instanceBuilder, idField,
+				new ResourceAttributesBridge(attributeFields, resourceClass), relationshipFields);
+	}
+	
+	class JpaResourceInformation extends ResourceInformation{
+
+		private MetaEntity meta;
+
+		public JpaResourceInformation(MetaEntity meta, Class<?> resourceClass, String resourceType, ResourceField idField, ResourceAttributesBridge attributeFields,
+	            Set<ResourceField> relationshipFields) {
+		this(meta, resourceClass, resourceType, null, idField, attributeFields, relationshipFields, null, null);
+		}
+		
+	    public JpaResourceInformation(MetaEntity meta, Class<?> resourceClass, String resourceType, ResourceInstanceBuilder<?> instanceBuilder, ResourceField idField, ResourceAttributesBridge attributeFields,
+	                               Set<ResourceField> relationshipFields) {
+	        this(meta, resourceClass, resourceType, instanceBuilder, idField, attributeFields, relationshipFields, null, null);
+	    }
+		
+		public JpaResourceInformation(MetaEntity meta, Class<?> resourceClass, String resourceType,
+				ResourceInstanceBuilder<?> instanceBuilder, ResourceField idField,
+				ResourceAttributesBridge attributeFields, Set<ResourceField> relationshipFields, String metaFieldName,
+				String linksFieldName) {
+			super(resourceClass, resourceType, instanceBuilder, idField, attributeFields, relationshipFields, metaFieldName,
+					linksFieldName);
+			this.meta = meta;
+		}
+		
+		/**
+		 * Specialized ID handling to take care of embeddables and compound primary keys.
+		 */
+		@Override
+		public Serializable parseIdString(String id) {
+			return (Serializable) meta.getPrimaryKey().fromKeyString(id);
+		}
+		
+		/**
+		 * Specialized ID handling to take care of embeddables and compound primary keys.
+		 */
+		@Override
+		public String toIdString(Object id){
+			return meta.getPrimaryKey().toKeyString(id);
+		}
+	}
+
+	protected String getResourceType(Class<?> entityClass) {
+		String name = entityClass.getSimpleName();
+		if (name.endsWith(ENTITY_NAME_SUFFIX)) {
+			name = name.substring(0, name.length() - ENTITY_NAME_SUFFIX.length());
+		}
+		return Character.toLowerCase(name.charAt(0)) + name.substring(1);
+	}
+
+	protected Set<ResourceField> getAttributeFields(MetaEntity meta, boolean relations) {
+		Set<ResourceField> fields = new HashSet<ResourceField>();
+
+		MetaAttribute primaryKeyAttr = JpaRepositoryUtils.getPrimaryKeyAttr(meta);
+		for (MetaAttribute attr : meta.getAttributes()) {
+			if (attr.equals(primaryKeyAttr))
+				continue;
+			if (attr.isAssociation() != relations)
+				continue;
+			fields.add(toField(attr));
+		}
+
+		return fields;
+	}
+
+	protected ResourceField toField(MetaAttribute attr) {
+		String jsonName = attr.getName();
+		String underlyingName = attr.getName();
+		Class<?> type = attr.getType().getImplementationClass();
+		Type genericType = attr.getType().getImplementationType();
+
+		Class<?> beanClass = attr.getParent().getImplementationClass();
+		Field declaredField;
+		try {
+			declaredField = beanClass.getDeclaredField(attr.getName());
+		} catch (Exception e) {
+			throw new IllegalStateException(e);
+		}
+		List<Annotation> annotations = Arrays.asList(declaredField.getAnnotations());
+
+		// use JPA annotations as default
+		boolean lazyDefault = false;
+		for (Annotation annotation : annotations) {
+			if (annotation instanceof ElementCollection) {
+				lazyDefault = ((ElementCollection) annotation).fetch() == FetchType.LAZY;
+			} else if (annotation instanceof ManyToOne) {
+				lazyDefault = ((ManyToOne) annotation).fetch() == FetchType.LAZY;
+			} else if (annotation instanceof OneToMany) {
+				lazyDefault = ((OneToMany) annotation).fetch() == FetchType.LAZY;
+			} else if (annotation instanceof ManyToMany) {
+				lazyDefault = ((ManyToMany) annotation).fetch() == FetchType.LAZY;
+			}
+		}
+
+		// read Katharsis annotations
+		boolean lazy = AnnotatedResourceField.isLazy(annotations, lazyDefault);
+		boolean includeByDefault = AnnotatedResourceField.getIncludeByDefault(annotations);
+		LookupIncludeBehavior lookupIncludeBehavior = AnnotatedResourceField.getLookupIncludeBehavior(annotations);
+		return new ResourceField(jsonName, underlyingName, type, genericType, lazy, includeByDefault,
+				lookupIncludeBehavior);
+	}
+
+	protected ResourceField getIdField(MetaEntity meta) {
+		MetaAttribute attr = JpaRepositoryUtils.getPrimaryKeyAttr(meta);
+		return toField(attr);
+	}
+
+}

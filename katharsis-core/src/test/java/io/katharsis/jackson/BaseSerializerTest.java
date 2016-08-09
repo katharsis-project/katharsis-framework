@@ -6,6 +6,7 @@ import io.katharsis.queryParams.QueryParams;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathBuilder;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
+import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryBuilder;
@@ -24,7 +25,7 @@ public abstract class BaseSerializerTest {
 
     @Before
     public void setUp() throws Exception {
-        ResourceInformationBuilder resourceInformationBuilder = new ResourceInformationBuilder(
+        ResourceInformationBuilder resourceInformationBuilder = new AnnotationResourceInformationBuilder(
             new ResourceFieldNameTransformer());
         ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonServiceLocator(),
             resourceInformationBuilder);

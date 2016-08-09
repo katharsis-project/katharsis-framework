@@ -71,7 +71,7 @@ public class IncludedRelationshipExtractor {
 
         //noinspection unchecked
         for (ResourceField resourceField : relationshipFields) {
-            if (resourceField.isAnnotationPresent(JsonApiIncludeByDefault.class)) {
+            if (resourceField.getIncludeByDefault()) {
 
                 Object targetDataObj = PropertyUtils.getProperty(resource, resourceField.getUnderlyingName());
 
@@ -198,7 +198,7 @@ public class IncludedRelationshipExtractor {
     }
 
     private ResourceDigest getResourceDigest(Object resource) {
-        Class<?> resourceClass = ClassUtils.getJsonApiResourceClass(resource);
+        Class<?> resourceClass = resourceRegistry.getResourceClass(resource);
         RegistryEntry registryEntry = resourceRegistry.getEntry(resourceClass);
         String idFieldName = registryEntry.getResourceInformation().getIdField().getUnderlyingName();
         Object idValue = PropertyUtils.getProperty(resource, idFieldName);

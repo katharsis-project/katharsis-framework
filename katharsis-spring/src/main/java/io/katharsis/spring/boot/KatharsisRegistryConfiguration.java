@@ -1,17 +1,18 @@
 package io.katharsis.spring.boot;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
-import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryBuilder;
-import io.katharsis.resource.field.ResourceFieldNameTransformer;
-import io.katharsis.resource.information.ResourceInformationBuilder;
-import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.resource.registry.ResourceRegistryBuilder;
-import io.katharsis.spring.SpringServiceLocator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
+import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryBuilder;
+import io.katharsis.module.ModuleRegistry;
+import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.resource.registry.ResourceRegistryBuilder;
+import io.katharsis.spring.SpringServiceLocator;
 
 @Configuration
 @EnableConfigurationProperties(KatharsisSpringBootProperties.class)
@@ -24,16 +25,24 @@ public class KatharsisRegistryConfiguration {
     private SpringServiceLocator serviceLocator;
 
     @Autowired
+    private ModuleRegistry moduleRegistry;
+    
+    @Autowired
     private ObjectMapper objectMapper;
-
+    
     @Bean
     public ResourceRegistry resourceRegistry() {
         ResourceRegistryBuilder registryBuilder =
-            new ResourceRegistryBuilder(serviceLocator,
-                new ResourceInformationBuilder(new ResourceFieldNameTransformer(objectMapper.getSerializationConfig())));
+            new ResourceRegistryBuilder(serviceLocator, moduleRegistry.getResourceInformationBuilder());
 
         String serverUri = properties.getDomainName() + properties.getPathPrefix();
-        return registryBuilder.build(properties.getResourcePackage(), serverUri);
+        ResourceRegistry resourceRegistry = registryBuilder.build(properties.getResourcePackage(), serverUri);
+        
+        // NOTE once ModuleRegistry is more widely used, it should be possible
+        // to break up the cyclic dependency between ResourceRegistry and ModuleRegistry.
+        moduleRegistry.init(objectMapper, resourceRegistry);
+        
+        return resourceRegistry;
     }
 
     @Bean

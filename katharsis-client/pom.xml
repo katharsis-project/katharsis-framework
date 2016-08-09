@@ -1,0 +1,107 @@
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>io.katharsis</groupId>
+		<artifactId>katharsis-parent</artifactId>
+		<version>2.5.0-SNAPSHOT</version>
+		<relativePath>../katharsis-parent</relativePath>
+	</parent>
+
+	<artifactId>katharsis-client</artifactId>
+	<packaging>bundle</packaging>
+
+	<name>katharsis-client</name>
+
+	<properties>
+		<okhttp.version>2.7.5</okhttp.version>
+		<jersey.version>2.17</jersey.version>
+	</properties>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.eluder.coveralls</groupId>
+				<artifactId>coveralls-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>com.github.danielflower.mavenplugins</groupId>
+				<artifactId>gitlog-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<configuration>
+					<instructions>
+						<Export-Package>io.katharsis.client.*</Export-Package>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>io.katharsis</groupId>
+			<artifactId>katharsis-core</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		
+		<dependency>
+            <groupId>org.reflections</groupId>
+            <artifactId>reflections</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+		<dependency>
+			<groupId>com.squareup.okhttp</groupId>
+			<artifactId>okhttp</artifactId>
+			<version>${okhttp.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>io.katharsis</groupId>
+			<artifactId>katharsis-rs</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+
+		<dependency>
+			<groupId>org.glassfish.jersey.core</groupId>
+			<artifactId>jersey-common</artifactId>
+			<version>${jersey.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+
+		<dependency>
+			<groupId>org.glassfish.jersey.containers</groupId>
+			<artifactId>jersey-container-grizzly2-http</artifactId>
+			<version>${jersey.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.glassfish.jersey.test-framework.providers</groupId>
+			<artifactId>jersey-test-framework-provider-grizzly2</artifactId>
+			<version>${jersey.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.glassfish.jersey.test-framework</groupId>
+			<artifactId>jersey-test-framework-core</artifactId>
+			<version>${jersey.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+	</dependencies>
+
+</project>

@@ -12,6 +12,7 @@ import io.katharsis.resource.exception.init.MultipleJsonApiMetaInformationExcept
 import io.katharsis.resource.exception.init.ResourceDuplicateIdException;
 import io.katharsis.resource.exception.init.ResourceIdNotFoundException;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
+import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.mock.models.Task;
@@ -29,7 +30,7 @@ public class ResourceInformationBuilderTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
-    private final ResourceInformationBuilder resourceInformationBuilder = new ResourceInformationBuilder(
+    private final ResourceInformationBuilder resourceInformationBuilder = new AnnotationResourceInformationBuilder(
         new ResourceFieldNameTransformer());
 
     @Test

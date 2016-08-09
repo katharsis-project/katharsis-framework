@@ -22,6 +22,10 @@ public class RelationshipRepositoryAdapter<T, T_ID extends Serializable, D, D_ID
         this.isAnnotated = relationshipRepository instanceof AnnotatedRelationshipRepositoryAdapter;
     }
 
+    public Object getRelationshipRepository(){
+    	return relationshipRepository;
+    }
+    
     public JsonApiResponse setRelation(T source, D_ID targetId, String fieldName, QueryParams queryParams) {
         if (isAnnotated) {
             ((AnnotatedRelationshipRepositoryAdapter) relationshipRepository)

@@ -9,6 +9,7 @@ import io.katharsis.resource.registry.repository.ResponseRelationshipEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -19,11 +20,15 @@ import java.util.Set;
 public class ResourceRegistryBuilder {
     private static final Logger LOGGER = LoggerFactory.getLogger(ResourceRegistryBuilder.class);
 
-    private final ResourceInformationBuilder resourceInformationBuilder;
+    private final List<ResourceInformationBuilder> resourceInformationBuilders;
     private final RepositoryEntryBuilderFacade repositoryEntryBuilder;
 
     public ResourceRegistryBuilder(JsonServiceLocator jsonServiceLocator, ResourceInformationBuilder resourceInformationBuilder) {
-        this.resourceInformationBuilder = resourceInformationBuilder;
+    	this(jsonServiceLocator, Arrays.asList(resourceInformationBuilder));
+    }
+    
+    public ResourceRegistryBuilder(JsonServiceLocator jsonServiceLocator, List<ResourceInformationBuilder> resourceInformationBuilders) {
+        this.resourceInformationBuilders = resourceInformationBuilders;
         this.repositoryEntryBuilder = new RepositoryEntryBuilderFacade(jsonServiceLocator);
     }
 
@@ -50,6 +55,7 @@ public class ResourceRegistryBuilder {
         
         Set<ResourceInformation> resourceInformationSet = new HashSet<>(jsonApiResources.size());
         for (Class<?> clazz : jsonApiResources) {
+        	ResourceInformationBuilder resourceInformationBuilder = findResourceInformationBuilder(clazz);
             resourceInformationSet.add(resourceInformationBuilder.build(clazz));
             LOGGER.info("{} registered as a resource", clazz);
         }
@@ -79,6 +85,23 @@ public class ResourceRegistryBuilder {
         return resourceRegistry;
     }
 
+    /**
+     * Finds the closest resource, that is resource annotated with {@link JsonApiResource} annotation, in the class
+     * inheritance hierarchy. If no resource parent is found, <i>null</i> is returned.
+     *
+     * @param resourceClass    information about the searched resource
+     * @param registryEntries a set of available resources
+     * @return resource's parent resource
+     */
+    private ResourceInformationBuilder findResourceInformationBuilder(Class<?> resourceClass){
+    	for(ResourceInformationBuilder resourceInformationBuilder : resourceInformationBuilders){
+    		if(resourceInformationBuilder.accept(resourceClass)){
+    			return resourceInformationBuilder;
+    		}
+    	}
+    	throw new UnsupportedOperationException(resourceClass.getName() + " is not a valid resourceClass");
+    }
+    
     /**
      * Finds the closest resource, that is resource annotated with {@link JsonApiResource} annotation, in the class
      * inheritance hierarchy. If no resource parent is found, <i>null</i> is returned.

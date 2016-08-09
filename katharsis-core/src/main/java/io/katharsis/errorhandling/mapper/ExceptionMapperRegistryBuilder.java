@@ -36,7 +36,7 @@ public final class ExceptionMapperRegistryBuilder {
     private Class<? extends Throwable> getGenericType(Class<? extends JsonApiExceptionMapper> mapper) {
         Type[] types = mapper.getGenericInterfaces();
         for (Type type : types) {
-            if (type instanceof ParameterizedType && ((ParameterizedType)type).getRawType() == JsonApiExceptionMapper.class) {
+            if (type instanceof ParameterizedType && (((ParameterizedType)type).getRawType() == JsonApiExceptionMapper.class || ((ParameterizedType)type).getRawType() == ExceptionMapper.class)) {
                 //noinspection unchecked
                 return (Class<? extends Throwable>)((ParameterizedType)type).getActualTypeArguments()[0];
             }
