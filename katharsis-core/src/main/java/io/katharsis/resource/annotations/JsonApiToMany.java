@@ -15,7 +15,7 @@ import java.lang.annotation.Target;
 public @interface JsonApiToMany {
 
     /**
-     * Defines weather the data associated to the relation should be visible when requesting information about a
+     * Defines whether the data associated to the relation should be visible when requesting information about a
      * resource that contains this relation.
      * @return <i>true</i> if lazy, <i>false</i> otherwise
      */

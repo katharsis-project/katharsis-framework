@@ -16,6 +16,9 @@ public class LazyTask {
     @JsonApiToOne
     private Project project;
 
+    @JsonApiToOne(lazy = true)
+    private Project lazyProject;
+
     public Long getId() {
         return id;
     }
