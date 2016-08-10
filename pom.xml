@@ -306,6 +306,23 @@
                 </plugins>
             </build>
         </profile>
+        <profile>
+            <id>release-changelog</id>
+            <activation>
+                <property>
+                    <name>performRelease</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.github.danielflower.mavenplugins</groupId>
+                        <artifactId>gitlog-maven-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
 
     <dependencies>
