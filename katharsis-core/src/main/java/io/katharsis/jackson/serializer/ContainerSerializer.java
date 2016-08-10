@@ -22,7 +22,6 @@ import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.Container;
 import io.katharsis.response.DataLinksContainer;
-import io.katharsis.utils.BeanUtils;
 import io.katharsis.utils.Predicate2;
 import io.katharsis.utils.PropertyUtils;
 import io.katharsis.utils.java.Optional;
