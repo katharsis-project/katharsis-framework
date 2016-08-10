@@ -47,9 +47,7 @@ public class TestConfig {
 	public DataSource restDataSource() {
 		JdbcDataSource dataSource = new JdbcDataSource();
 		dataSource.setUrl("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=TRUE");
-
 		dataSource.setUser("sa");
-		// dataSource.setPassword("sa");
 		return dataSource;
 	}
 
@@ -68,7 +66,7 @@ public class TestConfig {
 
 	private Properties hibernateProperties() {
 		Properties props = new Properties();
-		props.setProperty("hibernate.hbm2ddl.auto", "create-drop");
+		props.setProperty("hibernate.hbm2ddl.auto", "create");
 		props.setProperty("hibernate.dialect", H2Dialect.class.getName());
 		props.setProperty("hibernate.globally_quoted_identifiers", "true");
 		return props;

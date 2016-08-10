@@ -5,8 +5,11 @@ import static org.junit.Assert.assertNotNull;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -25,7 +28,9 @@ public class JpaResourceInformationBuilderTest {
 	@Test
 	public void test()
 			throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
-		JpaResourceInformationBuilder builder = new JpaResourceInformationBuilder(null);
+		Set<Class<? extends Object>> entityClasses = new HashSet<Class<? extends Object>>(Arrays.asList(TestEntity.class, RelatedEntity.class));
+		
+		JpaResourceInformationBuilder builder = new JpaResourceInformationBuilder(null, entityClasses);
 
 		ResourceInformation info = builder.build(TestEntity.class);
 		ResourceField idField = info.getIdField();

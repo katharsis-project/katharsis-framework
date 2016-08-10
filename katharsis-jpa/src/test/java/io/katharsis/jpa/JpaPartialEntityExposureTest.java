@@ -1,0 +1,66 @@
+package io.katharsis.jpa;
+
+import java.util.List;
+import java.util.Set;
+
+import javax.persistence.EntityManager;
+
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Test;
+
+import io.katharsis.jpa.internal.JpaResourceInformationBuilder;
+import io.katharsis.jpa.model.RelatedEntity;
+import io.katharsis.jpa.model.TestEntity;
+import io.katharsis.queryParams.QueryParams;
+import io.katharsis.resource.exception.init.ResourceNotFoundInitializationException;
+import io.katharsis.resource.field.ResourceField;
+import io.katharsis.resource.information.ResourceInformation;
+
+public class JpaPartialEntityExposureTest extends AbstractJpaJerseyTest {
+
+	private JpaModule module;
+
+	protected void setupModule(JpaModule module) {
+		this.module = module;
+		this.module.removeEntityClass(RelatedEntity.class);
+	}
+	
+	@After
+	public void tearDown() throws Exception {
+		super.tearDown();
+	}
+
+	@Test
+	public void testCrud() {
+		TestEntity test = new TestEntity();
+		test.setId(2L);
+		test.setStringValue("test");
+		testRepo.save(test);
+
+		List<TestEntity> tests = testRepo.findAll(new QueryParams());
+		Assert.assertEquals(1, tests.size());
+		Assert.assertNull(test.getOneRelatedValue());
+		Assert.assertNull(test.getEagerRelatedValue());
+		Assert.assertTrue(test.getManyRelatedValues().isEmpty());
+
+		testRepo.delete(test.getId());
+		tests = testRepo.findAll(new QueryParams());
+		Assert.assertEquals(0, tests.size());
+	}
+
+	@Test
+	public void testInformationBuilder() {
+		EntityManager em = null;
+		JpaResourceInformationBuilder builder = new JpaResourceInformationBuilder(em, module.getEntityClasses());
+		ResourceInformation info = builder.build(TestEntity.class);
+		Set<ResourceField> relationshipFields = info.getRelationshipFields();
+		Assert.assertEquals(0, relationshipFields.size());
+	}
+
+	@Test(expected = ResourceNotFoundInitializationException.class)
+	public void testRelatedEntityNotAvailable() {
+		client.getRepository(RelatedEntity.class);
+	}
+
+}

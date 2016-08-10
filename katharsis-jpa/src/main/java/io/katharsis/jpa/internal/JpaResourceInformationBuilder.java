@@ -20,10 +20,12 @@ import javax.persistence.OptimisticLockException;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import io.katharsis.jpa.internal.meta.MetaAttribute;
+import io.katharsis.jpa.internal.meta.MetaCollectionType;
 import io.katharsis.jpa.internal.meta.MetaElement;
 import io.katharsis.jpa.internal.meta.MetaEntity;
 import io.katharsis.jpa.internal.meta.MetaKey;
 import io.katharsis.jpa.internal.meta.MetaLookup;
+import io.katharsis.jpa.internal.meta.MetaType;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.resource.field.ResourceAttributesBridge;
 import io.katharsis.resource.field.ResourceField;
@@ -47,12 +49,21 @@ public class JpaResourceInformationBuilder implements ResourceInformationBuilder
 
 	private EntityManager em;
 
-	public JpaResourceInformationBuilder(EntityManager em) {
+	private Set<Class<?>> exposedEntityClasses;
+
+	public JpaResourceInformationBuilder(EntityManager em, Set<Class<? extends Object>> exposedEntityClasses) {
 		this.em = em;
+		this.exposedEntityClasses = exposedEntityClasses;
 	}
 
 	@Override
 	public boolean accept(Class<?> resourceClass) {
+		// needs to be configured for being exposed
+		if(!exposedEntityClasses.contains(resourceClass)){
+			return false;
+		}
+		
+		// needs to be an entity
 		MetaElement meta = MetaLookup.INSTANCE.getMeta(resourceClass);
 		if (meta instanceof MetaEntity) {
 			MetaEntity metaEntity = meta.asEntity();
@@ -73,6 +84,7 @@ public class JpaResourceInformationBuilder implements ResourceInformationBuilder
 		ResourceField idField = getIdField(meta);
 		Set<ResourceField> attributeFields = getAttributeFields(meta, false);
 		Set<ResourceField> relationshipFields = getAttributeFields(meta, true);
+		Set<String> ignoredFields = getIgnoredFields(meta);
 
 		// make sure that existing managed object are used where available
 		ResourceInstanceBuilder<?> instanceBuilder = new DefaultResourceInstanceBuilder<Object>((Class) resourceClass) {
@@ -107,30 +119,32 @@ public class JpaResourceInformationBuilder implements ResourceInformationBuilder
 		};
 
 		return new JpaResourceInformation(meta, resourceClass, resourceType, instanceBuilder, idField,
-				new ResourceAttributesBridge(attributeFields, resourceClass), relationshipFields);
+				new ResourceAttributesBridge(attributeFields, resourceClass), relationshipFields, ignoredFields);
 	}
 	
 	class JpaResourceInformation extends ResourceInformation{
 
 		private MetaEntity meta;
+		private Set<String> ignoredFields;
 
 		public JpaResourceInformation(MetaEntity meta, Class<?> resourceClass, String resourceType, ResourceField idField, ResourceAttributesBridge attributeFields,
-	            Set<ResourceField> relationshipFields) {
-		this(meta, resourceClass, resourceType, null, idField, attributeFields, relationshipFields, null, null);
+	            Set<ResourceField> relationshipFields, Set<String> ignoredFields) {
+		this(meta, resourceClass, resourceType, null, idField, attributeFields, relationshipFields, ignoredFields, null, null);
 		}
 		
 	    public JpaResourceInformation(MetaEntity meta, Class<?> resourceClass, String resourceType, ResourceInstanceBuilder<?> instanceBuilder, ResourceField idField, ResourceAttributesBridge attributeFields,
-	                               Set<ResourceField> relationshipFields) {
-	        this(meta, resourceClass, resourceType, instanceBuilder, idField, attributeFields, relationshipFields, null, null);
+	                               Set<ResourceField> relationshipFields, Set<String> ignoredFields) {
+	        this(meta, resourceClass, resourceType, instanceBuilder, idField, attributeFields, relationshipFields, ignoredFields, null, null);
 	    }
 		
 		public JpaResourceInformation(MetaEntity meta, Class<?> resourceClass, String resourceType,
 				ResourceInstanceBuilder<?> instanceBuilder, ResourceField idField,
-				ResourceAttributesBridge attributeFields, Set<ResourceField> relationshipFields, String metaFieldName,
+				ResourceAttributesBridge attributeFields, Set<ResourceField> relationshipFields, Set<String> ignoredFields, String metaFieldName,
 				String linksFieldName) {
 			super(resourceClass, resourceType, instanceBuilder, idField, attributeFields, relationshipFields, metaFieldName,
 					linksFieldName);
 			this.meta = meta;
+			this.ignoredFields = ignoredFields;
 		}
 		
 		/**
@@ -148,6 +162,15 @@ public class JpaResourceInformationBuilder implements ResourceInformationBuilder
 		public String toIdString(Object id){
 			return meta.getPrimaryKey().toKeyString(id);
 		}
+		
+
+		@Override
+		public Set<String> getNotAttributeFields() {
+			Set<String> notAttributeFields = super.getNotAttributeFields();
+			notAttributeFields.addAll(ignoredFields);
+			return notAttributeFields;
+		}
+		
 	}
 
 	protected String getResourceType(Class<?> entityClass) {
@@ -167,10 +190,33 @@ public class JpaResourceInformationBuilder implements ResourceInformationBuilder
 				continue;
 			if (attr.isAssociation() != relations)
 				continue;
+			
+			// relation must be exposed as well 
+			if(isIgnored(attr))
+				continue;
+			
 			fields.add(toField(attr));
 		}
 
 		return fields;
+	}
+
+	protected Set<String> getIgnoredFields(MetaEntity meta) {
+		Set<String> fields = new HashSet<String>();
+		for (MetaAttribute attr : meta.getAttributes()) {
+			if(isIgnored(attr)){
+				fields.add(attr.getName());
+			}
+		}
+		return fields;
+	}
+	
+	protected boolean isIgnored(MetaAttribute attr) {
+		MetaType type = attr.getType();
+		if(type.isCollection()){
+			type = type.asCollection().getElementType();
+		}
+		return attr.isAssociation() && !exposedEntityClasses.contains(type.getImplementationClass());
 	}
 
 	protected ResourceField toField(MetaAttribute attr) {

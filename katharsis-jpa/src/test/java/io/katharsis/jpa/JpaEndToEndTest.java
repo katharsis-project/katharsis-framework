@@ -7,106 +7,24 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.OptimisticLockException;
-import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.core.Application;
 
-import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.JerseyTest;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import io.katharsis.client.KatharsisClient;
 import io.katharsis.client.ResourceRepositoryStub;
 import io.katharsis.jpa.model.RelatedEntity;
 import io.katharsis.jpa.model.TestEmbeddedIdEntity;
 import io.katharsis.jpa.model.TestEntity;
 import io.katharsis.jpa.model.TestIdEmbeddable;
 import io.katharsis.jpa.model.VersionedEntity;
-import io.katharsis.jpa.query.AbstractJpaTest;
-import io.katharsis.jpa.util.EntityManagerProducer;
-import io.katharsis.jpa.util.SpringTransactionRunner;
-import io.katharsis.jpa.util.TestConfig;
-import io.katharsis.locator.SampleJsonServiceLocator;
-import io.katharsis.queryParams.DefaultQueryParamsParser;
 import io.katharsis.queryParams.QueryParams;
-import io.katharsis.queryParams.QueryParamsBuilder;
-import io.katharsis.rs.KatharsisFeature;
-import io.katharsis.rs.KatharsisProperties;
 
-public class JpaEndToEndTest extends JerseyTest {
+public class JpaEndToEndTest extends AbstractJpaJerseyTest {
 
-	private KatharsisClient client;
-	private ResourceRepositoryStub<TestEntity, Long> testRepo;
-	private ResourceRepositoryStub<RelatedEntity, Long> relatedRepo;
 
-	private QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
-
-	private AnnotationConfigApplicationContext context;
-
-	@Before
-	public void setup() {
-		client = new KatharsisClient(getBaseUri().toString(), "io.katharsis.client.mock");
-		client.addModule(new JpaModule(TestEntity.class.getPackage().getName()));
-		testRepo = client.getRepository(TestEntity.class);
-		relatedRepo = client.getRepository(RelatedEntity.class);
-		client.getHttpClient().setReadTimeout(1000000, TimeUnit.MILLISECONDS);
-	}
-
-	@After
-	public void tearDown() throws Exception {
-		super.tearDown();
-
-		SpringTransactionRunner transactionRunner = context.getBean(SpringTransactionRunner.class);
-		transactionRunner.doInTransaction(new Callable<Object>() {
-			@Override
-			public Object call() throws Exception {
-				EntityManager em = context.getBean(EntityManagerProducer.class).getEntityManager();
-				AbstractJpaTest.clear(em);
-				return null;
-			}
-		});
-
-		if (context != null)
-			context.destroy();
-	}
-
-	@Override
-	protected Application configure() {
-		return new TestApplication();
-	}
-
-	@ApplicationPath("/")
-	private class TestApplication extends ResourceConfig {
-		public TestApplication() {
-			property(KatharsisProperties.RESOURCE_SEARCH_PACKAGE, "io.katharsis.client.mock");
-			property(KatharsisProperties.RESOURCE_DEFAULT_DOMAIN, "http://test.local");
-
-			context = new AnnotationConfigApplicationContext(TestConfig.class);
-			context.start();
-			EntityManagerFactory emFactory = context.getBean(EntityManagerFactory.class);
-			EntityManager em = context.getBean(EntityManagerProducer.class).getEntityManager();
-			SpringTransactionRunner transactionRunner = context.getBean(SpringTransactionRunner.class);
-
-			KatharsisFeature feature = new KatharsisFeature(new ObjectMapper(),
-					new QueryParamsBuilder(new DefaultQueryParamsParser()), new SampleJsonServiceLocator());
-			feature.addModule(new JpaModule(emFactory, em, transactionRunner));
-
-			register(feature);
-
-		}
-	}
-
+	
 	@Test
 	public void testIncludeRelations() throws InstantiationException, IllegalAccessException {
 		addTestWithOneRelation();
@@ -233,6 +151,7 @@ public class JpaEndToEndTest extends JerseyTest {
 
 	@Test
 	public void testEagerOneRelation() {
+		ResourceRepositoryStub<RelatedEntity, Long> relatedRepo = client.getRepository(RelatedEntity.class);
 		RelatedEntity related = new RelatedEntity();
 		related.setId(1L);
 		related.setStringValue("project");
@@ -254,14 +173,15 @@ public class JpaEndToEndTest extends JerseyTest {
 
 	@Test
 	public void testEmbeddableIds() throws InstantiationException, IllegalAccessException {
-		ResourceRepositoryStub<TestEmbeddedIdEntity, Serializable> rep = client.getRepository(TestEmbeddedIdEntity.class);
+		ResourceRepositoryStub<TestEmbeddedIdEntity, Serializable> rep = client
+				.getRepository(TestEmbeddedIdEntity.class);
 
 		// add
 		TestEmbeddedIdEntity entity = new TestEmbeddedIdEntity();
 		entity.setId(new TestIdEmbeddable(13, "test"));
 		entity.setLongValue(100L);
 		rep.save(entity);
-		
+
 		List<TestEmbeddedIdEntity> list = rep.findAll(new QueryParams());
 		Assert.assertEquals(1, list.size());
 		TestEmbeddedIdEntity savedEntity = list.get(0);
@@ -269,7 +189,7 @@ public class JpaEndToEndTest extends JerseyTest {
 		Assert.assertEquals(100L, savedEntity.getLongValue());
 		Assert.assertEquals(13, savedEntity.getId().getEmbIntValue().intValue());
 		Assert.assertEquals("test", savedEntity.getId().getEmbStringValue());
-		
+
 		// update
 		savedEntity.setLongValue(101L);
 		rep.save(savedEntity);
@@ -277,7 +197,7 @@ public class JpaEndToEndTest extends JerseyTest {
 		Assert.assertEquals(1, list.size());
 		savedEntity = list.get(0);
 		Assert.assertEquals(101L, savedEntity.getLongValue());
-		
+
 		// delete
 		rep.delete(entity.getId());
 		list = rep.findAll(new QueryParams());
@@ -285,6 +205,7 @@ public class JpaEndToEndTest extends JerseyTest {
 	}
 
 	private TestEntity addTestWithOneRelation() {
+		ResourceRepositoryStub<RelatedEntity, Long> relatedRepo = client.getRepository(RelatedEntity.class);
 		RelatedEntity related = new RelatedEntity();
 		related.setId(1L);
 		related.setStringValue("project");

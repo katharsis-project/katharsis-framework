@@ -63,6 +63,7 @@ public abstract class AbstractJpaTest {
 		ResourceRegistry resourceRegistry = new ResourceRegistry("http://localhost:1234");
 		ModuleRegistry moduleRegistry = new ModuleRegistry();
 		module = new JpaModule(emFactory, em, transactionRunner);
+		setupModule(module);
 		moduleRegistry.addModule(module);
 		moduleRegistry.init(new ObjectMapper(), resourceRegistry);
 
@@ -150,6 +151,9 @@ public abstract class AbstractJpaTest {
 		em.clear();
 
 		factory = new QueryBuilderFactoryImpl(em);
+	}
+
+	protected void setupModule(JpaModule module2) {
 	}
 
 	private void clear() {

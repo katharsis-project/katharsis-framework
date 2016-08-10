@@ -26,6 +26,7 @@ import io.katharsis.jpa.internal.meta.MetaEntity;
 import io.katharsis.jpa.internal.meta.MetaLookup;
 import io.katharsis.jpa.internal.query.QueryBuilderFactory;
 import io.katharsis.jpa.internal.query.impl.QueryBuilderFactoryImpl;
+import io.katharsis.jpa.internal.util.KatharsisAssert;
 import io.katharsis.module.Module;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ResourceLookup;
@@ -107,11 +108,23 @@ public class JpaModule implements Module {
 
 	private MetaLookup metaLookup = MetaLookup.INSTANCE;
 
+	private HashSet<Class<?>> entityClasses;
+
 	/**
 	 * Constructor used on client side.
 	 */
 	public JpaModule(String resourceSearchPackage) {
 		this.resourceSearchPackage = resourceSearchPackage;
+		
+		Reflections reflections;
+		if (resourceSearchPackage != null) {
+			String[] packageNames = resourceSearchPackage.split(",");
+			reflections = new Reflections(packageNames);
+		} else {
+			reflections = new Reflections(resourceSearchPackage);
+		}
+		this.entityClasses = new HashSet<Class<?>>();
+		entityClasses.addAll(reflections.getTypesAnnotatedWith(Entity.class));
 	}
 
 	/**
@@ -122,13 +135,52 @@ public class JpaModule implements Module {
 		this.em = em;
 		this.transactionRunner = transactionRunner;
 		this.queryBuilderFactory = new QueryBuilderFactoryImpl(em);
+		
+		this.entityClasses = new HashSet<Class<?>>();
+		Set<ManagedType<?>> managedTypes = emFactory.getMetamodel().getManagedTypes();
+		for(ManagedType<?> managedType : managedTypes){
+			Class<?> managedJavaType = managedType.getJavaType();
+			MetaElement meta = MetaLookup.INSTANCE.getMeta(managedJavaType);
+			if(meta instanceof MetaEntity){
+				entityClasses.add(managedJavaType);
+			}
+		}
+	}
+	
+	/**
+	 * @return set of entity classes made available as repository.
+	 */
+	public Set<Class<?>> getEntityClasses(){
+		return Collections.unmodifiableSet(entityClasses);
 	}
 
+	/**
+	 * Adds the given entity class to expose the entity as repository. 
+	 * @param entityClass
+	 */
+	public void addEntityClass(Class<?> entityClass){
+		checkNotInitialized();
+		entityClasses.add(entityClass);
+	}
+	
+	/**
+	 * Removes the given entity class to not expose the entity as repository. 
+	 * @param entityClass
+	 */
+	public void removeEntityClass(Class<?> entityClass){
+		checkNotInitialized();
+		entityClasses.remove(entityClass);
+	}
+	
 	@Override
 	public String getModuleName() {
 		return MODULE_NAME;
 	}
 
+	private void checkNotInitialized(){
+		KatharsisAssert.assertNull("module is already initialized, no further changes can be performed", context);
+	}
+	
 	@Override
 	public void setupModule(ModuleContext context) {
 		this.context = context;
@@ -164,22 +216,14 @@ public class JpaModule implements Module {
 		context.addResourceLookup(new JpaEntityResourceLookup(resourceSearchPackage));
 	}
 
-	public static class JpaEntityResourceLookup implements ResourceLookup {
-
-		private Reflections reflections;
+	public class JpaEntityResourceLookup implements ResourceLookup {
 
 		public JpaEntityResourceLookup(String packageName) {
-			if (packageName != null) {
-				String[] packageNames = packageName.split(",");
-				reflections = new Reflections(packageNames);
-			} else {
-				reflections = new Reflections(packageName);
-			}
 		}
 
 		@Override
 		public Set<Class<?>> getResourceClasses() {
-			return reflections.getTypesAnnotatedWith(Entity.class);
+			return entityClasses;
 		}
 
 		@Override
@@ -189,11 +233,9 @@ public class JpaModule implements Module {
 	}
 
 	private void setupServerRepositories() {
-		Set<ManagedType<?>> managedTypes = emFactory.getMetamodel().getManagedTypes();
-		for (ManagedType<?> managedType : managedTypes) {
-			MetaElement meta = metaLookup.getMeta(managedType.getJavaType());
+		for (Class<?> entityClass : entityClasses) {
+			MetaElement meta = metaLookup.getMeta(entityClass);
 			setupRepository(meta);
-
 		}
 	}
 
@@ -218,7 +260,12 @@ public class JpaModule implements Module {
 		Set<Class<?>> relatedResourceClasses = new HashSet<Class<?>>();
 		for (MetaAttribute attr : metaEntity.getAttributes()) {
 			if (attr.isAssociation()) {
-				relatedResourceClasses.add(attr.getType().getImplementationClass());
+				Class<?> relType = attr.getType().getImplementationClass();
+				
+				// only include relations that are exposed as repositories
+				if(entityClasses.contains(relType)){
+					relatedResourceClasses.add(relType);
+				}
 			}
 		}
 		for (Class<?> relatedResourceClass : relatedResourceClasses) {
@@ -227,22 +274,12 @@ public class JpaModule implements Module {
 		}
 	}
 
-	// /**
-	// * ResourceLookup used to expose JPA entity repositories. By default all
-	// * entities will be exposed using {@link JpaResourceLookup}}.
-	// */
-	// public ResourceLookup getResourceLookup() {
-	// if (resourceLookup == null)
-	// resourceLookup = new JpaResourceLookup(this);
-	// return resourceLookup;
-	// }
-
 	/**
 	 * ResourceInformationBuilder used to describe JPA entity classes.
 	 */
 	public ResourceInformationBuilder getResourceInformationBuilder() {
 		if (resourceInformationBuilder == null)
-			resourceInformationBuilder = new JpaResourceInformationBuilder(em);
+			resourceInformationBuilder = new JpaResourceInformationBuilder(em, entityClasses);
 		return resourceInformationBuilder;
 	}
 
@@ -255,10 +292,6 @@ public class JpaModule implements Module {
 			processor = new DefaultQueryParamsProcessor(context.getResourceRegistry());
 		return processor;
 	}
-
-	// public void setResourceLookup(JpaResourceLookup resourceLookup) {
-	// this.resourceLookup = resourceLookup;
-	// }
 
 	/**
 	 * {@link QueryBuilderFactory}} implementation used to create JPA queries.
