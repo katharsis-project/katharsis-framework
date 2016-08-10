@@ -107,8 +107,9 @@ public class JpaModule implements Module {
 	private ModuleContext context;
 
 	private MetaLookup metaLookup = MetaLookup.INSTANCE;
-
 	private HashSet<Class<?>> entityClasses;
+	
+	private JpaRepositoryFactory repositoryFactory;
 
 	/**
 	 * Constructor used on client side.
@@ -124,7 +125,11 @@ public class JpaModule implements Module {
 			reflections = new Reflections(resourceSearchPackage);
 		}
 		this.entityClasses = new HashSet<Class<?>>();
-		entityClasses.addAll(reflections.getTypesAnnotatedWith(Entity.class));
+		this.entityClasses.addAll(reflections.getTypesAnnotatedWith(Entity.class));
+	}
+
+	public void setRepositoryFactory(JpaRepositoryFactory repositoryFactory) {
+		this.repositoryFactory = repositoryFactory;
 	}
 
 	/**
@@ -145,6 +150,7 @@ public class JpaModule implements Module {
 				entityClasses.add(managedJavaType);
 			}
 		}
+		this.setRepositoryFactory(new DefaultJpaRepositoryFactory());
 	}
 	
 	/**
@@ -254,7 +260,7 @@ public class JpaModule implements Module {
 		}
 
 		Class<?> resourceClass = metaEntity.getImplementationClass();
-		JpaEntityRepository repository = new JpaEntityRepository(this, resourceClass);
+		JpaEntityRepository repository = repositoryFactory.createEntityRepository(this, resourceClass);
 		context.addRepository(resourceClass, repository);
 
 		Set<Class<?>> relatedResourceClasses = new HashSet<Class<?>>();
@@ -269,7 +275,7 @@ public class JpaModule implements Module {
 			}
 		}
 		for (Class<?> relatedResourceClass : relatedResourceClasses) {
-			JpaRelationshipRepository relationshipRepository = new JpaRelationshipRepository(this, resourceClass);
+			JpaRelationshipRepository relationshipRepository = repositoryFactory.createRelationshipRepository(this, resourceClass, relatedResourceClass);
 			context.addRepository(resourceClass, relatedResourceClass, relationshipRepository);
 		}
 	}

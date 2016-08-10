@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Set;
 
 import javax.persistence.EntityManager;
 
@@ -26,10 +25,10 @@ public class JpaRelationshipRepository<T, T_ID extends Serializable, D, D_ID ext
 	private Class<T> entityType;
 	private MetaEntity entityMeta;
 
-	public JpaRelationshipRepository(JpaModule module, Class<T> entityType) {
-		this.entityType = entityType;
-		this.entityMeta = MetaLookup.INSTANCE.getMeta(entityType).asEntity();
+	public JpaRelationshipRepository(JpaModule module, Class<T> entityClass, Class<D> relatedEntityClass) {
 		this.module = module;
+		this.entityType = entityClass;
+		this.entityMeta = MetaLookup.INSTANCE.getMeta(entityType).asEntity();
 	}
 
 	@Override
@@ -60,7 +59,7 @@ public class JpaRelationshipRepository<T, T_ID extends Serializable, D, D_ID ext
 		Class<?> targetType = getElementType(attrMeta);
 
 		EntityManager em = module.getEntityManager();
-		Collection<Object> targets = (Collection<Object>) attrMeta.getType().asCollection().newInstance();
+		Collection<Object> targets = attrMeta.getType().asCollection().newInstance();
 		for (D_ID targetId : targetIds) {
 			Object target = em.find(targetType, targetId);
 			targets.add(target);

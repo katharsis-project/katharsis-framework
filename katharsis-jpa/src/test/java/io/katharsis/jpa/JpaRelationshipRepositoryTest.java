@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -29,8 +28,8 @@ public class JpaRelationshipRepositoryTest extends AbstractJpaTest {
 
 	@Before
 	public void setupRepo() {
-		repo = new JpaRelationshipRepository<TestEntity, Long, RelatedEntity, Long>(module, TestEntity.class);
-		relatedRepo = new JpaRelationshipRepository<RelatedEntity, Long, TestEntity, Long>(module, RelatedEntity.class);
+		repo = new JpaRelationshipRepository<TestEntity, Long, RelatedEntity, Long>(module, TestEntity.class, RelatedEntity.class);
+		relatedRepo = new JpaRelationshipRepository<RelatedEntity, Long, TestEntity, Long>(module, RelatedEntity.class, TestEntity.class);
 	}
 
 	@Test
