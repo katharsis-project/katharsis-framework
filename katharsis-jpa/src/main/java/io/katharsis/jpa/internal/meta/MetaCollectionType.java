@@ -6,6 +6,6 @@ public interface MetaCollectionType extends MetaType {
 
 	public MetaType getElementType();
 
-	public Collection<?> newInstance();
+	public <T> Collection<T> newInstance();
 
 }
