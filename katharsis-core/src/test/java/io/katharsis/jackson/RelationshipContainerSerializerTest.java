@@ -229,7 +229,7 @@ public class RelationshipContainerSerializerTest extends BaseSerializerTest {
         assertThatJson(result).node("data.type").isStringEqualTo("tasks");
         assertThatJson(result).node("data.relationships.project.data.id").isPresent();
         assertThatJson(result).node("data.relationships.projects.data").isPresent();
-        assertThatJson(result).node("data.relationships.includedProject.data").isAbsent();
+        assertThatJson(result).node("data.relationships.includedProject.data").isPresent();
         assertThatJson(result).node("data.relationships.project.data.id").isStringEqualTo("2");
         assertThatJson(result).node("included[0].type").isStringEqualTo("eager-projects");
         assertThatJson(result).node("included[0].relationships.tasks.data").isAbsent();
