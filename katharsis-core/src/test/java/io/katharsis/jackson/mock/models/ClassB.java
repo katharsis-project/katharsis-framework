@@ -1,8 +1,6 @@
 package io.katharsis.jackson.mock.models;
 
-import io.katharsis.resource.annotations.JsonApiId;
-import io.katharsis.resource.annotations.JsonApiResource;
-import io.katharsis.resource.annotations.JsonApiToMany;
+import io.katharsis.resource.annotations.*;
 
 import java.util.Collections;
 import java.util.List;
@@ -16,8 +14,29 @@ public class ClassB {
     @JsonApiToMany(lazy = false)
     private final List<ClassC> classCs;
 
-    public ClassB(ClassC classCs) {
+    @JsonApiToOne
+    private final ClassC classC;
+
+    @JsonApiToOne
+    @JsonApiIncludeByDefault
+    private final ClassA classA;
+
+    public ClassB() {
+        this.classCs = null;
+        this.classC = null;
+        this.classA = null;
+    }
+
+    public ClassB(ClassC classCs, ClassC classC) {
         this.classCs = Collections.singletonList(classCs);
+        this.classC = classC;
+        this.classA = null;
+    }
+
+    public ClassB(ClassA classA) {
+        this.classA = classA;
+        this.classC = null;
+        this.classCs = null;
     }
 
     public Long getId() {
@@ -31,5 +50,13 @@ public class ClassB {
 
     public List<ClassC> getClassCs() {
         return classCs;
+    }
+
+    public ClassC getClassC() {
+        return classC;
+    }
+
+    public ClassA getClassA() {
+        return classA;
     }
 }

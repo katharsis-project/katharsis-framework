@@ -1,7 +1,13 @@
 package io.katharsis.jackson;
 
+import io.katharsis.queryParams.DefaultQueryParamsParser;
+import io.katharsis.queryParams.QueryParams;
+import io.katharsis.queryParams.QueryParamsBuilder;
+import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.mock.models.*;
 import io.katharsis.response.Container;
+import io.katharsis.response.JsonApiResponse;
+import io.katharsis.response.ResourceResponseContext;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -171,5 +177,75 @@ public class RelationshipContainerSerializerTest extends BaseSerializerTest {
         // THEN
         assertThatJson(result).node("relationships.project.data.type").isStringEqualTo("fancy-projects");
         assertThatJson(result).node("relationships.projects.data[0].type").isStringEqualTo("fancy-projects");
+    }
+
+    @Test
+    public void onNestedInclusionShouldReturnIncludedData() throws Exception {
+
+        // GIVEN
+        QueryParams queryParams = getRequestParamsWithInclusion("include[tasks]", "project.task");
+        Task task = new Task().setId(1L);
+        Project includedProject = new Project().setId(2L);
+        Task nestedTask = new Task().setId(3L);
+        includedProject.setTask(nestedTask);
+        task.setProject(includedProject);
+        ResourceResponseContext response = new ResourceResponseContext(new JsonApiResponse().setEntity(task),
+                new ResourcePath("tasks"), queryParams);
+
+        // WHEN
+        String result = sut.writeValueAsString(response);
+
+        // THEN
+        assertThatJson(result).node("included[1].type").isStringEqualTo("projects");
+        assertThatJson(result).node("included[1].relationships.task.data.id").isPresent();
+        assertThatJson(result).node("included[1].relationships.task.data.id").isStringEqualTo("3");
+        assertThatJson(result).node("included[0].type").isStringEqualTo("tasks");
+        assertThatJson(result).node("included[0].relationships.projects.data").isAbsent();
+    }
+
+
+    @Test
+    public void onInclusionShouldReturnNestedDefaultData() throws Exception {
+
+        // GIVEN
+        QueryParams queryParams = getRequestParamsWithInclusion("include[tasks]", "project");
+        Task task = new Task().setId(1L);
+        Project includedProject = new Project().setId(2L);
+        ProjectEager nestedDefaultProject = new ProjectEager();
+        nestedDefaultProject.setId(3L);
+        ProjectEager nestedDefaultProject2 = new ProjectEager();
+        nestedDefaultProject2.setId(4L);
+        nestedDefaultProject.setName("default");
+        includedProject.setProjectEager(nestedDefaultProject);
+        includedProject.getProjectEagerList().add(nestedDefaultProject2);
+        task.setProject(includedProject);
+        ResourceResponseContext response = new ResourceResponseContext(new JsonApiResponse().setEntity(task),
+                new ResourcePath("tasks"), queryParams);
+
+        // WHEN
+        String result = sut.writeValueAsString(response);
+
+        // THEN
+        assertThatJson(result).node("data.type").isStringEqualTo("tasks");
+        assertThatJson(result).node("data.relationships.project.data.id").isPresent();
+        assertThatJson(result).node("data.relationships.projects.data").isPresent();
+        assertThatJson(result).node("data.relationships.includedProject.data").isPresent();
+        assertThatJson(result).node("data.relationships.project.data.id").isStringEqualTo("2");
+        assertThatJson(result).node("included[0].type").isStringEqualTo("eager-projects");
+        assertThatJson(result).node("included[0].relationships.tasks.data").isAbsent();
+        assertThatJson(result).node("included[0].relationships.task.data").isAbsent();
+        assertThatJson(result).node("included[1].type").isStringEqualTo("eager-projects");
+        assertThatJson(result).node("included[1].relationships.tasks.data").isAbsent();
+        assertThatJson(result).node("included[1].relationships.task.data").isAbsent();
+        assertThatJson(result).node("included[2].type").isStringEqualTo("projects");
+        assertThatJson(result).node("included[2].relationships.projectEager.data.id").isPresent();
+        assertThatJson(result).node("included[2].relationships.projectEager.data.id").isStringEqualTo("3");
+        assertThatJson(result).node("included[2].relationships.projectEagerList.data[0].id").isPresent();
+        assertThatJson(result).node("included[2].relationships.projectEagerList.data[0].id").isStringEqualTo("4");
+    }
+
+    private QueryParams getRequestParamsWithInclusion(String resourceType, String relationshipField) {
+        QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
+        return queryParamsBuilder.buildQueryParams(Collections.singletonMap(resourceType, Collections.singleton(relationshipField)));
     }
 }

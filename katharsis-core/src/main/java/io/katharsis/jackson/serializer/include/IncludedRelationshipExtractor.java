@@ -14,6 +14,7 @@ import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponseContext;
 import io.katharsis.response.Container;
+import io.katharsis.response.ContainerType;
 import io.katharsis.utils.ClassUtils;
 import io.katharsis.utils.PropertyUtils;
 import io.katharsis.utils.java.Optional;
@@ -34,80 +35,114 @@ public class IncludedRelationshipExtractor {
         this.resourceRegistry = resourceRegistry;
     }
 
-    public  Map<ResourceDigest, Container> extractIncludedResources(Object resource, BaseResponseContext response) {
+    public Map<ResourceDigest, Container> extractIncludedResources(Object resource, BaseResponseContext response) {
         Map<ResourceDigest, Container> includedResources = new HashMap<>();
-        //noinspection unchecked
-        includedResources.putAll(extractDefaultIncludedFields(resource, response));
+
+        populateIncludedByDefaultResources(resource, response, ContainerType.TOP, includedResources, 1);
         try {
-            //noinspection unchecked
-            includedResources.putAll(extractIncludedRelationships(resource, response));
+            populateIncludedRelationships(resource, response, includedResources);
         } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException | NoSuchFieldException e) {
             logger.info("Exception while extracting included fields", e);
         }
-
         return includedResources;
     }
 
-    private  Map<ResourceDigest, Container> extractDefaultIncludedFields(Object resource, BaseResponseContext response) {
-        List<?> includedResources = getIncludedByDefaultResources(resource, 1);
-        Map<ResourceDigest, Container> includedResourceContainers = new HashMap<>(includedResources.size());
-        for (Object includedResource : includedResources) {
-            ResourceDigest digest = getResourceDigest(includedResource);
-            includedResourceContainers.put(digest, new Container(includedResource, response));
-        }
 
-        return includedResourceContainers;
-    }
-
-
-    private List<?> getIncludedByDefaultResources(Object resource, int recurrenceLevel) {
+    private void populateIncludedByDefaultResources(Object resource,
+                                                    BaseResponseContext response,
+                                                    ContainerType containerType,
+                                                    Map<ResourceDigest, Container> includedResources,
+                                                    int recurrenceLevel) {
         int recurrenceLevelCounter = recurrenceLevel;
         if (recurrenceLevel >= 42 || resource == null) {
-            return Collections.emptyList();
+            return;
         }
 
         Set<ResourceField> relationshipFields = getRelationshipFields(resource);
-        List includedFields = new ArrayList();
 
         //noinspection unchecked
         for (ResourceField resourceField : relationshipFields) {
+            Object targetDataObj = PropertyUtils.getProperty(resource, resourceField.getUnderlyingName());
+            if (targetDataObj == null) {
+                continue;
+            }
             if (resourceField.isAnnotationPresent(JsonApiIncludeByDefault.class)) {
-
-                Object targetDataObj = PropertyUtils.getProperty(resource, resourceField.getUnderlyingName());
-
-                if (targetDataObj != null) {
-                    recurrenceLevelCounter++;
-
-                    if (targetDataObj instanceof Iterable) {
-                        for (Object objectItem : (Iterable) targetDataObj) {
-                            //noinspection unchecked
-                            includedFields.add(objectItem);
-                            //noinspection unchecked
-                            includedFields.addAll(getIncludedByDefaultResources(objectItem, recurrenceLevelCounter));
-                        }
-                    } else {
-                        //noinspection unchecked
-                        includedFields.add(targetDataObj);
-                        //noinspection unchecked
-                        includedFields.addAll(getIncludedByDefaultResources(targetDataObj, recurrenceLevelCounter));
+                recurrenceLevelCounter++;
+                if (targetDataObj instanceof Iterable) {
+                    for (Object objectItem : (Iterable) targetDataObj) {
+                        includedResources.put(getResourceDigest(objectItem), new Container(objectItem, response, containerType));
+                        populateIncludedByDefaultResourcesRecursive(objectItem, response, containerType, includedResources, recurrenceLevelCounter);
                     }
+                } else {
+                    includedResources.put(getResourceDigest(targetDataObj), new Container(targetDataObj, response, containerType));
+                    populateIncludedByDefaultResourcesRecursive(targetDataObj, response, containerType, includedResources, recurrenceLevelCounter);
+                }
+            } // if this is a top level container and its field matches the included parameters traverse further to find defaults
+            else if (containerType.equals(ContainerType.TOP) && isFieldIncluded(response, resourceField.getUnderlyingName())) {
+                if (targetDataObj instanceof Iterable) {
+                    for (Object objectItem : (Iterable) targetDataObj) {
+                        populateIncludedByDefaultResourcesRecursive(objectItem,
+                                response,
+                                containerType,
+                                includedResources,
+                                recurrenceLevelCounter);
+                    }
+                } else {
+                    populateIncludedByDefaultResourcesRecursive(targetDataObj,
+                            response,
+                            containerType,
+                            includedResources,
+                            recurrenceLevelCounter);
                 }
             }
         }
-
-        return includedFields;
     }
 
-    private Map<ResourceDigest, Container> extractIncludedRelationships(Object resource, BaseResponseContext response)
-        throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
-        if (response.getQueryParams() == null || response.getJsonPath() == null) {
-            return Collections.emptyMap();
+    private boolean isFieldIncluded(BaseResponseContext response, String fieldName) {
+        if (response.getQueryParams() == null ||
+                response.getQueryParams().getIncludedRelations() == null ||
+                response.getQueryParams().getIncludedRelations().getParams() == null) {
+            return false;
         }
-        Map<ResourceDigest, Container> includedResources = new HashMap<>();
+        IncludedRelationsParams includedRelationsParams = response.getQueryParams().getIncludedRelations().getParams().get(response.getJsonPath().getElementName());
+        if (includedRelationsParams == null ||
+                includedRelationsParams.getParams() == null) {
+            return false;
+        }
+
+        for (Inclusion inclusion : includedRelationsParams.getParams()) {
+            if (inclusion.getPathList().get(0).equals(fieldName)) {
+                return true;
+            }
+        }
+
+        return false;
+
+    }
+
+    private void populateIncludedByDefaultResourcesRecursive(Object targetDataObj,
+                                                             BaseResponseContext response,
+                                                             ContainerType containerType,
+                                                             Map<ResourceDigest, Container> includedResourceContainers,
+                                                             int recurrenceLevelCounter) {
+        if (containerType.equals(ContainerType.TOP)) {
+            populateIncludedByDefaultResources(targetDataObj, response, ContainerType.INCLUDED_DEFAULT, includedResourceContainers, recurrenceLevelCounter);
+        } else if (containerType.equals(ContainerType.INCLUDED_DEFAULT)) {
+            populateIncludedByDefaultResources(targetDataObj, response, ContainerType.INCLUDED_DEFAULT_NESTED, includedResourceContainers, recurrenceLevelCounter);
+        } else {
+            populateIncludedByDefaultResources(targetDataObj, response, ContainerType.INCLUDED_DEFAULT_NESTED, includedResourceContainers, recurrenceLevelCounter);
+        }
+    }
+
+    private void populateIncludedRelationships(Object resource, BaseResponseContext response, Map<ResourceDigest, Container> includedResources)
+            throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
+        if (response.getQueryParams() == null || response.getJsonPath() == null) {
+            return;
+        }
         TypedParams<IncludedRelationsParams> includedRelations = response.getQueryParams()
-            .getIncludedRelations();
+                .getIncludedRelations();
         String elementName = response.getJsonPath()
-            .getElementName();
+                .getElementName();
 
         // handle field paths differently because the element name is not its type but field name (#357)
         if (response.getJsonPath() instanceof FieldPath) {
@@ -121,17 +156,16 @@ public class IncludedRelationshipExtractor {
         if (includedRelationsParams != null) {
             for (Inclusion inclusion : includedRelationsParams.getParams()) {
                 //noinspection unchecked
-                includedResources.putAll(extractIncludedRelationship(resource, inclusion, response));
+                populateIncludedRelationship(resource, inclusion, response, includedResources);
             }
         }
-        return includedResources;
     }
 
-    private static IncludedRelationsParams findInclusions(TypedParams<IncludedRelationsParams> queryParams,
-                                                   String resourceName) {
+    private IncludedRelationsParams findInclusions(TypedParams<IncludedRelationsParams> queryParams,
+                                                          String resourceName) {
         if (queryParams != null && queryParams.getParams() != null) {
             for (Map.Entry<String, IncludedRelationsParams> entry : queryParams.getParams()
-                .entrySet()) {
+                    .entrySet()) {
                 if (resourceName.equals(entry.getKey())) {
                     return entry.getValue();
                 }
@@ -140,45 +174,60 @@ public class IncludedRelationshipExtractor {
         return null;
     }
 
-    private Map<ResourceDigest, Container> extractIncludedRelationship(Object resource, Inclusion inclusion, BaseResponseContext response)
-        throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
+    private void populateIncludedRelationship(Object resource, Inclusion inclusion, BaseResponseContext response, Map<ResourceDigest, Container> includedResources)
+            throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
         List<String> pathList = inclusion.getPathList();
         if (resource == null || pathList.isEmpty()) {
-            return Collections.emptyMap();
+            return;
         }
         if (!(response.getJsonPath() instanceof ResourcePath) && !(response.getJsonPath() instanceof FieldPath)) {
             // the first property name is the resource itself
             pathList = pathList.subList(1, pathList.size());
             if (pathList.isEmpty()) {
-                return Collections.emptyMap();
+                return;
             }
         }
-        return getElements(resource, pathList, response);
+        populateIncludedResources(resource, pathList, response, includedResources);
     }
 
-    private Map<ResourceDigest, Container> getElements(Object resource, List<String> pathList, BaseResponseContext response)
-        throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
-        Map<ResourceDigest, Container> elements = new HashMap<>();
+    private void populateIncludedResources(Object resource, List<String> pathList, BaseResponseContext response, Map<ResourceDigest, Container> includedResources)
+            throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
+
 
         String fieldName = getRelationshipName(pathList.get(0), resource.getClass());
-
         Object resourceProperty = PropertyUtils.getProperty(resource, fieldName);
+        if (resourceProperty != null) {
+            populateToResourcePropertyToIncludedResources(resourceProperty, response, ContainerType.INCLUDED, pathList.get(0), includedResources);
+            if (pathList.size() > 1) {
+                if (Iterable.class.isAssignableFrom(resourceProperty.getClass())
+                        && ((Iterable) resourceProperty).iterator().hasNext()) {
+                    resourceProperty = ((Iterable) resourceProperty).iterator().next();
+                    fieldName = getRelationshipName(pathList.get(1), resourceProperty.getClass());
+                    resourceProperty = PropertyUtils.getProperty(resourceProperty, fieldName);
+                    populateToResourcePropertyToIncludedResources(resourceProperty, response, ContainerType.INCLUDED_NESTED, pathList.get(1), includedResources);
+                } else {
+                    fieldName = getRelationshipName(pathList.get(1), resourceProperty.getClass());
+                    resourceProperty = PropertyUtils.getProperty(resourceProperty, fieldName);
+                    populateToResourcePropertyToIncludedResources(resourceProperty, response, ContainerType.INCLUDED_NESTED, pathList.get(1), includedResources);
+                }
+
+            }
+        }
+
+    }
+
+    private void populateToResourcePropertyToIncludedResources(Object resourceProperty, BaseResponseContext response, ContainerType containerType, String includedFieldName, Map<ResourceDigest, Container> includedResources) {
         if (resourceProperty != null) {
             if (Iterable.class.isAssignableFrom(resourceProperty.getClass())) {
                 for (Object resourceToInclude : (Iterable) resourceProperty) {
                     ResourceDigest digest = getResourceDigest(resourceToInclude);
-                    //noinspection unchecked
-                    elements.put(digest, new Container(resourceToInclude, response));
+                    includedResources.put(digest, new Container(resourceToInclude, response, containerType, includedFieldName));
                 }
             } else {
                 ResourceDigest digest = getResourceDigest(resourceProperty);
-                //noinspection unchecked
-                elements.put(digest, new Container(resourceProperty, response));
+                includedResources.put(digest, new Container(resourceProperty, response, containerType, includedFieldName));
             }
-        } else {
-            return Collections.emptyMap();
         }
-        return elements;
     }
 
     private <T> String getRelationshipName(String jsonName, Class<T> resourceClazz) {
