@@ -158,7 +158,7 @@ public final class ResourceInformationBuilder {
         List<Annotation> annotations = new LinkedList<>(fromField.getAnnotations());
         annotations.addAll(fromMethod.getAnnotations());
 
-        return new ResourceField(fromField.getJsonName(), fromField.getUnderlyingName(), fromField.getType(), fromField.getGenericType(), annotations);
+        return new ResourceField(fromField.getJsonName(), fromField.getUnderlyingName(), fromMethod.getType(), fromMethod.getGenericType(), annotations);
     }
 
     private <T> ResourceField getIdField(Class<T> resourceClass, List<ResourceField> classFields) {
