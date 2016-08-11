@@ -20,6 +20,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.util.concurrent.Future;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ResourceInformationBuilderTest {
@@ -128,6 +130,17 @@ public class ResourceInformationBuilderTest {
         expectedException.expect(MultipleJsonApiLinksInformationException.class);
 
         resourceInformationBuilder.build(MultipleLinksInformationResource.class);
+    }
+
+    @Test
+    public void shouldHaveProperTypeWhenFieldAndGetterTypesDiffer() throws Exception {
+        ResourceInformation resourceInformation = resourceInformationBuilder.build(DifferentTypes.class);
+
+        assertThat(resourceInformation.getRelationshipFields())
+                .isNotNull()
+                .hasSize(1)
+                .extracting("type")
+                .contains(String.class);
     }
 
     @JsonApiResource(type = "duplicatedIdAnnotationResources")
@@ -287,5 +300,18 @@ public class ResourceInformationBuilderTest {
 
         @JsonApiLinksInformation
         public String b;
+    }
+
+    @JsonApiResource(type = "differentTypes")
+    private static class DifferentTypes {
+        @JsonApiId
+        private Long id;
+
+        public Future<String> field;
+
+        @JsonApiToOne
+        public String getField() {
+            return null;
+        }
     }
 }
