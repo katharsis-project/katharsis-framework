@@ -1,5 +1,7 @@
 package io.katharsis.jackson;
 
+import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.ReadContext;
 import io.katharsis.queryParams.DefaultQueryParamsParser;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
@@ -196,11 +198,24 @@ public class RelationshipContainerSerializerTest extends BaseSerializerTest {
         String result = sut.writeValueAsString(response);
 
         // THEN
-        assertThatJson(result).node("included[1].type").isStringEqualTo("projects");
-        assertThatJson(result).node("included[1].relationships.task.data.id").isPresent();
-        assertThatJson(result).node("included[1].relationships.task.data.id").isStringEqualTo("3");
-        assertThatJson(result).node("included[0].type").isStringEqualTo("tasks");
-        assertThatJson(result).node("included[0].relationships.projects.data").isAbsent();
+
+        ReadContext resultCtx = JsonPath.parse(result);
+        if ("projects".equals(resultCtx.read("included[0].type"))) {
+            assertThatJson(result).node("included[0].type").isStringEqualTo("projects");
+            assertThatJson(result).node("included[0].relationships.task.data.id").isPresent();
+            assertThatJson(result).node("included[0].relationships.task.data.id").isStringEqualTo("3");
+        } else {
+            assertThatJson(result).node("included[0].type").isStringEqualTo("tasks");
+            assertThatJson(result).node("included[0].relationships.projects.data").isAbsent();
+        }
+        if ("projects".equals(resultCtx.read("included[1].type"))) {
+            assertThatJson(result).node("included[1].type").isStringEqualTo("projects");
+            assertThatJson(result).node("included[1].relationships.task.data.id").isPresent();
+            assertThatJson(result).node("included[1].relationships.task.data.id").isStringEqualTo("3");
+        } else {
+            assertThatJson(result).node("included[1].type").isStringEqualTo("tasks");
+            assertThatJson(result).node("included[1].relationships.projects.data").isAbsent();
+        }
     }
 
 
@@ -231,17 +246,34 @@ public class RelationshipContainerSerializerTest extends BaseSerializerTest {
         assertThatJson(result).node("data.relationships.projects.data").isPresent();
         assertThatJson(result).node("data.relationships.includedProject.data").isPresent();
         assertThatJson(result).node("data.relationships.project.data.id").isStringEqualTo("2");
-        assertThatJson(result).node("included[0].type").isStringEqualTo("eager-projects");
-        assertThatJson(result).node("included[0].relationships.tasks.data").isAbsent();
-        assertThatJson(result).node("included[0].relationships.task.data").isAbsent();
-        assertThatJson(result).node("included[1].type").isStringEqualTo("eager-projects");
-        assertThatJson(result).node("included[1].relationships.tasks.data").isAbsent();
-        assertThatJson(result).node("included[1].relationships.task.data").isAbsent();
-        assertThatJson(result).node("included[2].type").isStringEqualTo("projects");
-        assertThatJson(result).node("included[2].relationships.projectEager.data.id").isPresent();
-        assertThatJson(result).node("included[2].relationships.projectEager.data.id").isStringEqualTo("3");
-        assertThatJson(result).node("included[2].relationships.projectEagerList.data[0].id").isPresent();
-        assertThatJson(result).node("included[2].relationships.projectEagerList.data[0].id").isStringEqualTo("4");
+
+        ReadContext resultCtx = JsonPath.parse(result);
+        assertInclude(result, 0, resultCtx);
+        assertInclude(result, 1, resultCtx);
+        assertInclude(result, 2, resultCtx);
+
+    }
+
+    private void assertInclude(String result, int index, ReadContext resultCtx) {
+        if ("eager-projects".equals(resultCtx.read("included[" + index + "].type"))) {
+            assertEagerProject(result, index);
+        } else {
+            assertProject(result, index);
+        }
+    }
+
+    private void assertEagerProject(String result, int index) {
+        assertThatJson(result).node("included[" + index + "].type").isStringEqualTo("eager-projects");
+        assertThatJson(result).node("included[" + index + "].relationships.tasks.data").isAbsent();
+        assertThatJson(result).node("included[" + index + "].relationships.task.data").isAbsent();
+    }
+
+    private void assertProject(String result, int index) {
+        assertThatJson(result).node("included[" + index + "].type").isStringEqualTo("projects");
+        assertThatJson(result).node("included[" + index + "].relationships.projectEager.data.id").isPresent();
+        assertThatJson(result).node("included[" + index + "].relationships.projectEager.data.id").isStringEqualTo("3");
+        assertThatJson(result).node("included[" + index + "].relationships.projectEagerList.data[0].id").isPresent();
+        assertThatJson(result).node("included[" + index + "].relationships.projectEagerList.data[0].id").isStringEqualTo("4");
     }
 
     private QueryParams getRequestParamsWithInclusion(String resourceType, String relationshipField) {
