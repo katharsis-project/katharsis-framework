@@ -22,6 +22,7 @@ import io.katharsis.dispatcher.RequestDispatcher;
 import io.katharsis.errorhandling.exception.KatharsisMappableException;
 import io.katharsis.errorhandling.exception.KatharsisMatchingException;
 import io.katharsis.errorhandling.mapper.KatharsisExceptionMapper;
+import io.katharsis.jackson.exception.JsonDeserializationException;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
@@ -167,7 +168,11 @@ public class KatharsisInvoker {
             return null;
         }
 
-        return objectMapper.readValue(requestBody, RequestBody.class);
+        try {
+            return objectMapper.readValue(requestBody, RequestBody.class);
+        } catch (IOException e) {
+            throw new JsonDeserializationException(e.getMessage());
+        }
     }
 
     private void closeQuietly(Closeable closeable) {

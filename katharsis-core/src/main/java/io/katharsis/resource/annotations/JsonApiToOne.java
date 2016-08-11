@@ -13,4 +13,11 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.METHOD})
 public @interface JsonApiToOne {
+
+    /**
+     * Defines whether the data associated to the relation should be visible when requesting information about a
+     * resource that contains this relation.
+     * @return <i>true</i> if lazy, <i>false</i> otherwise
+     */
+    boolean lazy() default false;
 }
