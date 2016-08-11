@@ -9,32 +9,57 @@ import java.util.Objects;
  * resulting JSON is serialized using {@link ContainerSerializer}.
  */
 public class Container {
-    private Object data;
-    private BaseResponseContext response;
+
+    private final Object data;
+    private final BaseResponseContext response;
+    private final ContainerType containerType;
+    private final String includedFieldName;
 
     public Container() {
+        data = null;
+        response = null;
+        containerType = null;
+        includedFieldName = null;
     }
 
     public Container(Object data, BaseResponseContext response) {
         this.data = data;
         this.response = response;
+        this.containerType = ContainerType.TOP;
+        this.includedFieldName = null;
+    }
+
+    public Container(Object data, BaseResponseContext response, ContainerType containerType) {
+        this.data = data;
+        this.response = response;
+        this.containerType = containerType;
+        this.includedFieldName = null;
+    }
+
+    public Container(Object data, BaseResponseContext response, ContainerType containerType, String includedFieldName) {
+        this.data = data;
+        this.response = response;
+        this.includedFieldName = includedFieldName;
+        this.containerType = containerType;
     }
 
     public BaseResponseContext getResponse() {
         return response;
     }
 
-    public void setResponse(BaseResponseContext response) {
-        this.response = response;
-    }
 
     public Object getData() {
         return data;
     }
 
-    public void setData(Object data) {
-        this.data = data;
+    public ContainerType getContainerType() {
+        return containerType;
     }
+
+    public String getIncludedFieldName() {
+        return includedFieldName;
+    }
+
 
     @Override
     public boolean equals(Object o) {
@@ -52,4 +77,5 @@ public class Container {
     public int hashCode() {
         return Objects.hash(data);
     }
+
 }

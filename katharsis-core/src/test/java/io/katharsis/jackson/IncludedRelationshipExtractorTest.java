@@ -1,10 +1,6 @@
 package io.katharsis.jackson;
 
-import io.katharsis.jackson.mock.models.ClassA;
-import io.katharsis.jackson.mock.models.ClassAWithInclusion;
-import io.katharsis.jackson.mock.models.ClassB;
-import io.katharsis.jackson.mock.models.ClassBWithInclusion;
-import io.katharsis.jackson.mock.models.ClassCWithInclusion;
+import io.katharsis.jackson.mock.models.*;
 import io.katharsis.jackson.serializer.include.IncludedRelationshipExtractor;
 import io.katharsis.jackson.serializer.include.ResourceDigest;
 import io.katharsis.locator.SampleJsonServiceLocator;
@@ -22,14 +18,12 @@ import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryBuilder;
 import io.katharsis.resource.registry.ResourceRegistryBuilderTest;
 import io.katharsis.resource.registry.ResourceRegistryTest;
-import io.katharsis.response.Container;
-import io.katharsis.response.HttpStatus;
-import io.katharsis.response.JsonApiResponse;
-import io.katharsis.response.ResourceResponseContext;
+import io.katharsis.response.*;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -41,15 +35,15 @@ public class IncludedRelationshipExtractorTest {
     @Before
     public void setUp() throws Exception {
         ResourceInformationBuilder resourceInformationBuilder = new ResourceInformationBuilder(
-            new ResourceFieldNameTransformer());
+                new ResourceFieldNameTransformer());
 
         ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonServiceLocator(),
-            resourceInformationBuilder);
+                resourceInformationBuilder);
 
         String resourceSearchPackage = String.format("%s,%s", ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE,
-            "io.katharsis.jackson.mock");
+                "io.katharsis.jackson.mock");
         ResourceRegistry resourceRegistry = registryBuilder
-            .build(resourceSearchPackage, ResourceRegistryTest.TEST_MODELS_URL);
+                .build(resourceSearchPackage, ResourceRegistryTest.TEST_MODELS_URL);
 
         sut = new IncludedRelationshipExtractor(resourceRegistry);
 
@@ -108,7 +102,7 @@ public class IncludedRelationshipExtractorTest {
         assertThat(result).containsKeys(new ResourceDigest(42L, "classBsWithInclusion"),
                 new ResourceDigest(43L, "classCsWithInclusion"));
         assertThat(result).containsValues(new Container(classBWithInclusion, testResponse),
-            new Container(classCWithInclusion, testResponse));
+                new Container(classCWithInclusion, testResponse));
     }
 
     @Test
@@ -131,10 +125,10 @@ public class IncludedRelationshipExtractorTest {
     public void onInclusionWithDefaultInclusionShouldReturnOneElement() throws Exception {
         // GIVEN
         QueryParams queryParams = getRequestParamsWithInclusion("include[classAsWithInclusion]",
-            "classBsWithInclusion");
+                "classBsWithInclusion");
 
         ResourceResponseContext response = new ResourceResponseContext(new JsonApiResponse(),
-            new ResourcePath("classAsWithInclusion"), queryParams);
+                new ResourcePath("classAsWithInclusion"), queryParams);
         ClassBWithInclusion classBsWithInclusion = new ClassBWithInclusion()
                 .setId(42L);
         ClassAWithInclusion classAWithInclusion = new ClassAWithInclusion(classBsWithInclusion);
@@ -152,11 +146,11 @@ public class IncludedRelationshipExtractorTest {
     public void onInclusionShouldReturnOneElement() throws Exception {
         // GIVEN
         QueryParams queryParams = getRequestParamsWithInclusion("include[classAs]",
-            "classBs");
+                "classBs");
 
         ResourceResponseContext response = new ResourceResponseContext(new JsonApiResponse(),
-            new ResourcePath("classAs"), queryParams);
-        ClassB classBs = new ClassB(null)
+                new ResourcePath("classAs"), queryParams);
+        ClassB classBs = new ClassB()
                 .setId(42L);
         ClassA classA = new ClassA(classBs);
 
@@ -173,11 +167,11 @@ public class IncludedRelationshipExtractorTest {
     public void onNonExistingInclusionShouldReturnMatchingError() throws Exception {
         // GIVEN
         QueryParams queryParams = getRequestParamsWithInclusion("include[classAs]",
-            "asdasd");
+                "asdasd");
 
         ResourceResponseContext response = new ResourceResponseContext(new JsonApiResponse(),
-            new ResourcePath("classAs"), queryParams);
-        ClassB classBs = new ClassB(null);
+                new ResourcePath("classAs"), queryParams);
+        ClassB classBs = new ClassB();
         ClassA classA = new ClassA(classBs);
 
         // WHEN
@@ -199,17 +193,69 @@ public class IncludedRelationshipExtractorTest {
     public void onDifferentTypeInclusionShouldReturnNoElements() throws Exception {
         // GIVEN
         QueryParams queryParams = getRequestParamsWithInclusion("include[classBsWith]",
-            "classCsWith");
+                "classCsWith");
 
         ResourceResponseContext response = new ResourceResponseContext(new JsonApiResponse(),
-            new ResourcePath("classAsWith"), queryParams);
-        ClassA classAWith = new ClassA(new ClassB(null));
+                new ResourcePath("classAsWith"), queryParams);
+        ClassA classAWith = new ClassA(new ClassB());
 
         // WHEN
         Map<ResourceDigest, Container> result = sut.extractIncludedResources(classAWith, response);
 
         // THEN
         assertThat(result).isEmpty();
+    }
+
+    @Test
+    public void onNestedInclusionShouldReturnMultipleElements() throws Exception {
+        // GIVEN
+        QueryParams queryParams = getRequestParamsWithInclusion("include[classAs]",
+                "classBs.classC");
+
+        ResourceResponseContext response = new ResourceResponseContext(new JsonApiResponse(),
+                new ResourcePath("classAs"), queryParams);
+        ClassC classC = new ClassC();
+        classC.setId(1L);
+        ClassB classB = new ClassB(null, classC);
+        classB.setId(2L);
+        ClassA classAs = new ClassA(classB);
+        classAs.setId(3L);
+
+        // WHEN
+        Map<ResourceDigest, Container> result = sut.extractIncludedResources(classAs, response);
+
+        // THEN
+        assertThat(result).hasSize(2);
+        assertThat(result).containsKey(new ResourceDigest(2L, "classBs"));
+        assertThat(result).containsValue(new Container(classB, testResponse, ContainerType.INCLUDED, "classBs"));
+        assertThat(result).containsKey(new ResourceDigest(1L, "classCs"));
+        assertThat(result).containsValue(new Container(classC, testResponse, ContainerType.INCLUDED_NESTED, "classC"));
+    }
+
+    @Test
+    public void onNestedDefaultInclusionShouldReturnMultipleElements() throws Exception {
+        // GIVEN
+        QueryParams queryParams = getRequestParamsWithInclusion("include[classAs]",
+                "classBs");
+
+        ResourceResponseContext response = new ResourceResponseContext(new JsonApiResponse(),
+                new ResourcePath("classAs"), queryParams);
+        ClassA nestedClassA = new ClassA(null);
+        nestedClassA.setId(1L);
+        ClassB classB = new ClassB(nestedClassA);
+        classB.setId(2L);
+        ClassA classAs = new ClassA(classB);
+        classAs.setId(3L);
+
+        // WHEN
+        Map<ResourceDigest, Container> result = sut.extractIncludedResources(classAs, response);
+
+        // THEN
+        assertThat(result).hasSize(2);
+        assertThat(result).containsKey(new ResourceDigest(2L, "classBs"));
+        assertThat(result).containsValue(new Container(classB, testResponse, ContainerType.INCLUDED, "classBs"));
+        assertThat(result).containsKey(new ResourceDigest(1L, "classAs"));
+        assertThat(result).containsValue(new Container(nestedClassA, testResponse, ContainerType.INCLUDED_NESTED, "classC"));
     }
 
     private QueryParams getRequestParamsWithInclusion(String resourceType, String relationshipField) {
