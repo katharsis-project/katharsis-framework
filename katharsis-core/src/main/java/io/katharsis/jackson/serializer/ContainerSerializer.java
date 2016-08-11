@@ -118,7 +118,10 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         writeAttributes(gen, data, includedFields, notAttributesFields);
 
         Set<ResourceField> relationshipFields = getRelationshipFields(resourceType, resourceInformation, includedFields);
-        writeRelationshipFields(container, gen, data, relationshipFields, includedRelations);
+
+        if (!relationshipFields.isEmpty()) {
+            writeRelationshipFields(container, gen, data, relationshipFields, includedRelations);
+        }
         writeMetaField(gen, data, entry);
         writeLinksField(gen, data, entry);
     }
