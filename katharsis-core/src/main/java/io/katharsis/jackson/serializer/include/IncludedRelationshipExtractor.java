@@ -5,8 +5,6 @@ import io.katharsis.queryParams.params.IncludedRelationsParams;
 import io.katharsis.queryParams.params.TypedParams;
 import io.katharsis.request.path.FieldPath;
 import io.katharsis.request.path.ResourcePath;
-import io.katharsis.resource.annotations.JsonApiIncludeByDefault;
-import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.exception.ResourceFieldNotFoundException;
 import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
@@ -15,7 +13,6 @@ import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponseContext;
 import io.katharsis.response.Container;
 import io.katharsis.response.ContainerType;
-import io.katharsis.utils.ClassUtils;
 import io.katharsis.utils.PropertyUtils;
 import io.katharsis.utils.java.Optional;
 import org.slf4j.Logger;
@@ -66,7 +63,7 @@ public class IncludedRelationshipExtractor {
             if (targetDataObj == null) {
                 continue;
             }
-            if (resourceField.isAnnotationPresent(JsonApiIncludeByDefault.class)) {
+            if (resourceField.getIncludeByDefault()) {
                 recurrenceLevelCounter++;
                 if (targetDataObj instanceof Iterable) {
                     for (Object objectItem : (Iterable) targetDataObj) {
@@ -147,9 +144,9 @@ public class IncludedRelationshipExtractor {
         // handle field paths differently because the element name is not its type but field name (#357)
         if (response.getJsonPath() instanceof FieldPath) {
             // extract the resource's resource type name
-            Optional<JsonApiResource> optional = ClassUtils.getAnnotation(resource.getClass(), JsonApiResource.class);
+        	Optional<Class<?>> optional = resourceRegistry.getResourceClass(resource);
             if (optional.isPresent()) {
-                elementName = optional.get().type();
+            	elementName = resourceRegistry.getResourceType(optional.get());
             }
         }
         IncludedRelationsParams includedRelationsParams = findInclusions(includedRelations, elementName);
@@ -247,7 +244,7 @@ public class IncludedRelationshipExtractor {
     }
 
     private ResourceDigest getResourceDigest(Object resource) {
-        Class<?> resourceClass = ClassUtils.getJsonApiResourceClass(resource);
+    	Class<?> resourceClass = resourceRegistry.getResourceClass(resource).get();
         RegistryEntry registryEntry = resourceRegistry.getEntry(resourceClass);
         String idFieldName = registryEntry.getResourceInformation().getIdField().getUnderlyingName();
         Object idValue = PropertyUtils.getProperty(resource, idFieldName);

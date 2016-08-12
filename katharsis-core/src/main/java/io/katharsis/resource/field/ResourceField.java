@@ -1,33 +1,43 @@
 package io.katharsis.resource.field;
 
-import io.katharsis.resource.annotations.JsonApiIncludeByDefault;
-import io.katharsis.resource.annotations.JsonApiToMany;
-import io.katharsis.resource.annotations.JsonApiToOne;
-
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 
 public class ResourceField {
+	
+	public enum LookupIncludeBehavior{
+		NONE,
+		AUTOMATICALLY_WHEN_NULL,
+		AUTOMATICALLY_ALWAYS,
+	}
+	
     private final String jsonName;
     private final String underlyingName;
     private final Class<?> type;
     private final Type genericType;
-    private List<Annotation> annotations;
+    private final boolean lazy;
+	private LookupIncludeBehavior lookupIncludeBehavior;
+	private boolean includeByDefault;
 
-    public ResourceField(@SuppressWarnings("SameParameterValue") String jsonName,
-                         @SuppressWarnings("SameParameterValue") String underlyingName, Class<?> type, Type genericType) {
-        this(jsonName, underlyingName, type, genericType, Collections.<Annotation>emptyList());
+	public ResourceField(String jsonName, String underlyingName, Class<?> type, Type genericType) {
+    	this(jsonName, underlyingName, type, genericType, true, false, LookupIncludeBehavior.NONE);
     }
-
-    public ResourceField(String jsonName, String underlyingName, Class<?> type, Type genericType, List<Annotation> annotations) {
+    
+    public ResourceField(String jsonName, String underlyingName, Class<?> type, Type genericType, boolean lazy, boolean includeByDefault, LookupIncludeBehavior lookupIncludeBehavior) {
         this.jsonName = jsonName;
         this.underlyingName = underlyingName;
+        this.includeByDefault = includeByDefault;
         this.type = type;
         this.genericType = genericType;
-        this.annotations = annotations;
+        this.lazy = lazy;
+        this.lookupIncludeBehavior = lookupIncludeBehavior;
+    }
+    
+    /**
+     * See also {@link JsonApiLookupIncludeAutomatically}}
+     */
+    public LookupIncludeBehavior getLookupIncludeAutomatically(){
+    	return lookupIncludeBehavior;
     }
 
     public String getJsonName() {
@@ -46,49 +56,18 @@ public class ResourceField {
         return genericType;
     }
 
-    public List<Annotation> getAnnotations() {
-        return annotations;
-    }
-
-    public boolean isAnnotationPresent(Class<?> annotationClass) {
-        for (Annotation annotation : annotations) {
-            if (annotation.annotationType().equals(annotationClass)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     /**
      * Returns a flag which indicate if a field should not be serialized automatically.
-     *
-     * @see JsonApiToMany#lazy()
+     * 
      * @return true if a field is lazy
      */
     public boolean isLazy() {
-        JsonApiIncludeByDefault includeByDefaultAnnotation = null;
-        JsonApiToMany toManyAnnotation = null;
-        JsonApiToOne toOneAnnotation = null;
-        for (Annotation annotation : annotations) {
-            if (annotation.annotationType().equals(JsonApiIncludeByDefault.class)) {
-                includeByDefaultAnnotation = (JsonApiIncludeByDefault) annotation;
-            }
-            if (annotation.annotationType().equals(JsonApiToMany.class)) {
-                toManyAnnotation = (JsonApiToMany) annotation;
-            }
-            if (annotation.annotationType().equals(JsonApiToOne.class)) {
-                toOneAnnotation = (JsonApiToOne) annotation;
-            }
-        }
-        if (includeByDefaultAnnotation != null) {
-            return false;
-        } else if (toManyAnnotation != null) {
-            return toManyAnnotation.lazy();
-        } else if (toOneAnnotation != null) {
-            return toOneAnnotation.lazy();
-        }
-        return false;
+    	return lazy;
     }
+
+	public boolean getIncludeByDefault() {
+		return includeByDefault;
+	}
 
     @Override
     public boolean equals(Object o) {
@@ -100,12 +79,14 @@ public class ResourceField {
         return Objects.equals(jsonName, that.jsonName) &&
             Objects.equals(underlyingName, that.underlyingName) &&
             Objects.equals(type, that.type) &&
+            Objects.equals(lookupIncludeBehavior, that.lookupIncludeBehavior) &&
+            Objects.equals(includeByDefault, that.includeByDefault) &&
             Objects.equals(genericType, that.genericType) &&
-            Objects.equals(annotations, that.annotations);
+            Objects.equals(lazy, that.lazy);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(jsonName, underlyingName, type, genericType, annotations);
+        return Objects.hash(jsonName, underlyingName, type, genericType, lazy, includeByDefault, lookupIncludeBehavior);
     }
 }
