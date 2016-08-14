@@ -16,7 +16,7 @@
         <javax.ws.rs-api.version>2.0.1</javax.ws.rs-api.version>
         <javax.servlet-api.version>3.0.1</javax.servlet-api.version>
         <jersey.version>2.20</jersey.version>
-        <jackson.version>2.6.4</jackson.version>
+        <jackson.version>2.7.6</jackson.version>
     </properties>
     <dependencies>
         <dependency>
