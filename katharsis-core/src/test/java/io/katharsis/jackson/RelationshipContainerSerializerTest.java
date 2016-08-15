@@ -281,26 +281,4 @@ public class RelationshipContainerSerializerTest extends BaseSerializerTest {
         QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
         return queryParamsBuilder.buildQueryParams(Collections.singletonMap(resourceType, Collections.singleton(relationshipField)));
     }
-
-    @Test
-    public void name() throws Exception {
-        Lineup lineup = new Lineup();
-        Event event = new Event();
-        lineup.event = event;
-        event.id = 31L;
-        Arrangement asd = new Arrangement();
-        event.arrangement = asd;
-        asd.id = 42L;
-        Category category = new Category();
-        category.id = 71L;
-        asd.categories = Collections.singletonList(category);
-
-        io.katharsis.request.path.JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath("/tasks");
-
-        ResourceResponseContext response = new ResourceResponseContext(buildResponse(lineup), jsonPath, new QueryParams());
-        String result = sut.writeValueAsString(response);
-
-        // WHEN
-        result.charAt(0);
-    }
 }
