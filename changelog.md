@@ -1,5 +1,8 @@
 # Katharsis build POM v2.5.0 git changelog
 
+
+**v2.5.0**  
+2016-08-15    v2.5.0 (Patryk Orwat)  
 2016-08-15    #77 eager relationships should be always visible (#78) (GitHub)  
 2016-08-15    #65 temporally turned off coveralls (Patryk Orwat)  
 2016-08-15    #65 excluded katharsis-build and examples from being deployed (Patryk Orwat)  
