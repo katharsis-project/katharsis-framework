@@ -1,8 +1,8 @@
 #!/bin/bash
 set -ev
 
-mvn clean install
-mvn jacoco:report coveralls:report
+mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+mvn test -B
 if [ "${TRAVIS_PULL_REQUEST}" != "true" ]; then
 
     if [[ $TRAVIS_BRANCH == 'master' ]]; then
