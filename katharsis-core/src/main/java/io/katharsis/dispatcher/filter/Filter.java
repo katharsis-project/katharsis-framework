@@ -11,9 +11,9 @@ public interface Filter {
 	 * Filters an incoming request. To continue processing the request, {@link FilterChain#doFilter(FilterRequestContext)} must
 	 * be called. Information about the request is available from {@link FilterRequestContext}.
 	 *  
-	 * @param filterRequestContext
-	 * @param chain
+	 * @param filterRequestContext request context
+	 * @param chain next filters
 	 */
-	public BaseResponseContext filter(FilterRequestContext filterRequestContext, FilterChain chain);
+	BaseResponseContext filter(FilterRequestContext filterRequestContext, FilterChain chain);
 
 }

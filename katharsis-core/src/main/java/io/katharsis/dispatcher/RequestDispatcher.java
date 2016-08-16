@@ -36,6 +36,7 @@ public class RequestDispatcher {
     public void addFilter(Filter filter){
     	filters.add(filter);
     }
+
     /**
      * Dispatch the request from a client
      *
@@ -68,16 +69,16 @@ public class RequestDispatcher {
             }
         }
     }
-    
-    class DefaultFilterChain implements FilterChain{
+
+    class DefaultFilterChain implements FilterChain {
 
 		protected int filterIndex = 0;
 		protected BaseController controller;
-		
+
 		public DefaultFilterChain(BaseController controller){
 			this.controller = controller;
 		}
-		
+
 		@Override
 		public BaseResponseContext doFilter(FilterRequestContext context) {
 			if (filterIndex == filters.size()) {
@@ -89,9 +90,9 @@ public class RequestDispatcher {
 			}
 		}
 	}
-	
+
 	class DefaultFilterRequestContext implements FilterRequestContext {
-		
+
 		protected JsonPath jsonPath;
 		protected QueryParams queryParams;
 		protected RepositoryMethodParameterProvider parameterProvider;
