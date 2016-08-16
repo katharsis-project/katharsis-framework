@@ -10,7 +10,7 @@
 
     <groupId>io.katharsis</groupId>
     <artifactId>katharsis-build</artifactId>
-    <version>2.5.0-SNAPSHOT</version>
+    <version>2.6.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Katharsis build POM</name>
@@ -22,7 +22,7 @@
 
         <reflections.version>0.9.9</reflections.version>
         <typetools.version>0.4.4</typetools.version>
-        <jackson.version>2.6.3</jackson.version>
+        <jackson.version>2.7.6</jackson.version>
         <slf4j.version>1.7.13</slf4j.version>
 
         <junit.version>4.12</junit.version>
@@ -151,15 +151,9 @@
                 <plugin>
                     <artifactId>maven-deploy-plugin</artifactId>
                     <version>${maven-deploy-plugin.version}</version>
-                    <executions>
-                        <execution>
-                            <id>deploy</id>
-                            <phase>deploy</phase>
-                            <goals>
-                                <goal>deploy</goal>
-                            </goals>
-                        </execution>
-                    </executions>
+                    <configuration>
+                        <skip>true</skip>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>com.github.danielflower.mavenplugins</groupId>
@@ -200,7 +194,7 @@
                             <configuration>
                                 <rules>
                                     <requireJavaVersion>
-                                        <version>[${javaVersion}, 1.8)</version>
+                                        <version>${javaVersion}</version>
                                     </requireJavaVersion>
                                 </rules>
                             </configuration>
@@ -243,38 +237,6 @@
                 <module>katharsis-spring</module>
                 <module>katharsis-examples</module>
             </modules>
-        </profile>
-        <profile>
-            <id>repositories</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <repositories>
-                <repository>
-                    <id>sonatype-nexus-snapshots</id>
-                    <name>Sonatype Nexus Snapshots</name>
-                    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-                    <releases>
-                        <enabled>false</enabled>
-                    </releases>
-                    <snapshots>
-                        <enabled>true</enabled>
-                    </snapshots>
-                </repository>
-            </repositories>
-
-            <distributionManagement>
-                <snapshotRepository>
-                    <id>sonatype-nexus-snapshots</id>
-                    <name>Sonatype Nexus Snapshots</name>
-                    <url>${sonatypeOssDistMgmtSnapshotsUrl}</url>
-                </snapshotRepository>
-                <repository>
-                    <id>sonatype-nexus-staging</id>
-                    <name>Nexus Release Repository</name>
-                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-                </repository>
-            </distributionManagement>
         </profile>
         <profile>
             <id>release-sign-artifacts</id>
