@@ -5,6 +5,7 @@ import com.jayway.jsonpath.ReadContext;
 import io.katharsis.queryParams.DefaultQueryParamsParser;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
+import io.katharsis.request.path.PathBuilder;
 import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.mock.models.*;
 import io.katharsis.response.Container;
@@ -264,8 +265,8 @@ public class RelationshipContainerSerializerTest extends BaseSerializerTest {
 
     private void assertEagerProject(String result, int index) {
         assertThatJson(result).node("included[" + index + "].type").isStringEqualTo("eager-projects");
-        assertThatJson(result).node("included[" + index + "].relationships.tasks.data").isAbsent();
-        assertThatJson(result).node("included[" + index + "].relationships.task.data").isAbsent();
+        assertThatJson(result).node("included[" + index + "].relationships.tasks.data").isPresent();
+        assertThatJson(result).node("included[" + index + "].relationships.task.data").isPresent();
     }
 
     private void assertProject(String result, int index) {

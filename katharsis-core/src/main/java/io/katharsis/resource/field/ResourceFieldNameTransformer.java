@@ -38,7 +38,7 @@ public class ResourceFieldNameTransformer {
             AnnotationMap annotationMap = buildAnnotationMap(field.getDeclaredAnnotations());
 
             AnnotatedClass annotatedClass = AnnotatedClassBuilder.build(field.getDeclaringClass(), serializationConfig);
-            AnnotatedField annotatedField = new AnnotatedField(annotatedClass, field, annotationMap);
+            AnnotatedField annotatedField = AnnotatedFieldBuilder.build(annotatedClass, field, annotationMap);
             name = serializationConfig.getPropertyNamingStrategy().nameForField(serializationConfig, annotatedField, name);
         }
         return name;
@@ -70,7 +70,7 @@ public class ResourceFieldNameTransformer {
             }
 
             AnnotatedClass annotatedClass = AnnotatedClassBuilder.build(method.getDeclaringClass(), serializationConfig);
-            AnnotatedMethod annotatedField = new AnnotatedMethod(annotatedClass, method, annotationMap, paramAnnotations);
+            AnnotatedMethod annotatedField = AnnotatedMethodBuilder.build(annotatedClass, method, annotationMap, paramAnnotations);
             name = serializationConfig.getPropertyNamingStrategy().nameForGetterMethod(serializationConfig, annotatedField, name);
         }
         return name;

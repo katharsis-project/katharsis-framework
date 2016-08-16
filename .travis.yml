@@ -6,9 +6,7 @@ addons:
   apt:
     packages:
     - oracle-java7-installer
-after_success:
-  - mvn jacoco:report coveralls:report
-  - mvn deploy -DskipTests=true --settings settings.xml
+script: ./build.sh
 notifications:
   webhooks:
     urls:

@@ -1,5 +1,17 @@
-# Katharsis build POM v2.5.0-SNAPSHOT git changelog
+# Katharsis build POM v2.5.0 git changelog
 
+
+**v2.5.0**  
+2016-08-15    v2.5.0 (Patryk Orwat)  
+2016-08-15    #77 eager relationships should be always visible (#78) (GitHub)  
+2016-08-15    #65 temporally turned off coveralls (Patryk Orwat)  
+2016-08-15    #65 excluded katharsis-build and examples from being deployed (Patryk Orwat)  
+2016-08-14    #73 allowed Katharsis work with Jackson 2.7.6; updated Katharsis to Jackson 2.7.6 (#76) (GitHub)  
+2016-08-11    #21 getting field type from getter (#71) (GitHub)  
+2016-08-11    #14 removed relationships object when not allowed (#70) (GitHub)  
+2016-08-11    #67 fixed failing tests (Patryk Orwat)  
+2016-08-11    #67 - Add support for serialization of nested include parameter and Default annotation (#68) (Patryk Orwat)  
+2016-08-10    #63 moved gitlog (#64) (GitHub)  
 2016-08-10    #46 returning 400 on invalid body (#62) (GitHub)  
 2016-08-09    #56 to-one relationship should be eager and lazy optionally (#60) (GitHub)  
 2016-08-09    core#50:  PATCH fails for fields that where null before (#52) (Patryk Orwat)  
@@ -21,6 +33,8 @@
 2016-07-27    Clean up initial file (Patryk Orwat)  
 2016-07-27    initial commit (Patryk Orwat)  
 2016-07-19    v2.4.2 (Patryk Orwat)  
+
+**v2.4.2**  
 2016-07-19    Issue 353 - Control serialization if null attributes through Jackson. (cherry picked from commit d63ed17) (Patryk Orwat)  
 2016-07-14    Fix the include parameter with a field path to populate the included attribute #357 (Nick Mitchell)  
 2016-07-13    Example test using jersey test framework (#23) (Patryk Orwat)  
@@ -30,6 +44,9 @@
 2016-07-10    Preventing a NullPointerException from being thrown when an invalid relationship name is received. Instead, throwing a ResourceException with a helpful message about the invalid relationship name. (cherry picked from commit 35e73bf) (Patryk Orwat)  
 2016-06-28    Use a separate Filter to handle errors anywhere in KatharsisFilterV2 (PJ Weisberg)  
 2016-06-19    v2.4.1 (Patryk Orwat)  
+
+**v2.4.1**  
+**vv2.4.1**  
 2016-06-19    vv2.4.1 (Patryk Orwat)  
 2016-06-19    v2.4.1 (Patryk Orwat)  
 2016-06-19    Fix problem with missing attributes in contained object on PATCH. (#340) (Patryk Orwat)  
@@ -78,6 +95,8 @@
 2016-03-17    multiple code improvements: squid:S00105, squid:S2325 (George Kankava)  
 2016-03-15    katharsis-project/katharsis-core#217 fixed jersey HK2 example (Patryk Orwat)  
 2016-03-15    v2.3.1 (Patryk Orwat)  
+
+**v2.3.1**  
 2016-03-11    Add Bean Validation and tests (Keith D. Moore)  
 2016-03-09    Fixes #258 (NPE when looking for a target class on @JsonApiRelationshipRepository) (Sergey Zubtsovskiy)  
 2016-03-08    Multiple code improvements - squid:S2864, squid:S1193, squid:S1118, squid:S2326 (George Kankava)  
@@ -163,6 +182,8 @@
 2016-01-25    #10 fixed test (Patryk Orwat)  
 2016-01-25    #10 started code refactoring (Patryk Orwat)  
 2016-01-21    Fixed multi-value parameters (Razvan Dragut)  
+
+**v2.1.4**  
 2016-01-17    v2.1.4 (Patryk Orwat)  
 2016-01-07    Added null check in BaseController when verifying type (Staffan Friberg)  
 2015-12-27    #199 added JsonPropertyOrder support (Patryk Orwat)  
@@ -175,11 +196,15 @@
 2015-12-21    v2.1.3 (Patryk Orwat)  
 2015-12-21    v2.1.3 (Patryk Orwat)  
 2015-12-21    v2.1.3 (Patryk Orwat)  
+
+**v2.1.3**  
 2015-12-21    v2.1.3 (Patryk Orwat)  
 2015-12-21    v2.1.3 (Patryk Orwat)  
 2015-12-21    katharsis-project/katharsis-core#48 downgrade to Java 7 (Patryk Orwat)  
 2015-12-20    #48 travis update (Patryk Orwat)  
 2015-12-20    #48 corporate dictatorship - finished tests (Patryk Orwat)  
+
+**v1.0.5**  
 2015-12-20    katharsis-project/katharsis-core#48 assertj downgrade (Patryk Orwat)  
 2015-12-20    #48 corporate dictatorship - finished main classes (Patryk Orwat)  
 2015-12-20    #48 first set of changed classes from main (Patryk Orwat)  
@@ -214,11 +239,15 @@
 2015-12-03    v2.1.1 (Patryk Orwat)  
 2015-12-03    v2.1.1 (Patryk Orwat)  
 2015-12-03    v2.1.1 (Patryk Orwat)  
+
+**v2.1.1**  
 2015-12-03    v2.1.1 (Patryk Orwat)  
 2015-12-03    v2.1.1 (Patryk Orwat)  
 2015-12-03    #184 fixed @JsonProperty handling (Patryk Orwat)  
 2015-12-03    updated versions (Patryk Orwat)  
 2015-12-02    #179 fixed resource type with dash problem (Patryk Orwat)  
+
+**v2.1.0**  
 2015-12-02    v2.1.0 (Patryk Orwat)  
 2015-12-02    v2.1.0 (Patryk Orwat)  
 2015-12-02    #101 review (Patryk Orwat)  
@@ -234,6 +263,8 @@
 2015-11-24    v1.0.3 katharsis-core #172 added gitlog-maven-plugin (Patryk Orwat)  
 2015-11-23    #169 javadoc  fix (Patryk Orwat)  
 2015-11-22    v2.0.3 (Patryk Orwat)  
+
+**v2.0.3**  
 2015-11-22    v2.0.3 (Patryk Orwat)  
 2015-11-22    katharsis-core query params fix (Patryk Orwat)  
 2015-11-22    katharsis-core-167 servlet query sting fix (Patryk Orwat)  
@@ -241,6 +272,8 @@
 2015-11-22    katharsis-core-167 servlet query sting is always encoded (Patryk Orwat)  
 2015-11-22    katharsis-core-167 query params can be decoded by servlet implementations (Patryk Orwat)  
 2015-11-22    katharsis-core-167 UTF-8 encode all the things! (Patryk Orwat)  
+
+**v2.0.2**  
 2015-11-20    v2.0.2 (Patryk Orwat)  
 2015-11-20    v2.0.2 (Patryk Orwat)  
 2015-11-20    #169 javadoc (Patryk Orwat)  
@@ -248,6 +281,8 @@
 2015-11-19    v2.0.1 (Patryk Orwat)  
 2015-11-19    v2.0.1 (Patryk Orwat)  
 2015-11-19    v2.0.1 (Patryk Orwat)  
+
+**v2.0.1**  
 2015-11-19    v2.0.1 (Patryk Orwat)  
 2015-11-19    v2.0.1+javadoc (Patryk Orwat)  
 2015-11-19    v2.0.1 (Patryk Orwat)  
@@ -260,6 +295,8 @@
 2015-11-15    v2.0.0 (Patryk Orwat)  
 2015-11-15    v2.0.0 (Patryk Orwat)  
 2015-11-15    v2.0.0 (Patryk Orwat)  
+
+**v2.0.0**  
 2015-11-15    v2.0.0 (Patryk Orwat)  
 2015-11-15    v2.0.0 (Patryk Orwat)  
 2015-11-15    #159 allow field post to to-many (Patryk Orwat)  
@@ -322,9 +359,13 @@
 2015-10-16    version up (Patryk Orwat)  
 2015-10-15    #103 tests work (Patryk Orwat)  
 2015-10-15    #111 forgot to remove code after removing Apache BeamUtils (Patryk Orwat)  
+
+**v1.0.2**  
 2015-10-15    closes #15 (Patryk Orwat)  
 2015-10-14    v1.0.1 (Patryk Orwat)  
 2015-10-14    v1.0.1 (Patryk Orwat)  
+
+**v1.0.1**  
 2015-10-14    v1.0.1 (Patryk Orwat)  
 2015-10-14    #103 work in progress (Patryk Orwat)  
 2015-10-08    #104 NPE on removing ToOne relation using PATCH (Patryk Orwat)  
@@ -348,6 +389,8 @@
 2015-08-30    v0.9.4 (Patryk Orwat)  
 2015-08-30    v0.9.4 (Patryk Orwat)  
 2015-08-30    v0.9.4 (Patryk Orwat)  
+
+**v0.9.4**  
 2015-08-30    v0.9.4 (Patryk Orwat)  
 2015-08-30    javadoc (Patryk Orwat)  
 2015-08-30    v0.9.4 (Patryk Orwat)  
@@ -402,6 +445,8 @@
 2015-08-01    small fix (Patryk Orwat)  
 2015-07-31    readme (Patryk Orwat)  
 2015-07-31    v0.9.3 (Patryk Orwat)  
+
+**v0.9.3**  
 2015-07-31    v0.9.3 (Patryk Orwat)  
 2015-07-31    v0.9.3 (Patryk Orwat)  
 2015-07-30    katharsis-core-12 Add projection of fields (sparse fields) (Błażej Krysiak)  
@@ -414,6 +459,8 @@
 2015-07-20    Exceptional QUERY_STRING handling (Woonsan Ko)  
 2015-07-18    Adding IoC integration instruction (Woonsan Ko)  
 2015-07-18    adding coveralls (Woonsan Ko)  
+
+**v0.1.0**  
 2015-07-18    tagging 0.1.0 (Woonsan Ko)  
 2015-07-18    bump up version (Woonsan Ko)  
 2015-07-17    setting jdk1.8 in travis-ci (Woonsan Ko)  
@@ -428,6 +475,8 @@
 2015-06-29    upgrade katharsis-core to 0.9.2 (Woonsan Ko)  
 2015-06-26    unit test for JsonApiMediaType (Woonsan Ko)  
 2015-06-25    v0.9.2 (Patryk Orwat)  
+
+**v0.9.2**  
 2015-06-25    v0.9.2 (Patryk Orwat)  
 2015-06-25    v0.9.2 (Patryk Orwat)  
 2015-06-25    code refactor (Patryk Orwat)  
@@ -468,6 +517,8 @@
 2015-06-11    Initial generic katharsis adaptor module for various servlet and non-servlet frameworks. (Woonsan Ko)  
 2015-06-10    Initial commit (Woonsan Ko)  
 2015-06-09    v0.9.1 (Patryk Orwat)  
+
+**v0.9.1**  
 2015-06-09    v0.9.1 (Patryk Orwat)  
 2015-06-09    v0.9.1 (Patryk Orwat)  
 2015-06-09    katharsis-core 34 parent update (Patryk Orwat)  
@@ -484,6 +535,8 @@
 2015-06-04    Add maven-shade config to parent pom (Arthur Maltson)  
 2015-06-03    bintray badge fix (Patryk Orwat)  
 2015-06-01    v0.9.0 (Patryk Orwat)  
+
+**v0.9.0**  
 2015-06-01    v0.9.0 (Patryk Orwat)  
 2015-06-01    v0.9.0 (Patryk Orwat)  
 2015-06-01    v1.0.0 (Patryk Orwat)  
