@@ -7,6 +7,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,7 +43,7 @@ public class FilterTest {
 
 	@Before
 	public void prepare() {
-		ResourceInformationBuilder resourceInformationBuilder = new ResourceInformationBuilder(
+		ResourceInformationBuilder resourceInformationBuilder = new AnnotationResourceInformationBuilder(
 				new ResourceFieldNameTransformer());
 		ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonServiceLocator(),
 				resourceInformationBuilder);
