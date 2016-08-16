@@ -3,6 +3,8 @@ package io.katharsis.resource.field;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.katharsis.resource.annotations.JsonApiIncludeByDefault;
 import io.katharsis.resource.annotations.JsonApiToMany;
+import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
+
 import org.junit.Test;
 
 import java.lang.annotation.Annotation;
@@ -17,7 +19,7 @@ public class ResourceFieldTest {
     public void onWithLazyFieldClassShouldReturnTrue() throws Exception {
         // GIVEN
         List<Annotation> annotations = Arrays.asList(WithLazyFieldClass.class.getDeclaredField("value").getAnnotations());
-        ResourceField sut = new ResourceField("", "", String.class, String.class, annotations);
+        ResourceField sut = new AnnotationResourceInformationBuilder.AnnotatedResourceField("", "", String.class, String.class, annotations);
 
         // WHEN
         boolean result = sut.isLazy();
@@ -31,7 +33,7 @@ public class ResourceFieldTest {
     public void onWithToManyEagerFieldClassShouldReturnFalse() throws Exception {
         // GIVEN
         List<Annotation> annotations = Arrays.asList(WithToManyEagerFieldClass.class.getDeclaredField("value").getAnnotations());
-        ResourceField sut = new ResourceField("", "", String.class, String.class, annotations);
+        ResourceField sut = new AnnotationResourceInformationBuilder.AnnotatedResourceField("", "", String.class, String.class, annotations);
 
         // WHEN
         boolean result = sut.isLazy();
@@ -45,7 +47,7 @@ public class ResourceFieldTest {
     public void onWithoutToManyFieldClassShouldReturnFalse() throws Exception {
         // GIVEN
         List<Annotation> annotations = Arrays.asList(WithoutToManyFieldClass.class.getDeclaredField("value").getAnnotations());
-        ResourceField sut = new ResourceField("", "", String.class, String.class, annotations);
+        ResourceField sut = new AnnotationResourceInformationBuilder.AnnotatedResourceField("", "", String.class, String.class, annotations);
 
         // WHEN
         boolean result = sut.isLazy();
@@ -59,7 +61,7 @@ public class ResourceFieldTest {
     public void onLazyRelationshipToManyAndInclusionByDefaultShouldReturnEagerFlag() throws Exception {
         // GIVEN
         List<Annotation> annotations = Arrays.asList(WithLazyFieldAndInclusionByDefaultClass.class.getDeclaredField("value").getAnnotations());
-        ResourceField sut = new ResourceField("", "", String.class, String.class, annotations);
+        ResourceField sut = new AnnotationResourceInformationBuilder.AnnotatedResourceField("", "", String.class, String.class, annotations);
 
         // WHEN
         boolean result = sut.isLazy();

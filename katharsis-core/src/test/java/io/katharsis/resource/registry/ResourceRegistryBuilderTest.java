@@ -3,6 +3,7 @@ package io.katharsis.resource.registry;
 import io.katharsis.locator.SampleJsonServiceLocator;
 import io.katharsis.repository.exception.RepositoryInstanceNotFoundException;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
+import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.mock.models.Document;
 import io.katharsis.resource.mock.models.Project;
@@ -33,7 +34,7 @@ public class ResourceRegistryBuilderTest {
 
     @Before
     public void setUp() throws Exception {
-        resourceInformationBuilder = new ResourceInformationBuilder(new ResourceFieldNameTransformer());
+        resourceInformationBuilder = new AnnotationResourceInformationBuilder(new ResourceFieldNameTransformer());
     }
 
     @Test

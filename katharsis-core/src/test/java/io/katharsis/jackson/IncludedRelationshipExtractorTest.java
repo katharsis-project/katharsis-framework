@@ -12,6 +12,7 @@ import io.katharsis.request.path.PathBuilder;
 import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.exception.ResourceFieldNotFoundException;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
+import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -34,7 +35,7 @@ public class IncludedRelationshipExtractorTest {
 
     @Before
     public void setUp() throws Exception {
-        ResourceInformationBuilder resourceInformationBuilder = new ResourceInformationBuilder(
+        ResourceInformationBuilder resourceInformationBuilder = new AnnotationResourceInformationBuilder(
                 new ResourceFieldNameTransformer());
 
         ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonServiceLocator(),
