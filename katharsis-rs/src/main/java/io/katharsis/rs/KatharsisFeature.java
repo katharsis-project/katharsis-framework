@@ -12,6 +12,7 @@ import io.katharsis.jackson.JsonApiModuleBuilder;
 import io.katharsis.locator.JsonServiceLocator;
 import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
+import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.registry.DefaultResourceLookup;
 import io.katharsis.resource.registry.ResourceLookup;
@@ -124,7 +125,7 @@ public class KatharsisFeature implements Feature {
 
     private ResourceRegistry buildResourceRegistry(ResourceLookup lookup, String serviceUrl) {
         ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(jsonServiceLocator,
-            new ResourceInformationBuilder(new ResourceFieldNameTransformer(objectMapper.getSerializationConfig())));
+            new AnnotationResourceInformationBuilder(new ResourceFieldNameTransformer(objectMapper.getSerializationConfig())));
         return registryBuilder.build(lookup, serviceUrl);
     }
 

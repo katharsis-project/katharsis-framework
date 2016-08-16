@@ -80,7 +80,7 @@ public class ResourceRegistryBuilder {
     }
 
     /**
-     * Finds the closest resource, that is resource annotated with {@link JsonApiResource} annotation, in the class
+     * Finds the closest resource in the class
      * inheritance hierarchy. If no resource parent is found, <i>null</i> is returned.
      *
      * @param resourceClass    information about the searched resource

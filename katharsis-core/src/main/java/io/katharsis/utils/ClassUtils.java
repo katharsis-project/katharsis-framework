@@ -175,29 +175,6 @@ public class ClassUtils {
     }
 
     /**
-     * Returns the first clazz in the ancestor hierarchy with the JsonApiResource annotation
-     *
-     * @param data instance
-     * @param <T>  instance type
-     * @return class or null
-     */
-    public static <T> Class<? super T> getJsonApiResourceClass(final T data) {
-        return getJsonApiResourceClass((Class<? super T>) data.getClass());
-    }
-
-    public static <T> Class<? super T> getJsonApiResourceClass(final Class<T> candidateClass) {
-        Class<? super T> currentClass = candidateClass;
-        while (currentClass != null && currentClass != Object.class) {
-            if (currentClass.isAnnotationPresent(JsonApiResource.class)) {
-                return currentClass;
-            }
-            currentClass = currentClass.getSuperclass();
-        }
-
-        return null;
-    }
-
-    /**
      * Create a new instance of a resource using a default constructor
      *
      * @param clazz new instance class

@@ -104,7 +104,7 @@ public class RelationshipContainerSerializer extends JsonSerializer<Relationship
         }
     }
 
-    private static void writeToManyLinkage(RelationshipContainer relationshipContainer, JsonGenerator gen,
+    private void writeToManyLinkage(RelationshipContainer relationshipContainer, JsonGenerator gen,
                                            RegistryEntry relationshipEntry)
             throws IOException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         ResourceField relationshipField = relationshipContainer.getRelationshipField();
@@ -114,14 +114,14 @@ public class RelationshipContainerSerializer extends JsonSerializer<Relationship
         gen.writeStartArray();
         if (targetDataObj != null) {
             for (Object objectItem : (Iterable) targetDataObj) {
-                Class<?> objectItemClass = ClassUtils.getJsonApiResourceClass(objectItem);
+                Class<?> objectItemClass = resourceRegistry.getResourceClass(objectItem).get();
                 gen.writeObject(new LinkageContainer(objectItem, objectItemClass, relationshipEntry));
             }
         }
         gen.writeEndArray();
     }
 
-    private static void writeToOneLinkage(RelationshipContainer relationshipContainer, JsonGenerator gen,
+    private void writeToOneLinkage(RelationshipContainer relationshipContainer, JsonGenerator gen,
                                           RegistryEntry relationshipEntry)
             throws IOException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         ResourceField relationshipField = relationshipContainer.getRelationshipField();
@@ -129,7 +129,7 @@ public class RelationshipContainerSerializer extends JsonSerializer<Relationship
         if (targetDataObj == null) {
             gen.writeObject(null);
         } else {
-            Class<?> targetDataObjClass = ClassUtils.getJsonApiResourceClass(targetDataObj);
+            Class<?> targetDataObjClass = resourceRegistry.getResourceClass(targetDataObj).get();
             gen.writeObject(new LinkageContainer(targetDataObj, targetDataObjClass, relationshipEntry));
         }
     }

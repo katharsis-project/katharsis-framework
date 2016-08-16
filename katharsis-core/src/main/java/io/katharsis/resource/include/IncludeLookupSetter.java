@@ -8,6 +8,8 @@ import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.repository.exception.RelationshipRepositoryNotFoundException;
 import io.katharsis.resource.annotations.JsonApiLookupIncludeAutomatically;
 import io.katharsis.resource.field.ResourceField;
+import io.katharsis.resource.field.ResourceField.LookupIncludeBehavior;
+import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.responseRepository.RelationshipRepositoryAdapter;
@@ -15,6 +17,8 @@ import io.katharsis.response.JsonApiResponse;
 import io.katharsis.utils.ClassUtils;
 import io.katharsis.utils.Generics;
 import io.katharsis.utils.PropertyUtils;
+import io.katharsis.utils.java.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,17 +80,26 @@ public class IncludeLookupSetter {
     private void getElements(Object resource, List<String> pathList, QueryParams queryParams,
                              RepositoryMethodParameterProvider parameterProvider) {
         if (!pathList.isEmpty()) {
-            Field field = ClassUtils.findClassField(resource.getClass(), pathList.get(0));
+        	
+        	Optional<Class<?>> resourceClass = resourceRegistry.getResourceClass(resource);
+        	ResourceField field = null;
+        	if(resourceClass.isPresent()){
+        		RegistryEntry entry = resourceRegistry.getEntry(resourceClass.get());
+        		ResourceInformation resourceInformation = entry.getResourceInformation();
+        		field = resourceInformation.findRelationshipFieldByName(pathList.get(0));
+        	}
+        	
             if (field == null) {
                 logger.warn("Error loading relationship, couldn't find field " + pathList.get(0));
                 return;
             }
-            Object property = PropertyUtils.getProperty(resource, field.getName());
+            Object property = PropertyUtils.getProperty(resource, field.getUnderlyingName());
+            LookupIncludeBehavior lookupIncludeBehavior = field.getLookupIncludeAutomatically();
             //attempt to load relationship if it's null or JsonApiLookupIncludeAutomatically.overwrite() == true
-            if (field.isAnnotationPresent(JsonApiLookupIncludeAutomatically.class)
-                    && (property == null || field.getAnnotation(JsonApiLookupIncludeAutomatically.class).overwrite())) {
+            if (lookupIncludeBehavior == LookupIncludeBehavior.AUTOMATICALLY_ALWAYS
+                    || (property == null && lookupIncludeBehavior == LookupIncludeBehavior.AUTOMATICALLY_WHEN_NULL)) {
                 property = loadRelationship(resource, field, queryParams, parameterProvider);
-                PropertyUtils.setProperty(resource, field.getName(), property);
+                PropertyUtils.setProperty(resource, field.getUnderlyingName(), property);
             }
 
             if (property != null) {
@@ -105,7 +118,7 @@ public class IncludeLookupSetter {
     }
 
     @SuppressWarnings("unchecked")
-    private Object loadRelationship(Object root, Field relationshipField, QueryParams queryParams,
+    private Object loadRelationship(Object root, ResourceField relationshipField, QueryParams queryParams,
                                     RepositoryMethodParameterProvider parameterProvider) {
         Class<?> resourceClass = getClassFromField(relationshipField);
         RegistryEntry<?> rootEntry = resourceRegistry.getEntry(root.getClass());
@@ -127,9 +140,9 @@ public class IncludeLookupSetter {
             if (relationshipRepositoryForClass != null) {
                 JsonApiResponse response;
                 if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
-                    response = relationshipRepositoryForClass.findManyTargets(castedResourceId, relationshipField.getName(), queryParams);
+                    response = relationshipRepositoryForClass.findManyTargets(castedResourceId, relationshipField.getUnderlyingName(), queryParams);
                 } else {
-                    response = relationshipRepositoryForClass.findOneTarget(castedResourceId, relationshipField.getName(), queryParams);
+                    response = relationshipRepositoryForClass.findOneTarget(castedResourceId, relationshipField.getUnderlyingName(), queryParams);
                 }
                 return response.getEntity();
             }
@@ -140,7 +153,7 @@ public class IncludeLookupSetter {
         return null;
     }
 
-    private Class<?> getClassFromField(Field relationshipField) {
+    private Class<?> getClassFromField(ResourceField relationshipField) {
         Class<?> resourceClass;
         if (Iterable.class.isAssignableFrom(relationshipField.getType())) {
             ParameterizedType stringListType = (ParameterizedType) relationshipField.getGenericType();
