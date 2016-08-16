@@ -5,7 +5,7 @@ import java.util.Objects;
 
 public class ResourceField {
 	
-	public enum LookupIncludeBehavior{
+	public enum LookupIncludeBehavior {
 		NONE,
 		AUTOMATICALLY_WHEN_NULL,
 		AUTOMATICALLY_ALWAYS,
@@ -34,7 +34,9 @@ public class ResourceField {
     }
     
     /**
-     * See also {@link JsonApiLookupIncludeAutomatically}}
+     * See also {@link io.katharsis.resource.annotations.JsonApiLookupIncludeAutomatically}}
+     *
+     * @return if lookup should be performed
      */
     public LookupIncludeBehavior getLookupIncludeAutomatically(){
     	return lookupIncludeBehavior;

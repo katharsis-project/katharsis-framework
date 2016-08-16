@@ -334,10 +334,14 @@ public class AnnotationResourceInformationBuilder implements ResourceInformation
     	public static boolean isLazy(List<Annotation> annotations) {
     		return isLazy(annotations, false);
     	}
-    	
+
         /**
          * Returns a flag which indicate if a field should not be serialized automatically.
-        s */
+         *
+         * @param annotations attribute annotations
+         * @param defaultValue default value if it cannot be determined
+         * @return is lazy
+         */
     	public static boolean isLazy(List<Annotation> annotations, boolean defaultValue) {
 	        JsonApiIncludeByDefault includeByDefaultAnnotation = null;
 	        JsonApiToMany toManyAnnotation = null;
@@ -362,33 +366,6 @@ public class AnnotationResourceInformationBuilder implements ResourceInformation
 	        }
 	        return defaultValue;
 	    }
-    	
-    	
-//    
-//     public boolean isLazy() {
-//         JsonApiIncludeByDefault includeByDefaultAnnotation = null;
-//         JsonApiToMany toManyAnnotation = null;
-//         JsonApiToOne toOneAnnotation = null;
-//         for (Annotation annotation : annotations) {
-//             if (annotation.annotationType().equals(JsonApiIncludeByDefault.class)) {
-//                 includeByDefaultAnnotation = (JsonApiIncludeByDefault) annotation;
-//             }
-//             if (annotation.annotationType().equals(JsonApiToMany.class)) {
-//                 toManyAnnotation = (JsonApiToMany) annotation;
-//             }
-//             if (annotation.annotationType().equals(JsonApiToOne.class)) {
-//                 toOneAnnotation = (JsonApiToOne) annotation;
-//             }
-//         }
-//         if (includeByDefaultAnnotation != null) {
-//             return false;
-//         } else if (toManyAnnotation != null) {
-//             return toManyAnnotation.lazy();
-//         } else if (toOneAnnotation != null) {
-//             return toOneAnnotation.lazy();
-//         }
-//         return false;
-//     }
 
     	public List<Annotation> getAnnotations() {
     		return annotations;

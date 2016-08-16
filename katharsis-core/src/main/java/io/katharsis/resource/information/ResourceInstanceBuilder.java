@@ -10,7 +10,8 @@ import io.katharsis.request.dto.DataBody;
 public interface ResourceInstanceBuilder<T> {
 
 	/**
+	 * @param body request body
 	 * @return resource object
 	 */
-	public T buildResource(DataBody body);
+	T buildResource(DataBody body);
 }
