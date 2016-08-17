@@ -10,6 +10,7 @@ import io.katharsis.dispatcher.filter.FilterRequestContext;
 import io.katharsis.dispatcher.registry.ControllerRegistry;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
+import io.katharsis.module.ModuleRegistry;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.dto.RequestBody;
@@ -33,7 +34,15 @@ public class RequestDispatcher {
         this.exceptionMapperRegistry = exceptionMapperRegistry;
     }
 
-    public void addFilter(Filter filter){
+    public RequestDispatcher(ModuleRegistry moduleRegistry, ControllerRegistry controllerRegistry,
+			ExceptionMapperRegistry exceptionMapperRegistry) {
+    	this(controllerRegistry, exceptionMapperRegistry);
+    	for(Filter filter : moduleRegistry.getFilters()){
+    		addFilter(filter);
+    	}
+	}
+
+	public void addFilter(Filter filter){
     	filters.add(filter);
     }
 

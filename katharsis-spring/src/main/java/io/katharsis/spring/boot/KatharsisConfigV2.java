@@ -34,6 +34,7 @@ import javax.servlet.Filter;
         QueryParamsBuilderConfiguration.class,
     JacksonConfiguration.class,
     JsonLocatorConfiguration.class,
+    ModuleConfiguration.class,
     KatharsisRegistryConfiguration.class})
 @EnableConfigurationProperties(KatharsisSpringBootProperties.class)
 public class KatharsisConfigV2 {

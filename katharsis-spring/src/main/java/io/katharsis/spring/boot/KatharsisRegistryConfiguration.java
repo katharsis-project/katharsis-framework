@@ -3,6 +3,7 @@ package io.katharsis.spring.boot;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryBuilder;
+import io.katharsis.module.ModuleRegistry;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
 import io.katharsis.resource.information.ResourceInformationBuilder;
@@ -23,6 +24,9 @@ public class KatharsisRegistryConfiguration {
 
     @Autowired
     private SpringServiceLocator serviceLocator;
+    
+    @Autowired
+    private ModuleRegistry moduleRegistry;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -30,11 +34,16 @@ public class KatharsisRegistryConfiguration {
     @Bean
     public ResourceRegistry resourceRegistry() {
         ResourceRegistryBuilder registryBuilder =
-            new ResourceRegistryBuilder(serviceLocator,
-                new AnnotationResourceInformationBuilder(new ResourceFieldNameTransformer(objectMapper.getSerializationConfig())));
+            new ResourceRegistryBuilder(serviceLocator, moduleRegistry.getResourceInformationBuilder());
 
         String serverUri = properties.getDomainName() + properties.getPathPrefix();
-        return registryBuilder.build(properties.getResourcePackage(), serverUri);
+        ResourceRegistry resourceRegistry = registryBuilder.build(properties.getResourcePackage(), serverUri);
+        
+        // NOTE once ModuleRegistry is more widely used, it should be possible
+        // to break up the cyclic dependency between ResourceRegistry and ModuleRegistry.
+        moduleRegistry.init(objectMapper, resourceRegistry);
+        
+        return resourceRegistry;
     }
 
     @Bean
