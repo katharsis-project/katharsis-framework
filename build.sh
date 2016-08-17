@@ -3,7 +3,7 @@ set -ev
 
 mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
 mvn test -B
-if [ "${TRAVIS_PULL_REQUEST}" != "true" ]; then
+if [ "${TRAVIS_PULL_REQUEST}" != "true" ] && [ "$(git status | head -1)" != "HEAD detached at FETCH_HEAD" ] ; then
 
     if [[ $TRAVIS_BRANCH == 'master' ]]; then
       # deploy to staging repository
