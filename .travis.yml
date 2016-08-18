@@ -1,12 +1,14 @@
 sudo: false
 language: java
+jdk:
+  - oraclejdk7
 addons:
   apt:
     packages:
-    - oracle-java7-installer
+    - oracle-java8-installer
 script:
   - jdk_switcher use oraclejdk8
-  - sonar-scanner -Dsonar.login=$SONAR_TOKEN
+  - mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar -Dsonar.login=$SONAR_TOKEN
   - jdk_switcher use oraclejdk7
   - "./build.sh"
 notifications:
