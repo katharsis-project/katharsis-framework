@@ -5,6 +5,7 @@ import io.katharsis.dispatcher.registry.ControllerRegistry;
 import io.katharsis.errorhandling.ErrorResponse;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryTest;
 import io.katharsis.locator.SampleJsonServiceLocator;
+import io.katharsis.module.ModuleRegistry;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.dto.RequestBody;
@@ -40,6 +41,8 @@ public class RequestDispatcherTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
+	private ModuleRegistry moduleRegistry;
+
     @Before
     public void prepare() {
         ResourceInformationBuilder resourceInformationBuilder = new AnnotationResourceInformationBuilder(
@@ -48,8 +51,10 @@ public class RequestDispatcherTest {
             resourceInformationBuilder);
         resourceRegistry = registryBuilder
             .build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, ResourceRegistryTest.TEST_MODELS_URL);
+        
+        moduleRegistry = new ModuleRegistry();
     }
-
+    
     @Test
     public void onGivenPathAndRequestTypeControllerShouldHandleRequest() throws Exception {
         // GIVEN
@@ -60,7 +65,7 @@ public class RequestDispatcherTest {
         ControllerRegistry controllerRegistry = new ControllerRegistry(null);
         CollectionGet collectionGet = mock(CollectionGet.class);
         controllerRegistry.addController(collectionGet);
-        RequestDispatcher sut = new RequestDispatcher(controllerRegistry, null);
+        RequestDispatcher sut = new RequestDispatcher(moduleRegistry, controllerRegistry, null);
 
         // WHEN
         when(collectionGet.isAcceptable(any(JsonPath.class), eq(requestType))).thenCallRealMethod();
@@ -78,7 +83,7 @@ public class RequestDispatcherTest {
         //noinspection unchecked
         when(controllerRegistry.getController(any(JsonPath.class), anyString())).thenThrow(IllegalStateException.class);
 
-        RequestDispatcher requestDispatcher = new RequestDispatcher(controllerRegistry,
+        RequestDispatcher requestDispatcher = new RequestDispatcher(moduleRegistry, controllerRegistry,
             ExceptionMapperRegistryTest.exceptionMapperRegistry);
 
         BaseResponseContext response = requestDispatcher.dispatchRequest(null, null, null, null, null);
@@ -97,7 +102,7 @@ public class RequestDispatcherTest {
         //noinspection unchecked
         when(controllerRegistry.getController(any(JsonPath.class), anyString())).thenThrow(ArithmeticException.class);
 
-        RequestDispatcher requestDispatcher = new RequestDispatcher(controllerRegistry,
+        RequestDispatcher requestDispatcher = new RequestDispatcher(moduleRegistry, controllerRegistry,
             ExceptionMapperRegistryTest.exceptionMapperRegistry);
 
         expectedException.expect(ArithmeticException.class);

@@ -1,5 +1,6 @@
 package io.katharsis.errorhandling.mapper;
 
+import io.katharsis.errorhandling.ErrorResponse;
 import io.katharsis.utils.java.Optional;
 
 import java.util.Set;
@@ -31,6 +32,29 @@ public final class ExceptionMapperRegistry {
         }
         return Optional.ofNullable(closestExceptionMapper);
     }
+    
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	public Optional<ExceptionMapper<?>> findMapperFor(ErrorResponse errorResponse) {
+		int currentDepth = -1;
+		ExceptionMapper closestExceptionMapper = null;
+		    
+		for (ExceptionMapperType mapperType : exceptionMappers) {
+			JsonApiExceptionMapper mapperObj = mapperType.getExceptionMapper();
+			if(mapperObj instanceof ExceptionMapper){
+				ExceptionMapper mapper = (ExceptionMapper) mapperObj;
+				boolean accepted = mapper.accepts(errorResponse);
+				if(accepted){
+					// the exception with the most super types is chosen
+					int tempDepth = countSuperTypes(mapperType.getExceptionClass());
+		            if (tempDepth > currentDepth) {
+		                currentDepth = tempDepth;
+		                closestExceptionMapper = mapper;
+		            }
+				}
+			}
+		}
+		return (Optional)Optional.ofNullable(closestExceptionMapper);
+	}
 
     int getDistanceBetweenExceptions(Class<?> clazz, Class<?> mapperTypeClazz) {
         int distance = 0;
@@ -44,5 +68,14 @@ public final class ExceptionMapperRegistry {
         }
         return distance;
     }
-
+    
+    int countSuperTypes(Class<?> clazz) {
+        int count = 0;
+        Class<?> superClazz = clazz;
+        while (superClazz != Object.class) {
+            superClazz = superClazz.getSuperclass();
+            count++;
+        }
+        return count;
+    }
 }

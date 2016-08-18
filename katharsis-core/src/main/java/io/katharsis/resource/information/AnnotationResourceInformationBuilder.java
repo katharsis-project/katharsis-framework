@@ -51,6 +51,11 @@ public class AnnotationResourceInformationBuilder implements ResourceInformation
     public AnnotationResourceInformationBuilder(ResourceFieldNameTransformer resourceFieldNameTransformer) {
         this.resourceFieldNameTransformer = resourceFieldNameTransformer;
     }
+    
+    @Override
+	public boolean accept(Class<?> resourceClass) {
+		return resourceClass.getAnnotation(JsonApiResource.class) != null;
+	}
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public ResourceInformation build(Class<?> resourceClass) {
