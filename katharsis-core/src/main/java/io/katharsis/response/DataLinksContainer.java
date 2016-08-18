@@ -25,11 +25,15 @@ public class DataLinksContainer {
     private final Object data;
     private final Set<ResourceField> relationshipFields;
     private final IncludedRelationsParams includedRelations;
+    private final ContainerType containerType;
+    private final String includedFieldName;
 
-    public DataLinksContainer(Object data, Set<ResourceField> relationshipFields, IncludedRelationsParams includedRelations) {
+    public DataLinksContainer(Object data, Set<ResourceField> relationshipFields, IncludedRelationsParams includedRelations, ContainerType containerType, String includedFieldName) {
         this.data = data;
         this.relationshipFields = relationshipFields;
         this.includedRelations = includedRelations;
+        this.containerType = containerType;
+        this.includedFieldName = includedFieldName;
     }
 
     public Object getData() {
@@ -44,18 +48,27 @@ public class DataLinksContainer {
         return includedRelations;
     }
 
+    public ContainerType getContainerType() {
+        return containerType;
+    }
+
+    public String getIncludedFieldName() {
+        return includedFieldName;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         DataLinksContainer that = (DataLinksContainer) o;
         return Objects.equals(data, that.data) &&
-            Objects.equals(relationshipFields, that.relationshipFields) &&
-            Objects.equals(includedRelations, that.includedRelations);
+                Objects.equals(relationshipFields, that.relationshipFields) &&
+                Objects.equals(includedRelations, that.includedRelations);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(data, relationshipFields, includedRelations);
     }
+
 }

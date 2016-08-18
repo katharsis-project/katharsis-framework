@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryBuilder;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
+import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryBuilder;
@@ -30,7 +31,7 @@ public class KatharsisRegistryConfiguration {
     public ResourceRegistry resourceRegistry() {
         ResourceRegistryBuilder registryBuilder =
             new ResourceRegistryBuilder(serviceLocator,
-                new ResourceInformationBuilder(new ResourceFieldNameTransformer(objectMapper.getSerializationConfig())));
+                new AnnotationResourceInformationBuilder(new ResourceFieldNameTransformer(objectMapper.getSerializationConfig())));
 
         String serverUri = properties.getDomainName() + properties.getPathPrefix();
         return registryBuilder.build(properties.getResourcePackage(), serverUri);

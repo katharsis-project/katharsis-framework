@@ -5,6 +5,7 @@ import io.katharsis.resource.exception.ResourceException;
 import io.katharsis.resource.exception.ResourceFieldNotFoundException;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
+import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryBuilder;
@@ -30,7 +31,7 @@ public class PathBuilderTest {
 
     @Before
     public void prepare() {
-        ResourceInformationBuilder resourceInformationBuilder = new ResourceInformationBuilder(
+        ResourceInformationBuilder resourceInformationBuilder = new AnnotationResourceInformationBuilder(
             new ResourceFieldNameTransformer());
         ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonServiceLocator(),
             resourceInformationBuilder);

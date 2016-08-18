@@ -7,6 +7,7 @@ import io.katharsis.queryParams.include.Inclusion;
 import io.katharsis.queryParams.params.IncludedRelationsParams;
 import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.response.ContainerType;
 import io.katharsis.response.DataLinksContainer;
 import io.katharsis.response.RelationshipContainer;
 
@@ -30,9 +31,9 @@ public class DataLinksContainerSerializer extends JsonSerializer<DataLinksContai
         gen.writeStartObject();
 
         for (ResourceField field : dataLinksContainer.getRelationshipFields()) {
-            boolean forceInclusion = shouldForceFieldInclusion(field, dataLinksContainer.getIncludedRelations());
+            boolean forceInclusion = shouldForceFieldInclusion(dataLinksContainer, field, dataLinksContainer.getIncludedRelations());
             RelationshipContainer relationshipContainer =
-                new RelationshipContainer(dataLinksContainer, field, forceInclusion);
+                    new RelationshipContainer(dataLinksContainer, field, forceInclusion);
 
             gen.writeObjectField(field.getJsonName(), relationshipContainer);
         }
@@ -40,10 +41,15 @@ public class DataLinksContainerSerializer extends JsonSerializer<DataLinksContai
         gen.writeEndObject();
     }
 
-    private boolean shouldForceFieldInclusion(ResourceField field, IncludedRelationsParams includedRelations) {
+    private boolean shouldForceFieldInclusion(DataLinksContainer dataLinksContainer, ResourceField field, IncludedRelationsParams includedRelations) {
         if (includedRelations != null) {
             for (Inclusion inclusion : includedRelations.getParams()) {
-                if (field.getJsonName().equals(inclusion.getPath())) {
+                if (field.getJsonName().equals(inclusion.getPathList().get(0))
+                        && dataLinksContainer.getContainerType().equals(ContainerType.TOP)) {
+                    return true;
+                } else if (dataLinksContainer.getContainerType().equals(ContainerType.INCLUDED)
+                        && inclusion.getPathList().size() > 1
+                        && field.getJsonName().equals(inclusion.getPathList().get(1))) {
                     return true;
                 }
             }

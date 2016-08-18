@@ -1,5 +1,12 @@
 package io.katharsis.dispatcher;
 
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+import io.katharsis.dispatcher.controller.BaseController;
+import io.katharsis.dispatcher.filter.Filter;
+import io.katharsis.dispatcher.filter.FilterChain;
+import io.katharsis.dispatcher.filter.FilterRequestContext;
 import io.katharsis.dispatcher.registry.ControllerRegistry;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
@@ -19,9 +26,15 @@ public class RequestDispatcher {
     private final ControllerRegistry controllerRegistry;
     private final ExceptionMapperRegistry exceptionMapperRegistry;
 
+	private List<Filter> filters = new CopyOnWriteArrayList<Filter>();
+
     public RequestDispatcher(ControllerRegistry controllerRegistry, ExceptionMapperRegistry exceptionMapperRegistry) {
         this.controllerRegistry = controllerRegistry;
         this.exceptionMapperRegistry = exceptionMapperRegistry;
+    }
+
+    public void addFilter(Filter filter){
+    	filters.add(filter);
     }
 
     /**
@@ -39,9 +52,12 @@ public class RequestDispatcher {
                                                   @SuppressWarnings("SameParameterValue") RequestBody requestBody) {
 
         try {
-            return controllerRegistry
-                .getController(jsonPath, requestType)
-                .handle(jsonPath, queryParams, parameterProvider, requestBody);
+        	BaseController controller = controllerRegistry.getController(jsonPath, requestType);
+
+			DefaultFilterRequestContext context = new DefaultFilterRequestContext(jsonPath, queryParams,
+					parameterProvider, requestBody);
+			DefaultFilterChain chain = new DefaultFilterChain(controller);
+			return chain.doFilter(context);
         } catch (Exception e) {
             Optional<JsonApiExceptionMapper> exceptionMapper = exceptionMapperRegistry.findMapperFor(e.getClass());
             if (exceptionMapper.isPresent()) {
@@ -53,4 +69,61 @@ public class RequestDispatcher {
             }
         }
     }
+
+    class DefaultFilterChain implements FilterChain {
+
+		protected int filterIndex = 0;
+		protected BaseController controller;
+
+		public DefaultFilterChain(BaseController controller){
+			this.controller = controller;
+		}
+
+		@Override
+		public BaseResponseContext doFilter(FilterRequestContext context) {
+			if (filterIndex == filters.size()) {
+				return controller.handle(context.getJsonPath(), context.getQueryParams(), context.getParameterProvider(), context.getRequestBody());
+			} else {
+				Filter filter = filters.get(filterIndex);
+				filterIndex++;
+				return filter.filter(context, this);
+			}
+		}
+	}
+
+	class DefaultFilterRequestContext implements FilterRequestContext {
+
+		protected JsonPath jsonPath;
+		protected QueryParams queryParams;
+		protected RepositoryMethodParameterProvider parameterProvider;
+		protected RequestBody requestBody;
+
+		public DefaultFilterRequestContext(JsonPath jsonPath, QueryParams queryParams,
+				RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody) {
+			this.jsonPath = jsonPath;
+			this.queryParams = queryParams;
+			this.parameterProvider = parameterProvider;
+			this.requestBody = requestBody;
+		}
+
+		@Override
+		public RequestBody getRequestBody() {
+			return requestBody;
+		}
+
+		@Override
+		public RepositoryMethodParameterProvider getParameterProvider() {
+			return parameterProvider;
+		}
+
+		@Override
+		public QueryParams getQueryParams() {
+			return queryParams;
+		}
+
+		@Override
+		public JsonPath getJsonPath() {
+			return jsonPath;
+		}
+	}
 }

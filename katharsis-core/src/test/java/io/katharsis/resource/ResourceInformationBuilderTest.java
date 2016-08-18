@@ -2,6 +2,8 @@ package io.katharsis.resource;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
+import io.katharsis.repository.exception.RepositoryAnnotationNotFoundException;
 import io.katharsis.resource.annotations.JsonApiId;
 import io.katharsis.resource.annotations.JsonApiLinksInformation;
 import io.katharsis.resource.annotations.JsonApiMetaInformation;
@@ -12,6 +14,7 @@ import io.katharsis.resource.exception.init.MultipleJsonApiMetaInformationExcept
 import io.katharsis.resource.exception.init.ResourceDuplicateIdException;
 import io.katharsis.resource.exception.init.ResourceIdNotFoundException;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
+import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.mock.models.Task;
@@ -19,6 +22,8 @@ import io.katharsis.resource.mock.models.UnAnnotatedTask;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
+import java.util.concurrent.Future;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -29,7 +34,7 @@ public class ResourceInformationBuilderTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
-    private final ResourceInformationBuilder resourceInformationBuilder = new ResourceInformationBuilder(
+    private final ResourceInformationBuilder resourceInformationBuilder = new AnnotationResourceInformationBuilder(
         new ResourceFieldNameTransformer());
 
     @Test
@@ -51,8 +56,8 @@ public class ResourceInformationBuilderTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenResourceWithNoIdAnnotation() {
-        expectedException.expect(ResourceIdNotFoundException.class);
+    public void shouldThrowExceptionWhenResourceWithNoAnnotation() {
+        expectedException.expect(RepositoryAnnotationNotFoundException.class);
 
         resourceInformationBuilder.build(UnAnnotatedTask.class);
     }
@@ -128,6 +133,17 @@ public class ResourceInformationBuilderTest {
         expectedException.expect(MultipleJsonApiLinksInformationException.class);
 
         resourceInformationBuilder.build(MultipleLinksInformationResource.class);
+    }
+
+    @Test
+    public void shouldHaveProperTypeWhenFieldAndGetterTypesDiffer() throws Exception {
+        ResourceInformation resourceInformation = resourceInformationBuilder.build(DifferentTypes.class);
+
+        assertThat(resourceInformation.getRelationshipFields())
+                .isNotNull()
+                .hasSize(1)
+                .extracting("type")
+                .contains(String.class);
     }
 
     @JsonApiResource(type = "duplicatedIdAnnotationResources")
@@ -287,5 +303,18 @@ public class ResourceInformationBuilderTest {
 
         @JsonApiLinksInformation
         public String b;
+    }
+
+    @JsonApiResource(type = "differentTypes")
+    private static class DifferentTypes {
+        @JsonApiId
+        private Long id;
+
+        public Future<String> field;
+
+        @JsonApiToOne
+        public String getField() {
+            return null;
+        }
     }
 }

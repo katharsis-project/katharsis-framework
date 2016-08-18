@@ -12,6 +12,7 @@ import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.field.ResourceAttributesBridge;
 import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
+import io.katharsis.resource.information.ResourceInstanceBuilder;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.responseRepository.RelationshipRepositoryAdapter;
@@ -35,6 +36,11 @@ public abstract class ResourceUpsert extends BaseController {
         this.typeParser = typeParser;
         this.objectMapper = objectMapper;
     }
+    
+    protected Object newResource(ResourceInformation resourceInformation, DataBody dataBody) {
+		ResourceInstanceBuilder<?> builder = resourceInformation.getInstanceBuilder();
+		return builder.buildResource(dataBody);
+	}
 
     void setId(DataBody dataBody, Object instance, ResourceInformation resourceInformation) {
         if (dataBody.getId() != null) {

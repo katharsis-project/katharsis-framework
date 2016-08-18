@@ -5,6 +5,7 @@ import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 import java.util.Collections;
 import java.util.Set;
 
+import io.katharsis.resource.mock.models.*;
 import org.junit.Test;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -14,11 +15,6 @@ import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathBuilder;
-import io.katharsis.resource.mock.models.OtherPojo;
-import io.katharsis.resource.mock.models.Pojo;
-import io.katharsis.resource.mock.models.Project;
-import io.katharsis.resource.mock.models.Task;
-import io.katharsis.resource.mock.models.User;
 import io.katharsis.response.Container;
 import io.katharsis.response.HttpStatus;
 import io.katharsis.response.JsonApiResponse;
@@ -225,5 +221,17 @@ public class ContainerSerializerTest extends BaseSerializerTest {
 
         // THEN
         assertThatJson(result).node("links.self").isEqualTo("https://service.local/projects/1");
+    }
+
+    @Test
+    public void onResourceWithoutRelationshipsShouldNotIncludeRelationshipField() throws Exception {
+        // GIVEN
+        Memorandum memorandum = new Memorandum();
+
+        // WHEN
+        String result = sut.writeValueAsString(new Container(memorandum, testResponse));
+
+        // THEN
+        assertThatJson(result).node("relationships").isAbsent();
     }
 }
