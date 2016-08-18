@@ -47,15 +47,21 @@
         <maven-source-plugin.version>2.4</maven-source-plugin.version>
         <maven-javadoc-plugin.version>2.10.2</maven-javadoc-plugin.version>
         <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
-        <jacoco-maven-plugin.version>0.7.4.201502262128</jacoco-maven-plugin.version>
+        <jacoco-maven-plugin.version>0.7.7.201606060606</jacoco-maven-plugin.version>
         <maven-compiler-plugin.version>3.2</maven-compiler-plugin.version>
-        <coveralls-maven-plugin.version>3.1.0</coveralls-maven-plugin.version>
+        <coveralls-maven-plugin.version>4.2.0</coveralls-maven-plugin.version>
         <gitlog-maven-plugin.version>1.12.3</gitlog-maven-plugin.version>
         <maven-bundle-plugin.version>2.5.3</maven-bundle-plugin.version>
 
         <gpg.passphrase/>
         <sonatypeOssDistMgmtSnapshotsUrl>https://oss.sonatype.org/content/repositories/snapshots/</sonatypeOssDistMgmtSnapshotsUrl>
     </properties>
+
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>7</version>
+    </parent>
 
     <dependencyManagement>
         <dependencies>
@@ -138,6 +144,7 @@
                     <configuration>
                         <!--suppress MavenModelInspection -->
                         <repoToken>${env.coverallsToken}</repoToken>
+                        <aggregate>true</aggregate>
                     </configuration>
                 </plugin>
                 <plugin>

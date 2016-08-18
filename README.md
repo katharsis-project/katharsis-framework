@@ -6,6 +6,7 @@ Katharsis library adds an additional layer on top of RESTful endpoint to provide
 # katharsis-framework
 
 [![Build Status](https://travis-ci.org/katharsis-project/katharsis-framework.svg?branch=develop)](https://travis-ci.org/katharsis-project/katharsis-framework)
+[![Coverage Status](https://coveralls.io/repos/github/katharsis-project/katharsis-framework/badge.svg)](https://coveralls.io/github/katharsis-project/katharsis-framework)
 
 Systems nowadays utilize data from various systems to leverage the business needs. To achieve that, many of them provide usually inconsistent REST interface.
 
