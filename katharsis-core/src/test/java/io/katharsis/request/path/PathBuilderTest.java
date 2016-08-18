@@ -223,6 +223,19 @@ public class PathBuilderTest {
     }
 
     @Test
+    public void onUrlEncodedMultipleResourceInstancesPathShouldReturnCollectionPath() {
+        // GIVEN
+        String path = "/tasks/1%2C2";
+
+        // WHEN
+        JsonPath jsonPath = pathBuilder.buildPath(path);
+
+        // THEN
+        Assert.assertTrue(jsonPath.isCollection());
+        Assert.assertEquals(jsonPath.getIds().getIds(), Arrays.asList("1", "2"));
+    }
+
+    @Test
     public void onSimpleResourcePathShouldReturnCorrectStringPath() {
         // GIVEN
         JsonPath jsonPath = new ResourcePath("tasks");

@@ -107,7 +107,7 @@ public class PathBuilder {
     }
 
     private static PathIds createPathIds(String idsString) {
-        List<String> pathIds = Arrays.asList(idsString.split(PathIds.ID_SEPERATOR));
+        List<String> pathIds = Arrays.asList(idsString.split(PathIds.ID_SEPARATOR_PATTERN));
         return new PathIds(pathIds);
     }
 
@@ -153,6 +153,6 @@ public class PathBuilder {
     }
 
     private static String mergeIds(PathIds ids) {
-        return StringUtils.join(PathIds.ID_SEPERATOR, ids.getIds());
+        return StringUtils.join(PathIds.ID_SEPARATOR, ids.getIds());
     }
 }
