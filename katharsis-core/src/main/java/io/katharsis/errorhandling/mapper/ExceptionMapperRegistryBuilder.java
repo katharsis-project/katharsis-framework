@@ -8,10 +8,6 @@ import java.util.Set;
 public final class ExceptionMapperRegistryBuilder {
     private final Set<ExceptionMapperType> exceptionMappers = new HashSet<>();
 
-    public Set<ExceptionMapperType> getExceptionMappers() {
-        return exceptionMappers;
-    }
-
     public ExceptionMapperRegistry build(String resourceSearchPackage) {
         return build(new DefaultExceptionMapperLookup(resourceSearchPackage));
     }

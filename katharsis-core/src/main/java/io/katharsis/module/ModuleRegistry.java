@@ -97,16 +97,19 @@ public class ModuleRegistry {
 
 		@Override
 		public void addFilter(Filter filter) {
+			checkNotInitialized();
 			aggregatedModule.addFilter(filter);			
 		}
 
 		@Override
 		public void addExceptionMapperLookup(ExceptionMapperLookup exceptionMapperLookup) {
+			checkNotInitialized();
 			aggregatedModule.addExceptionMapperLookup(exceptionMapperLookup);			
 		}
 
 		@Override
 		public void addExceptionMapper(ExceptionMapper<?> exceptionMapper) {
+			checkNotInitialized();
 			aggregatedModule.addExceptionMapper(exceptionMapper);			
 		}
 	}

@@ -1,7 +1,6 @@
 package io.katharsis.dispatcher;
 
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.dispatcher.filter.Filter;
@@ -26,24 +25,14 @@ public class RequestDispatcher {
 
     private final ControllerRegistry controllerRegistry;
     private final ExceptionMapperRegistry exceptionMapperRegistry;
-
-	private List<Filter> filters = new CopyOnWriteArrayList<Filter>();
-
-    public RequestDispatcher(ControllerRegistry controllerRegistry, ExceptionMapperRegistry exceptionMapperRegistry) {
-        this.controllerRegistry = controllerRegistry;
-        this.exceptionMapperRegistry = exceptionMapperRegistry;
-    }
+    
+	private ModuleRegistry moduleRegistry;
 
     public RequestDispatcher(ModuleRegistry moduleRegistry, ControllerRegistry controllerRegistry,
 			ExceptionMapperRegistry exceptionMapperRegistry) {
-    	this(controllerRegistry, exceptionMapperRegistry);
-    	for(Filter filter : moduleRegistry.getFilters()){
-    		addFilter(filter);
-    	}
-	}
-
-	public void addFilter(Filter filter){
-    	filters.add(filter);
+    	this.controllerRegistry = controllerRegistry;
+    	this.moduleRegistry = moduleRegistry;
+    	this.exceptionMapperRegistry = exceptionMapperRegistry;
     }
 
     /**
@@ -90,6 +79,7 @@ public class RequestDispatcher {
 
 		@Override
 		public BaseResponseContext doFilter(FilterRequestContext context) {
+			List<Filter> filters = moduleRegistry.getFilters();
 			if (filterIndex == filters.size()) {
 				return controller.handle(context.getJsonPath(), context.getQueryParams(), context.getParameterProvider(), context.getRequestBody());
 			} else {

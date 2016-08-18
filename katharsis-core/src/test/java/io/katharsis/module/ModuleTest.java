@@ -1,6 +1,8 @@
 package io.katharsis.module;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -10,6 +12,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.katharsis.dispatcher.filter.Filter;
 import io.katharsis.dispatcher.filter.TestFilter;
+import io.katharsis.errorhandling.mapper.ExceptionMapperLookup;
+import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryTest.IllegalStateExceptionMapper;
+import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryTest.SomeIllegalStateExceptionMapper;
+import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.resource.annotations.JsonApiId;
@@ -41,17 +47,59 @@ public class ModuleTest {
 
 	private ResourceRegistry resourceRegistry;
 	private ModuleRegistry moduleRegistry;
+	private TestModule testModule;
 
 	@Before
 	public void setup() {
 		resourceRegistry = new ResourceRegistry("http://localhost");
-
+		
+		testModule = new TestModule();
 		moduleRegistry = new ModuleRegistry();
 		moduleRegistry.addModule(new CoreModule("io.katharsis.module.mock", new ResourceFieldNameTransformer()));
-		moduleRegistry.addModule(new TestModule());
+		moduleRegistry.addModule(testModule);
 		moduleRegistry.init(new ObjectMapper(), resourceRegistry);
 	}
 
+	@Test
+	public void testExceptionMappers(){
+		ExceptionMapperLookup exceptionMapperLookup = moduleRegistry.getExceptionMapperLookup();
+		Set<JsonApiExceptionMapper> exceptionMappers = exceptionMapperLookup.getExceptionMappers();
+		Set<Class<?>> classes = new HashSet<>();
+		for(JsonApiExceptionMapper exceptionMapper : exceptionMappers){
+			classes.add(exceptionMapper.getClass());
+		}
+		Assert.assertTrue(classes.contains(IllegalStateExceptionMapper.class));
+		Assert.assertTrue(classes.contains(SomeIllegalStateExceptionMapper.class));
+	}
+	
+	@Test(expected=IllegalStateException.class)
+	public void testModuleChangeAfterAddModule(){
+		SimpleModule module = new SimpleModule("test2");
+		moduleRegistry.addModule(module);
+		module.addFilter(new TestFilter());
+	}
+	
+	@Test(expected=IllegalStateException.class)
+	public void testContextChangeAfterAddModule(){
+		testModule.getContext().addFilter(new TestFilter());
+	}
+	
+	@Test
+	public void testGetResourceRegistry(){
+		Assert.assertSame(resourceRegistry, testModule.getContext().getResourceRegistry());
+	}
+	
+	@Test(expected=IllegalStateException.class)
+	public void testNoResourceRegistryBeforeInitialization(){
+		ModuleRegistry registry = new ModuleRegistry();
+		registry.addModule(new SimpleModule("test"){
+			@Override
+			public void setupModule(ModuleContext context) {
+				context.getResourceRegistry(); // fail
+			}
+		});
+	}
+	
 	@Test
 	public void testInformationBuilder() throws Exception {
 		ResourceInformationBuilder informationBuilder = moduleRegistry.getResourceInformationBuilder();
@@ -136,13 +184,20 @@ public class ModuleTest {
 
 	class TestModule implements Module {
 
+		private ModuleContext context;
+
 		@Override
 		public String getModuleName() {
 			return "test";
 		}
+		
+		public ModuleContext getContext(){
+			return context;
+		}
 
 		@Override
 		public void setupModule(ModuleContext context) {
+			this.context = context;
 			context.addResourceLookup(new TestResourceLookup());
 			context.addResourceInformationBuilder(new TestResourceInformationBuilder());
 
@@ -158,7 +213,16 @@ public class ModuleTest {
 			context.addFilter(new TestFilter());
 			context.addRepository(TestResource2.class, new TestRepository2());
 			context.addRepository(TestResource2.class, TestResource2.class, new TestRelationshipRepository2());
-
+			
+			context.addExceptionMapper(new IllegalStateExceptionMapper());
+			context.addExceptionMapperLookup(new ExceptionMapperLookup(){
+				@Override
+				public Set<JsonApiExceptionMapper> getExceptionMappers() {
+					Set<JsonApiExceptionMapper> set = new HashSet<>();
+					set.add(new SomeIllegalStateExceptionMapper());
+					return set;
+				}
+			});
 		}
 	}
 

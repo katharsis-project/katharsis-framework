@@ -29,6 +29,8 @@ public class SimpleModule implements Module {
 	private List<ExceptionMapperLookup> exceptionMapperLookups = new ArrayList<ExceptionMapperLookup>();
 
 	private String moduleName;
+	
+	private ModuleContext context;
 
 	public SimpleModule(String moduleName) {
 		this.moduleName = moduleName;
@@ -41,6 +43,7 @@ public class SimpleModule implements Module {
 
 	@Override
 	public void setupModule(ModuleContext context) {
+		this.context = context;
 		for (ResourceInformationBuilder resourceInformationBuilder : resourceInformationBuilders) {
 			context.addResourceInformationBuilder(resourceInformationBuilder);
 		}
@@ -63,6 +66,12 @@ public class SimpleModule implements Module {
 			context.addExceptionMapperLookup(exceptionMapperLookup);
 		}
 	}
+	
+	private void checkInitialized(){
+		if(context != null){
+			throw new IllegalStateException("module cannot be changed addModule was called");
+		}
+	}
 
 	/**
 	 * Registers a new {@link ResourceInformationBuilder} with this module.
@@ -70,36 +79,44 @@ public class SimpleModule implements Module {
 	 * @param resourceInformationBuilder
 	 */
 	public void addResourceInformationBuilder(ResourceInformationBuilder resourceInformationBuilder) {
+		checkInitialized();
 		resourceInformationBuilders.add(resourceInformationBuilder);
 	}
 
 
 	public void addExceptionMapperLookup(ExceptionMapperLookup exceptionMapperLookup) {
+		checkInitialized();
 		exceptionMapperLookups.add(exceptionMapperLookup);
 	}
 	
 	public void addExceptionMapper(@SuppressWarnings("rawtypes") JsonApiExceptionMapper exceptionMapper) {
+		checkInitialized();
 		ExceptionMapperLookup exceptionMapperLookup = new CollectionExceptionMapperLookup(exceptionMapper);
 		exceptionMapperLookups.add(exceptionMapperLookup);
 	}
 	
 	protected List<ResourceInformationBuilder> getResourceInformationBuilders() {
+		checkInitialized();
 		return Collections.unmodifiableList(resourceInformationBuilders);
 	}
 
 	public void addFilter(Filter filter) {
+		checkInitialized();
 		filters.add(filter);
 	}
 
 	protected List<Filter> getFilters() {
+		checkInitialized();
 		return Collections.unmodifiableList(filters);
 	}
 
 	public void addJacksonModule(com.fasterxml.jackson.databind.Module module) {
+		checkInitialized();
 		jacksonModules.add(module);
 	}
 
 	protected List<com.fasterxml.jackson.databind.Module> getJacksonModules() {
+		checkInitialized();
 		return Collections.unmodifiableList(jacksonModules);
 	}
 
@@ -109,18 +126,22 @@ public class SimpleModule implements Module {
 	 * @param resourceInformationBuilder
 	 */
 	public void addResourceLookup(ResourceLookup resourceLookup) {
+		checkInitialized();
 		resourceLookups.add(resourceLookup);
 	}
 
 	protected List<ResourceLookup> getResourceLookups() {
+		checkInitialized();
 		return Collections.unmodifiableList(resourceLookups);
 	}
 
 	public void addRepository(Class<?> type, ResourceRepository<?, ?> repository) {
+		checkInitialized();
 		resourceRepositoryRegistrations.add(new ResourceRepositoryRegistration(type, repository));
 	}
 
 	public void addRepository(Class<?> sourceType, Class<?> targetType, RelationshipRepository<?, ?, ?, ?> repository) {
+		checkInitialized();
 		relationshipRepositoryRegistrations
 				.add(new RelationshipRepositoryRegistration(sourceType, targetType, repository));
 	}

@@ -14,12 +14,15 @@ import io.katharsis.dispatcher.filter.Filter;
 import io.katharsis.dispatcher.filter.TestFilter;
 import io.katharsis.errorhandling.mapper.ExceptionMapper;
 import io.katharsis.errorhandling.mapper.ExceptionMapperLookup;
+import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryTest.IllegalStateExceptionMapper;
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
 import io.katharsis.errorhandling.mapper.KatharsisExceptionMapper;
 import io.katharsis.module.Module.ModuleContext;
+import io.katharsis.module.SimpleModule.RelationshipRepositoryRegistration;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.resource.information.ResourceInformationBuilder;
+import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.registry.ResourceLookup;
 import io.katharsis.resource.registry.ResourceRegistry;
 
@@ -32,6 +35,11 @@ public class SimpleModuleTest {
 	public void setup() {
 		context = new TestModuleContext();
 		module = new SimpleModule("simple");
+	}
+
+	@Test
+	public void testGetModuleName() {
+		Assert.assertEquals("simple", module.getModuleName());
 	}
 
 	@Test
@@ -113,8 +121,14 @@ public class SimpleModuleTest {
 
 	@Test
 	public void testRelationshipRepository() {
-		module.addRepository(TestResource.class, TestResource.class, new TestRelationshipRepository());
+		TestRelationshipRepository repository = new TestRelationshipRepository();
+		module.addRepository(TestResource.class, Task.class, repository);
 		Assert.assertEquals(1, module.getRelationshipRepositoryRegistrations().size());
+		RelationshipRepositoryRegistration reg = module.getRelationshipRepositoryRegistrations().get(0);
+		Assert.assertEquals(TestResource.class, reg.getSourceType());
+		Assert.assertEquals(repository, reg.getRepository());
+		Assert.assertEquals(Task.class, reg.getTargetType());
+
 		module.setupModule(context);
 
 		Assert.assertEquals(0, context.numResourceInformationBuilds);
@@ -125,7 +139,7 @@ public class SimpleModuleTest {
 		Assert.assertEquals(1, context.numRelationshipRepositories);
 		Assert.assertEquals(0, context.numExceptionMapperLookup);
 	}
-	
+
 	@Test
 	public void testExceptionMapperLookup() {
 		module.addExceptionMapperLookup(new TestExceptionMapperLookup());
@@ -140,13 +154,29 @@ public class SimpleModuleTest {
 		Assert.assertEquals(0, context.numRelationshipRepositories);
 		Assert.assertEquals(1, context.numExceptionMapperLookup);
 	}
-	
-	class TestExceptionMapperLookup implements ExceptionMapperLookup	{
+
+	@Test
+	public void testAddExceptionMapper() {
+		module.addExceptionMapper(new IllegalStateExceptionMapper());
+
+		Assert.assertEquals(1, module.getExceptionMapperLookups().size());
+		module.setupModule(context);
+
+		Assert.assertEquals(0, context.numResourceInformationBuilds);
+		Assert.assertEquals(0, context.numResourceLookups);
+		Assert.assertEquals(0, context.numFilters);
+		Assert.assertEquals(0, context.numJacksonModules);
+		Assert.assertEquals(0, context.numResourceRepositoreis);
+		Assert.assertEquals(0, context.numRelationshipRepositories);
+		Assert.assertEquals(1, context.numExceptionMapperLookup);
+	}
+
+	class TestExceptionMapperLookup implements ExceptionMapperLookup {
 
 		@SuppressWarnings("rawtypes")
 		@Override
 		public Set<JsonApiExceptionMapper> getExceptionMappers() {
-			return new HashSet<JsonApiExceptionMapper>( Arrays.asList(new KatharsisExceptionMapper()));
+			return new HashSet<JsonApiExceptionMapper>(Arrays.asList(new KatharsisExceptionMapper()));
 		}
 	}
 
