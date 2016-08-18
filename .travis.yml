@@ -1,14 +1,14 @@
 sudo: false
 language: java
-jdk:
-  - oraclejdk7
 addons:
   apt:
     packages:
     - oracle-java7-installer
 script:
- - sonar-scanner -Dsonar.login=$SONAR_TOKEN
- - "./build.sh"
+  - jdk_switcher use oraclejdk8
+  - sonar-scanner -Dsonar.login=$SONAR_TOKEN
+  - jdk_switcher use oraclejdk7
+  - "./build.sh"
 notifications:
   webhooks:
     urls:
