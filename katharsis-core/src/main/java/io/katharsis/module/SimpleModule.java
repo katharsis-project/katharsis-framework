@@ -123,7 +123,7 @@ public class SimpleModule implements Module {
 	/**
 	 * Registers a new {@link ResourceLookup} with this module.
 	 * 
-	 * @param resourceInformationBuilder
+	 * @param resourceLookup
 	 */
 	public void addResourceLookup(ResourceLookup resourceLookup) {
 		checkInitialized();

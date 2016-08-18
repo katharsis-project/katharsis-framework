@@ -37,7 +37,7 @@ public class ModuleRegistry {
 	private List<Module> modules = new ArrayList<Module>();
 
 	private SimpleModule aggregatedModule = new SimpleModule(null);
-	private boolean initalized;
+	private volatile boolean initialized;
 
 	public ModuleRegistry() {
 	}
@@ -125,7 +125,7 @@ public class ModuleRegistry {
 	 * Ensures the {@link ModuleRegistry#init(ObjectMapper, ResourceRegistry)} has not yet been called.
 	 */
 	protected void checkNotInitialized() {
-		if (initalized) {
+		if (initialized) {
 			throw new IllegalStateException("already initialized, cannot be changed anymore");
 		}
 	}
@@ -203,7 +203,7 @@ public class ModuleRegistry {
 			return set;
 		}
 	}
-	
+
 	/**
 	 * Combines all {@link ResourceLookup} instances provided by the registered
 	 * {@link Module}.
@@ -242,13 +242,15 @@ public class ModuleRegistry {
 	 * @param objectMapper
 	 * @param resourceRegistry
 	 */
-	public void init(ObjectMapper objectMapper, ResourceRegistry resourceRegistry) {
-		this.initalized = true;
-		this.objectMapper = objectMapper;
-		this.resourceRegistry = resourceRegistry;
-		this.objectMapper.registerModules(getJacksonModules());
+	public synchronized void init(ObjectMapper objectMapper, ResourceRegistry resourceRegistry) {
+		if (!initialized) {
+			this.initialized = true;
+			this.objectMapper = objectMapper;
+			this.resourceRegistry = resourceRegistry;
+			this.objectMapper.registerModules(getJacksonModules());
 
-		applyRepositoryRegistration(resourceRegistry);
+			applyRepositoryRegistration(resourceRegistry);
+		}
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -269,7 +271,7 @@ public class ModuleRegistry {
 			};
 			DirectResponseResourceEntry resourceEntry = new DirectResponseResourceEntry(repositoryInstanceBuilder);
 			ResourceInformation resourceInformation = getResourceInformationBuilder().build(resourceClass);
-			List<ResponseRelationshipEntry> relationshipEntries = new ArrayList<ResponseRelationshipEntry>();
+			List<ResponseRelationshipEntry> relationshipEntries = new ArrayList<>();
 			for (final RelationshipRepositoryRegistration relationshipRepositoryRegistration : relationshipRepositoryRegistrations) {
 				if (relationshipRepositoryRegistration.getSourceType() == resourceClass) {
 					RepositoryInstanceBuilder<RelationshipRepository> relationshipInstanceBuilder = new RepositoryInstanceBuilder<RelationshipRepository>(

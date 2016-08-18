@@ -18,19 +18,19 @@ public interface Module {
 	/**
 	 * Returns the identifier of this module.
 	 */
-	public String getModuleName();
+	String getModuleName();
 
 	/**
 	 * Called when the module is registered with Katharsis. Allows the module to
 	 * register functionality it provides.
 	 */
-	public void setupModule(ModuleContext context);
+	void setupModule(ModuleContext context);
 
 	/**
 	 * Interface Katharsis exposes to modules for purpose of registering
 	 * extended functionality.
 	 */
-	public interface ModuleContext {
+	interface ModuleContext {
 
 		/**
 		 * Register the given {@link ResourceInformationBuilder} in Katharsis.
@@ -54,27 +54,27 @@ public interface Module {
 		/**
 		 * Adds the given repository for the given type.
 		 */
-		public void addRepository(Class<?> resourceClass, ResourceRepository<?, ?> repository);
+		void addRepository(Class<?> resourceClass, ResourceRepository<?, ?> repository);
 
 		/**
 		 * Adds the given repository for the given source and target type.
 		 */
-		public void addRepository(Class<?> sourceResourceClass, Class<?> targetResourceClass, RelationshipRepository<?, ?, ?, ?> repository);
+		void addRepository(Class<?> sourceResourceClass, Class<?> targetResourceClass, RelationshipRepository<?, ?, ?, ?> repository);
 
 		/**
 		 * Adds a new exception mapper lookup.
 		 */
-		public void addExceptionMapperLookup(ExceptionMapperLookup exceptionMapperLookup);
+		void addExceptionMapperLookup(ExceptionMapperLookup exceptionMapperLookup);
 		
 		/**
 		 * Adds a new exception mapper lookup.
 		 */
-		public void addExceptionMapper(ExceptionMapper<?> exceptionMapper);
+		void addExceptionMapper(ExceptionMapper<?> exceptionMapper);
 		
 		/**
 		 * Adds a filter to intercept requests.
 		 */
-		public void addFilter(Filter filter);
+		void addFilter(Filter filter);
 		
 		/**
 		 * Returns the ResourceRegistry. Note that instance is not yet available
