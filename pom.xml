@@ -188,32 +188,10 @@
                     <version>${maven-bundle-plugin.version}</version>
                     <extensions>true</extensions>
                 </plugin>
-                <plugin>
-                    <artifactId>maven-enforcer-plugin</artifactId>
-                    <version>1.4.1</version>
-                    <executions>
-                        <execution>
-                            <id>enforce-java</id>
-                            <goals>
-                                <goal>enforce</goal>
-                            </goals>
-                            <configuration>
-                                <rules>
-                                    <requireJavaVersion>
-                                        <version>[${javaVersion}, 1.8)</version>
-                                    </requireJavaVersion>
-                                </rules>
-                            </configuration>
-                        </execution>
-                    </executions>
-                </plugin>
             </plugins>
         </pluginManagement>
 
         <plugins>
-            <plugin>
-                <artifactId>maven-enforcer-plugin</artifactId>
-            </plugin>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
@@ -253,7 +231,7 @@
                 <repository>
                     <id>sonatype-nexus-snapshots</id>
                     <name>Sonatype Nexus Snapshots</name>
-                    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+                    <url>http://oss.sonatype.org/content/repositories/snapshots</url>
                     <releases>
                         <enabled>false</enabled>
                     </releases>
@@ -261,20 +239,11 @@
                         <enabled>true</enabled>
                     </snapshots>
                 </repository>
-            </repositories>
-
-            <distributionManagement>
-                <snapshotRepository>
-                    <id>sonatype-nexus-snapshots</id>
-                    <name>Sonatype Nexus Snapshots</name>
-                    <url>${sonatypeOssDistMgmtSnapshotsUrl}</url>
-                </snapshotRepository>
                 <repository>
-                    <id>sonatype-nexus-staging</id>
-                    <name>Nexus Release Repository</name>
-                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+                    <id>jebrains-all</id>
+                    <url>http://repository.jetbrains.com/all</url>
                 </repository>
-            </distributionManagement>
+            </repositories>
         </profile>
         <profile>
             <id>release-sign-artifacts</id>
