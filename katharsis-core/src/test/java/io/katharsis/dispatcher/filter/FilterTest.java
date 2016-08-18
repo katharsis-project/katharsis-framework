@@ -17,6 +17,8 @@ import io.katharsis.dispatcher.RequestDispatcher;
 import io.katharsis.dispatcher.controller.collection.CollectionGet;
 import io.katharsis.dispatcher.registry.ControllerRegistry;
 import io.katharsis.locator.SampleJsonServiceLocator;
+import io.katharsis.module.ModuleRegistry;
+import io.katharsis.module.SimpleModule;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.repository.mock.NewInstanceRepositoryMethodParameterProvider;
@@ -37,12 +39,15 @@ public class FilterTest {
 	private RequestDispatcher dispatcher;
 	private CollectionGet collectionGet;
 	private PathBuilder pathBuilder;
+	private ModuleRegistry moduleRegistry;
 
 	String path = "/tasks/";
 	String requestType = "GET";
 
 	@Before
 	public void prepare() {
+		moduleRegistry = new ModuleRegistry();
+		
 		ResourceInformationBuilder resourceInformationBuilder = new AnnotationResourceInformationBuilder(
 				new ResourceFieldNameTransformer());
 		ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonServiceLocator(),
@@ -53,14 +58,18 @@ public class FilterTest {
 		ControllerRegistry controllerRegistry = new ControllerRegistry(null);
 		collectionGet = mock(CollectionGet.class);
 		controllerRegistry.addController(collectionGet);
-		dispatcher = new RequestDispatcher(controllerRegistry, null);
+		dispatcher = new RequestDispatcher(moduleRegistry, controllerRegistry, null);
 	}
 
 	@Test
 	public void test() throws Exception {
+		
 		// GIVEN
 		filter = mock(TestFilter.class);
-		dispatcher.addFilter(filter);
+		
+		SimpleModule filterModule = new SimpleModule("filter");
+		filterModule.addFilter(filter);
+		moduleRegistry.addModule(filterModule);
 
 		// WHEN
 		ArgumentCaptor<FilterRequestContext> captor = ArgumentCaptor.forClass(FilterRequestContext.class);

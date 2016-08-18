@@ -19,6 +19,10 @@ public final class ErrorResponse implements BaseResponseContext {
         this.httpStatus = httpStatus;
     }
 
+    public Iterable<ErrorData> getErrors(){
+    	return data;
+    }
+    
     @Override
     public int getHttpStatus() {
         return httpStatus;
