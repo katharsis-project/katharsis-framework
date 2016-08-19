@@ -7,10 +7,9 @@ addons:
     packages:
     - oracle-java8-installer
 script:
-  - jdk_switcher use oraclejdk8
-  - mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install sonar:sonar -Dsonar.login=$SONAR_TOKEN
-  - jdk_switcher use oraclejdk7
   - "./build.sh"
+  - jdk_switcher use oraclejdk8
+  - mvn org.jacoco:jacoco-maven-plugin:prepare-agent sonar:sonar -Dsonar.login=$SONAR_TOKEN
 notifications:
   webhooks:
     urls:
