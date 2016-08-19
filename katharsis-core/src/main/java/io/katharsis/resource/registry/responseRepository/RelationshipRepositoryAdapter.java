@@ -85,4 +85,8 @@ public class RelationshipRepositoryAdapter<T, T_ID extends Serializable, D, D_ID
         }
         return getResponse(relationshipRepository, resources, queryParams);
     }
+
+	public Object getRelationshipRepository() {
+		return relationshipRepository;
+	}
 }

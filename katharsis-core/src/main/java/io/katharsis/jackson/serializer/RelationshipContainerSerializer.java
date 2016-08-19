@@ -32,9 +32,11 @@ public class RelationshipContainerSerializer extends JsonSerializer<Relationship
     private static final String LINKS_FIELD_NAME = "links";
 
     private final ResourceRegistry resourceRegistry;
+	private boolean isClient;
 
-    public RelationshipContainerSerializer(ResourceRegistry resourceRegistry) {
+    public RelationshipContainerSerializer(ResourceRegistry resourceRegistry, boolean isClient) {
         this.resourceRegistry = resourceRegistry;
+        this.isClient = isClient;
     }
 
     @Override
@@ -51,11 +53,13 @@ public class RelationshipContainerSerializer extends JsonSerializer<Relationship
     }
 
     private void writeLinks(RelationshipContainer relationshipContainer, JsonGenerator gen) throws IOException {
-        gen.writeFieldName(LINKS_FIELD_NAME);
-        gen.writeStartObject();
-        writeLink(relationshipContainer, gen, SELF_FIELD_NAME, true);
-        writeLink(relationshipContainer, gen, RELATED_FIELD_NAME, false);
-        gen.writeEndObject();
+    	if(!isClient){
+	        gen.writeFieldName(LINKS_FIELD_NAME);
+	        gen.writeStartObject();
+	        writeLink(relationshipContainer, gen, SELF_FIELD_NAME, true);
+	        writeLink(relationshipContainer, gen, RELATED_FIELD_NAME, false);
+	        gen.writeEndObject();
+    	}
     }
 
     private void writeLink(RelationshipContainer relationshipContainer, JsonGenerator gen, String fieldName,

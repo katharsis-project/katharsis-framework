@@ -42,21 +42,17 @@ public abstract class ResourceUpsert extends BaseController {
 		return builder.buildResource(dataBody);
 	}
 
-    void setId(DataBody dataBody, Object instance, ResourceInformation resourceInformation) {
+    protected void setId(DataBody dataBody, Object instance, ResourceInformation resourceInformation) {
         if (dataBody.getId() != null) {
             String id = dataBody.getId();
 
-            @SuppressWarnings("unchecked") Class<? extends Serializable> idClass = (Class<? extends Serializable>)
-                resourceInformation
-                    .getIdField()
-                    .getType();
-            Serializable castedId = typeParser.parse(id, idClass);
+            Serializable castedId = resourceInformation.parseIdString(id);
             PropertyUtils.setProperty(instance, resourceInformation.getIdField()
                 .getUnderlyingName(), castedId);
         }
     }
 
-    void setAttributes(DataBody dataBody, Object instance, ResourceInformation resourceInformation) {
+    protected void setAttributes(DataBody dataBody, Object instance, ResourceInformation resourceInformation) {
         if (dataBody.getAttributes() != null) {
             ResourceAttributesBridge resourceAttributesBridge = resourceInformation.getAttributeFields();
             resourceAttributesBridge.setProperties(objectMapper, instance, dataBody.getAttributes());
