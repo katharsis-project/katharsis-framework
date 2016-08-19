@@ -3,10 +3,19 @@
 
 Katharsis library adds an additional layer on top of RESTful endpoint to provide easy HATEOAS support for Java by implementing JSON API standard.
 
+**This repository is combination of  multiple previously maintained separatly repos:**
+- katharsis-core - ![katharsis-core](http://githubbadges.com/star.svg?user=katharsis-project&repo=katharsis-core&style=flat)
+- katharsis-rs - ![katharsis-rs](http://githubbadges.com/star.svg?user=katharsis-project&repo=katharsis-rs&style=flat)
+- katharsis-spring - ![katharsis-spring](http://githubbadges.com/star.svg?user=katharsis-project&repo=katharsis-spring&style=flat)
+- katharsis-servlet - ![katharsis-servlet](http://githubbadges.com/star.svg?user=katharsis-project&repo=katharsis-servlet&style=flat)
+- katharsis-examples - ![katharsis-examples](http://githubbadges.com/star.svg?user=katharsis-project&repo=katharsis-examples&style=flat)
+
+
 # katharsis-framework
 
 [![Build Status](https://travis-ci.org/katharsis-project/katharsis-framework.svg?branch=develop)](https://travis-ci.org/katharsis-project/katharsis-framework)
 [![Coverage Status](https://coveralls.io/repos/github/katharsis-project/katharsis-framework/badge.svg)](https://coveralls.io/github/katharsis-project/katharsis-framework)
+
 
 Systems nowadays utilize data from various systems to leverage the business needs. To achieve that, many of them provide usually inconsistent REST interface.
 
