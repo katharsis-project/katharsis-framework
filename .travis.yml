@@ -8,8 +8,6 @@ addons:
     - oracle-java8-installer
 script:
   - "./build.sh"
-  - jdk_switcher use oraclejdk8
-  - mvn org.jacoco:jacoco-maven-plugin:prepare-agent sonar:sonar -Dsonar.login=$SONAR_TOKEN
 notifications:
   webhooks:
     urls:
