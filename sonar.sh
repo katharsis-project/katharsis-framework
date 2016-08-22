@@ -12,7 +12,7 @@ set -ev
 if [ "$TRAVIS_PULL_REQUEST" != "false" ] && [ -n "${GITHUB_TOKEN:-}" ]; then
     echo 'Internal pull request: trigger QA and analysis'
 
-    mvn org.jacoco:jacoco-maven-plugin:prepare-agent deploy sonar:sonar \
+    mvn org.jacoco:jacoco-maven-plugin:prepare-agent sonar:sonar \
         $MAVEN_OPTIONS \
         -Dsource.skip=true \
         -Dsonar.analysis.mode=issues \
