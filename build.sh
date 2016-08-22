@@ -8,7 +8,9 @@ if [ "${TRAVIS_PULL_REQUEST}" != "true" ] && [ "$(git status | head -1)" != "HEA
     if [[ $TRAVIS_BRANCH == 'master' ]]; then
       # deploy to staging repository
       echo "TODO: ADD DEPLOYMENT TO STAGING REPOSITORY"
-    else
+    elif [[ $TRAVIS_BRANCH == 'develop' ]]; then
       mvn deploy -DskipTests=true --settings settings.xml
+    else
+      mvn install -DskipTests=true --settings settings.xml
     fi
 fi
