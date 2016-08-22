@@ -5,7 +5,6 @@ import com.jayway.jsonpath.ReadContext;
 import io.katharsis.queryParams.DefaultQueryParamsParser;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
-import io.katharsis.request.path.PathBuilder;
 import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.mock.models.*;
 import io.katharsis.response.Container;
@@ -16,6 +15,7 @@ import org.junit.Test;
 import java.util.Collections;
 import java.util.List;
 
+import static junit.framework.TestCase.assertNotNull;
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 
 public class RelationshipContainerSerializerTest extends BaseSerializerTest {
@@ -253,6 +253,24 @@ public class RelationshipContainerSerializerTest extends BaseSerializerTest {
         assertInclude(result, 1, resultCtx);
         assertInclude(result, 2, resultCtx);
 
+    }
+
+    // reference issue #93
+    @Test
+    public void onNestedInclusionWithEmptyInitializedArraysShouldNotThrowError() throws Exception {
+        // GIVEN
+        QueryParams queryParams = getRequestParamsWithInclusion("include[tasks]", "projectsInit.tasks");
+        Task task = new Task().setId(1L);
+        ResourceResponseContext response = new ResourceResponseContext(new JsonApiResponse().setEntity(task),
+                new ResourcePath("tasks"), queryParams);
+
+        // WHEN
+        String result = sut.writeValueAsString(response);
+
+        // THEN
+        ReadContext resultCtx = JsonPath.parse(result);
+        // only confirm we have result ctx back
+        assertNotNull(resultCtx);
     }
 
     private void assertInclude(String result, int index, ReadContext resultCtx) {
