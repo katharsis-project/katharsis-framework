@@ -255,7 +255,6 @@ public class RelationshipContainerSerializerTest extends BaseSerializerTest {
 
     }
 
-    // reference issue #93
     @Test
     public void onNestedInclusionWithEmptyInitializedArraysShouldNotThrowError() throws Exception {
         // GIVEN
