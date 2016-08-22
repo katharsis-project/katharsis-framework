@@ -19,10 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Extracts inclusions from a resource.
@@ -201,10 +198,13 @@ public class IncludedRelationshipExtractor {
             if (pathList.size() > 1) {
                 if (Iterable.class.isAssignableFrom(resourceProperty.getClass())) {
                     if (((Iterable) resourceProperty).iterator().hasNext()) {
-                        resourceProperty = ((Iterable) resourceProperty).iterator().next();
-                        fieldName = getRelationshipName(pathList.get(1), resourceProperty.getClass());
-                        resourceProperty = PropertyUtils.getProperty(resourceProperty, fieldName);
-                        populateToResourcePropertyToIncludedResources(resourceProperty, response, ContainerType.INCLUDED_NESTED, pathList.get(1), includedResources);
+                        Iterator resourceProperties = ((Iterable) resourceProperty).iterator();
+                        while (resourceProperties.hasNext()) {
+                            resourceProperty = resourceProperties.next();
+                            fieldName = getRelationshipName(pathList.get(1), resourceProperty.getClass());
+                            resourceProperty = PropertyUtils.getProperty(resourceProperty, fieldName);
+                            populateToResourcePropertyToIncludedResources(resourceProperty, response, ContainerType.INCLUDED_NESTED, pathList.get(1), includedResources);
+                        }
                     }
                 } else {
                     fieldName = getRelationshipName(pathList.get(1), resourceProperty.getClass());
