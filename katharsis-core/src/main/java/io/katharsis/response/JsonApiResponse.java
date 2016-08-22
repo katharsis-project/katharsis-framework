@@ -14,8 +14,9 @@ public class JsonApiResponse {
 
     public JsonApiResponse(JsonApiResponse jsonApiResponse) {
         this.entity = jsonApiResponse.entity;
-        this.entity = jsonApiResponse.metaInformation;
-        this.entity = jsonApiResponse.linksInformation;
+        this.metaInformation = jsonApiResponse.metaInformation;
+        this.linksInformation = jsonApiResponse.linksInformation;
+        this.errors = jsonApiResponse.errors;
     }
 
     public Object getEntity() {
