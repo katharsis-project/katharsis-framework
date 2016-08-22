@@ -12,6 +12,10 @@ public class JsonApiResponse {
     public JsonApiResponse() {
     }
 
+    /**
+     * @param jsonApiResponse
+     * Copy entity, metaInformation, linksInformation, errors from {@link JsonApiResponse}
+     */
     public JsonApiResponse(JsonApiResponse jsonApiResponse) {
         this.entity = jsonApiResponse.entity;
         this.metaInformation = jsonApiResponse.metaInformation;
