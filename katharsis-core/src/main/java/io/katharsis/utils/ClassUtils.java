@@ -1,6 +1,5 @@
 package io.katharsis.utils;
 
-import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.exception.ResourceException;
 import io.katharsis.utils.java.Optional;
 
@@ -16,11 +15,6 @@ import java.util.Map;
  * Provides reflection methods for parsing information about a class.
  */
 public class ClassUtils {
-
-    private static final ClassUtils INSTANCE = new ClassUtils();
-
-    private ClassUtils() {
-    }
 
     /**
      * Returns a list of class fields. Supports inheritance and doesn't return synthetic fields.
@@ -99,8 +93,8 @@ public class ClassUtils {
      * <p>
      * A getter:
      * <ul>
-     *   <li>Starts with an <i>is</i> if returns <i>boolean</i> or {@link Boolean} value</li>
-     *   <li>Starts with a <i>get</i> if returns non-boolean value</li>
+     * <li>Starts with an <i>is</i> if returns <i>boolean</i> or {@link Boolean} value</li>
+     * <li>Starts with a <i>get</i> if returns non-boolean value</li>
      * </ul>
      *
      * @param beanClass class to be searched for
@@ -112,7 +106,11 @@ public class ClassUtils {
         Class<?> currentClass = beanClass;
         while (currentClass != null && currentClass != Object.class) {
             for (Method method : currentClass.getDeclaredMethods()) {
-                if (INSTANCE.isGetter(method)) {
+                // check for bridged methods when running on newer JVM versions
+                if (method.isBridge()) {
+                    continue;
+                }
+                if (isGetter(method)) {
                     Method v = result.get(method.getName());
                     if (v == null) {
                         result.put(method.getName(), method);
@@ -138,7 +136,11 @@ public class ClassUtils {
         Class<?> currentClass = beanClass;
         while (currentClass != null && currentClass != Object.class) {
             for (Method method : currentClass.getDeclaredMethods()) {
-                if (INSTANCE.isSetter(method)) {
+                // check for bridged methods when running on newer JVM versions and ignore
+                if (method.isBridge()) {
+                    continue;
+                }
+                if (isSetter(method)) {
                     Method v = result.get(method.getName());
                     if (v == null) {
                         result.put(method.getName(), method);
@@ -154,7 +156,7 @@ public class ClassUtils {
     /**
      * Return a first occurrence of a method annotated with specified annotation
      *
-     * @param searchClass    class to be searched
+     * @param searchClass     class to be searched
      * @param annotationClass annotation class
      * @return annotated method or null
      */
@@ -178,7 +180,7 @@ public class ClassUtils {
      * Create a new instance of a resource using a default constructor
      *
      * @param clazz new instance class
-     * @param <T> new instance class
+     * @param <T>   new instance class
      * @return new instance
      */
     public static <T> T newInstance(Class<T> clazz) {
@@ -189,7 +191,7 @@ public class ClassUtils {
         }
     }
 
-    private boolean isGetter(Method method) {
+    private static boolean isGetter(Method method) {
         return isBooleanGetter(method) || isNonBooleanGetter(method);
     }
 
@@ -204,7 +206,7 @@ public class ClassUtils {
         return boolean.class.equals(method.getReturnType()) || Boolean.class.equals(method.getReturnType());
     }
 
-    private boolean isNonBooleanGetter(Method method) {
+    private static boolean isNonBooleanGetter(Method method) {
         if (!method.getName().startsWith("get"))
             return false;
         if (method.getName().length() < 4)
