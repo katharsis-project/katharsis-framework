@@ -92,7 +92,8 @@ public class ClassUtils {
     /**
      * <p>
      * Return a list of class getters. Supports inheritance and overriding, that is when a method is found on the
-     * lowest level of inheritance chain, no other method can override it.
+     * lowest level of inheritance chain, no other method can override it. Supports inheritance and
+     * doesn't return synthetic methods.
      * <p>
      * A getter:
      * <ul>
@@ -109,14 +110,13 @@ public class ClassUtils {
         Class<?> currentClass = beanClass;
         while (currentClass != null && currentClass != Object.class) {
             for (Method method : currentClass.getDeclaredMethods()) {
-                // check for bridged methods and ignore
-                if (method.isBridge()) {
-                    continue;
-                }
-                if (isGetter(method)) {
-                    Method v = result.get(method.getName());
-                    if (v == null) {
-                        result.put(method.getName(), method);
+                // check for bridged methods when running on newer JVM versions
+                if (!method.isSynthetic()) {
+                    if (isGetter(method)) {
+                        Method v = result.get(method.getName());
+                        if (v == null) {
+                            result.put(method.getName(), method);
+                        }
                     }
                 }
             }
@@ -128,7 +128,8 @@ public class ClassUtils {
 
     /**
      * Return a list of class setters. Supports inheritance and overriding, that is when a method is found on the
-     * lowest level of inheritance chain, no other method can override it.
+     * lowest level of inheritance chain, no other method can override it.  Supports inheritance
+     * and doesn't return synthetic methods.
      *
      * @param beanClass class to be searched for
      * @return a list of found getters
@@ -139,14 +140,12 @@ public class ClassUtils {
         Class<?> currentClass = beanClass;
         while (currentClass != null && currentClass != Object.class) {
             for (Method method : currentClass.getDeclaredMethods()) {
-                // check for bridged methods when running on newer JVM versions and ignore
-                if (method.isBridge()) {
-                    continue;
-                }
-                if (isSetter(method)) {
-                    Method v = result.get(method.getName());
-                    if (v == null) {
-                        result.put(method.getName(), method);
+                if (!method.isSynthetic()) {
+                    if (isSetter(method)) {
+                        Method v = result.get(method.getName());
+                        if (v == null) {
+                            result.put(method.getName(), method);
+                        }
                     }
                 }
             }
@@ -199,31 +198,44 @@ public class ClassUtils {
     }
 
     public static boolean isBooleanGetter(Method method) {
-        if (!method.getName().startsWith("is"))
+
+        if (!method.getName().startsWith("is")) {
             return false;
-        if (method.getName().length() < 3)
+        }
+        if (method.getName().length() < 3) {
             return false;
+        }
         if (method.getParameterTypes().length != 0) {
             return false;
         }
+
         return boolean.class.equals(method.getReturnType()) || Boolean.class.equals(method.getReturnType());
     }
 
     private static boolean isNonBooleanGetter(Method method) {
-        if (!method.getName().startsWith("get"))
+
+        if (!method.getName().startsWith("get")) {
             return false;
-        if (method.getName().length() < 4)
+        }
+        if (method.getName().length() < 4) {
             return false;
-        if (method.getParameterTypes().length != 0)
+        }
+        if (method.getParameterTypes().length != 0) {
             return false;
+        }
+
         return !void.class.equals(method.getReturnType());
     }
 
     private static boolean isSetter(Method method) {
-        if (!method.getName().startsWith("set"))
+
+        if (!method.getName().startsWith("set")) {
             return false;
-        if (method.getName().length() < 4)
+        }
+        if (method.getName().length() < 4) {
             return false;
+        }
+
         return method.getParameterTypes().length == 1;
     }
 }

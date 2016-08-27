@@ -145,7 +145,7 @@ public class ClassUtilsTest {
     }
 
     @Test
-    public void ignoreBridgedMethods() throws Exception {
+    public void ignoreSyntheticMethods() throws Exception {
         // WHEN
         List<Method> getterMethods = ClassUtils.getClassGetters(IntegerClass.class);
         List<Method> setterMethods = ClassUtils.getClassSetters(IntegerClass.class);
