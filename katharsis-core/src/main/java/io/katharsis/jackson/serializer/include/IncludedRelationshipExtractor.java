@@ -144,9 +144,9 @@ public class IncludedRelationshipExtractor {
         // handle field paths differently because the element name is not its type but field name (#357)
         if (response.getJsonPath() instanceof FieldPath) {
             // extract the resource's resource type name
-        	Optional<Class<?>> optional = resourceRegistry.getResourceClass(resource);
+            Optional<Class<?>> optional = resourceRegistry.getResourceClass(resource);
             if (optional.isPresent()) {
-            	elementName = resourceRegistry.getResourceType(optional.get());
+                elementName = resourceRegistry.getResourceType(optional.get());
             }
         }
         IncludedRelationsParams includedRelationsParams = findInclusions(includedRelations, elementName);
@@ -159,7 +159,7 @@ public class IncludedRelationshipExtractor {
     }
 
     private IncludedRelationsParams findInclusions(TypedParams<IncludedRelationsParams> queryParams,
-                                                          String resourceName) {
+                                                   String resourceName) {
         if (queryParams != null && queryParams.getParams() != null) {
             for (Map.Entry<String, IncludedRelationsParams> entry : queryParams.getParams()
                     .entrySet()) {
@@ -196,12 +196,16 @@ public class IncludedRelationshipExtractor {
         if (resourceProperty != null) {
             populateToResourcePropertyToIncludedResources(resourceProperty, response, ContainerType.INCLUDED, pathList.get(0), includedResources);
             if (pathList.size() > 1) {
-                if (Iterable.class.isAssignableFrom(resourceProperty.getClass())
-                        && ((Iterable) resourceProperty).iterator().hasNext()) {
-                    resourceProperty = ((Iterable) resourceProperty).iterator().next();
-                    fieldName = getRelationshipName(pathList.get(1), resourceProperty.getClass());
-                    resourceProperty = PropertyUtils.getProperty(resourceProperty, fieldName);
-                    populateToResourcePropertyToIncludedResources(resourceProperty, response, ContainerType.INCLUDED_NESTED, pathList.get(1), includedResources);
+                if (Iterable.class.isAssignableFrom(resourceProperty.getClass())) {
+                    if (((Iterable) resourceProperty).iterator().hasNext()) {
+                        Iterator resourceProperties = ((Iterable) resourceProperty).iterator();
+                        while (resourceProperties.hasNext()) {
+                            resourceProperty = resourceProperties.next();
+                            fieldName = getRelationshipName(pathList.get(1), resourceProperty.getClass());
+                            resourceProperty = PropertyUtils.getProperty(resourceProperty, fieldName);
+                            populateToResourcePropertyToIncludedResources(resourceProperty, response, ContainerType.INCLUDED_NESTED, pathList.get(1), includedResources);
+                        }
+                    }
                 } else {
                     fieldName = getRelationshipName(pathList.get(1), resourceProperty.getClass());
                     resourceProperty = PropertyUtils.getProperty(resourceProperty, fieldName);
@@ -244,7 +248,7 @@ public class IncludedRelationshipExtractor {
     }
 
     private ResourceDigest getResourceDigest(Object resource) {
-    	Class<?> resourceClass = resourceRegistry.getResourceClass(resource).get();
+        Class<?> resourceClass = resourceRegistry.getResourceClass(resource).get();
         RegistryEntry registryEntry = resourceRegistry.getEntry(resourceClass);
         String idFieldName = registryEntry.getResourceInformation().getIdField().getUnderlyingName();
         Object idValue = PropertyUtils.getProperty(resource, idFieldName);
