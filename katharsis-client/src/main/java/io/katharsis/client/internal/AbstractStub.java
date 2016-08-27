@@ -2,8 +2,6 @@ package io.katharsis.client.internal;
 
 import java.io.IOException;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.squareup.okhttp.HttpUrl;
 import com.squareup.okhttp.Request;
@@ -21,7 +19,6 @@ import io.katharsis.utils.java.Optional;
 
 public class AbstractStub {
 
-	// TODO katharsis constant
 	private static final String CONTENT_TYPE = "application/vnd.api+json";
 
 	protected KatharsisClient katharsis;
@@ -45,9 +42,9 @@ public class AbstractStub {
 
 	protected BaseResponseContext execute(Builder builder, boolean getResponse) {
 		try {
-			builder = builder.header("Content-Type", CONTENT_TYPE);
+			Builder complementedBuilder = builder.header("Content-Type", CONTENT_TYPE);
 
-			Request request = builder.build();
+			Request request = complementedBuilder.build();
 			Response response = katharsis.getHttpClient().newCall(request).execute();
 			if (!response.isSuccessful()) {
 				handleError(response);
@@ -66,7 +63,7 @@ public class AbstractStub {
 	}
 
 	@SuppressWarnings({ "unchecked" })
-	private void handleError(Response response) throws JsonParseException, JsonMappingException, IOException {
+	private void handleError(Response response) throws IOException {
 		String body = response.body().string();
 
 		ErrorResponse errorResponse = null;

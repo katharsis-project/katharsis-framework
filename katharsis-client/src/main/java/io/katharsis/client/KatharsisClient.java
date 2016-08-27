@@ -61,11 +61,7 @@ public class KatharsisClient {
 	 * @param resourcePackageName
 	 */
 	public KatharsisClient(String serviceUrl, String resourceSearchPackage) {
-		if (serviceUrl.endsWith("/")) {
-			serviceUrl = serviceUrl.substring(0, serviceUrl.length() - 1);
-		}
-
-		resourceRegistry = new ResourceRegistry(serviceUrl);
+		resourceRegistry = new ResourceRegistry(normalize(serviceUrl));
 		urlBuilder = new RequestUrlBuilder(resourceRegistry);
 
 		objectMapper = new ObjectMapper();
@@ -74,18 +70,21 @@ public class KatharsisClient {
 		moduleRegistry = new ModuleRegistry();
 		moduleRegistry.addModule(new CoreModule(resourceSearchPackage, new ResourceFieldNameTransformer()));
 
-		// TODO add module support
+		// consider use of katharsis module in the future
 		JsonApiModuleBuilder moduleBuilder = new JsonApiModuleBuilder();
 		SimpleModule jsonApiModule = moduleBuilder.build(resourceRegistry, true);
 		jsonApiModule.addDeserializer(BaseResponseContext.class,
 				new BaseResponseDeserializer(resourceRegistry, objectMapper));
 		jsonApiModule.addDeserializer(ErrorResponse.class, new ErrorResponseDeserializer());
-
-		// TODO add to official module
-		SimpleModule clientModule = new SimpleModule();
-
 		objectMapper.registerModule(jsonApiModule);
-		objectMapper.registerModule(clientModule);
+	}
+
+	private static String normalize(String serviceUrl) {
+		if (serviceUrl.endsWith("/")) {
+			return serviceUrl.substring(0, serviceUrl.length() - 1);
+		}else{
+			return serviceUrl;
+		}
 	}
 
 	protected void init() {
@@ -119,19 +118,18 @@ public class KatharsisClient {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private <T, ID extends Serializable> void allocateRepository(Class<T> resourceClass) {
 		ResourceInformation resourceInformation = moduleRegistry.getResourceInformationBuilder().build(resourceClass);
-		final ResourceRepositoryStub<T, ID> repositoryStub = new ResourceRepositoryStubImpl<T, ID>(this, resourceClass,
+		final ResourceRepositoryStub<T, ID> repositoryStub = new ResourceRepositoryStubImpl<>(this, resourceClass,
 				resourceInformation, urlBuilder);
 
 		// create interface for it!
 		RepositoryInstanceBuilder repositoryInstanceBuilder = new RepositoryInstanceBuilder(null, null) {
-			@Override
 			public Object buildRepository() {
 				return repositoryStub;
 			}
 		};
 		ResourceEntry<T, ID> resourceEntry = new DirectResponseResourceEntry<T, ID>(repositoryInstanceBuilder);
 		Set<ResourceField> relationshipFields = resourceInformation.getRelationshipFields();
-		List<ResponseRelationshipEntry<T, ?>> relationshipEntries = new ArrayList<ResponseRelationshipEntry<T, ?>>();
+		List<ResponseRelationshipEntry<T, ?>> relationshipEntries = new ArrayList<>();
 		RegistryEntry<T> registryEntry = new RegistryEntry<T>(resourceInformation, resourceEntry, relationshipEntries);
 
 		for (ResourceField relationshipField : relationshipFields) {

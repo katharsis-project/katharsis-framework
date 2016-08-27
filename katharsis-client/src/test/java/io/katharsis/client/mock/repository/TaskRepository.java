@@ -20,9 +20,6 @@ public class TaskRepository {
 
 	public static final ConcurrentHashMap<Long, Task> map = new ConcurrentHashMap<>();
 
-	public TaskRepository(){
-		
-	}
 	@JsonApiSave
 	public <S extends Task> S save(S entity) {
 

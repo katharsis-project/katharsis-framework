@@ -21,7 +21,7 @@ public class DefaultQueryParamsSerializer implements QueryParamsSerializer {
 
 	@Override
 	public Map<String, Set<String>> serializeFilters(QueryParams queryParams) {
-		Map<String, Set<String>> map = new HashMap<String, Set<String>>();
+		Map<String, Set<String>> map = new HashMap<>();
 		TypedParams<FilterParams> filters = queryParams.getFilters();
 		if (filters != null) {
 			Map<String, FilterParams> filterParamsMap = filters.getParams();
@@ -43,7 +43,7 @@ public class DefaultQueryParamsSerializer implements QueryParamsSerializer {
 
 	@Override
 	public Map<String, String> serializeSorting(QueryParams queryParams) {
-		Map<String, String> map = new HashMap<String, String>();
+		Map<String, String> map = new HashMap<>();
 		TypedParams<SortingParams> sorting = queryParams.getSorting();
 		if (sorting != null) {
 			Map<String, SortingParams> sortingParamsMap = sorting.getParams();
@@ -61,7 +61,7 @@ public class DefaultQueryParamsSerializer implements QueryParamsSerializer {
 
 	@Override
 	public Map<String, Set<String>> serializeIncludedFields(QueryParams queryParams) {
-		Map<String, Set<String>> map = new HashMap<String, Set<String>>();
+		Map<String, Set<String>> map = new HashMap<>();
 		TypedParams<IncludedFieldsParams> includedFields = queryParams.getIncludedFields();
 		if (includedFields != null) {
 			Map<String, IncludedFieldsParams> includedFieldsParamsMap = includedFields.getParams();
@@ -77,7 +77,7 @@ public class DefaultQueryParamsSerializer implements QueryParamsSerializer {
 
 	@Override
 	public Map<String, Set<String>> serializeIncludedRelations(QueryParams queryParams) {
-		Map<String, Set<String>> map = new HashMap<String, Set<String>>();
+		Map<String, Set<String>> map = new HashMap<>();
 		TypedParams<IncludedRelationsParams> includedRelations = queryParams.getIncludedRelations();
 		if (includedRelations != null) {
 			Map<String, IncludedRelationsParams> includedRelationsParamsMap = includedRelations.getParams();
@@ -85,7 +85,7 @@ public class DefaultQueryParamsSerializer implements QueryParamsSerializer {
 				String type = entry.getKey();
 				Set<Inclusion> inclusions = entry.getValue().getParams();
 
-				Set<String> strInclusions = new HashSet<String>();
+				Set<String> strInclusions = new HashSet<>();
 				for (Inclusion inclusion : inclusions) {
 					strInclusions.add(inclusion.getPath());
 				}
@@ -99,7 +99,7 @@ public class DefaultQueryParamsSerializer implements QueryParamsSerializer {
 
 	@Override
 	public Map<String, String> serializePagination(QueryParams queryParams) {
-		Map<String, String> map = new HashMap<String, String>();
+		Map<String, String> map = new HashMap<>();
 		Map<RestrictedPaginationKeys, Integer> pagination = queryParams.getPagination();
 		if (pagination != null) {
 			for (Entry<RestrictedPaginationKeys, Integer> entry : pagination.entrySet()) {
@@ -112,8 +112,7 @@ public class DefaultQueryParamsSerializer implements QueryParamsSerializer {
 
 	@Override
 	public Map<String, Set<String>> serializeGrouping(QueryParams queryParams) {
-		Map<String, Set<String>> map = new HashMap<String, Set<String>>();
 		// not supported so far
-		return map;
+		return new HashMap<>();
 	}
 }

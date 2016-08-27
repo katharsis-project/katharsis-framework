@@ -7,11 +7,11 @@ import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 
+import io.katharsis.client.ResponseBodyException;
 import io.katharsis.errorhandling.ErrorData;
 import io.katharsis.errorhandling.ErrorResponse;
 
@@ -34,7 +34,7 @@ public class ErrorResponseDeserializer extends JsonDeserializer<ErrorResponse> {
 
 	@Override
 	public ErrorResponse deserialize(JsonParser jp, DeserializationContext context)
-			throws IOException, JsonProcessingException {
+			throws IOException {
 
 		JsonNode node = jp.readValueAsTree();
 		if (node == null) {
@@ -42,10 +42,10 @@ public class ErrorResponseDeserializer extends JsonDeserializer<ErrorResponse> {
 		}
 
 		JsonNode errorsNode = node.get(ErrorResponse.ERRORS);
-		List<ErrorData> errors = new ArrayList<ErrorData>();
+		List<ErrorData> errors = new ArrayList<>();
 		if (errorsNode != null) {
 			if (!errorsNode.isArray()) {
-				throw new RuntimeException("data field has wrong type: " + node.toString());
+				throw new ResponseBodyException("data field has wrong type: " + node.toString());
 			}
 			Iterator<JsonNode> iterator = errorsNode.elements();
 			while (iterator.hasNext()) {
@@ -110,7 +110,6 @@ public class ErrorResponseDeserializer extends JsonDeserializer<ErrorResponse> {
 		}
 	}
 
-	@Override
 	public Class<ErrorResponse> handledType() {
 		return ErrorResponse.class;
 	}

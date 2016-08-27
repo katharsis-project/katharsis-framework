@@ -45,7 +45,7 @@ public class RequestUrlBuilder {
 		String encodedPath;
 		if (id instanceof Collection) {
 			Collection<?> ids = (Collection<?>) id;
-			Collection<String> strIds = new ArrayList<String>();
+			Collection<String> strIds = new ArrayList<>();
 			for (Object idElem : ids) {
 				String strIdElem = resourceInformation.toIdString(idElem);
 				strIds.add(strIdElem);
@@ -81,15 +81,19 @@ public class RequestUrlBuilder {
 			for (Map.Entry<String, ?> entry : params.entrySet()) {
 				String key = entry.getKey();
 				Object value = entry.getValue();
-				if (value instanceof Collection) {
-					for (Object element : (Collection<?>) value) {
-						urlBuilder.addQueryParameter(key, (String) element);
-					}
-				} else {
-					urlBuilder.addQueryParameter(key, (String) value);
-				}
+				addParams(urlBuilder, key, value);
 			}
 		}
+	}
+
+	private void addParams(Builder urlBuilder, String key, Object value) {
+		if (value instanceof Collection) {
+			for (Object element : (Collection<?>) value) {
+				urlBuilder.addQueryParameter(key, (String) element);
+			}
+		} else {
+			urlBuilder.addQueryParameter(key, (String) value);
+		}		
 	}
 
 }

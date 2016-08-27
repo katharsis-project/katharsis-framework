@@ -9,11 +9,11 @@ import io.katharsis.repository.RelationshipRepository;
 /**
  * Implemented by every {@link RelationshipRepository} stub.
  */
-public interface RelationshipRepositoryStub<T, T_ID extends Serializable, D, D_ID extends Serializable>
-		extends RelationshipRepository<T, T_ID, D, D_ID> {
+public interface RelationshipRepositoryStub<T, TID extends Serializable, D, DID extends Serializable>
+		extends RelationshipRepository<T, TID, D, DID> {
 
 	@Override
-	public List<D> findManyTargets(T_ID sourceId, String fieldName, QueryParams queryParams);
+	public List<D> findManyTargets(TID sourceId, String fieldName, QueryParams queryParams);
 
 
 }
