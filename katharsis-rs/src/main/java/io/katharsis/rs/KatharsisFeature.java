@@ -99,7 +99,7 @@ public class KatharsisFeature implements Feature {
         moduleRegistry.init(objectMapper, resourceRegistry);
         
         JsonApiModuleBuilder jsonApiModuleBuilder = new JsonApiModuleBuilder();
-        objectMapper.registerModule(jsonApiModuleBuilder.build(resourceRegistry));
+        objectMapper.registerModule(jsonApiModuleBuilder.build(resourceRegistry, false));
 
         KatharsisFilter katharsisFilter;
         try {

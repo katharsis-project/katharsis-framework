@@ -4,9 +4,11 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import io.katharsis.resource.field.ResourceField;
+import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.LinkageContainer;
 import io.katharsis.utils.BeanUtils;
+import io.katharsis.utils.PropertyUtils;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -46,9 +48,20 @@ public class LinkageContainerSerializer extends JsonSerializer<LinkageContainer>
 
     private static void writeId(JsonGenerator gen, LinkageContainer linkageContainer)
             throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
-        ResourceField idField = linkageContainer.getRelationshipEntry().getResourceInformation().getIdField();
-        String sourceId = BeanUtils.getProperty(linkageContainer.getObjectItem(), idField.getUnderlyingName());
-        gen.writeObjectField(ID_FIELD_NAME, sourceId);
+        ResourceInformation resourceInformation = linkageContainer.getRelationshipEntry().getResourceInformation();
+        ResourceField idField = resourceInformation.getIdField();
+        
+        // sometimes the entire resource, sometimes only the id is available. 
+        Object objectItem = linkageContainer.getObjectItem();
+        Object sourceId;
+        if(idField.getType().isInstance(objectItem)){
+        	sourceId = objectItem;
+        }else{
+        	sourceId = PropertyUtils.getProperty(linkageContainer.getObjectItem(), idField.getUnderlyingName());
+        }
+        
+    	String strSourceId = resourceInformation.toIdString(sourceId);
+        gen.writeObjectField(ID_FIELD_NAME, strSourceId);
     }
 
     public Class<LinkageContainer> handledType() {

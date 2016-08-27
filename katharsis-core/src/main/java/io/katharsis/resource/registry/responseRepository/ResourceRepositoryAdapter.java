@@ -69,4 +69,8 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable> extends Respo
         }
         return new JsonApiResponse();
     }
+
+	public Object getResourceRepository() {
+		return resourceRepository;
+	}
 }

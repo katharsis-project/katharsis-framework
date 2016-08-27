@@ -16,6 +16,6 @@ public class JacksonConfiguration {
     @Bean
     public Module parameterNamesModule() {
         JsonApiModuleBuilder jsonApiModuleBuilder = new JsonApiModuleBuilder();
-        return jsonApiModuleBuilder.build(resourceRegistry);
+        return jsonApiModuleBuilder.build(resourceRegistry, false);
     }
 }

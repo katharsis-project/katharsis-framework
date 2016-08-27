@@ -42,6 +42,6 @@ public abstract class BaseControllerTest {
         typeParser = new TypeParser();
         includeFieldSetter = new IncludeLookupSetter(resourceRegistry);
         objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JsonApiModuleBuilder().build(resourceRegistry));
+        objectMapper.registerModule(new JsonApiModuleBuilder().build(resourceRegistry, false));
     }
 }
