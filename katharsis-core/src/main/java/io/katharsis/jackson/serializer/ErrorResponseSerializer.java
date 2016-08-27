@@ -14,17 +14,17 @@ import java.util.Collections;
  */
 public class ErrorResponseSerializer extends JsonSerializer<ErrorResponse> {
 
-    private static final String LINKS = "links";
-    private static final String ID = "id";
-    private static final String ABOUT_LINK = "about";
-    private static final String STATUS = "status";
-    private static final String CODE = "code";
-    private static final String TITLE = "title";
-    private static final String DETAIL = "detail";
-    private static final String SOURCE = "source";
-    private static final String POINTER = "pointer";
-    private static final String PARAMETER = "parameter";
-    private static final String META = "meta";
+	public static final String LINKS = "links";
+    public static final String ID = "id";
+    public static final String ABOUT_LINK = "about";
+    public static final String STATUS = "status";
+    public static final String CODE = "code";
+    public static final String TITLE = "title";
+    public static final String DETAIL = "detail";
+    public static final String SOURCE = "source";
+    public static final String POINTER = "pointer";
+    public static final String PARAMETER = "parameter";
+    public static final String META = "meta";
 
     @Override
     public void serialize(ErrorResponse errorResponse, JsonGenerator gen, SerializerProvider serializers)

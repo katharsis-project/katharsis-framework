@@ -2,13 +2,8 @@ package io.katharsis.resource;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-
 import io.katharsis.repository.exception.RepositoryAnnotationNotFoundException;
-import io.katharsis.resource.annotations.JsonApiId;
-import io.katharsis.resource.annotations.JsonApiLinksInformation;
-import io.katharsis.resource.annotations.JsonApiMetaInformation;
-import io.katharsis.resource.annotations.JsonApiResource;
-import io.katharsis.resource.annotations.JsonApiToOne;
+import io.katharsis.resource.annotations.*;
 import io.katharsis.resource.exception.init.MultipleJsonApiLinksInformationException;
 import io.katharsis.resource.exception.init.MultipleJsonApiMetaInformationException;
 import io.katharsis.resource.exception.init.ResourceDuplicateIdException;
@@ -35,15 +30,15 @@ public class ResourceInformationBuilderTest {
     public ExpectedException expectedException = ExpectedException.none();
 
     private final ResourceInformationBuilder resourceInformationBuilder = new AnnotationResourceInformationBuilder(
-        new ResourceFieldNameTransformer());
+            new ResourceFieldNameTransformer());
 
     @Test
     public void shouldHaveResourceClassInfoForValidResource() throws Exception {
         ResourceInformation resourceInformation = resourceInformationBuilder.build(Task.class);
 
         assertThat(resourceInformation.getResourceClass())
-            .isNotNull()
-            .isEqualTo(Task.class);
+                .isNotNull()
+                .isEqualTo(Task.class);
     }
 
     @Test
@@ -51,8 +46,8 @@ public class ResourceInformationBuilderTest {
         ResourceInformation resourceInformation = resourceInformationBuilder.build(Task.class);
 
         assertThat(resourceInformation.getIdField().getUnderlyingName())
-            .isNotNull()
-            .isEqualTo("id");
+                .isNotNull()
+                .isEqualTo("id");
     }
 
     @Test
@@ -75,10 +70,10 @@ public class ResourceInformationBuilderTest {
         ResourceInformation resourceInformation = resourceInformationBuilder.build(Task.class);
 
         assertThat(resourceInformation.getRelationshipFields())
-            .isNotNull()
-            .hasSize(4)
-            .extracting(NAME_PROPERTY)
-            .contains("project", "projects");
+                .isNotNull()
+                .hasSize(5)
+                .extracting(NAME_PROPERTY)
+                .contains("project", "projects");
     }
 
     @Test
@@ -93,7 +88,7 @@ public class ResourceInformationBuilderTest {
         ResourceInformation resourceInformation = resourceInformationBuilder.build(IdFieldWithAccessorGetterResource.class);
 
         assertThat(resourceInformation.getIdField())
-            .isNotNull();
+                .isNotNull();
     }
 
     @Test
@@ -101,8 +96,8 @@ public class ResourceInformationBuilderTest {
         ResourceInformation resourceInformation = resourceInformationBuilder.build(AnnotationOnFieldAndMethodResource.class);
 
         assertThat(resourceInformation.getRelationshipFields())
-            .isNotNull()
-            .hasSize(0);
+                .isNotNull()
+                .hasSize(0);
     }
 
     @Test
@@ -110,7 +105,7 @@ public class ResourceInformationBuilderTest {
         ResourceInformation resourceInformation = resourceInformationBuilder.build(Task.class);
 
         assertThat(resourceInformation.getMetaFieldName())
-            .isEqualTo("metaInformation");
+                .isEqualTo("metaInformation");
     }
 
     @Test
@@ -118,7 +113,7 @@ public class ResourceInformationBuilderTest {
         ResourceInformation resourceInformation = resourceInformationBuilder.build(Task.class);
 
         assertThat(resourceInformation.getMetaFieldName())
-            .isEqualTo("metaInformation");
+                .isEqualTo("metaInformation");
     }
 
     @Test

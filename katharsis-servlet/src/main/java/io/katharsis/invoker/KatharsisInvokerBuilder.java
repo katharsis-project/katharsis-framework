@@ -189,7 +189,7 @@ public class KatharsisInvokerBuilder {
 
     protected Module createDataBindingModule(ResourceRegistry resourceRegistry) {
         JsonApiModuleBuilder jsonApiModuleBuilder = new JsonApiModuleBuilder();
-        SimpleModule simpleModule = jsonApiModuleBuilder.build(resourceRegistry);
+        SimpleModule simpleModule = jsonApiModuleBuilder.build(resourceRegistry, false);
         return simpleModule;
     }
 }
