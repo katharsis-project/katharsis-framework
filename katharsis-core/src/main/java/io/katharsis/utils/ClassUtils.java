@@ -109,7 +109,7 @@ public class ClassUtils {
         Class<?> currentClass = beanClass;
         while (currentClass != null && currentClass != Object.class) {
             for (Method method : currentClass.getDeclaredMethods()) {
-                // check for bridged methods when running on newer JVM versions
+                // check for bridged methods and ignore
                 if (method.isBridge()) {
                     continue;
                 }
