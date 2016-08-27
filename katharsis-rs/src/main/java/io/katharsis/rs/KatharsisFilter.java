@@ -12,6 +12,7 @@ import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.resource.registry.UriInfoServiceUrlProvider;
 import io.katharsis.response.BaseResponseContext;
 import io.katharsis.rs.parameterProvider.JaxRsParameterProvider;
 import io.katharsis.rs.parameterProvider.RequestContextParameterProviderRegistry;
@@ -112,7 +113,8 @@ public class KatharsisFilter implements ContainerRequestFilter {
         //TODO: Refactor
         try {
             String path = buildPath(uriInfo);
-            JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath(path);
+            ResourceRegistry newRegistry = new ResourceRegistry(resourceRegistry.getResources(), new UriInfoServiceUrlProvider(uriInfo));
+            JsonPath jsonPath = new PathBuilder(newRegistry).buildPath(path);
 
             QueryParams requestParams = createQueryParams(uriInfo);
 
