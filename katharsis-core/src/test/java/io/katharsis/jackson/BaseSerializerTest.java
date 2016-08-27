@@ -35,7 +35,7 @@ public abstract class BaseSerializerTest {
         JsonApiModuleBuilder jsonApiModuleBuilder = new JsonApiModuleBuilder();
 
         sut = new ObjectMapper();
-        sut.registerModule(jsonApiModuleBuilder.build(resourceRegistry));
+        sut.registerModule(jsonApiModuleBuilder.build(resourceRegistry, false));
 
         JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath("/tasks");
         testResponse = new ResourceResponseContext(buildResponse(null), jsonPath, new QueryParams());
