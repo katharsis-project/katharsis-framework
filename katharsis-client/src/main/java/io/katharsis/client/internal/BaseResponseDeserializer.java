@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.katharsis.dispatcher.controller.resource.ResourceUpsert;
+import io.katharsis.jackson.exception.JsonDeserializationException;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.dto.DataBody;
@@ -153,9 +154,8 @@ public class BaseResponseDeserializer extends JsonDeserializer<BaseResponseConte
 					bodies.isCollection = true;
 				} else if (node.isObject()) {
 					bodies.dataBodies.add(jp.getCodec().treeToValue(node, ClientDataBody.class));
-				} else if (node.isNull()) {
-				} else {
-					throw new RuntimeException("data field has wrong type: " + node.toString());
+				} else if (!node.isNull()) {
+					throw new JsonDeserializationException("data field has wrong type: " + node.toString());
 				}
 			}	
 			return bodies;
