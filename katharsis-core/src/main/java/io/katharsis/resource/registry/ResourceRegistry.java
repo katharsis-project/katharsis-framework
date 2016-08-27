@@ -1,28 +1,24 @@
 package io.katharsis.resource.registry;
 
-import io.katharsis.resource.annotations.JsonApiResource;
-import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.exception.init.ResourceNotFoundInitializationException;
 import io.katharsis.resource.information.ResourceInformation;
-import io.katharsis.utils.ClassUtils;
 import io.katharsis.utils.java.Optional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 public class ResourceRegistry {
     private final Map<Class, RegistryEntry> resources = new HashMap<>();
-    private final String serviceUrl;
+    private final ServiceUrlProvider serviceUrlProvider;
     private final Logger logger = LoggerFactory.getLogger(ResourceRegistry.class);
 
-    public ResourceRegistry(String serviceUrl) {
-        this.serviceUrl = serviceUrl;
+    public ResourceRegistry(ServiceUrlProvider serviceUrlProvider) {
+        this.serviceUrlProvider = serviceUrlProvider;
     }
+
 
     /**
      * Adds a new resource definition to a registry.
@@ -63,7 +59,7 @@ public class ResourceRegistry {
     public RegistryEntry getEntry(Class clazz) {
     	return getEntry(clazz, false);
     }
-    
+
     private RegistryEntry<?> getEntry(Class<?> clazz, boolean allowNull) {
     	Optional<Class<?>> resourceClazz = getResourceClass(clazz);
     	if(allowNull && !resourceClazz.isPresent())
@@ -88,11 +84,11 @@ public class ResourceRegistry {
     	ResourceInformation resourceInformation = entry.getResourceInformation();
     	return resourceInformation.getResourceType();
     }
-    
+
     public Optional<Class<?>> getResourceClass(Object resource) {
     	return getResourceClass(resource.getClass());
     }
-    
+
     public Optional<Class<?>> getResourceClass(Class<?> resourceClass) {
     	Class<?> currentClass = resourceClass;
     	while (currentClass != null && currentClass != Object.class) {
@@ -104,13 +100,13 @@ public class ResourceRegistry {
     	}
     	return Optional.empty();
 	}
-    
+
     public String getResourceUrl(Class clazz) {
-        return serviceUrl + "/" + getResourceType(clazz);
+        return serviceUrlProvider.getUrl() + "/" + getResourceType(clazz);
     }
 
     public String getServiceUrl() {
-        return serviceUrl;
+        return serviceUrlProvider.getUrl();
     }
 
     /**
