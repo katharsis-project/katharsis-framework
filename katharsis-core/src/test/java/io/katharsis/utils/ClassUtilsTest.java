@@ -151,8 +151,9 @@ public class ClassUtilsTest {
         List<Method> setterMethods = ClassUtils.getClassSetters(IntegerClass.class);
 
         // THEN
-        assertEquals(getterMethods.get(0).getReturnType(), IntegerClass.class);
-        assertEquals(setterMethods.get(0).getReturnType(), IntegerClass.class);
+        assertEquals(1, getterMethods.size());
+        assertEquals(Integer.class, getterMethods.get(0).getReturnType());
+        assertEquals(1, setterMethods.size());
 
     }
 

@@ -16,6 +16,9 @@ import java.util.Map;
  */
 public class ClassUtils {
 
+    private ClassUtils() {
+    }
+
     /**
      * Returns a list of class fields. Supports inheritance and doesn't return synthetic fields.
      *
