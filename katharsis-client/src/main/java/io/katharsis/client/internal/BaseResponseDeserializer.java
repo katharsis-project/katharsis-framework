@@ -36,8 +36,6 @@ public class BaseResponseDeserializer extends JsonDeserializer<BaseResponseConte
 
 	private static final String INCLUDED_FIELD_NAME = "included";
 	private static final String DATA_FIELD_NAME = "data";
-	private static final String META_FIELD_NAME = "meta";
-	private static final String LINKS_FIELD_NAME = "links";
 
 	private ResourceRegistry resourceRegistry;
 	private ObjectMapper objectMapper;
@@ -74,13 +72,10 @@ public class BaseResponseDeserializer extends JsonDeserializer<BaseResponseConte
 		upsert.setRelations(dataBodies);
 		upsert.setRelations(includedBodies);
 
-		// FIXME get linkage
 		if (dataBodies.isCollection) {
 			JsonApiResponse response = new JsonApiResponse();
 			response.setEntity(dataBodies.resources);
-			CollectionResponseContext collectionResponse = new CollectionResponseContext(response, null, null);
-
-			return collectionResponse;
+			return new CollectionResponseContext(response, null, null);
 		} else {
 			JsonApiResponse apiResponse = new JsonApiResponse();
 
@@ -90,14 +85,13 @@ public class BaseResponseDeserializer extends JsonDeserializer<BaseResponseConte
 				apiResponse.setEntity(null);
 			}
 
-			ResourceResponseContext resourceResponse = new ResourceResponseContext(apiResponse, -1);
-			return resourceResponse;
+			return new ResourceResponseContext(apiResponse, -1);
 		}
 	}
 	
 	class ClientResourceUpsert extends ResourceUpsert{
 		
-		private HashMap<Object, Object> resourceMap = new HashMap<Object,Object>();
+		private HashMap<Object, Object> resourceMap = new HashMap<>();
 
 		public ClientResourceUpsert(ResourceRegistry resourceRegistry, TypeParser typeParser,
 				ObjectMapper objectMapper) {
@@ -190,8 +184,8 @@ public class BaseResponseDeserializer extends JsonDeserializer<BaseResponseConte
 	
 	
 	class ResourceBodies{
-		ArrayList<Object> resources = new ArrayList<Object>();
-		ArrayList<DataBody> dataBodies = new ArrayList<DataBody>();
+		ArrayList<Object> resources = new ArrayList<>();
+		ArrayList<DataBody> dataBodies = new ArrayList<>();
 		boolean isCollection = false;
 	}
 

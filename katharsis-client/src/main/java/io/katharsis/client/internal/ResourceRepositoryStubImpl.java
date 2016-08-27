@@ -98,16 +98,8 @@ public class ResourceRepositoryStubImpl<T, ID extends Serializable> extends Abst
 
 	@Override
 	public <S extends T> S save(S entity, QueryParams queryParams) {
-		// String idFieldName =
-		// resourceInformation.getIdField().getUnderlyingName();
-		// send as post, no ids send
-		// consider using patch for udpates
+		// TODO proper post vs patch
 		Object id = null;
-		// try {
-		// id = PropertyUtils.getProperty(entity, idFieldName);
-		// } catch (Exception e) {
-		// throw new IllegalStateException(e);
-		// }
 
 		HttpUrl url = urlBuilder.buildUrl(resourceClass, id, null);
 		BaseResponseContext context = executePost(url, entity, queryParams);
@@ -120,22 +112,4 @@ public class ResourceRepositoryStubImpl<T, ID extends Serializable> extends Abst
 
 		executeDelete(url);
 	}
-
-	// // FIXME belongs to resource information
-	// @Deprecated
-	// public String getResourceType(Class clazz) {
-	// Class resourceClazz = ClassUtils.getJsonApiResourceClass(clazz);
-	// if (resourceClazz == null) {
-	// return null;
-	// }
-	// Annotation[] annotations = resourceClazz.getAnnotations();
-	// for (Annotation annotation : annotations) {
-	// if (annotation instanceof JsonApiResource) {
-	// JsonApiResource apiResource = (JsonApiResource) annotation;
-	// return apiResource.type();
-	// }
-	// }
-	// // won't reach this
-	// return null;
-	// }
 }

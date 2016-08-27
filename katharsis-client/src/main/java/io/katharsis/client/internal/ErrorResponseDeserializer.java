@@ -14,23 +14,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.katharsis.client.ResponseBodyException;
 import io.katharsis.errorhandling.ErrorData;
 import io.katharsis.errorhandling.ErrorResponse;
+import io.katharsis.jackson.serializer.ErrorResponseSerializer;
 
 /**
  * Serializes top-level Errors object.
  */
 public class ErrorResponseDeserializer extends JsonDeserializer<ErrorResponse> {
-
-	private static final String LINKS = "links";
-	private static final String ID = "id";
-	private static final String ABOUT_LINK = "about";
-	private static final String STATUS = "status";
-	private static final String CODE = "code";
-	private static final String TITLE = "title";
-	private static final String DETAIL = "detail";
-	private static final String SOURCE = "source";
-	private static final String POINTER = "pointer";
-	private static final String PARAMETER = "parameter";
-	private static final String META = "meta";
 
 	@Override
 	public ErrorResponse deserialize(JsonParser jp, DeserializationContext context)
@@ -50,12 +39,12 @@ public class ErrorResponseDeserializer extends JsonDeserializer<ErrorResponse> {
 			Iterator<JsonNode> iterator = errorsNode.elements();
 			while (iterator.hasNext()) {
 				JsonNode errorNode = iterator.next();
-				String id = readStringIfExists(ID, errorNode);
+				String id = readStringIfExists(ErrorResponseSerializer.ID, errorNode);
 				String aboutLink = readAboutLink(errorNode);
-				String status = readStringIfExists(STATUS, errorNode);
-				String code = readStringIfExists(CODE, errorNode);
-				String title = readStringIfExists(TITLE, errorNode);
-				String detail = readStringIfExists(DETAIL, errorNode);
+				String status = readStringIfExists(ErrorResponseSerializer.STATUS, errorNode);
+				String code = readStringIfExists(ErrorResponseSerializer.CODE, errorNode);
+				String title = readStringIfExists(ErrorResponseSerializer.TITLE, errorNode);
+				String detail = readStringIfExists(ErrorResponseSerializer.DETAIL, errorNode);
 				Map<String, Object> meta = readMeta(errorNode, jp);
 				String sourcePointer = readSourcePointer(errorNode);
 				String sourceParameter = readSourceParameter(errorNode);
@@ -70,7 +59,7 @@ public class ErrorResponseDeserializer extends JsonDeserializer<ErrorResponse> {
 
 	@SuppressWarnings("unchecked")
 	private static Map<String, Object> readMeta(JsonNode errorNode, JsonParser jp) throws IOException {
-		JsonNode metaNode = errorNode.get(META);
+		JsonNode metaNode = errorNode.get(ErrorResponseSerializer.META);
 		if (metaNode != null) {
 			return jp.getCodec().treeToValue(metaNode, Map.class);
 		}
@@ -78,25 +67,25 @@ public class ErrorResponseDeserializer extends JsonDeserializer<ErrorResponse> {
 	}
 
 	private static String readSourcePointer(JsonNode errorNode) throws IOException {
-		JsonNode node = errorNode.get(SOURCE);
+		JsonNode node = errorNode.get(ErrorResponseSerializer.SOURCE);
 		if (node != null) {
-			return readStringIfExists(POINTER, node);
+			return readStringIfExists(ErrorResponseSerializer.POINTER, node);
 		}
 		return null;
 	}
 
 	private static String readSourceParameter(JsonNode errorNode) throws IOException {
-		JsonNode node = errorNode.get(SOURCE);
+		JsonNode node = errorNode.get(ErrorResponseSerializer.SOURCE);
 		if (node != null) {
-			return readStringIfExists(PARAMETER, node);
+			return readStringIfExists(ErrorResponseSerializer.PARAMETER, node);
 		}
 		return null;
 	}
 
 	private static String readAboutLink(JsonNode errorNode) throws IOException {
-		JsonNode node = errorNode.get(LINKS);
+		JsonNode node = errorNode.get(ErrorResponseSerializer.LINKS);
 		if (node != null) {
-			return readStringIfExists(ABOUT_LINK, node);
+			return readStringIfExists(ErrorResponseSerializer.ABOUT_LINK, node);
 		}
 		return null;
 	}
@@ -110,6 +99,7 @@ public class ErrorResponseDeserializer extends JsonDeserializer<ErrorResponse> {
 		}
 	}
 
+	@Override
 	public Class<ErrorResponse> handledType() {
 		return ErrorResponse.class;
 	}

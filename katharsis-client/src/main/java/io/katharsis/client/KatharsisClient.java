@@ -123,6 +123,7 @@ public class KatharsisClient {
 
 		// create interface for it!
 		RepositoryInstanceBuilder repositoryInstanceBuilder = new RepositoryInstanceBuilder(null, null) {
+			@Override
 			public Object buildRepository() {
 				return repositoryStub;
 			}
@@ -178,14 +179,14 @@ public class KatharsisClient {
 	 *         class
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public <T, ID extends Serializable, D, D_ID extends Serializable> RelationshipRepositoryStub<T, ID, D, D_ID> getRepository(
+	public <T, ID extends Serializable, D, DID extends Serializable> RelationshipRepositoryStub<T, ID, D, DID> getRepository(
 			Class<T> sourceClass, Class<D> targetClass) {
 		init();
 
 		RegistryEntry<T> entry = resourceRegistry.getEntry(sourceClass);
 
 		RelationshipRepositoryAdapter repositoryAdapter = entry.getRelationshipRepositoryForClass(targetClass, null);
-		return (RelationshipRepositoryStub<T, ID, D, D_ID>) repositoryAdapter.getRelationshipRepository();
+		return (RelationshipRepositoryStub<T, ID, D, DID>) repositoryAdapter.getRelationshipRepository();
 	}
 
 	/**

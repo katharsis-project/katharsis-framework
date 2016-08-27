@@ -20,7 +20,7 @@ import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.rs.KatharsisFeature;
 import io.katharsis.rs.KatharsisProperties;
 
-public class AbstractClientTest extends JerseyTest {
+public abstract class AbstractClientTest extends JerseyTest {
 
 	protected KatharsisClient client;
 	protected ResourceRepositoryStub<Task, Long> taskRepo;

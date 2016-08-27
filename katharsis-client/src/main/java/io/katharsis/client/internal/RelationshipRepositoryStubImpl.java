@@ -26,8 +26,8 @@ import io.katharsis.response.LinkageContainer;
 import io.katharsis.response.ResourceResponseContext;
 import io.katharsis.utils.PropertyUtils;
 
-public class RelationshipRepositoryStubImpl<T, T_ID extends Serializable, D, D_ID extends Serializable>
-		extends AbstractStub implements RelationshipRepositoryStub<T, T_ID, D, D_ID> {
+public class RelationshipRepositoryStubImpl<T, TID extends Serializable, D, DID extends Serializable>
+		extends AbstractStub implements RelationshipRepositoryStub<T, TID, D, DID> {
 
 	private Class<T> sourceClass;
 	private Class<D> targetClass;
@@ -44,28 +44,28 @@ public class RelationshipRepositoryStubImpl<T, T_ID extends Serializable, D, D_I
 	}
 
 	@Override
-	public void setRelation(T source, D_ID targetId, String fieldName) {
+	public void setRelation(T source, DID targetId, String fieldName) {
 		Serializable sourceId = getSourceId(source);
 		HttpUrl url = urlBuilder.buildUrl(sourceClass, sourceId, null, fieldName);
 		execute(url, "PATCH", targetId);
 	}
 
 	@Override
-	public void setRelations(T source, Iterable<D_ID> targetIds, String fieldName) {
+	public void setRelations(T source, Iterable<DID> targetIds, String fieldName) {
 		Serializable sourceId = getSourceId(source);
 		HttpUrl url = urlBuilder.buildUrl(sourceClass, sourceId, null, fieldName);
 		execute(url, "PATCH", targetIds);
 	}
 
 	@Override
-	public void addRelations(T source, Iterable<D_ID> targetIds, String fieldName) {
+	public void addRelations(T source, Iterable<DID> targetIds, String fieldName) {
 		Serializable sourceId = getSourceId(source);
 		HttpUrl url = urlBuilder.buildUrl(sourceClass, sourceId, null, fieldName);
 		execute(url, "POST", targetIds);
 	}
 
 	@Override
-	public void removeRelations(T source, Iterable<D_ID> targetIds, String fieldName) {
+	public void removeRelations(T source, Iterable<DID> targetIds, String fieldName) {
 		Serializable sourceId = getSourceId(source);
 		HttpUrl url = urlBuilder.buildUrl(sourceClass, sourceId, null, fieldName);
 		execute(url, "DELETE", targetIds);
@@ -78,7 +78,7 @@ public class RelationshipRepositoryStubImpl<T, T_ID extends Serializable, D, D_I
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public D findOneTarget(T_ID sourceId, String fieldName, QueryParams queryParams) {
+	public D findOneTarget(TID sourceId, String fieldName, QueryParams queryParams) {
 		HttpUrl url = urlBuilder.buildUrl(sourceClass, sourceId, queryParams, fieldName);
 		BaseResponseContext responseContext = executeGet(url);
 		return (D) responseContext.getResponse().getEntity();
@@ -86,7 +86,7 @@ public class RelationshipRepositoryStubImpl<T, T_ID extends Serializable, D, D_I
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<D> findManyTargets(T_ID sourceId, String fieldName, QueryParams queryParams) {
+	public List<D> findManyTargets(TID sourceId, String fieldName, QueryParams queryParams) {
 		HttpUrl url = urlBuilder.buildUrl(sourceClass, sourceId, queryParams, fieldName);
 		BaseResponseContext responseContext = executeGet(url);
 		return (List<D>) responseContext.getResponse().getEntity();
@@ -98,7 +98,7 @@ public class RelationshipRepositoryStubImpl<T, T_ID extends Serializable, D, D_I
 		JsonApiResponse response = new JsonApiResponse();
 		BaseResponseContext context;
 		if (targetIds instanceof Iterable) {
-			ArrayList<LinkageContainer> containers = new ArrayList<LinkageContainer>();
+			ArrayList<LinkageContainer> containers = new ArrayList<>();
 			for (Object targetId : (Iterable<?>) targetIds) {
 				containers.add(new LinkageContainer(targetId, targetClass, relationshipEntry));
 			}
