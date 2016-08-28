@@ -1,6 +1,5 @@
 package io.katharsis.utils;
 
-import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.exception.ResourceException;
 import io.katharsis.utils.java.Optional;
 
@@ -16,8 +15,6 @@ import java.util.Map;
  * Provides reflection methods for parsing information about a class.
  */
 public class ClassUtils {
-
-    private static final ClassUtils INSTANCE = new ClassUtils();
 
     private ClassUtils() {
     }
@@ -95,12 +92,13 @@ public class ClassUtils {
     /**
      * <p>
      * Return a list of class getters. Supports inheritance and overriding, that is when a method is found on the
-     * lowest level of inheritance chain, no other method can override it.
+     * lowest level of inheritance chain, no other method can override it. Supports inheritance and
+     * doesn't return synthetic methods.
      * <p>
      * A getter:
      * <ul>
-     *   <li>Starts with an <i>is</i> if returns <i>boolean</i> or {@link Boolean} value</li>
-     *   <li>Starts with a <i>get</i> if returns non-boolean value</li>
+     * <li>Starts with an <i>is</i> if returns <i>boolean</i> or {@link Boolean} value</li>
+     * <li>Starts with a <i>get</i> if returns non-boolean value</li>
      * </ul>
      *
      * @param beanClass class to be searched for
@@ -112,10 +110,12 @@ public class ClassUtils {
         Class<?> currentClass = beanClass;
         while (currentClass != null && currentClass != Object.class) {
             for (Method method : currentClass.getDeclaredMethods()) {
-                if (INSTANCE.isGetter(method)) {
-                    Method v = result.get(method.getName());
-                    if (v == null) {
-                        result.put(method.getName(), method);
+                if (!method.isSynthetic()) {
+                    if (isGetter(method)) {
+                        Method v = result.get(method.getName());
+                        if (v == null) {
+                            result.put(method.getName(), method);
+                        }
                     }
                 }
             }
@@ -127,7 +127,8 @@ public class ClassUtils {
 
     /**
      * Return a list of class setters. Supports inheritance and overriding, that is when a method is found on the
-     * lowest level of inheritance chain, no other method can override it.
+     * lowest level of inheritance chain, no other method can override it.  Supports inheritance
+     * and doesn't return synthetic methods.
      *
      * @param beanClass class to be searched for
      * @return a list of found getters
@@ -138,10 +139,12 @@ public class ClassUtils {
         Class<?> currentClass = beanClass;
         while (currentClass != null && currentClass != Object.class) {
             for (Method method : currentClass.getDeclaredMethods()) {
-                if (INSTANCE.isSetter(method)) {
-                    Method v = result.get(method.getName());
-                    if (v == null) {
-                        result.put(method.getName(), method);
+                if (!method.isSynthetic()) {
+                    if (isSetter(method)) {
+                        Method v = result.get(method.getName());
+                        if (v == null) {
+                            result.put(method.getName(), method);
+                        }
                     }
                 }
             }
@@ -154,7 +157,7 @@ public class ClassUtils {
     /**
      * Return a first occurrence of a method annotated with specified annotation
      *
-     * @param searchClass    class to be searched
+     * @param searchClass     class to be searched
      * @param annotationClass annotation class
      * @return annotated method or null
      */
@@ -178,7 +181,7 @@ public class ClassUtils {
      * Create a new instance of a resource using a default constructor
      *
      * @param clazz new instance class
-     * @param <T> new instance class
+     * @param <T>   new instance class
      * @return new instance
      */
     public static <T> T newInstance(Class<T> clazz) {
@@ -189,36 +192,49 @@ public class ClassUtils {
         }
     }
 
-    private boolean isGetter(Method method) {
+    private static boolean isGetter(Method method) {
         return isBooleanGetter(method) || isNonBooleanGetter(method);
     }
 
     public static boolean isBooleanGetter(Method method) {
-        if (!method.getName().startsWith("is"))
+
+        if (!method.getName().startsWith("is")) {
             return false;
-        if (method.getName().length() < 3)
+        }
+        if (method.getName().length() < 3) {
             return false;
+        }
         if (method.getParameterTypes().length != 0) {
             return false;
         }
+
         return boolean.class.equals(method.getReturnType()) || Boolean.class.equals(method.getReturnType());
     }
 
-    private boolean isNonBooleanGetter(Method method) {
-        if (!method.getName().startsWith("get"))
+    private static boolean isNonBooleanGetter(Method method) {
+
+        if (!method.getName().startsWith("get")) {
             return false;
-        if (method.getName().length() < 4)
+        }
+        if (method.getName().length() < 4) {
             return false;
-        if (method.getParameterTypes().length != 0)
+        }
+        if (method.getParameterTypes().length != 0) {
             return false;
+        }
+
         return !void.class.equals(method.getReturnType());
     }
 
     private static boolean isSetter(Method method) {
-        if (!method.getName().startsWith("set"))
+
+        if (!method.getName().startsWith("set")) {
             return false;
-        if (method.getName().length() < 4)
+        }
+        if (method.getName().length() < 4) {
             return false;
+        }
+
         return method.getParameterTypes().length == 1;
     }
 }
