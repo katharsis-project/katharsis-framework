@@ -64,6 +64,7 @@ public class KatharsisRegistryConfiguration {
             @Resource
             private HttpServletRequest request;
 
+            @Override
             public String getUrl() {
                 String scheme = request.getScheme();
                 String host = request.getHeader("host");
