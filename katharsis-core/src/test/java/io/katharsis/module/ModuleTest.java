@@ -1,15 +1,6 @@
 package io.katharsis.module;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import io.katharsis.dispatcher.filter.Filter;
 import io.katharsis.dispatcher.filter.TestFilter;
 import io.katharsis.errorhandling.mapper.ExceptionMapperLookup;
@@ -23,25 +14,20 @@ import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.information.ResourceInformationBuilder;
-import io.katharsis.resource.mock.models.ComplexPojo;
-import io.katharsis.resource.mock.models.Document;
-import io.katharsis.resource.mock.models.FancyProject;
-import io.katharsis.resource.mock.models.Project;
-import io.katharsis.resource.mock.models.Task;
-import io.katharsis.resource.mock.models.Thing;
-import io.katharsis.resource.mock.models.User;
-import io.katharsis.resource.mock.repository.DocumentRepository;
-import io.katharsis.resource.mock.repository.PojoRepository;
-import io.katharsis.resource.mock.repository.ProjectRepository;
-import io.katharsis.resource.mock.repository.ResourceWithoutRepositoryToProjectRepository;
-import io.katharsis.resource.mock.repository.TaskToProjectRepository;
-import io.katharsis.resource.mock.repository.TaskWithLookupRepository;
-import io.katharsis.resource.mock.repository.UserRepository;
-import io.katharsis.resource.mock.repository.UserToProjectRepository;
+import io.katharsis.resource.mock.models.*;
+import io.katharsis.resource.mock.repository.*;
+import io.katharsis.resource.registry.ConstantServiceUrlProvider;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceLookup;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.repository.DirectResponseRelationshipEntry;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class ModuleTest {
 
@@ -51,7 +37,7 @@ public class ModuleTest {
 
 	@Before
 	public void setup() {
-		resourceRegistry = new ResourceRegistry("http://localhost");
+		resourceRegistry = new ResourceRegistry(new ConstantServiceUrlProvider("http://localhost"));
 		
 		testModule = new TestModule();
 		moduleRegistry = new ModuleRegistry();

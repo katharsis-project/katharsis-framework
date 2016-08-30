@@ -1,34 +1,37 @@
 package io.katharsis.resource.registry;
 
-import io.katharsis.resource.annotations.JsonApiResource;
-import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.exception.init.ResourceNotFoundInitializationException;
 import io.katharsis.resource.information.ResourceInformation;
-import io.katharsis.utils.ClassUtils;
 import io.katharsis.utils.java.Optional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 public class ResourceRegistry {
-    private final Map<Class, RegistryEntry> resources = new HashMap<>();
-    private final String serviceUrl;
+    private final Map<Class, RegistryEntry> resources;
+    private final ServiceUrlProvider serviceUrlProvider;
     private final Logger logger = LoggerFactory.getLogger(ResourceRegistry.class);
 
-    public ResourceRegistry(String serviceUrl) {
-        this.serviceUrl = serviceUrl;
+    public ResourceRegistry(ServiceUrlProvider serviceUrlProvider) {
+        this.serviceUrlProvider = serviceUrlProvider;
+        this.resources = new HashMap<>();
+    }
+
+
+    public ResourceRegistry(Map<Class, RegistryEntry> resources, ServiceUrlProvider serviceUrlProvider) {
+        this.serviceUrlProvider = serviceUrlProvider;
+        this.resources = new HashMap<>(resources); // copying is slower but completely thread safe
     }
 
     /**
      * Adds a new resource definition to a registry.
-     * @param resource class of a resource
+     *
+     * @param resource      class of a resource
      * @param registryEntry resource information
-     * @param <T> type of a resource
+     * @param <T>           type of a resource
      */
     public <T> void addEntry(Class<T> resource, RegistryEntry<? extends T> registryEntry) {
         resources.put(resource, registryEntry);
@@ -57,19 +60,19 @@ public class ResourceRegistry {
      * If a resource cannot be found, {@link ResourceNotFoundInitializationException} is thrown.
      *
      * @param clazz resource type
-     * @throws ResourceNotFoundInitializationException if resource is not found
      * @return registry entry
+     * @throws ResourceNotFoundInitializationException if resource is not found
      */
     public RegistryEntry getEntry(Class clazz) {
-    	return getEntry(clazz, false);
+        return getEntry(clazz, false);
     }
-    
+
     private RegistryEntry<?> getEntry(Class<?> clazz, boolean allowNull) {
-    	Optional<Class<?>> resourceClazz = getResourceClass(clazz);
-    	if(allowNull && !resourceClazz.isPresent())
-    		return null;
-    	else if(!resourceClazz.isPresent())
-    		throw new ResourceNotFoundInitializationException(clazz.getCanonicalName());
+        Optional<Class<?>> resourceClazz = getResourceClass(clazz);
+        if (allowNull && !resourceClazz.isPresent())
+            return null;
+        else if (!resourceClazz.isPresent())
+            throw new ResourceNotFoundInitializationException(clazz.getCanonicalName());
         return resources.get(resourceClazz.get());
     }
 
@@ -81,40 +84,41 @@ public class ResourceRegistry {
      * @return resource type or null
      */
     public String getResourceType(Class<?> clazz) {
-    	RegistryEntry<?> entry = getEntry(clazz, true);
-    	if (entry == null) {
+        RegistryEntry<?> entry = getEntry(clazz, true);
+        if (entry == null) {
             return null;
         }
-    	ResourceInformation resourceInformation = entry.getResourceInformation();
-    	return resourceInformation.getResourceType();
+        ResourceInformation resourceInformation = entry.getResourceInformation();
+        return resourceInformation.getResourceType();
     }
-    
+
     public Optional<Class<?>> getResourceClass(Object resource) {
-    	return getResourceClass(resource.getClass());
+        return getResourceClass(resource.getClass());
     }
-    
+
     public Optional<Class<?>> getResourceClass(Class<?> resourceClass) {
-    	Class<?> currentClass = resourceClass;
-    	while (currentClass != null && currentClass != Object.class) {
-    	   RegistryEntry<?> entry = resources.get(currentClass);
-    	   if(entry != null){
-    		   return (Optional)Optional.of(currentClass);
-    	   }
-	       currentClass = currentClass.getSuperclass();
-    	}
-    	return Optional.empty();
-	}
-    
+        Class<?> currentClass = resourceClass;
+        while (currentClass != null && currentClass != Object.class) {
+            RegistryEntry<?> entry = resources.get(currentClass);
+            if (entry != null) {
+                return (Optional) Optional.of(currentClass);
+            }
+            currentClass = currentClass.getSuperclass();
+        }
+        return Optional.empty();
+    }
+
     public String getResourceUrl(Class clazz) {
-        return serviceUrl + "/" + getResourceType(clazz);
+        return serviceUrlProvider.getUrl() + "/" + getResourceType(clazz);
     }
 
     public String getServiceUrl() {
-        return serviceUrl;
+        return serviceUrlProvider.getUrl();
     }
 
     /**
      * Get a list of all registered resources by Katharsis.
+     *
      * @return resources
      */
     public Map<Class, RegistryEntry> getResources() {

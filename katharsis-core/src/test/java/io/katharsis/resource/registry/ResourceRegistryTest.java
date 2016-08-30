@@ -1,17 +1,16 @@
 package io.katharsis.resource.registry;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.exception.init.ResourceNotFoundInitializationException;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.utils.java.Optional;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ResourceRegistryTest {
 
@@ -22,7 +21,7 @@ public class ResourceRegistryTest {
 
     @Before
     public void resetResourceRegistry() {
-        resourceRegistry = new ResourceRegistry(TEST_MODELS_URL);
+        resourceRegistry = new ResourceRegistry(new ConstantServiceUrlProvider(TEST_MODELS_URL));
     }
 
     @Test

@@ -16,6 +16,8 @@
  */
 package io.katharsis.invoker;
 
+import com.fasterxml.jackson.databind.Module;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.RequestDispatcher;
 import io.katharsis.dispatcher.registry.ControllerRegistry;
 import io.katharsis.dispatcher.registry.ControllerRegistryBuilder;
@@ -28,15 +30,10 @@ import io.katharsis.module.ModuleRegistry;
 import io.katharsis.queryParams.DefaultQueryParamsParser;
 import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
-import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
-import io.katharsis.resource.information.ResourceInformationBuilder;
+import io.katharsis.resource.registry.ConstantServiceUrlProvider;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryBuilder;
 import io.katharsis.utils.parser.TypeParser;
-
-import com.fasterxml.jackson.databind.Module;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 
 /**
  * KatharsisInvoker builder.
@@ -166,7 +163,7 @@ public class KatharsisInvokerBuilder {
         ResourceRegistryBuilder registryBuilder =
                 new ResourceRegistryBuilder(jsonServiceLocator, moduleRegistry.getResourceInformationBuilder());
         
-        return registryBuilder.build(resourceSearchPackage, resourceDefaultDomain);
+        return registryBuilder.build(resourceSearchPackage, new ConstantServiceUrlProvider(resourceDefaultDomain));
     }
 
     protected RequestDispatcher createRequestDispatcher(ResourceRegistry resourceRegistry,
@@ -189,7 +186,6 @@ public class KatharsisInvokerBuilder {
 
     protected Module createDataBindingModule(ResourceRegistry resourceRegistry) {
         JsonApiModuleBuilder jsonApiModuleBuilder = new JsonApiModuleBuilder();
-        SimpleModule simpleModule = jsonApiModuleBuilder.build(resourceRegistry, false);
-        return simpleModule;
+        return jsonApiModuleBuilder.build(resourceRegistry, false);
     }
 }

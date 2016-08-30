@@ -15,10 +15,7 @@ import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.mock.models.Project;
-import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.resource.registry.ResourceRegistryBuilder;
-import io.katharsis.resource.registry.ResourceRegistryBuilderTest;
-import io.katharsis.resource.registry.ResourceRegistryTest;
+import io.katharsis.resource.registry.*;
 import io.katharsis.response.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,7 +41,7 @@ public class IncludedRelationshipExtractorTest {
         String resourceSearchPackage = String.format("%s,%s", ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE,
                 "io.katharsis.jackson.mock");
         ResourceRegistry resourceRegistry = registryBuilder
-                .build(resourceSearchPackage, ResourceRegistryTest.TEST_MODELS_URL);
+                .build(resourceSearchPackage, new ConstantServiceUrlProvider(ResourceRegistryTest.TEST_MODELS_URL));
 
         sut = new IncludedRelationshipExtractor(resourceRegistry);
 
