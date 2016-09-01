@@ -1,4 +1,4 @@
-package io.katharsis.repository.base.query;
+package io.katharsis.queryspec;
 
 import java.util.List;
 

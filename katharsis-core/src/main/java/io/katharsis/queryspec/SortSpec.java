@@ -1,7 +1,9 @@
-package io.katharsis.repository.base.query;
+package io.katharsis.queryspec;
 
 import java.io.Serializable;
 import java.util.List;
+
+import io.katharsis.utils.StringUtils;
 
 public class SortSpec extends AbstractPathSpec implements Serializable {
 
@@ -14,7 +16,7 @@ public class SortSpec extends AbstractPathSpec implements Serializable {
 
 	public SortSpec(List<String> path, Direction direction) {
 		super(path);
-		if (path == null || path.size() == 0 || direction == null)
+		if (path == null || path.isEmpty() || direction == null)
 			throw new IllegalArgumentException("Parameters may not be empty");
 		this.direction = direction;
 	}
@@ -59,11 +61,10 @@ public class SortSpec extends AbstractPathSpec implements Serializable {
 
 	@Override
 	public String toString() {
-		StringBuilder b = new StringBuilder("[");
-		b.append(attributePath);
+		StringBuilder b = new StringBuilder();
+		b.append(StringUtils.join(".", attributePath));
 		b.append(' ');
 		b.append(direction);
-		b.append(']');
 		return b.toString();
 	}
 }

@@ -1,4 +1,4 @@
-package io.katharsis.repository.base.query;
+package io.katharsis.queryspec;
 
 import java.util.List;
 
@@ -9,11 +9,11 @@ public class AbstractPathSpec {
 	protected AbstractPathSpec() {
 	}
 
-	protected AbstractPathSpec(List<String> path) {
-		this.attributePath = path;
+	protected AbstractPathSpec(List<String> attributePath) {
+		this.attributePath = attributePath;
 	}
 
-	public List<String> getPath() {
+	public List<String> getAttributePath() {
 		return attributePath;
 	}
 
