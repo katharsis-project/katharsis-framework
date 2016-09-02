@@ -70,6 +70,8 @@ public class InMemoryEvaluator {
 			return matchesOr(object, expressions);
 		} else if (filterSpec.getOperator() == FilterOperator.AND) {
 			return matchesAnd(object, expressions);
+		} else if (filterSpec.getOperator() == FilterOperator.NOT) {
+			return !matches(object, FilterSpec.and(expressions));
 		}
 		throw new UnsupportedOperationException("not implemented " + filterSpec);
 	}

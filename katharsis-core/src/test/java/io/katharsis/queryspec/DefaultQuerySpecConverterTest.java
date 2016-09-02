@@ -13,7 +13,7 @@ import io.katharsis.queryParams.QueryParams;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
 
-public class QuerySpecConverterTest extends AbstractQuerySpecTest {
+public class DefaultQuerySpecConverterTest extends AbstractQuerySpecTest {
 
 	@Test
 	public void testFindAll() throws InstantiationException, IllegalAccessException {
@@ -70,6 +70,14 @@ public class QuerySpecConverterTest extends AbstractQuerySpecTest {
 		Assert.assertEquals(Arrays.asList("id"), filter.getAttributePath());
 		Assert.assertEquals(FilterOperator.EQ, filter.getOperator());
 		Assert.assertEquals(Long.valueOf(12L), filter.getValue());
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testFilterUnknownResource() throws InstantiationException, IllegalAccessException {
+		Map<String, Set<String>> params = new HashMap<String, Set<String>>();
+		addParams(params, "filter[unknown][id]", "12");
+		QueryParams queryParams = queryParamsBuilder.buildQueryParams(params);
+		parser.fromParams(Task.class, queryParams);
 	}
 
 	@Test

@@ -11,9 +11,6 @@ public class SortSpec extends AbstractPathSpec implements Serializable {
 
 	private Direction direction;
 
-	protected SortSpec() {
-	}
-
 	public SortSpec(List<String> path, Direction direction) {
 		super(path);
 		if (path == null || path.isEmpty() || direction == null)

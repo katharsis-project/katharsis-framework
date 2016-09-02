@@ -13,6 +13,11 @@ public class IncludeFieldSpecTest {
 		Assert.assertEquals(Arrays.asList("name"), spec.getAttributePath());
 	}
 
+	@Test(expected = IllegalArgumentException.class)
+	public void testThrowExceptionOnNullArgument() {
+		new IncludeFieldSpec(null);
+	}
+
 	@Test
 	public void testToString() {
 		Assert.assertEquals("name", new IncludeFieldSpec(Arrays.asList("name")).toString());

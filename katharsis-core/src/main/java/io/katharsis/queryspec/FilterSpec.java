@@ -49,9 +49,6 @@ public class FilterSpec extends AbstractPathSpec implements Comparable<FilterSpe
 	}
 
 	private void assertNotExpressions() {
-		if (value == null && operator != FilterOperator.EQ && operator != FilterOperator.NEQ) {
-			throw new IllegalArgumentException("Value required for operation " + operator.getName());
-		}
 		if (operator == FilterOperator.NOT) {
 			throw new IllegalArgumentException("NOT operator not allowed when comparing with a value, use NOT_EQUAL");
 		}
@@ -152,12 +149,18 @@ public class FilterSpec extends AbstractPathSpec implements Comparable<FilterSpe
 
 	private void appendNot(StringBuilder b, int nExprs) {
 		b.append("NOT");
-		for (int i = 0; i < nExprs; i++) {
+		if (nExprs > 1) {
 			b.append('(');
+		}
+		for (int i = 0; i < nExprs; i++) {
 			if (i > 0) {
 				b.append(" AND ");
 			}
+			b.append('(');
 			b.append(getExpression().get(i));
+			b.append(')');
+		}
+		if (nExprs > 1) {
 			b.append(')');
 		}
 	}

@@ -14,6 +14,16 @@ public class SortSpecTest {
 		Assert.assertEquals(Arrays.asList("name"), spec.getAttributePath());
 	}
 
+	@Test(expected = IllegalArgumentException.class)
+	public void testThrowExceptionOnNullPathArgument() {
+		new SortSpec(null, Direction.ASC);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testThrowExceptionOnNullDirArgument() {
+		new SortSpec(Arrays.asList("test"), null);
+	}
+
 	@Test
 	public void testToString() {
 		Assert.assertEquals("name ASC", new SortSpec(Arrays.asList("name"), Direction.ASC).toString());
@@ -39,5 +49,10 @@ public class SortSpecTest {
 		Assert.assertNotEquals(spec3, spec2);
 		Assert.assertNotEquals(spec1, spec4);
 		Assert.assertNotEquals(spec3, spec4);
+
+		Assert.assertEquals(spec1, SortSpec.asc(Arrays.asList("name1")));
+		Assert.assertEquals(spec4, SortSpec.desc(Arrays.asList("name1")));
+		Assert.assertNotEquals(spec1, null);
+		Assert.assertNotEquals(spec1, "test");
 	}
 }

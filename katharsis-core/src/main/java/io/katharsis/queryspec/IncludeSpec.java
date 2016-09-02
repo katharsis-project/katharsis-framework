@@ -9,9 +9,6 @@ public abstract class IncludeSpec extends AbstractPathSpec implements Serializab
 
 	private static final long serialVersionUID = -2629584104921925080L;
 
-	protected IncludeSpec() {
-	}
-
 	public IncludeSpec(List<String> path) {
 		super(path);
 		if (path == null || path.isEmpty()) {
