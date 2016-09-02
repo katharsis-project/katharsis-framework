@@ -1,7 +1,6 @@
 package io.katharsis.resource.registry;
 
 import io.katharsis.locator.JsonServiceLocator;
-import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.registry.repository.ResourceEntry;
@@ -31,11 +30,11 @@ public class ResourceRegistryBuilder {
      * Uses a {@link DefaultResourceLookup} to get all  classes in provided package and finds all resources and repositories associated with found resource.
      *
      * @param packageName Package containing resources (models) and repositories.
-     * @param serviceUrl  URL to the service
+     * @param serviceUrlProvider  Compute the resource to this service
      * @return an instance of ResourceRegistry
      */
-    public ResourceRegistry build(String packageName, @SuppressWarnings("SameParameterValue") String serviceUrl) {
-    	return build(new DefaultResourceLookup(packageName), serviceUrl);
+    public ResourceRegistry build(String packageName, ServiceUrlProvider serviceUrlProvider) {
+        return build(new DefaultResourceLookup(packageName), serviceUrlProvider);
     }
 
     /**
@@ -45,7 +44,7 @@ public class ResourceRegistryBuilder {
      * @param serviceUrl  URL to the service
      * @return an instance of ResourceRegistry
      */
-    public ResourceRegistry build(ResourceLookup resourceLookup, @SuppressWarnings("SameParameterValue") String serviceUrl) {
+    public ResourceRegistry build(ResourceLookup resourceLookup,  ServiceUrlProvider serviceUrl) {
         Set<Class<?>> jsonApiResources = resourceLookup.getResourceClasses();
         
         Set<ResourceInformation> resourceInformationSet = new HashSet<>(jsonApiResources.size());
@@ -90,7 +89,7 @@ public class ResourceRegistryBuilder {
     private RegistryEntry findParent(Class<?> resourceClass, Set<RegistryEntry> registryEntries) {
         RegistryEntry foundRegistryEntry = null;
         Class<?> currentClass = resourceClass.getSuperclass();
-        classHierarchy:
+        classHierarchy: // goto statement?! Replace this with a recursion
         while (currentClass != null && currentClass != Object.class) {
             for (RegistryEntry availableRegistryEntry : registryEntries) {
                 if (availableRegistryEntry.getResourceInformation().getResourceClass().equals(currentClass)) {

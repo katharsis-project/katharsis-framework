@@ -15,6 +15,7 @@ import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.mock.models.Task;
+import io.katharsis.resource.registry.ConstantServiceUrlProvider;
 import io.katharsis.resource.registry.DefaultResourceLookup;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryBuilder;
@@ -33,7 +34,7 @@ public abstract class AbstractQuerySpecTest {
 		ResourceRegistryBuilder resourceRegistryBuilder = new ResourceRegistryBuilder(jsonServiceLocator,
 				resourceInformationBuilder);
 		DefaultResourceLookup resourceLookup = new DefaultResourceLookup(Task.class.getPackage().getName() + "," + getClass().getPackage().getName());
-		resourceRegistry = resourceRegistryBuilder.build(resourceLookup, "http://127.0.0.1");
+		resourceRegistry = resourceRegistryBuilder.build(resourceLookup, new ConstantServiceUrlProvider("http://127.0.0.1"));
 		FilterOperatorRegistry operators = new FilterOperatorRegistry();
 		operators.register(FilterOperator.EQ);
 		operators.register(FilterOperator.NEQ);

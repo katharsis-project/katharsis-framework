@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.RequestDispatcher;
 import io.katharsis.dispatcher.registry.ControllerRegistry;
 import io.katharsis.dispatcher.registry.ControllerRegistryBuilder;
-import io.katharsis.errorhandling.mapper.DefaultExceptionMapperLookup;
 import io.katharsis.errorhandling.mapper.ExceptionMapperLookup;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryBuilder;
@@ -15,12 +14,7 @@ import io.katharsis.module.Module;
 import io.katharsis.module.ModuleRegistry;
 import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
-import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
-import io.katharsis.resource.information.ResourceInformationBuilder;
-import io.katharsis.resource.registry.DefaultResourceLookup;
-import io.katharsis.resource.registry.ResourceLookup;
-import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.resource.registry.ResourceRegistryBuilder;
+import io.katharsis.resource.registry.*;
 import io.katharsis.rs.parameterProvider.RequestContextParameterProviderLookup;
 import io.katharsis.rs.parameterProvider.RequestContextParameterProviderRegistry;
 import io.katharsis.rs.parameterProvider.RequestContextParameterProviderRegistryBuilder;
@@ -134,7 +128,7 @@ public class KatharsisFeature implements Feature {
 
     private ResourceRegistry buildResourceRegistry(ResourceLookup lookup, String serviceUrl) {
         ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(jsonServiceLocator, moduleRegistry.getResourceInformationBuilder());
-        return registryBuilder.build(lookup, serviceUrl);
+        return registryBuilder.build(lookup, new ConstantServiceUrlProvider(serviceUrl));
     }
 
     protected KatharsisFilter createKatharsisFilter(ResourceRegistry resourceRegistry,

@@ -1,13 +1,10 @@
 package io.katharsis.client.internal;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.squareup.okhttp.HttpUrl;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Request.Builder;
 import com.squareup.okhttp.Response;
-
 import io.katharsis.client.ClientException;
 import io.katharsis.client.KatharsisClient;
 import io.katharsis.errorhandling.ErrorData;
@@ -16,6 +13,8 @@ import io.katharsis.errorhandling.mapper.ExceptionMapper;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
 import io.katharsis.response.BaseResponseContext;
 import io.katharsis.utils.java.Optional;
+
+import java.io.IOException;
 
 public class AbstractStub {
 
@@ -64,10 +63,10 @@ public class AbstractStub {
 
 	@SuppressWarnings({ "unchecked" })
 	private void handleError(Response response) throws IOException {
-		String body = response.body().string();
+		String body = response.body().string(); // wise to do null check here
 
 		ErrorResponse errorResponse = null;
-		if(body != null && body.length() > 0){
+		if(body.length() > 0){
 			ObjectMapper objectMapper = katharsis.getObjectMapper();
 			errorResponse = objectMapper.readValue(body, ErrorResponse.class);
 		}

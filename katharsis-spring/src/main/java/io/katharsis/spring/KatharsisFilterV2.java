@@ -81,7 +81,7 @@ public class KatharsisFilterV2 implements Filter, BeanFactoryAware {
 
             boolean passToFilters = invoke(request, response);
             if (passToFilters) {
-                chain.doFilter(req, res);
+                chain.doFilter(request, res);
             }
         } else {
             chain.doFilter(req, res);

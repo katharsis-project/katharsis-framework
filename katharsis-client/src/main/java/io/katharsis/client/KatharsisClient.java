@@ -1,20 +1,10 @@
 package io.katharsis.client;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.squareup.okhttp.OkHttpClient;
-
-import io.katharsis.client.internal.BaseResponseDeserializer;
-import io.katharsis.client.internal.ErrorResponseDeserializer;
-import io.katharsis.client.internal.RelationshipRepositoryStubImpl;
-import io.katharsis.client.internal.RequestUrlBuilder;
-import io.katharsis.client.internal.ResourceRepositoryStubImpl;
+import io.katharsis.client.internal.*;
 import io.katharsis.errorhandling.ErrorResponse;
 import io.katharsis.errorhandling.mapper.ExceptionMapperLookup;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
@@ -28,6 +18,7 @@ import io.katharsis.repository.RepositoryInstanceBuilder;
 import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.ResourceInformation;
+import io.katharsis.resource.registry.ConstantServiceUrlProvider;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceLookup;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -39,6 +30,10 @@ import io.katharsis.resource.registry.responseRepository.RelationshipRepositoryA
 import io.katharsis.resource.registry.responseRepository.ResourceRepositoryAdapter;
 import io.katharsis.response.BaseResponseContext;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 /**
  * Client implementation giving access to JSON API repositories using stubs.
  */
@@ -58,10 +53,10 @@ public class KatharsisClient {
 
 	/**
 	 * @param serviceUrl
-	 * @param resourcePackageName
+	 * @param resourceSearchPackage
 	 */
 	public KatharsisClient(String serviceUrl, String resourceSearchPackage) {
-		resourceRegistry = new ResourceRegistry(normalize(serviceUrl));
+		resourceRegistry = new ResourceRegistry(new ConstantServiceUrlProvider(normalize(serviceUrl)));
 		urlBuilder = new RequestUrlBuilder(resourceRegistry);
 
 		objectMapper = new ObjectMapper();
