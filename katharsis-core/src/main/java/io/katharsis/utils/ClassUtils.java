@@ -15,6 +15,9 @@ import java.util.Map;
  * Provides reflection methods for parsing information about a class.
  */
 public class ClassUtils {
+	
+	private ClassUtils(){
+	}
 
     /**
      * Returns a list of class fields. Supports inheritance and doesn't return synthetic fields.
