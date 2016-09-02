@@ -14,13 +14,13 @@ import io.katharsis.resource.mock.models.Task;
 
 public class TestQuerySpecRelationshipRepository extends QuerySpecRelationshipRepository<Task, Long, Project, Long> {
 
-	public TestQuerySpecRelationshipRepository(){
-		
+	public TestQuerySpecRelationshipRepository() {
+
 	}
-	
+
 	@Override
-	protected Class<Task> getResourceClass() {
-		return Task.class;
+	protected Class<Project> getResourceClass() {
+		return Project.class;
 	}
 
 	private void assertQuerySpec(QuerySpec querySpec) {

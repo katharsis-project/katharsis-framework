@@ -25,7 +25,7 @@ public class QuerySpecRelationshipRepositoryTest extends AbstractQuerySpecTest {
 		repo = Mockito.spy(repo);
 
 		Map<String, Set<String>> params = new HashMap<String, Set<String>>();
-		addParams(params, "sort[tasks][name]", "asc");
+		addParams(params, "sort[projects][name]", "asc");
 		QueryParams queryParams = queryParamsBuilder.buildQueryParams(params);
 
 		repo.findManyTargets(null, null, queryParams);

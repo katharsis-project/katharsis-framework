@@ -125,7 +125,7 @@ public abstract class FilterOperator {
 
 	private String id;
 
-	private FilterOperator(String id) {
+	protected FilterOperator(String id) {
 		this.id = id;
 	}
 

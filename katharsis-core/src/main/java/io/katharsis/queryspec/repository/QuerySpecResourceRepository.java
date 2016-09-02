@@ -35,21 +35,21 @@ public abstract class QuerySpecResourceRepository<T, I extends Serializable>
 	protected abstract Class<T> getResourceClass();
 
 	@Override
-	public final T findOne(I id, QueryParams queryParams) {
+	public T findOne(I id, QueryParams queryParams) {
 		return findOne(id, specParser.fromParams(getResourceClass(), queryParams));
 	}
 
 	protected abstract T findOne(I id, QuerySpec querySpec);
 
 	@Override
-	public final Iterable<T> findAll(QueryParams queryParams) {
+	public Iterable<T> findAll(QueryParams queryParams) {
 		return findAll(specParser.fromParams(getResourceClass(), queryParams));
 	}
 
 	protected abstract Iterable<T> findAll(QuerySpec querySpec);
 
 	@Override
-	public final Iterable<T> findAll(Iterable<I> ids, QueryParams queryParams) {
+	public Iterable<T> findAll(Iterable<I> ids, QueryParams queryParams) {
 		return findAll(ids, specParser.fromParams(getResourceClass(), queryParams));
 	}
 

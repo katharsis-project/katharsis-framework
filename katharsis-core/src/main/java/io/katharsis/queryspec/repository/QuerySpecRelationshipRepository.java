@@ -20,7 +20,7 @@ public abstract class QuerySpecRelationshipRepository<T, T_ID extends Serializab
 
 	private QuerySpecConverter specParser;
 
-	protected abstract Class<T> getResourceClass();
+	protected abstract Class<D> getResourceClass();
 
 	@Override
 	public void setResourceRegistry(ResourceRegistry resourceRegistry) {
@@ -35,14 +35,14 @@ public abstract class QuerySpecRelationshipRepository<T, T_ID extends Serializab
 	protected abstract void setupFilterOperators(FilterOperatorRegistry registry);
 
 	@Override
-	public final D findOneTarget(T_ID sourceId, String fieldName, QueryParams queryParams) {
+	public D findOneTarget(T_ID sourceId, String fieldName, QueryParams queryParams) {
 		return findOneTarget(sourceId, fieldName, specParser.fromParams(getResourceClass(), queryParams));
 	}
 
 	protected abstract D findOneTarget(T_ID sourceId, String fieldName, QuerySpec querySpec);
 
 	@Override
-	public final Iterable<D> findManyTargets(T_ID sourceId, String fieldName, QueryParams queryParams) {
+	public Iterable<D> findManyTargets(T_ID sourceId, String fieldName, QueryParams queryParams) {
 		return findManyTargets(sourceId, fieldName, specParser.fromParams(getResourceClass(), queryParams));
 	}
 

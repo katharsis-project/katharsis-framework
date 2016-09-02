@@ -5,12 +5,18 @@ import io.katharsis.resource.exception.init.ResourceNotFoundInitializationExcept
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.utils.java.Optional;
+import org.junit.Assert;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class ResourceRegistryTest {
 
@@ -30,6 +36,24 @@ public class ResourceRegistryTest {
         RegistryEntry tasksEntry = resourceRegistry.getEntry("tasks");
         assertThat(tasksEntry).isNotNull();
     }
+    
+
+    @Test
+    public void testSecondaryConstructor() {
+    	RegistryEntry entry = Mockito.mock(RegistryEntry.class);
+    	Map<Class,RegistryEntry> map = new HashMap<>();
+    	map.put(Task.class, entry);
+    	resourceRegistry = new ResourceRegistry(map, new ConstantServiceUrlProvider(TEST_MODELS_URL));
+    	assertThat(resourceRegistry.getEntry(Task.class)).isSameAs(entry);
+    	assertThat(resourceRegistry.getResources().size()).isEqualTo(1);
+    }
+
+
+    @Test
+    public void testGetServiceUrl() {
+    	assertThat(resourceRegistry.getServiceUrl()).isEqualTo(TEST_MODELS_URL);
+    }
+    
 
     @Test
     public void onExistingClassShouldReturnEntry() {
