@@ -183,10 +183,40 @@ public class AnnotationResourceInformationBuilder implements ResourceInformation
     }
 
     private static AnnotatedResourceField mergeAnnotations(AnnotatedResourceField fromField, AnnotatedResourceField fromMethod) {
-        List<Annotation> annotations = new LinkedList<>(fromField.getAnnotations());
+        List<Annotation> annotations = new ArrayList<>(fromField.getAnnotations());
         annotations.addAll(fromMethod.getAnnotations());
 
-        return new AnnotatedResourceField(fromField.getJsonName(), fromField.getUnderlyingName(), fromMethod.getType(), fromMethod.getGenericType(), annotations);
+        return new AnnotatedResourceField(fromField.getJsonName(), fromField.getUnderlyingName(),
+                mergeFieldType(fromField, fromMethod), mergeGenericType(fromField, fromMethod), annotations);
+    }
+
+    private static Class<?> mergeFieldType(AnnotatedResourceField fromField, AnnotatedResourceField fromMethod) {
+        if (hasKatharsisAnnotation(fromField.getAnnotations())) {
+            return fromField.getType();
+        } else {
+            return fromMethod.getType();
+        }
+    }
+
+    private static Type mergeGenericType(AnnotatedResourceField fromField, AnnotatedResourceField fromMethod) {
+        if (hasKatharsisAnnotation(fromField.getAnnotations())) {
+            return fromField.getGenericType();
+        } else {
+            return fromMethod.getGenericType();
+        }
+    }
+
+    private static boolean hasKatharsisAnnotation(List<Annotation> annotations) {
+        for (Annotation annotation: annotations) {
+            if (annotation.annotationType() == JsonApiId.class ||
+                    annotation.annotationType() == JsonApiToOne.class ||
+                    annotation.annotationType() == JsonApiToMany.class ||
+                    annotation.annotationType() == JsonApiMetaInformation.class ||
+                    annotation.annotationType() == JsonApiLinksInformation.class) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private <T> AnnotatedResourceField getIdField(Class<T> resourceClass, List<AnnotatedResourceField> classFields) {
