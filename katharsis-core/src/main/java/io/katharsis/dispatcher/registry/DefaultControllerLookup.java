@@ -5,12 +5,10 @@ import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.dispatcher.controller.collection.CollectionGet;
 import io.katharsis.dispatcher.controller.collection.CollectionHead;
 import io.katharsis.dispatcher.controller.field.FieldResourceGet;
+import io.katharsis.dispatcher.controller.field.FieldResourceHead;
 import io.katharsis.dispatcher.controller.field.FieldResourcePost;
+import io.katharsis.dispatcher.controller.relationship.*;
 import io.katharsis.dispatcher.controller.resource.*;
-import io.katharsis.dispatcher.controller.relationship.RelationshipsResourceDelete;
-import io.katharsis.dispatcher.controller.relationship.RelationshipsResourceGet;
-import io.katharsis.dispatcher.controller.relationship.RelationshipsResourcePatch;
-import io.katharsis.dispatcher.controller.relationship.RelationshipsResourcePost;
 import io.katharsis.resource.include.IncludeLookupSetter;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.utils.parser.TypeParser;
@@ -48,11 +46,13 @@ public class DefaultControllerLookup implements ControllerLookup {
         controllers.add(new ResourceDelete(resourceRegistry, typeParser));
 
         controllers.add(new RelationshipsResourceGet(resourceRegistry, typeParser, includeFieldSetter));
+        controllers.add(new RelationshipsResourceHead(resourceRegistry, typeParser, includeFieldSetter));
         controllers.add(new RelationshipsResourcePost(resourceRegistry, typeParser));
         controllers.add(new RelationshipsResourcePatch(resourceRegistry, typeParser));
         controllers.add(new RelationshipsResourceDelete(resourceRegistry, typeParser));
 
         controllers.add(new FieldResourceGet(resourceRegistry, typeParser, includeFieldSetter));
+        controllers.add(new FieldResourceHead(resourceRegistry, typeParser, includeFieldSetter));
         controllers.add(new FieldResourcePost(resourceRegistry, typeParser, objectMapper));
 
         return controllers;

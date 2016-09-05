@@ -9,7 +9,6 @@ import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathIds;
 import io.katharsis.request.path.RelationshipsPath;
 import io.katharsis.resource.exception.ResourceFieldNotFoundException;
-import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.include.IncludeLookupSetter;
 import io.katharsis.resource.registry.RegistryEntry;
@@ -43,6 +42,11 @@ public class RelationshipsResourceGet extends ResourceIncludeField {
     @Override
     public BaseResponseContext handle(JsonPath jsonPath, QueryParams queryParams,
                                       RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody) {
+        return buildResponse(jsonPath, queryParams, parameterProvider);
+    }
+
+    @SuppressWarnings("unchecked")
+    BaseResponseContext buildResponse(JsonPath jsonPath, QueryParams queryParams, RepositoryMethodParameterProvider parameterProvider) {
         String resourceName = jsonPath.getResourceName();
         PathIds resourceIds = jsonPath.getIds();
         RegistryEntry<?> registryEntry = resourceRegistry.getEntry(resourceName);
@@ -64,7 +68,6 @@ public class RelationshipsResourceGet extends ResourceIncludeField {
         RegistryEntry relationshipFieldEntry = resourceRegistry.getEntry(relationshipFieldClass);
         BaseResponseContext target;
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
-            @SuppressWarnings("unchecked")
             JsonApiResponse response = relationshipRepositoryForClass
                 .findManyTargets(castedResourceId, elementName, queryParams);
             includeFieldSetter.setIncludedElements(resourceName, response, queryParams, parameterProvider);
@@ -73,7 +76,6 @@ public class RelationshipsResourceGet extends ResourceIncludeField {
             response.setEntity(dataList);
             target = new CollectionResponseContext(response, jsonPath, queryParams);
         } else {
-            @SuppressWarnings("unchecked")
             JsonApiResponse response = relationshipRepositoryForClass
                 .findOneTarget(castedResourceId, elementName, queryParams);
             includeFieldSetter.setIncludedElements(resourceName, response, queryParams, parameterProvider);
@@ -86,7 +88,6 @@ public class RelationshipsResourceGet extends ResourceIncludeField {
                 target = new ResourceResponseContext(response, jsonPath, queryParams);
             }
         }
-
         return target;
     }
 
