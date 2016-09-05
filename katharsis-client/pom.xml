@@ -6,14 +6,38 @@
 	<parent>
 		<groupId>io.katharsis</groupId>
 		<artifactId>katharsis-parent</artifactId>
-		<version>2.6.0-SNAPSHOT</version>
+		<version>2.6.0</version>
 		<relativePath>../katharsis-parent</relativePath>
 	</parent>
 
+	<groupId>io.katharsis</groupId>
 	<artifactId>katharsis-client</artifactId>
+    <version>2.6.0</version>
 	<packaging>bundle</packaging>
 
 	<name>katharsis-client</name>
+	<url>https://github.com/katharsis-project/katharsis-framework</url>
+	<description>Katharsis client library</description>
+	<scm>
+		<url>https://github.com/katharsis-project/katharsis-framework</url>
+		<connection>scm:git:git://github.com/katharsis-project/katharsis-framework.git</connection>
+		<developerConnection>scm:git:git@github.com:katharsis-project/katharsis-framework.git</developerConnection>
+	</scm>
+	<issueManagement>
+		<system>GitHub</system>
+		<url>https://github.com/katharsis-project/katharsis-framework/issues</url>
+	</issueManagement>
+	<licenses>
+		<license>
+			<name>Apache License 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+		</license>
+	</licenses>
+	<developers>
+		<developer>
+			<organization>Katharsis community</organization>
+		</developer>
+	</developers>
 
 	<properties>
 		<okhttp.version>2.7.5</okhttp.version>
@@ -31,8 +55,13 @@
 				<artifactId>coveralls-maven-plugin</artifactId>
 			</plugin>
 			<plugin>
-				<groupId>com.github.danielflower.mavenplugins</groupId>
-				<artifactId>gitlog-maven-plugin</artifactId>
+				<artifactId>maven-source-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<artifactId>maven-javadoc-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<artifactId>maven-deploy-plugin</artifactId>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.felix</groupId>

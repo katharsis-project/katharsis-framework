@@ -13,6 +13,7 @@ public interface Filter {
 	 *  
 	 * @param filterRequestContext request context
 	 * @param chain next filters
+	 * @return response
 	 */
 	BaseResponseContext filter(FilterRequestContext filterRequestContext, FilterChain chain);
 

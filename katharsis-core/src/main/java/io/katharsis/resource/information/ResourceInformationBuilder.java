@@ -6,13 +6,13 @@ package io.katharsis.resource.information;
 public interface ResourceInformationBuilder {
 	
 	/**
-	 * @param resourceClass
+	 * @param resourceClass resource class
 	 * @return true if this builder can process the provided resource class
 	 */
 	boolean accept(Class<?> resourceClass);
 
 	/**
-	 * @param resourceClass
+	 * @param resourceClass resource class
 	 * @return ResourceInformation for the provided resource class.
 	 */
     ResourceInformation build(Class<?> resourceClass);

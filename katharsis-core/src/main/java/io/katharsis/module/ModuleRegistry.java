@@ -45,7 +45,7 @@ public class ModuleRegistry {
 	/**
 	 * Register an new module to this registry and setup the module.
 	 * 
-	 * @param module
+	 * @param module module
 	 */
 	public void addModule(Module module) {
 		module.setupModule(new ModuleContextImpl());
@@ -115,7 +115,8 @@ public class ModuleRegistry {
 	}
 
 	/**
-	 * Returns all Jackson modules registered by modules.
+	 *
+	 * @return all Jackson modules registered by modules.
 	 */
 	public List<com.fasterxml.jackson.databind.Module> getJacksonModules() {
 		return aggregatedModule.getJacksonModules();
@@ -131,16 +132,20 @@ public class ModuleRegistry {
 	}
 
 	/**
-	 * Returns a {@link ResourceInformationBuilder} instance that combines all 
+	 * Returns a {@link ResourceInformationBuilder} instance that combines all
 	 * instances registered by modules.
+	 *
+	 * @return resource information builder
 	 */
 	public ResourceInformationBuilder getResourceInformationBuilder() {
 		return new CombinedResourceInformationBuilder(aggregatedModule.getResourceInformationBuilders());
 	}
 
 	/**
-	 * Returns a {@link ResourceLookup} instance that combines all 
+	 * Returns a {@link ResourceLookup} instance that combines all
 	 * instances registered by modules.
+	 *
+	 * @return resource lookup
 	 */
 	public ResourceLookup getResourceLookup() {
 		return new CombinedResourceLookup(aggregatedModule.getResourceLookups());
@@ -239,8 +244,8 @@ public class ModuleRegistry {
 	 * Initializes the {@link ModuleRegistry} and applies all pending changes. After the initialization
 	 * completed, it is not possible to add any further modules.
 	 * 
-	 * @param objectMapper
-	 * @param resourceRegistry
+	 * @param objectMapper object mapper
+	 * @param resourceRegistry resource registry
 	 */
 	public synchronized void init(ObjectMapper objectMapper, ResourceRegistry resourceRegistry) {
 		if (!initialized) {

@@ -76,7 +76,7 @@ public class SimpleModule implements Module {
 	/**
 	 * Registers a new {@link ResourceInformationBuilder} with this module.
 	 * 
-	 * @param resourceInformationBuilder
+	 * @param resourceInformationBuilder resource information builder
 	 */
 	public void addResourceInformationBuilder(ResourceInformationBuilder resourceInformationBuilder) {
 		checkInitialized();
@@ -123,7 +123,7 @@ public class SimpleModule implements Module {
 	/**
 	 * Registers a new {@link ResourceLookup} with this module.
 	 * 
-	 * @param resourceLookup
+	 * @param resourceLookup resource lookup
 	 */
 	public void addResourceLookup(ResourceLookup resourceLookup) {
 		checkInitialized();

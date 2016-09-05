@@ -164,6 +164,10 @@ public abstract class FilterOperator {
 
 	/**
 	 * Performs a in-memory evaluation of the operator on the given to values.
+	 *
+	 * @param value1 first value
+	 * @param value2 second value
+	 * @return true if matches
 	 */
 	public abstract boolean matches(Object value1, Object value2);
 

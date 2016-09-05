@@ -52,8 +52,8 @@ public class KatharsisClient {
 	private ExceptionMapperRegistry exceptionMapperRegistry;
 
 	/**
-	 * @param serviceUrl
-	 * @param resourceSearchPackage
+	 * @param serviceUrl service url
+	 * @param resourceSearchPackage search package
 	 */
 	public KatharsisClient(String serviceUrl, String resourceSearchPackage) {
 		resourceRegistry = new ResourceRegistry(new ConstantServiceUrlProvider(normalize(serviceUrl)));
@@ -153,7 +153,7 @@ public class KatharsisClient {
 	}
 
 	/**
-	 * @param resourceClass
+	 * @param resourceClass resource class
 	 * @return stub for the given resourceClass
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -168,8 +168,8 @@ public class KatharsisClient {
 	}
 
 	/**
-	 * @param sourceClass
-	 * @param targetClass
+	 * @param sourceClass source class
+	 * @param targetClass target class
 	 * @return stub for the relationship between the given source and target
 	 *         class
 	 */

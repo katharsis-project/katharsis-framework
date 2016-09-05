@@ -32,7 +32,7 @@ public class QuerySpec {
 	 * 
 	 * TODO currently ignores relations and inclusions, has room for improvements
 	 * 
-	 * @param resources
+	 * @param resources resources
 	 * @return sorted, filtered list.
 	 */
 	public <T> List<T> apply(List<T> resources) {
@@ -141,7 +141,7 @@ public class QuerySpec {
 	}
 
 	/**
-	 * @param resourceClass
+	 * @param resourceClass resource class
 	 * @return QuerySpec for the given class, either the root QuerySpec or any
 	 *         related QuerySpec.
 	 */

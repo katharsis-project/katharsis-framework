@@ -80,8 +80,8 @@ public class FilterSpec extends AbstractPathSpec implements Comparable<FilterSpe
 	/**
 	 * Adds the given expression to the expression list and returns itself.
 	 * 
-	 * @param expr
-	 * @return
+	 * @param expr expression
+	 * @return this
 	 */
 	public FilterSpec addExpression(FilterSpec expr) {
 		if (expressions == null) {

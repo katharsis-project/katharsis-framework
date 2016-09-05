@@ -19,6 +19,10 @@ public interface ResourceRepositoryStub<T, ID extends Serializable> extends Reso
 
 	/**
 	 * Saves the given entity without any of its relationships.
+	 *
+	 * @param entity resource to be saved
+	 * @param <S> resource type
+	 * @return persisted resource
 	 */
 	@Override
 	public <S extends T> S save(S entity);
@@ -26,6 +30,11 @@ public interface ResourceRepositoryStub<T, ID extends Serializable> extends Reso
 	/**
 	 * Saves the given entity. {@link QueryParams} allows to specify which
 	 * relationships should be saved as well.
+	 *
+	 * @param entity resource to be saved
+	 * @param queryParams query params
+	 * @param <S> resource type
+	 * @return persisted resource
 	 */
 	public <S extends T> S save(S entity, QueryParams queryParams);
 }

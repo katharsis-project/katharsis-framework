@@ -29,6 +29,8 @@ public abstract class QuerySpecResourceRepository<T, I extends Serializable>
 
 	/**
 	 * Use this method to setup supported filter operations.
+	 *
+	 * @param registry filter operator registry
 	 */
 	protected abstract void setupFilterOperators(FilterOperatorRegistry registry);
 

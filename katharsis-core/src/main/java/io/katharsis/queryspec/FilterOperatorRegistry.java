@@ -23,7 +23,7 @@ public class FilterOperatorRegistry {
 	/**
 	 * Sets the default operator, usually {@link FilterOperator#EQ}.
 	 * 
-	 * @param defaultOperator
+	 * @param defaultOperator default operator
 	 */
 	public void setDefaultOperator(FilterOperator defaultOperator) {
 		this.defaultOperator = defaultOperator;
@@ -42,7 +42,7 @@ public class FilterOperatorRegistry {
 	/**
 	 * Register an new operator.
 	 * 
-	 * @param operator
+	 * @param operator new operator
 	 */
 	public void register(FilterOperator operator) {
 		if (operators.containsKey(operator.getName()) && !operator.equals(operators.get(operator.getName()))) {

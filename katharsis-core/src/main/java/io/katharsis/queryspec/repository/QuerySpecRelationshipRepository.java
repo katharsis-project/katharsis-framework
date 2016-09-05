@@ -31,6 +31,8 @@ public abstract class QuerySpecRelationshipRepository<T, T_ID extends Serializab
 
 	/**
 	 * Use this method to setup supported filter operations.
+	 *
+	 * @param registry filter operator registry
 	 */
 	protected abstract void setupFilterOperators(FilterOperatorRegistry registry);
 

@@ -164,17 +164,23 @@ public class ResourceInformation {
         return Objects.hash(resourceClass, resourceType, idField, attributeFields, relationshipFields, metaFieldName, linksFieldName);
     }
 
-	/**
-	 * Converts the given id to a string. 
-	 */
+    /**
+     * Converts the given id to a string.
+     *
+     * @param id id
+     * @return stringified id
+     */
 	public String toIdString(Object id){
 		if(id == null)
 			return null;
 		return id.toString();
 	}
-	
-	 /**
+
+    /**
      * Converts the given id string into its object representation.
+     *
+     * @param id stringified id
+     * @return id
      */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Serializable parseIdString(String id) {

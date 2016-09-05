@@ -50,9 +50,9 @@ public class PropertyUtils {
     
     
     /**
-     * Similar to {@link getProperty} but returns the property class.
-     * }
-     * @param bean  bean to be accessed
+     * Similar to {@link PropertyUtils#getPropertyClass(Class,List)} but returns the property class.
+     *
+     * @param beanClass  bean to be accessed
      * @param field bean's fieldName
      * @return bean's property class
      * @return
@@ -66,10 +66,10 @@ public class PropertyUtils {
     }
 
     /**
-     * Similar to {@link getProperty} but returns the property value for the tail of the given property path.
+     * Similar to {@link PropertyUtils#getProperty(Object,String)} but returns the property value for the tail of the given property path.
      * 
      * @param bean  bean to be accessed
-     * @param field property path
+     * @param propertyPath property path
      * @return value
      */
 	public static Object getProperty(Object bean, List<String> propertyPath) {
@@ -83,10 +83,10 @@ public class PropertyUtils {
 	}
     
     /**
-     * Similar to {@link getPropertyClass} but returns the property class for the tail of the given property path.
-     * }
-     * @param bean  bean to be accessed
-     * @param field bean's fieldName
+     * Similar to {@link PropertyUtils#getPropertyClass(Class,String)} but returns the property class for the tail of the given property path.
+     *
+     * @param clazz  bean to be accessed
+     * @param propertyPath bean's fieldName
      * @return property class
      */
     public static Class<?> getPropertyClass(Class<?> clazz, List<String> propertyPath) {
