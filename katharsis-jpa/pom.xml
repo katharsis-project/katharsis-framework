@@ -45,7 +45,7 @@
 				<artifactId>maven-bundle-plugin</artifactId>
 				<configuration>
 					<instructions>
-						<Export-Package>io.katharsis.jpa.*</Export-Package>
+						<Export-Package>io.katharsis.jpa.*,io.katharsis.jpa.query.*,io.katharsis.jpa.querydsl.*,io.katharsis.jpa.criteria.*</Export-Package>
 					</instructions>
 				</configuration>
 			</plugin>
