@@ -5,22 +5,38 @@
     <parent>
         <groupId>io.katharsis</groupId>
         <artifactId>katharsis-parent</artifactId>
-        <version>2.5.0-SNAPSHOT</version>
+        <version>2.6.0</version>
         <relativePath>../katharsis-parent</relativePath>
     </parent>
 
     <groupId>io.katharsis</groupId>
     <artifactId>katharsis-rs</artifactId>
-    <version>2.5.0-SNAPSHOT</version>
+    <version>2.6.0</version>
     <packaging>bundle</packaging>
 
     <name>katharsis-rs</name>
-    <url>https://github.com/katharsis-project/katharsis-rs</url>
-
+    <url>https://github.com/katharsis-project/katharsis-framework</url>
+    <description>Katharsis JAX-RS integration</description>
+    <scm>
+        <url>https://github.com/katharsis-project/katharsis-framework</url>
+        <connection>scm:git:git://github.com/katharsis-project/katharsis-framework.git</connection>
+        <developerConnection>scm:git:git@github.com:katharsis-project/katharsis-framework.git</developerConnection>
+    </scm>
     <issueManagement>
         <system>GitHub</system>
-        <url>https://github.com/katharsis-project/katharsis-rs/issues</url>
+        <url>https://github.com/katharsis-project/katharsis-framework/issues</url>
     </issueManagement>
+    <licenses>
+        <license>
+            <name>Apache License 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <organization>Katharsis community</organization>
+        </developer>
+    </developers>
 
     <properties>
         <jersey-container-servlet.version>2.17</jersey-container-servlet.version>
@@ -41,10 +57,6 @@
             <plugin>
                 <groupId>org.eluder.coveralls</groupId>
                 <artifactId>coveralls-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>com.github.danielflower.mavenplugins</groupId>
-                <artifactId>gitlog-maven-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.apache.felix</groupId>

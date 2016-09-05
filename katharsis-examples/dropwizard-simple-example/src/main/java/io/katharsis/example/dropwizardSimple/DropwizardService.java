@@ -7,7 +7,6 @@ import io.katharsis.queryParams.DefaultQueryParamsParser;
 import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.rs.KatharsisFeature;
 
-import static io.katharsis.rs.KatharsisProperties.RESOURCE_DEFAULT_DOMAIN;
 import static io.katharsis.rs.KatharsisProperties.RESOURCE_SEARCH_PACKAGE;
 
 public class DropwizardService extends Application<DropwizardConfiguration> {
@@ -15,7 +14,7 @@ public class DropwizardService extends Application<DropwizardConfiguration> {
     @Override
     public void run(DropwizardConfiguration dropwizardConfiguration, Environment environment) throws Exception {
 
-        environment.jersey().property(RESOURCE_DEFAULT_DOMAIN, dropwizardConfiguration.katharsis.host);
+
         environment.jersey().property(RESOURCE_SEARCH_PACKAGE, dropwizardConfiguration.katharsis.searchPackage);
 
         KatharsisFeature katharsisFeature = new KatharsisFeature(environment.getObjectMapper(),

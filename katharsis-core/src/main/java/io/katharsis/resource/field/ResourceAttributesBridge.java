@@ -129,4 +129,8 @@ public class ResourceAttributesBridge<T> {
         }
         return Optional.empty();
     }
+
+	public Set<ResourceField> getFields() {
+		return staticFields;
+	}
 }

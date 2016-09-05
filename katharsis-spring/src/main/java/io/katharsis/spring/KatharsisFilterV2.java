@@ -8,6 +8,7 @@ import io.katharsis.errorhandling.exception.KatharsisMatchingException;
 import io.katharsis.errorhandling.mapper.KatharsisExceptionMapper;
 import io.katharsis.invoker.JsonApiMediaType;
 import io.katharsis.invoker.KatharsisInvokerException;
+import io.katharsis.jackson.exception.JsonDeserializationException;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
@@ -80,7 +81,7 @@ public class KatharsisFilterV2 implements Filter, BeanFactoryAware {
 
             boolean passToFilters = invoke(request, response);
             if (passToFilters) {
-                chain.doFilter(req, res);
+                chain.doFilter(request, res);
             }
         } else {
             chain.doFilter(req, res);
@@ -221,7 +222,7 @@ public class KatharsisFilterV2 implements Filter, BeanFactoryAware {
         return queryParamsBuilder.buildQueryParams(queryParameters);
     }
 
-    private RequestBody inputStreamToBody(InputStream is) throws IOException {
+    private RequestBody inputStreamToBody(InputStream is) {
         if (is == null) {
             return null;
         }
@@ -233,7 +234,11 @@ public class KatharsisFilterV2 implements Filter, BeanFactoryAware {
             return null;
         }
 
-        return objectMapper.readValue(requestBody, RequestBody.class);
+        try {
+            return objectMapper.readValue(requestBody, RequestBody.class);
+        } catch (IOException e) {
+            throw new JsonDeserializationException(e.getMessage());
+        }
     }
 
     private void closeQuietly(Closeable closeable) {

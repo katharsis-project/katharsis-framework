@@ -5,6 +5,7 @@ import io.katharsis.dispatcher.RequestDispatcher;
 import io.katharsis.dispatcher.registry.ControllerRegistry;
 import io.katharsis.dispatcher.registry.ControllerRegistryBuilder;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
+import io.katharsis.module.ModuleRegistry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.utils.parser.TypeParser;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,9 @@ public class RequestDispatcherConfiguration {
 
     @Autowired
     private ObjectMapper objectMapper;
+    
+    @Autowired
+    private ModuleRegistry moduleRegistry;
 
     @Autowired
     private ResourceRegistry resourceRegistry;
@@ -30,6 +34,6 @@ public class RequestDispatcherConfiguration {
             new ControllerRegistryBuilder(resourceRegistry, typeParser, objectMapper);
         ControllerRegistry controllerRegistry = controllerRegistryBuilder.build();
 
-        return new RequestDispatcher(controllerRegistry, exceptionMapperRegistry);
+        return new RequestDispatcher(moduleRegistry, controllerRegistry, exceptionMapperRegistry);
     }
 }

@@ -16,6 +16,8 @@
  */
 package io.katharsis.invoker;
 
+import com.fasterxml.jackson.databind.Module;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.RequestDispatcher;
 import io.katharsis.dispatcher.registry.ControllerRegistry;
 import io.katharsis.dispatcher.registry.ControllerRegistryBuilder;
@@ -23,23 +25,23 @@ import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryBuilder;
 import io.katharsis.jackson.JsonApiModuleBuilder;
 import io.katharsis.locator.JsonServiceLocator;
+import io.katharsis.module.CoreModule;
+import io.katharsis.module.ModuleRegistry;
 import io.katharsis.queryParams.DefaultQueryParamsParser;
 import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
-import io.katharsis.resource.information.ResourceInformationBuilder;
+import io.katharsis.resource.registry.ConstantServiceUrlProvider;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryBuilder;
 import io.katharsis.utils.parser.TypeParser;
-
-import com.fasterxml.jackson.databind.Module;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 
 /**
  * KatharsisInvoker builder.
  */
 public class KatharsisInvokerBuilder {
 
+	private ModuleRegistry moduleRegistry = new ModuleRegistry();
+	
     private ObjectMapper objectMapper;
     private QueryParamsBuilder queryParamsBuilder;
     private ResourceRegistry resourceRegistry;
@@ -49,6 +51,11 @@ public class KatharsisInvokerBuilder {
 
     private String resourceSearchPackage;
     private String resourceDefaultDomain;
+    
+    public KatharsisInvokerBuilder module(io.katharsis.module.Module module){
+    	moduleRegistry.addModule(module);
+    	return this;
+    }
 
     public KatharsisInvokerBuilder objectMapper(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
@@ -100,6 +107,9 @@ public class KatharsisInvokerBuilder {
                 throw new IllegalArgumentException("Resource Default Domain should not be null.");
             }
         }
+        
+        ResourceFieldNameTransformer buildResourceFieldNameTransformer = buildResourceFieldNameTransformer();
+    	moduleRegistry.addModule(new CoreModule(resourceSearchPackage, buildResourceFieldNameTransformer));
 
         if (resourceRegistry == null) {
             if (jsonServiceLocator == null) {
@@ -112,6 +122,8 @@ public class KatharsisInvokerBuilder {
         if (objectMapper == null) {
             objectMapper = createObjectMapper(resourceRegistry);
         }
+        
+        moduleRegistry.init(objectMapper, resourceRegistry);
 
         if (queryParamsBuilder == null) {
             queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
@@ -128,14 +140,8 @@ public class KatharsisInvokerBuilder {
         return new KatharsisInvoker(objectMapper, queryParamsBuilder, resourceRegistry, requestDispatcher);
     }
 
-    protected ExceptionMapperRegistry buildExceptionMapperRegistry(String resourceSearchPackage) throws Exception {
-        ExceptionMapperRegistryBuilder mapperRegistryBuilder = new ExceptionMapperRegistryBuilder();
-        return mapperRegistryBuilder.build(resourceSearchPackage);
-    }
-
-
-    protected ResourceRegistry buildResourceRegistry(JsonServiceLocator jsonServiceLocator, String resourceSearchPackage, String resourceDefaultDomain) {
-        ResourceFieldNameTransformer resourceFieldNameTransformer;
+    protected ResourceFieldNameTransformer buildResourceFieldNameTransformer(){
+   	 ResourceFieldNameTransformer resourceFieldNameTransformer;
         if (objectMapper != null) {
             resourceFieldNameTransformer =
                     new ResourceFieldNameTransformer(objectMapper.getSerializationConfig());
@@ -144,10 +150,20 @@ public class KatharsisInvokerBuilder {
             resourceFieldNameTransformer =
                     new ResourceFieldNameTransformer((new ObjectMapper()).getSerializationConfig());
         }
-        ResourceRegistryBuilder registryBuilder =
-                new ResourceRegistryBuilder(jsonServiceLocator, new ResourceInformationBuilder(resourceFieldNameTransformer));
+        return resourceFieldNameTransformer;
+   }
+    
+    protected ExceptionMapperRegistry buildExceptionMapperRegistry(String resourceSearchPackage) throws Exception {
+        ExceptionMapperRegistryBuilder mapperRegistryBuilder = new ExceptionMapperRegistryBuilder();
+        return mapperRegistryBuilder.build(resourceSearchPackage);
+    }
 
-        return registryBuilder.build(resourceSearchPackage, resourceDefaultDomain);
+
+    protected ResourceRegistry buildResourceRegistry(JsonServiceLocator jsonServiceLocator, String resourceSearchPackage, String resourceDefaultDomain) {
+        ResourceRegistryBuilder registryBuilder =
+                new ResourceRegistryBuilder(jsonServiceLocator, moduleRegistry.getResourceInformationBuilder());
+        
+        return registryBuilder.build(resourceSearchPackage, new ConstantServiceUrlProvider(resourceDefaultDomain));
     }
 
     protected RequestDispatcher createRequestDispatcher(ResourceRegistry resourceRegistry,
@@ -159,7 +175,7 @@ public class KatharsisInvokerBuilder {
         ControllerRegistryBuilder controllerRegistryBuilder = new ControllerRegistryBuilder(resourceRegistry, typeParser, objectMapper);
         ControllerRegistry controllerRegistry = controllerRegistryBuilder.build();
 
-        return new RequestDispatcher(controllerRegistry, exceptionMapperRegistry);
+        return new RequestDispatcher(moduleRegistry, controllerRegistry, exceptionMapperRegistry);
     }
 
     protected ObjectMapper createObjectMapper(ResourceRegistry resourceRegistry) {
@@ -170,7 +186,6 @@ public class KatharsisInvokerBuilder {
 
     protected Module createDataBindingModule(ResourceRegistry resourceRegistry) {
         JsonApiModuleBuilder jsonApiModuleBuilder = new JsonApiModuleBuilder();
-        SimpleModule simpleModule = jsonApiModuleBuilder.build(resourceRegistry);
-        return simpleModule;
+        return jsonApiModuleBuilder.build(resourceRegistry, false);
     }
 }

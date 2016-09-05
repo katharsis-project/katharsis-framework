@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.example.jersey.domain.repository.ProjectRepository;
 import io.katharsis.example.jersey.domain.repository.TaskRepository;
 import io.katharsis.example.jersey.domain.repository.TaskToProjectRepository;
-import io.katharsis.example.jersey.domain.repository.TaskToProjectRepositoryFactory;
 import io.katharsis.rs.KatharsisProperties;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.process.internal.RequestScoped;

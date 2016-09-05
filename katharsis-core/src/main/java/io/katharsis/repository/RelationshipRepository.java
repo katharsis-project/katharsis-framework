@@ -15,7 +15,7 @@ import java.io.Serializable;
  *     <li>findOneTarget</li>
  * </ul>
  * <p>
- * There are two methods that are used for To-One relationships:
+ * There are four methods that are used for To-Many relationships:
  * <ul>
  *     <li>setRelations</li>
  *     <li>addRelation</li>

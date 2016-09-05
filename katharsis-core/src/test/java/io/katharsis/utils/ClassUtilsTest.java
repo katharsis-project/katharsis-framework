@@ -12,6 +12,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 
 public class ClassUtilsTest {
 
@@ -108,39 +109,6 @@ public class ClassUtilsTest {
     }
 
     @Test
-    public void onGetJsonApiResourceClassReturnCorrectClass() {
-        // WHEN
-        Class<? super ResourceClass$Proxy> clazz = ClassUtils.getJsonApiResourceClass(ResourceClass$Proxy.class);
-
-        // THEN
-        assertThat(clazz).isNotNull();
-        assertThat(clazz).hasAnnotation(JsonApiResource.class);
-        assertThat(clazz).isEqualTo(ResourceClass.class);
-    }
-
-    @Test
-    public void onGetJsonApiResourceClassReturnCorrectInstanceClass() {
-        ResourceClass$Proxy resource = new ResourceClass$Proxy();
-
-        // WHEN
-        Class<? super ResourceClass$Proxy> clazz = ClassUtils.getJsonApiResourceClass(resource);
-
-        // THEN
-        assertThat(clazz).isEqualTo(ResourceClass.class);
-    }
-
-    @Test
-    public void onGetJsonApiResourceClassReturnNoInstanceClass() {
-        ParentClass resource = new ParentClass();
-
-        // WHEN
-        Class<? super ParentClass> clazz = ClassUtils.getJsonApiResourceClass(resource);
-
-        // THEN
-        assertThat(clazz).isNull();
-    }
-
-    @Test
     public void onGetAnnotationShouldReturnAnnotation() {
         // WHEN
         Optional<JsonApiResource> result = ClassUtils.getAnnotation(ResourceClass.class, JsonApiResource.class);
@@ -176,6 +144,19 @@ public class ClassUtilsTest {
         assertThat(result).isInstanceOf(ResourceClass.class);
     }
 
+    @Test
+    public void ignoreSyntheticMethods() throws Exception {
+        // WHEN
+        List<Method> getterMethods = ClassUtils.getClassGetters(IntegerClass.class);
+        List<Method> setterMethods = ClassUtils.getClassSetters(IntegerClass.class);
+
+        // THEN
+        assertEquals(1, getterMethods.size());
+        assertEquals(Integer.class, getterMethods.get(0).getReturnType());
+        assertEquals(1, setterMethods.size());
+
+    }
+
     @Test(expected = IllegalStateException.class)
     public void onClassWithCrushingConstructorShouldThrowException() throws Exception {
         // WHEN
@@ -186,6 +167,29 @@ public class ClassUtilsTest {
     public void onClassWithoutDefaultConstructorShouldThrowException() throws Exception {
         // WHEN
         ClassUtils.newInstance(ClassWithoutDefaultConstructor.class);
+    }
+
+
+    private abstract class BaseGenericClass<T> {
+
+        public abstract T getId();
+
+        public abstract void setId(T id);
+
+    }
+
+    private class IntegerClass extends BaseGenericClass<Integer> {
+
+        private Integer id = 1;
+
+        public Integer getId() {
+            return id;
+        }
+
+        public void setId(Integer id) {
+            this.id = id;
+        }
+
     }
 
     @JsonPropertyOrder(alphabetic = true)
@@ -258,9 +262,5 @@ public class ClassUtilsTest {
     public static class ClassWithoutDefaultConstructor {
         public ClassWithoutDefaultConstructor(String value) {
         }
-    }
-
-    public static class ResourceClass$Proxy extends ResourceClass{
-
     }
 }

@@ -1,5 +1,4 @@
 katharsis:
-  host:          http://localhost:8080
   searchPackage: io.katharsis.example.dropwizardSimple.domain
 
 server:

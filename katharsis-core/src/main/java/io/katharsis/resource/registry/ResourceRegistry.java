@@ -1,33 +1,43 @@
 package io.katharsis.resource.registry;
 
-import io.katharsis.resource.annotations.JsonApiResource;
-import io.katharsis.resource.exception.init.ResourceNotFoundInitializationException;
-import io.katharsis.utils.ClassUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.katharsis.resource.exception.init.ResourceNotFoundInitializationException;
+import io.katharsis.resource.information.ResourceInformation;
+import io.katharsis.utils.java.Optional;
+
+
 public class ResourceRegistry {
-    private final Map<Class, RegistryEntry> resources = new HashMap<>();
-    private final String serviceUrl;
+    private final Map<Class, RegistryEntry> resources;
+    private final ServiceUrlProvider serviceUrlProvider;
     private final Logger logger = LoggerFactory.getLogger(ResourceRegistry.class);
 
-    public ResourceRegistry(String serviceUrl) {
-        this.serviceUrl = serviceUrl;
+    public ResourceRegistry(ServiceUrlProvider serviceUrlProvider) {
+        this.serviceUrlProvider = serviceUrlProvider;
+        this.resources = new HashMap<>();
+    }
+
+
+    public ResourceRegistry(Map<Class, RegistryEntry> resources, ServiceUrlProvider serviceUrlProvider) {
+        this.serviceUrlProvider = serviceUrlProvider;
+        this.resources = new HashMap<>(resources); // copying is slower but completely thread safe
     }
 
     /**
      * Adds a new resource definition to a registry.
-     * @param resource class of a resource
+     *
+     * @param resource      class of a resource
      * @param registryEntry resource information
-     * @param <T> type of a resource
+     * @param <T>           type of a resource
      */
     public <T> void addEntry(Class<T> resource, RegistryEntry<? extends T> registryEntry) {
         resources.put(resource, registryEntry);
+        registryEntry.initialize(this);
         logger.debug("Added resource {} to ResourceRegistry", resource.getName());
     }
 
@@ -53,54 +63,65 @@ public class ResourceRegistry {
      * If a resource cannot be found, {@link ResourceNotFoundInitializationException} is thrown.
      *
      * @param clazz resource type
-     * @throws ResourceNotFoundInitializationException if resource is not found
      * @return registry entry
+     * @throws ResourceNotFoundInitializationException if resource is not found
      */
     public RegistryEntry getEntry(Class clazz) {
-        Class resourceClazz = ClassUtils.getJsonApiResourceClass(clazz);
-        if (resourceClazz == null) {
+        return getEntry(clazz, false);
+    }
+
+    private RegistryEntry<?> getEntry(Class<?> clazz, boolean allowNull) {
+        Optional<Class<?>> resourceClazz = getResourceClass(clazz);
+        if (allowNull && !resourceClazz.isPresent())
+            return null;
+        else if (!resourceClazz.isPresent())
             throw new ResourceNotFoundInitializationException(clazz.getCanonicalName());
-        }
-        RegistryEntry registryEntry = resources.get(resourceClazz);
-        if (registryEntry != null) {
-            return registryEntry;
-        }
-        throw new ResourceNotFoundInitializationException(clazz.getCanonicalName());
+        return resources.get(resourceClazz.get());
     }
 
     /**
      * Returns a JSON API resource type used by Katharsis. If a class cannot be found, <i>null</i> is returned.
-     * The value is fetched from {@link JsonApiResource#type()} attribute.
+     * The value is fetched from {@link ResourceInformation#getResourceType()} attribute.
      *
      * @param clazz resource class
      * @return resource type or null
      */
-    public String getResourceType(Class clazz) {
-        Class resourceClazz = ClassUtils.getJsonApiResourceClass(clazz);
-        if (resourceClazz == null) {
+    public String getResourceType(Class<?> clazz) {
+        RegistryEntry<?> entry = getEntry(clazz, true);
+        if (entry == null) {
             return null;
         }
-        Annotation[] annotations = resourceClazz.getAnnotations();
-        for (Annotation annotation : annotations) {
-            if (annotation instanceof JsonApiResource) {
-                JsonApiResource apiResource = (JsonApiResource) annotation;
-                return apiResource.type();
+        ResourceInformation resourceInformation = entry.getResourceInformation();
+        return resourceInformation.getResourceType();
+    }
+
+    public Optional<Class<?>> getResourceClass(Object resource) {
+        return getResourceClass(resource.getClass());
+    }
+
+    public Optional<Class<?>> getResourceClass(Class<?> resourceClass) {
+        Class<?> currentClass = resourceClass;
+        while (currentClass != null && currentClass != Object.class) {
+            RegistryEntry<?> entry = resources.get(currentClass);
+            if (entry != null) {
+                return (Optional) Optional.of(currentClass);
             }
+            currentClass = currentClass.getSuperclass();
         }
-        // won't reach this
-        return null;
+        return Optional.empty();
     }
 
     public String getResourceUrl(Class clazz) {
-        return serviceUrl + "/" + getResourceType(clazz);
+        return serviceUrlProvider.getUrl() + "/" + getResourceType(clazz);
     }
 
     public String getServiceUrl() {
-        return serviceUrl;
+        return serviceUrlProvider.getUrl();
     }
 
     /**
      * Get a list of all registered resources by Katharsis.
+     *
      * @return resources
      */
     public Map<Class, RegistryEntry> getResources() {

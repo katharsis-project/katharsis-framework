@@ -31,6 +31,8 @@ public class RegistryEntry<T> {
     private final ResourceEntry<T, ?> resourceEntry;
     private final List<ResponseRelationshipEntry<T, ?>> relationshipEntries;
     private RegistryEntry parentRegistryEntry = null;
+    
+	private ResourceRegistry resourceRegistry;
 
     public RegistryEntry(ResourceInformation resourceInformation,
                          @SuppressWarnings("SameParameterValue") ResourceEntry<T, ?> resourceEntry) {
@@ -44,6 +46,10 @@ public class RegistryEntry<T> {
         this.resourceEntry = resourceEntry;
         this.relationshipEntries = relationshipEntries;
     }
+    
+    protected void initialize(ResourceRegistry resourceRegistry){
+    	this.resourceRegistry = resourceRegistry;
+    }
 
     @SuppressWarnings("unchecked")
     public ResourceRepositoryAdapter getResourceRepository(RepositoryMethodParameterProvider parameterProvider) {
@@ -53,6 +59,11 @@ public class RegistryEntry<T> {
         } else if (resourceEntry instanceof AnnotatedResourceEntryBuilder) {
             repoInstance = ((AnnotatedResourceEntryBuilder<T, ?>) resourceEntry).build(parameterProvider);
         }
+        
+        if(repoInstance instanceof ResourceRegistryAware){
+        	((ResourceRegistryAware)repoInstance).setResourceRegistry(resourceRegistry);
+        }
+        
         return new ResourceRepositoryAdapter(repoInstance);
     }
 
@@ -75,11 +86,16 @@ public class RegistryEntry<T> {
         }
 
         Object repoInstance;
-         if (foundRelationshipEntry instanceof AnnotatedRelationshipEntryBuilder) {
+        if (foundRelationshipEntry instanceof AnnotatedRelationshipEntryBuilder) {
             repoInstance = ((AnnotatedRelationshipEntryBuilder<T, ?>) foundRelationshipEntry).build(parameterProvider);
         } else {
              repoInstance = ((DirectResponseRelationshipEntry<T, ?>) foundRelationshipEntry).getRepositoryInstanceBuilder();
-         }
+        }
+         
+        if(repoInstance instanceof ResourceRegistryAware){
+        	((ResourceRegistryAware)repoInstance).setResourceRegistry(resourceRegistry);
+        }
+         
         return new RelationshipRepositoryAdapter(repoInstance);
     }
 

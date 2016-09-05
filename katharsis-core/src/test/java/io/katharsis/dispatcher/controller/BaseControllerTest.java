@@ -7,11 +7,9 @@ import io.katharsis.queryParams.QueryParams;
 import io.katharsis.request.path.PathBuilder;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.include.IncludeLookupSetter;
+import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
 import io.katharsis.resource.information.ResourceInformationBuilder;
-import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.resource.registry.ResourceRegistryBuilder;
-import io.katharsis.resource.registry.ResourceRegistryBuilderTest;
-import io.katharsis.resource.registry.ResourceRegistryTest;
+import io.katharsis.resource.registry.*;
 import io.katharsis.utils.parser.TypeParser;
 import org.junit.Before;
 import org.junit.Rule;
@@ -31,16 +29,16 @@ public abstract class BaseControllerTest {
 
     @Before
     public void prepare() {
-        ResourceInformationBuilder resourceInformationBuilder = new ResourceInformationBuilder(
+        ResourceInformationBuilder resourceInformationBuilder = new AnnotationResourceInformationBuilder(
             new ResourceFieldNameTransformer());
         ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonServiceLocator(),
             resourceInformationBuilder);
         resourceRegistry = registryBuilder
-            .build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, ResourceRegistryTest.TEST_MODELS_URL);
+            .build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, new ConstantServiceUrlProvider(ResourceRegistryTest.TEST_MODELS_URL));
         pathBuilder = new PathBuilder(resourceRegistry);
         typeParser = new TypeParser();
         includeFieldSetter = new IncludeLookupSetter(resourceRegistry);
         objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JsonApiModuleBuilder().build(resourceRegistry));
+        objectMapper.registerModule(new JsonApiModuleBuilder().build(resourceRegistry, false));
     }
 }

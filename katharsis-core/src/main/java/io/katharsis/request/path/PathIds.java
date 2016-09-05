@@ -8,7 +8,8 @@ import java.util.List;
  * Represent an id or ids passed in the path from a client.
  */
 public class PathIds {
-    public static final String ID_SEPERATOR = ",";
+    public static final String ID_SEPARATOR = ",";
+    public static final String ID_SEPARATOR_PATTERN = ",|%2C";
 
     private final List<String> ids = new LinkedList<>();
 

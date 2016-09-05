@@ -2,6 +2,7 @@ package io.katharsis.jackson;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import io.katharsis.errorhandling.ErrorData;
 import io.katharsis.queryParams.DefaultQueryParamsParser;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
@@ -221,6 +222,30 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
 
         // THEN
         assertThatJson(result).node("links").isAbsent();
+    }
+
+    @Test
+    public void onErrorsShouldReturnErrorsObject() throws Exception {
+        // GIVEN
+        JsonApiResponse response = new JsonApiResponse()
+                .setErrors(Collections.singleton(ErrorData.builder().build()));
+
+        // WHEN
+        String result = sut.writeValueAsString(
+                new ResourceResponseContext(response, new ResourcePath("projects"), REQUEST_PARAMS));
+
+        // THEN
+        assertThatJson(result).node("errors").isPresent();
+    }
+
+    @Test
+    public void onNoErrorsShouldReturnNoErrorsObject() throws Exception {
+        // WHEN
+        String result = sut.writeValueAsString(
+                new ResourceResponseContext(new JsonApiResponse(), new ResourcePath("projects"), REQUEST_PARAMS));
+
+        // THEN
+        assertThatJson(result).node("errors").isAbsent();
     }
 
     @Test

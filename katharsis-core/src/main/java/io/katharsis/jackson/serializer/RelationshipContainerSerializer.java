@@ -8,6 +8,7 @@ import io.katharsis.request.path.PathBuilder;
 import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.response.ContainerType;
 import io.katharsis.response.LinkageContainer;
 import io.katharsis.response.RelationshipContainer;
 import io.katharsis.utils.ClassUtils;
@@ -31,29 +32,34 @@ public class RelationshipContainerSerializer extends JsonSerializer<Relationship
     private static final String LINKS_FIELD_NAME = "links";
 
     private final ResourceRegistry resourceRegistry;
+	private boolean isClient;
 
-    public RelationshipContainerSerializer(ResourceRegistry resourceRegistry) {
+    public RelationshipContainerSerializer(ResourceRegistry resourceRegistry, boolean isClient) {
         this.resourceRegistry = resourceRegistry;
+        this.isClient = isClient;
     }
 
     @Override
     public void serialize(RelationshipContainer relationshipContainer, JsonGenerator gen, SerializerProvider provider)
-        throws IOException {
+            throws IOException {
         gen.writeStartObject();
         writeLinks(relationshipContainer, gen);
-        if (!relationshipContainer.getRelationshipField().isLazy() ||
-            relationshipContainer.isForceInclusion()) {
+        if ((!relationshipContainer.getRelationshipField().isLazy() &&
+                !relationshipContainer.getDataLinksContainer().getContainerType().equals(ContainerType.INCLUDED_NESTED)) ||
+                relationshipContainer.isForceInclusion()) {
             writeLinkage(relationshipContainer, gen);
         }
         gen.writeEndObject();
     }
 
     private void writeLinks(RelationshipContainer relationshipContainer, JsonGenerator gen) throws IOException {
-        gen.writeFieldName(LINKS_FIELD_NAME);
-        gen.writeStartObject();
-        writeLink(relationshipContainer, gen, SELF_FIELD_NAME, true);
-        writeLink(relationshipContainer, gen, RELATED_FIELD_NAME, false);
-        gen.writeEndObject();
+    	if(!isClient){
+	        gen.writeFieldName(LINKS_FIELD_NAME);
+	        gen.writeStartObject();
+	        writeLink(relationshipContainer, gen, SELF_FIELD_NAME, true);
+	        writeLink(relationshipContainer, gen, RELATED_FIELD_NAME, false);
+	        gen.writeEndObject();
+    	}
     }
 
     private void writeLink(RelationshipContainer relationshipContainer, JsonGenerator gen, String fieldName,
@@ -66,7 +72,7 @@ public class RelationshipContainerSerializer extends JsonSerializer<Relationship
 
         Object sourceId = PropertyUtils.getProperty(data, idField.getUnderlyingName());
         String url = resourceUrl + "/" + sourceId + (addLinks ? "/" + PathBuilder.RELATIONSHIP_MARK + "/" : "/")
-            + relationshipContainer.getRelationshipField().getJsonName();
+                + relationshipContainer.getRelationshipField().getJsonName();
         gen.writeStringField(fieldName, url);
     }
 
@@ -81,7 +87,7 @@ public class RelationshipContainerSerializer extends JsonSerializer<Relationship
     private void writeLinkage(RelationshipContainer relationshipContainer, JsonGenerator gen) throws IOException {
         Class baseClass = relationshipContainer.getRelationshipField().getType();
         Class relationshipClass = Generics
-            .getResourceClass(relationshipContainer.getRelationshipField().getGenericType(), baseClass);
+                .getResourceClass(relationshipContainer.getRelationshipField().getGenericType(), baseClass);
         RegistryEntry relationshipEntry = resourceRegistry.getEntry(relationshipClass);
 
         gen.writeFieldName(DATA_FIELD_NAME);
@@ -90,7 +96,7 @@ public class RelationshipContainerSerializer extends JsonSerializer<Relationship
 
     private void writeLinkageField(RelationshipContainer relationshipContainer, JsonGenerator gen, Class baseClass,
                                    RegistryEntry relationshipEntry)
-        throws IOException {
+            throws IOException {
         try {
             if (Iterable.class.isAssignableFrom(baseClass)) {
                 writeToManyLinkage(relationshipContainer, gen, relationshipEntry);
@@ -102,32 +108,32 @@ public class RelationshipContainerSerializer extends JsonSerializer<Relationship
         }
     }
 
-    private static void writeToManyLinkage(RelationshipContainer relationshipContainer, JsonGenerator gen,
+    private void writeToManyLinkage(RelationshipContainer relationshipContainer, JsonGenerator gen,
                                            RegistryEntry relationshipEntry)
-        throws IOException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+            throws IOException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         ResourceField relationshipField = relationshipContainer.getRelationshipField();
         Object targetDataObj = PropertyUtils
-            .getProperty(relationshipContainer.getDataLinksContainer().getData(), relationshipField.getUnderlyingName());
+                .getProperty(relationshipContainer.getDataLinksContainer().getData(), relationshipField.getUnderlyingName());
 
         gen.writeStartArray();
         if (targetDataObj != null) {
             for (Object objectItem : (Iterable) targetDataObj) {
-                Class<?> objectItemClass = ClassUtils.getJsonApiResourceClass(objectItem);
+                Class<?> objectItemClass = resourceRegistry.getResourceClass(objectItem).get();
                 gen.writeObject(new LinkageContainer(objectItem, objectItemClass, relationshipEntry));
             }
         }
         gen.writeEndArray();
     }
 
-    private static void writeToOneLinkage(RelationshipContainer relationshipContainer, JsonGenerator gen,
-                                   RegistryEntry relationshipEntry)
-        throws IOException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+    private void writeToOneLinkage(RelationshipContainer relationshipContainer, JsonGenerator gen,
+                                          RegistryEntry relationshipEntry)
+            throws IOException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         ResourceField relationshipField = relationshipContainer.getRelationshipField();
         Object targetDataObj = PropertyUtils.getProperty(relationshipContainer.getDataLinksContainer().getData(), relationshipField.getUnderlyingName());
         if (targetDataObj == null) {
             gen.writeObject(null);
         } else {
-            Class<?> targetDataObjClass = ClassUtils.getJsonApiResourceClass(targetDataObj);
+            Class<?> targetDataObjClass = resourceRegistry.getResourceClass(targetDataObj).get();
             gen.writeObject(new LinkageContainer(targetDataObj, targetDataObjClass, relationshipEntry));
         }
     }

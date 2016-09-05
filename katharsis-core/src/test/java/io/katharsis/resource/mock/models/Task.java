@@ -4,6 +4,7 @@ import io.katharsis.resource.annotations.*;
 import io.katharsis.response.LinksInformation;
 import io.katharsis.response.MetaInformation;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @JsonApiResource(type = "tasks")
@@ -17,6 +18,10 @@ public class Task {
     @JsonApiToOne
     @JsonApiIncludeByDefault
     private Project project;
+
+    @JsonApiToMany
+    private List<Project> projectsInit = new ArrayList<>();
+
 
     @JsonApiToMany(lazy = false)
     private List<Project> projects;
@@ -111,5 +116,13 @@ public class Task {
     public Task setLinksInformation(LinksInformation linksInformation) {
         this.linksInformation = linksInformation;
         return this;
+    }
+
+    public List<Project> getProjectsInit() {
+        return projectsInit;
+    }
+
+    public void setProjectsInit(List<Project> projectsInit) {
+        this.projectsInit = projectsInit;
     }
 }

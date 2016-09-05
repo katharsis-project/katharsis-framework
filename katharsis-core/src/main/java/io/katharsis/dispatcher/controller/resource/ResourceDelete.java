@@ -53,7 +53,7 @@ public class ResourceDelete extends BaseController {
                     .getResourceInformation()
                     .getIdField()
                     .getType();
-            Serializable castedId = typeParser.parse(id, idClass);
+            Serializable castedId = registryEntry.getResourceInformation().parseIdString(id);
             //noinspection unchecked
             registryEntry.getResourceRepository(parameterProvider).delete(castedId, queryParams);
         }

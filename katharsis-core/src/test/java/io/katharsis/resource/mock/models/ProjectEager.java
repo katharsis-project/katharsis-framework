@@ -1,9 +1,6 @@
 package io.katharsis.resource.mock.models;
 
-import io.katharsis.resource.annotations.JsonApiId;
-import io.katharsis.resource.annotations.JsonApiIncludeByDefault;
-import io.katharsis.resource.annotations.JsonApiResource;
-import io.katharsis.resource.annotations.JsonApiToMany;
+import io.katharsis.resource.annotations.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +12,9 @@ public class ProjectEager {
     private Long id;
 
     private String name;
+
+    @JsonApiToOne
+    private Task task;
 
     @JsonApiToMany
     @JsonApiIncludeByDefault
@@ -42,5 +42,13 @@ public class ProjectEager {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Task getTask() {
+        return task;
+    }
+
+    public void setTask(Task task) {
+        this.task = task;
     }
 }

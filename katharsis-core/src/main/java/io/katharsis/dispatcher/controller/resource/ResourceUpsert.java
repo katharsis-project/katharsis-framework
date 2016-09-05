@@ -12,6 +12,7 @@ import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.field.ResourceAttributesBridge;
 import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
+import io.katharsis.resource.information.ResourceInstanceBuilder;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.responseRepository.RelationshipRepositoryAdapter;
@@ -35,22 +36,23 @@ public abstract class ResourceUpsert extends BaseController {
         this.typeParser = typeParser;
         this.objectMapper = objectMapper;
     }
+    
+    protected Object newResource(ResourceInformation resourceInformation, DataBody dataBody) {
+		ResourceInstanceBuilder<?> builder = resourceInformation.getInstanceBuilder();
+		return builder.buildResource(dataBody);
+	}
 
-    void setId(DataBody dataBody, Object instance, ResourceInformation resourceInformation) {
+    protected void setId(DataBody dataBody, Object instance, ResourceInformation resourceInformation) {
         if (dataBody.getId() != null) {
             String id = dataBody.getId();
 
-            @SuppressWarnings("unchecked") Class<? extends Serializable> idClass = (Class<? extends Serializable>)
-                resourceInformation
-                    .getIdField()
-                    .getType();
-            Serializable castedId = typeParser.parse(id, idClass);
+            Serializable castedId = resourceInformation.parseIdString(id);
             PropertyUtils.setProperty(instance, resourceInformation.getIdField()
                 .getUnderlyingName(), castedId);
         }
     }
 
-    void setAttributes(DataBody dataBody, Object instance, ResourceInformation resourceInformation) {
+    protected void setAttributes(DataBody dataBody, Object instance, ResourceInformation resourceInformation) {
         if (dataBody.getAttributes() != null) {
             ResourceAttributesBridge resourceAttributesBridge = resourceInformation.getAttributeFields();
             resourceAttributesBridge.setProperties(objectMapper, instance, dataBody.getAttributes());
