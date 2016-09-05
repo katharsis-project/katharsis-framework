@@ -1,8 +1,11 @@
-package io.katharsis.dispatcher.controller.resource;
+package io.katharsis.dispatcher.controller.relationship;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
 import io.katharsis.dispatcher.controller.HttpMethod;
+import io.katharsis.dispatcher.controller.relationship.RelationshipsResourceDelete;
+import io.katharsis.dispatcher.controller.relationship.RelationshipsResourcePost;
+import io.katharsis.dispatcher.controller.resource.ResourcePost;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.RequestBody;

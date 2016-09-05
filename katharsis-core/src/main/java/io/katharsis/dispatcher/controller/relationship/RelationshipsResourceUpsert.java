@@ -1,4 +1,4 @@
-package io.katharsis.dispatcher.controller.resource;
+package io.katharsis.dispatcher.controller.relationship;
 
 import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.dispatcher.controller.HttpMethod;

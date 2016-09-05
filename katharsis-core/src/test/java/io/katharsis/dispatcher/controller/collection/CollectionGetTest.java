@@ -1,7 +1,7 @@
 package io.katharsis.dispatcher.controller.collection;
 
 import io.katharsis.dispatcher.controller.BaseControllerTest;
-import io.katharsis.dispatcher.controller.resource.RelationshipsResourcePost;
+import io.katharsis.dispatcher.controller.relationship.RelationshipsResourcePost;
 import io.katharsis.dispatcher.controller.resource.ResourceGet;
 import io.katharsis.dispatcher.controller.resource.ResourcePost;
 import io.katharsis.queryParams.DefaultQueryParamsParser;
