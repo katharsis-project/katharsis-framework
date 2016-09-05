@@ -5,19 +5,12 @@ import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
-import io.katharsis.request.path.PathIds;
 import io.katharsis.request.path.ResourcePath;
-import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.include.IncludeLookupSetter;
-import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.resource.registry.responseRepository.ResourceRepositoryAdapter;
 import io.katharsis.response.BaseResponseContext;
-import io.katharsis.response.JsonApiResponse;
 import io.katharsis.response.ResourceResponseContext;
 import io.katharsis.utils.parser.TypeParser;
-
-import java.io.Serializable;
 
 public class ResourceHead extends ResourceGet {
 
