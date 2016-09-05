@@ -80,7 +80,7 @@ public class RelationshipsResourceHeadTest extends BaseControllerTest {
         BaseResponseContext response = sut.handle(jsonPath, REQUEST_PARAMS, null, null);
 
         // THEN
-        Assert.assertNotNull(response);
+        Assert.assertNull(response);
     }
 
     @Test
@@ -94,7 +94,6 @@ public class RelationshipsResourceHeadTest extends BaseControllerTest {
         BaseResponseContext response = sut.handle(jsonPath, REQUEST_PARAMS, null, null);
 
         // THEN
-        Assert.assertNotNull(response);
-        assertThat(response.getHttpStatus()).isEqualTo(HttpStatus.OK_200);
+        Assert.assertNull(response);
     }
 }
