@@ -33,7 +33,7 @@ public class PropertyUtilsTest {
         expectedException.expect(IllegalArgumentException.class);
 
         // WHEN
-        PropertyUtils.getProperty(bean, null);
+        PropertyUtils.getProperty(bean, (String)null);
     }
 
     @Test
@@ -75,6 +75,25 @@ public class PropertyUtilsTest {
         // THEN
         assertThat(result).isEqualTo("value");
     }
+    
+    @Test
+    public void onStringPublicReturnStringClass() throws Exception {
+        // WHEN
+        Object result = PropertyUtils.getPropertyClass(Bean.class, "publicProperty");
+
+        // THEN
+        assertThat(result).isEqualTo(String.class);
+    }
+    
+    @Test
+    public void onBooleanPropertyWithMutatorsReturnBooleanClass() throws Exception {
+        // WHEN
+        Object result = PropertyUtils.getPropertyClass(Bean.class, "booleanPropertyWithMutators");
+
+        // THEN
+        assertThat(result).isEqualTo(Boolean.class);
+    }
+    
 
     @Test
     public void onStringProtectedGetWithMutatorsShouldThrowException() throws Exception {

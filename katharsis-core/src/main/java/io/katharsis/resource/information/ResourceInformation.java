@@ -12,7 +12,7 @@ import java.util.Set;
 /**
  * Holds information about the type of the resource.
  */
-public final class ResourceInformation {
+public class ResourceInformation {
     private final Class<?> resourceClass;
     
     /**

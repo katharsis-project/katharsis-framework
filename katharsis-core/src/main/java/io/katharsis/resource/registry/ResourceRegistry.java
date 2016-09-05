@@ -1,14 +1,16 @@
 package io.katharsis.resource.registry;
 
-import io.katharsis.resource.exception.init.ResourceNotFoundInitializationException;
-import io.katharsis.resource.information.ResourceInformation;
-import io.katharsis.utils.java.Optional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.katharsis.resource.exception.init.ResourceNotFoundInitializationException;
+import io.katharsis.resource.information.ResourceInformation;
+import io.katharsis.utils.java.Optional;
+
 
 public class ResourceRegistry {
     private final Map<Class, RegistryEntry> resources;
@@ -35,6 +37,7 @@ public class ResourceRegistry {
      */
     public <T> void addEntry(Class<T> resource, RegistryEntry<? extends T> registryEntry) {
         resources.put(resource, registryEntry);
+        registryEntry.initialize(this);
         logger.debug("Added resource {} to ResourceRegistry", resource.getName());
     }
 
