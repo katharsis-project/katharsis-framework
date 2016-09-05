@@ -141,6 +141,17 @@ public class ResourceInformationBuilderTest {
                 .contains(String.class);
     }
 
+    @Test
+    public void shouldHaveProperTypeWhenFieldAndGetterTypesDifferV2() throws Exception {
+        ResourceInformation resourceInformation = resourceInformationBuilder.build(DifferentTypes.class);
+
+        assertThat(resourceInformation.getRelationshipFields())
+                .isNotNull()
+                .hasSize(1)
+                .extracting("type")
+                .contains(String.class);
+    }
+
     @JsonApiResource(type = "duplicatedIdAnnotationResources")
     private static class DuplicatedIdResource {
         @JsonApiId
@@ -308,6 +319,19 @@ public class ResourceInformationBuilderTest {
         public Future<String> field;
 
         @JsonApiToOne
+        public String getField() {
+            return null;
+        }
+    }
+
+    @JsonApiResource(type = "differentTypesv2")
+    private static class DifferentTypesv2 {
+        @JsonApiId
+        private Long id;
+
+        @JsonApiToOne
+        public Future<String> field;
+
         public String getField() {
             return null;
         }
