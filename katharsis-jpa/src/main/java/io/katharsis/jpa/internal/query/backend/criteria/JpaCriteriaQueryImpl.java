@@ -1,6 +1,7 @@
 package io.katharsis.jpa.internal.query.backend.criteria;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaQuery;
@@ -38,7 +39,7 @@ public class JpaCriteriaQueryImpl<T> extends AbstractJpaQueryImpl<T, JpaCriteria
 	}
 
 	@Override
-	protected JpaCriteriaQueryExecutorImpl<T> newExecutor(JpaCriteriaQueryBackend<T> ctx, int numAutoSelections) {
-		return new JpaCriteriaQueryExecutorImpl<>(em, meta, ctx.getCriteriaQuery(), numAutoSelections);
+	protected JpaCriteriaQueryExecutorImpl<T> newExecutor(JpaCriteriaQueryBackend<T> ctx, int numAutoSelections, Map<String, Integer> selectionBindings) {
+		return new JpaCriteriaQueryExecutorImpl<>(em, meta, ctx.getCriteriaQuery(), numAutoSelections, selectionBindings);
 	}
 }

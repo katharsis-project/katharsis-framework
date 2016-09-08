@@ -1,22 +1,28 @@
 package io.katharsis.jpa.internal.query.backend.querydsl;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.QTuple;
 import com.querydsl.jpa.impl.JPAQuery;
 
 import io.katharsis.jpa.internal.meta.MetaDataObject;
 import io.katharsis.jpa.internal.query.AbstractQueryExecutorImpl;
+import io.katharsis.jpa.query.querydsl.QuerydslExecutor;
+import io.katharsis.jpa.query.querydsl.QuerydslTuple;
 
-public class QuerydslQueryExecutor<T> extends AbstractQueryExecutorImpl<T> {
+public class QuerydslExecutorImpl<T> extends AbstractQueryExecutorImpl<T> implements QuerydslExecutor<T> {
 
 	private JPAQuery<T> query;
 
-	public QuerydslQueryExecutor(EntityManager em, MetaDataObject meta, JPAQuery<T> query, int numAutoSelections) {
-		super(em, meta, numAutoSelections);
+	public QuerydslExecutorImpl(EntityManager em, MetaDataObject meta, JPAQuery<T> query, int numAutoSelections,
+			Map<String, Integer> selectionBindings) {
+		super(em, meta, numAutoSelections, selectionBindings);
 
 		this.query = query;
 	}
@@ -52,5 +58,19 @@ public class QuerydslQueryExecutor<T> extends AbstractQueryExecutorImpl<T> {
 	@Override
 	public long getTotalRowCount() {
 		return query.fetchCount();
+	}
+
+	@Override
+	public List<QuerydslTuple> getResultTuples() {
+		List<?> results = executeQuery();
+
+		List<QuerydslTuple> tuples = new ArrayList<>();
+		for (Object result : results) {
+			if (!(result instanceof Tuple)) {
+				throw new IllegalStateException("not a tuple result: " + result);
+			}
+			tuples.add(new QuerydslTupleImpl((Tuple) result, selectionBindings));
+		}
+		return tuples;
 	}
 }

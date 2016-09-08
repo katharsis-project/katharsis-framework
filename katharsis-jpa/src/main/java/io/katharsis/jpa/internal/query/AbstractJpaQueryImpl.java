@@ -18,27 +18,39 @@ import io.katharsis.jpa.query.JpaQuery;
 import io.katharsis.queryspec.Direction;
 import io.katharsis.queryspec.FilterOperator;
 import io.katharsis.queryspec.FilterSpec;
+import io.katharsis.queryspec.IncludeFieldSpec;
 import io.katharsis.queryspec.SortSpec;
 
 public abstract class AbstractJpaQueryImpl<T, B extends JpaQueryBackend<?, ?, ?, ?>> implements JpaQuery<T> {
 
 	protected final EntityManager em;
+
 	protected final MetaDataObject meta;
+
 	protected final Class<T> clazz;
 
 	protected JoinType defaultJoinType = JoinType.INNER;
+
 	protected final Map<MetaAttributePath, JoinType> joinTypes = new HashMap<>();
 
 	protected ArrayList<FilterSpec> filterSpecs = new ArrayList<>();
+
 	protected ArrayList<SortSpec> sortSpecs = new ArrayList<>();
 
+	protected ArrayList<IncludeFieldSpec> includedFields = new ArrayList<>();
+
 	protected boolean autoDistinct = true;
+
 	protected boolean autoGroupBy = false;
+
 	protected boolean distinct = false;
+
 	protected boolean ensureTotalOrder = true;
 
 	protected Class<?> parentEntityClass;
+
 	protected List<?> parentIds;
+
 	protected MetaAttribute parentAttr;
 
 	private VirtualAttributeRegistry virtualAttrs;
@@ -68,6 +80,11 @@ public abstract class AbstractJpaQueryImpl<T, B extends JpaQueryBackend<?, ?, ?,
 	}
 
 	@Override
+	public void addSelection(List<String> path) {
+		includedFields.add(new IncludeFieldSpec(path));
+	}
+
+	@Override
 	public JpaQuery<T> setEnsureTotalOrder(boolean ensureTotalOrder) {
 		this.ensureTotalOrder = ensureTotalOrder;
 		return this;
@@ -76,12 +93,6 @@ public abstract class AbstractJpaQueryImpl<T, B extends JpaQueryBackend<?, ?, ?,
 	@Override
 	public JpaQuery<T> addFilter(FilterSpec filters) {
 		this.filterSpecs.add(filters);
-		return this;
-	}
-
-	@Override
-	public JpaQuery<T> addSortBy(Direction dir, String... path) {
-		this.sortSpecs.add(new SortSpec(Arrays.asList(path), dir));
 		return this;
 	}
 
@@ -104,8 +115,8 @@ public abstract class AbstractJpaQueryImpl<T, B extends JpaQueryBackend<?, ?, ?,
 	}
 
 	@Override
-	public JpaQuery<T> setJoinType(JoinType joinType, String... path) {
-		joinTypes.put(meta.resolvePath(Arrays.asList(path)), joinType);
+	public JpaQuery<T> setJoinType(List<String> path, JoinType joinType) {
+		joinTypes.put(meta.resolvePath(path), joinType);
 		return this;
 	}
 
@@ -141,6 +152,10 @@ public abstract class AbstractJpaQueryImpl<T, B extends JpaQueryBackend<?, ?, ?,
 		return ensureTotalOrder;
 	}
 
+	public List<IncludeFieldSpec> getIncludedFields() {
+		return includedFields;
+	}
+
 	public JoinType getJoinType(MetaAttributePath path) {
 		JoinType joinType = joinTypes.get(path);
 		if (joinType == null)
@@ -167,14 +182,15 @@ public abstract class AbstractJpaQueryImpl<T, B extends JpaQueryBackend<?, ?, ?,
 
 		@SuppressWarnings({ "rawtypes", "unchecked" })
 		QueryBuilder executorFactory = new QueryBuilder(this, backend);
+		Map<String,Integer> selectionBindings = executorFactory.applySelectionSpec();
 		executorFactory.applyFilterSpec();
 		executorFactory.applySortSpec();
 		int numAutoSelections = executorFactory.applyDistinct();
 
-		return newExecutor(backend, numAutoSelections);
+		return newExecutor(backend, numAutoSelections, selectionBindings);
 	}
 
-	protected abstract AbstractQueryExecutorImpl<T> newExecutor(B ctx, int numAutoSelections);
+	protected abstract AbstractQueryExecutorImpl<T> newExecutor(B ctx, int numAutoSelections, Map<String, Integer> selectionBindings);
 
 	protected abstract B newBackend();
 

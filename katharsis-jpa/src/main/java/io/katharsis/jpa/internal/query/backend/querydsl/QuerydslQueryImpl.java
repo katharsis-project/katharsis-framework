@@ -1,6 +1,7 @@
 package io.katharsis.jpa.internal.query.backend.querydsl;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.EntityManager;
 
@@ -28,8 +29,8 @@ public class QuerydslQueryImpl<T> extends AbstractJpaQueryImpl<T, QuerydslQueryB
 	}
 
 	@Override
-	public QuerydslQueryExecutor<T> buildExecutor() {
-		return (QuerydslQueryExecutor<T>) super.buildExecutor();
+	public QuerydslExecutorImpl<T> buildExecutor() {
+		return (QuerydslExecutorImpl<T>) super.buildExecutor();
 	}
 
 	protected JPAQueryFactory getQueryFactory() {
@@ -42,7 +43,7 @@ public class QuerydslQueryImpl<T> extends AbstractJpaQueryImpl<T, QuerydslQueryB
 	}
 
 	@Override
-	protected QuerydslQueryExecutor<T> newExecutor(QuerydslQueryBackend<T> ctx, int numAutoSelections) {
-		return new QuerydslQueryExecutor<>(em, meta, ctx.getQuery(), numAutoSelections);
+	protected QuerydslExecutorImpl<T> newExecutor(QuerydslQueryBackend<T> ctx, int numAutoSelections, Map<String, Integer> selectionBindings) {
+		return new QuerydslExecutorImpl<>(em, meta, ctx.getQuery(), numAutoSelections, selectionBindings);
 	}
 }

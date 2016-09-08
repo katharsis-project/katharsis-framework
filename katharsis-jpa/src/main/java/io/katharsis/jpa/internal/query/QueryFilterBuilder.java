@@ -27,18 +27,9 @@ public final class QueryFilterBuilder<P, F> {
 
 	private JpaQueryBackend<F, ?, P, ?> backend;
 
-	protected QueryFilterBuilder(final VirtualAttributeRegistry virtualAttrs, JpaQueryBackend<F, ?, P, ?> backend) {
+	protected QueryFilterBuilder(final VirtualAttributeRegistry virtualAttrs, JpaQueryBackend<F, ?, P, ?> backend, MetaAttributeFinder attributeFinder) {
 		this.backend = backend;
-		this.attributeFinder = new MetaAttributeFinder() {
-			@Override
-			public MetaAttribute getAttribute(MetaDataObject meta, String name) {
-				MetaVirtualAttribute attr = virtualAttrs.get(meta, name);
-				if (attr != null) {
-					return attr;
-				}
-				return meta.findAttribute(name, true);
-			}
-		};
+		this.attributeFinder = attributeFinder;
 	}
 
 	public List<P> filterSpecListToPredicateArray(MetaDataObject rootMeta, F root, List<FilterSpec> rowFilters) {

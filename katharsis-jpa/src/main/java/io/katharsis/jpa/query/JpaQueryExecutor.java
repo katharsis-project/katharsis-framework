@@ -24,4 +24,6 @@ public interface JpaQueryExecutor<T> {
 	public JpaQueryExecutor<T> fetch(List<String> attrPath);
 
 	public Class<T> getEntityClass();
+
+	public <U extends Tuple> List<U> getResultTuples();
 }

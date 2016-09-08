@@ -2,6 +2,7 @@ package io.katharsis.jpa.query;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Assert;
@@ -16,6 +17,7 @@ import io.katharsis.queryspec.FilterOperator;
 public abstract class AbstractInheritanceTest<B, C> extends AbstractJpaTest {
 
 	private Class<B> baseClass;
+
 	private Class<C> childClass;
 
 	protected AbstractInheritanceTest(Class<B> baseClass, Class<C> childClass) {
@@ -42,7 +44,8 @@ public abstract class AbstractInheritanceTest<B, C> extends AbstractJpaTest {
 		try {
 			Assert.assertNull(baseMeta.getAttribute("intValue"));
 			Assert.fail();
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			// ok
 		}
 		Assert.assertNotNull(childMeta.getAttribute("id"));
@@ -60,10 +63,8 @@ public abstract class AbstractInheritanceTest<B, C> extends AbstractJpaTest {
 		// FIXME subtype lookup
 		module.getMetaLookup().getMeta(childClass).asEntity();
 
-		assertEquals(1,
-				baseBuilder().addFilter("intValue", FilterOperator.EQ, 2).buildExecutor().getResultList().size());
-		assertEquals(3,
-				baseBuilder().addFilter("intValue", FilterOperator.GT, 1).buildExecutor().getResultList().size());
+		assertEquals(1, baseBuilder().addFilter("intValue", FilterOperator.EQ, 2).buildExecutor().getResultList().size());
+		assertEquals(3, baseBuilder().addFilter("intValue", FilterOperator.GT, 1).buildExecutor().getResultList().size());
 	}
 
 	@Test
@@ -71,7 +72,7 @@ public abstract class AbstractInheritanceTest<B, C> extends AbstractJpaTest {
 		// FIXME subtype lookup
 		module.getMetaLookup().getMeta(childClass).asEntity();
 
-		List<B> list = baseBuilder().addSortBy(Direction.DESC, "intValue").buildExecutor().getResultList();
+		List<B> list = baseBuilder().addSortBy(Arrays.asList("intValue"), Direction.DESC).buildExecutor().getResultList();
 		Assert.assertEquals(10, list.size());
 		for (int i = 0; i < 10; i++) {
 			B entity = list.get(i);
@@ -80,7 +81,8 @@ public abstract class AbstractInheritanceTest<B, C> extends AbstractJpaTest {
 			if (i < 5) {
 				Assert.assertTrue(childClass.isInstance(entity));
 				Assert.assertEquals(4 - i, meta.getAttribute("intValue").getValue(entity));
-			} else {
+			}
+			else {
 				Assert.assertFalse(childClass.isInstance(entity));
 
 				// order by primary key by default second order criteria

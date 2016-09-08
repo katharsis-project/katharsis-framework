@@ -15,15 +15,13 @@ public interface JpaQuery<T> {
 
 	public JpaQuery<T> addFilter(FilterSpec filters);
 
-	public JpaQuery<T> addSortBy(Direction dir, String... path);
-
 	public JpaQuery<T> addSortBy(List<String> path, Direction dir);
 
 	public JpaQuery<T> addSortBy(SortSpec order);
 
 	public JpaQuery<T> setDefaultJoinType(JoinType joinType);
 
-	public JpaQuery<T> setJoinType(JoinType joinType, String... path);
+	public JpaQuery<T> setJoinType(List<String> path, JoinType joinType);
 
 	public JpaQuery<T> setAutoGroupBy(boolean autoGroupBy);
 
@@ -36,5 +34,7 @@ public interface JpaQuery<T> {
 	public JpaQueryExecutor<T> buildExecutor();
 
 	public Class<T> getEntityClass();
+
+	public void addSelection(List<String> path);
 
 }

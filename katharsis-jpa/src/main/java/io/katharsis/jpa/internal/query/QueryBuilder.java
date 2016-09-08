@@ -1,14 +1,19 @@
 package io.katharsis.jpa.internal.query;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import io.katharsis.jpa.internal.meta.MetaAttribute;
+import io.katharsis.jpa.internal.meta.MetaAttributeFinder;
+import io.katharsis.jpa.internal.meta.MetaAttributePath;
 import io.katharsis.jpa.internal.meta.MetaDataObject;
 import io.katharsis.jpa.internal.meta.MetaEntity;
 import io.katharsis.jpa.internal.meta.MetaKey;
 import io.katharsis.jpa.internal.query.backend.JpaQueryBackend;
 import io.katharsis.queryspec.FilterSpec;
+import io.katharsis.queryspec.IncludeFieldSpec;
 
 public class QueryBuilder<T, F, O, P, E> {
 
@@ -18,9 +23,24 @@ public class QueryBuilder<T, F, O, P, E> {
 
 	private AbstractJpaQueryImpl<T, ?> query;
 
+	private MetaAttributeFinder attributeFinder;
+
 	public QueryBuilder(AbstractJpaQueryImpl<T, ?> query, JpaQueryBackend<F, O, P, E> backend) {
 		this.query = query;
 		this.backend = backend;
+
+		final VirtualAttributeRegistry virtualAttrs = query.getVirtualAttrs();
+		this.attributeFinder = new MetaAttributeFinder() {
+
+			@Override
+			public MetaAttribute getAttribute(MetaDataObject meta, String name) {
+				MetaVirtualAttribute attr = virtualAttrs.get(meta, name);
+				if (attr != null) {
+					return attr;
+				}
+				return meta.findAttribute(name, true);
+			}
+		};
 	}
 
 	/**
@@ -41,13 +61,30 @@ public class QueryBuilder<T, F, O, P, E> {
 				// we also need to select sorted attributes (for references)
 				numAutoSelections = addOrderExpressionsToSelection();
 			}
-		} else {
+		}
+		else {
 			distinct = query.distinct;
 		}
 		if (distinct) {
 			backend.distinct();
 		}
 		return numAutoSelections;
+	}
+
+	public Map<String, Integer> applySelectionSpec() {
+		MetaDataObject meta = query.getMeta();
+
+		Map<String, Integer> selectionBindings = new HashMap<>();
+
+		int index = 1;
+		List<IncludeFieldSpec> includedFields = query.getIncludedFields();
+		for (IncludeFieldSpec includedField : includedFields) {
+			MetaAttributePath path = meta.resolvePath(includedField.getAttributePath(), attributeFinder);
+			E attr = backend.getAttribute(path);
+			backend.addSelection(attr, path.toString());
+			selectionBindings.put(path.toString(), index++);
+		}
+		return selectionBindings;
 	}
 
 	private int addOrderExpressionsToSelection() {
@@ -72,7 +109,7 @@ public class QueryBuilder<T, F, O, P, E> {
 	}
 
 	protected void applyFilterSpec() {
-		QueryFilterBuilder<P, F> predicateBuilder = new QueryFilterBuilder<>(query.getVirtualAttrs(), backend);
+		QueryFilterBuilder<P, F> predicateBuilder = new QueryFilterBuilder<>(query.getVirtualAttrs(), backend, attributeFinder);
 
 		MetaDataObject meta = query.getMeta();
 		List<FilterSpec> filters = query.getFilterSpecs();
@@ -90,4 +127,5 @@ public class QueryBuilder<T, F, O, P, E> {
 			backend.addParentPredicate(primaryKeyAttr);
 		}
 	}
+
 }

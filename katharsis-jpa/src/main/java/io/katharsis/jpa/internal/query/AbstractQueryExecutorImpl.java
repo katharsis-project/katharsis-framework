@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.EntityGraph;
@@ -27,11 +28,14 @@ public abstract class AbstractQueryExecutorImpl<T> implements JpaQueryExecutor<T
 	protected Set<MetaAttributePath> fetchPaths = new HashSet<>();
 
 	protected MetaDataObject meta;
+	
+	protected Map<String, Integer> selectionBindings;
 
-	public AbstractQueryExecutorImpl(EntityManager em, MetaDataObject meta, int numAutoSelections) {
+	public AbstractQueryExecutorImpl(EntityManager em, MetaDataObject meta, int numAutoSelections, Map<String, Integer> selectionBindings) {
 		this.em = em;
 		this.meta = meta;
 		this.numAutoSelections = numAutoSelections;
+		this.selectionBindings = selectionBindings; 
 	}
 
 	@Override
@@ -117,11 +121,11 @@ public abstract class AbstractQueryExecutorImpl<T> implements JpaQueryExecutor<T
 		return truncatedList;
 	}
 
-	static class Tuple {
+	static class TupleElement {
 		private Object[] data;
 		private int hashCode;
 
-		Tuple(Object[] data) {
+		TupleElement(Object[] data) {
 			this.data = data;
 			this.hashCode = Arrays.hashCode(data);
 		}
@@ -133,19 +137,19 @@ public abstract class AbstractQueryExecutorImpl<T> implements JpaQueryExecutor<T
 
 		@Override
 		public boolean equals(Object obj) {
-			if (!(obj instanceof Tuple))
+			if (!(obj instanceof TupleElement))
 				return false;
-			Tuple tuple = (Tuple) obj;
+			TupleElement tuple = (TupleElement) obj;
 			return tuple.hashCode == hashCode && Arrays.equals(data, tuple.data);
 		}
 	}
 
 	protected static List<Object[]> enforceDistinct(List<?> list) {
-		HashSet<Tuple> distinctSet = new HashSet<>();
+		HashSet<TupleElement> distinctSet = new HashSet<>();
 		ArrayList<Object[]> distinctResult = new ArrayList<>();
 		for (Object obj : list) {
 			Object[] values = (Object[]) obj;
-			Tuple tuple = new Tuple(values);
+			TupleElement tuple = new TupleElement(values);
 			if (!distinctSet.contains(tuple)) {
 				distinctSet.add(tuple);
 				distinctResult.add(values);
