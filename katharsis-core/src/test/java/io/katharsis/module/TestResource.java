@@ -1,6 +1,6 @@
 package io.katharsis.module;
 
-class TestResource {
+public class TestResource {
 
 	private int id;
 

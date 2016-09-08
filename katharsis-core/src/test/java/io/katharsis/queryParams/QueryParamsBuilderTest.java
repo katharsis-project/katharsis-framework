@@ -170,4 +170,10 @@ public class QueryParamsBuilderTest {
             .get("special-users")
             .getParams()).containsExactly(new Inclusion("friends"), new Inclusion("foes"));
     }
+
+    @Test(expected = ParametersDeserializationException.class)
+    public void onGivenInvalidQueryParamsBuilderShouldThrowParametersDeserializationException() {
+        queryParams.put("include[missing_bracket", new LinkedHashSet<>(Arrays.asList("bad","request")));
+        sut.buildQueryParams(queryParams);
+    }
 }
