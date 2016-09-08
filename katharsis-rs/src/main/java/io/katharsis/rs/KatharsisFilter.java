@@ -116,7 +116,7 @@ public class KatharsisFilter implements ContainerRequestFilter {
             ResourceRegistry newRegistry = new ResourceRegistry(resourceRegistry.getResources(), new UriInfoServiceUrlProvider(uriInfo));
             JsonPath jsonPath = new PathBuilder(newRegistry).buildPath(path);
 
-            QueryParams requestParams = createQueryParams(uriInfo);
+            QueryParams requestParams = createQueryParams(uriInfo, jsonPath);
 
             String method = requestContext.getMethod();
             RequestBody requestBody = inputStreamToBody(requestContext.getEntityStream());
@@ -161,15 +161,8 @@ public class KatharsisFilter implements ContainerRequestFilter {
         requestContext.abortWith(response);
     }
 
-    private QueryParams createQueryParams(UriInfo uriInfo) {
-        MultivaluedMap<String, String> queryParametersMultiMap = uriInfo.getQueryParameters();
-        Map<String, Set<String>> queryParameters = new HashMap<>();
-
-        for (Map.Entry<String, List<String>> queryEntry : queryParametersMultiMap.entrySet()) {
-            queryParameters.put(queryEntry.getKey(), new LinkedHashSet<>(queryEntry.getValue()));
-        }
-
-        return queryParamsBuilder.buildQueryParams(queryParameters);
+    private QueryParams createQueryParams(UriInfo uriInfo, JsonPath path) {
+        return queryParamsBuilder.buildQueryParams(new JaxRsQueryParamsParserContext(uriInfo, resourceRegistry, path));
     }
 
     public RequestBody inputStreamToBody(InputStream is) throws IOException {

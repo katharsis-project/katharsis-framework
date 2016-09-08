@@ -113,7 +113,7 @@ public class KatharsisFilterV2 implements Filter, BeanFactoryAware {
         try {
             JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath(getRequestPath(request));
 
-            QueryParams queryParams = createQueryParams(request);
+            QueryParams queryParams = createQueryParams(request, jsonPath);
 
             in = request.getInputStream();
             RequestBody requestBody = inputStreamToBody(in);
@@ -210,16 +210,11 @@ public class KatharsisFilterV2 implements Filter, BeanFactoryAware {
      * body parameters, but we don't expect to receive such body.
      *
      * @param request request body
+     * @path
      * @return query parameters
      */
-    private QueryParams createQueryParams(HttpServletRequest request) {
-        Map<String, String[]> params = request.getParameterMap();
-
-        Map<String, Set<String>> queryParameters = new HashMap<>(params.size());
-        for (Map.Entry<String, String[]> entry : params.entrySet()) {
-            queryParameters.put(entry.getKey(), new HashSet<>(Arrays.asList(entry.getValue())));
-        }
-        return queryParamsBuilder.buildQueryParams(queryParameters);
+    private QueryParams createQueryParams(HttpServletRequest request, JsonPath path) {
+        return queryParamsBuilder.buildQueryParams(new SpringQueryParamsParserContext(request, resourceRegistry, path));
     }
 
     private RequestBody inputStreamToBody(InputStream is) {

@@ -8,7 +8,7 @@ import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 
-class TestResourceInformationBuilder implements ResourceInformationBuilder {
+public class TestResourceInformationBuilder implements ResourceInformationBuilder {
 
 	@Override
 	public boolean accept(Class<?> resourceClass) {
@@ -19,7 +19,7 @@ class TestResourceInformationBuilder implements ResourceInformationBuilder {
 	public ResourceInformation build(Class<?> resourceClass) {
 		ResourceField idField = new ResourceField("testId", "id", Integer.class, null);
 		ResourceAttributesBridge<?> attributeFields = null;
-		Set<ResourceField> relationshipFields = new HashSet<ResourceField>();
+		Set<ResourceField> relationshipFields = new HashSet<>();
 		ResourceInformation info = new ResourceInformation(resourceClass, resourceClass.getSimpleName(), idField,
 				attributeFields, relationshipFields);
 		return info;
