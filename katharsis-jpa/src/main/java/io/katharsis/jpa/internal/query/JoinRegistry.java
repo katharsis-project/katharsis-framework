@@ -1,0 +1,113 @@
+package io.katharsis.jpa.internal.query;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.persistence.criteria.JoinType;
+
+import io.katharsis.jpa.internal.meta.MetaAttribute;
+import io.katharsis.jpa.internal.meta.MetaAttributePath;
+import io.katharsis.jpa.internal.meta.MetaMapAttribute;
+import io.katharsis.jpa.internal.query.backend.JpaQueryBackend;
+
+public class JoinRegistry<F, E> {
+
+	private Map<MetaAttributePath, F> joinMap = new HashMap<>();
+
+	private JpaQueryBackend<F, ?, ?, E> backend;
+
+	private AbstractJpaQueryImpl<?, ?> query;
+
+	public JoinRegistry(JpaQueryBackend<F, ?, ?, E> backend, AbstractJpaQueryImpl<?, ?> query) {
+		this.backend = backend;
+		this.query = query;
+	}
+
+	public E getEntityAttribute(MetaAttributePath attrPath) {
+		MetaAttributePath associationPath = extractAssociationPath(attrPath);
+		MetaAttributePath primitivePath = attrPath.subPath(associationPath.length());
+
+		@SuppressWarnings("unchecked")
+		E from = (E) getOrCreateJoin(associationPath);
+		if (primitivePath.length() == 0) {
+			return from;
+		}
+
+		MetaAttributePath currentPath = associationPath;
+		E criteriaPath = null;
+		for (MetaAttribute pathElement : primitivePath) {
+			currentPath = currentPath.concat(pathElement);
+
+			E currentCriteriaPath = criteriaPath != null ? criteriaPath : from;
+			if (pathElement instanceof MetaMapAttribute) {
+				if (criteriaPath != null)
+					throw new IllegalStateException("Cannot join to map");
+				criteriaPath = joinMap(currentCriteriaPath, pathElement);
+			} else {
+				// we may need to downcast if attribute is defined on a subtype
+				Class<?> entityType = pathElement.getParent().asDataObject().getImplementationClass();
+				boolean isSubType = !entityType.isAssignableFrom(backend.getJavaType(currentCriteriaPath));
+				if (isSubType) {
+					currentCriteriaPath = backend.joinSubType(currentCriteriaPath, entityType);
+				}
+				criteriaPath = backend.getAttribute(currentCriteriaPath, pathElement);
+			}
+		}
+		return criteriaPath;
+
+	}
+
+	private E joinMap(E currentCriteriaPath, MetaAttribute pathElement) {
+		MetaMapAttribute mapPathElement = (MetaMapAttribute) pathElement;
+		if (mapPathElement.isKeyAccess()) {
+			return backend.joinMapKey(currentCriteriaPath, pathElement);
+		} else if (mapPathElement.getKey() == null) {
+			return backend.joinMapValues(currentCriteriaPath, pathElement);
+		} else {
+			return backend.joinMapValue(currentCriteriaPath, pathElement, mapPathElement.getKey());
+		}
+	}
+
+	protected static MetaAttributePath extractAssociationPath(MetaAttributePath path) {
+		for (int i = path.length() - 1; i >= 0; i--) {
+			MetaAttribute element = path.getElement(i);
+			if (element.isAssociation()) {
+				return path.subPath(0, i + 1);
+			}
+		}
+		return new MetaAttributePath();
+	}
+
+	public F getOrCreateJoin(MetaAttributePath path) {
+		if (path.length() == 0)
+			return backend.getRoot();
+
+		MetaAttributePath subPath = new MetaAttributePath();
+		F from = backend.getRoot();
+
+		for (int i = 0; i < path.length(); i++) {
+			MetaAttribute pathElement = path.getElement(i);
+			from = getOrCreateJoin(subPath, pathElement);
+			subPath = subPath.concat(pathElement);
+		}
+		return from;
+	}
+
+	private F getOrCreateJoin(MetaAttributePath srcPath, MetaAttribute targetAttr) {
+		MetaAttributePath path = srcPath.concat(targetAttr);
+		F parent = joinMap.get(srcPath);
+		F join = joinMap.get(path);
+		if (join == null) {
+			JoinType joinType = query.getJoinType(path);
+			join = backend.doJoin(targetAttr, joinType, parent);
+			joinMap.put(path, join);
+		}
+		return join;
+	}
+
+	public void putJoin(MetaAttributePath path, F root) {
+		if (joinMap.containsKey(path))
+			throw new IllegalArgumentException(path.toString() + " already exists");
+		joinMap.put(path, root);
+	}
+}
