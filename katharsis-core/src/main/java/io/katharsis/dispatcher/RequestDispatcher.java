@@ -25,7 +25,7 @@ public class RequestDispatcher {
 
     private final ControllerRegistry controllerRegistry;
     private final ExceptionMapperRegistry exceptionMapperRegistry;
-    
+
 	private ModuleRegistry moduleRegistry;
 
     public RequestDispatcher(ModuleRegistry moduleRegistry, ControllerRegistry controllerRegistry,
@@ -68,12 +68,12 @@ public class RequestDispatcher {
         }
     }
 
-    class DefaultFilterChain implements FilterChain {
+    private class DefaultFilterChain implements FilterChain {
 
-		protected int filterIndex = 0;
+		int filterIndex = 0;
 		protected BaseController controller;
 
-		public DefaultFilterChain(BaseController controller){
+		DefaultFilterChain(BaseController controller){
 			this.controller = controller;
 		}
 
@@ -90,15 +90,15 @@ public class RequestDispatcher {
 		}
 	}
 
-	class DefaultFilterRequestContext implements FilterRequestContext {
+	private class DefaultFilterRequestContext implements FilterRequestContext {
 
 		protected JsonPath jsonPath;
 		protected QueryParams queryParams;
 		protected RepositoryMethodParameterProvider parameterProvider;
 		protected RequestBody requestBody;
 
-		public DefaultFilterRequestContext(JsonPath jsonPath, QueryParams queryParams,
-				RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody) {
+		DefaultFilterRequestContext(JsonPath jsonPath, QueryParams queryParams,
+                                    RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody) {
 			this.jsonPath = jsonPath;
 			this.queryParams = queryParams;
 			this.parameterProvider = parameterProvider;

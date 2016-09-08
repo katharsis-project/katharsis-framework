@@ -1,4 +1,4 @@
-package io.katharsis.dispatcher.controller.resource;
+package io.katharsis.dispatcher.controller.relationship;
 
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.QueryParams;
@@ -11,15 +11,15 @@ import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
-public class RelationshipsResourcePatch extends RelationshipsResourceUpsert {
+public class RelationshipsResourceDelete extends RelationshipsResourceUpsert {
 
-    public RelationshipsResourcePatch(ResourceRegistry resourceRegistry, TypeParser typeParser) {
+    public RelationshipsResourceDelete(ResourceRegistry resourceRegistry, TypeParser typeParser) {
         super(resourceRegistry, typeParser);
     }
 
     @Override
     public HttpMethod method() {
-        return HttpMethod.PATCH;
+        return HttpMethod.DELETE;
     }
 
     @Override
@@ -32,18 +32,15 @@ public class RelationshipsResourcePatch extends RelationshipsResourceUpsert {
             parsedIds.add(parsedId);
         }
         //noinspection unchecked
-        relationshipRepositoryForClass.setRelations(resource, parsedIds, elementName, queryParams);
+        relationshipRepositoryForClass.removeRelations(resource, parsedIds, elementName, queryParams);
     }
 
     @Override
     protected void processToOneRelationship(Object resource, Class<? extends Serializable> relationshipIdType,
                                             String elementName, DataBody dataBody, QueryParams queryParams,
                                             RelationshipRepositoryAdapter relationshipRepositoryForClass) {
-        Serializable parsedId = null;
-        if (dataBody != null) {
-            parsedId = typeParser.parse(dataBody.getId(), relationshipIdType);
-        }
         //noinspection unchecked
-        relationshipRepositoryForClass.setRelation(resource, parsedId, elementName, queryParams);
+        relationshipRepositoryForClass.setRelation(resource, null, elementName, queryParams);
     }
+
 }

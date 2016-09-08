@@ -1,6 +1,7 @@
-package io.katharsis.dispatcher.controller.resource;
+package io.katharsis.dispatcher.controller.relationship;
 
 import io.katharsis.dispatcher.controller.BaseControllerTest;
+import io.katharsis.dispatcher.controller.relationship.RelationshipsResourceGet;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.mock.models.Task;

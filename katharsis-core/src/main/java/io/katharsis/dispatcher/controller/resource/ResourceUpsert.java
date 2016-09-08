@@ -27,8 +27,8 @@ import java.util.Map;
 import java.util.Objects;
 
 public abstract class ResourceUpsert extends BaseController {
-    final ResourceRegistry resourceRegistry;
-    final TypeParser typeParser;
+    protected final ResourceRegistry resourceRegistry;
+    protected final TypeParser typeParser;
     protected final ObjectMapper objectMapper;
 
     public ResourceUpsert(ResourceRegistry resourceRegistry, TypeParser typeParser, ObjectMapper objectMapper) {
@@ -164,7 +164,7 @@ public abstract class ResourceUpsert extends BaseController {
         return relationRegistryEntry;
     }
 
-    Object buildNewResource(RegistryEntry registryEntry, DataBody dataBody, String resourceName) {
+    protected Object buildNewResource(RegistryEntry registryEntry, DataBody dataBody, String resourceName) {
         if (dataBody == null) {
             throw new ResourceException("No data field in the body.");
         }

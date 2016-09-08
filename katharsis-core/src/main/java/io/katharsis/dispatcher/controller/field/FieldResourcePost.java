@@ -1,7 +1,9 @@
-package io.katharsis.dispatcher.controller.resource;
+package io.katharsis.dispatcher.controller.field;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.HttpMethod;
+import io.katharsis.dispatcher.controller.resource.ResourcePost;
+import io.katharsis.dispatcher.controller.resource.ResourceUpsert;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.dto.DataBody;

@@ -1,6 +1,7 @@
-package io.katharsis.dispatcher.controller.resource;
+package io.katharsis.dispatcher.controller.relationship;
 
 import io.katharsis.dispatcher.controller.HttpMethod;
+import io.katharsis.dispatcher.controller.resource.ResourceIncludeField;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.dto.RequestBody;
@@ -25,7 +26,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RelationshipsResourceGet extends ResourceIncludeField  {
+public class RelationshipsResourceGet extends ResourceIncludeField {
 
     public RelationshipsResourceGet(ResourceRegistry resourceRegistry, TypeParser typeParser, IncludeLookupSetter fieldSetter) {
         super(resourceRegistry, typeParser, fieldSetter);
@@ -41,6 +42,11 @@ public class RelationshipsResourceGet extends ResourceIncludeField  {
     @Override
     public BaseResponseContext handle(JsonPath jsonPath, QueryParams queryParams,
                                       RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody) {
+        return buildResponse(jsonPath, queryParams, parameterProvider);
+    }
+
+    @SuppressWarnings("unchecked")
+    BaseResponseContext buildResponse(JsonPath jsonPath, QueryParams queryParams, RepositoryMethodParameterProvider parameterProvider) {
         String resourceName = jsonPath.getResourceName();
         PathIds resourceIds = jsonPath.getIds();
         RegistryEntry<?> registryEntry = resourceRegistry.getEntry(resourceName);
@@ -62,7 +68,6 @@ public class RelationshipsResourceGet extends ResourceIncludeField  {
         RegistryEntry relationshipFieldEntry = resourceRegistry.getEntry(relationshipFieldClass);
         BaseResponseContext target;
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
-            @SuppressWarnings("unchecked")
             JsonApiResponse response = relationshipRepositoryForClass
                 .findManyTargets(castedResourceId, elementName, queryParams);
             includeFieldSetter.setIncludedElements(resourceName, response, queryParams, parameterProvider);
@@ -71,7 +76,6 @@ public class RelationshipsResourceGet extends ResourceIncludeField  {
             response.setEntity(dataList);
             target = new CollectionResponseContext(response, jsonPath, queryParams);
         } else {
-            @SuppressWarnings("unchecked")
             JsonApiResponse response = relationshipRepositoryForClass
                 .findOneTarget(castedResourceId, elementName, queryParams);
             includeFieldSetter.setIncludedElements(resourceName, response, queryParams, parameterProvider);
@@ -84,11 +88,10 @@ public class RelationshipsResourceGet extends ResourceIncludeField  {
                 target = new ResourceResponseContext(response, jsonPath, queryParams);
             }
         }
-
         return target;
     }
 
-    private LinkageContainer getLinkage(Class<?> relationshipFieldClass, RegistryEntry relationshipFieldEntry, Object targetObject) {
+    LinkageContainer getLinkage(Class<?> relationshipFieldClass, RegistryEntry relationshipFieldEntry, Object targetObject) {
         if (targetObject instanceof JsonApiResponse) {
             return new LinkageContainer(((JsonApiResponse)targetObject).getEntity(), relationshipFieldClass, relationshipFieldEntry);
         } else {
@@ -96,8 +99,8 @@ public class RelationshipsResourceGet extends ResourceIncludeField  {
         }
     }
 
-    private List<LinkageContainer> getLinkages(Class<?> relationshipFieldClass, RegistryEntry relationshipFieldEntry,
-                                               JsonApiResponse targetObjects) {
+    List<LinkageContainer> getLinkages(Class<?> relationshipFieldClass, RegistryEntry relationshipFieldEntry,
+                                       JsonApiResponse targetObjects) {
         List<LinkageContainer> dataList = new ArrayList<>();
         if (targetObjects == null) {
             return dataList;
@@ -110,7 +113,7 @@ public class RelationshipsResourceGet extends ResourceIncludeField  {
         return dataList;
     }
 
-    private Serializable getResourceId(PathIds resourceIds, RegistryEntry<?> registryEntry) {
+    Serializable getResourceId(PathIds resourceIds, RegistryEntry<?> registryEntry) {
         String resourceId = resourceIds.getIds().get(0);
         @SuppressWarnings("unchecked") Class<? extends Serializable> idClass = (Class<? extends Serializable>) registryEntry
             .getResourceInformation()

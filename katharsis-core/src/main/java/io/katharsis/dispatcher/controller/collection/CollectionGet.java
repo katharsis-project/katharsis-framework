@@ -36,14 +36,22 @@ public class CollectionGet extends ResourceIncludeField {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public BaseResponseContext handle(JsonPath jsonPath, QueryParams queryParams, RepositoryMethodParameterProvider
         parameterProvider, RequestBody requestBody) {
+        JsonApiResponse response = buildResponse(jsonPath, queryParams, parameterProvider);
+
+        return new CollectionResponseContext(response, jsonPath, queryParams);
+    }
+
+    @SuppressWarnings("unchecked")
+    JsonApiResponse buildResponse(JsonPath jsonPath, QueryParams queryParams, RepositoryMethodParameterProvider parameterProvider) {
         String resourceName = jsonPath.getElementName();
         RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
+
         if (registryEntry == null) {
             throw new ResourceNotFoundException(resourceName);
         }
+
         JsonApiResponse response;
         ResourceRepositoryAdapter resourceRepository = registryEntry.getResourceRepository(parameterProvider);
         if (jsonPath.getIds() == null || jsonPath.getIds().getIds().isEmpty()) {
@@ -55,8 +63,9 @@ public class CollectionGet extends ResourceIncludeField {
                 idType);
             response = resourceRepository.findAll(parsedIds, queryParams);
         }
+
         includeFieldSetter.setIncludedElements(resourceName, response, queryParams, parameterProvider);
 
-        return new CollectionResponseContext(response, jsonPath, queryParams);
+        return response;
     }
 }

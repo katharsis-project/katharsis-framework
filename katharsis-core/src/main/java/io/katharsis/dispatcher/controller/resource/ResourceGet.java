@@ -45,6 +45,14 @@ public class ResourceGet extends ResourceIncludeField {
     @Override
     public BaseResponseContext handle(JsonPath jsonPath, QueryParams queryParams, RepositoryMethodParameterProvider
         parameterProvider, RequestBody requestBody) {
+
+        JsonApiResponse response = buildResponse(jsonPath, queryParams, parameterProvider);
+
+        return new ResourceResponseContext(response, jsonPath, queryParams);
+    }
+
+    @SuppressWarnings("unchecked")
+    JsonApiResponse buildResponse(JsonPath jsonPath, QueryParams queryParams, RepositoryMethodParameterProvider parameterProvider) {
         String resourceName = jsonPath.getElementName();
         PathIds resourceIds = jsonPath.getIds();
         RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
@@ -53,16 +61,16 @@ public class ResourceGet extends ResourceIncludeField {
         }
         String id = resourceIds.getIds().get(0);
 
-        @SuppressWarnings("unchecked") Class<? extends Serializable> idClass = (Class<? extends Serializable>) registryEntry
+        Class<? extends Serializable> idClass = (Class<? extends Serializable>) registryEntry
                 .getResourceInformation()
                 .getIdField()
                 .getType();
         Serializable castedId = typeParser.parse(id, idClass);
         ResourceRepositoryAdapter resourceRepository = registryEntry.getResourceRepository(parameterProvider);
-        @SuppressWarnings("unchecked")
+
         JsonApiResponse response = resourceRepository.findOne(castedId, queryParams);
         includeFieldSetter.setIncludedElements(resourceName, response, queryParams, parameterProvider);
 
-        return new ResourceResponseContext(response, jsonPath, queryParams);
+        return response;
     }
 }
