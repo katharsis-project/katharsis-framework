@@ -232,6 +232,7 @@
                 <module>katharsis-rs</module>
                 <module>katharsis-servlet</module>
                 <module>katharsis-spring</module>
+                <module>katharsis-vertx</module>
                 <module>katharsis-client</module>
                 <module>katharsis-jpa</module>
                 <module>katharsis-examples</module>
