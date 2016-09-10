@@ -79,7 +79,7 @@ public class ResourceResponseContext implements BaseResponseContext {
             return false;
         }
         ResourceResponseContext that = (ResourceResponseContext) o;
-        return Objects.equals(response, that.response);
+        return Objects.equals(response, that.response) && that.httpStatus == httpStatus;
     }
 
     @Override

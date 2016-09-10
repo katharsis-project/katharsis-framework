@@ -114,6 +114,13 @@ public class QuerySpecRepositoryTest extends AbstractQuerySpecTest {
 		Assert.assertEquals(FilterOperator.EQ, relAdapter.getDefaultOperator());
 		Assert.assertEquals(1, relAdapter.getSupportedOperators().size());
 
+		// deletion
+		adapter.delete(task.getId(), queryAdapter);
+		tasks = (List<Task>) adapter.findAll(queryAdapter).getEntity();
+		Assert.assertEquals(0, tasks.size());
+		Assert.assertNull(adapter.findOne(2L, queryAdapter).getEntity());
+		tasks = (List<Task>) adapter.findAll(Arrays.asList(2L), queryAdapter).getEntity();
+		Assert.assertEquals(0, tasks.size());
 	}
 
 }
