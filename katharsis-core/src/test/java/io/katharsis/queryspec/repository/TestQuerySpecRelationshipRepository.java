@@ -1,6 +1,5 @@
 package io.katharsis.queryspec.repository;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -9,13 +8,9 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.junit.Assert;
-
-import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryspec.FilterOperator;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.QuerySpecRelationshipRepository;
-import io.katharsis.queryspec.SortSpec;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.repository.util.Relation;
@@ -32,13 +27,6 @@ public class TestQuerySpecRelationshipRepository implements QuerySpecRelationshi
 	@Override
 	public Class<Project> getTargetResourceClass() {
 		return Project.class;
-	}
-
-	private void assertQuerySpec(QuerySpec querySpec) {
-		List<SortSpec> sorts = querySpec.getSort();
-		Assert.assertEquals(1, sorts.size());
-		SortSpec sort = sorts.get(0);
-		Assert.assertEquals(Arrays.asList("name"), sort.getAttributePath());
 	}
 
 	@Override
@@ -91,7 +79,6 @@ public class TestQuerySpecRelationshipRepository implements QuerySpecRelationshi
 
 	@Override
 	public Project findOneTarget(Long sourceId, String fieldName, QuerySpec querySpec) {
-		assertQuerySpec(querySpec);
 		for (Relation<Task> relation : THREAD_LOCAL_REPOSITORY.keySet()) {
 			if (relation.getSource().getId().equals(sourceId) && relation.getFieldName().equals(fieldName)) {
 				Project project = new Project();
@@ -104,7 +91,6 @@ public class TestQuerySpecRelationshipRepository implements QuerySpecRelationshi
 
 	@Override
 	public Iterable<Project> findManyTargets(Long sourceId, String fieldName, QuerySpec querySpec) {
-		assertQuerySpec(querySpec);
 		List<Project> projects = new LinkedList<>();
 		for (Relation<Task> relation : THREAD_LOCAL_REPOSITORY.keySet()) {
 			if (relation.getSource().getId().equals(sourceId) && relation.getFieldName().equals(fieldName)) {
@@ -112,6 +98,9 @@ public class TestQuerySpecRelationshipRepository implements QuerySpecRelationshi
 				project.setId((Long) relation.getTargetId());
 				projects.add(project);
 			}
+		}
+		if (querySpec == null) {
+			return projects;
 		}
 		return querySpec.apply(projects);
 	}

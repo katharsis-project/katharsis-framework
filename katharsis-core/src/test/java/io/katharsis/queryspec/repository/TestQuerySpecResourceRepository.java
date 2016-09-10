@@ -1,18 +1,14 @@
 package io.katharsis.queryspec.repository;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.Assert;
-
 import io.katharsis.queryspec.FilterOperator;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.QuerySpecResourceRepository;
-import io.katharsis.queryspec.SortSpec;
 import io.katharsis.resource.mock.models.Task;
 
 public class TestQuerySpecResourceRepository implements QuerySpecResourceRepository<Task, Long> {
@@ -24,16 +20,8 @@ public class TestQuerySpecResourceRepository implements QuerySpecResourceReposit
 		return Task.class;
 	}
 
-	private void assertQuerySpec(QuerySpec querySpec) {
-		List<SortSpec> sorts = querySpec.getSort();
-		Assert.assertEquals(1, sorts.size());
-		SortSpec sort = sorts.get(0);
-		Assert.assertEquals(Arrays.asList("name"), sort.getAttributePath());
-	}
-
 	@Override
 	public Task findOne(Long id, QuerySpec querySpec) {
-		assertQuerySpec(querySpec);
 		for (Task task : tasks) {
 			if (task.getId().equals(id)) {
 				return task;
@@ -44,13 +32,17 @@ public class TestQuerySpecResourceRepository implements QuerySpecResourceReposit
 
 	@Override
 	public Iterable<Task> findAll(QuerySpec querySpec) {
-		assertQuerySpec(querySpec);
+		if (querySpec == null) {
+			return tasks;
+		}
 		return querySpec.apply(tasks);
 	}
 
 	@Override
 	public Iterable<Task> findAll(Iterable<Long> ids, QuerySpec querySpec) {
-		assertQuerySpec(querySpec);
+		if (querySpec == null) {
+			return tasks;
+		}
 		return querySpec.apply(tasks);
 	}
 

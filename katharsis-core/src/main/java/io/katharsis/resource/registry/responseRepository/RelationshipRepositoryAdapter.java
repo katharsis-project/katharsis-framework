@@ -111,19 +111,11 @@ public class RelationshipRepositoryAdapter<T, T_ID extends Serializable, D, D_ID
 	
 	@Override
 	public FilterOperator getDefaultOperator() {
-        if (isAnnotated) {
-           throw new UnsupportedOperationException("not implemented yet");
-        } else {
-           return ((QuerySpecRelationshipRepository<?,?,?,?>) relationshipRepository).getDefaultOperator();
-        }
+		return ((QuerySpecRelationshipRepository<?,?,?,?>) relationshipRepository).getDefaultOperator();
 	}
 
 	@Override
 	public Set<FilterOperator> getSupportedOperators() {
-		if (isAnnotated) {
-			throw new UnsupportedOperationException("not implemented yet");
-		} else {
-			return ((QuerySpecRelationshipRepository<?,?,?,?>) relationshipRepository).getSupportedOperators();
-		}
+		return ((QuerySpecRelationshipRepository<?,?,?,?>) relationshipRepository).getSupportedOperators();
 	}
 }

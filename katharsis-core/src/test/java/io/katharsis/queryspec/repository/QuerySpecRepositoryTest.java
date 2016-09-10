@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -16,6 +17,8 @@ import io.katharsis.queryspec.Direction;
 import io.katharsis.queryspec.FilterOperator;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.SortSpec;
+import io.katharsis.queryspec.internal.QueryAdapter;
+import io.katharsis.queryspec.internal.QueryParamsAdapter;
 import io.katharsis.queryspec.internal.QuerySpecAdapter;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
@@ -26,25 +29,56 @@ import io.katharsis.response.JsonApiResponse;
 
 public class QuerySpecRepositoryTest extends AbstractQuerySpecTest {
 
-	@Test
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public void test() {
+	private ResourceRepositoryAdapter<Task, Long> adapter;
 
+	@SuppressWarnings("rawtypes")
+	private RelationshipRepositoryAdapter relAdapter;
+
+	@SuppressWarnings("unchecked")
+	@Before
+	public void setup() {
+		super.setup();
 		RegistryEntry<?> registryEntry = resourceRegistry.getEntry(Task.class);
 		TestQuerySpecResourceRepository repo = (TestQuerySpecResourceRepository) registryEntry.getResourceRepository(null)
 				.getResourceRepository();
 
 		repo = Mockito.spy(repo);
 
-		ResourceRepositoryAdapter<Task, Long> adapter = registryEntry.getResourceRepository(null);
+		adapter = registryEntry.getResourceRepository(null);
+		relAdapter = registryEntry.getRelationshipRepositoryForClass(Project.class, null);
+	}
 
+	@Test
+	public void operations() {
 		Assert.assertEquals(FilterOperator.EQ, adapter.getDefaultOperator());
 		Assert.assertEquals(5, adapter.getSupportedOperators().size());
+	}
 
+	@Test
+	public void testCrudWithQueryParamsInput() {
+		Map<String, Set<String>> params = new HashMap<String, Set<String>>();
+		addParams(params, "sort[tasks][name]", "asc");
+		QueryParams queryParams = queryParamsBuilder.buildQueryParams(params);
+
+		QueryParamsAdapter queryAdapter = new QueryParamsAdapter(queryParams);
+		checkCrud(queryAdapter);
+	}
+
+	@Test
+	public void testCrudWithQuerySpecInput() {
 		QuerySpec querySpec = new QuerySpec(Task.class);
 		querySpec.addSort(new SortSpec(Arrays.asList("name"), Direction.ASC));
 		QuerySpecAdapter queryAdapter = new QuerySpecAdapter(querySpec, resourceRegistry);
+		checkCrud(queryAdapter);
+	}
 
+	@Test
+	public void testCrudWithNullInput() {
+		checkCrud(null);
+	}
+
+	@SuppressWarnings({ "unchecked" })
+	private void checkCrud(QueryAdapter queryAdapter) {
 		// setup data
 		Project project = new Project();
 		project.setId(3L);
@@ -65,11 +99,10 @@ public class QuerySpecRepositoryTest extends AbstractQuerySpecTest {
 		Assert.assertEquals(1, tasks.size());
 
 		// relation adapter
-		RelationshipRepositoryAdapter relAdapter = registryEntry.getRelationshipRepositoryForClass(Project.class, null);
 		relAdapter.setRelation(task, project.getId(), "project", queryAdapter);
 		JsonApiResponse response = relAdapter.findOneTarget(2L, "project", queryAdapter);
 		Assert.assertEquals(project.getId(), ((Project) response.getEntity()).getId());
-		
+
 		relAdapter.setRelation(task, null, "project", queryAdapter);
 		response = relAdapter.findOneTarget(2L, "project", queryAdapter);
 		Assert.assertNull(response.getEntity());
@@ -83,7 +116,6 @@ public class QuerySpecRepositoryTest extends AbstractQuerySpecTest {
 		relAdapter.removeRelations(task, Arrays.asList(project.getId()), "projects", queryAdapter);
 		projects = (List<Project>) relAdapter.findManyTargets(2L, "projects", queryAdapter).getEntity();
 		Assert.assertEquals(0, projects.size());
-
 	}
 
 }
