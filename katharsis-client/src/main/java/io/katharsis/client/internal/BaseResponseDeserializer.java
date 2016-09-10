@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.resource.ResourceUpsert;
 import io.katharsis.jackson.exception.JsonDeserializationException;
 import io.katharsis.queryParams.QueryParams;
+import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.RequestBody;
@@ -109,9 +110,11 @@ public class BaseResponseDeserializer extends JsonDeserializer<BaseResponseConte
 				Object resource = resourceMap.get(uid);
 				
 				RegistryEntry registryEntry = resourceRegistry.getEntry(body.getType());
-				QueryParams queryParams = null;
+				QueryAdapter queryAdapter = null;
 				RepositoryMethodParameterProvider parameterProvider = null;
-				setRelations(resource, registryEntry, body, queryParams, parameterProvider);
+				
+				// FIXME read includes
+				setRelations(resource, registryEntry, body, queryAdapter, parameterProvider);
 			}			
 		}
 			
@@ -137,7 +140,7 @@ public class BaseResponseDeserializer extends JsonDeserializer<BaseResponseConte
 		}
 
 		@Override
-		public BaseResponseContext handle(JsonPath jsonPath, QueryParams queryParams,
+		public BaseResponseContext handle(JsonPath jsonPath, QueryAdapter queryAdapter,
 				RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody) {
 			throw new IllegalStateException();
 		}

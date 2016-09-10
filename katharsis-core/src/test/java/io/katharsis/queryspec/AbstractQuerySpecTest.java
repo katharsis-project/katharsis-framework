@@ -33,7 +33,7 @@ public abstract class AbstractQuerySpecTest {
 				new ResourceFieldNameTransformer());
 		ResourceRegistryBuilder resourceRegistryBuilder = new ResourceRegistryBuilder(jsonServiceLocator,
 				resourceInformationBuilder);
-		DefaultResourceLookup resourceLookup = new DefaultResourceLookup(Task.class.getPackage().getName() + "," + getClass().getPackage().getName());
+		DefaultResourceLookup resourceLookup = newResourceLookup();
 		resourceRegistry = resourceRegistryBuilder.build(resourceLookup, new ConstantServiceUrlProvider("http://127.0.0.1"));
 		FilterOperatorRegistry operators = new FilterOperatorRegistry();
 		operators.register(FilterOperator.EQ);
@@ -44,6 +44,10 @@ public abstract class AbstractQuerySpecTest {
 		operators.register(FilterOperator.LT);
 		operators.setDefaultOperator(FilterOperator.EQ);
 		parser = new DefaultQuerySpecConverter(resourceRegistry, operators);
+	}
+
+	protected DefaultResourceLookup newResourceLookup() {
+		return  new DefaultResourceLookup(Task.class.getPackage().getName() + "," + getClass().getPackage().getName());
 	}
 
 	protected static void addParams(Map<String, Set<String>> params, String key, String value) {

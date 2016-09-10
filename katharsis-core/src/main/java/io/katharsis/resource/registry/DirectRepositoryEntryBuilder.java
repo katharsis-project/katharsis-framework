@@ -1,6 +1,7 @@
 package io.katharsis.resource.registry;
 
 import io.katharsis.locator.JsonServiceLocator;
+import io.katharsis.queryspec.QuerySpecResourceRepository;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.repository.RepositoryInstanceBuilder;
 import io.katharsis.repository.ResourceRepository;
@@ -51,6 +52,13 @@ public class DirectRepositoryEntryBuilder implements RepositoryEntryBuilder {
                     return repoClass;
                 }
             }
+            if (QuerySpecResourceRepository.class.isAssignableFrom(repoClass)) {
+                Class<?>[] typeArgs = TypeResolver.resolveRawArguments(QuerySpecResourceRepository.class, repoClass);
+                if (typeArgs[0] == resourceClass) {
+                    return repoClass;
+                }
+            }
+
         }
         return null;
     }

@@ -15,6 +15,7 @@ import io.katharsis.resource.registry.ResourceRegistryAware;
  * QuerySpec-based RelationshipRepository that translates incoming
  * QueryParameters to QuerySpec for ease of use.
  */
+@Deprecated
 public abstract class QuerySpecRelationshipRepository<T, T_ID extends Serializable, D, D_ID extends Serializable>
 		implements ResourceRegistryAware, RelationshipRepository<T, T_ID, D, D_ID> {
 

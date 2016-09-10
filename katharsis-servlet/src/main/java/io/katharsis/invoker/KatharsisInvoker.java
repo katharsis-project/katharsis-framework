@@ -16,15 +16,31 @@
  */
 package io.katharsis.invoker;
 
+import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.net.MediaType;
+
 import io.katharsis.dispatcher.RequestDispatcher;
 import io.katharsis.errorhandling.exception.KatharsisMappableException;
 import io.katharsis.errorhandling.exception.KatharsisMatchingException;
 import io.katharsis.errorhandling.mapper.KatharsisExceptionMapper;
 import io.katharsis.jackson.exception.JsonDeserializationException;
-import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
+import io.katharsis.queryspec.internal.QueryAdapter;
+import io.katharsis.queryspec.internal.QueryParamsAdapter;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
@@ -32,14 +48,6 @@ import io.katharsis.request.path.PathBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponseContext;
 import io.katharsis.servlet.util.QueryStringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.servlet.http.HttpServletResponse;
-import java.io.*;
-import java.util.Map;
-import java.util.Scanner;
-import java.util.Set;
 
 /**
  * Katharsis dispatcher invoker.
@@ -85,14 +93,14 @@ public class KatharsisInvoker {
         try {
             JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath(invokerContext.getRequestPath());
 
-            QueryParams queryParams = createQueryParams(invokerContext);
+            QueryAdapter queryAdapter = createQueryAdapter(invokerContext);
 
             in = invokerContext.getRequestEntityStream();
             RequestBody requestBody = inputStreamToBody(in);
 
             String method = invokerContext.getRequestMethod();
             RepositoryMethodParameterProvider parameterProvider = invokerContext.getParameterProvider();
-            katharsisResponse = requestDispatcher.dispatchRequest(jsonPath, method, queryParams, parameterProvider,
+            katharsisResponse = requestDispatcher.dispatchRequest(jsonPath, method, queryAdapter, parameterProvider,
                                                                   requestBody);
         } catch (KatharsisMappableException e) {
             if (log.isDebugEnabled()) {
@@ -150,10 +158,10 @@ public class KatharsisInvoker {
         return false;
     }
 
-    private QueryParams createQueryParams(KatharsisInvokerContext invokerContext) {
+    private QueryAdapter createQueryAdapter(KatharsisInvokerContext invokerContext) {
         Map<String, Set<String>> queryParameters =
             QueryStringUtils.parseQueryStringAsSingleValueMap(invokerContext);
-        return this.queryParamsBuilder.buildQueryParams(queryParameters);
+        return new QueryParamsAdapter(this.queryParamsBuilder.buildQueryParams(queryParameters));
     }
 
     private RequestBody inputStreamToBody(InputStream is) throws IOException {

@@ -7,8 +7,10 @@ import javax.persistence.EntityManager;
 
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
+import io.katharsis.client.ResourceRepositoryStub;
 import io.katharsis.jpa.internal.JpaResourceInformationBuilder;
 import io.katharsis.jpa.model.RelatedEntity;
 import io.katharsis.jpa.model.TestEntity;
@@ -21,12 +23,20 @@ public class JpaPartialEntityExposureTest extends AbstractJpaJerseyTest {
 
 	private JpaModule module;
 
+	protected ResourceRepositoryStub<TestEntity, Long> testRepo;
+
+	@Before
+	public void setup() {
+		super.setup();
+		testRepo = client.getRepository(TestEntity.class);
+	}
+
 	@Override
 	protected void setupModule(JpaModule module) {
 		this.module = module;
 		this.module.removeEntityClass(RelatedEntity.class);
 	}
-	
+
 	@Override
 	@After
 	public void tearDown() throws Exception {
@@ -42,6 +52,8 @@ public class JpaPartialEntityExposureTest extends AbstractJpaJerseyTest {
 
 		List<TestEntity> tests = testRepo.findAll(new QueryParams());
 		Assert.assertEquals(1, tests.size());
+		test = tests.get(0);
+		Assert.assertEquals(2L, test.getId().longValue());
 		Assert.assertNull(test.getOneRelatedValue());
 		Assert.assertNull(test.getEagerRelatedValue());
 		Assert.assertTrue(test.getManyRelatedValues().isEmpty());
@@ -54,7 +66,8 @@ public class JpaPartialEntityExposureTest extends AbstractJpaJerseyTest {
 	@Test
 	public void testInformationBuilder() {
 		EntityManager em = null;
-		JpaResourceInformationBuilder builder = new JpaResourceInformationBuilder(module.getMetaLookup(), em, module.getEntityClasses());
+		JpaResourceInformationBuilder builder = new JpaResourceInformationBuilder(module.getMetaLookup(), em,
+				module.getEntityClasses());
 		ResourceInformation info = builder.build(TestEntity.class);
 		Set<ResourceField> relationshipFields = info.getRelationshipFields();
 		Assert.assertEquals(0, relationshipFields.size());

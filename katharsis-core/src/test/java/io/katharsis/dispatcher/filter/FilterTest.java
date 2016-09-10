@@ -1,5 +1,17 @@
 package io.katharsis.dispatcher.filter;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+
 import io.katharsis.dispatcher.RequestDispatcher;
 import io.katharsis.dispatcher.controller.collection.CollectionGet;
 import io.katharsis.dispatcher.registry.ControllerRegistry;
@@ -7,6 +19,8 @@ import io.katharsis.locator.SampleJsonServiceLocator;
 import io.katharsis.module.ModuleRegistry;
 import io.katharsis.module.SimpleModule;
 import io.katharsis.queryParams.QueryParams;
+import io.katharsis.queryspec.internal.QueryAdapter;
+import io.katharsis.queryspec.internal.QueryParamsAdapter;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.repository.mock.NewInstanceRepositoryMethodParameterProvider;
 import io.katharsis.request.dto.RequestBody;
@@ -15,15 +29,11 @@ import io.katharsis.request.path.PathBuilder;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
 import io.katharsis.resource.information.ResourceInformationBuilder;
-import io.katharsis.resource.registry.*;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import io.katharsis.resource.registry.ConstantServiceUrlProvider;
+import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.resource.registry.ResourceRegistryBuilder;
+import io.katharsis.resource.registry.ResourceRegistryBuilderTest;
+import io.katharsis.resource.registry.ResourceRegistryTest;
 
 public class FilterTest {
 
@@ -72,11 +82,11 @@ public class FilterTest {
 		QueryParams queryParams = new QueryParams();
 		RepositoryMethodParameterProvider parameterProvider = new NewInstanceRepositoryMethodParameterProvider();
 		RequestBody requestBody = new RequestBody();
-		dispatcher.dispatchRequest(jsonPath, requestType, queryParams, parameterProvider, requestBody );
+		dispatcher.dispatchRequest(jsonPath, requestType, new QueryParamsAdapter(queryParams), parameterProvider, requestBody );
 
 		// THEN
 		verify(filter).filter(captor.capture(), any(FilterChain.class));
-		verify(collectionGet, times(1)).handle(any(JsonPath.class), any(QueryParams.class),
+		verify(collectionGet, times(1)).handle(any(JsonPath.class), any(QueryAdapter.class),
 				any(RepositoryMethodParameterProvider.class), any(RequestBody.class));
 		verify(filter, times(1)).filter(any(FilterRequestContext.class), any(FilterChain.class));
 

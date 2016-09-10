@@ -10,6 +10,8 @@ import java.util.Set;
 import io.katharsis.dispatcher.filter.Filter;
 import io.katharsis.errorhandling.mapper.ExceptionMapperLookup;
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
+import io.katharsis.queryspec.QuerySpecRelationshipRepository;
+import io.katharsis.queryspec.QuerySpecResourceRepository;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.resource.information.ResourceInformationBuilder;
@@ -20,16 +22,22 @@ import io.katharsis.resource.registry.ResourceLookup;
  */
 public class SimpleModule implements Module {
 
-	private List<ResourceInformationBuilder> resourceInformationBuilders = new ArrayList<ResourceInformationBuilder>();
-	private List<Filter> filters = new ArrayList<Filter>();
-	private List<ResourceLookup> resourceLookups = new ArrayList<ResourceLookup>();
-	private List<com.fasterxml.jackson.databind.Module> jacksonModules = new ArrayList<com.fasterxml.jackson.databind.Module>();
-	private List<RelationshipRepositoryRegistration> relationshipRepositoryRegistrations = new ArrayList<RelationshipRepositoryRegistration>();
-	private List<ResourceRepositoryRegistration> resourceRepositoryRegistrations = new ArrayList<ResourceRepositoryRegistration>();
-	private List<ExceptionMapperLookup> exceptionMapperLookups = new ArrayList<ExceptionMapperLookup>();
+	private List<ResourceInformationBuilder> resourceInformationBuilders = new ArrayList<>();
+
+	private List<Filter> filters = new ArrayList<>();
+
+	private List<ResourceLookup> resourceLookups = new ArrayList<>();
+
+	private List<com.fasterxml.jackson.databind.Module> jacksonModules = new ArrayList<>();
+
+	private List<RelationshipRepositoryRegistration> relationshipRepositoryRegistrations = new ArrayList<>();
+
+	private List<ResourceRepositoryRegistration> resourceRepositoryRegistrations = new ArrayList<>();
+
+	private List<ExceptionMapperLookup> exceptionMapperLookups = new ArrayList<>();
 
 	private String moduleName;
-	
+
 	private ModuleContext context;
 
 	public SimpleModule(String moduleName) {
@@ -66,9 +74,9 @@ public class SimpleModule implements Module {
 			context.addExceptionMapperLookup(exceptionMapperLookup);
 		}
 	}
-	
-	private void checkInitialized(){
-		if(context != null){
+
+	private void checkInitialized() {
+		if (context != null) {
 			throw new IllegalStateException("module cannot be changed addModule was called");
 		}
 	}
@@ -83,18 +91,17 @@ public class SimpleModule implements Module {
 		resourceInformationBuilders.add(resourceInformationBuilder);
 	}
 
-
 	public void addExceptionMapperLookup(ExceptionMapperLookup exceptionMapperLookup) {
 		checkInitialized();
 		exceptionMapperLookups.add(exceptionMapperLookup);
 	}
-	
+
 	public void addExceptionMapper(@SuppressWarnings("rawtypes") JsonApiExceptionMapper exceptionMapper) {
 		checkInitialized();
 		ExceptionMapperLookup exceptionMapperLookup = new CollectionExceptionMapperLookup(exceptionMapper);
 		exceptionMapperLookups.add(exceptionMapperLookup);
 	}
-	
+
 	protected List<ResourceInformationBuilder> getResourceInformationBuilders() {
 		checkInitialized();
 		return Collections.unmodifiableList(resourceInformationBuilders);
@@ -135,15 +142,14 @@ public class SimpleModule implements Module {
 		return Collections.unmodifiableList(resourceLookups);
 	}
 
-	public void addRepository(Class<?> type, ResourceRepository<?, ?> repository) {
+	public void addRepository(Class<?> type, QuerySpecResourceRepository<?, ?> repository) {
 		checkInitialized();
 		resourceRepositoryRegistrations.add(new ResourceRepositoryRegistration(type, repository));
 	}
 
-	public void addRepository(Class<?> sourceType, Class<?> targetType, RelationshipRepository<?, ?, ?, ?> repository) {
+	public void addRepository(Class<?> sourceType, Class<?> targetType, QuerySpecRelationshipRepository<?, ?, ?, ?> repository) {
 		checkInitialized();
-		relationshipRepositoryRegistrations
-				.add(new RelationshipRepositoryRegistration(sourceType, targetType, repository));
+		relationshipRepositoryRegistrations.add(new RelationshipRepositoryRegistration(sourceType, targetType, repository));
 	}
 
 	public List<RelationshipRepositoryRegistration> getRelationshipRepositoryRegistrations() {
@@ -157,11 +163,13 @@ public class SimpleModule implements Module {
 	public static class RelationshipRepositoryRegistration {
 
 		private Class<?> sourceType;
+
 		private Class<?> targetType;
-		private RelationshipRepository<?, ?, ?, ?> repository;
+
+		private QuerySpecRelationshipRepository<?, ?, ?, ?> repository;
 
 		public RelationshipRepositoryRegistration(Class<?> sourceType, Class<?> targetType,
-				RelationshipRepository<?, ?, ?, ?> repository) {
+				QuerySpecRelationshipRepository<?, ?, ?, ?> repository) {
 			this.sourceType = sourceType;
 			this.targetType = targetType;
 			this.repository = repository;
@@ -175,7 +183,7 @@ public class SimpleModule implements Module {
 			return targetType;
 		}
 
-		public RelationshipRepository<?, ?, ?, ?> getRepository() {
+		public QuerySpecRelationshipRepository<?, ?, ?, ?> getRepository() {
 			return repository;
 		}
 
@@ -184,9 +192,10 @@ public class SimpleModule implements Module {
 	public static class ResourceRepositoryRegistration {
 
 		private Class<?> resourceClass;
-		private ResourceRepository<?, ?> repository;
 
-		public ResourceRepositoryRegistration(Class<?> resourceClass, ResourceRepository<?, ?> repository) {
+		private QuerySpecResourceRepository<?, ?> repository;
+
+		public ResourceRepositoryRegistration(Class<?> resourceClass, QuerySpecResourceRepository<?, ?> repository) {
 			this.resourceClass = resourceClass;
 			this.repository = repository;
 		}
@@ -195,7 +204,7 @@ public class SimpleModule implements Module {
 			return resourceClass;
 		}
 
-		public ResourceRepository<?, ?> getRepository() {
+		public QuerySpecResourceRepository<?, ?> getRepository() {
 			return repository;
 		}
 	}
@@ -203,7 +212,6 @@ public class SimpleModule implements Module {
 	public List<ExceptionMapperLookup> getExceptionMapperLookups() {
 		return Collections.unmodifiableList(exceptionMapperLookups);
 	}
-	
 
 	@SuppressWarnings("rawtypes")
 	private static class CollectionExceptionMapperLookup implements ExceptionMapperLookup {

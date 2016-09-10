@@ -6,6 +6,8 @@ import io.katharsis.errorhandling.ErrorData;
 import io.katharsis.queryParams.DefaultQueryParamsParser;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
+import io.katharsis.queryspec.internal.QueryAdapter;
+import io.katharsis.queryspec.internal.QueryParamsAdapter;
 import io.katharsis.request.path.FieldPath;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathBuilder;
@@ -28,7 +30,7 @@ import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 
 public class BaseResponseSerializerTest extends BaseSerializerTest {
 
-    private static final QueryParams REQUEST_PARAMS = new QueryParams();
+    private static final QueryAdapter REQUEST_PARAMS = new QueryParamsAdapter(new QueryParams());
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -271,7 +273,7 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
             }
 
             @Override
-            public QueryParams getQueryParams() {
+            public QueryAdapter getQueryAdapter() {
                 return null;
             }
         });

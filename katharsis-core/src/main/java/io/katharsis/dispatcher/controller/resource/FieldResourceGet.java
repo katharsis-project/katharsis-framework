@@ -2,6 +2,7 @@ package io.katharsis.dispatcher.controller.resource;
 
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.QueryParams;
+import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.FieldPath;
@@ -36,7 +37,7 @@ public class FieldResourceGet extends ResourceIncludeField {
     }
 
     @Override
-    public BaseResponseContext handle(JsonPath jsonPath, QueryParams queryParams, RepositoryMethodParameterProvider
+    public BaseResponseContext handle(JsonPath jsonPath, QueryAdapter queryAdapter, RepositoryMethodParameterProvider
         parameterProvider, RequestBody requestBody) {
         String resourceName = jsonPath.getResourceName();
         PathIds resourceIds = jsonPath.getIds();
@@ -58,15 +59,15 @@ public class FieldResourceGet extends ResourceIncludeField {
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
             @SuppressWarnings("unchecked")
             JsonApiResponse response = relationshipRepositoryForClass
-                .findManyTargets(castedResourceId, elementName, queryParams);
-            includeFieldSetter.setIncludedElements(resourceName, response, queryParams, parameterProvider);
-            target = new CollectionResponseContext(response, jsonPath, queryParams);
+                .findManyTargets(castedResourceId, elementName, queryAdapter);
+            includeFieldSetter.setIncludedElements(resourceName, response, queryAdapter, parameterProvider);
+            target = new CollectionResponseContext(response, jsonPath, queryAdapter);
         } else {
             @SuppressWarnings("unchecked")
             JsonApiResponse response = relationshipRepositoryForClass
-                .findOneTarget(castedResourceId, elementName, queryParams);
-            includeFieldSetter.setIncludedElements(resourceName, response, queryParams, parameterProvider);
-            target = new ResourceResponseContext(response, jsonPath, queryParams);
+                .findOneTarget(castedResourceId, elementName, queryAdapter);
+            includeFieldSetter.setIncludedElements(resourceName, response, queryAdapter, parameterProvider);
+            target = new ResourceResponseContext(response, jsonPath, queryAdapter);
         }
 
         return target;

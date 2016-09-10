@@ -15,6 +15,7 @@ import io.katharsis.resource.registry.ResourceRegistryAware;
  * QuerySpec-based ResourceRepository that translates incoming QueryParameters
  * to QuerySpec for ease of use.
  */
+@Deprecated
 public abstract class QuerySpecResourceRepository<T, I extends Serializable>
 		implements ResourceRegistryAware, ResourceRepository<T, I> {
 

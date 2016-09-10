@@ -24,7 +24,7 @@ import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 
-public class RequestUrlBuilderTest {
+public class DefaultQueryParamsSerializerTest {
 
 	private QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
 	private RequestUrlBuilder urlBuilder;

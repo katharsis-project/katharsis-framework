@@ -1,9 +1,12 @@
 package io.katharsis.module;
 
-import io.katharsis.queryParams.QueryParams;
-import io.katharsis.repository.RelationshipRepository;
+import java.util.Set;
 
-class TestRelationshipRepository implements RelationshipRepository<TestResource, Integer, TestResource, Integer> {
+import io.katharsis.queryspec.FilterOperator;
+import io.katharsis.queryspec.QuerySpec;
+import io.katharsis.queryspec.QuerySpecRelationshipRepository;
+
+class TestRelationshipRepository implements QuerySpecRelationshipRepository<TestResource, Integer, TestResource, Integer> {
 
 	@Override
 	public void setRelation(TestResource source, Integer targetId, String fieldName) {
@@ -22,12 +25,32 @@ class TestRelationshipRepository implements RelationshipRepository<TestResource,
 	}
 
 	@Override
-	public TestResource findOneTarget(Integer sourceId, String fieldName, QueryParams queryParams) {
+	public TestResource findOneTarget(Integer sourceId, String fieldName, QuerySpec queryParams) {
 		return null;
 	}
 
 	@Override
-	public Iterable<TestResource> findManyTargets(Integer sourceId, String fieldName, QueryParams queryParams) {
+	public Iterable<TestResource> findManyTargets(Integer sourceId, String fieldName, QuerySpec queryParams) {
+		return null;
+	}
+
+	@Override
+	public Class<TestResource> getSourceResourceClass() {
+		return null;
+	}
+
+	@Override
+	public Class<TestResource> getTargetResourceClass() {
+		return null;
+	}
+
+	@Override
+	public Set<FilterOperator> getSupportedOperators() {
+		return null;
+	}
+
+	@Override
+	public FilterOperator getDefaultOperator() {
 		return null;
 	}
 }

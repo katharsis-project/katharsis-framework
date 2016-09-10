@@ -15,6 +15,10 @@ public class TaskToProjectRepository implements RelationshipRepository<Task, Lon
 
     private static final ConcurrentMap<Relation<Task>, Integer> THREAD_LOCAL_REPOSITORY = new ConcurrentHashMap<>();
 
+    public static void clear(){
+    	THREAD_LOCAL_REPOSITORY.clear();
+    }
+    
     @Override
     public void setRelation(Task source, Long targetId, String fieldName) {
         removeRelations(fieldName);

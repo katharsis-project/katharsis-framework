@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.QueryParams;
+import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.RequestBody;
@@ -38,7 +39,7 @@ public class ResourcePatch extends ResourceUpsert {
     }
 
     @Override
-    public BaseResponseContext handle(JsonPath jsonPath, QueryParams queryParams,
+    public BaseResponseContext handle(JsonPath jsonPath, QueryAdapter queryAdapter,
                                          RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody) {
 
         String resourceEndpointName = jsonPath.getResourceName();
@@ -70,7 +71,7 @@ public class ResourcePatch extends ResourceUpsert {
 
         ResourceRepositoryAdapter resourceRepository = endpointRegistryEntry.getResourceRepository(parameterProvider);
         @SuppressWarnings("unchecked")
-        Object resource = extractResource(resourceRepository.findOne(resourceId, queryParams));
+        Object resource = extractResource(resourceRepository.findOne(resourceId, queryAdapter));
 
         String attributesFromFindOne = null;
         try {
@@ -89,10 +90,10 @@ public class ResourcePatch extends ResourceUpsert {
         }
 
         setAttributes(dataBody, resource, bodyRegistryEntry.getResourceInformation());
-        setRelations(resource, bodyRegistryEntry, dataBody, queryParams, parameterProvider);
-        JsonApiResponse response = resourceRepository.save(resource, queryParams);
+        setRelations(resource, bodyRegistryEntry, dataBody, queryAdapter, parameterProvider);
+        JsonApiResponse response = resourceRepository.save(resource, queryAdapter);
 
-        return new ResourceResponseContext(response, jsonPath, queryParams);
+        return new ResourceResponseContext(response, jsonPath, queryAdapter);
     }
 
     private String extractAttributesFromResourceAsJson(Object resource, JsonPath jsonPath, QueryParams queryParams) throws Exception {

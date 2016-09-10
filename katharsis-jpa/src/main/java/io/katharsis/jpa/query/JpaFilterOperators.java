@@ -1,7 +1,9 @@
 package io.katharsis.jpa.query;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import io.katharsis.queryspec.FilterOperator;
-import io.katharsis.queryspec.FilterOperatorRegistry;
 
 public class JpaFilterOperators {
 
@@ -44,19 +46,21 @@ public class JpaFilterOperators {
 
 	};
 
-	public static void setup(FilterOperatorRegistry registry) {
-		registry.register(LIKE);
-		registry.register(ILIKE);
-		registry.register(NOT_LIKE);
-		registry.register(FilterOperator.EQ);
-		registry.register(FilterOperator.NEQ);
-		registry.register(FilterOperator.GT);
-		registry.register(FilterOperator.GE);
-		registry.register(FilterOperator.LT);
-		registry.register(FilterOperator.LE);
+	public static Set<FilterOperator> getSupportedOperators() {
+		Set<FilterOperator> set = new HashSet<>();
+		set.add(LIKE);
+		set.add(ILIKE);
+		set.add(NOT_LIKE);
+		set.add(FilterOperator.EQ);
+		set.add(FilterOperator.NEQ);
+		set.add(FilterOperator.GT);
+		set.add(FilterOperator.GE);
+		set.add(FilterOperator.LT);
+		return set;
+	}
 
-		registry.setDefaultOperator(FilterOperator.EQ);
-		registry.setDefaultOperator(FilterOperator.EQ);
+	public static FilterOperator getDefaultOperator() {
+		return FilterOperator.EQ;
 	}
 
 }

@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Set;
 
 import javax.persistence.EntityManager;
 
@@ -15,17 +16,19 @@ import io.katharsis.jpa.query.JpaFilterOperators;
 import io.katharsis.jpa.query.JpaQuery;
 import io.katharsis.jpa.query.JpaQueryExecutor;
 import io.katharsis.jpa.query.JpaQueryFactory;
-import io.katharsis.queryspec.FilterOperatorRegistry;
+import io.katharsis.queryspec.FilterOperator;
 import io.katharsis.queryspec.QuerySpec;
-import io.katharsis.queryspec.repository.QuerySpecRelationshipRepository;
+import io.katharsis.queryspec.QuerySpecRelationshipRepository;
 
 public class JpaRelationshipRepository<T, I extends Serializable, D, J extends Serializable>
-		extends QuerySpecRelationshipRepository<T, I, D, J> {
+		implements QuerySpecRelationshipRepository<T, I, D, J> {
 
 	private JpaModule module;
 
 	private Class<T> entityClass;
+
 	private Class<D> relatedEntityClass;
+
 	private MetaEntity entityMeta;
 
 	public JpaRelationshipRepository(JpaModule module, Class<T> entityClass, Class<D> relatedEntityClass) {
@@ -48,7 +51,8 @@ public class JpaRelationshipRepository<T, I extends Serializable, D, J extends S
 		if (target != null && oppositeAttrMeta != null) {
 			if (oppositeAttrMeta.getType().isCollection()) {
 				oppositeAttrMeta.addValue(target, source);
-			} else {
+			}
+			else {
 				oppositeAttrMeta.setValue(target, source);
 			}
 			em.persist(target);
@@ -77,7 +81,8 @@ public class JpaRelationshipRepository<T, I extends Serializable, D, J extends S
 				iterator.remove();
 				if (oppositeAttrMeta.getType().isCollection()) {
 					oppositeAttrMeta.removeValue(prevTarget, source);
-				} else {
+				}
+				else {
 					oppositeAttrMeta.setValue(prevTarget, null);
 				}
 			}
@@ -88,7 +93,8 @@ public class JpaRelationshipRepository<T, I extends Serializable, D, J extends S
 			if (oppositeAttrMeta != null) {
 				if (oppositeAttrMeta.getType().isCollection()) {
 					oppositeAttrMeta.addValue(target, source);
-				} else {
+				}
+				else {
 					oppositeAttrMeta.setValue(target, source);
 				}
 				em.persist(target);
@@ -119,7 +125,8 @@ public class JpaRelationshipRepository<T, I extends Serializable, D, J extends S
 			if (oppositeAttrMeta != null) {
 				if (oppositeAttrMeta.getType().isCollection()) {
 					oppositeAttrMeta.addValue(target, source);
-				} else {
+				}
+				else {
 					oppositeAttrMeta.setValue(target, source);
 				}
 				em.persist(target);
@@ -142,7 +149,8 @@ public class JpaRelationshipRepository<T, I extends Serializable, D, J extends S
 			if (target != null && oppositeAttrMeta != null) {
 				if (oppositeAttrMeta.getType().isCollection()) {
 					oppositeAttrMeta.removeValue(target, source);
-				} else {
+				}
+				else {
 					oppositeAttrMeta.setValue(target, null);
 				}
 			}
@@ -173,13 +181,23 @@ public class JpaRelationshipRepository<T, I extends Serializable, D, J extends S
 	}
 
 	@Override
-	protected Class<D> getResourceClass() {
+	public Class<T> getSourceResourceClass() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Class<D> getTargetResourceClass() {
 		return relatedEntityClass;
 	}
 
 	@Override
-	protected void setupFilterOperators(FilterOperatorRegistry registry) {
-		JpaFilterOperators.setup(registry);
+	public Set<FilterOperator> getSupportedOperators() {
+		return JpaFilterOperators.getSupportedOperators();
 	}
 
+	@Override
+	public FilterOperator getDefaultOperator() {
+		return JpaFilterOperators.getDefaultOperator();
+	}
 }

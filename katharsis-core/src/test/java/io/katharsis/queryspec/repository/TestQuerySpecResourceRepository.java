@@ -1,20 +1,22 @@
 package io.katharsis.queryspec.repository;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Assert;
 
 import io.katharsis.queryspec.FilterOperator;
-import io.katharsis.queryspec.FilterOperatorRegistry;
 import io.katharsis.queryspec.QuerySpec;
+import io.katharsis.queryspec.QuerySpecResourceRepository;
 import io.katharsis.queryspec.SortSpec;
 import io.katharsis.resource.mock.models.Task;
 
-public class TestQuerySpecResourceRepository extends QuerySpecResourceRepository<Task, Long> {
+public class TestQuerySpecResourceRepository implements QuerySpecResourceRepository<Task, Long> {
 
 	@Override
-	protected Class<Task> getResourceClass() {
+	public Class<Task> getResourceClass() {
 		return Task.class;
 	}
 
@@ -26,19 +28,19 @@ public class TestQuerySpecResourceRepository extends QuerySpecResourceRepository
 	}
 
 	@Override
-	protected Task findOne(Long id, QuerySpec querySpec) {
+	public Task findOne(Long id, QuerySpec querySpec) {
 		assertQuerySpec(querySpec);
 		return null;
 	}
 
 	@Override
-	protected Iterable<Task> findAll(QuerySpec querySpec) {
+	public Iterable<Task> findAll(QuerySpec querySpec) {
 		assertQuerySpec(querySpec);
 		return null;
 	}
 
 	@Override
-	protected Iterable<Task> findAll(Iterable<Long> ids, QuerySpec querySpec) {
+	public Iterable<Task> findAll(Iterable<Long> ids, QuerySpec querySpec) {
 		assertQuerySpec(querySpec);
 		return null;
 	}
@@ -53,7 +55,18 @@ public class TestQuerySpecResourceRepository extends QuerySpecResourceRepository
 	}
 
 	@Override
-	protected void setupFilterOperators(FilterOperatorRegistry registry) {
-		registry.setDefaultOperator(FilterOperator.EQ);
+	public Set<FilterOperator> getSupportedOperators() {
+		Set<FilterOperator> set = new HashSet<FilterOperator>();
+		set.add(FilterOperator.EQ);
+		set.add(FilterOperator.LE);
+		set.add(FilterOperator.LT);
+		set.add(FilterOperator.GE);
+		set.add(FilterOperator.GT);
+		return set;
+	}
+
+	@Override
+	public FilterOperator getDefaultOperator() {
+		return FilterOperator.EQ;
 	}
 }
