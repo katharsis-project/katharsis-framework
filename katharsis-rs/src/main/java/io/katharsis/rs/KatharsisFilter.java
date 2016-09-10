@@ -109,10 +109,8 @@ public class KatharsisFilter implements ContainerRequestFilter {
         try {
             dispatchRequest(requestContext);
         } catch (WebApplicationException e) {
-        	e.printStackTrace();
             throw e;
         } catch (Exception e) {
-        	e.printStackTrace();
             throw new WebApplicationException(e);
         }
     }

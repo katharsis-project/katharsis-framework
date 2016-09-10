@@ -1,6 +1,15 @@
 package io.katharsis.resource.registry;
 
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.katharsis.locator.JsonServiceLocator;
+import io.katharsis.queryspec.QuerySpecRelationshipRepository;
 import io.katharsis.queryspec.QuerySpecResourceRepository;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.repository.RepositoryInstanceBuilder;
@@ -11,13 +20,6 @@ import io.katharsis.resource.registry.repository.DirectResponseResourceEntry;
 import io.katharsis.resource.registry.repository.ResourceEntry;
 import io.katharsis.resource.registry.repository.ResponseRelationshipEntry;
 import net.jodah.typetools.TypeResolver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
 
 /**
  * Repository entries builder for classes implementing repository interfaces.
@@ -72,7 +74,7 @@ public class DirectRepositoryEntryBuilder implements RepositoryEntryBuilder {
 
         List<ResponseRelationshipEntry<?, ?>> relationshipEntries = new LinkedList<>();
         for (Class<?> relationshipRepositoryClass : relationshipRepositories) {
-            RelationshipRepository relationshipRepository = (RelationshipRepository) jsonServiceLocator.getInstance(relationshipRepositoryClass);
+            Object relationshipRepository = jsonServiceLocator.getInstance(relationshipRepositoryClass);
             if (relationshipRepository == null) {
                 throw new RepositoryInstanceNotFoundException(relationshipRepositoryClass.getCanonicalName());
             }
@@ -93,6 +95,12 @@ public class DirectRepositoryEntryBuilder implements RepositoryEntryBuilder {
         for (Class<?> repoClass : relationshipRepositoryClasses) {
             if (RelationshipRepository.class.isAssignableFrom(repoClass)) {
                 Class<?>[] typeArgs = TypeResolver.resolveRawArguments(RelationshipRepository.class, repoClass);
+                if (typeArgs[0] == resourceClass) {
+                    relationshipRepositories.add(repoClass);
+                }
+            }
+            if (QuerySpecRelationshipRepository.class.isAssignableFrom(repoClass)) {
+                Class<?>[] typeArgs = TypeResolver.resolveRawArguments(QuerySpecRelationshipRepository.class, repoClass);
                 if (typeArgs[0] == resourceClass) {
                     relationshipRepositories.add(repoClass);
                 }

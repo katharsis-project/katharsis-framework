@@ -12,8 +12,6 @@ import io.katharsis.errorhandling.mapper.ExceptionMapperLookup;
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
 import io.katharsis.queryspec.QuerySpecRelationshipRepository;
 import io.katharsis.queryspec.QuerySpecResourceRepository;
-import io.katharsis.repository.RelationshipRepository;
-import io.katharsis.repository.ResourceRepository;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ResourceLookup;
 

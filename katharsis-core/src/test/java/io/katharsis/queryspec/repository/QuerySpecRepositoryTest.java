@@ -1,0 +1,89 @@
+package io.katharsis.queryspec.repository;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import io.katharsis.queryParams.QueryParams;
+import io.katharsis.queryspec.AbstractQuerySpecTest;
+import io.katharsis.queryspec.Direction;
+import io.katharsis.queryspec.FilterOperator;
+import io.katharsis.queryspec.QuerySpec;
+import io.katharsis.queryspec.SortSpec;
+import io.katharsis.queryspec.internal.QuerySpecAdapter;
+import io.katharsis.resource.mock.models.Project;
+import io.katharsis.resource.mock.models.Task;
+import io.katharsis.resource.registry.RegistryEntry;
+import io.katharsis.resource.registry.responseRepository.RelationshipRepositoryAdapter;
+import io.katharsis.resource.registry.responseRepository.ResourceRepositoryAdapter;
+import io.katharsis.response.JsonApiResponse;
+
+public class QuerySpecRepositoryTest extends AbstractQuerySpecTest {
+
+	@Test
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void test() {
+
+		RegistryEntry<?> registryEntry = resourceRegistry.getEntry(Task.class);
+		TestQuerySpecResourceRepository repo = (TestQuerySpecResourceRepository) registryEntry.getResourceRepository(null)
+				.getResourceRepository();
+
+		repo = Mockito.spy(repo);
+
+		ResourceRepositoryAdapter<Task, Long> adapter = registryEntry.getResourceRepository(null);
+
+		Assert.assertEquals(FilterOperator.EQ, adapter.getDefaultOperator());
+		Assert.assertEquals(5, adapter.getSupportedOperators().size());
+
+		QuerySpec querySpec = new QuerySpec(Task.class);
+		querySpec.addSort(new SortSpec(Arrays.asList("name"), Direction.ASC));
+		QuerySpecAdapter queryAdapter = new QuerySpecAdapter(querySpec, resourceRegistry);
+
+		// setup data
+		Project project = new Project();
+		project.setId(3L);
+		project.setName("myProject");
+
+		Task task = new Task();
+		task.setId(2L);
+		task.setName("myTask");
+		task.setProject(project);
+		task.setProjects(Arrays.asList(project));
+		adapter.save(task, queryAdapter);
+
+		// adapter
+		List<Task> tasks = (List<Task>) adapter.findAll(queryAdapter).getEntity();
+		Assert.assertEquals(1, tasks.size());
+		Assert.assertEquals(task, adapter.findOne(2L, queryAdapter).getEntity());
+		tasks = (List<Task>) adapter.findAll(Arrays.asList(2L), queryAdapter).getEntity();
+		Assert.assertEquals(1, tasks.size());
+
+		// relation adapter
+		RelationshipRepositoryAdapter relAdapter = registryEntry.getRelationshipRepositoryForClass(Project.class, null);
+		relAdapter.setRelation(task, project.getId(), "project", queryAdapter);
+		JsonApiResponse response = relAdapter.findOneTarget(2L, "project", queryAdapter);
+		Assert.assertEquals(project.getId(), ((Project) response.getEntity()).getId());
+		
+		relAdapter.setRelation(task, null, "project", queryAdapter);
+		response = relAdapter.findOneTarget(2L, "project", queryAdapter);
+		Assert.assertNull(response.getEntity());
+
+		relAdapter.addRelations(task, Arrays.asList(project.getId()), "projects", queryAdapter);
+		List<Project> projects = (List<Project>) relAdapter.findManyTargets(2L, "projects", queryAdapter).getEntity();
+		Assert.assertEquals(1, projects.size());
+		Assert.assertEquals(FilterOperator.EQ, relAdapter.getDefaultOperator());
+		Assert.assertEquals(1, relAdapter.getSupportedOperators().size());
+
+		relAdapter.removeRelations(task, Arrays.asList(project.getId()), "projects", queryAdapter);
+		projects = (List<Project>) relAdapter.findManyTargets(2L, "projects", queryAdapter).getEntity();
+		Assert.assertEquals(0, projects.size());
+
+	}
+
+}

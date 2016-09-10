@@ -1,8 +1,8 @@
 package io.katharsis.dispatcher.controller.resource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.katharsis.dispatcher.controller.HttpMethod;
-import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.dto.DataBody;
@@ -18,7 +18,6 @@ import io.katharsis.resource.registry.responseRepository.ResourceRepositoryAdapt
 import io.katharsis.response.HttpStatus;
 import io.katharsis.response.JsonApiResponse;
 import io.katharsis.response.ResourceResponseContext;
-import io.katharsis.utils.ClassUtils;
 import io.katharsis.utils.parser.TypeParser;
 
 public class ResourcePost extends ResourceUpsert {

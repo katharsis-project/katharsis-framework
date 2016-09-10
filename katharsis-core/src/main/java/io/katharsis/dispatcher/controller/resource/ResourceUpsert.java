@@ -1,9 +1,14 @@
 package io.katharsis.dispatcher.controller.resource;
 
+import java.io.Serializable;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.katharsis.dispatcher.controller.BaseController;
-import io.katharsis.queryParams.QueryParams;
-import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.dto.DataBody;
@@ -20,12 +25,6 @@ import io.katharsis.resource.registry.responseRepository.RelationshipRepositoryA
 import io.katharsis.utils.Generics;
 import io.katharsis.utils.PropertyUtils;
 import io.katharsis.utils.parser.TypeParser;
-
-import java.io.Serializable;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
 public abstract class ResourceUpsert extends BaseController {
     final ResourceRegistry resourceRegistry;

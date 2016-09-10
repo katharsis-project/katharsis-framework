@@ -1,8 +1,9 @@
 package io.katharsis.dispatcher.controller.resource;
 
+import java.io.Serializable;
+
 import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.dispatcher.controller.HttpMethod;
-import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.dto.RequestBody;
@@ -14,8 +15,6 @@ import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponseContext;
 import io.katharsis.utils.parser.TypeParser;
-
-import java.io.Serializable;
 
 public class ResourceDelete extends BaseController {
 

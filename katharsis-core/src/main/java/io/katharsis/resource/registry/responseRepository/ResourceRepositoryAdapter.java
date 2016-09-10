@@ -3,15 +3,9 @@ package io.katharsis.resource.registry.responseRepository;
 import java.io.Serializable;
 import java.util.Set;
 
-import io.katharsis.queryParams.QueryParams;
-import io.katharsis.queryspec.DefaultQuerySpecConverter;
 import io.katharsis.queryspec.FilterOperator;
-import io.katharsis.queryspec.FilterOperatorRegistry;
-import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.QuerySpecResourceRepository;
 import io.katharsis.queryspec.internal.QueryAdapter;
-import io.katharsis.queryspec.internal.QueryParamsAdapter;
-import io.katharsis.queryspec.internal.QuerySpecAdapter;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.repository.annotated.AnnotatedResourceRepositoryAdapter;
 import io.katharsis.resource.information.ResourceInformation;
@@ -96,6 +90,7 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable> extends Respo
 		return resourceRepository;
 	}
 
+	@Override
 	public FilterOperator getDefaultOperator() {
         if (isAnnotated) {
            throw new UnsupportedOperationException("not implemented yet");
@@ -104,6 +99,7 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable> extends Respo
         }
 	}
 
+	@Override
 	public Set<FilterOperator> getSupportedOperators() {
 		if (isAnnotated) {
 			throw new UnsupportedOperationException("not implemented yet");

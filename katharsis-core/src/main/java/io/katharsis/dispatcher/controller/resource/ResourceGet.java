@@ -1,7 +1,8 @@
 package io.katharsis.dispatcher.controller.resource;
 
+import java.io.Serializable;
+
 import io.katharsis.dispatcher.controller.HttpMethod;
-import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.dto.RequestBody;
@@ -17,8 +18,6 @@ import io.katharsis.response.BaseResponseContext;
 import io.katharsis.response.JsonApiResponse;
 import io.katharsis.response.ResourceResponseContext;
 import io.katharsis.utils.parser.TypeParser;
-
-import java.io.Serializable;
 
 public class ResourceGet extends ResourceIncludeField {
 
