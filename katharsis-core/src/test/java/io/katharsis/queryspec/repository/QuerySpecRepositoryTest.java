@@ -13,13 +13,9 @@ import org.mockito.Mockito;
 
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryspec.AbstractQuerySpecTest;
-import io.katharsis.queryspec.Direction;
 import io.katharsis.queryspec.FilterOperator;
-import io.katharsis.queryspec.QuerySpec;
-import io.katharsis.queryspec.SortSpec;
 import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.queryspec.internal.QueryParamsAdapter;
-import io.katharsis.queryspec.internal.QuerySpecAdapter;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.registry.RegistryEntry;
@@ -37,6 +33,9 @@ public class QuerySpecRepositoryTest extends AbstractQuerySpecTest {
 	@SuppressWarnings("unchecked")
 	@Before
 	public void setup() {
+		TestQuerySpecResourceRepository.clear();
+		TestQuerySpecRelationshipRepository.clear();
+
 		super.setup();
 		RegistryEntry<?> registryEntry = resourceRegistry.getEntry(Task.class);
 		TestQuerySpecResourceRepository repo = (TestQuerySpecResourceRepository) registryEntry.getResourceRepository(null)
@@ -61,14 +60,6 @@ public class QuerySpecRepositoryTest extends AbstractQuerySpecTest {
 		QueryParams queryParams = queryParamsBuilder.buildQueryParams(params);
 
 		QueryParamsAdapter queryAdapter = new QueryParamsAdapter(queryParams);
-		checkCrud(queryAdapter);
-	}
-
-	@Test
-	public void testCrudWithQuerySpecInput() {
-		QuerySpec querySpec = new QuerySpec(Task.class);
-		querySpec.addSort(new SortSpec(Arrays.asList("name"), Direction.ASC));
-		QuerySpecAdapter queryAdapter = new QuerySpecAdapter(querySpec, resourceRegistry);
 		checkCrud(queryAdapter);
 	}
 
@@ -116,6 +107,13 @@ public class QuerySpecRepositoryTest extends AbstractQuerySpecTest {
 		relAdapter.removeRelations(task, Arrays.asList(project.getId()), "projects", queryAdapter);
 		projects = (List<Project>) relAdapter.findManyTargets(2L, "projects", queryAdapter).getEntity();
 		Assert.assertEquals(0, projects.size());
+
+		relAdapter.setRelations(task, Arrays.asList(project.getId()), "projects", queryAdapter);
+		projects = (List<Project>) relAdapter.findManyTargets(2L, "projects", queryAdapter).getEntity();
+		Assert.assertEquals(1, projects.size());
+		Assert.assertEquals(FilterOperator.EQ, relAdapter.getDefaultOperator());
+		Assert.assertEquals(1, relAdapter.getSupportedOperators().size());
+
 	}
 
 }

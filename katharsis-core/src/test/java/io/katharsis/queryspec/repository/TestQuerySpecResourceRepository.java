@@ -6,14 +6,19 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryspec.FilterOperator;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.QuerySpecResourceRepository;
+import io.katharsis.repository.LinksRepository;
+import io.katharsis.repository.MetaRepository;
 import io.katharsis.resource.mock.models.Task;
+import io.katharsis.response.LinksInformation;
+import io.katharsis.response.MetaInformation;
 
-public class TestQuerySpecResourceRepository implements QuerySpecResourceRepository<Task, Long> {
+public class TestQuerySpecResourceRepository implements QuerySpecResourceRepository<Task, Long>, MetaRepository<Task>, LinksRepository<Task> {
 
-	private List<Task> tasks = new ArrayList<Task>();
+	private static List<Task> tasks = new ArrayList<Task>();
 
 	@Override
 	public Class<Task> getResourceClass() {
@@ -77,5 +82,25 @@ public class TestQuerySpecResourceRepository implements QuerySpecResourceReposit
 	@Override
 	public FilterOperator getDefaultOperator() {
 		return FilterOperator.EQ;
+	}
+
+	@Override
+	public LinksInformation getLinksInformation(Iterable<Task> resources, QueryParams queryParams) {
+		return new LinksInformation() {
+
+			public String name = "value";
+		};
+	}
+
+	@Override
+	public MetaInformation getMetaInformation(Iterable<Task> resources, QueryParams queryParams) {
+		return new MetaInformation() {
+
+			public String name = "value";
+		};
+	}
+
+	public static void clear() {
+		tasks.clear();
 	}
 }

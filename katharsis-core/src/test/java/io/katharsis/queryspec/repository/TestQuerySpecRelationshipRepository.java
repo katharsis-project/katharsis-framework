@@ -8,14 +8,20 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryspec.FilterOperator;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.QuerySpecRelationshipRepository;
+import io.katharsis.repository.LinksRepository;
+import io.katharsis.repository.MetaRepository;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.repository.util.Relation;
+import io.katharsis.response.LinksInformation;
+import io.katharsis.response.MetaInformation;
 
-public class TestQuerySpecRelationshipRepository implements QuerySpecRelationshipRepository<Task, Long, Project, Long> {
+public class TestQuerySpecRelationshipRepository
+		implements QuerySpecRelationshipRepository<Task, Long, Project, Long>, MetaRepository<Project>, LinksRepository<Project> {
 
 	private static final ConcurrentMap<Relation<Task>, Integer> THREAD_LOCAL_REPOSITORY = new ConcurrentHashMap<>();
 
@@ -115,5 +121,25 @@ public class TestQuerySpecRelationshipRepository implements QuerySpecRelationshi
 	@Override
 	public FilterOperator getDefaultOperator() {
 		return FilterOperator.EQ;
+	}
+
+	@Override
+	public LinksInformation getLinksInformation(Iterable<Project> resources, QueryParams queryParams) {
+		return new LinksInformation() {
+
+			public String name = "value";
+		};
+	}
+
+	@Override
+	public MetaInformation getMetaInformation(Iterable<Project> resources, QueryParams queryParams) {
+		return new MetaInformation() {
+
+			public String name = "value";
+		};
+	}
+
+	public static void clear() {
+		THREAD_LOCAL_REPOSITORY.clear();		
 	}
 }
