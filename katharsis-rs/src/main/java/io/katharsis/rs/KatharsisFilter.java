@@ -1,22 +1,17 @@
 package io.katharsis.rs;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.katharsis.dispatcher.RequestDispatcher;
-import io.katharsis.errorhandling.exception.KatharsisMappableException;
-import io.katharsis.errorhandling.exception.KatharsisMatchingException;
-import io.katharsis.errorhandling.mapper.KatharsisExceptionMapper;
-import io.katharsis.jackson.exception.JsonDeserializationException;
-import io.katharsis.queryParams.QueryParams;
-import io.katharsis.queryParams.QueryParamsBuilder;
-import io.katharsis.request.dto.RequestBody;
-import io.katharsis.request.path.JsonPath;
-import io.katharsis.request.path.PathBuilder;
-import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.resource.registry.UriInfoServiceUrlProvider;
-import io.katharsis.response.BaseResponseContext;
-import io.katharsis.rs.parameterProvider.JaxRsParameterProvider;
-import io.katharsis.rs.parameterProvider.RequestContextParameterProviderRegistry;
-import io.katharsis.rs.type.JsonApiMediaType;
+import static io.katharsis.rs.type.JsonApiMediaType.APPLICATION_JSON_API_TYPE;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.Set;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -26,13 +21,27 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.*;
 
-import static io.katharsis.rs.type.JsonApiMediaType.APPLICATION_JSON_API_TYPE;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.katharsis.dispatcher.RequestDispatcher;
+import io.katharsis.errorhandling.exception.KatharsisMappableException;
+import io.katharsis.errorhandling.exception.KatharsisMatchingException;
+import io.katharsis.errorhandling.mapper.KatharsisExceptionMapper;
+import io.katharsis.jackson.exception.JsonDeserializationException;
+import io.katharsis.queryParams.QueryParams;
+import io.katharsis.queryParams.QueryParamsBuilder;
+import io.katharsis.queryspec.internal.QueryAdapter;
+import io.katharsis.queryspec.internal.QueryParamsAdapter;
+import io.katharsis.request.dto.RequestBody;
+import io.katharsis.request.path.JsonPath;
+import io.katharsis.request.path.PathBuilder;
+import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.resource.registry.UriInfoServiceUrlProvider;
+import io.katharsis.response.BaseResponseContext;
+import io.katharsis.rs.parameterProvider.JaxRsParameterProvider;
+import io.katharsis.rs.parameterProvider.RequestContextParameterProviderRegistry;
+import io.katharsis.rs.type.JsonApiMediaType;
 
 /**
  * Handles JSON API requests.
@@ -116,14 +125,14 @@ public class KatharsisFilter implements ContainerRequestFilter {
             ResourceRegistry newRegistry = new ResourceRegistry(resourceRegistry.getResources(), new UriInfoServiceUrlProvider(uriInfo));
             JsonPath jsonPath = new PathBuilder(newRegistry).buildPath(path);
 
-            QueryParams requestParams = createQueryParams(uriInfo);
+            QueryAdapter queryAdapter = createQueryAdapter(uriInfo);
 
             String method = requestContext.getMethod();
             RequestBody requestBody = inputStreamToBody(requestContext.getEntityStream());
 
             JaxRsParameterProvider parameterProvider = new JaxRsParameterProvider(objectMapper, requestContext, parameterProviderRegistry);
             katharsisResponse = requestDispatcher
-                .dispatchRequest(jsonPath, method, requestParams, parameterProvider, requestBody);
+                .dispatchRequest(jsonPath, method, queryAdapter, parameterProvider, requestBody);
         } catch (KatharsisMappableException e) {
             katharsisResponse = new KatharsisExceptionMapper().toErrorResponse(e);
         } catch (KatharsisMatchingException e) {
@@ -161,7 +170,7 @@ public class KatharsisFilter implements ContainerRequestFilter {
         requestContext.abortWith(response);
     }
 
-    private QueryParams createQueryParams(UriInfo uriInfo) {
+    private QueryAdapter createQueryAdapter(UriInfo uriInfo) {
         MultivaluedMap<String, String> queryParametersMultiMap = uriInfo.getQueryParameters();
         Map<String, Set<String>> queryParameters = new HashMap<>();
 
@@ -169,7 +178,7 @@ public class KatharsisFilter implements ContainerRequestFilter {
             queryParameters.put(queryEntry.getKey(), new LinkedHashSet<>(queryEntry.getValue()));
         }
 
-        return queryParamsBuilder.buildQueryParams(queryParameters);
+        return new QueryParamsAdapter(queryParamsBuilder.buildQueryParams(queryParameters));
     }
 
     public RequestBody inputStreamToBody(InputStream is) throws IOException {

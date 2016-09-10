@@ -3,11 +3,7 @@ package io.katharsis.jpa.repository;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.hibernate.Hibernate;
 import org.junit.Assert;
@@ -19,22 +15,23 @@ import io.katharsis.jpa.JpaEntityRepository;
 import io.katharsis.jpa.model.RelatedEntity;
 import io.katharsis.jpa.model.TestEntity;
 import io.katharsis.jpa.query.AbstractJpaTest;
-import io.katharsis.queryParams.DefaultQueryParamsParser;
-import io.katharsis.queryParams.QueryParams;
-import io.katharsis.queryParams.QueryParamsBuilder;
+import io.katharsis.jpa.query.JpaFilterOperators;
+import io.katharsis.queryspec.Direction;
+import io.katharsis.queryspec.FilterOperator;
+import io.katharsis.queryspec.FilterSpec;
+import io.katharsis.queryspec.QuerySpec;
+import io.katharsis.queryspec.SortSpec;
 
 @Transactional
 public abstract class JpaEntityRepositoryTestBase extends AbstractJpaTest {
 
 	private JpaEntityRepository<TestEntity, Long> repo;
-	private QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
 
 	@Override
 	@Before
 	public void setup() {
 		super.setup();
 		repo = new JpaEntityRepository<>(module, TestEntity.class);
-		repo.setResourceRegistry(resourceRegistry);
 	}
 
 	@Test
@@ -44,7 +41,9 @@ public abstract class JpaEntityRepositoryTestBase extends AbstractJpaTest {
 
 	@Test
 	public void testFindAll() throws InstantiationException, IllegalAccessException {
-		List<TestEntity> list = repo.findAll(new QueryParams());
+		QuerySpec querySpec = new QuerySpec(TestEntity.class);
+
+		List<TestEntity> list = repo.findAll(querySpec);
 		Assert.assertEquals(numTestEntities, list.size());
 	}
 
@@ -59,16 +58,15 @@ public abstract class JpaEntityRepositoryTestBase extends AbstractJpaTest {
 	}
 
 	public void testFindAllOrder(boolean asc) throws InstantiationException, IllegalAccessException {
-		Map<String, Set<String>> params = new HashMap<String, Set<String>>();
-		addParams(params, "sort[test][longValue]", asc ? "asc" : "desc");
-		QueryParams queryParams = queryParamsBuilder.buildQueryParams(params);
-
-		List<TestEntity> list = repo.findAll(queryParams);
+		QuerySpec querySpec = new QuerySpec(TestEntity.class);
+		querySpec.addSort(new SortSpec(Arrays.asList("longValue"), asc ? Direction.ASC : Direction.DESC));
+		List<TestEntity> list = repo.findAll(querySpec);
 		Assert.assertEquals(numTestEntities, list.size());
 		for (int i = 0; i < numTestEntities; i++) {
 			if (asc) {
 				Assert.assertEquals(i, list.get(i).getLongValue());
-			} else {
+			}
+			else {
 				Assert.assertEquals(numTestEntities - 1 - i, list.get(i).getLongValue());
 			}
 		}
@@ -76,7 +74,10 @@ public abstract class JpaEntityRepositoryTestBase extends AbstractJpaTest {
 
 	@Test
 	public void testFilterString() throws InstantiationException, IllegalAccessException {
-		List<TestEntity> list = findAll("filter[test][stringValue]", "test1");
+		QuerySpec querySpec = new QuerySpec(TestEntity.class);
+		querySpec.addFilter(new FilterSpec(Arrays.asList("stringValue"), FilterOperator.EQ, "test1"));
+		List<TestEntity> list = repo.findAll(querySpec);
+
 		Assert.assertEquals(1, list.size());
 		TestEntity entity = list.get(0);
 		Assert.assertEquals("test1", entity.getStringValue());
@@ -84,7 +85,10 @@ public abstract class JpaEntityRepositoryTestBase extends AbstractJpaTest {
 
 	@Test
 	public void testFilterLong() throws InstantiationException, IllegalAccessException {
-		List<TestEntity> list = findAll("filter[test][longValue]", "2");
+		QuerySpec querySpec = new QuerySpec(TestEntity.class);
+		querySpec.addFilter(new FilterSpec(Arrays.asList("longValue"), FilterOperator.EQ, 2L));
+		List<TestEntity> list = repo.findAll(querySpec);
+
 		Assert.assertEquals(1, list.size());
 		TestEntity entity = list.get(0);
 		Assert.assertEquals(2, entity.getId().longValue());
@@ -93,7 +97,10 @@ public abstract class JpaEntityRepositoryTestBase extends AbstractJpaTest {
 
 	@Test
 	public void testFilterInt() throws InstantiationException, IllegalAccessException {
-		List<TestEntity> list = findAll("filter[test][embValue][embIntValue]", "2");
+		QuerySpec querySpec = new QuerySpec(TestEntity.class);
+		querySpec.addFilter(new FilterSpec(Arrays.asList("embValue", "embIntValue"), FilterOperator.EQ, 2));
+		List<TestEntity> list = repo.findAll(querySpec);
+
 		Assert.assertEquals(1, list.size());
 		TestEntity entity = list.get(0);
 		Assert.assertEquals(2L, entity.getId().longValue());
@@ -102,7 +109,10 @@ public abstract class JpaEntityRepositoryTestBase extends AbstractJpaTest {
 
 	@Test
 	public void testFilterBooleanTrue() throws InstantiationException, IllegalAccessException {
-		List<TestEntity> list = findAll("filter[test][embValue][nestedValue][embBoolValue]", "true");
+		QuerySpec querySpec = new QuerySpec(TestEntity.class);
+		querySpec.addFilter(new FilterSpec(Arrays.asList("embValue", "nestedValue", "embBoolValue"), FilterOperator.EQ, true));
+		List<TestEntity> list = repo.findAll(querySpec);
+
 		Assert.assertEquals(1, list.size());
 		TestEntity entity = list.get(0);
 		Assert.assertTrue(entity.getEmbValue().getNestedValue().getEmbBoolValue());
@@ -110,7 +120,10 @@ public abstract class JpaEntityRepositoryTestBase extends AbstractJpaTest {
 
 	@Test
 	public void testFilterBooleanFalse() throws InstantiationException, IllegalAccessException {
-		List<TestEntity> list = findAll("filter[test][embValue][nestedValue][embBoolValue]", "false");
+		QuerySpec querySpec = new QuerySpec(TestEntity.class);
+		querySpec.addFilter(new FilterSpec(Arrays.asList("embValue", "nestedValue", "embBoolValue"), FilterOperator.EQ, false));
+		List<TestEntity> list = repo.findAll(querySpec);
+
 		Assert.assertEquals(numTestEntities - 1, list.size());
 		for (TestEntity entity : list) {
 			Assert.assertFalse(entity.getEmbValue().getNestedValue().getEmbBoolValue());
@@ -119,61 +132,83 @@ public abstract class JpaEntityRepositoryTestBase extends AbstractJpaTest {
 
 	@Test
 	public void testFilterEquals() throws InstantiationException, IllegalAccessException {
-		List<TestEntity> list = findAll("filter[test][longValue][EQ]", "2");
+		QuerySpec querySpec = new QuerySpec(TestEntity.class);
+		querySpec.addFilter(new FilterSpec(Arrays.asList("longValue"), FilterOperator.EQ, 2L));
+		List<TestEntity> list = repo.findAll(querySpec);
+
 		Assert.assertEquals(1, list.size());
 	}
 
 	@Test
 	public void testFilterNotEquals() throws InstantiationException, IllegalAccessException {
-		List<TestEntity> list = findAll("filter[test][longValue][NEQ]", "2");
+		QuerySpec querySpec = new QuerySpec(TestEntity.class);
+		querySpec.addFilter(new FilterSpec(Arrays.asList("longValue"), FilterOperator.NEQ, 2L));
+		List<TestEntity> list = repo.findAll(querySpec);
+
 		Assert.assertEquals(4, list.size());
 	}
 
 	@Test
 	public void testFilterLess() throws InstantiationException, IllegalAccessException {
-		List<TestEntity> list = findAll("filter[test][longValue][lt]", "2");
+		QuerySpec querySpec = new QuerySpec(TestEntity.class);
+		querySpec.addFilter(new FilterSpec(Arrays.asList("longValue"), FilterOperator.LT, 2));
+		List<TestEntity> list = repo.findAll(querySpec);
+
 		Assert.assertEquals(2, list.size());
 	}
 
 	@Test
 	public void testFilterLessEqual() throws InstantiationException, IllegalAccessException {
-		List<TestEntity> list = findAll("filter[test][longValue][le]", "2");
+		QuerySpec querySpec = new QuerySpec(TestEntity.class);
+		querySpec.addFilter(new FilterSpec(Arrays.asList("longValue"), FilterOperator.LE, 2));
+		List<TestEntity> list = repo.findAll(querySpec);
+
 		Assert.assertEquals(3, list.size());
 	}
 
 	@Test
 	public void testFilterGreater() throws InstantiationException, IllegalAccessException {
-		List<TestEntity> list = findAll("filter[test][longValue][gt]", "1");
+		QuerySpec querySpec = new QuerySpec(TestEntity.class);
+		querySpec.addFilter(new FilterSpec(Arrays.asList("longValue"), FilterOperator.GT, 1));
+		List<TestEntity> list = repo.findAll(querySpec);
+
 		Assert.assertEquals(3, list.size());
 	}
 
 	@Test
 	public void testFilterGreaterEqual() throws InstantiationException, IllegalAccessException {
-		List<TestEntity> list = findAll("filter[test][longValue][ge]", "1");
+		QuerySpec querySpec = new QuerySpec(TestEntity.class);
+		querySpec.addFilter(new FilterSpec(Arrays.asList("longValue"), FilterOperator.GE, 1));
+		List<TestEntity> list = repo.findAll(querySpec);
+
 		Assert.assertEquals(4, list.size());
 	}
 
 	@Test
 	public void testFilterLike() throws InstantiationException, IllegalAccessException {
-		List<TestEntity> list = findAll("filter[test][stringValue][like]", "test2");
+		QuerySpec querySpec = new QuerySpec(TestEntity.class);
+		querySpec.addFilter(new FilterSpec(Arrays.asList("stringValue"), JpaFilterOperators.LIKE, "test2"));
+		List<TestEntity> list = repo.findAll(querySpec);
+
 		Assert.assertEquals(1, list.size());
 	}
 
 	@Test
 	public void testFilterLikeWildcards() throws InstantiationException, IllegalAccessException {
-		List<TestEntity> list = findAll("filter[test][stringValue][like]", "test%");
+		QuerySpec querySpec = new QuerySpec(TestEntity.class);
+		querySpec.addFilter(new FilterSpec(Arrays.asList("stringValue"), JpaFilterOperators.LIKE, "test%"));
+		List<TestEntity> list = repo.findAll(querySpec);
+
 		Assert.assertEquals(5, list.size());
 	}
 
 	@Test
 	public void testPaging() throws InstantiationException, IllegalAccessException {
-		Map<String, Set<String>> params = new HashMap<String, Set<String>>();
-		addParams(params, "page[offset]", "1");
-		addParams(params, "page[limit]", "2");
-		addParams(params, "sort[test][id]", "asc");
-		QueryParams queryParams = queryParamsBuilder.buildQueryParams(params);
+		QuerySpec querySpec = new QuerySpec(TestEntity.class);
+		querySpec.setOffset(1L);
+		querySpec.setLimit(2L);
 
-		List<TestEntity> list = repo.findAll(queryParams);
+		List<TestEntity> list = repo.findAll(querySpec);
 		Assert.assertEquals(2, list.size());
 		Assert.assertEquals(1, list.get(0).getId().intValue());
 		Assert.assertEquals(2, list.get(1).getId().intValue());
@@ -181,7 +216,10 @@ public abstract class JpaEntityRepositoryTestBase extends AbstractJpaTest {
 
 	@Test
 	public void testIncludeRelations() throws InstantiationException, IllegalAccessException {
-		List<TestEntity> list = findAll("include[test]", TestEntity.ATTR_oneRelatedValue);
+		QuerySpec querySpec = new QuerySpec(TestEntity.class);
+		querySpec.includeRelation(Arrays.asList(TestEntity.ATTR_oneRelatedValue));
+
+		List<TestEntity> list = repo.findAll(querySpec);
 		Assert.assertEquals(numTestEntities, list.size());
 		for (TestEntity test : list) {
 			assertTrue(Hibernate.isInitialized(test));
@@ -192,7 +230,7 @@ public abstract class JpaEntityRepositoryTestBase extends AbstractJpaTest {
 	@Test
 	public void testIncludeNoRelations() throws InstantiationException, IllegalAccessException {
 		em.clear();
-		List<TestEntity> list = repo.findAll(new QueryParams());
+		List<TestEntity> list = repo.findAll(new QuerySpec(TestEntity.class));
 		Assert.assertEquals(numTestEntities, list.size());
 		for (TestEntity entity : list) {
 			RelatedEntity relatedValue = entity.getOneRelatedValue();
@@ -202,33 +240,23 @@ public abstract class JpaEntityRepositoryTestBase extends AbstractJpaTest {
 	}
 
 	@Test(expected = Exception.class)
-	public void testIncludeRelationUnknownType() throws InstantiationException, IllegalAccessException {
-		findAll("include[bla]", "test");
-	}
-
-	@Test(expected = Exception.class)
-	public void testFilterUnknownType() throws InstantiationException, IllegalAccessException {
-		findAll("filter[bla][stringValue]", "test%");
+	public void testFilterUnknownAttr() throws InstantiationException, IllegalAccessException {
+		QuerySpec querySpec = new QuerySpec(TestEntity.class);
+		querySpec.addFilter(new FilterSpec(Arrays.asList("test"), FilterOperator.EQ, "test"));
+		repo.findAll(querySpec);
 	}
 
 	@Test(expected = Exception.class)
 	public void testSparseFieldSetNotSupported() throws InstantiationException, IllegalAccessException {
-		findAll("fields[test]", "name");
+		QuerySpec querySpec = new QuerySpec(TestEntity.class);
+		querySpec.includeField(Arrays.asList("test"));
+		repo.findAll(querySpec);
 	}
 
 	@Test(expected = Exception.class)
-	public void testSortUnknownType() throws InstantiationException, IllegalAccessException {
-		findAll("sort[bla][stringValue]", "asc");
-	}
-
-	private List<TestEntity> findAll(String paramKey, String paramValue) {
-		Map<String, Set<String>> params = new HashMap<String, Set<String>>();
-		addParams(params, paramKey, paramValue);
-		QueryParams queryParams = queryParamsBuilder.buildQueryParams(params);
-		return repo.findAll(queryParams);
-	}
-
-	private void addParams(Map<String, Set<String>> params, String key, String value) {
-		params.put(key, new HashSet<String>(Arrays.asList(value)));
+	public void testSortUnknownAttr() throws InstantiationException, IllegalAccessException {
+		QuerySpec querySpec = new QuerySpec(TestEntity.class);
+		querySpec.addSort(new SortSpec(Arrays.asList("test"), Direction.DESC));
+		repo.findAll(querySpec);
 	}
 }

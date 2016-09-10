@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
 import io.katharsis.queryParams.QueryParams;
+import io.katharsis.queryspec.internal.QueryParamsAdapter;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.dto.ResourceRelationships;
@@ -59,7 +60,7 @@ public class ResourcePatchTest extends BaseControllerTest {
         expectedException.expect(RuntimeException.class);
 
         // WHEN
-        sut.handle(new ResourcePath("fridges"), new QueryParams(), null, null);
+        sut.handle(new ResourcePath("fridges"), new QueryParamsAdapter(REQUEST_PARAMS), null, null);
     }
 
     @Test
@@ -76,7 +77,7 @@ public class ResourcePatchTest extends BaseControllerTest {
 
         // WHEN
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper);
-        ResourceResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParams(), null, newTaskBody);
+        ResourceResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newTaskBody);
         assertThat(taskResponse.getResponse().getEntity()).isExactlyInstanceOf(Task.class);
         Long taskId = ((Task) (taskResponse.getResponse().getEntity())).getId();
         assertThat(taskId).isNotNull();
@@ -92,7 +93,7 @@ public class ResourcePatchTest extends BaseControllerTest {
         ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser, objectMapper);
 
         // WHEN
-        BaseResponseContext response = sut.handle(jsonPath, new QueryParams(), null, taskPatch);
+        BaseResponseContext response = sut.handle(jsonPath, new QueryParamsAdapter(REQUEST_PARAMS), null, taskPatch);
 
         // THEN
         Assert.assertNotNull(response);
@@ -114,7 +115,7 @@ public class ResourcePatchTest extends BaseControllerTest {
 
         // WHEN
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper);
-        ResourceResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParams(), null, newTaskBody);
+        ResourceResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newTaskBody);
         assertThat(taskResponse.getResponse().getEntity()).isExactlyInstanceOf(Task.class);
         Long taskId = ((Task) (taskResponse.getResponse().getEntity())).getId();
         assertThat(taskId).isNotNull();
@@ -132,7 +133,7 @@ public class ResourcePatchTest extends BaseControllerTest {
         // WHEN
         BaseResponseContext response = null;
         try {
-            response = sut.handle(jsonPath, new QueryParams(), null, taskPatch);
+            response = sut.handle(jsonPath, new QueryParamsAdapter(REQUEST_PARAMS), null, taskPatch);
             Assert.fail("Should have recieved exception.");
         } catch (RequestBodyException rbe) {
             // Got correct exception
@@ -158,7 +159,7 @@ public class ResourcePatchTest extends BaseControllerTest {
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper);
 
         // WHEN
-        ResourceResponseContext taskResponse = resourcePost.handle(documentsPath, new QueryParams(), null, memorandumBody);
+        ResourceResponseContext taskResponse = resourcePost.handle(documentsPath, new QueryParamsAdapter(REQUEST_PARAMS), null, memorandumBody);
 
         // THEN
         assertThat(taskResponse.getResponse().getEntity()).isExactlyInstanceOf(Memorandum.class);
@@ -179,7 +180,7 @@ public class ResourcePatchTest extends BaseControllerTest {
         ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser, objectMapper);
 
         // WHEN
-        BaseResponseContext memorandumResponse = sut.handle(documentPath, new QueryParams(), null, memorandumBody);
+        BaseResponseContext memorandumResponse = sut.handle(documentPath, new QueryParamsAdapter(REQUEST_PARAMS), null, memorandumBody);
 
         // THEN
         assertThat(memorandumResponse.getResponse().getEntity()).isExactlyInstanceOf(Memorandum.class);
@@ -203,7 +204,7 @@ public class ResourcePatchTest extends BaseControllerTest {
 
         // WHEN
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper);
-        ResourceResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParams(), null, newTaskBody);
+        ResourceResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newTaskBody);
         assertThat(taskResponse.getResponse().getEntity()).isExactlyInstanceOf(Task.class);
         Long taskId = ((Task) (taskResponse.getResponse().getEntity())).getId();
         assertThat(taskId).isNotNull();
@@ -222,7 +223,7 @@ public class ResourcePatchTest extends BaseControllerTest {
         ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser, objectMapper);
 
         // WHEN
-        BaseResponseContext response = sut.handle(jsonPath, new QueryParams(), null, taskPatch);
+        BaseResponseContext response = sut.handle(jsonPath, new QueryParamsAdapter(REQUEST_PARAMS), null, taskPatch);
 
         // THEN
         Assert.assertNotNull(response);
@@ -238,7 +239,7 @@ public class ResourcePatchTest extends BaseControllerTest {
 
         // WHEN
         ResourceGet resourceGet = new ResourceGet(resourceRegistry, typeParser, includeFieldSetter);
-        BaseResponseContext complexPojoResponse = resourceGet.handle(complexPojoPath, new QueryParams(), null, null);
+        BaseResponseContext complexPojoResponse = resourceGet.handle(complexPojoPath, new QueryParamsAdapter(REQUEST_PARAMS), null, null);
         assertThat(complexPojoResponse.getResponse().getEntity()).isExactlyInstanceOf(ComplexPojo.class);
         Long complexPojoId = ((ComplexPojo) (complexPojoResponse.getResponse().getEntity())).getId();
         assertThat(complexPojoId).isNotNull();
@@ -265,7 +266,7 @@ public class ResourcePatchTest extends BaseControllerTest {
         ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser, objectMapper);
 
         // WHEN
-        BaseResponseContext response = sut.handle(jsonPath, new QueryParams(), null, complexPojoPatch);
+        BaseResponseContext response = sut.handle(jsonPath, new QueryParamsAdapter(REQUEST_PARAMS), null, complexPojoPatch);
 
         // THEN
         Assert.assertNotNull(response);

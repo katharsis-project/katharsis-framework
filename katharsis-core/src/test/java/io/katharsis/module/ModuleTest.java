@@ -1,44 +1,62 @@
 package io.katharsis.module;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.katharsis.dispatcher.filter.Filter;
 import io.katharsis.dispatcher.filter.TestFilter;
 import io.katharsis.errorhandling.mapper.ExceptionMapperLookup;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryTest.IllegalStateExceptionMapper;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryTest.SomeIllegalStateExceptionMapper;
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
-import io.katharsis.queryParams.QueryParams;
-import io.katharsis.repository.RelationshipRepository;
+import io.katharsis.queryspec.FilterOperator;
+import io.katharsis.queryspec.QuerySpec;
+import io.katharsis.queryspec.QuerySpecRelationshipRepository;
 import io.katharsis.resource.annotations.JsonApiId;
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.information.ResourceInformationBuilder;
-import io.katharsis.resource.mock.models.*;
-import io.katharsis.resource.mock.repository.*;
+import io.katharsis.resource.mock.models.ComplexPojo;
+import io.katharsis.resource.mock.models.Document;
+import io.katharsis.resource.mock.models.FancyProject;
+import io.katharsis.resource.mock.models.Project;
+import io.katharsis.resource.mock.models.Task;
+import io.katharsis.resource.mock.models.Thing;
+import io.katharsis.resource.mock.models.User;
+import io.katharsis.resource.mock.repository.DocumentRepository;
+import io.katharsis.resource.mock.repository.PojoRepository;
+import io.katharsis.resource.mock.repository.ProjectRepository;
+import io.katharsis.resource.mock.repository.ResourceWithoutRepositoryToProjectRepository;
+import io.katharsis.resource.mock.repository.TaskToProjectRepository;
+import io.katharsis.resource.mock.repository.TaskWithLookupRepository;
+import io.katharsis.resource.mock.repository.UserRepository;
+import io.katharsis.resource.mock.repository.UserToProjectRepository;
 import io.katharsis.resource.registry.ConstantServiceUrlProvider;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceLookup;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.repository.DirectResponseRelationshipEntry;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 public class ModuleTest {
 
 	private ResourceRegistry resourceRegistry;
+
 	private ModuleRegistry moduleRegistry;
+
 	private TestModule testModule;
 
 	@Before
 	public void setup() {
 		resourceRegistry = new ResourceRegistry(new ConstantServiceUrlProvider("http://localhost"));
-		
+
 		testModule = new TestModule();
 		moduleRegistry = new ModuleRegistry();
 		moduleRegistry.addModule(new CoreModule("io.katharsis.module.mock", new ResourceFieldNameTransformer()));
@@ -47,45 +65,46 @@ public class ModuleTest {
 	}
 
 	@Test
-	public void testExceptionMappers(){
+	public void testExceptionMappers() {
 		ExceptionMapperLookup exceptionMapperLookup = moduleRegistry.getExceptionMapperLookup();
 		Set<JsonApiExceptionMapper> exceptionMappers = exceptionMapperLookup.getExceptionMappers();
 		Set<Class<?>> classes = new HashSet<>();
-		for(JsonApiExceptionMapper exceptionMapper : exceptionMappers){
+		for (JsonApiExceptionMapper exceptionMapper : exceptionMappers) {
 			classes.add(exceptionMapper.getClass());
 		}
 		Assert.assertTrue(classes.contains(IllegalStateExceptionMapper.class));
 		Assert.assertTrue(classes.contains(SomeIllegalStateExceptionMapper.class));
 	}
-	
-	@Test(expected=IllegalStateException.class)
-	public void testModuleChangeAfterAddModule(){
+
+	@Test(expected = IllegalStateException.class)
+	public void testModuleChangeAfterAddModule() {
 		SimpleModule module = new SimpleModule("test2");
 		moduleRegistry.addModule(module);
 		module.addFilter(new TestFilter());
 	}
-	
-	@Test(expected=IllegalStateException.class)
-	public void testContextChangeAfterAddModule(){
+
+	@Test(expected = IllegalStateException.class)
+	public void testContextChangeAfterAddModule() {
 		testModule.getContext().addFilter(new TestFilter());
 	}
-	
+
 	@Test
-	public void testGetResourceRegistry(){
+	public void testGetResourceRegistry() {
 		Assert.assertSame(resourceRegistry, testModule.getContext().getResourceRegistry());
 	}
-	
-	@Test(expected=IllegalStateException.class)
-	public void testNoResourceRegistryBeforeInitialization(){
+
+	@Test(expected = IllegalStateException.class)
+	public void testNoResourceRegistryBeforeInitialization() {
 		ModuleRegistry registry = new ModuleRegistry();
-		registry.addModule(new SimpleModule("test"){
+		registry.addModule(new SimpleModule("test") {
+
 			@Override
 			public void setupModule(ModuleContext context) {
 				context.getResourceRegistry(); // fail
 			}
 		});
 	}
-	
+
 	@Test
 	public void testInformationBuilder() throws Exception {
 		ResourceInformationBuilder informationBuilder = moduleRegistry.getResourceInformationBuilder();
@@ -115,7 +134,8 @@ public class ModuleTest {
 		try {
 			informationBuilder.build(Object.class);
 			Assert.fail();
-		} catch (UnsupportedOperationException e) {
+		}
+		catch (UnsupportedOperationException e) {
 			// ok
 		}
 
@@ -176,8 +196,8 @@ public class ModuleTest {
 		public String getModuleName() {
 			return "test";
 		}
-		
-		public ModuleContext getContext(){
+
+		public ModuleContext getContext() {
 			return context;
 		}
 
@@ -188,6 +208,7 @@ public class ModuleTest {
 			context.addResourceInformationBuilder(new TestResourceInformationBuilder());
 
 			context.addJacksonModule(new com.fasterxml.jackson.databind.module.SimpleModule() {
+
 				private static final long serialVersionUID = 7829254359521781942L;
 
 				@Override
@@ -199,9 +220,10 @@ public class ModuleTest {
 			context.addFilter(new TestFilter());
 			context.addRepository(TestResource2.class, new TestRepository2());
 			context.addRepository(TestResource2.class, TestResource2.class, new TestRelationshipRepository2());
-			
+
 			context.addExceptionMapper(new IllegalStateExceptionMapper());
-			context.addExceptionMapperLookup(new ExceptionMapperLookup(){
+			context.addExceptionMapperLookup(new ExceptionMapperLookup() {
+
 				@Override
 				public Set<JsonApiExceptionMapper> getExceptionMappers() {
 					Set<JsonApiExceptionMapper> set = new HashSet<>();
@@ -237,8 +259,7 @@ public class ModuleTest {
 		}
 	}
 
-	class TestRelationshipRepository2
-			implements RelationshipRepository<TestResource2, Integer, TestResource2, Integer> {
+	class TestRelationshipRepository2 implements QuerySpecRelationshipRepository<TestResource2, Integer, TestResource2, Integer> {
 
 		@Override
 		public void setRelation(TestResource2 source, Integer targetId, String fieldName) {
@@ -257,12 +278,32 @@ public class ModuleTest {
 		}
 
 		@Override
-		public TestResource2 findOneTarget(Integer sourceId, String fieldName, QueryParams queryParams) {
+		public TestResource2 findOneTarget(Integer sourceId, String fieldName, QuerySpec queryParams) {
 			return null;
 		}
 
 		@Override
-		public Iterable<TestResource2> findManyTargets(Integer sourceId, String fieldName, QueryParams queryParams) {
+		public Iterable<TestResource2> findManyTargets(Integer sourceId, String fieldName, QuerySpec queryParams) {
+			return null;
+		}
+
+		@Override
+		public Class<TestResource2> getSourceResourceClass() {
+			return null;
+		}
+
+		@Override
+		public Class<TestResource2> getTargetResourceClass() {
+			return null;
+		}
+
+		@Override
+		public Set<FilterOperator> getSupportedOperators() {
+			return null;
+		}
+
+		@Override
+		public FilterOperator getDefaultOperator() {
 			return null;
 		}
 	}

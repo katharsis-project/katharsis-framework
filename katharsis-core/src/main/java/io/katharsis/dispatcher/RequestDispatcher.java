@@ -11,6 +11,8 @@ import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
 import io.katharsis.module.ModuleRegistry;
 import io.katharsis.queryParams.QueryParams;
+import io.katharsis.queryspec.internal.QueryAdapter;
+import io.katharsis.queryspec.internal.QueryParamsAdapter;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
@@ -45,14 +47,14 @@ public class RequestDispatcher {
      * @param requestBody       deserialized body of the client request
      * @return the response form the Katharsis
      */
-    public BaseResponseContext dispatchRequest(JsonPath jsonPath, String requestType, QueryParams queryParams,
+    public BaseResponseContext dispatchRequest(JsonPath jsonPath, String requestType, QueryAdapter queryAdapter,
                                                   RepositoryMethodParameterProvider parameterProvider,
                                                   @SuppressWarnings("SameParameterValue") RequestBody requestBody) {
 
         try {
         	BaseController controller = controllerRegistry.getController(jsonPath, requestType);
 
-			DefaultFilterRequestContext context = new DefaultFilterRequestContext(jsonPath, queryParams,
+			DefaultFilterRequestContext context = new DefaultFilterRequestContext(jsonPath, queryAdapter,
 					parameterProvider, requestBody);
 			DefaultFilterChain chain = new DefaultFilterChain(controller);
 			return chain.doFilter(context);
@@ -81,7 +83,7 @@ public class RequestDispatcher {
 		public BaseResponseContext doFilter(FilterRequestContext context) {
 			List<Filter> filters = moduleRegistry.getFilters();
 			if (filterIndex == filters.size()) {
-				return controller.handle(context.getJsonPath(), context.getQueryParams(), context.getParameterProvider(), context.getRequestBody());
+				return controller.handle(context.getJsonPath(), context.getQueryAdapter(), context.getParameterProvider(), context.getRequestBody());
 			} else {
 				Filter filter = filters.get(filterIndex);
 				filterIndex++;
@@ -93,14 +95,14 @@ public class RequestDispatcher {
 	class DefaultFilterRequestContext implements FilterRequestContext {
 
 		protected JsonPath jsonPath;
-		protected QueryParams queryParams;
+		protected QueryAdapter queryAdapter;
 		protected RepositoryMethodParameterProvider parameterProvider;
 		protected RequestBody requestBody;
 
-		public DefaultFilterRequestContext(JsonPath jsonPath, QueryParams queryParams,
+		public DefaultFilterRequestContext(JsonPath jsonPath, QueryAdapter queryAdapter,
 				RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody) {
 			this.jsonPath = jsonPath;
-			this.queryParams = queryParams;
+			this.queryAdapter = queryAdapter;
 			this.parameterProvider = parameterProvider;
 			this.requestBody = requestBody;
 		}
@@ -117,7 +119,12 @@ public class RequestDispatcher {
 
 		@Override
 		public QueryParams getQueryParams() {
-			return queryParams;
+			return ((QueryParamsAdapter)queryAdapter).getQueryParams();
+		}
+		
+		@Override
+		public QueryAdapter getQueryAdapter() {
+			return queryAdapter;
 		}
 
 		@Override

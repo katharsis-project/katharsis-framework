@@ -1,7 +1,9 @@
 package io.katharsis.dispatcher.controller.resource;
 
+import java.io.Serializable;
+
 import io.katharsis.dispatcher.controller.HttpMethod;
-import io.katharsis.queryParams.QueryParams;
+import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
@@ -16,8 +18,6 @@ import io.katharsis.response.BaseResponseContext;
 import io.katharsis.response.JsonApiResponse;
 import io.katharsis.response.ResourceResponseContext;
 import io.katharsis.utils.parser.TypeParser;
-
-import java.io.Serializable;
 
 public class ResourceGet extends ResourceIncludeField {
 
@@ -43,7 +43,7 @@ public class ResourceGet extends ResourceIncludeField {
      * Passes the request to controller method.
      */
     @Override
-    public BaseResponseContext handle(JsonPath jsonPath, QueryParams queryParams, RepositoryMethodParameterProvider
+    public BaseResponseContext handle(JsonPath jsonPath, QueryAdapter queryAdapter, RepositoryMethodParameterProvider
         parameterProvider, RequestBody requestBody) {
         String resourceName = jsonPath.getElementName();
         PathIds resourceIds = jsonPath.getIds();
@@ -60,9 +60,9 @@ public class ResourceGet extends ResourceIncludeField {
         Serializable castedId = typeParser.parse(id, idClass);
         ResourceRepositoryAdapter resourceRepository = registryEntry.getResourceRepository(parameterProvider);
         @SuppressWarnings("unchecked")
-        JsonApiResponse response = resourceRepository.findOne(castedId, queryParams);
-        includeFieldSetter.setIncludedElements(resourceName, response, queryParams, parameterProvider);
+        JsonApiResponse response = resourceRepository.findOne(castedId, queryAdapter);
+        includeFieldSetter.setIncludedElements(resourceName, response, queryAdapter, parameterProvider);
 
-        return new ResourceResponseContext(response, jsonPath, queryParams);
+        return new ResourceResponseContext(response, jsonPath, queryAdapter);
     }
 }

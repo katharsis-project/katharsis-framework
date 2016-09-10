@@ -1,6 +1,6 @@
 package io.katharsis.dispatcher.controller;
 
-import io.katharsis.queryParams.QueryParams;
+import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
@@ -35,7 +35,7 @@ public abstract class BaseController {
      * @param requestBody       Top-level JSON object from method's body of the request passed as {@link RequestBody}
      * @return BaseResponseContext object
      */
-    public abstract BaseResponseContext handle(JsonPath jsonPath, QueryParams queryParams, RepositoryMethodParameterProvider
+    public abstract BaseResponseContext handle(JsonPath jsonPath, QueryAdapter queryAdapter, RepositoryMethodParameterProvider
         parameterProvider, RequestBody requestBody);
 
 

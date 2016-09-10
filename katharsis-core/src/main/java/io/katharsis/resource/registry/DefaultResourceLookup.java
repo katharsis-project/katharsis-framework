@@ -1,5 +1,7 @@
 package io.katharsis.resource.registry;
 
+import io.katharsis.queryspec.QuerySpecRelationshipRepository;
+import io.katharsis.queryspec.QuerySpecResourceRepository;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.repository.annotations.JsonApiRelationshipRepository;
@@ -37,14 +39,22 @@ public class DefaultResourceLookup implements ResourceLookup {
 	public Set<Class<?>> getResourceRepositoryClasses() {
 		Set<Class<?>> annotatedResourceRepositories = reflections.getTypesAnnotatedWith(JsonApiResourceRepository.class);
 		Set<Class<?>> annotatedRelationshipRepositories = reflections.getTypesAnnotatedWith(JsonApiRelationshipRepository.class);
+		Set<Class<? extends io.katharsis.queryspec.repository.QuerySpecResourceRepository>> deprecatedResourceRepositories = reflections.getSubTypesOf(io.katharsis.queryspec.repository.QuerySpecResourceRepository.class);
+		Set<Class<? extends io.katharsis.queryspec.repository.QuerySpecRelationshipRepository>> deprecatedRelationshipRepositories = reflections.getSubTypesOf(io.katharsis.queryspec.repository.QuerySpecRelationshipRepository.class);
 		Set<Class<? extends ResourceRepository>> resourceRepositories = reflections.getSubTypesOf(ResourceRepository.class);
 		Set<Class<? extends RelationshipRepository>> relationshipRepositories = reflections.getSubTypesOf(RelationshipRepository.class);
-		
+		Set<Class<? extends QuerySpecResourceRepository>> querySpecResourceRepositories = reflections.getSubTypesOf(QuerySpecResourceRepository.class);
+		Set<Class<? extends QuerySpecRelationshipRepository>> querySpecRelationshipRepositories = reflections.getSubTypesOf(QuerySpecRelationshipRepository.class);
+
 		Set<Class<?>> result = new HashSet<>();
 		result.addAll(annotatedResourceRepositories);
 		result.addAll(annotatedRelationshipRepositories);
 		result.addAll(resourceRepositories);
 		result.addAll(relationshipRepositories);
+		result.addAll(querySpecResourceRepositories);
+		result.addAll(querySpecRelationshipRepositories);
+		result.addAll(deprecatedResourceRepositories);
+		result.addAll(deprecatedRelationshipRepositories);
 		return result;
 	}
 }

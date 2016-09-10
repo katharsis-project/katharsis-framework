@@ -12,7 +12,7 @@ public class DirectResponseResourceEntry<T, ID extends Serializable> implements 
         this.repositoryInstanceBuilder = repositoryInstanceBuilder;
     }
 
-    public ResourceRepository<T, ?> getResourceRepository() {
+    public Object getResourceRepository() {
         return repositoryInstanceBuilder.buildRepository();
     }
 

@@ -1,6 +1,8 @@
 package io.katharsis.response;
 
 import io.katharsis.queryParams.QueryParams;
+import io.katharsis.queryspec.internal.QueryAdapter;
+import io.katharsis.queryspec.internal.QueryParamsAdapter;
 import io.katharsis.request.path.JsonPath;
 
 import java.util.Objects;
@@ -25,22 +27,26 @@ public class ResourceResponseContext implements BaseResponseContext {
 
     private JsonPath jsonPath;
 
-    private QueryParams queryParams;
+    private QueryAdapter queryAdapter;
 
     private int httpStatus;
 
     public ResourceResponseContext(JsonApiResponse response, int httpStatus) {
-        this(response, null, null, httpStatus);
+        this(response, null, (QueryParamsAdapter)null, httpStatus);
     }
 
     public ResourceResponseContext(JsonApiResponse response, JsonPath jsonPath, QueryParams queryParams) {
-        this(response, jsonPath, queryParams, HttpStatus.OK_200);
+    	this(response, jsonPath, new QueryParamsAdapter(queryParams));
     }
-
-    public ResourceResponseContext(JsonApiResponse response, JsonPath jsonPath, QueryParams queryParams, int httpStatus) {
+    
+    public ResourceResponseContext(JsonApiResponse response, JsonPath jsonPath, QueryAdapter queryAdapter) {
+        this(response, jsonPath, queryAdapter, HttpStatus.OK_200);
+    }
+    
+    public ResourceResponseContext(JsonApiResponse response, JsonPath jsonPath, QueryAdapter queryAdapter, int httpStatus) {
         this.response = response;
         this.jsonPath = jsonPath;
-        this.queryParams = queryParams;
+        this.queryAdapter = queryAdapter;
         this.httpStatus = httpStatus;
     }
 
@@ -60,8 +66,8 @@ public class ResourceResponseContext implements BaseResponseContext {
     }
 
     @Override
-    public QueryParams getQueryParams() {
-        return queryParams;
+    public QueryAdapter getQueryAdapter() {
+        return queryAdapter;
     }
 
     @Override
@@ -73,7 +79,7 @@ public class ResourceResponseContext implements BaseResponseContext {
             return false;
         }
         ResourceResponseContext that = (ResourceResponseContext) o;
-        return Objects.equals(response, that.response);
+        return Objects.equals(response, that.response) && that.httpStatus == httpStatus;
     }
 
     @Override

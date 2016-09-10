@@ -1,5 +1,19 @@
 package io.katharsis.dispatcher;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+
 import io.katharsis.dispatcher.controller.collection.CollectionGet;
 import io.katharsis.dispatcher.registry.ControllerRegistry;
 import io.katharsis.errorhandling.ErrorResponse;
@@ -7,6 +21,8 @@ import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryTest;
 import io.katharsis.locator.SampleJsonServiceLocator;
 import io.katharsis.module.ModuleRegistry;
 import io.katharsis.queryParams.QueryParams;
+import io.katharsis.queryspec.internal.QueryAdapter;
+import io.katharsis.queryspec.internal.QueryParamsAdapter;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
@@ -14,16 +30,13 @@ import io.katharsis.request.path.PathBuilder;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
 import io.katharsis.resource.information.ResourceInformationBuilder;
-import io.katharsis.resource.registry.*;
+import io.katharsis.resource.registry.ConstantServiceUrlProvider;
+import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.resource.registry.ResourceRegistryBuilder;
+import io.katharsis.resource.registry.ResourceRegistryBuilderTest;
+import io.katharsis.resource.registry.ResourceRegistryTest;
 import io.katharsis.response.BaseResponseContext;
 import io.katharsis.response.HttpStatus;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
 
 public class RequestDispatcherTest {
 
@@ -61,10 +74,10 @@ public class RequestDispatcherTest {
         // WHEN
         when(collectionGet.isAcceptable(any(JsonPath.class), eq(requestType))).thenCallRealMethod();
         JsonPath jsonPath = pathBuilder.buildPath(path);
-        sut.dispatchRequest(jsonPath, requestType, new QueryParams(), null, null);
+        sut.dispatchRequest(jsonPath, requestType, new QueryParamsAdapter(new QueryParams()), null, null);
 
         // THEN
-        verify(collectionGet, times(1)).handle(any(JsonPath.class), any(QueryParams.class), any(RepositoryMethodParameterProvider.class), any(RequestBody.class));
+        verify(collectionGet, times(1)).handle(any(JsonPath.class), any(QueryAdapter.class), any(RepositoryMethodParameterProvider.class), any(RequestBody.class));
     }
 
     @Test

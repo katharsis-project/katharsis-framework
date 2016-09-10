@@ -11,6 +11,7 @@ import java.util.Set;
 import javax.persistence.OptimisticLockException;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import io.katharsis.client.ResourceRepositoryStub;
@@ -21,10 +22,16 @@ import io.katharsis.jpa.model.TestIdEmbeddable;
 import io.katharsis.jpa.model.VersionedEntity;
 import io.katharsis.queryParams.QueryParams;
 
-public class JpaEndToEndTest extends AbstractJpaJerseyTest {
+public class JpaQueryParamsEndToEndTest extends AbstractJpaJerseyTest {
 
+	protected ResourceRepositoryStub<TestEntity, Long> testRepo;
 
-	
+	@Before
+	public void setup() {
+		super.setup();
+		testRepo = client.getRepository(TestEntity.class);
+	}
+
 	@Test
 	public void testIncludeRelations() throws InstantiationException, IllegalAccessException {
 		addTestWithOneRelation();
@@ -109,7 +116,8 @@ public class JpaEndToEndTest extends AbstractJpaJerseyTest {
 		try {
 			saved = repo.save(saved);
 			Assert.fail();
-		} catch (OptimisticLockException e) {
+		}
+		catch (OptimisticLockException e) {
 			// ok
 		}
 
@@ -173,8 +181,7 @@ public class JpaEndToEndTest extends AbstractJpaJerseyTest {
 
 	@Test
 	public void testEmbeddableIds() throws InstantiationException, IllegalAccessException {
-		ResourceRepositoryStub<TestEmbeddedIdEntity, Serializable> rep = client
-				.getRepository(TestEmbeddedIdEntity.class);
+		ResourceRepositoryStub<TestEmbeddedIdEntity, Serializable> rep = client.getRepository(TestEmbeddedIdEntity.class);
 
 		// add
 		TestEmbeddedIdEntity entity = new TestEmbeddedIdEntity();

@@ -1,4 +1,4 @@
-package io.katharsis.queryspec.repository;
+package io.katharsis.queryspec.deprecated;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,13 +13,13 @@ import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.registry.RegistryEntry;
 
-public class QuerySpecResourceRepositoryTest extends AbstractQuerySpecTest {
+public class DeprecatedQuerySpecResourceRepositoryTest extends AbstractQuerySpecTest {
 
 	@Test
 	public void test() {
 
 		RegistryEntry<?> registryEntry = resourceRegistry.getEntry(Task.class);
-		TestQuerySpecResourceRepository repo = (TestQuerySpecResourceRepository) registryEntry
+		DeprecatedTestQuerySpecResourceRepository repo = (DeprecatedTestQuerySpecResourceRepository) registryEntry
 				.getResourceRepository(null).getResourceRepository();
 
 		repo = Mockito.spy(repo);

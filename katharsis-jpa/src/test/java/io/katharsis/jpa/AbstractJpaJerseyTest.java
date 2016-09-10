@@ -18,7 +18,6 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.katharsis.client.KatharsisClient;
-import io.katharsis.client.ResourceRepositoryStub;
 import io.katharsis.jpa.model.TestEntity;
 import io.katharsis.jpa.query.AbstractJpaTest;
 import io.katharsis.jpa.util.EntityManagerProducer;
@@ -33,7 +32,6 @@ import io.katharsis.rs.KatharsisProperties;
 public abstract class AbstractJpaJerseyTest extends JerseyTest {
 
 	protected KatharsisClient client;
-	protected ResourceRepositoryStub<TestEntity, Long> testRepo;
 
 	protected QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
 
@@ -46,7 +44,7 @@ public abstract class AbstractJpaJerseyTest extends JerseyTest {
 		JpaModule module = new JpaModule(TestEntity.class.getPackage().getName());
 		setupModule(module);
 		client.addModule(module);
-		testRepo = client.getRepository(TestEntity.class);
+
 		client.getHttpClient().setReadTimeout(1000000, TimeUnit.MILLISECONDS);
 	}
 
@@ -60,6 +58,7 @@ public abstract class AbstractJpaJerseyTest extends JerseyTest {
 
 		SpringTransactionRunner transactionRunner = context.getBean(SpringTransactionRunner.class);
 		transactionRunner.doInTransaction(new Callable<Object>() {
+
 			@Override
 			public Object call() throws Exception {
 				EntityManager em = context.getBean(EntityManagerProducer.class).getEntityManager();
@@ -79,6 +78,7 @@ public abstract class AbstractJpaJerseyTest extends JerseyTest {
 
 	@ApplicationPath("/")
 	private class TestApplication extends ResourceConfig {
+
 		public TestApplication() {
 			property(KatharsisProperties.RESOURCE_SEARCH_PACKAGE, "io.katharsis.client.mock");
 			property(KatharsisProperties.RESOURCE_DEFAULT_DOMAIN, "http://test.local");

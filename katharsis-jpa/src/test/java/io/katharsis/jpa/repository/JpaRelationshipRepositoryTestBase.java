@@ -1,11 +1,7 @@
 package io.katharsis.jpa.repository;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -16,16 +12,16 @@ import io.katharsis.jpa.JpaRelationshipRepository;
 import io.katharsis.jpa.model.RelatedEntity;
 import io.katharsis.jpa.model.TestEntity;
 import io.katharsis.jpa.query.AbstractJpaTest;
-import io.katharsis.queryParams.DefaultQueryParamsParser;
-import io.katharsis.queryParams.QueryParams;
-import io.katharsis.queryParams.QueryParamsBuilder;
+import io.katharsis.queryspec.FilterOperator;
+import io.katharsis.queryspec.FilterSpec;
+import io.katharsis.queryspec.QuerySpec;
 
 @Transactional
 public abstract class JpaRelationshipRepositoryTestBase extends AbstractJpaTest {
 
 	private JpaRelationshipRepository<TestEntity, Long, RelatedEntity, Long> repo;
+
 	private JpaRelationshipRepository<RelatedEntity, Long, TestEntity, Long> relatedRepo;
-	private QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
 
 	@Override
 	@Before
@@ -35,13 +31,11 @@ public abstract class JpaRelationshipRepositoryTestBase extends AbstractJpaTest 
 				RelatedEntity.class);
 		relatedRepo = new JpaRelationshipRepository<RelatedEntity, Long, TestEntity, Long>(module, RelatedEntity.class,
 				TestEntity.class);
-		repo.setResourceRegistry(resourceRegistry);
-		relatedRepo.setResourceRegistry(resourceRegistry);
 	}
 
 	@Test
 	public void testFindOneTarget() throws InstantiationException, IllegalAccessException {
-		RelatedEntity relatedEntity = repo.findOneTarget(1L, TestEntity.ATTR_oneRelatedValue, new QueryParams());
+		RelatedEntity relatedEntity = repo.findOneTarget(1L, TestEntity.ATTR_oneRelatedValue, new QuerySpec(RelatedEntity.class));
 		Assert.assertNotNull(relatedEntity);
 		Assert.assertEquals(101L, relatedEntity.getId().longValue());
 	}
@@ -49,7 +43,7 @@ public abstract class JpaRelationshipRepositoryTestBase extends AbstractJpaTest 
 	@Test
 	public void testFindManyTarget() throws InstantiationException, IllegalAccessException {
 		Iterable<RelatedEntity> relatedEntities = repo.findManyTargets(1L, TestEntity.ATTR_oneRelatedValue,
-				new QueryParams());
+				new QuerySpec(RelatedEntity.class));
 		Iterator<RelatedEntity> iterator = relatedEntities.iterator();
 		RelatedEntity relatedEntity = iterator.next();
 		Assert.assertFalse(iterator.hasNext());
@@ -59,12 +53,10 @@ public abstract class JpaRelationshipRepositoryTestBase extends AbstractJpaTest 
 
 	@Test
 	public void testFindManyTargetWithFilter() throws InstantiationException, IllegalAccessException {
-		Map<String, Set<String>> params = new HashMap<String, Set<String>>();
-		addParams(params, "filter[related][id]", "101");
-		QueryParams queryParams = queryParamsBuilder.buildQueryParams(params);
+		QuerySpec querySpec = new QuerySpec(RelatedEntity.class);
+		querySpec.addFilter(new FilterSpec(Arrays.asList("id"), FilterOperator.EQ, 101));
 
-		Iterable<RelatedEntity> relatedEntities = repo.findManyTargets(1L, TestEntity.ATTR_oneRelatedValue,
-				queryParams);
+		Iterable<RelatedEntity> relatedEntities = repo.findManyTargets(1L, TestEntity.ATTR_oneRelatedValue, querySpec);
 		Iterator<RelatedEntity> iterator = relatedEntities.iterator();
 		RelatedEntity relatedEntity = iterator.next();
 		Assert.assertFalse(iterator.hasNext());
@@ -74,18 +66,12 @@ public abstract class JpaRelationshipRepositoryTestBase extends AbstractJpaTest 
 
 	@Test
 	public void testFindManyTargetWithUnmatchedFilter() throws InstantiationException, IllegalAccessException {
-		Map<String, Set<String>> params = new HashMap<String, Set<String>>();
-		addParams(params, "filter[related][id]", "9999");
-		QueryParams queryParams = queryParamsBuilder.buildQueryParams(params);
+		QuerySpec querySpec = new QuerySpec(RelatedEntity.class);
+		querySpec.addFilter(new FilterSpec(Arrays.asList("id"), FilterOperator.EQ, 9999));
 
-		Iterable<RelatedEntity> relatedEntities = repo.findManyTargets(1L, TestEntity.ATTR_oneRelatedValue,
-				queryParams);
+		Iterable<RelatedEntity> relatedEntities = repo.findManyTargets(1L, TestEntity.ATTR_oneRelatedValue, querySpec);
 		Iterator<RelatedEntity> iterator = relatedEntities.iterator();
 		Assert.assertFalse(iterator.hasNext());
-	}
-
-	private void addParams(Map<String, Set<String>> params, String key, String value) {
-		params.put(key, new HashSet<String>(Arrays.asList(value)));
 	}
 
 	@Test

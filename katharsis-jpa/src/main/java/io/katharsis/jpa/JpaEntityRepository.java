@@ -3,6 +3,7 @@ package io.katharsis.jpa;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.EntityManager;
 
@@ -13,20 +14,21 @@ import io.katharsis.jpa.query.JpaFilterOperators;
 import io.katharsis.jpa.query.JpaQuery;
 import io.katharsis.jpa.query.JpaQueryExecutor;
 import io.katharsis.jpa.query.JpaQueryFactory;
-import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryspec.FilterOperator;
-import io.katharsis.queryspec.FilterOperatorRegistry;
 import io.katharsis.queryspec.QuerySpec;
-import io.katharsis.queryspec.repository.QuerySpecResourceRepository;
+import io.katharsis.queryspec.QuerySpecResourceRepository;
 
 /**
  * Exposes a JPA entity as ResourceRepository.
  */
-public class JpaEntityRepository<T, I extends Serializable> extends QuerySpecResourceRepository<T, I> {
+public class JpaEntityRepository<T, I extends Serializable> implements QuerySpecResourceRepository<T, I> {
 
 	private Class<T> entityType;
+
 	private MetaEntity meta;
+
 	private MetaAttribute primaryKeyAttr;
+
 	private JpaModule module;
 
 	public JpaEntityRepository(JpaModule module, Class<T> entityType) {
@@ -34,16 +36,6 @@ public class JpaEntityRepository<T, I extends Serializable> extends QuerySpecRes
 		this.meta = module.getMetaLookup().getMeta(entityType).asEntity();
 		this.primaryKeyAttr = JpaRepositoryUtils.getPrimaryKeyAttr(meta);
 		this.module = module;
-	}
-
-	@Override
-	public List<T> findAll(QueryParams queryParams) {
-		return (List<T>) super.findAll(queryParams);
-	}
-
-	@Override
-	public List<T> findAll(Iterable<I> ids, QueryParams queryParams) {
-		return (List<T>) super.findAll(ids, queryParams);
 	}
 
 	@Override
@@ -104,12 +96,17 @@ public class JpaEntityRepository<T, I extends Serializable> extends QuerySpecRes
 	}
 
 	@Override
-	protected void setupFilterOperators(FilterOperatorRegistry registry) {
-		JpaFilterOperators.setup(registry);
+	public Class<T> getResourceClass() {
+		return entityType;
 	}
 
 	@Override
-	public Class<T> getResourceClass() {
-		return entityType;
+	public Set<FilterOperator> getSupportedOperators() {
+		return JpaFilterOperators.getSupportedOperators();
+	}
+
+	@Override
+	public FilterOperator getDefaultOperator() {
+		return JpaFilterOperators.getDefaultOperator();
 	}
 }

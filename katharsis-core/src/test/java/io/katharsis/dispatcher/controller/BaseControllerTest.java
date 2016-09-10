@@ -16,7 +16,7 @@ import org.junit.Rule;
 import org.junit.rules.ExpectedException;
 
 public abstract class BaseControllerTest {
-    protected static final QueryParams REQUEST_PARAMS = new QueryParams();
+    protected static final QueryParams REQUEST_PARAMS =  new QueryParams();
 
     protected ObjectMapper objectMapper;
     protected PathBuilder pathBuilder;

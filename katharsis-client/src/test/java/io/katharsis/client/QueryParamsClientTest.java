@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -15,7 +16,22 @@ import io.katharsis.client.mock.models.Project;
 import io.katharsis.client.mock.models.Task;
 import io.katharsis.queryParams.QueryParams;
 
-public class ClientTest extends AbstractClientTest {
+public class QueryParamsClientTest extends AbstractClientTest {
+
+	protected ResourceRepositoryStub<Task, Long> taskRepo;
+
+	protected ResourceRepositoryStub<Project, Long> projectRepo;
+
+	protected RelationshipRepositoryStub<Task, Long, Project, Long> relRepo;
+
+	@Before
+	public void setup() {
+		super.setup();
+
+		taskRepo = client.getRepository(Task.class);
+		projectRepo = client.getRepository(Project.class);
+		relRepo = client.getRepository(Task.class, Project.class);
+	}
 
 	@Test
 	public void testFindEmpty() {
@@ -28,7 +44,8 @@ public class ClientTest extends AbstractClientTest {
 		try {
 			taskRepo.findOne(1L, new QueryParams());
 			Assert.fail();
-		} catch (ClientException e) {
+		}
+		catch (ClientException e) {
 			Assert.assertEquals("Not Found", e.getMessage());
 		}
 	}

@@ -66,12 +66,12 @@ public class ContainerSerializer extends JsonSerializer<Container> {
 
             TypedParams<IncludedFieldsParams> includedFields = null;
             IncludedRelationsParams includedRelationsParams = null;
-            if (container.getResponse().getQueryParams() != null) {
+            if (container.getResponse().getQueryAdapter() != null) {
                 includedFields = container.getResponse()
-                        .getQueryParams()
+                        .getQueryAdapter()
                         .getIncludedFields();
                 TypedParams<IncludedRelationsParams> includedRelations = container.getResponse()
-                        .getQueryParams()
+                        .getQueryAdapter()
                         .getIncludedRelations();
 
                 Class<?> dataClass = container.getData().getClass();

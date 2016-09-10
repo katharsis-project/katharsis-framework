@@ -18,8 +18,12 @@ import io.katharsis.resource.exception.ResourceNotFoundException;
 @JsonApiResourceRepository(Task.class)
 public class TaskRepository {
 
-	public static final ConcurrentHashMap<Long, Task> map = new ConcurrentHashMap<>();
+	private static final ConcurrentHashMap<Long, Task> map = new ConcurrentHashMap<>();
 
+    public static void clear(){
+    	map.clear();
+    }
+	
 	@JsonApiSave
 	public <S extends Task> S save(S entity) {
 

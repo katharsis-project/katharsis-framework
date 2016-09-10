@@ -1,11 +1,16 @@
 package io.katharsis.resource.registry.responseRepository;
 
-import io.katharsis.queryParams.QueryParams;
+import java.io.Serializable;
+import java.util.Set;
+
+import io.katharsis.queryspec.FilterOperator;
+import io.katharsis.queryspec.QuerySpecRelationshipRepository;
+import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.repository.annotated.AnnotatedRelationshipRepositoryAdapter;
+import io.katharsis.resource.information.ResourceInformation;
+import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.JsonApiResponse;
-
-import java.io.Serializable;
 
 /**
  * A repository adapter for relationship repository.
@@ -17,76 +22,100 @@ public class RelationshipRepositoryAdapter<T, T_ID extends Serializable, D, D_ID
     private final Object relationshipRepository;
     private final boolean isAnnotated;
 
-    public RelationshipRepositoryAdapter(Object relationshipRepository) {
+    public RelationshipRepositoryAdapter(ResourceInformation resourceInformation, ResourceRegistry resourceRegistry, Object relationshipRepository) {
+    	super(resourceInformation, resourceRegistry);
         this.relationshipRepository = relationshipRepository;
         this.isAnnotated = relationshipRepository instanceof AnnotatedRelationshipRepositoryAdapter;
     }
 
-    public JsonApiResponse setRelation(T source, D_ID targetId, String fieldName, QueryParams queryParams) {
+    public JsonApiResponse setRelation(T source, D_ID targetId, String fieldName, QueryAdapter queryAdapter) {
         if (isAnnotated) {
             ((AnnotatedRelationshipRepositoryAdapter) relationshipRepository)
-                .setRelation(source, targetId, fieldName, queryParams);
+                .setRelation(source, targetId, fieldName, toQueryParams(queryAdapter));
+        } else if(relationshipRepository instanceof QuerySpecRelationshipRepository){
+        	((QuerySpecRelationshipRepository)relationshipRepository).setRelation(source, targetId, fieldName);
         } else {
             ((RelationshipRepository) relationshipRepository).setRelation(source, targetId, fieldName);
         }
         return new JsonApiResponse();
     }
 
-    public JsonApiResponse setRelations(T source, Iterable<D_ID> targetIds, String fieldName, QueryParams queryParams) {
+    public JsonApiResponse setRelations(T source, Iterable<D_ID> targetIds, String fieldName, QueryAdapter queryAdapter) {
         if (isAnnotated) {
             ((AnnotatedRelationshipRepositoryAdapter) relationshipRepository)
-                .setRelations(source, targetIds, fieldName, queryParams);
+                .setRelations(source, targetIds, fieldName, toQueryParams(queryAdapter));
+        } else if(relationshipRepository instanceof QuerySpecRelationshipRepository){
+        	((QuerySpecRelationshipRepository)relationshipRepository).setRelations(source, targetIds, fieldName);
         } else {
             ((RelationshipRepository) relationshipRepository).setRelations(source, targetIds, fieldName);
         }
         return new JsonApiResponse();
     }
 
-    public JsonApiResponse addRelations(T source, Iterable<D_ID> targetIds, String fieldName, QueryParams queryParams) {
+    public JsonApiResponse addRelations(T source, Iterable<D_ID> targetIds, String fieldName, QueryAdapter queryAdapter) {
         if (isAnnotated) {
             ((AnnotatedRelationshipRepositoryAdapter) relationshipRepository)
-                .addRelations(source, targetIds, fieldName, queryParams);
+                .addRelations(source, targetIds, fieldName, toQueryParams(queryAdapter));
+        } else if(relationshipRepository instanceof QuerySpecRelationshipRepository){
+        	((QuerySpecRelationshipRepository)relationshipRepository).addRelations(source, targetIds, fieldName);
         } else {
             ((RelationshipRepository) relationshipRepository).addRelations(source, targetIds, fieldName);
         }
         return new JsonApiResponse();
     }
 
-    public JsonApiResponse removeRelations(T source, Iterable<D_ID> targetIds, String fieldName, QueryParams queryParams) {
+    public JsonApiResponse removeRelations(T source, Iterable<D_ID> targetIds, String fieldName, QueryAdapter queryAdapter) {
         if (isAnnotated) {
             ((AnnotatedRelationshipRepositoryAdapter) relationshipRepository)
-                .removeRelations(source, targetIds, fieldName, queryParams);
+                .removeRelations(source, targetIds, fieldName, toQueryParams(queryAdapter));
+        } else if(relationshipRepository instanceof QuerySpecRelationshipRepository){
+        	((QuerySpecRelationshipRepository)relationshipRepository).removeRelations(source, targetIds, fieldName);
         } else {
             ((RelationshipRepository) relationshipRepository).removeRelations(source, targetIds, fieldName);
         }
         return new JsonApiResponse();
     }
 
-    public JsonApiResponse findOneTarget(T_ID sourceId, String fieldName, QueryParams queryParams) {
+    public JsonApiResponse findOneTarget(T_ID sourceId, String fieldName, QueryAdapter queryAdapter) {
         Object resource;
         if (isAnnotated) {
             resource = ((AnnotatedRelationshipRepositoryAdapter) relationshipRepository)
-                .findOneTarget(sourceId, fieldName, queryParams);
+                .findOneTarget(sourceId, fieldName, toQueryParams(queryAdapter));
+        } else if(relationshipRepository instanceof QuerySpecRelationshipRepository){
+        	resource = ((QuerySpecRelationshipRepository)relationshipRepository).findOneTarget(sourceId, fieldName, toQuerySpec(queryAdapter));
         } else {
             resource = ((RelationshipRepository) relationshipRepository)
-                .findOneTarget(sourceId, fieldName, queryParams);
+                .findOneTarget(sourceId, fieldName, toQueryParams(queryAdapter));
         }
-        return getResponse(relationshipRepository, resource, queryParams);
+        return getResponse(relationshipRepository, resource, queryAdapter);
     }
 
-    public JsonApiResponse findManyTargets(T_ID sourceId, String fieldName, QueryParams queryParams) {
+	public JsonApiResponse findManyTargets(T_ID sourceId, String fieldName, QueryAdapter queryAdapter) {
         Object resources;
         if (isAnnotated) {
             resources = ((AnnotatedRelationshipRepositoryAdapter) relationshipRepository)
-                .findManyTargets(sourceId, fieldName, queryParams);
+                .findManyTargets(sourceId, fieldName, toQueryParams(queryAdapter));
+        }else if(relationshipRepository instanceof QuerySpecRelationshipRepository){
+            	resources = ((QuerySpecRelationshipRepository)relationshipRepository).findManyTargets(sourceId, fieldName, toQuerySpec(queryAdapter));
         } else {
             resources = ((RelationshipRepository) relationshipRepository)
-                .findManyTargets(sourceId, fieldName, queryParams);
+                .findManyTargets(sourceId, fieldName, toQueryParams(queryAdapter));
         }
-        return getResponse(relationshipRepository, resources, queryParams);
+        return getResponse(relationshipRepository, resources, queryAdapter);
     }
+	
 
 	public Object getRelationshipRepository() {
 		return relationshipRepository;
+	}
+	
+	@Override
+	public FilterOperator getDefaultOperator() {
+		return ((QuerySpecRelationshipRepository<?,?,?,?>) relationshipRepository).getDefaultOperator();
+	}
+
+	@Override
+	public Set<FilterOperator> getSupportedOperators() {
+		return ((QuerySpecRelationshipRepository<?,?,?,?>) relationshipRepository).getSupportedOperators();
 	}
 }

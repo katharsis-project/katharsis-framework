@@ -1,11 +1,11 @@
 package io.katharsis.errorhandling;
 
-import io.katharsis.queryParams.QueryParams;
+import java.util.Objects;
+
+import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.response.BaseResponseContext;
 import io.katharsis.response.JsonApiResponse;
-
-import java.util.Objects;
 
 public final class ErrorResponse implements BaseResponseContext {
 
@@ -40,7 +40,7 @@ public final class ErrorResponse implements BaseResponseContext {
     }
 
     @Override
-    public QueryParams getQueryParams() {
+    public QueryAdapter getQueryAdapter() {
         return null;
     }
 

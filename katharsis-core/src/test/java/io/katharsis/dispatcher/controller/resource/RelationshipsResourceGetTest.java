@@ -1,6 +1,15 @@
 package io.katharsis.dispatcher.controller.resource;
 
+import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
 import io.katharsis.dispatcher.controller.BaseControllerTest;
+import io.katharsis.queryspec.internal.QueryParamsAdapter;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.mock.models.Task;
@@ -8,13 +17,6 @@ import io.katharsis.resource.mock.repository.TaskToProjectRepository;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponseContext;
 import io.katharsis.response.HttpStatus;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
-import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class RelationshipsResourceGetTest extends BaseControllerTest {
 
@@ -77,7 +79,7 @@ public class RelationshipsResourceGetTest extends BaseControllerTest {
         RelationshipsResourceGet sut = new RelationshipsResourceGet(resourceRegistry, typeParser, includeFieldSetter);
 
         // WHEN
-        BaseResponseContext response = sut.handle(jsonPath, REQUEST_PARAMS, null, null);
+        BaseResponseContext response = sut.handle(jsonPath, new QueryParamsAdapter(REQUEST_PARAMS), null, null);
 
         // THEN
         Assert.assertNotNull(response);
@@ -91,7 +93,7 @@ public class RelationshipsResourceGetTest extends BaseControllerTest {
         new TaskToProjectRepository().setRelation(new Task().setId(1L), 42L, "project");
 
         // WHEN
-        BaseResponseContext response = sut.handle(jsonPath, REQUEST_PARAMS, null, null);
+        BaseResponseContext response = sut.handle(jsonPath, new QueryParamsAdapter(REQUEST_PARAMS), null, null);
 
         // THEN
         Assert.assertNotNull(response);
@@ -108,7 +110,7 @@ public class RelationshipsResourceGetTest extends BaseControllerTest {
         RelationshipsResourceGet sut = new RelationshipsResourceGet(resourceRegistry, typeParser, includeFieldSetter);
 
         // WHEN
-        BaseResponseContext response = sut.handle(jsonPath, REQUEST_PARAMS, null, null);
+        BaseResponseContext response = sut.handle(jsonPath, new QueryParamsAdapter(REQUEST_PARAMS), null, null);
 
         // THEN
         Assert.assertNotNull(response);

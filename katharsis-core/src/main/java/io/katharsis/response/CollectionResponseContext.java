@@ -1,9 +1,9 @@
 package io.katharsis.response;
 
-import io.katharsis.queryParams.QueryParams;
-import io.katharsis.request.path.JsonPath;
-
 import java.util.Objects;
+
+import io.katharsis.queryspec.internal.QueryAdapter;
+import io.katharsis.request.path.JsonPath;
 
 /**
  * A class responsible for representing top-level JSON object returned by Katharsis. The data value is an array. The
@@ -22,15 +22,15 @@ public class CollectionResponseContext implements BaseResponseContext {
 
     private JsonPath jsonPath;
 
-    private QueryParams queryParams;
+    private QueryAdapter queryAdapter;
 
     public CollectionResponseContext() {
     }
 
-    public CollectionResponseContext(JsonApiResponse response, JsonPath jsonPath, QueryParams queryParams) {
+    public CollectionResponseContext(JsonApiResponse response, JsonPath jsonPath, QueryAdapter queryAdapter) {
         this.response = response;
         this.jsonPath = jsonPath;
-        this.queryParams = queryParams;
+        this.queryAdapter = queryAdapter;
     }
 
     @Override
@@ -49,8 +49,8 @@ public class CollectionResponseContext implements BaseResponseContext {
     }
 
     @Override
-    public QueryParams getQueryParams() {
-        return queryParams;
+    public QueryAdapter getQueryAdapter() {
+        return queryAdapter;
     }
 
     @Override

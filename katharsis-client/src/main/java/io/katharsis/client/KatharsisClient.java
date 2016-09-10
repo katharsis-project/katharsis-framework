@@ -166,6 +166,21 @@ public class KatharsisClient {
 		ResourceRepositoryAdapter repositoryAdapter = entry.getResourceRepository(null);
 		return (ResourceRepositoryStub<T, ID>) repositoryAdapter.getResourceRepository();
 	}
+	
+	/**
+	 * @param resourceClass resource class
+	 * @return stub for the given resourceClass
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public <T, ID extends Serializable> QuerySpecResourceRepositoryStub<T, ID> getQuerySpecRepository(Class<T> resourceClass) {
+		init();
+
+		RegistryEntry<T> entry = resourceRegistry.getEntry(resourceClass);
+
+		// TODO fix this in katharsis, should be able to get original resource
+		ResourceRepositoryAdapter repositoryAdapter = entry.getResourceRepository(null);
+		return (QuerySpecResourceRepositoryStub<T, ID>) repositoryAdapter.getResourceRepository();
+	}
 
 	/**
 	 * @param sourceClass source class
@@ -182,6 +197,23 @@ public class KatharsisClient {
 
 		RelationshipRepositoryAdapter repositoryAdapter = entry.getRelationshipRepositoryForClass(targetClass, null);
 		return (RelationshipRepositoryStub<T, ID, D, DID>) repositoryAdapter.getRelationshipRepository();
+	}
+	
+	/**
+	 * @param sourceClass source class
+	 * @param targetClass target class
+	 * @return stub for the relationship between the given source and target
+	 *         class
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public <T, ID extends Serializable, D, DID extends Serializable> QuerySpecRelationshipRepositoryStub<T, ID, D, DID> getQuerySpecRepository(
+			Class<T> sourceClass, Class<D> targetClass) {
+		init();
+
+		RegistryEntry<T> entry = resourceRegistry.getEntry(sourceClass);
+
+		RelationshipRepositoryAdapter repositoryAdapter = entry.getRelationshipRepositoryForClass(targetClass, null);
+		return (QuerySpecRelationshipRepositoryStub<T, ID, D, DID>) repositoryAdapter.getRelationshipRepository();
 	}
 
 	/**
