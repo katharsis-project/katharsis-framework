@@ -62,7 +62,10 @@ public class AbstractStub {
 	
 	protected BaseResponseContext execute(Builder builder, boolean getResponse) {
 		try {
-			Builder complementedBuilder = builder.header("Content-Type", CONTENT_TYPE);
+			Builder complementedBuilder = 
+				builder
+					.header("Content-Type", CONTENT_TYPE)
+					.header("Accept", CONTENT_TYPE);
 
 			Request request = complementedBuilder.build();
 			Response response = katharsis.getHttpClient().newCall(request).execute();
