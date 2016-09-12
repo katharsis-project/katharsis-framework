@@ -11,6 +11,7 @@
         <module>dropwizard-simple-example</module>
         <module>wildfly-example</module>
         <module>spring-boot-simple-example</module>
+        <module>vertx-simple</module>
     </modules>
     <packaging>pom</packaging>
 
