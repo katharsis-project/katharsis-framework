@@ -14,7 +14,7 @@
     <artifactId>katharsis-vertx</artifactId>
     <packaging>bundle</packaging>
     <url>https://github.com/katharsis-project/katharsis-framework</url>
-    <description>Katharsis Spring integration</description>
+    <description>Katharsis Vert.x integration</description>
     <scm>
         <url>https://github.com/katharsis-project/katharsis-framework</url>
         <connection>scm:git:git://github.com/katharsis-project/katharsis-framework.git</connection>
