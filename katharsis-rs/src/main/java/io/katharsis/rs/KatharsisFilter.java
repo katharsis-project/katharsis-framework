@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 
+import javax.annotation.Priority;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
@@ -29,7 +30,6 @@ import io.katharsis.errorhandling.exception.KatharsisMappableException;
 import io.katharsis.errorhandling.exception.KatharsisMatchingException;
 import io.katharsis.errorhandling.mapper.KatharsisExceptionMapper;
 import io.katharsis.jackson.exception.JsonDeserializationException;
-import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.queryspec.internal.QueryParamsAdapter;
@@ -59,6 +59,7 @@ import io.katharsis.rs.type.JsonApiMediaType;
  * </p>
  */
 @PreMatching
+@Priority(Integer.MAX_VALUE) // Greatest value is applied last
 public class KatharsisFilter implements ContainerRequestFilter {
 
     private ObjectMapper objectMapper;
