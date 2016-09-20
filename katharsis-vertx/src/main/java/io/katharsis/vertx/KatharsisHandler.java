@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.RequestDispatcher;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
+import io.katharsis.queryspec.internal.QueryParamsAdapter;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
@@ -52,7 +53,7 @@ public class KatharsisHandler implements Handler<RoutingContext> {
         RequestBody body = requestBody(ctx.getBodyAsString());
 
         try {
-            BaseResponseContext response = requestDispatcher.dispatchRequest(jsonPath, requestMethod, queryParams, provider, body);
+            BaseResponseContext response = requestDispatcher.dispatchRequest(jsonPath, requestMethod, new QueryParamsAdapter(queryParams), provider, body);
 
             ctx.response()
                     .setStatusCode(response.getHttpStatus())
