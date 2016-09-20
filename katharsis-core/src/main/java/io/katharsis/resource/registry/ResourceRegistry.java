@@ -59,6 +59,26 @@ public class ResourceRegistry {
     }
 
     /**
+     * Searches the registry for a resource identified by,
+     * 1) JSON API resource type.
+     * 2) JSON API resource class.
+     * <p>
+     * If a resource cannot be found, {@link ResourceNotFoundInitializationException} is thrown.
+     *
+     * @param searchType resource type
+     * @param clazz      resource type
+     * @return registry entry
+     * @throws ResourceNotFoundInitializationException if resource is not found
+     */
+    public RegistryEntry getEntry(String searchType, Class clazz) {
+        RegistryEntry entry = getEntry(searchType);
+        if (entry == null) {
+            return getEntry(clazz, false);
+        }
+        return entry;
+    }
+
+    /**
      * Searches the registry for a resource identified by a JSON API resource class.
      * If a resource cannot be found, {@link ResourceNotFoundInitializationException} is thrown.
      *

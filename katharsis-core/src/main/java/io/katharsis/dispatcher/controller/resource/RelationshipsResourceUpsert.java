@@ -2,7 +2,6 @@ package io.katharsis.dispatcher.controller.resource;
 
 import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.dispatcher.controller.HttpMethod;
-import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.dto.DataBody;
@@ -52,7 +51,7 @@ public abstract class RelationshipsResourceUpsert extends BaseController {
      * @param relationshipIdType             {@link Class} class of the relationship's id field
      * @param elementName                    field's name
      * @param dataBodies                     Data bodies with relationships
-     * @param queryParams                    query params
+     * @param queryAdapter                   QueryAdapter
      * @param relationshipRepositoryForClass Relationship repository
      */
     protected abstract void processToManyRelationship(Object resource, Class<? extends Serializable> relationshipIdType,
@@ -66,7 +65,7 @@ public abstract class RelationshipsResourceUpsert extends BaseController {
      * @param relationshipIdType             {@link Class} class of the relationship's id field
      * @param elementName                    field's name
      * @param dataBody                       Data body with a relationship
-     * @param queryParams                    query params
+     * @param queryAdapter                   QueryAdapter
      * @param relationshipRepositoryForClass Relationship repository
      */
     protected abstract void processToOneRelationship(Object resource, Class<? extends Serializable> relationshipIdType,
@@ -82,7 +81,7 @@ public abstract class RelationshipsResourceUpsert extends BaseController {
 
     @Override
     public final BaseResponseContext handle(JsonPath jsonPath, QueryAdapter queryAdapter,
-                                               RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody) {
+                                            RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody) {
         String resourceName = jsonPath.getResourceName();
         PathIds resourceIds = jsonPath.getIds();
         RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
@@ -96,7 +95,7 @@ public abstract class RelationshipsResourceUpsert extends BaseController {
 
         Serializable castedResourceId = getResourceId(resourceIds, registryEntry);
         ResourceField relationshipField = registryEntry.getResourceInformation().findRelationshipFieldByName(jsonPath
-            .getElementName());
+                .getElementName());
         if (relationshipField == null) {
             throw new ResourceFieldNotFoundException(jsonPath.getElementName());
         }
@@ -107,27 +106,27 @@ public abstract class RelationshipsResourceUpsert extends BaseController {
 
         Class<?> baseRelationshipFieldClass = relationshipField.getType();
         Class<?> relationshipFieldClass = Generics
-            .getResourceClass(relationshipField.getGenericType(), baseRelationshipFieldClass);
+                .getResourceClass(relationshipField.getGenericType(), baseRelationshipFieldClass);
         @SuppressWarnings("unchecked") Class<? extends Serializable> relationshipIdType = (Class<? extends Serializable>) resourceRegistry
                 .getEntry(relationshipFieldClass).getResourceInformation().getIdField().getType();
 
         @SuppressWarnings("unchecked")
         RelationshipRepositoryAdapter relationshipRepositoryForClass = registryEntry
-            .getRelationshipRepositoryForClass(relationshipFieldClass, parameterProvider);
+                .getRelationshipRepositoryForClass(relationshipFieldClass, parameterProvider);
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
             if (!requestBody.isMultiple()) {
                 throw new RequestBodyException(HttpMethod.POST, resourceName, "Non-multiple data in body");
             }
             Iterable<DataBody> dataBodies = requestBody.getMultipleData();
             processToManyRelationship(resource, relationshipIdType, jsonPath.getElementName(), dataBodies, queryAdapter,
-                relationshipRepositoryForClass);
+                    relationshipRepositoryForClass);
         } else {
             if (requestBody.isMultiple()) {
                 throw new RequestBodyException(HttpMethod.POST, resourceName, "Multiple data in body");
             }
             DataBody dataBody = requestBody.getSingleData();
             processToOneRelationship(resource, relationshipIdType, jsonPath.getElementName(), dataBody, queryAdapter,
-                relationshipRepositoryForClass);
+                    relationshipRepositoryForClass);
         }
 
         return new ResourceResponseContext(response, HttpStatus.NO_CONTENT_204);
