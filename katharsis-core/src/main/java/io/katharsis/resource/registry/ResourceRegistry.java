@@ -1,15 +1,15 @@
 package io.katharsis.resource.registry;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.exception.init.ResourceNotFoundInitializationException;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.utils.java.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class ResourceRegistry {
@@ -97,6 +97,18 @@ public class ResourceRegistry {
         else if (!resourceClazz.isPresent())
             throw new ResourceNotFoundInitializationException(clazz.getCanonicalName());
         return resources.get(resourceClazz.get());
+    }
+
+    public RegistryEntry getEntry(Object targetDataObject) {
+        Class<?> targetDataObjClass = targetDataObject.getClass();
+        RegistryEntry relationshipEntry;
+        if (targetDataObjClass.getAnnotation(JsonApiResource.class) != null) {
+            relationshipEntry = getEntry(targetDataObjClass.getAnnotation(JsonApiResource.class).type(),
+                    targetDataObjClass.getClass());
+        } else {
+            relationshipEntry = getEntry(targetDataObject.getClass());
+        }
+        return relationshipEntry;
     }
 
     /**

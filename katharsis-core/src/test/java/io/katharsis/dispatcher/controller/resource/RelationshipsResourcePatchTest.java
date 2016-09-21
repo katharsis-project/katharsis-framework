@@ -1,33 +1,19 @@
 package io.katharsis.dispatcher.controller.resource;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.mock;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import io.katharsis.request.dto.LinkageData;
-import io.katharsis.resource.annotations.JsonApiResource;
-import io.katharsis.resource.mock.models.ProjectPolymorphic;
-import io.katharsis.utils.ClassUtils;
-import org.junit.Before;
-import org.junit.Test;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import io.katharsis.dispatcher.controller.BaseControllerTest;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryspec.internal.QueryParamsAdapter;
 import io.katharsis.request.dto.DataBody;
+import io.katharsis.request.dto.LinkageData;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.dto.ResourceRelationships;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
+import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.mock.models.Project;
+import io.katharsis.resource.mock.models.ProjectPolymorphic;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.models.User;
 import io.katharsis.resource.mock.repository.TaskToProjectRepository;
@@ -36,6 +22,18 @@ import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponseContext;
 import io.katharsis.response.HttpStatus;
 import io.katharsis.response.ResourceResponseContext;
+import io.katharsis.utils.ClassUtils;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.mock;
 
 public class RelationshipsResourcePatchTest extends BaseControllerTest {
 
@@ -334,7 +332,5 @@ public class RelationshipsResourcePatchTest extends BaseControllerTest {
         assertNotNull(projectPolymorphic.getTask());
         assertNotNull(projectPolymorphic.getTasks());
         assertEquals(0, projectPolymorphic.getTasks().size());
-
-
     }
 }

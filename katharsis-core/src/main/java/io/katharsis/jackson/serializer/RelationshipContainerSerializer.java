@@ -11,7 +11,6 @@ import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.ContainerType;
 import io.katharsis.response.LinkageContainer;
 import io.katharsis.response.RelationshipContainer;
-import io.katharsis.utils.ClassUtils;
 import io.katharsis.utils.Generics;
 import io.katharsis.utils.PropertyUtils;
 
@@ -32,7 +31,7 @@ public class RelationshipContainerSerializer extends JsonSerializer<Relationship
     private static final String LINKS_FIELD_NAME = "links";
 
     private final ResourceRegistry resourceRegistry;
-	private boolean isClient;
+    private boolean isClient;
 
     public RelationshipContainerSerializer(ResourceRegistry resourceRegistry, boolean isClient) {
         this.resourceRegistry = resourceRegistry;
@@ -53,13 +52,13 @@ public class RelationshipContainerSerializer extends JsonSerializer<Relationship
     }
 
     private void writeLinks(RelationshipContainer relationshipContainer, JsonGenerator gen) throws IOException {
-    	if(!isClient){
-	        gen.writeFieldName(LINKS_FIELD_NAME);
-	        gen.writeStartObject();
-	        writeLink(relationshipContainer, gen, SELF_FIELD_NAME, true);
-	        writeLink(relationshipContainer, gen, RELATED_FIELD_NAME, false);
-	        gen.writeEndObject();
-    	}
+        if (!isClient) {
+            gen.writeFieldName(LINKS_FIELD_NAME);
+            gen.writeStartObject();
+            writeLink(relationshipContainer, gen, SELF_FIELD_NAME, true);
+            writeLink(relationshipContainer, gen, RELATED_FIELD_NAME, false);
+            gen.writeEndObject();
+        }
     }
 
     private void writeLink(RelationshipContainer relationshipContainer, JsonGenerator gen, String fieldName,
@@ -88,53 +87,50 @@ public class RelationshipContainerSerializer extends JsonSerializer<Relationship
         Class baseClass = relationshipContainer.getRelationshipField().getType();
         Class relationshipClass = Generics
                 .getResourceClass(relationshipContainer.getRelationshipField().getGenericType(), baseClass);
-        RegistryEntry relationshipEntry = resourceRegistry.getEntry(relationshipClass);
 
         gen.writeFieldName(DATA_FIELD_NAME);
-        writeLinkageField(relationshipContainer, gen, baseClass, relationshipEntry);
+        writeLinkageField(relationshipContainer, gen, baseClass, relationshipClass);
     }
 
-    private void writeLinkageField(RelationshipContainer relationshipContainer, JsonGenerator gen, Class baseClass,
-                                   RegistryEntry relationshipEntry)
+    private void writeLinkageField(RelationshipContainer relationshipContainer, JsonGenerator gen, Class baseClass, Class relationshipClass)
             throws IOException {
         try {
             if (Iterable.class.isAssignableFrom(baseClass)) {
-                writeToManyLinkage(relationshipContainer, gen, relationshipEntry);
+                writeToManyLinkage(relationshipContainer, gen);
             } else {
-                writeToOneLinkage(relationshipContainer, gen, relationshipEntry);
+                writeToOneLinkage(relationshipContainer, gen);
             }
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             throw new JsonSerializationException("Error writing linkage field");
         }
     }
 
-    private void writeToManyLinkage(RelationshipContainer relationshipContainer, JsonGenerator gen,
-                                           RegistryEntry relationshipEntry)
+    private void writeToManyLinkage(RelationshipContainer relationshipContainer, JsonGenerator gen)
             throws IOException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         ResourceField relationshipField = relationshipContainer.getRelationshipField();
-        Object targetDataObj = PropertyUtils
+        Object targetDataObjects = PropertyUtils
                 .getProperty(relationshipContainer.getDataLinksContainer().getData(), relationshipField.getUnderlyingName());
 
         gen.writeStartArray();
-        if (targetDataObj != null) {
-            for (Object objectItem : (Iterable) targetDataObj) {
-                Class<?> objectItemClass = resourceRegistry.getResourceClass(objectItem).get();
-                gen.writeObject(new LinkageContainer(objectItem, objectItemClass, relationshipEntry));
+        if (targetDataObjects != null) {
+            for (Object targetDataObject : (Iterable) targetDataObjects) {
+                Class<?> targetDataObjClass = resourceRegistry.getResourceClass(targetDataObject).get();
+                gen.writeObject(new LinkageContainer(targetDataObject, targetDataObjClass, resourceRegistry.getEntry(targetDataObject)));
             }
         }
         gen.writeEndArray();
     }
 
-    private void writeToOneLinkage(RelationshipContainer relationshipContainer, JsonGenerator gen,
-                                          RegistryEntry relationshipEntry)
+    private void writeToOneLinkage(RelationshipContainer relationshipContainer, JsonGenerator gen)
             throws IOException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         ResourceField relationshipField = relationshipContainer.getRelationshipField();
-        Object targetDataObj = PropertyUtils.getProperty(relationshipContainer.getDataLinksContainer().getData(), relationshipField.getUnderlyingName());
-        if (targetDataObj == null) {
+        Object targetDataObject = PropertyUtils.getProperty(relationshipContainer.getDataLinksContainer().getData(), relationshipField.getUnderlyingName());
+
+        if (targetDataObject == null) {
             gen.writeObject(null);
         } else {
-            Class<?> targetDataObjClass = resourceRegistry.getResourceClass(targetDataObj).get();
-            gen.writeObject(new LinkageContainer(targetDataObj, targetDataObjClass, relationshipEntry));
+            Class<?> targetDataObjClass = resourceRegistry.getResourceClass(targetDataObject).get();
+            gen.writeObject(new LinkageContainer(targetDataObject, targetDataObjClass, resourceRegistry.getEntry(targetDataObject)));
         }
     }
 

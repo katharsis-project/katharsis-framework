@@ -7,7 +7,6 @@ import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.LinkageContainer;
-import io.katharsis.utils.BeanUtils;
 import io.katharsis.utils.PropertyUtils;
 
 import java.io.IOException;
@@ -29,10 +28,28 @@ public class LinkageContainerSerializer extends JsonSerializer<LinkageContainer>
         this.resourceRegistry = resourceRegistry;
     }
 
+    private static void writeId(JsonGenerator gen, LinkageContainer linkageContainer)
+            throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
+        ResourceInformation resourceInformation = linkageContainer.getRelationshipEntry().getResourceInformation();
+        ResourceField idField = resourceInformation.getIdField();
+
+        // sometimes the entire resource, sometimes only the id is available.
+        Object objectItem = linkageContainer.getObjectItem();
+        Object sourceId;
+        if (idField.getType().isInstance(objectItem)) {
+            sourceId = objectItem;
+        } else {
+            sourceId = PropertyUtils.getProperty(linkageContainer.getObjectItem(), idField.getUnderlyingName());
+        }
+
+        String strSourceId = resourceInformation.toIdString(sourceId);
+        gen.writeObjectField(ID_FIELD_NAME, strSourceId);
+    }
+
     @Override
     public void serialize(LinkageContainer linkageContainer, JsonGenerator gen, SerializerProvider provider) throws IOException {
         gen.writeStartObject();
-        writeType(gen, linkageContainer.getRelationshipClass());
+        writeType(gen, linkageContainer);
         try {
             writeId(gen, linkageContainer);
         } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
@@ -41,27 +58,13 @@ public class LinkageContainerSerializer extends JsonSerializer<LinkageContainer>
         gen.writeEndObject();
     }
 
-    private void writeType(JsonGenerator gen, Class<?> relationshipClass) throws IOException {
-        String resourceType = resourceRegistry.getResourceType(relationshipClass);
-        gen.writeObjectField(TYPE_FIELD_NAME, resourceType);
-    }
-
-    private static void writeId(JsonGenerator gen, LinkageContainer linkageContainer)
-            throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
-        ResourceInformation resourceInformation = linkageContainer.getRelationshipEntry().getResourceInformation();
-        ResourceField idField = resourceInformation.getIdField();
-        
-        // sometimes the entire resource, sometimes only the id is available. 
-        Object objectItem = linkageContainer.getObjectItem();
-        Object sourceId;
-        if(idField.getType().isInstance(objectItem)){
-        	sourceId = objectItem;
-        }else{
-        	sourceId = PropertyUtils.getProperty(linkageContainer.getObjectItem(), idField.getUnderlyingName());
+    private void writeType(JsonGenerator gen, LinkageContainer linkageContainer) throws IOException {
+        if (linkageContainer.getRelationshipEntry() == null) {
+            throw new IllegalArgumentException("LinkageContainer must contain RelationshipEntry");
         }
-        
-    	String strSourceId = resourceInformation.toIdString(sourceId);
-        gen.writeObjectField(ID_FIELD_NAME, strSourceId);
+        ResourceInformation resourceInformation = linkageContainer.getRelationshipEntry().getResourceInformation();
+        gen.writeObjectField(TYPE_FIELD_NAME, resourceInformation.getResourceType());
+
     }
 
     public Class<LinkageContainer> handledType() {
