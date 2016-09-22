@@ -11,7 +11,6 @@ import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.ContainerType;
 import io.katharsis.response.LinkageContainer;
 import io.katharsis.response.RelationshipContainer;
-import io.katharsis.utils.Generics;
 import io.katharsis.utils.PropertyUtils;
 
 import java.io.IOException;
