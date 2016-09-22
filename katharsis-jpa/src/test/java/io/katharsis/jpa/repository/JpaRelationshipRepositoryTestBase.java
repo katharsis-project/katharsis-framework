@@ -1,9 +1,15 @@
 package io.katharsis.jpa.repository;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
+import org.hamcrest.core.Is;
+import org.hamcrest.core.IsInstanceOf;
+import org.hamcrest.core.IsNot;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +18,7 @@ import io.katharsis.jpa.JpaRelationshipRepository;
 import io.katharsis.jpa.model.RelatedEntity;
 import io.katharsis.jpa.model.TestEntity;
 import io.katharsis.jpa.query.AbstractJpaTest;
+import io.katharsis.jpa.query.querydsl.QuerydslQueryFactory;
 import io.katharsis.queryspec.FilterOperator;
 import io.katharsis.queryspec.FilterSpec;
 import io.katharsis.queryspec.QuerySpec;
@@ -145,5 +152,30 @@ public abstract class JpaRelationshipRepositoryTestBase extends AbstractJpaTest 
 		Assert.assertEquals(0, test.getManyRelatedValues().size());
 		related = em.find(RelatedEntity.class, 101L);
 		Assert.assertNull(related.getTestEntity());
+	}
+
+	@Test
+	public void testGetManyRelation() {
+		//TODO fix for QueryDSL
+		Assume.assumeThat("QueryDSL still breaks on this, so ignore it for now",
+				queryFactory, IsNot.not(IsInstanceOf.instanceOf(QuerydslQueryFactory.class)));
+		TestEntity test = em.find(TestEntity.class, 1L);
+		Assert.assertThat(test.getManyRelatedValues().size(), Is.is(0));
+
+		repo.addRelations(test, Arrays.asList(101L,102L), TestEntity.ATTR_manyRelatedValues);
+		em.flush();
+		em.clear();
+		test = em.find(TestEntity.class, 1L);
+		Assert.assertThat(test.getManyRelatedValues().size(), Is.is(2));
+
+		QuerySpec querySpec = new QuerySpec(RelatedEntity.class);
+		Iterable<RelatedEntity> targets = repo.findManyTargets(1L, TestEntity.ATTR_manyRelatedValues, querySpec);
+		List<RelatedEntity> res = new ArrayList<>();
+		for (RelatedEntity relatedEntity : targets) {
+			res.add(relatedEntity);
+		}
+		Assert.assertThat(res.size(), Is.is(2));
+		Assert.assertThat(res.get(0).getId(), Is.is(101L));
+		Assert.assertThat(res.get(1).getId(), Is.is(102L));
 	}
 }
