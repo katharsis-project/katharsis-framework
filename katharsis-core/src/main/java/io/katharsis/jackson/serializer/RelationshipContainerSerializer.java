@@ -85,14 +85,11 @@ public class RelationshipContainerSerializer extends JsonSerializer<Relationship
      */
     private void writeLinkage(RelationshipContainer relationshipContainer, JsonGenerator gen) throws IOException {
         Class baseClass = relationshipContainer.getRelationshipField().getType();
-        Class relationshipClass = Generics
-                .getResourceClass(relationshipContainer.getRelationshipField().getGenericType(), baseClass);
-
         gen.writeFieldName(DATA_FIELD_NAME);
-        writeLinkageField(relationshipContainer, gen, baseClass, relationshipClass);
+        writeLinkageField(relationshipContainer, gen, baseClass);
     }
 
-    private void writeLinkageField(RelationshipContainer relationshipContainer, JsonGenerator gen, Class baseClass, Class relationshipClass)
+    private void writeLinkageField(RelationshipContainer relationshipContainer, JsonGenerator gen, Class baseClass)
             throws IOException {
         try {
             if (Iterable.class.isAssignableFrom(baseClass)) {

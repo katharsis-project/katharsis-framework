@@ -59,12 +59,15 @@ public class LinkageContainerSerializer extends JsonSerializer<LinkageContainer>
     }
 
     private void writeType(JsonGenerator gen, LinkageContainer linkageContainer) throws IOException {
-        if (linkageContainer.getRelationshipEntry() == null) {
-            throw new IllegalArgumentException("LinkageContainer must contain RelationshipEntry");
-        }
-        ResourceInformation resourceInformation = linkageContainer.getRelationshipEntry().getResourceInformation();
-        gen.writeObjectField(TYPE_FIELD_NAME, resourceInformation.getResourceType());
 
+        // if the linkage container did not come with a RegistryEntry try to find its type from the relationship class
+        if (linkageContainer.getRelationshipEntry() == null) {
+            String resourceType = resourceRegistry.getResourceType(linkageContainer.getRelationshipClass());
+            gen.writeObjectField(TYPE_FIELD_NAME, resourceType);
+        } else {
+            ResourceInformation resourceInformation = linkageContainer.getRelationshipEntry().getResourceInformation();
+            gen.writeObjectField(TYPE_FIELD_NAME, resourceInformation.getResourceType());
+        }
     }
 
     public Class<LinkageContainer> handledType() {

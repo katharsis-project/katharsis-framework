@@ -148,8 +148,8 @@ public class RelationshipsResourceGetTest extends BaseControllerTest {
 
         resultJson = objectMapper.writeValueAsString(baseResponseContext);
         ReadContext resultCtx = com.jayway.jsonpath.JsonPath.parse(resultJson);
-        assertInclude("45", 0, resultCtx);
-        assertInclude("44", 1, resultCtx);
+        assertInclude("44", 0, resultCtx);
+        assertInclude("45", 1, resultCtx);
 
     }
 
