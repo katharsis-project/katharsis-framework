@@ -10,6 +10,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import io.katharsis.client.QuerySpecRelationshipRepositoryStub;
 import io.katharsis.client.QuerySpecResourceRepositoryStub;
 import io.katharsis.client.ResourceRepositoryStub;
 import io.katharsis.jpa.model.RelatedEntity;
@@ -28,11 +29,11 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 		super.setup();
 		testRepo = client.getQuerySpecRepository(TestEntity.class);
 	}
-	
+
 	@Test
 	public void testIncludeRelations() throws InstantiationException, IllegalAccessException {
 		addTestWithOneRelation();
-		
+
 		QuerySpec querySpec = new QuerySpec(TestEntity.class);
 		querySpec.includeRelation(Arrays.asList(TestEntity.ATTR_oneRelatedValue));
 		List<TestEntity> list = testRepo.findAll(querySpec);
@@ -41,6 +42,19 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 		for (TestEntity test : list) {
 			Assert.assertNotNull(test.getOneRelatedValue());
 		}
+	}
+
+	@Test
+	public void testRelationRepoFindOneTarget() throws InstantiationException, IllegalAccessException {
+		TestEntity test = addTestWithOneRelation();
+
+		QuerySpecRelationshipRepositoryStub<TestEntity, Serializable, RelatedEntity, Serializable> relRepo = client
+				.getQuerySpecRepository(TestEntity.class, RelatedEntity.class);
+
+		RelatedEntity related = relRepo.findOneTarget(test.getId(), TestEntity.ATTR_oneRelatedValue,
+				new QuerySpec(RelatedEntity.class));
+		Assert.assertNotNull(related);
+
 	}
 
 	@Test
@@ -96,7 +110,8 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 
 	@Test
 	public void testOptimisticLocking() {
-		QuerySpecResourceRepositoryStub<VersionedEntity, Serializable> repo = client.getQuerySpecRepository(VersionedEntity.class);
+		QuerySpecResourceRepositoryStub<VersionedEntity, Serializable> repo = client
+				.getQuerySpecRepository(VersionedEntity.class);
 		VersionedEntity entity = new VersionedEntity();
 		entity.setId(1L);
 		entity.setLongValue(13L);
@@ -180,7 +195,8 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 
 	@Test
 	public void testEmbeddableIds() throws InstantiationException, IllegalAccessException {
-		QuerySpecResourceRepositoryStub<TestEmbeddedIdEntity, Serializable> rep = client.getQuerySpecRepository(TestEmbeddedIdEntity.class);
+		QuerySpecResourceRepositoryStub<TestEmbeddedIdEntity, Serializable> rep = client
+				.getQuerySpecRepository(TestEmbeddedIdEntity.class);
 
 		// add
 		TestEmbeddedIdEntity entity = new TestEmbeddedIdEntity();
