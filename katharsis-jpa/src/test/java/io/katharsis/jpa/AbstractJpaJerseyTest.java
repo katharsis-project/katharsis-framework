@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.client.KatharsisClient;
 import io.katharsis.jpa.model.TestEntity;
 import io.katharsis.jpa.query.AbstractJpaTest;
+import io.katharsis.jpa.query.querydsl.QuerydslQueryFactory;
 import io.katharsis.jpa.util.EntityManagerProducer;
 import io.katharsis.jpa.util.SpringTransactionRunner;
 import io.katharsis.jpa.util.TestConfig;
@@ -95,6 +96,7 @@ public abstract class AbstractJpaJerseyTest extends JerseyTest {
 					new QueryParamsBuilder(new DefaultQueryParamsParser()), new SampleJsonServiceLocator());
 
 			JpaModule module = new JpaModule(emFactory, em, transactionRunner);
+			module.setQueryFactory(QuerydslQueryFactory.newInstance(module.getMetaLookup(), em));
 			setupModule(module);
 			feature.addModule(module);
 

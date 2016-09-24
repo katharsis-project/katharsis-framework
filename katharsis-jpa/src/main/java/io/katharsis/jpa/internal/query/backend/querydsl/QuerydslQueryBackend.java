@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 import javax.persistence.criteria.JoinType;
 
 import com.google.common.collect.ImmutableList;
+import com.querydsl.core.types.CollectionExpression;
 import com.querydsl.core.types.EntityPath;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.ExpressionUtils;
@@ -15,9 +16,11 @@ import com.querydsl.core.types.OperationImpl;
 import com.querydsl.core.types.Ops;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Path;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.QTuple;
 import com.querydsl.core.types.dsl.BeanPath;
+import com.querydsl.core.types.dsl.CollectionExpressionBase;
 import com.querydsl.core.types.dsl.ComparableExpression;
 import com.querydsl.core.types.dsl.LiteralExpression;
 import com.querydsl.core.types.dsl.MapExpressionBase;
@@ -41,13 +44,16 @@ import io.katharsis.queryspec.Direction;
 import io.katharsis.queryspec.FilterOperator;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public class QuerydslQueryBackend<T>
-		implements JpaQueryBackend<Expression<?>, OrderSpecifier<?>, Predicate, Expression<?>> {
+public class QuerydslQueryBackend<T> implements JpaQueryBackend<Expression<?>, OrderSpecifier<?>, Predicate, Expression<?>> {
 
 	private JoinRegistry<Expression<?>, Expression<?>> joinHelper;
-	private EntityPath<T> root;
+
+	private Path<T> root;
+
 	private EntityPath<?> parentFrom;
+
 	private QuerydslQueryImpl<T> queryImpl;
+
 	private JPAQuery<T> querydslQuery;
 
 	private List<OrderSpecifier<?>> orderList = new ArrayList<>();
@@ -60,17 +66,27 @@ public class QuerydslQueryBackend<T>
 
 		if (parentEntityClass != null) {
 			parentFrom = QuerydslUtils.getEntityPath(parentEntityClass);
-			root = (EntityPath<T>) QuerydslUtils.get(parentFrom, parentAttr.getName());
+			root = QuerydslUtils.getEntityPath(clazz);
+
+			Path joinPath = (Path) QuerydslUtils.get(parentFrom, parentAttr.getName());
 			joinHelper = new JoinRegistry<>(this, queryImpl);
+
 			joinHelper.putJoin(new MetaAttributePath(), root);
 			querydslQuery = queryFactory.select(root);
 			querydslQuery = querydslQuery.from(parentFrom);
-		} else {
+			if (joinPath instanceof CollectionExpression) {
+				querydslQuery = querydslQuery.join((CollectionExpression) joinPath, root);
+			}
+			else {
+				querydslQuery = querydslQuery.join((EntityPath) joinPath, root);
+			}
+		}
+		else {
 			root = QuerydslUtils.getEntityPath(clazz);
 			joinHelper = new JoinRegistry<>(this, queryImpl);
 			joinHelper.putJoin(new MetaAttributePath(), root);
 			querydslQuery = queryFactory.select(root);
-			querydslQuery = querydslQuery.from(root);
+			querydslQuery = querydslQuery.from((EntityPath) root);
 		}
 	}
 
@@ -93,7 +109,7 @@ public class QuerydslQueryBackend<T>
 	}
 
 	@Override
-	public EntityPath<T> getRoot() {
+	public Path<T> getRoot() {
 		return root;
 	}
 
@@ -111,7 +127,8 @@ public class QuerydslQueryBackend<T>
 	public OrderSpecifier<?> newSort(Expression<?> expr, Direction dir) {
 		if (dir == Direction.ASC) {
 			return new OrderSpecifier(Order.ASC, expr);
-		} else {
+		}
+		else {
 			return new OrderSpecifier(Order.DESC, expr);
 		}
 	}
@@ -124,8 +141,7 @@ public class QuerydslQueryBackend<T>
 	@Override
 	public void addParentPredicate(MetaAttribute primaryKeyAttr) {
 		List<?> parentIds = queryImpl.getParentIds();
-		SimpleExpression<?> parentIdPath = (SimpleExpression<?>) QuerydslUtils.get(parentFrom,
-				primaryKeyAttr.getName());
+		SimpleExpression<?> parentIdPath = (SimpleExpression<?>) QuerydslUtils.get(parentFrom, primaryKeyAttr.getName());
 		addPredicate(parentIdPath.in((List) parentIds));
 	}
 
@@ -142,7 +158,8 @@ public class QuerydslQueryBackend<T>
 		if (selection != null) {
 			if (selection instanceof QTuple) {
 				newSelection.addAll(((QTuple) selection).getArgs());
-			} else {
+			}
+			else {
 				newSelection.add(selection);
 			}
 		}
@@ -178,37 +195,49 @@ public class QuerydslQueryBackend<T>
 	private Predicate handle(Expression expression, FilterOperator operator, Object value) { // NOSONAR
 		if (operator == FilterOperator.EQ || operator == FilterOperator.NEQ) {
 			return handleEquals(expression, operator, value);
-		} else if (operator == JpaFilterOperators.LIKE) {
+		}
+		else if (operator == JpaFilterOperators.LIKE) {
 			return ((StringExpression) expression).like(value.toString());
-		} else if (operator == JpaFilterOperators.NOT_LIKE) {
+		}
+		else if (operator == JpaFilterOperators.NOT_LIKE) {
 			return ((StringExpression) expression).like(value.toString()).not();
-		} else if (operator == JpaFilterOperators.ILIKE) {
+		}
+		else if (operator == JpaFilterOperators.ILIKE) {
 			return ((StringExpression) expression).lower().like(value.toString().toLowerCase());
-		} else if (operator == FilterOperator.GT) {
+		}
+		else if (operator == FilterOperator.GT) {
 			if (expression instanceof NumberExpression) {
 				return ((NumberExpression) expression).gt((Number) value);
-			} else {
+			}
+			else {
 				return ((ComparableExpression) expression).gt((Comparable) value);
 			}
-		} else if (operator == FilterOperator.LT) {
+		}
+		else if (operator == FilterOperator.LT) {
 			if (expression instanceof NumberExpression) {
 				return ((NumberExpression) expression).lt((Number) value);
-			} else {
+			}
+			else {
 				return ((ComparableExpression) expression).lt((Comparable) value);
 			}
-		} else if (operator == FilterOperator.GE) {
+		}
+		else if (operator == FilterOperator.GE) {
 			if (expression instanceof NumberExpression) {
 				return ((NumberExpression) expression).goe((Number) value);
-			} else {
+			}
+			else {
 				return ((ComparableExpression) expression).goe((Comparable) value);
 			}
-		} else if (operator == FilterOperator.LE) {
+		}
+		else if (operator == FilterOperator.LE) {
 			if (expression instanceof NumberExpression) {
 				return ((NumberExpression) expression).loe((Number) value);
-			} else {
+			}
+			else {
 				return ((ComparableExpression) expression).loe((Comparable) value);
 			}
-		} else {
+		}
+		else {
 			throw new IllegalStateException("unexpected operator " + operator);
 		}
 
@@ -218,15 +247,18 @@ public class QuerydslQueryBackend<T>
 		if (value instanceof List) {
 			Predicate p = ((SimpleExpression) expression).in((List) value);
 			return negateIfNeeded(p, operator);
-		} else if (Collection.class.isAssignableFrom(expression.getType())) {
+		}
+		else if (Collection.class.isAssignableFrom(expression.getType())) {
 			SimpleExpression simpleExpr = (SimpleExpression) expression;
 			Predicate p = simpleExpr.in(value);
 			return negateIfNeeded(p, operator);
-		} else if (expression instanceof MapExpressionBase) {
+		}
+		else if (expression instanceof MapExpressionBase) {
 			MapExpressionBase mapExpression = (MapExpressionBase) expression;
 			Predicate p = mapExpression.containsValue(value);
 			return negateIfNeeded(p, operator);
-		} else if (value == null) {
+		}
+		else if (value == null) {
 			return negateIfNeeded(((SimpleExpression) expression).isNull(), operator);
 		}
 		return negateIfNeeded(((SimpleExpression) expression).eq(value), operator);
@@ -237,7 +269,8 @@ public class QuerydslQueryBackend<T>
 		if (expression.getType() != String.class
 				&& (operator == JpaFilterOperators.LIKE || operator == JpaFilterOperators.ILIKE)) {
 			return ((LiteralExpression) expression).stringValue();
-		} else {
+		}
+		else {
 			return expression;
 		}
 	}
@@ -246,7 +279,8 @@ public class QuerydslQueryBackend<T>
 	public Predicate and(List<Predicate> predicates) {
 		if (predicates.size() == 1) {
 			return predicates.get(0);
-		} else {
+		}
+		else {
 			return new BooleanPredicateOperation(Ops.AND, (ImmutableList) ImmutableList.copyOf(predicates));
 		}
 	}
@@ -260,7 +294,8 @@ public class QuerydslQueryBackend<T>
 	public Predicate or(List<Predicate> predicates) {
 		if (predicates.size() == 1) {
 			return predicates.get(0);
-		} else {
+		}
+		else {
 			return new BooleanPredicateOperation(Ops.OR, (ImmutableList) ImmutableList.copyOf(predicates));
 		}
 	}
@@ -312,7 +347,10 @@ public class QuerydslQueryBackend<T>
 	}
 
 	@Override
-	public Class<?> getJavaType(Expression<?> expression) {
+	public Class<?> getJavaElementType(Expression<?> expression) {
+		if (expression instanceof CollectionExpressionBase) {
+			return ((CollectionExpressionBase) expression).getElementType();
+		}
 		return expression.getType();
 	}
 
@@ -323,7 +361,8 @@ public class QuerydslQueryBackend<T>
 			QuerydslExpressionFactory expressionFactory = (QuerydslExpressionFactory) virtualAttrs
 					.get((MetaVirtualAttribute) pathElement);
 			return expressionFactory.getExpression(expression, getQuery());
-		} else {
+		}
+		else {
 			return QuerydslUtils.get(expression, pathElement.getName());
 		}
 	}
@@ -344,7 +383,8 @@ public class QuerydslQueryBackend<T>
 					.get(virtualAttr);
 
 			return expressionFactory.getExpression(parent, getQuery());
-		} else {
+		}
+		else {
 			Expression<Object> expression = QuerydslUtils.get(parent, targetAttr.getName());
 			querydslQuery.getMetadata().addJoin(QuerydslUtils.convertJoinType(joinType), expression);
 			return expression;

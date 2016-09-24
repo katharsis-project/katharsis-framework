@@ -83,7 +83,7 @@ public abstract class ResponseRepository {
         return null;
     }
     
-	protected QuerySpec toQuerySpec(QueryAdapter queryAdapter) {
+	protected QuerySpec toQuerySpec(QueryAdapter queryAdapter, Class<?> targetResourceClass) {
 	 	if(queryAdapter == null)
     		return null;
 		if(queryAdapter instanceof QuerySpecAdapter){
@@ -98,8 +98,7 @@ public abstract class ResponseRepository {
     	
     	DefaultQuerySpecConverter converter = new DefaultQuerySpecConverter(resourceRegistry, operatorRegistry);
     	
-    	Class<?> resourceClass = resourceInformation.getResourceClass();
-    	return converter.fromParams(resourceClass, queryParams);
+    	return converter.fromParams(targetResourceClass, queryParams);
 	}
 	
 	protected abstract FilterOperator getDefaultOperator() ;

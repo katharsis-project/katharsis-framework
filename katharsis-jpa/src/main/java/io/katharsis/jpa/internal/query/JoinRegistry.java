@@ -45,10 +45,11 @@ public class JoinRegistry<F, E> {
 				criteriaPath = joinMap(currentCriteriaPath, pathElement);
 			} else {
 				// we may need to downcast if attribute is defined on a subtype
-				Class<?> entityType = pathElement.getParent().asDataObject().getImplementationClass();
-				boolean isSubType = !entityType.isAssignableFrom(backend.getJavaType(currentCriteriaPath));
+				Class<?> pathType = pathElement.getParent().asDataObject().getImplementationClass();
+				Class<?> currentType = backend.getJavaElementType(currentCriteriaPath);
+				boolean isSubType = !pathType.isAssignableFrom(currentType);
 				if (isSubType) {
-					currentCriteriaPath = backend.joinSubType(currentCriteriaPath, entityType);
+					currentCriteriaPath = backend.joinSubType(currentCriteriaPath, pathType);
 				}
 				criteriaPath = backend.getAttribute(currentCriteriaPath, pathElement);
 			}

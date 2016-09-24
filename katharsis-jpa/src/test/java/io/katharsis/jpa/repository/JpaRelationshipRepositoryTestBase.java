@@ -6,10 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.hamcrest.core.Is;
-import org.hamcrest.core.IsInstanceOf;
-import org.hamcrest.core.IsNot;
 import org.junit.Assert;
-import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +15,6 @@ import io.katharsis.jpa.JpaRelationshipRepository;
 import io.katharsis.jpa.model.RelatedEntity;
 import io.katharsis.jpa.model.TestEntity;
 import io.katharsis.jpa.query.AbstractJpaTest;
-import io.katharsis.jpa.query.querydsl.QuerydslQueryFactory;
 import io.katharsis.queryspec.FilterOperator;
 import io.katharsis.queryspec.FilterSpec;
 import io.katharsis.queryspec.QuerySpec;
@@ -156,9 +152,6 @@ public abstract class JpaRelationshipRepositoryTestBase extends AbstractJpaTest 
 
 	@Test
 	public void testGetManyRelation() {
-		//TODO fix for QueryDSL
-		Assume.assumeThat("QueryDSL still breaks on this, so ignore it for now",
-				queryFactory, IsNot.not(IsInstanceOf.instanceOf(QuerydslQueryFactory.class)));
 		TestEntity test = em.find(TestEntity.class, 1L);
 		Assert.assertThat(test.getManyRelatedValues().size(), Is.is(0));
 
