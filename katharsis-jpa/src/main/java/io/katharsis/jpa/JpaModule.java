@@ -263,8 +263,13 @@ public class JpaModule implements Module {
 		Set<Class<?>> relatedResourceClasses = new HashSet<>();
 		for (MetaAttribute attr : metaEntity.getAttributes()) {
 			if (attr.isAssociation()) {
-				Class<?> relType = attr.getType().getImplementationClass();
-
+				Class<?> relType = null;
+				if(attr.getType().isCollection()) {
+					relType = attr.getType().getElementType().getImplementationClass();
+				}
+				else {
+					relType = attr.getType().getImplementationClass();
+				}
 				// only include relations that are exposed as repositories
 				if (entityClasses.contains(relType)) {
 					relatedResourceClasses.add(relType);

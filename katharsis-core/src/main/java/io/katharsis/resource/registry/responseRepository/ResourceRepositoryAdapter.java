@@ -35,7 +35,7 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable> extends Respo
 			resource = ((AnnotatedResourceRepositoryAdapter) resourceRepository).findOne(id, toQueryParams(queryAdapter));
 		}
 		else if (resourceRepository instanceof QuerySpecResourceRepository) {
-			resource = ((QuerySpecResourceRepository) resourceRepository).findOne(id, toQuerySpec(queryAdapter));
+			resource = ((QuerySpecResourceRepository) resourceRepository).findOne(id, toQuerySpec(queryAdapter, resourceInformation.getResourceClass()));
 		}
 		else {
 			resource = ((ResourceRepository) resourceRepository).findOne(id, toQueryParams(queryAdapter));
@@ -49,7 +49,7 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable> extends Respo
 			resources = ((AnnotatedResourceRepositoryAdapter) resourceRepository).findAll(toQueryParams(queryAdapter));
 		}
 		else if (resourceRepository instanceof QuerySpecResourceRepository) {
-			resources = ((QuerySpecResourceRepository) resourceRepository).findAll(toQuerySpec(queryAdapter));
+			resources = ((QuerySpecResourceRepository) resourceRepository).findAll(toQuerySpec(queryAdapter, resourceInformation.getResourceClass()));
 		}
 		else {
 			resources = ((ResourceRepository) resourceRepository).findAll(toQueryParams(queryAdapter));
@@ -63,7 +63,7 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable> extends Respo
 			resources = ((AnnotatedResourceRepositoryAdapter) resourceRepository).findAll(ids, toQueryParams(queryAdapter));
 		}
 		else if (resourceRepository instanceof QuerySpecResourceRepository) {
-			resources = ((QuerySpecResourceRepository) resourceRepository).findAll(ids, toQuerySpec(queryAdapter));
+			resources = ((QuerySpecResourceRepository) resourceRepository).findAll(ids, toQuerySpec(queryAdapter, resourceInformation.getResourceClass()));
 		}
 		else {
 			resources = ((ResourceRepository) resourceRepository).findAll(ids, toQueryParams(queryAdapter));

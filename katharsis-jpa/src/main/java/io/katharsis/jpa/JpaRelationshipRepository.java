@@ -182,8 +182,7 @@ public class JpaRelationshipRepository<T, I extends Serializable, D, J extends S
 
 	@Override
 	public Class<T> getSourceResourceClass() {
-		// TODO Auto-generated method stub
-		return null;
+		return entityClass;
 	}
 
 	@Override

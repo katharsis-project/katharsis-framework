@@ -8,6 +8,7 @@ import javax.persistence.OptimisticLockException;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import io.katharsis.client.QuerySpecRelationshipRepositoryStub;
@@ -45,7 +46,22 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 	}
 
 	@Test
-	public void testRelationRepoFindOneTarget() throws InstantiationException, IllegalAccessException {
+	public void testFindOneTargetWithNullResult() throws InstantiationException, IllegalAccessException {
+		TestEntity test = new TestEntity();
+		test.setId(2L);
+		test.setStringValue("test");
+		testRepo.save(test);
+
+		QuerySpecRelationshipRepositoryStub<TestEntity, Serializable, RelatedEntity, Serializable> relRepo = client
+				.getQuerySpecRepository(TestEntity.class, RelatedEntity.class);
+
+		RelatedEntity related = relRepo.findOneTarget(test.getId(), TestEntity.ATTR_oneRelatedValue,
+				new QuerySpec(RelatedEntity.class));
+		Assert.assertNull(related);
+	}
+
+	@Test
+	public void testFindOneTarget() throws InstantiationException, IllegalAccessException {
 		TestEntity test = addTestWithOneRelation();
 
 		QuerySpecRelationshipRepositoryStub<TestEntity, Serializable, RelatedEntity, Serializable> relRepo = client
@@ -54,7 +70,57 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 		RelatedEntity related = relRepo.findOneTarget(test.getId(), TestEntity.ATTR_oneRelatedValue,
 				new QuerySpec(RelatedEntity.class));
 		Assert.assertNotNull(related);
+	}
 
+	@Test
+	public void testAddManyRelationWithRelationshipRepository() throws InstantiationException, IllegalAccessException {
+		testAddManyRelation(false);
+	}
+
+	@Test
+	@Ignore
+	// TODO bidirectionality not properly handled, see
+	// ResourceUpsert should make use of relationship repositories #130
+	public void testAddManyRelationWithResourceSave() throws InstantiationException, IllegalAccessException {
+		testAddManyRelation(true);
+	}
+
+	private void testAddManyRelation(boolean onSave) throws InstantiationException, IllegalAccessException {
+		QuerySpecResourceRepositoryStub<RelatedEntity, Long> relatedRepo = client.getQuerySpecRepository(RelatedEntity.class);
+		RelatedEntity related1 = new RelatedEntity();
+		related1.setId(1L);
+		related1.setStringValue("related1");
+		relatedRepo.save(related1);
+
+		RelatedEntity related2 = new RelatedEntity();
+		related2.setId(2L);
+		related2.setStringValue("related2");
+		relatedRepo.save(related2);
+
+		TestEntity test = new TestEntity();
+		test.setId(3L);
+		test.setStringValue("test");
+		if (onSave) {
+			test.setManyRelatedValues(Arrays.asList(related1, related2));
+		}
+		testRepo.save(test, includeManyRelatedValueParams());
+
+		// query relation
+		QuerySpecRelationshipRepositoryStub<TestEntity, Long, RelatedEntity, Long> relRepo = client
+				.getQuerySpecRepository(TestEntity.class, RelatedEntity.class);
+		if (!onSave) {
+			relRepo.addRelations(test, Arrays.asList(1L, 2L), TestEntity.ATTR_manyRelatedValues);
+		}
+		List<RelatedEntity> related = relRepo.findManyTargets(test.getId(), TestEntity.ATTR_manyRelatedValues,
+				new QuerySpec(RelatedEntity.class));
+		Assert.assertEquals(2, related.size());
+
+		// query relation in opposite direction
+		QuerySpecRelationshipRepositoryStub<RelatedEntity, Serializable, TestEntity, Serializable> backRelRepo = client
+				.getQuerySpecRepository(RelatedEntity.class, TestEntity.class);
+		test = backRelRepo.findOneTarget(2L, RelatedEntity.ATTR_testEntity, new QuerySpec(TestEntity.class));
+		Assert.assertNotNull(test);
+		Assert.assertEquals(3L, test.getId().longValue());
 	}
 
 	@Test
@@ -157,6 +223,12 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 	private QuerySpec includeOneRelatedValueParams() {
 		QuerySpec querySpec = new QuerySpec(TestEntity.class);
 		querySpec.includeRelation(Arrays.asList(TestEntity.ATTR_oneRelatedValue));
+		return querySpec;
+	}
+
+	private QuerySpec includeManyRelatedValueParams() {
+		QuerySpec querySpec = new QuerySpec(TestEntity.class);
+		querySpec.includeRelation(Arrays.asList(TestEntity.ATTR_manyRelatedValues));
 		return querySpec;
 	}
 

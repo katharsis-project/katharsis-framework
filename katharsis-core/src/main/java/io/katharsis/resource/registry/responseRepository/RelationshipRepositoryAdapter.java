@@ -82,7 +82,9 @@ public class RelationshipRepositoryAdapter<T, T_ID extends Serializable, D, D_ID
             resource = ((AnnotatedRelationshipRepositoryAdapter) relationshipRepository)
                 .findOneTarget(sourceId, fieldName, toQueryParams(queryAdapter));
         } else if(relationshipRepository instanceof QuerySpecRelationshipRepository){
-        	resource = ((QuerySpecRelationshipRepository)relationshipRepository).findOneTarget(sourceId, fieldName, toQuerySpec(queryAdapter));
+        	QuerySpecRelationshipRepository querySpecRepository = (QuerySpecRelationshipRepository) relationshipRepository;
+        	Class<?> targetResourceClass = querySpecRepository.getTargetResourceClass();
+        	resource = querySpecRepository.findOneTarget(sourceId, fieldName, toQuerySpec(queryAdapter, targetResourceClass));
         } else {
             resource = ((RelationshipRepository) relationshipRepository)
                 .findOneTarget(sourceId, fieldName, toQueryParams(queryAdapter));
@@ -96,7 +98,9 @@ public class RelationshipRepositoryAdapter<T, T_ID extends Serializable, D, D_ID
             resources = ((AnnotatedRelationshipRepositoryAdapter) relationshipRepository)
                 .findManyTargets(sourceId, fieldName, toQueryParams(queryAdapter));
         }else if(relationshipRepository instanceof QuerySpecRelationshipRepository){
-            	resources = ((QuerySpecRelationshipRepository)relationshipRepository).findManyTargets(sourceId, fieldName, toQuerySpec(queryAdapter));
+        	QuerySpecRelationshipRepository querySpecRepository = (QuerySpecRelationshipRepository) relationshipRepository;
+        	Class<?> targetResourceClass = querySpecRepository.getTargetResourceClass();
+            	resources = querySpecRepository.findManyTargets(sourceId, fieldName, toQuerySpec(queryAdapter, targetResourceClass));
         } else {
             resources = ((RelationshipRepository) relationshipRepository)
                 .findManyTargets(sourceId, fieldName, toQueryParams(queryAdapter));

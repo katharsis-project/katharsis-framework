@@ -23,32 +23,34 @@ class QuerydslUtils {
 			String fieldName = firstToLower(entityClass.getSimpleName());
 			Field field = queryClass.getField(fieldName);
 			return (EntityPath<T>) field.get(entityClass);
-		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+		}
+		catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
 			throw new IllegalStateException("failed to access query class " + queryClass.getName(), e);
 		}
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T> Expression<T> get(Expression<?> entityPath, String name) {
+	public static <T> Expression<T> get(Expression<?> path, String name) {
 		try {
-			Class<?> clazz = entityPath.getClass();
+			Class<?> clazz = path.getClass();
 			Field field = clazz.getField(name);
-			return (Expression<T>) field.get(entityPath);
-		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
-			throw new IllegalStateException("failed get field " + entityPath + "." + name, e);
+			return (Expression<T>) field.get(path);
+		}
+		catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+			throw new IllegalStateException("failed get field " + path + "." + name, e);
 		}
 	}
 
 	public static com.querydsl.core.JoinType convertJoinType(JoinType joinType) {
 		switch (joinType) {
-		case INNER:
-			return com.querydsl.core.JoinType.JOIN;
-		case LEFT:
-			return com.querydsl.core.JoinType.LEFTJOIN;
-		case RIGHT:
-			return com.querydsl.core.JoinType.RIGHTJOIN;
-		default:
-			throw new IllegalStateException(joinType.toString() + " unknown");
+			case INNER:
+				return com.querydsl.core.JoinType.JOIN;
+			case LEFT:
+				return com.querydsl.core.JoinType.LEFTJOIN;
+			case RIGHT:
+				return com.querydsl.core.JoinType.RIGHTJOIN;
+			default:
+				throw new IllegalStateException(joinType.toString() + " unknown");
 		}
 	}
 
@@ -70,7 +72,8 @@ class QuerydslUtils {
 		String queryClassName = entityClass.getPackage().getName() + ".Q" + entityClass.getSimpleName();
 		try {
 			return entityClass.getClassLoader().loadClass(queryClassName);
-		} catch (ClassNotFoundException | SecurityException | IllegalArgumentException e) {
+		}
+		catch (ClassNotFoundException | SecurityException | IllegalArgumentException e) {
 			throw new IllegalStateException("unable to find query class " + queryClassName, e);
 		}
 	}

@@ -71,7 +71,12 @@ public abstract class AbstractJpaQueryImpl<T, B extends JpaQueryBackend<?, ?, ?,
 
 		MetaDataObject parentMeta = metaLookup.getMeta(entityClass).asDataObject();
 		MetaAttribute attrMeta = parentMeta.getAttribute(attrName);
-		this.meta = attrMeta.getType().asEntity();
+		if(attrMeta.getType().isCollection()) {
+			this.meta = attrMeta.getType().asCollection().getElementType().asEntity();
+		}
+		else {
+			this.meta = attrMeta.getType().asEntity();
+		}
 		this.clazz = (Class<T>) meta.getImplementationClass();
 
 		this.parentEntityClass = entityClass;

@@ -281,7 +281,7 @@ public class JpaCriteriaQueryBackend<T> implements JpaQueryBackend<From<?, ?>, O
 	}
 
 	@Override
-	public Class<?> getJavaType(Expression<?> currentCriteriaPath) {
+	public Class<?> getJavaElementType(Expression<?> currentCriteriaPath) {
 		return currentCriteriaPath.getJavaType();
 	}
 
