@@ -33,8 +33,7 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable> extends Respo
 			resource = ((AnnotatedResourceRepositoryAdapter) resourceRepository).findOne(id, queryAdapter);
 		}
 		else if (resourceRepository instanceof QuerySpecResourceRepository) {
-			resource = ((QuerySpecResourceRepository) resourceRepository).findOne(id,
-					toQuerySpec(queryAdapter, resourceInformation.getResourceClass()));
+			resource = ((QuerySpecResourceRepository) resourceRepository).findOne(id, toQuerySpec(queryAdapter, resourceInformation.getResourceClass()));
 		}
 		else {
 			resource = ((ResourceRepository) resourceRepository).findOne(id, toQueryParams(queryAdapter));

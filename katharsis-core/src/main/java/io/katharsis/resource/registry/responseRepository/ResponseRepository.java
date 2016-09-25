@@ -91,22 +91,22 @@ public abstract class ResponseRepository {
 
 	protected abstract Class<?> getResourceClass(Object repository);
 
-	protected QuerySpec toQuerySpec(QueryAdapter queryAdapter, Class<?> targetResourceClass) {
-		if (queryAdapter == null)
-			return null;
-		if (queryAdapter instanceof QuerySpecAdapter) {
-			return ((QuerySpecAdapter) queryAdapter).getQuerySpec();
-		}
-		QueryParams queryParams = toQueryParams(queryAdapter);
-
-		DefaultQuerySpecConverter converter = new DefaultQuerySpecConverter(resourceRegistry);
-
-		return converter.fromParams(targetResourceClass, queryParams);
-	}
-
 	protected QueryParams toQueryParams(QueryAdapter queryAdapter) {
 		if (queryAdapter == null)
 			return null;
 		return ((QueryParamsAdapter) queryAdapter).getQueryParams();
+	}
+	
+	protected QuerySpec toQuerySpec(QueryAdapter queryAdapter, Class<?> targetResourceClass) {
+	 	if(queryAdapter == null)
+    		return null;
+		if(queryAdapter instanceof QuerySpecAdapter){
+			return ((QuerySpecAdapter)queryAdapter).getQuerySpec();
+		}
+		QueryParams queryParams = toQueryParams(queryAdapter);
+    	
+    	DefaultQuerySpecConverter converter = new DefaultQuerySpecConverter(resourceRegistry);
+    	
+    	return converter.fromParams(targetResourceClass, queryParams);
 	}
 }
