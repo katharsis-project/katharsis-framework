@@ -16,7 +16,6 @@ import io.katharsis.errorhandling.mapper.ExceptionMapperLookup;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryTest.IllegalStateExceptionMapper;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryTest.SomeIllegalStateExceptionMapper;
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
-import io.katharsis.queryspec.FilterOperator;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.QuerySpecRelationshipRepository;
 import io.katharsis.resource.annotations.JsonApiId;
@@ -62,6 +61,14 @@ public class ModuleTest {
 		moduleRegistry.addModule(new CoreModule("io.katharsis.module.mock", new ResourceFieldNameTransformer()));
 		moduleRegistry.addModule(testModule);
 		moduleRegistry.init(new ObjectMapper(), resourceRegistry);
+
+		Assert.assertEquals(resourceRegistry, moduleRegistry.getResourceRegistry());
+	}
+
+	@Test(expected = IllegalStateException.class)
+	public void testNotInitialized() {
+		moduleRegistry = new ModuleRegistry();
+		moduleRegistry.getResourceRegistry();
 	}
 
 	@Test

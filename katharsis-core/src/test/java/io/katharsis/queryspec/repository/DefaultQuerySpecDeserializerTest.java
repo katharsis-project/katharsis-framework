@@ -39,6 +39,15 @@ public class DefaultQuerySpecDeserializerTest extends AbstractQuerySpecTest {
 	}
 
 	@Test
+	public void operations() {
+		deserializer.getSupportedOperators().clear();
+		deserializer.setDefaultOperator(FilterOperator.LIKE);
+		deserializer.addSupportedOperator(FilterOperator.LIKE);
+		Assert.assertEquals(FilterOperator.LIKE, deserializer.getDefaultOperator());
+		Assert.assertEquals(1, deserializer.getSupportedOperators().size());
+	}
+
+	@Test
 	public void testFindAll() throws InstantiationException, IllegalAccessException {
 		Map<String, Set<String>> params = new HashMap<>();
 
