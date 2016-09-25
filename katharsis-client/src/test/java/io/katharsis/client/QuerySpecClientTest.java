@@ -9,7 +9,9 @@ import org.junit.Test;
 
 import io.katharsis.client.mock.models.Project;
 import io.katharsis.client.mock.models.Task;
+import io.katharsis.queryspec.Direction;
 import io.katharsis.queryspec.QuerySpec;
+import io.katharsis.queryspec.SortSpec;
 
 public class QuerySpecClientTest extends AbstractClientTest {
 
@@ -26,6 +28,45 @@ public class QuerySpecClientTest extends AbstractClientTest {
 		taskRepo = client.getQuerySpecRepository(Task.class);
 		projectRepo = client.getQuerySpecRepository(Project.class);
 		relRepo = client.getQuerySpecRepository(Task.class, Project.class);
+	}
+
+	@Override
+	protected TestApplication configure() {
+		return new TestApplication(true);
+	}
+
+	@Test
+	public void testSortAsc() {
+		for (int i = 0; i < 5; i++) {
+			Task task = new Task();
+			task.setId(Long.valueOf(i));
+			task.setName("task" + i);
+			taskRepo.save(task);
+		}
+		QuerySpec querySpec = new QuerySpec(Task.class);
+		querySpec.addSort(new SortSpec(Arrays.asList("name"), Direction.ASC));
+		List<Task> tasks = taskRepo.findAll(querySpec);
+		Assert.assertEquals(5, tasks.size());
+		for (int i = 0; i < 5; i++) {
+			Assert.assertEquals("task" + i, tasks.get(i).getName());
+		}
+	}
+
+	@Test
+	public void testSortDesc() {
+		for (int i = 0; i < 5; i++) {
+			Task task = new Task();
+			task.setId(Long.valueOf(i));
+			task.setName("task" + i);
+			taskRepo.save(task);
+		}
+		QuerySpec querySpec = new QuerySpec(Task.class);
+		querySpec.addSort(new SortSpec(Arrays.asList("name"), Direction.DESC));
+		List<Task> tasks = taskRepo.findAll(querySpec);
+		Assert.assertEquals(5, tasks.size());
+		for (int i = 0; i < 5; i++) {
+			Assert.assertEquals("task" + i, tasks.get(4 - i).getName());
+		}
 	}
 
 	@Test

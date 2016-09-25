@@ -1,13 +1,10 @@
 package io.katharsis.queryspec.repository;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import io.katharsis.queryParams.QueryParams;
-import io.katharsis.queryspec.FilterOperator;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.QuerySpecResourceRepository;
 import io.katharsis.repository.LinksRepository;
@@ -66,22 +63,6 @@ public class TestQuerySpecResourceRepository implements QuerySpecResourceReposit
 				iterator.remove();
 			}
 		}
-	}
-
-	@Override
-	public Set<FilterOperator> getSupportedOperators() {
-		Set<FilterOperator> set = new HashSet<FilterOperator>();
-		set.add(FilterOperator.EQ);
-		set.add(FilterOperator.LE);
-		set.add(FilterOperator.LT);
-		set.add(FilterOperator.GE);
-		set.add(FilterOperator.GT);
-		return set;
-	}
-
-	@Override
-	public FilterOperator getDefaultOperator() {
-		return FilterOperator.EQ;
 	}
 
 	@Override

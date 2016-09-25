@@ -74,7 +74,7 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
         JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath("/tasks");
 
         // WHEN
-        String result = sut.writeValueAsString(new Container(task, new ResourceResponseContext(null, jsonPath, queryParams)));
+        String result = sut.writeValueAsString(new Container(task, new ResourceResponseContext(null, jsonPath, new QueryParamsAdapter(queryParams))));
 
         // THEN
         assertThatJson(result).node("id").isEqualTo("\"1\"");
@@ -297,7 +297,7 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
 
         // WHEN
         String result = sut
-                .writeValueAsString(new ResourceResponseContext(buildResponse(task), new ResourcePath("projects"), queryParams));
+                .writeValueAsString(new ResourceResponseContext(buildResponse(task), new ResourcePath("projects"), new QueryParamsAdapter(queryParams)));
 
         // THEN
         assertThatJson(result).node("data").isPresent();
@@ -328,7 +328,7 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
 
         // WHEN
         String result = sut
-                .writeValueAsString(new ResourceResponseContext(buildResponse(project), new FieldPath("project"), queryParams));
+                .writeValueAsString(new ResourceResponseContext(buildResponse(project), new FieldPath("project"), new QueryParamsAdapter(queryParams)));
 
         // THEN
         assertThatJson(result).node("data").isPresent();
@@ -356,7 +356,7 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
 
         // WHEN
         String result = sut
-                .writeValueAsString(new ResourceResponseContext(buildResponse(project), new FieldPath("project"), queryParams));
+                .writeValueAsString(new ResourceResponseContext(buildResponse(project), new FieldPath("project"), new QueryParamsAdapter(queryParams)));
 
         // THEN
         assertThatJson(result).node("data").isPresent();
@@ -384,7 +384,7 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
 
         // WHEN
         String result = sut
-                .writeValueAsString(new ResourceResponseContext(buildResponse(project), new FieldPath("project"), new QueryParams()));
+                .writeValueAsString(new ResourceResponseContext(buildResponse(project), new FieldPath("project"), new QueryParamsAdapter(new QueryParams())));
 
         // THEN
         assertThatJson(result).node("data").isPresent();
@@ -411,7 +411,7 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
 
         // WHEN
         String result = sut
-                .writeValueAsString(new ResourceResponseContext(buildResponse(projectEager), new FieldPath("project"), new QueryParams()));
+                .writeValueAsString(new ResourceResponseContext(buildResponse(projectEager), new FieldPath("project"), new QueryParamsAdapter(new QueryParams())));
 
         // THEN
         assertThatJson(result).node("data").isPresent();

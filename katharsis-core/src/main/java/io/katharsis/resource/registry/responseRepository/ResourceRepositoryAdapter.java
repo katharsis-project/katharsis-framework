@@ -1,9 +1,7 @@
 package io.katharsis.resource.registry.responseRepository;
 
 import java.io.Serializable;
-import java.util.Set;
 
-import io.katharsis.queryspec.FilterOperator;
 import io.katharsis.queryspec.QuerySpecResourceRepository;
 import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.repository.ResourceRepository;
@@ -32,10 +30,11 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable> extends Respo
 	public JsonApiResponse findOne(ID id, QueryAdapter queryAdapter) {
 		Object resource;
 		if (isAnnotated) {
-			resource = ((AnnotatedResourceRepositoryAdapter) resourceRepository).findOne(id, toQueryParams(queryAdapter));
+			resource = ((AnnotatedResourceRepositoryAdapter) resourceRepository).findOne(id, queryAdapter);
 		}
 		else if (resourceRepository instanceof QuerySpecResourceRepository) {
-			resource = ((QuerySpecResourceRepository) resourceRepository).findOne(id, toQuerySpec(queryAdapter, resourceInformation.getResourceClass()));
+			resource = ((QuerySpecResourceRepository) resourceRepository).findOne(id,
+					toQuerySpec(queryAdapter, resourceInformation.getResourceClass()));
 		}
 		else {
 			resource = ((ResourceRepository) resourceRepository).findOne(id, toQueryParams(queryAdapter));
@@ -46,10 +45,11 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable> extends Respo
 	public JsonApiResponse findAll(QueryAdapter queryAdapter) {
 		Object resources;
 		if (isAnnotated) {
-			resources = ((AnnotatedResourceRepositoryAdapter) resourceRepository).findAll(toQueryParams(queryAdapter));
+			resources = ((AnnotatedResourceRepositoryAdapter) resourceRepository).findAll(queryAdapter);
 		}
 		else if (resourceRepository instanceof QuerySpecResourceRepository) {
-			resources = ((QuerySpecResourceRepository) resourceRepository).findAll(toQuerySpec(queryAdapter, resourceInformation.getResourceClass()));
+			resources = ((QuerySpecResourceRepository) resourceRepository)
+					.findAll(toQuerySpec(queryAdapter, resourceInformation.getResourceClass()));
 		}
 		else {
 			resources = ((ResourceRepository) resourceRepository).findAll(toQueryParams(queryAdapter));
@@ -60,10 +60,11 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable> extends Respo
 	public JsonApiResponse findAll(Iterable ids, QueryAdapter queryAdapter) {
 		Object resources;
 		if (isAnnotated) {
-			resources = ((AnnotatedResourceRepositoryAdapter) resourceRepository).findAll(ids, toQueryParams(queryAdapter));
+			resources = ((AnnotatedResourceRepositoryAdapter) resourceRepository).findAll(ids, queryAdapter);
 		}
 		else if (resourceRepository instanceof QuerySpecResourceRepository) {
-			resources = ((QuerySpecResourceRepository) resourceRepository).findAll(ids, toQuerySpec(queryAdapter, resourceInformation.getResourceClass()));
+			resources = ((QuerySpecResourceRepository) resourceRepository).findAll(ids,
+					toQuerySpec(queryAdapter, resourceInformation.getResourceClass()));
 		}
 		else {
 			resources = ((ResourceRepository) resourceRepository).findAll(ids, toQueryParams(queryAdapter));
@@ -87,7 +88,7 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable> extends Respo
 
 	public JsonApiResponse delete(ID id, QueryAdapter queryAdapter) {
 		if (isAnnotated) {
-			((AnnotatedResourceRepositoryAdapter) resourceRepository).delete(id, toQueryParams(queryAdapter));
+			((AnnotatedResourceRepositoryAdapter) resourceRepository).delete(id, queryAdapter);
 		}
 		else if (resourceRepository instanceof QuerySpecResourceRepository) {
 			((QuerySpecResourceRepository) resourceRepository).delete(id);
@@ -103,12 +104,7 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable> extends Respo
 	}
 
 	@Override
-	public FilterOperator getDefaultOperator() {
-		return ((QuerySpecResourceRepository<?, ?>) resourceRepository).getDefaultOperator();
-	}
-
-	@Override
-	public Set<FilterOperator> getSupportedOperators() {
-		return ((QuerySpecResourceRepository<?, ?>) resourceRepository).getSupportedOperators();
+	protected Class<?> getResourceClass(Object repository) {
+		return resourceInformation.getResourceClass();
 	}
 }

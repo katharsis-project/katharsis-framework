@@ -22,6 +22,9 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.katharsis.dispatcher.RequestDispatcher;
@@ -29,10 +32,7 @@ import io.katharsis.errorhandling.exception.KatharsisMappableException;
 import io.katharsis.errorhandling.exception.KatharsisMatchingException;
 import io.katharsis.errorhandling.mapper.KatharsisExceptionMapper;
 import io.katharsis.jackson.exception.JsonDeserializationException;
-import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
-import io.katharsis.queryspec.internal.QueryAdapter;
-import io.katharsis.queryspec.internal.QueryParamsAdapter;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathBuilder;
@@ -60,9 +60,10 @@ import io.katharsis.rs.type.JsonApiMediaType;
  */
 @PreMatching
 public class KatharsisFilter implements ContainerRequestFilter {
+	
+	private Logger logger = LoggerFactory.getLogger(getClass());
 
     private ObjectMapper objectMapper;
-    private QueryParamsBuilder queryParamsBuilder;
     private ResourceRegistry resourceRegistry;
     private RequestDispatcher requestDispatcher;
     private RequestContextParameterProviderRegistry parameterProviderRegistry;
@@ -73,7 +74,6 @@ public class KatharsisFilter implements ContainerRequestFilter {
                            ResourceRegistry resourceRegistry, RequestDispatcher
             requestDispatcher, RequestContextParameterProviderRegistry parameterProviderRegistry, String webPathPrefix) {
         this.objectMapper = objectMapper;
-        this.queryParamsBuilder = queryParamsBuilder;
         this.resourceRegistry = resourceRegistry;
         this.requestDispatcher = requestDispatcher;
         this.parameterProviderRegistry = parameterProviderRegistry;
@@ -109,8 +109,10 @@ public class KatharsisFilter implements ContainerRequestFilter {
         try {
             dispatchRequest(requestContext);
         } catch (WebApplicationException e) {
+        	logger.error("failed to dispatch request", e);
             throw e;
         } catch (Exception e) {
+        	logger.error("failed to dispatch request", e);
             throw new WebApplicationException(e);
         }
     }
@@ -124,18 +126,20 @@ public class KatharsisFilter implements ContainerRequestFilter {
             String path = buildPath(uriInfo);
             ResourceRegistry newRegistry = new ResourceRegistry(resourceRegistry.getResources(), new UriInfoServiceUrlProvider(uriInfo));
             JsonPath jsonPath = new PathBuilder(newRegistry).buildPath(path);
-
-            QueryAdapter queryAdapter = createQueryAdapter(uriInfo);
+            
+            Map<String, Set<String>> parameters = getParameters(uriInfo);
 
             String method = requestContext.getMethod();
             RequestBody requestBody = inputStreamToBody(requestContext.getEntityStream());
 
             JaxRsParameterProvider parameterProvider = new JaxRsParameterProvider(objectMapper, requestContext, parameterProviderRegistry);
             katharsisResponse = requestDispatcher
-                .dispatchRequest(jsonPath, method, queryAdapter, parameterProvider, requestBody);
+                .dispatchRequest(jsonPath, method, parameters, parameterProvider, requestBody);
         } catch (KatharsisMappableException e) {
+        	logger.warn("failed to process request", e);
             katharsisResponse = new KatharsisExceptionMapper().toErrorResponse(e);
         } catch (KatharsisMatchingException e) {
+        	logger.warn("failed to process request", e);
             passToMethodMatcher = true;
         } finally {
             if (!passToMethodMatcher) {
@@ -144,7 +148,17 @@ public class KatharsisFilter implements ContainerRequestFilter {
         }
     }
 
-    private String buildPath(UriInfo uriInfo) {
+    private Map<String, Set<String>> getParameters(UriInfo uriInfo) {
+    	 MultivaluedMap<String, String> queryParametersMultiMap = uriInfo.getQueryParameters();
+         Map<String, Set<String>> queryParameters = new HashMap<>();
+
+         for (Map.Entry<String, List<String>> queryEntry : queryParametersMultiMap.entrySet()) {
+             queryParameters.put(queryEntry.getKey(), new LinkedHashSet<>(queryEntry.getValue()));
+         }
+         return queryParameters;
+	}
+
+	private String buildPath(UriInfo uriInfo) {
         String basePath = uriInfo.getPath();
         if (webPathPrefix != null && basePath.startsWith(webPathPrefix)) {
             return basePath.substring(webPathPrefix.length());
@@ -169,18 +183,9 @@ public class KatharsisFilter implements ContainerRequestFilter {
         }
         requestContext.abortWith(response);
     }
+    
 
-    private QueryAdapter createQueryAdapter(UriInfo uriInfo) {
-        MultivaluedMap<String, String> queryParametersMultiMap = uriInfo.getQueryParameters();
-        Map<String, Set<String>> queryParameters = new HashMap<>();
-
-        for (Map.Entry<String, List<String>> queryEntry : queryParametersMultiMap.entrySet()) {
-            queryParameters.put(queryEntry.getKey(), new LinkedHashSet<>(queryEntry.getValue()));
-        }
-
-        return new QueryParamsAdapter(queryParamsBuilder.buildQueryParams(queryParameters));
-    }
-
+    
     public RequestBody inputStreamToBody(InputStream is) throws IOException {
         if (is == null) {
             return null;

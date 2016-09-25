@@ -23,7 +23,6 @@ import io.katharsis.jpa.internal.query.JoinRegistry;
 import io.katharsis.jpa.internal.query.MetaVirtualAttribute;
 import io.katharsis.jpa.internal.query.QueryUtil;
 import io.katharsis.jpa.internal.query.backend.JpaQueryBackend;
-import io.katharsis.jpa.query.JpaFilterOperators;
 import io.katharsis.jpa.query.criteria.JpaCriteriaExpressionFactory;
 import io.katharsis.queryspec.Direction;
 import io.katharsis.queryspec.FilterOperator;
@@ -31,16 +30,20 @@ import io.katharsis.queryspec.FilterOperator;
 public class JpaCriteriaQueryBackend<T> implements JpaQueryBackend<From<?, ?>, Order, Predicate, Expression<?>> {
 
 	private CriteriaQuery<T> criteriaQuery;
+
 	private JoinRegistry<From<?, ?>, Expression<?>> joinHelper;
+
 	protected CriteriaBuilder cb;
+
 	private From<T, T> root;
+
 	private Root<?> parentFrom;
 
 	private JpaCriteriaQueryImpl<T> queryImpl;
 
 	@SuppressWarnings("unchecked")
-	public JpaCriteriaQueryBackend(JpaCriteriaQueryImpl<T> query, EntityManager em, Class<T> clazz,
-			Class<?> parentEntityClass, MetaAttribute parentAttr) {
+	public JpaCriteriaQueryBackend(JpaCriteriaQueryImpl<T> query, EntityManager em, Class<T> clazz, Class<?> parentEntityClass,
+			MetaAttribute parentAttr) {
 		this.queryImpl = query;
 
 		cb = em.getCriteriaBuilder();
@@ -52,7 +55,8 @@ public class JpaCriteriaQueryBackend<T> implements JpaQueryBackend<From<?, ?>, O
 			joinHelper = new JoinRegistry<>(this, query);
 			joinHelper.putJoin(new MetaAttributePath(), root);
 			criteriaQuery.select(root);
-		} else {
+		}
+		else {
 			root = criteriaQuery.from(clazz);
 			joinHelper = new JoinRegistry<>(this, query);
 			joinHelper.putJoin(new MetaAttributePath(), root);
@@ -70,7 +74,8 @@ public class JpaCriteriaQueryBackend<T> implements JpaQueryBackend<From<?, ?>, O
 		Predicate restriction = criteriaQuery.getRestriction();
 		if (restriction != null) {
 			criteriaQuery.where(restriction, predicate);
-		} else {
+		}
+		else {
 			criteriaQuery.where(predicate);
 		}
 	}
@@ -94,7 +99,8 @@ public class JpaCriteriaQueryBackend<T> implements JpaQueryBackend<From<?, ?>, O
 	public Order newSort(Expression<?> expr, Direction dir) {
 		if (dir == Direction.ASC) {
 			return cb.asc(expr);
-		} else {
+		}
+		else {
 			return cb.desc(expr);
 		}
 	}
@@ -132,7 +138,8 @@ public class JpaCriteriaQueryBackend<T> implements JpaQueryBackend<From<?, ?>, O
 		if (selection != null) {
 			if (selection.isCompoundSelection()) {
 				newSelection.addAll(selection.getCompoundSelectionItems());
-			} else {
+			}
+			else {
 				newSelection.add(selection);
 			}
 		}
@@ -172,8 +179,7 @@ public class JpaCriteriaQueryBackend<T> implements JpaQueryBackend<From<?, ?>, O
 
 		expression = handleConversions(expression, operator);
 
-		if (expression instanceof Predicate && expression.getJavaType() == Boolean.class
-				&& operator == FilterOperator.EQ) {
+		if (expression instanceof Predicate && expression.getJavaType() == Boolean.class && operator == FilterOperator.EQ) {
 			return handleBoolean(expression, value);
 		}
 
@@ -185,7 +191,8 @@ public class JpaCriteriaQueryBackend<T> implements JpaQueryBackend<From<?, ?>, O
 	private Predicate handleBoolean(Expression expression, Object value) {
 		if (value.equals(Boolean.TRUE)) {
 			return (Predicate) expression;
-		} else {
+		}
+		else {
 			return cb.not(expression);
 		}
 	}
@@ -194,21 +201,23 @@ public class JpaCriteriaQueryBackend<T> implements JpaQueryBackend<From<?, ?>, O
 	private Predicate handle(Expression expression, FilterOperator operator, Object value) {
 		if (operator == FilterOperator.EQ || operator == FilterOperator.NEQ) {
 			return handleEquals(expression, operator, value);
-		} else if (operator == JpaFilterOperators.LIKE) {
-			return cb.like(expression, value.toString());
-		} else if (operator == JpaFilterOperators.NOT_LIKE) {
-			return cb.not(cb.like(expression, value.toString()));
-		} else if (operator == JpaFilterOperators.ILIKE) {
+		}
+		else if (operator ==FilterOperator.LIKE) {
 			return ilike(expression, value.toString());
-		} else if (operator == FilterOperator.GT) {
+		}
+		else if (operator == FilterOperator.GT) {
 			return cb.greaterThan(expression, (Comparable) value);
-		} else if (operator == FilterOperator.LT) {
+		}
+		else if (operator == FilterOperator.LT) {
 			return cb.lessThan(expression, (Comparable) value);
-		} else if (operator == FilterOperator.GE) {
+		}
+		else if (operator == FilterOperator.GE) {
 			return cb.greaterThanOrEqualTo(expression, (Comparable) value);
-		} else if (operator == FilterOperator.LE) {
+		}
+		else if (operator == FilterOperator.LE) {
 			return cb.lessThanOrEqualTo(expression, (Comparable) value);
-		} else {
+		}
+		else {
 			throw new IllegalStateException("unexpected operator " + operator);
 		}
 
@@ -219,13 +228,16 @@ public class JpaCriteriaQueryBackend<T> implements JpaQueryBackend<From<?, ?>, O
 		if (value instanceof List) {
 			Predicate p = expression.in(((List<?>) value).toArray());
 			return negateIfNeeded(p, operator);
-		} else if (Collection.class.isAssignableFrom(expression.getJavaType())) {
+		}
+		else if (Collection.class.isAssignableFrom(expression.getJavaType())) {
 			Predicate p = cb.literal(value).in(expression);
 			return negateIfNeeded(p, operator);
-		} else if (expression instanceof MapJoin) {
+		}
+		else if (expression instanceof MapJoin) {
 			Predicate p = cb.literal(value).in(((MapJoin) expression).value());
 			return negateIfNeeded(p, operator);
-		} else if (value == null) {
+		}
+		else if (value == null) {
 			return negateIfNeeded(cb.isNull(expression), operator);
 		}
 		return negateIfNeeded(cb.equal(expression, value), operator);
@@ -233,10 +245,10 @@ public class JpaCriteriaQueryBackend<T> implements JpaQueryBackend<From<?, ?>, O
 
 	private Expression<?> handleConversions(Expression<?> expression, FilterOperator operator) {
 		// convert to String for LIKE operators
-		if (expression.getJavaType() != String.class
-				&& (operator == JpaFilterOperators.LIKE || operator == JpaFilterOperators.ILIKE)) {
+		if (expression.getJavaType() != String.class && (operator == FilterOperator.LIKE)) {
 			return expression.as(String.class);
-		} else {
+		}
+		else {
 			return expression;
 		}
 	}
@@ -290,12 +302,13 @@ public class JpaCriteriaQueryBackend<T> implements JpaQueryBackend<From<?, ?>, O
 	public Expression<?> getAttribute(Expression<?> currentCriteriaPath, MetaAttribute pathElement) {
 		if (pathElement instanceof MetaVirtualAttribute) {
 			MetaVirtualAttribute projAttr = (MetaVirtualAttribute) pathElement;
-			JpaCriteriaExpressionFactory expressionFactory = (JpaCriteriaExpressionFactory<?>) queryImpl
-					.getVirtualAttrs().get(projAttr);
+			JpaCriteriaExpressionFactory expressionFactory = (JpaCriteriaExpressionFactory<?>) queryImpl.getVirtualAttrs()
+					.get(projAttr);
 
 			From from = (From) currentCriteriaPath;
 			return expressionFactory.getExpression(from, getCriteriaQuery());
-		} else {
+		}
+		else {
 			return ((Path<?>) currentCriteriaPath).get(pathElement.getName());
 		}
 	}
@@ -312,11 +325,12 @@ public class JpaCriteriaQueryBackend<T> implements JpaQueryBackend<From<?, ?>, O
 		if (targetAttr instanceof MetaVirtualAttribute) {
 			MetaVirtualAttribute projAttr = (MetaVirtualAttribute) targetAttr;
 			@SuppressWarnings("rawtypes")
-			JpaCriteriaExpressionFactory expressionFactory = (JpaCriteriaExpressionFactory<?>) queryImpl
-					.getVirtualAttrs().get(projAttr);
+			JpaCriteriaExpressionFactory expressionFactory = (JpaCriteriaExpressionFactory<?>) queryImpl.getVirtualAttrs()
+					.get(projAttr);
 
 			return (From<?, ?>) expressionFactory.getExpression(parent, getCriteriaQuery());
-		} else {
+		}
+		else {
 			return parent.join(targetAttr.getName(), joinType);
 		}
 	}

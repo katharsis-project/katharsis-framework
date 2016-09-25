@@ -3,7 +3,6 @@ package io.katharsis.client.internal;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,7 +15,6 @@ import io.katharsis.client.KatharsisClient;
 import io.katharsis.client.QuerySpecRelationshipRepositoryStub;
 import io.katharsis.client.RelationshipRepositoryStub;
 import io.katharsis.queryParams.QueryParams;
-import io.katharsis.queryspec.FilterOperator;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.request.path.JsonPath;
@@ -54,28 +52,28 @@ public class RelationshipRepositoryStubImpl<T, TID extends Serializable, D, DID 
 	@Override
 	public void setRelation(T source, DID targetId, String fieldName) {
 		Serializable sourceId = getSourceId(source);
-		HttpUrl url = urlBuilder.buildUrl(sourceClass, sourceId, (QuerySpec)null, fieldName);
+		HttpUrl url = urlBuilder.buildUrl(sourceClass, sourceId, (QuerySpec) null, fieldName);
 		execute(url, "PATCH", targetId);
 	}
 
 	@Override
 	public void setRelations(T source, Iterable<DID> targetIds, String fieldName) {
 		Serializable sourceId = getSourceId(source);
-		HttpUrl url = urlBuilder.buildUrl(sourceClass, sourceId, (QuerySpec)null, fieldName);
+		HttpUrl url = urlBuilder.buildUrl(sourceClass, sourceId, (QuerySpec) null, fieldName);
 		execute(url, "PATCH", targetIds);
 	}
 
 	@Override
 	public void addRelations(T source, Iterable<DID> targetIds, String fieldName) {
 		Serializable sourceId = getSourceId(source);
-		HttpUrl url = urlBuilder.buildUrl(sourceClass, sourceId, (QuerySpec)null, fieldName);
+		HttpUrl url = urlBuilder.buildUrl(sourceClass, sourceId, (QuerySpec) null, fieldName);
 		execute(url, "POST", targetIds);
 	}
 
 	@Override
 	public void removeRelations(T source, Iterable<DID> targetIds, String fieldName) {
 		Serializable sourceId = getSourceId(source);
-		HttpUrl url = urlBuilder.buildUrl(sourceClass, sourceId, (QuerySpec)null, fieldName);
+		HttpUrl url = urlBuilder.buildUrl(sourceClass, sourceId, (QuerySpec) null, fieldName);
 		execute(url, "DELETE", targetIds);
 	}
 
@@ -130,7 +128,7 @@ public class RelationshipRepositoryStubImpl<T, TID extends Serializable, D, DID 
 		else {
 			Object targetId = targetIds;
 			response.setEntity(new LinkageContainer(targetId, targetClass, relationshipEntry));
-			context = new ResourceResponseContext(response, fieldPath, (QueryAdapter)null);
+			context = new ResourceResponseContext(response, fieldPath, (QueryAdapter) null);
 		}
 
 		ObjectMapper objectMapper = katharsis.getObjectMapper();
@@ -156,15 +154,4 @@ public class RelationshipRepositoryStubImpl<T, TID extends Serializable, D, DID 
 	public Class<D> getTargetResourceClass() {
 		return targetClass;
 	}
-
-	@Override
-	public Set<FilterOperator> getSupportedOperators() {
-		throw new UnsupportedOperationException("not available on client side");
-	}
-
-	@Override
-	public FilterOperator getDefaultOperator() {
-		throw new UnsupportedOperationException("not available on client side");
-	}
-
 }

@@ -9,10 +9,16 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.katharsis.dispatcher.controller.collection.CollectionGet;
 import io.katharsis.dispatcher.registry.ControllerRegistry;
@@ -20,9 +26,9 @@ import io.katharsis.errorhandling.ErrorResponse;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryTest;
 import io.katharsis.locator.SampleJsonServiceLocator;
 import io.katharsis.module.ModuleRegistry;
-import io.katharsis.queryParams.QueryParams;
+import io.katharsis.queryspec.DefaultQuerySpecDeserializer;
 import io.katharsis.queryspec.internal.QueryAdapter;
-import io.katharsis.queryspec.internal.QueryParamsAdapter;
+import io.katharsis.queryspec.internal.QuerySpecAdapterBuilder;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
@@ -57,6 +63,7 @@ public class RequestDispatcherTest {
             .build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, new ConstantServiceUrlProvider(ResourceRegistryTest.TEST_MODELS_URL));
         
         moduleRegistry = new ModuleRegistry();
+        moduleRegistry.init(new ObjectMapper(), resourceRegistry);
     }
     
     @Test
@@ -69,12 +76,14 @@ public class RequestDispatcherTest {
         ControllerRegistry controllerRegistry = new ControllerRegistry(null);
         CollectionGet collectionGet = mock(CollectionGet.class);
         controllerRegistry.addController(collectionGet);
-        RequestDispatcher sut = new RequestDispatcher(moduleRegistry, controllerRegistry, null);
+        QuerySpecAdapterBuilder queryAdapterBuilder = new QuerySpecAdapterBuilder(new DefaultQuerySpecDeserializer(), resourceRegistry);
+        RequestDispatcher sut = new RequestDispatcher(moduleRegistry, controllerRegistry, null, queryAdapterBuilder);
 
         // WHEN
         when(collectionGet.isAcceptable(any(JsonPath.class), eq(requestType))).thenCallRealMethod();
         JsonPath jsonPath = pathBuilder.buildPath(path);
-        sut.dispatchRequest(jsonPath, requestType, new QueryParamsAdapter(new QueryParams()), null, null);
+        Map<String, Set<String>> parameters = new HashMap<>();
+		sut.dispatchRequest(jsonPath, requestType, parameters, null, null);
 
         // THEN
         verify(collectionGet, times(1)).handle(any(JsonPath.class), any(QueryAdapter.class), any(RepositoryMethodParameterProvider.class), any(RequestBody.class));
@@ -87,8 +96,9 @@ public class RequestDispatcherTest {
         //noinspection unchecked
         when(controllerRegistry.getController(any(JsonPath.class), anyString())).thenThrow(IllegalStateException.class);
 
+        QuerySpecAdapterBuilder queryAdapterBuilder = new QuerySpecAdapterBuilder(new DefaultQuerySpecDeserializer(), resourceRegistry);
         RequestDispatcher requestDispatcher = new RequestDispatcher(moduleRegistry, controllerRegistry,
-            ExceptionMapperRegistryTest.exceptionMapperRegistry);
+            ExceptionMapperRegistryTest.exceptionMapperRegistry, queryAdapterBuilder);
 
         BaseResponseContext response = requestDispatcher.dispatchRequest(null, null, null, null, null);
         assertThat(response)
@@ -106,8 +116,9 @@ public class RequestDispatcherTest {
         //noinspection unchecked
         when(controllerRegistry.getController(any(JsonPath.class), anyString())).thenThrow(ArithmeticException.class);
 
+        QuerySpecAdapterBuilder queryAdapterBuilder = new QuerySpecAdapterBuilder(new DefaultQuerySpecDeserializer(), resourceRegistry);
         RequestDispatcher requestDispatcher = new RequestDispatcher(moduleRegistry, controllerRegistry,
-            ExceptionMapperRegistryTest.exceptionMapperRegistry);
+            ExceptionMapperRegistryTest.exceptionMapperRegistry, queryAdapterBuilder);
 
         expectedException.expect(ArithmeticException.class);
 

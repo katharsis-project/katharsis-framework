@@ -38,7 +38,6 @@ import io.katharsis.jpa.internal.query.MetaVirtualAttribute;
 import io.katharsis.jpa.internal.query.QueryUtil;
 import io.katharsis.jpa.internal.query.VirtualAttributeRegistry;
 import io.katharsis.jpa.internal.query.backend.JpaQueryBackend;
-import io.katharsis.jpa.query.JpaFilterOperators;
 import io.katharsis.jpa.query.querydsl.QuerydslExpressionFactory;
 import io.katharsis.queryspec.Direction;
 import io.katharsis.queryspec.FilterOperator;
@@ -196,13 +195,7 @@ public class QuerydslQueryBackend<T> implements JpaQueryBackend<Expression<?>, O
 		if (operator == FilterOperator.EQ || operator == FilterOperator.NEQ) {
 			return handleEquals(expression, operator, value);
 		}
-		else if (operator == JpaFilterOperators.LIKE) {
-			return ((StringExpression) expression).like(value.toString());
-		}
-		else if (operator == JpaFilterOperators.NOT_LIKE) {
-			return ((StringExpression) expression).like(value.toString()).not();
-		}
-		else if (operator == JpaFilterOperators.ILIKE) {
+		else if (operator == FilterOperator.LIKE) {
 			return ((StringExpression) expression).lower().like(value.toString().toLowerCase());
 		}
 		else if (operator == FilterOperator.GT) {
@@ -267,7 +260,7 @@ public class QuerydslQueryBackend<T> implements JpaQueryBackend<Expression<?>, O
 	private Expression<?> handleConversions(Expression<?> expression, FilterOperator operator) {
 		// convert to String for LIKE operators
 		if (expression.getType() != String.class
-				&& (operator == JpaFilterOperators.LIKE || operator == JpaFilterOperators.ILIKE)) {
+				&& (operator == FilterOperator.LIKE)) {
 			return ((LiteralExpression) expression).stringValue();
 		}
 		else {

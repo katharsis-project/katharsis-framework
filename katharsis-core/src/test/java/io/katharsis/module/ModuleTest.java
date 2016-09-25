@@ -296,16 +296,6 @@ public class ModuleTest {
 		public Class<TestResource2> getTargetResourceClass() {
 			return null;
 		}
-
-		@Override
-		public Set<FilterOperator> getSupportedOperators() {
-			return null;
-		}
-
-		@Override
-		public FilterOperator getDefaultOperator() {
-			return null;
-		}
 	}
 
 	class TestRepository2 extends TestRepository {

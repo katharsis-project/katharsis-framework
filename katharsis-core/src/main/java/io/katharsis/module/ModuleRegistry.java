@@ -55,6 +55,12 @@ public class ModuleRegistry {
 		modules.add(module);
 	}
 
+	public ResourceRegistry getResourceRegistry() {
+		if (resourceRegistry == null)
+			throw new IllegalStateException("resourceRegistry not yet available");
+		return resourceRegistry;
+	}
+
 	class ModuleContextImpl implements Module.ModuleContext {
 
 		@Override

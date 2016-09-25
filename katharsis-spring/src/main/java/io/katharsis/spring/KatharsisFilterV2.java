@@ -40,9 +40,6 @@ import io.katharsis.errorhandling.mapper.KatharsisExceptionMapper;
 import io.katharsis.invoker.JsonApiMediaType;
 import io.katharsis.invoker.KatharsisInvokerException;
 import io.katharsis.jackson.exception.JsonDeserializationException;
-import io.katharsis.queryParams.QueryParamsBuilder;
-import io.katharsis.queryspec.internal.QueryAdapter;
-import io.katharsis.queryspec.internal.QueryParamsAdapter;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
@@ -59,7 +56,6 @@ public class KatharsisFilterV2 implements Filter, BeanFactoryAware {
     private static final int BUFFER_SIZE = 4096;
 
     private ObjectMapper objectMapper;
-    private QueryParamsBuilder queryParamsBuilder;
     private ResourceRegistry resourceRegistry;
     private RequestDispatcher requestDispatcher;
     private String webPathPrefix;
@@ -68,11 +64,9 @@ public class KatharsisFilterV2 implements Filter, BeanFactoryAware {
 
 
     public KatharsisFilterV2(ObjectMapper objectMapper,
-                             QueryParamsBuilder queryParamsBuilder,
                              ResourceRegistry resourceRegistry,
                              RequestDispatcher requestDispatcher, String webPathPrefix) {
         this.objectMapper = objectMapper;
-        this.queryParamsBuilder = queryParamsBuilder;
         this.resourceRegistry = resourceRegistry;
         this.requestDispatcher = requestDispatcher;
         this.webPathPrefix = webPathPrefix != null ? webPathPrefix : "";
@@ -131,14 +125,14 @@ public class KatharsisFilterV2 implements Filter, BeanFactoryAware {
         try {
             JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath(getRequestPath(request));
 
-            QueryAdapter queryAdapter = createQueryParams(request);
+            Map<String, Set<String>> parameters = getParameters(request);
 
             in = request.getInputStream();
             RequestBody requestBody = inputStreamToBody(in);
 
             String method = request.getMethod();
             RepositoryMethodParameterProvider parameterProvider = new SpringParameterProvider(beanFactory, request);
-            katharsisResponse = requestDispatcher.dispatchRequest(jsonPath, method, queryAdapter, parameterProvider,
+            katharsisResponse = requestDispatcher.dispatchRequest(jsonPath, method, parameters, parameterProvider,
                 requestBody);
         } catch (KatharsisMappableException e) {
             if (log.isDebugEnabled()) {
@@ -230,14 +224,14 @@ public class KatharsisFilterV2 implements Filter, BeanFactoryAware {
      * @param request request body
      * @return query parameters
      */
-    private QueryAdapter createQueryParams(HttpServletRequest request) {
+    private Map<String, Set<String>> getParameters(HttpServletRequest request) {
         Map<String, String[]> params = request.getParameterMap();
 
         Map<String, Set<String>> queryParameters = new HashMap<>(params.size());
         for (Map.Entry<String, String[]> entry : params.entrySet()) {
             queryParameters.put(entry.getKey(), new HashSet<>(Arrays.asList(entry.getValue())));
         }
-        return new QueryParamsAdapter(queryParamsBuilder.buildQueryParams(queryParameters));
+        return queryParameters;
     }
 
     private RequestBody inputStreamToBody(InputStream is) {

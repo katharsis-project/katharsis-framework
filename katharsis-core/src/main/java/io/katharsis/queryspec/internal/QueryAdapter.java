@@ -12,6 +12,8 @@ public interface QueryAdapter {
 
 	TypedParams<IncludedFieldsParams> getIncludedFields();
 
+	Class<?> getResourceClass();
+
 
 
 }

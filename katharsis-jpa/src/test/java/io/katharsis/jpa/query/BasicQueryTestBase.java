@@ -81,23 +81,12 @@ public abstract class BasicQueryTestBase extends AbstractJpaTest {
 
 	@Test
 	public void testLikeFilter() {
-		assertEquals(5, builder().addFilter(TestEntity.ATTR_stringValue, JpaFilterOperators.LIKE, "test%").buildExecutor()
+		assertEquals(5, builder().addFilter(TestEntity.ATTR_stringValue, FilterOperator.LIKE, "test%").buildExecutor()
 				.getResultList().size());
-		assertEquals(1, builder().addFilter(TestEntity.ATTR_stringValue, JpaFilterOperators.LIKE, "test1").buildExecutor()
+		assertEquals(1, builder().addFilter(TestEntity.ATTR_stringValue, FilterOperator.LIKE, "test1").buildExecutor()
 				.getResultList().size());
-		assertEquals(0, builder().addFilter(TestEntity.ATTR_stringValue, JpaFilterOperators.LIKE, "abc").buildExecutor()
+		assertEquals(0, builder().addFilter(TestEntity.ATTR_stringValue, FilterOperator.LIKE, "abc").buildExecutor()
 				.getResultList().size());
-	}
-
-	@Test
-	public void testNotLikeFilter() {
-		assertEquals(0, builder().addFilter(TestEntity.ATTR_stringValue, JpaFilterOperators.NOT_LIKE, "test%").buildExecutor()
-				.getResultList().size());
-		assertEquals(4, builder().addFilter(TestEntity.ATTR_stringValue, JpaFilterOperators.NOT_LIKE, "test1").buildExecutor()
-				.getResultList().size());
-		assertEquals(5, builder().addFilter(TestEntity.ATTR_stringValue, JpaFilterOperators.NOT_LIKE, "abc").buildExecutor()
-				.getResultList().size());
-
 	}
 
 	@Test
@@ -126,20 +115,6 @@ public abstract class BasicQueryTestBase extends AbstractJpaTest {
 		assertEquals(1, builder().addFilter(TestEntity.ATTR_id, FilterOperator.LE, 0L).buildExecutor().getResultList().size());
 		assertEquals(2, builder().addFilter(TestEntity.ATTR_id, FilterOperator.LE, 1L).buildExecutor().getResultList().size());
 		assertEquals(3, builder().addFilter(TestEntity.ATTR_id, FilterOperator.LE, 2L).buildExecutor().getResultList().size());
-	}
-
-	@Test
-	public void testILikeFilter() {
-		assertEquals(1, builder().addFilter(TestEntity.ATTR_stringValue, JpaFilterOperators.ILIKE, "test1").buildExecutor()
-				.getResultList().size());
-		assertEquals(1, builder().addFilter(TestEntity.ATTR_stringValue, JpaFilterOperators.ILIKE, "tEst1").buildExecutor()
-				.getResultList().size());
-		assertEquals(1, builder().addFilter(TestEntity.ATTR_stringValue, JpaFilterOperators.ILIKE, "TEst1").buildExecutor()
-				.getResultList().size());
-		assertEquals(5, builder().addFilter(TestEntity.ATTR_stringValue, JpaFilterOperators.ILIKE, "TEst%").buildExecutor()
-				.getResultList().size());
-		assertEquals(5, builder().addFilter(TestEntity.ATTR_stringValue, JpaFilterOperators.ILIKE, "test%").buildExecutor()
-				.getResultList().size());
 	}
 
 	@Test

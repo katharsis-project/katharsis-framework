@@ -1,10 +1,15 @@
 package io.katharsis.vertx;
 
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.katharsis.dispatcher.RequestDispatcher;
-import io.katharsis.queryParams.QueryParams;
-import io.katharsis.queryParams.QueryParamsBuilder;
-import io.katharsis.queryspec.internal.QueryParamsAdapter;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
@@ -21,13 +26,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 
-import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 /**
  * Vertx handler to Katharsis resource controller. Vertx delegates request processing to Katharsis controller.
  */
@@ -37,7 +35,6 @@ import java.util.Set;
 public class KatharsisHandler implements Handler<RoutingContext> {
 
     private final ObjectMapper mapper;
-    private final QueryParamsBuilder builder;
     private final String webPath;
     private final PathBuilder pathBuilder;
     private final ParameterProviderFactory parameterProviderFactory;
@@ -48,12 +45,14 @@ public class KatharsisHandler implements Handler<RoutingContext> {
 
         JsonPath jsonPath = buildPath(ctx);
         String requestMethod = ctx.request().method().name();
-        QueryParams queryParams = createQueryParams(ctx);
+        
+        Map<String, Set<String>> parameters = getParameters(ctx);
+        
         RepositoryMethodParameterProvider provider = parameterProviderFactory.provider(ctx);
         RequestBody body = requestBody(ctx.getBodyAsString());
 
         try {
-            BaseResponseContext response = requestDispatcher.dispatchRequest(jsonPath, requestMethod, new QueryParamsAdapter(queryParams), provider, body);
+            BaseResponseContext response = requestDispatcher.dispatchRequest(jsonPath, requestMethod, parameters, provider, body);
 
             ctx.response()
                     .setStatusCode(response.getHttpStatus())
@@ -77,7 +76,7 @@ public class KatharsisHandler implements Handler<RoutingContext> {
         return pathBuilder.buildPath(transformed);
     }
 
-    protected QueryParams createQueryParams(RoutingContext ctx) {
+    protected Map<String, Set<String>> getParameters(RoutingContext ctx) {
         Map<String, Set<String>> transformed = new HashMap<>();
 
         QueryStringDecoder decoder = new QueryStringDecoder(ctx.request().uri());
@@ -85,7 +84,7 @@ public class KatharsisHandler implements Handler<RoutingContext> {
         for (Map.Entry<String, List<String>> param : decoder.parameters().entrySet()) {
             transformed.put(param.getKey(), new HashSet<>(param.getValue()));
         }
-        return builder.buildQueryParams(transformed);
+        return transformed;
     }
 
     protected RequestBody requestBody(String body) {

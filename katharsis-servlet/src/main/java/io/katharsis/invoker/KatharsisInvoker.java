@@ -59,14 +59,12 @@ public class KatharsisInvoker {
     private static int BUFFER_SIZE = 4096;
 
     private ObjectMapper objectMapper;
-    private QueryParamsBuilder queryParamsBuilder;
     private ResourceRegistry resourceRegistry;
     private RequestDispatcher requestDispatcher;
 
-    public KatharsisInvoker(ObjectMapper objectMapper, QueryParamsBuilder queryParamsBuilder,
+    public KatharsisInvoker(ObjectMapper objectMapper, 
                             ResourceRegistry resourceRegistry, RequestDispatcher requestDispatcher) {
         this.objectMapper = objectMapper;
-        this.queryParamsBuilder = queryParamsBuilder;
         this.resourceRegistry = resourceRegistry;
         this.requestDispatcher = requestDispatcher;
     }
@@ -93,14 +91,14 @@ public class KatharsisInvoker {
         try {
             JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath(invokerContext.getRequestPath());
 
-            QueryAdapter queryAdapter = createQueryAdapter(invokerContext);
+            Map<String, Set<String>> parameters = getParameters(invokerContext);
 
             in = invokerContext.getRequestEntityStream();
             RequestBody requestBody = inputStreamToBody(in);
 
             String method = invokerContext.getRequestMethod();
             RepositoryMethodParameterProvider parameterProvider = invokerContext.getParameterProvider();
-            katharsisResponse = requestDispatcher.dispatchRequest(jsonPath, method, queryAdapter, parameterProvider,
+            katharsisResponse = requestDispatcher.dispatchRequest(jsonPath, method, parameters, parameterProvider,
                                                                   requestBody);
         } catch (KatharsisMappableException e) {
             if (log.isDebugEnabled()) {
@@ -158,10 +156,9 @@ public class KatharsisInvoker {
         return false;
     }
 
-    private QueryAdapter createQueryAdapter(KatharsisInvokerContext invokerContext) {
-        Map<String, Set<String>> queryParameters =
+    private Map<String, Set<String>> getParameters(KatharsisInvokerContext invokerContext) {
+    	return
             QueryStringUtils.parseQueryStringAsSingleValueMap(invokerContext);
-        return new QueryParamsAdapter(this.queryParamsBuilder.buildQueryParams(queryParameters));
     }
 
     private RequestBody inputStreamToBody(InputStream is) throws IOException {

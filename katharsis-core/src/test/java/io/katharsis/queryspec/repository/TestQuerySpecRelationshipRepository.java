@@ -1,15 +1,12 @@
 package io.katharsis.queryspec.repository;
 
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import io.katharsis.queryParams.QueryParams;
-import io.katharsis.queryspec.FilterOperator;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.QuerySpecRelationshipRepository;
 import io.katharsis.repository.LinksRepository;
@@ -109,18 +106,6 @@ public class TestQuerySpecRelationshipRepository
 			return projects;
 		}
 		return querySpec.apply(projects);
-	}
-
-	@Override
-	public Set<FilterOperator> getSupportedOperators() {
-		Set<FilterOperator> set = new HashSet<FilterOperator>();
-		set.add(FilterOperator.EQ);
-		return set;
-	}
-
-	@Override
-	public FilterOperator getDefaultOperator() {
-		return FilterOperator.EQ;
 	}
 
 	@Override
