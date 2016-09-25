@@ -14,9 +14,13 @@ import io.katharsis.utils.PropertyUtils;
  */
 public class InMemoryEvaluator {
 
-	public <T> List<T> eval(List<T> resources, QuerySpec querySpec) {
+	public <T> List<T> eval(Iterable<T> resources, QuerySpec querySpec) {
 		List<T> results = new ArrayList<>();
-		results.addAll(resources);
+		
+		Iterator<T> iterator = resources.iterator();
+		while(iterator.hasNext()){
+			results.add(iterator.next());
+		}
 
 		// filter
 		if (!querySpec.getFilters().isEmpty()) {

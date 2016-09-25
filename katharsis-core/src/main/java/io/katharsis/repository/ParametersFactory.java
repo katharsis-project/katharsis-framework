@@ -1,10 +1,16 @@
 package io.katharsis.repository;
 
-import io.katharsis.queryParams.QueryParams;
-import io.katharsis.repository.exception.RepositoryMethodException;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+
+import io.katharsis.queryParams.QueryParams;
+import io.katharsis.queryspec.DefaultQuerySpecConverter;
+import io.katharsis.queryspec.QuerySpec;
+import io.katharsis.queryspec.internal.QueryAdapter;
+import io.katharsis.queryspec.internal.QueryParamsAdapter;
+import io.katharsis.queryspec.internal.QuerySpecAdapter;
+import io.katharsis.repository.exception.RepositoryMethodException;
+import io.katharsis.resource.registry.ResourceRegistry;
 
 public class ParametersFactory {
 
@@ -23,7 +29,7 @@ public class ParametersFactory {
      * @param annotationType  method annotation
      * @return array of resolved parameters
      */
-    public Object[] buildParameters(Object[] firstParameters, Method method, QueryParams queryParams,
+    public Object[] buildParameters(Object[] firstParameters, Method method, QueryAdapter queryAdapter,
                                     Class<? extends Annotation> annotationType) {
         int parametersLength = method.getParameterTypes().length;
         if (firstParameters.length > 0 && parametersLength < 1) {
@@ -35,7 +41,9 @@ public class ParametersFactory {
         for (int i = firstParameters.length; i < parametersLength; i++) {
             Class<?> parameterType = method.getParameterTypes()[i];
             if (QueryParams.class.equals(parameterType)) {
-                additionalParameters[i - firstParameters.length] = queryParams;
+                additionalParameters[i - firstParameters.length] = toQueryParams(queryAdapter);
+            } else if(QuerySpec.class.equals(parameterType)) {
+                additionalParameters[i - firstParameters.length] = toQuerySpec(queryAdapter);
             } else {
                 additionalParameters[i - firstParameters.length] = parameterProvider.provide(method, i);
             }
@@ -43,6 +51,25 @@ public class ParametersFactory {
 
         return concatenate(firstParameters, additionalParameters);
     }
+    
+    protected QuerySpec toQuerySpec(QueryAdapter queryAdapter) {
+    	if (queryAdapter == null)
+			return null;
+		if (queryAdapter instanceof QuerySpecAdapter) {
+			return ((QuerySpecAdapter) queryAdapter).getQuerySpec();
+		}
+		QueryParams queryParams = toQueryParams(queryAdapter);
+		DefaultQuerySpecConverter converter = new DefaultQuerySpecConverter(((QueryParamsAdapter)queryAdapter).getResourceRegistry());
+		return converter.fromParams(queryAdapter.getResourceClass(), queryParams);
+	}
+
+	protected QueryParams toQueryParams(QueryAdapter queryAdapter) {
+		if (queryAdapter == null)
+			return null;
+		if(!(queryAdapter instanceof QueryParamsAdapter))
+			throw new IllegalStateException("consider rewriting your repository to use QuerySpec instead of QueryParams, or disable QuerySpec parsing");
+		return ((QueryParamsAdapter) queryAdapter).getQueryParams();
+	}
 
     /**
      * Build a list of parameters that can be provided to a method.

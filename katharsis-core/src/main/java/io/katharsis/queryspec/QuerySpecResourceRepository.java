@@ -20,16 +20,6 @@ public interface QuerySpecResourceRepository<T, ID extends Serializable>{
 	 */
 	Class<T> getResourceClass();
 	
-	/**
-	 * @return list of supported filter operators
-	 */
-	Set<FilterOperator> getSupportedOperators();
-	
-	/**
-	 * @return the default operator to use if none was specified
-	 */
-	FilterOperator getDefaultOperator();
-
 	 /**
      * Search one resource with a given ID. If a resource cannot be found, a {@link ResourceNotFoundException}
      * exception should be thrown.

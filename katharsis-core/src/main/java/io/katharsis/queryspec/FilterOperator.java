@@ -18,6 +18,20 @@ public abstract class FilterOperator {
 		}
 
 	};
+	
+	/**
+	 * like operation
+	 */
+	public static final FilterOperator LIKE = new FilterOperator("LIKE") {
+
+		@Override
+		public boolean matches(Object value1, Object value2) {
+			throw new UnsupportedOperationException(); // handle differently
+		}
+
+	};
+
+	
 	/**
 	 * Boolean or
 	 */

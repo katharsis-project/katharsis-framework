@@ -35,10 +35,6 @@ public class ResourceResponseContext implements BaseResponseContext {
         this(response, null, (QueryParamsAdapter)null, httpStatus);
     }
 
-    public ResourceResponseContext(JsonApiResponse response, JsonPath jsonPath, QueryParams queryParams) {
-    	this(response, jsonPath, new QueryParamsAdapter(queryParams));
-    }
-    
     public ResourceResponseContext(JsonApiResponse response, JsonPath jsonPath, QueryAdapter queryAdapter) {
         this(response, jsonPath, queryAdapter, HttpStatus.OK_200);
     }

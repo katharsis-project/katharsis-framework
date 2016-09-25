@@ -119,16 +119,6 @@ public class ResourceRepositoryStubImpl<T, ID extends Serializable> extends Abst
 		return resourceClass;
 	}
 
-	@Override
-	public Set<FilterOperator> getSupportedOperators() {
-		throw new UnsupportedOperationException("not supported on client-side");
-	}
-
-	@Override
-	public FilterOperator getDefaultOperator() {
-		throw new UnsupportedOperationException("not supported on client-side");
-	}
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public T findOne(ID id, QuerySpec querySpec) {

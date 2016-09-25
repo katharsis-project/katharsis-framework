@@ -13,7 +13,6 @@ import org.mockito.Mockito;
 
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryspec.AbstractQuerySpecTest;
-import io.katharsis.queryspec.FilterOperator;
 import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.queryspec.internal.QueryParamsAdapter;
 import io.katharsis.resource.mock.models.Project;
@@ -45,12 +44,6 @@ public class QuerySpecRepositoryTest extends AbstractQuerySpecTest {
 
 		adapter = registryEntry.getResourceRepository(null);
 		relAdapter = registryEntry.getRelationshipRepositoryForClass(Project.class, null);
-	}
-
-	@Test
-	public void operations() {
-		Assert.assertEquals(FilterOperator.EQ, adapter.getDefaultOperator());
-		Assert.assertEquals(5, adapter.getSupportedOperators().size());
 	}
 
 	@Test
@@ -101,8 +94,6 @@ public class QuerySpecRepositoryTest extends AbstractQuerySpecTest {
 		relAdapter.addRelations(task, Arrays.asList(project.getId()), "projects", queryAdapter);
 		List<Project> projects = (List<Project>) relAdapter.findManyTargets(2L, "projects", queryAdapter).getEntity();
 		Assert.assertEquals(1, projects.size());
-		Assert.assertEquals(FilterOperator.EQ, relAdapter.getDefaultOperator());
-		Assert.assertEquals(1, relAdapter.getSupportedOperators().size());
 
 		relAdapter.removeRelations(task, Arrays.asList(project.getId()), "projects", queryAdapter);
 		projects = (List<Project>) relAdapter.findManyTargets(2L, "projects", queryAdapter).getEntity();
@@ -111,8 +102,6 @@ public class QuerySpecRepositoryTest extends AbstractQuerySpecTest {
 		relAdapter.setRelations(task, Arrays.asList(project.getId()), "projects", queryAdapter);
 		projects = (List<Project>) relAdapter.findManyTargets(2L, "projects", queryAdapter).getEntity();
 		Assert.assertEquals(1, projects.size());
-		Assert.assertEquals(FilterOperator.EQ, relAdapter.getDefaultOperator());
-		Assert.assertEquals(1, relAdapter.getSupportedOperators().size());
 
 		// deletion
 		adapter.delete(task.getId(), queryAdapter);

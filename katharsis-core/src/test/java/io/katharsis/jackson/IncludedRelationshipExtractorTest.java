@@ -1,12 +1,26 @@
 package io.katharsis.jackson;
 
-import io.katharsis.jackson.mock.models.*;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.Collections;
+import java.util.Map;
+
+import org.junit.Before;
+import org.junit.Test;
+
+import io.katharsis.jackson.mock.models.ClassA;
+import io.katharsis.jackson.mock.models.ClassAWithInclusion;
+import io.katharsis.jackson.mock.models.ClassB;
+import io.katharsis.jackson.mock.models.ClassBWithInclusion;
+import io.katharsis.jackson.mock.models.ClassC;
+import io.katharsis.jackson.mock.models.ClassCWithInclusion;
 import io.katharsis.jackson.serializer.include.IncludedRelationshipExtractor;
 import io.katharsis.jackson.serializer.include.ResourceDigest;
 import io.katharsis.locator.SampleJsonServiceLocator;
 import io.katharsis.queryParams.DefaultQueryParamsParser;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
+import io.katharsis.queryspec.internal.QueryParamsAdapter;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathBuilder;
 import io.katharsis.request.path.ResourcePath;
@@ -15,15 +29,16 @@ import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.mock.models.Project;
-import io.katharsis.resource.registry.*;
-import io.katharsis.response.*;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.util.Collections;
-import java.util.Map;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import io.katharsis.resource.registry.ConstantServiceUrlProvider;
+import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.resource.registry.ResourceRegistryBuilder;
+import io.katharsis.resource.registry.ResourceRegistryBuilderTest;
+import io.katharsis.resource.registry.ResourceRegistryTest;
+import io.katharsis.response.Container;
+import io.katharsis.response.ContainerType;
+import io.katharsis.response.HttpStatus;
+import io.katharsis.response.JsonApiResponse;
+import io.katharsis.response.ResourceResponseContext;
 
 public class IncludedRelationshipExtractorTest {
 
@@ -46,7 +61,7 @@ public class IncludedRelationshipExtractorTest {
         sut = new IncludedRelationshipExtractor(resourceRegistry);
 
         JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath("/tasks");
-        testResponse = new ResourceResponseContext(new JsonApiResponse(), jsonPath, new QueryParams());
+        testResponse = new ResourceResponseContext(new JsonApiResponse(), jsonPath, new QueryParamsAdapter(new QueryParams()));
     }
 
     @Test
@@ -126,7 +141,7 @@ public class IncludedRelationshipExtractorTest {
                 "classBsWithInclusion");
 
         ResourceResponseContext response = new ResourceResponseContext(new JsonApiResponse(),
-                new ResourcePath("classAsWithInclusion"), queryParams);
+                new ResourcePath("classAsWithInclusion"), new QueryParamsAdapter(queryParams));
         ClassBWithInclusion classBsWithInclusion = new ClassBWithInclusion()
                 .setId(42L);
         ClassAWithInclusion classAWithInclusion = new ClassAWithInclusion(classBsWithInclusion);
@@ -147,7 +162,7 @@ public class IncludedRelationshipExtractorTest {
                 "classBs");
 
         ResourceResponseContext response = new ResourceResponseContext(new JsonApiResponse(),
-                new ResourcePath("classAs"), queryParams);
+                new ResourcePath("classAs"), new QueryParamsAdapter(queryParams));
         ClassB classBs = new ClassB()
                 .setId(42L);
         ClassA classA = new ClassA(classBs);
@@ -168,7 +183,7 @@ public class IncludedRelationshipExtractorTest {
                 "asdasd");
 
         ResourceResponseContext response = new ResourceResponseContext(new JsonApiResponse(),
-                new ResourcePath("classAs"), queryParams);
+                new ResourcePath("classAs"), new QueryParamsAdapter(queryParams));
         ClassB classBs = new ClassB();
         ClassA classA = new ClassA(classBs);
 
@@ -194,7 +209,7 @@ public class IncludedRelationshipExtractorTest {
                 "classCsWith");
 
         ResourceResponseContext response = new ResourceResponseContext(new JsonApiResponse(),
-                new ResourcePath("classAsWith"), queryParams);
+                new ResourcePath("classAsWith"), new QueryParamsAdapter(queryParams));
         ClassA classAWith = new ClassA(new ClassB());
 
         // WHEN
@@ -211,7 +226,7 @@ public class IncludedRelationshipExtractorTest {
                 "classBs.classC");
 
         ResourceResponseContext response = new ResourceResponseContext(new JsonApiResponse(),
-                new ResourcePath("classAs"), queryParams);
+                new ResourcePath("classAs"), new QueryParamsAdapter(queryParams));
         ClassC classC = new ClassC();
         classC.setId(1L);
         ClassB classB = new ClassB(null, classC);
@@ -237,7 +252,7 @@ public class IncludedRelationshipExtractorTest {
                 "classBs");
 
         ResourceResponseContext response = new ResourceResponseContext(new JsonApiResponse(),
-                new ResourcePath("classAs"), queryParams);
+                new ResourcePath("classAs"), new QueryParamsAdapter(queryParams));
         ClassA nestedClassA = new ClassA(null);
         nestedClassA.setId(1L);
         ClassB classB = new ClassB(nestedClassA);

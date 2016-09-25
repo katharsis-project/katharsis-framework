@@ -1,8 +1,5 @@
 package io.katharsis.module;
 
-import java.util.Set;
-
-import io.katharsis.queryspec.FilterOperator;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.QuerySpecResourceRepository;
 
@@ -19,16 +16,6 @@ class TestRepository implements QuerySpecResourceRepository<TestResource, Intege
 
 	@Override
 	public Class<TestResource> getResourceClass() {
-		return null;
-	}
-
-	@Override
-	public Set<FilterOperator> getSupportedOperators() {
-		return null;
-	}
-
-	@Override
-	public FilterOperator getDefaultOperator() {
 		return null;
 	}
 

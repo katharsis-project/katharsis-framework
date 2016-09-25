@@ -1,22 +1,30 @@
 package io.katharsis.jackson;
 
-import com.jayway.jsonpath.JsonPath;
-import com.jayway.jsonpath.ReadContext;
-import io.katharsis.queryParams.DefaultQueryParamsParser;
-import io.katharsis.queryParams.QueryParams;
-import io.katharsis.queryParams.QueryParamsBuilder;
-import io.katharsis.request.path.ResourcePath;
-import io.katharsis.resource.mock.models.*;
-import io.katharsis.response.Container;
-import io.katharsis.response.JsonApiResponse;
-import io.katharsis.response.ResourceResponseContext;
-import org.junit.Test;
+import static junit.framework.TestCase.assertNotNull;
+import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 
 import java.util.Collections;
 import java.util.List;
 
-import static junit.framework.TestCase.assertNotNull;
-import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
+import org.junit.Test;
+
+import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.ReadContext;
+
+import io.katharsis.queryParams.DefaultQueryParamsParser;
+import io.katharsis.queryParams.QueryParams;
+import io.katharsis.queryParams.QueryParamsBuilder;
+import io.katharsis.queryspec.internal.QueryParamsAdapter;
+import io.katharsis.request.path.ResourcePath;
+import io.katharsis.resource.mock.models.FancyProject;
+import io.katharsis.resource.mock.models.LazyTask;
+import io.katharsis.resource.mock.models.Project;
+import io.katharsis.resource.mock.models.ProjectEager;
+import io.katharsis.resource.mock.models.Task;
+import io.katharsis.resource.mock.models.User;
+import io.katharsis.response.Container;
+import io.katharsis.response.JsonApiResponse;
+import io.katharsis.response.ResourceResponseContext;
 
 public class RelationshipContainerSerializerTest extends BaseSerializerTest {
 
@@ -193,7 +201,7 @@ public class RelationshipContainerSerializerTest extends BaseSerializerTest {
         includedProject.setTask(nestedTask);
         task.setProject(includedProject);
         ResourceResponseContext response = new ResourceResponseContext(new JsonApiResponse().setEntity(task),
-                new ResourcePath("tasks"), queryParams);
+                new ResourcePath("tasks"), new QueryParamsAdapter(queryParams));
 
         // WHEN
         String result = sut.writeValueAsString(response);
@@ -236,7 +244,7 @@ public class RelationshipContainerSerializerTest extends BaseSerializerTest {
         includedProject.getProjectEagerList().add(nestedDefaultProject2);
         task.setProject(includedProject);
         ResourceResponseContext response = new ResourceResponseContext(new JsonApiResponse().setEntity(task),
-                new ResourcePath("tasks"), queryParams);
+                new ResourcePath("tasks"), new QueryParamsAdapter(queryParams));
 
         // WHEN
         String result = sut.writeValueAsString(response);
@@ -261,7 +269,7 @@ public class RelationshipContainerSerializerTest extends BaseSerializerTest {
         QueryParams queryParams = getRequestParamsWithInclusion("include[tasks]", "projectsInit.tasks");
         Task task = new Task().setId(1L);
         ResourceResponseContext response = new ResourceResponseContext(new JsonApiResponse().setEntity(task),
-                new ResourcePath("tasks"), queryParams);
+                new ResourcePath("tasks"), new QueryParamsAdapter(queryParams));
 
         // WHEN
         String result = sut.writeValueAsString(response);

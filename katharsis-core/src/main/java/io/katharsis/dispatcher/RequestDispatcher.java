@@ -1,6 +1,11 @@
 package io.katharsis.dispatcher;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.dispatcher.filter.Filter;
@@ -12,10 +17,17 @@ import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
 import io.katharsis.module.ModuleRegistry;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryspec.internal.QueryAdapter;
+import io.katharsis.queryspec.internal.QueryAdapterBuilder;
 import io.katharsis.queryspec.internal.QueryParamsAdapter;
+import io.katharsis.queryspec.internal.QueryParamsAdapterBuilder;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
+import io.katharsis.repository.exception.RepositoryNotFoundException;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
+import io.katharsis.resource.exception.ResourceFieldNotFoundException;
+import io.katharsis.resource.field.ResourceField;
+import io.katharsis.resource.registry.RegistryEntry;
+import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponseContext;
 import io.katharsis.utils.java.Optional;
 
@@ -24,17 +36,23 @@ import io.katharsis.utils.java.Optional;
  * and katharsis-servlet for usage.
  */
 public class RequestDispatcher {
+	
+	private Logger logger = LoggerFactory.getLogger(getClass());
 
     private final ControllerRegistry controllerRegistry;
     private final ExceptionMapperRegistry exceptionMapperRegistry;
     
 	private ModuleRegistry moduleRegistry;
+	
+	private QueryAdapterBuilder queryAdapterBuilder;
+    
 
     public RequestDispatcher(ModuleRegistry moduleRegistry, ControllerRegistry controllerRegistry,
-			ExceptionMapperRegistry exceptionMapperRegistry) {
+			ExceptionMapperRegistry exceptionMapperRegistry, QueryAdapterBuilder queryAdapterBuilder) {
     	this.controllerRegistry = controllerRegistry;
     	this.moduleRegistry = moduleRegistry;
     	this.exceptionMapperRegistry = exceptionMapperRegistry;
+    	this.queryAdapterBuilder = queryAdapterBuilder;
     }
 
     /**
@@ -47,18 +65,22 @@ public class RequestDispatcher {
      * @param requestBody       deserialized body of the client request
      * @return the response form the Katharsis
      */
-    public BaseResponseContext dispatchRequest(JsonPath jsonPath, String requestType, QueryAdapter queryAdapter,
+    public BaseResponseContext dispatchRequest(JsonPath jsonPath, String requestType, Map<String, Set<String>> parameters,
                                                   RepositoryMethodParameterProvider parameterProvider,
                                                   @SuppressWarnings("SameParameterValue") RequestBody requestBody) {
 
         try {
         	BaseController controller = controllerRegistry.getController(jsonPath, requestType);
 
+        	Class<?> resourceClass = getRequestedResource(jsonPath);
+        	QueryAdapter queryAdapter = queryAdapterBuilder.build(resourceClass, parameters); 
+        	
 			DefaultFilterRequestContext context = new DefaultFilterRequestContext(jsonPath, queryAdapter,
 					parameterProvider, requestBody);
 			DefaultFilterChain chain = new DefaultFilterChain(controller);
 			return chain.doFilter(context);
         } catch (Exception e) {
+        	logger.warn("failed to process request", e);
             Optional<JsonApiExceptionMapper> exceptionMapper = exceptionMapperRegistry.findMapperFor(e.getClass());
             if (exceptionMapper.isPresent()) {
                 //noinspection unchecked
@@ -69,7 +91,26 @@ public class RequestDispatcher {
             }
         }
     }
-
+    
+    
+    private Class<?> getRequestedResource(JsonPath jsonPath){
+    	ResourceRegistry resourceRegistry = moduleRegistry.getResourceRegistry();
+   	 	RegistryEntry<?> registryEntry = resourceRegistry.getEntry(jsonPath.getResourceName());
+        if(registryEntry == null){
+        	throw new RepositoryNotFoundException(jsonPath.getResourceName());
+        }
+        String elementName = jsonPath.getElementName();
+        if(elementName != null && !elementName.equals(jsonPath.getResourceName())){
+	            ResourceField relationshipField = registryEntry.getResourceInformation().findRelationshipFieldByName(elementName);
+	            if (relationshipField == null) {
+	                throw new ResourceFieldNotFoundException(elementName);
+	            }
+	            return relationshipField.getType();
+        }else{
+        	return registryEntry.getResourceInformation().getResourceClass();
+        }
+   }
+   
     class DefaultFilterChain implements FilterChain {
 
 		protected int filterIndex = 0;

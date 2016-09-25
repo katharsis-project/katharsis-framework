@@ -1,6 +1,14 @@
 package io.katharsis.rs;
 
+import javax.ws.rs.ConstrainedTo;
+import javax.ws.rs.RuntimeType;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Feature;
+import javax.ws.rs.core.FeatureContext;
+import javax.ws.rs.ext.Provider;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.katharsis.dispatcher.RequestDispatcher;
 import io.katharsis.dispatcher.registry.ControllerRegistry;
 import io.katharsis.dispatcher.registry.ControllerRegistryBuilder;
@@ -13,19 +21,20 @@ import io.katharsis.module.CoreModule;
 import io.katharsis.module.Module;
 import io.katharsis.module.ModuleRegistry;
 import io.katharsis.queryParams.QueryParamsBuilder;
+import io.katharsis.queryspec.QuerySpecDeserializer;
+import io.katharsis.queryspec.internal.QueryAdapterBuilder;
+import io.katharsis.queryspec.internal.QueryParamsAdapterBuilder;
+import io.katharsis.queryspec.internal.QuerySpecAdapterBuilder;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
-import io.katharsis.resource.registry.*;
+import io.katharsis.resource.registry.ConstantServiceUrlProvider;
+import io.katharsis.resource.registry.DefaultResourceLookup;
+import io.katharsis.resource.registry.ResourceLookup;
+import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.resource.registry.ResourceRegistryBuilder;
 import io.katharsis.rs.parameterProvider.RequestContextParameterProviderLookup;
 import io.katharsis.rs.parameterProvider.RequestContextParameterProviderRegistry;
 import io.katharsis.rs.parameterProvider.RequestContextParameterProviderRegistryBuilder;
 import io.katharsis.utils.parser.TypeParser;
-
-import javax.ws.rs.ConstrainedTo;
-import javax.ws.rs.RuntimeType;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Feature;
-import javax.ws.rs.core.FeatureContext;
-import javax.ws.rs.ext.Provider;
 
 /**
  * Basic Katharsis feature that initializes core classes and provides a starting point to use the framework in
@@ -41,15 +50,27 @@ public class KatharsisFeature implements Feature {
     private final JsonServiceLocator jsonServiceLocator;
     private final ObjectMapper objectMapper;
     private final QueryParamsBuilder queryParamsBuilder;
+	private final QuerySpecDeserializer querySpecDeserializer;
 
     public KatharsisFeature(ObjectMapper objectMapper,
                             QueryParamsBuilder queryParamsBuilder,
                             JsonServiceLocator jsonServiceLocator) {
         this.objectMapper = objectMapper;
         this.queryParamsBuilder = queryParamsBuilder;
+        this.querySpecDeserializer = null;
         this.jsonServiceLocator = jsonServiceLocator;
         this.moduleRegistry = new ModuleRegistry();
     }
+    
+    public KatharsisFeature(ObjectMapper objectMapper,
+            QuerySpecDeserializer querySpecDeserializer,
+            JsonServiceLocator jsonServiceLocator) {
+		this.objectMapper = objectMapper;
+		this.queryParamsBuilder = null;
+		this.querySpecDeserializer = querySpecDeserializer;
+		this.jsonServiceLocator = jsonServiceLocator;
+		this.moduleRegistry = new ModuleRegistry();
+	}
     
     public void addModule(Module module){
     	moduleRegistry.addModule(module);
@@ -142,6 +163,14 @@ public class KatharsisFeature implements Feature {
         ControllerRegistryBuilder controllerRegistryBuilder = new ControllerRegistryBuilder(resourceRegistry,
             typeParser, objectMapper);
         ControllerRegistry controllerRegistry = controllerRegistryBuilder.build();
-        return new RequestDispatcher(moduleRegistry, controllerRegistry, exceptionMapperRegistry);
+        
+        QueryAdapterBuilder queryAdapterBuilder;
+        if(queryParamsBuilder != null){
+        	queryAdapterBuilder = new QueryParamsAdapterBuilder(queryParamsBuilder, resourceRegistry);
+        }else{
+        	queryAdapterBuilder = new QuerySpecAdapterBuilder(querySpecDeserializer, resourceRegistry);
+        }
+        
+        return new RequestDispatcher(moduleRegistry, controllerRegistry, exceptionMapperRegistry, queryAdapterBuilder);
     }
 }

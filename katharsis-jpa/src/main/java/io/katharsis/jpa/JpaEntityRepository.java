@@ -3,14 +3,12 @@ package io.katharsis.jpa;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import javax.persistence.EntityManager;
 
 import io.katharsis.jpa.internal.JpaRepositoryUtils;
 import io.katharsis.jpa.internal.meta.MetaAttribute;
 import io.katharsis.jpa.internal.meta.MetaEntity;
-import io.katharsis.jpa.query.JpaFilterOperators;
 import io.katharsis.jpa.query.JpaQuery;
 import io.katharsis.jpa.query.JpaQueryExecutor;
 import io.katharsis.jpa.query.JpaQueryFactory;
@@ -98,15 +96,5 @@ public class JpaEntityRepository<T, I extends Serializable> implements QuerySpec
 	@Override
 	public Class<T> getResourceClass() {
 		return entityType;
-	}
-
-	@Override
-	public Set<FilterOperator> getSupportedOperators() {
-		return JpaFilterOperators.getSupportedOperators();
-	}
-
-	@Override
-	public FilterOperator getDefaultOperator() {
-		return JpaFilterOperators.getDefaultOperator();
 	}
 }

@@ -65,6 +65,7 @@ public class QuerySpecTest {
 
 		spec2.getIncludedFields().clear();
 		Assert.assertNotEquals(spec1, spec2);
+		Assert.assertNotEquals(spec1.hashCode(), spec2.hashCode());
 		spec2.includeField(Arrays.asList("includedField"));
 		Assert.assertEquals(spec1, spec2);
 
@@ -88,6 +89,7 @@ public class QuerySpecTest {
 		spec2.setLimit(null);
 		Assert.assertEquals(spec1, spec2);
 
+		Assert.assertNotEquals(spec1, "someOtherType");
 	}
 
 }

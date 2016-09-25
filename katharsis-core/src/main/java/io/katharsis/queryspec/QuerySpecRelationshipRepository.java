@@ -44,16 +44,6 @@ public interface QuerySpecRelationshipRepository<T, T_ID extends Serializable, D
 	Class<D> getTargetResourceClass();
 	
 	/**
-	 * @return list of supported filter operators
-	 */
-	Set<FilterOperator> getSupportedOperators();
-	
-	/**
-	 * @return the default operator to use if none was specified
-	 */
-	FilterOperator getDefaultOperator();
-	
-	/**
      * Set a relation defined by a field. targetId parameter can be either in a form of an object or null value,
      * which means that if there's a relation, it should be removed. It is used only for To-One relationship.
      *

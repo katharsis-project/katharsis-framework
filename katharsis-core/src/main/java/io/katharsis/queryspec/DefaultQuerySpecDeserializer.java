@@ -13,7 +13,6 @@ import java.util.regex.Pattern;
 import io.katharsis.resource.RestrictedQueryParamsMembers;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.resource.registry.responseRepository.ResourceRepositoryAdapter;
 import io.katharsis.utils.PropertyUtils;
 import io.katharsis.utils.parser.ParserException;
 import io.katharsis.utils.parser.TypeParser;
@@ -26,12 +25,44 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 
 	private static final Pattern PARAMETER_PATTERN = Pattern.compile("(\\w+)(\\[(\\w+)\\])?([\\w\\[\\]]*)");
 
-	private ResourceRegistry resourceRegistry;
 
 	private TypeParser typeParser = new TypeParser();
 
-	public DefaultQuerySpecDeserializer(ResourceRegistry resourceRegistry) {
-		this.resourceRegistry = resourceRegistry;
+	private FilterOperator defaultOperator = FilterOperator.EQ;
+
+	private Set<FilterOperator> supportedOperators = new HashSet<>();
+
+	private ResourceRegistry resourceRegistry;
+
+	public DefaultQuerySpecDeserializer() {
+		supportedOperators.add(FilterOperator.LIKE);
+		supportedOperators.add(FilterOperator.EQ);
+		supportedOperators.add(FilterOperator.NEQ);
+		supportedOperators.add(FilterOperator.GT);
+		supportedOperators.add(FilterOperator.GE);
+		supportedOperators.add(FilterOperator.LT);
+		supportedOperators.add(FilterOperator.LE);
+	}
+
+	public FilterOperator getDefaultOperator() {
+		return defaultOperator;
+	}
+
+	public void setDefaultOperator(FilterOperator defaultOperator) {
+		this.defaultOperator = defaultOperator;
+	}
+
+	public Set<FilterOperator> getSupportedOperators() {
+		return supportedOperators;
+	}
+
+	public void addSupportedOperator(FilterOperator supportedOperator) {
+		this.supportedOperators.add(supportedOperator);
+	}
+
+	@Override
+	public void init(QuerySpecDeserializerContext ctx) {
+		this.resourceRegistry = ctx.getResourceRegistry();
 	}
 
 	@Override
@@ -102,15 +133,13 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 	}
 
 	private void deserializeFilter(QuerySpec querySpec, Parameter parameter) {
-		Set<FilterOperator> operators = parameter.repositoryAdapter.getSupportedOperators();
-
 		List<String> attributePath = splitKeyPath(parameter.name, parameter);
 
 		String lastPathElement = attributePath.get(attributePath.size() - 1);
 
 		// find operation
 		FilterOperator filterOp = null;
-		for (FilterOperator op : operators) {
+		for (FilterOperator op : supportedOperators) {
 			if (op.getName().equalsIgnoreCase(lastPathElement)) {
 				filterOp = op;
 				attributePath = attributePath.subList(0, attributePath.size() - 1);
@@ -118,7 +147,7 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 			}
 		}
 		if (filterOp == null) {
-			filterOp = parameter.repositoryAdapter.getDefaultOperator();
+			filterOp = defaultOperator;
 		}
 
 		Class<?> attributeType = PropertyUtils.getPropertyClass(querySpec.getResourceClass(), attributePath);
@@ -170,13 +199,10 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 			param.paramType = RestrictedQueryParamsMembers.valueOf(strParamType.toLowerCase());
 			param.values = entry.getValue();
 			if (registryEntry == null) {
-				registryEntry = resourceRegistry.getEntry(rootResourceClass);
-				param.repositoryAdapter = registryEntry.getResourceRepository(null);
 				param.resourceClass = rootResourceClass;
 				param.name = emptyToNull(nullToEmpty(resourceType) + nullToEmpty(path));
 			}
 			else {
-				param.repositoryAdapter = registryEntry.getResourceRepository(null);
 				param.resourceClass = registryEntry.getResourceInformation().getResourceClass();
 				param.name = emptyToNull(path);
 			}
@@ -194,8 +220,6 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 	}
 
 	class Parameter {
-
-		public ResourceRepositoryAdapter<?, ?> repositoryAdapter;
 
 		String fullKey;
 

@@ -1,8 +1,15 @@
 package io.katharsis.jackson;
 
+import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
+
+import java.util.Collections;
+
+import org.junit.Test;
+
 import io.katharsis.queryParams.DefaultQueryParamsParser;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
+import io.katharsis.queryspec.internal.QueryParamsAdapter;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathBuilder;
 import io.katharsis.resource.mock.models.LazyTask;
@@ -11,11 +18,6 @@ import io.katharsis.resource.mock.models.Task;
 import io.katharsis.response.Container;
 import io.katharsis.response.JsonApiResponse;
 import io.katharsis.response.ResourceResponseContext;
-import org.junit.Test;
-
-import java.util.Collections;
-
-import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 
 public class LinkageDataContainerSerializerTest extends BaseSerializerTest {
 
@@ -52,7 +54,7 @@ public class LinkageDataContainerSerializerTest extends BaseSerializerTest {
 
         // WHEN
         String result = sut.writeValueAsString(new Container(task,
-            new ResourceResponseContext(new JsonApiResponse(), jsonPath, queryParams)));
+            new ResourceResponseContext(new JsonApiResponse(), jsonPath, new QueryParamsAdapter(queryParams))));
 
         // THEN
         assertThatJson(result).node("relationships.projects.data[0].type").isEqualTo("projects");

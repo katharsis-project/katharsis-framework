@@ -9,4 +9,8 @@ public final class RepositoryNotFoundException extends KatharsisMatchingExceptio
     public RepositoryNotFoundException(Class clazz) {
         super("Repository for a resource not found: " + clazz.getCanonicalName());
     }
+    
+    public RepositoryNotFoundException(String resourceType) {
+        super("Repository for a resource not found: " + resourceType);
+    }
 }

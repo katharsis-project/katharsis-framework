@@ -1,8 +1,10 @@
 package io.katharsis.repository.annotated;
 
-import io.katharsis.queryParams.QueryParams;
-import io.katharsis.repository.LinksRepository;
-import io.katharsis.repository.MetaRepository;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
+import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.repository.ParametersFactory;
 import io.katharsis.repository.annotations.JsonApiLinks;
 import io.katharsis.repository.annotations.JsonApiMeta;
@@ -11,11 +13,7 @@ import io.katharsis.response.LinksInformation;
 import io.katharsis.response.MetaInformation;
 import io.katharsis.utils.ClassUtils;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
-public abstract class AnnotatedRepositoryAdapter<T> implements LinksRepository<T>, MetaRepository<T> {
+public abstract class AnnotatedRepositoryAdapter<T> {
 
     final Object implementationObject;
     final Class<?> implementationClass;
@@ -35,14 +33,13 @@ public abstract class AnnotatedRepositoryAdapter<T> implements LinksRepository<T
         return linksMethod != null;
     }
 
-    @Override
-    public LinksInformation getLinksInformation(Iterable<T> resources, QueryParams queryParams) {
+    public LinksInformation getLinksInformation(Iterable<T> resources, QueryAdapter queryAdapter) {
         Class<JsonApiLinks> annotationType = JsonApiLinks.class;
         assignLinksMethod();
         checkIfNotNull(annotationType, linksMethod);
 
         Object[] methodParameters = parametersFactory
-            .buildParameters(new Object[]{resources}, linksMethod, queryParams, annotationType);
+            .buildParameters(new Object[]{resources}, linksMethod, queryAdapter, annotationType);
 
         return invoke(linksMethod, methodParameters);
     }
@@ -58,14 +55,13 @@ public abstract class AnnotatedRepositoryAdapter<T> implements LinksRepository<T
         return metaMethod != null;
     }
 
-    @Override
-    public MetaInformation getMetaInformation(Iterable<T> resources, QueryParams queryParams) {
+    public MetaInformation getMetaInformation(Iterable<T> resources, QueryAdapter queryAdapter) {
         Class<JsonApiMeta> annotationType = JsonApiMeta.class;
         assignMetaMethod();
         checkIfNotNull(annotationType, metaMethod);
 
         Object[] methodParameters = parametersFactory
-            .buildParameters(new Object[]{resources}, metaMethod, queryParams, annotationType);
+            .buildParameters(new Object[]{resources}, metaMethod, queryAdapter, annotationType);
 
         return invoke(metaMethod, methodParameters);
     }
@@ -92,10 +88,10 @@ public abstract class AnnotatedRepositoryAdapter<T> implements LinksRepository<T
     }
 
     protected <TYPE> TYPE invokeOperation(Method foundMethod, Class<? extends Annotation> annotationType,
-                                          Object[] firstParameters, QueryParams queryParams) {
+                                          Object[] firstParameters, QueryAdapter queryAdapter) {
         checkIfNotNull(annotationType, foundMethod);
         Object[] methodParameters = parametersFactory
-            .buildParameters(firstParameters, foundMethod, queryParams, annotationType);
+            .buildParameters(firstParameters, foundMethod, queryAdapter, annotationType);
         return invoke(foundMethod, methodParameters);
     }
 
