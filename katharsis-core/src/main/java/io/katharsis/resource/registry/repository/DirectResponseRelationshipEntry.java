@@ -15,13 +15,11 @@ public class DirectResponseRelationshipEntry<T, D> implements ResponseRelationsh
 
     @Override
     public Class<?> getTargetAffiliation() {
+    	Class<?> repoClass = repositoryInstanceBuilder.getRepositoryClass();
+    	Class<?> repoInterface = QuerySpecRelationshipRepository.class.isAssignableFrom(repoClass) ? QuerySpecRelationshipRepository.class : RelationshipRepository.class; 
+    	
         Class<?>[] typeArgs = TypeResolver
-            .resolveRawArguments(RelationshipRepository.class, repositoryInstanceBuilder.getRepositoryClass());
-        
-        if(typeArgs == null){
-        	typeArgs = TypeResolver
-                    .resolveRawArguments(QuerySpecRelationshipRepository.class, repositoryInstanceBuilder.getRepositoryClass());
-        }
+            .resolveRawArguments(repoInterface, repoClass);
         
         return typeArgs[RelationshipRepository.TARGET_TYPE_GENERIC_PARAMETER_IDX];
     }

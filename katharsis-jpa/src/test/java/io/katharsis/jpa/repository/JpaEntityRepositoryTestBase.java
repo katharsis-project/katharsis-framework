@@ -15,7 +15,6 @@ import io.katharsis.jpa.JpaEntityRepository;
 import io.katharsis.jpa.model.RelatedEntity;
 import io.katharsis.jpa.model.TestEntity;
 import io.katharsis.jpa.query.AbstractJpaTest;
-import io.katharsis.jpa.query.JpaFilterOperators;
 import io.katharsis.queryspec.Direction;
 import io.katharsis.queryspec.FilterOperator;
 import io.katharsis.queryspec.FilterSpec;
@@ -187,7 +186,7 @@ public abstract class JpaEntityRepositoryTestBase extends AbstractJpaTest {
 	@Test
 	public void testFilterLike() throws InstantiationException, IllegalAccessException {
 		QuerySpec querySpec = new QuerySpec(TestEntity.class);
-		querySpec.addFilter(new FilterSpec(Arrays.asList("stringValue"), JpaFilterOperators.LIKE, "test2"));
+		querySpec.addFilter(new FilterSpec(Arrays.asList("stringValue"), FilterOperator.LIKE, "test2"));
 		List<TestEntity> list = repo.findAll(querySpec);
 
 		Assert.assertEquals(1, list.size());
@@ -196,7 +195,7 @@ public abstract class JpaEntityRepositoryTestBase extends AbstractJpaTest {
 	@Test
 	public void testFilterLikeWildcards() throws InstantiationException, IllegalAccessException {
 		QuerySpec querySpec = new QuerySpec(TestEntity.class);
-		querySpec.addFilter(new FilterSpec(Arrays.asList("stringValue"), JpaFilterOperators.LIKE, "test%"));
+		querySpec.addFilter(new FilterSpec(Arrays.asList("stringValue"), FilterOperator.LIKE, "test%"));
 		List<TestEntity> list = repo.findAll(querySpec);
 
 		Assert.assertEquals(5, list.size());

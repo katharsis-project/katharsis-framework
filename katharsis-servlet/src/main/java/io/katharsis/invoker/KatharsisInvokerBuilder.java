@@ -29,6 +29,10 @@ import io.katharsis.module.CoreModule;
 import io.katharsis.module.ModuleRegistry;
 import io.katharsis.queryParams.DefaultQueryParamsParser;
 import io.katharsis.queryParams.QueryParamsBuilder;
+import io.katharsis.queryspec.QuerySpecDeserializer;
+import io.katharsis.queryspec.internal.QueryAdapterBuilder;
+import io.katharsis.queryspec.internal.QueryParamsAdapterBuilder;
+import io.katharsis.queryspec.internal.QuerySpecAdapterBuilder;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.registry.ConstantServiceUrlProvider;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -44,6 +48,7 @@ public class KatharsisInvokerBuilder {
 	
     private ObjectMapper objectMapper;
     private QueryParamsBuilder queryParamsBuilder;
+    private QuerySpecDeserializer querySpecDeserializer;
     private ResourceRegistry resourceRegistry;
     private RequestDispatcher requestDispatcher;
     private JsonServiceLocator jsonServiceLocator;
@@ -51,6 +56,7 @@ public class KatharsisInvokerBuilder {
 
     private String resourceSearchPackage;
     private String resourceDefaultDomain;
+
     
     public KatharsisInvokerBuilder module(io.katharsis.module.Module module){
     	moduleRegistry.addModule(module);
@@ -64,6 +70,11 @@ public class KatharsisInvokerBuilder {
 
     public KatharsisInvokerBuilder queryParamsBuilder(QueryParamsBuilder queryParamsBuilder) {
         this.queryParamsBuilder = queryParamsBuilder;
+        return this;
+    }
+    
+    public KatharsisInvokerBuilder querySpecDeserializer(QuerySpecDeserializer querySpecDeserializer) {
+        this.querySpecDeserializer = querySpecDeserializer;
         return this;
     }
 
@@ -125,10 +136,6 @@ public class KatharsisInvokerBuilder {
         
         moduleRegistry.init(objectMapper, resourceRegistry);
 
-        if (queryParamsBuilder == null) {
-            queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
-        }
-
         if (requestDispatcher == null) {
             if (exceptionMapperRegistry == null) {
                 exceptionMapperRegistry = buildExceptionMapperRegistry(resourceSearchPackage);
@@ -137,7 +144,7 @@ public class KatharsisInvokerBuilder {
             requestDispatcher = createRequestDispatcher(resourceRegistry, objectMapper, exceptionMapperRegistry);
         }
 
-        return new KatharsisInvoker(objectMapper, queryParamsBuilder, resourceRegistry, requestDispatcher);
+        return new KatharsisInvoker(objectMapper, resourceRegistry, requestDispatcher);
     }
 
     protected ResourceFieldNameTransformer buildResourceFieldNameTransformer(){
@@ -168,14 +175,23 @@ public class KatharsisInvokerBuilder {
 
     protected RequestDispatcher createRequestDispatcher(ResourceRegistry resourceRegistry,
                                                         ObjectMapper objectMapper,
-                                                        ExceptionMapperRegistry exceptionMapperRegistry)
-            throws Exception {
+                                                        ExceptionMapperRegistry exceptionMapperRegistry) throws Exception {
 
         TypeParser typeParser = new TypeParser();
         ControllerRegistryBuilder controllerRegistryBuilder = new ControllerRegistryBuilder(resourceRegistry, typeParser, objectMapper);
         ControllerRegistry controllerRegistry = controllerRegistryBuilder.build();
+        
+        QueryAdapterBuilder queryAdapterBuilder;
+        if(querySpecDeserializer != null){
+        	queryAdapterBuilder = new QuerySpecAdapterBuilder(querySpecDeserializer, resourceRegistry);
+        }else{
+			if (queryParamsBuilder == null) {
+				queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
+			}
+        	queryAdapterBuilder = new QueryParamsAdapterBuilder(queryParamsBuilder, resourceRegistry);
+        }
 
-        return new RequestDispatcher(moduleRegistry, controllerRegistry, exceptionMapperRegistry);
+        return new RequestDispatcher(moduleRegistry, controllerRegistry, exceptionMapperRegistry, queryAdapterBuilder);
     }
 
     protected ObjectMapper createObjectMapper(ResourceRegistry resourceRegistry) {

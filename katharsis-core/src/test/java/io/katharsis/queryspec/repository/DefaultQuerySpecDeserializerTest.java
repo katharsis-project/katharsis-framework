@@ -16,8 +16,10 @@ import io.katharsis.queryspec.Direction;
 import io.katharsis.queryspec.FilterOperator;
 import io.katharsis.queryspec.FilterSpec;
 import io.katharsis.queryspec.QuerySpec;
+import io.katharsis.queryspec.QuerySpecDeserializerContext;
 import io.katharsis.queryspec.SortSpec;
 import io.katharsis.resource.mock.models.Task;
+import io.katharsis.resource.registry.ResourceRegistry;
 
 public class DefaultQuerySpecDeserializerTest extends AbstractQuerySpecTest {
 
@@ -26,7 +28,23 @@ public class DefaultQuerySpecDeserializerTest extends AbstractQuerySpecTest {
 	@Before
 	public void setup() {
 		super.setup();
-		deserializer = new DefaultQuerySpecDeserializer(resourceRegistry);
+		deserializer = new DefaultQuerySpecDeserializer();
+		deserializer.init(new QuerySpecDeserializerContext() {
+
+			@Override
+			public ResourceRegistry getResourceRegistry() {
+				return resourceRegistry;
+			}
+		});
+	}
+
+	@Test
+	public void operations() {
+		deserializer.getSupportedOperators().clear();
+		deserializer.setDefaultOperator(FilterOperator.LIKE);
+		deserializer.addSupportedOperator(FilterOperator.LIKE);
+		Assert.assertEquals(FilterOperator.LIKE, deserializer.getDefaultOperator());
+		Assert.assertEquals(1, deserializer.getSupportedOperators().size());
 	}
 
 	@Test
@@ -76,7 +94,8 @@ public class DefaultQuerySpecDeserializerTest extends AbstractQuerySpecTest {
 	@Test
 	public void testFilterByMany() throws InstantiationException, IllegalAccessException {
 		QuerySpec expectedSpec = new QuerySpec(Task.class);
-		expectedSpec.addFilter(new FilterSpec(Arrays.asList("name"), FilterOperator.EQ, new HashSet<>(Arrays.asList("value1", "value2"))));
+		expectedSpec.addFilter(
+				new FilterSpec(Arrays.asList("name"), FilterOperator.EQ, new HashSet<>(Arrays.asList("value1", "value2"))));
 
 		Map<String, Set<String>> params = new HashMap<>();
 		params.put("filter[tasks][name][EQ]", new HashSet<>(Arrays.asList("value1", "value2")));

@@ -16,6 +16,7 @@ import io.katharsis.module.SimpleModule.RelationshipRepositoryRegistration;
 import io.katharsis.module.SimpleModule.ResourceRepositoryRegistration;
 import io.katharsis.queryspec.QuerySpecRelationshipRepository;
 import io.katharsis.queryspec.QuerySpecResourceRepository;
+import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.repository.RepositoryInstanceBuilder;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.resource.information.ResourceInformation;
@@ -26,6 +27,7 @@ import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.repository.DirectResponseRelationshipEntry;
 import io.katharsis.resource.registry.repository.DirectResponseResourceEntry;
 import io.katharsis.resource.registry.repository.ResponseRelationshipEntry;
+import net.jodah.typetools.TypeResolver;
 
 /**
  * Container for setting up and holding {@link Module} instances;
@@ -51,6 +53,12 @@ public class ModuleRegistry {
 	public void addModule(Module module) {
 		module.setupModule(new ModuleContextImpl());
 		modules.add(module);
+	}
+
+	public ResourceRegistry getResourceRegistry() {
+		if (resourceRegistry == null)
+			throw new IllegalStateException("resourceRegistry not yet available");
+		return resourceRegistry;
 	}
 
 	class ModuleContextImpl implements Module.ModuleContext {
@@ -285,9 +293,19 @@ public class ModuleRegistry {
 						public QuerySpecRelationshipRepository buildRepository() {
 							return relationshipRepositoryRegistration.getRepository();
 						}
+						
+						@Override
+					    public Class getRepositoryClass() {
+					        return relationshipRepositoryRegistration.getRepository().getClass();
+					    }
 					};
 					ResponseRelationshipEntry relationshipEntry = new DirectResponseRelationshipEntry(
-							relationshipInstanceBuilder);
+							relationshipInstanceBuilder){
+						@Override
+					    public Class<?> getTargetAffiliation() {
+							return relationshipRepositoryRegistration.getTargetType();
+					    }
+					};
 					relationshipEntries.add(relationshipEntry);
 				}
 			}

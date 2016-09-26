@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import io.katharsis.client.mock.models.Task;
 import io.katharsis.client.module.TestException;
-import io.katharsis.queryParams.QueryParams;
+import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.repository.annotations.JsonApiDelete;
 import io.katharsis.repository.annotations.JsonApiFindAll;
 import io.katharsis.repository.annotations.JsonApiFindAllWithIds;
@@ -47,7 +47,7 @@ public class TaskRepository {
 	}
 
 	@JsonApiFindOne
-	public Task findOne(Long aLong, QueryParams queryParams) {
+	public Task findOne(Long aLong, QuerySpec querySpec) {
 		Task task = map.get(aLong);
 		if (task == null) {
 			throw new ResourceNotFoundException("");
@@ -56,12 +56,12 @@ public class TaskRepository {
 	}
 
 	@JsonApiFindAll
-	public Iterable<Task> findAll(QueryParams queryParams) {
-		return map.values();
+	public Iterable<Task> findAll(QuerySpec queryParams) {
+		return queryParams.apply(map.values());
 	}
 
 	@JsonApiFindAllWithIds
-	public Iterable<Task> findAll(Iterable<Long> ids, QueryParams queryParams) {
+	public Iterable<Task> findAll(Iterable<Long> ids, QuerySpec queryParams) {
 		List<Task> values = new LinkedList<>();
 		for (Task value : map.values()) {
 			if (contains(value, ids)) {

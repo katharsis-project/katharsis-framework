@@ -13,6 +13,8 @@ import io.katharsis.module.CoreModule;
 import io.katharsis.module.ModuleRegistry;
 import io.katharsis.queryParams.DefaultQueryParamsParser;
 import io.katharsis.queryParams.QueryParamsBuilder;
+import io.katharsis.queryspec.internal.QueryAdapterBuilder;
+import io.katharsis.queryspec.internal.QueryParamsAdapterBuilder;
 import io.katharsis.request.path.PathBuilder;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
@@ -44,7 +46,6 @@ public class KatharsisHandlerFactory {
                                           @NonNull ObjectMapper objectMapper,
                                           @NonNull ParameterProviderFactory parameterProviderFactory) {
 
-        QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
         ExceptionMapperRegistry exceptionMapperRegistry = buildExceptionMapperRegistry(packagesToScan);
         ResourceRegistry resourceRegistry = buildRegistry(packagesToScan, webPath);
 
@@ -58,7 +59,7 @@ public class KatharsisHandlerFactory {
 
         PathBuilder pathBuilder = new PathBuilder(resourceRegistry);
 
-        return new KatharsisHandler(objectMapper, queryParamsBuilder, webPath,
+        return new KatharsisHandler(objectMapper, webPath,
                 pathBuilder, parameterProviderFactory, requestDispatcher);
     }
 
@@ -72,7 +73,11 @@ public class KatharsisHandlerFactory {
 
         ControllerRegistry controllerRegistry = controllerRegistryBuilder.build();
 
-        return new RequestDispatcher(moduleRegistry, controllerRegistry, exceptionMapperRegistry);
+        // TODO QuerySpec processing support
+        QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
+        QueryAdapterBuilder queryAdapterBuilder = new QueryParamsAdapterBuilder(queryParamsBuilder, resourceRegistry);
+        
+        return new RequestDispatcher(moduleRegistry, controllerRegistry, exceptionMapperRegistry, queryAdapterBuilder);
     }
 
     public static ModuleRegistry buildModuleRegistry(@NonNull ObjectMapper objectMapper,

@@ -3,7 +3,6 @@ package io.katharsis.client;
 import java.util.concurrent.TimeUnit;
 
 import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.core.Application;
 
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
@@ -17,13 +16,13 @@ import io.katharsis.client.mock.repository.TaskToProjectRepository;
 import io.katharsis.locator.SampleJsonServiceLocator;
 import io.katharsis.queryParams.DefaultQueryParamsParser;
 import io.katharsis.queryParams.QueryParamsBuilder;
+import io.katharsis.queryspec.DefaultQuerySpecDeserializer;
 import io.katharsis.rs.KatharsisFeature;
 import io.katharsis.rs.KatharsisProperties;
 
 public abstract class AbstractClientTest extends JerseyTest {
 
 	protected KatharsisClient client;
-
 
 	protected QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
 
@@ -40,23 +39,36 @@ public abstract class AbstractClientTest extends JerseyTest {
 	}
 
 	@Override
-	protected Application configure() {
-		return new TestApplication();
+	protected TestApplication configure() {
+		return new TestApplication(false);
 	}
 
 	@ApplicationPath("/")
-	private static class TestApplication extends ResourceConfig {
-		public TestApplication() {
+	public static class TestApplication extends ResourceConfig {
+
+		private KatharsisFeature feature;
+
+		public TestApplication(boolean querySpec) {
 			property(KatharsisProperties.RESOURCE_SEARCH_PACKAGE, "io.katharsis.client.mock");
 			property(KatharsisProperties.RESOURCE_DEFAULT_DOMAIN, "http://test.local");
-			
-			KatharsisFeature feature = new KatharsisFeature(new ObjectMapper(), new QueryParamsBuilder(new DefaultQueryParamsParser()),
-					new SampleJsonServiceLocator());
-			
+
+			if (!querySpec) {
+				feature = new KatharsisFeature(new ObjectMapper(), new QueryParamsBuilder(new DefaultQueryParamsParser()),
+						new SampleJsonServiceLocator());
+			}
+			else {
+				feature = new KatharsisFeature(new ObjectMapper(), new DefaultQuerySpecDeserializer(),
+						new SampleJsonServiceLocator());
+			}
+
 			feature.addModule(new TestModule());
-			
+
 			register(feature);
 
+		}
+
+		public KatharsisFeature getFeature() {
+			return feature;
 		}
 	}
 }

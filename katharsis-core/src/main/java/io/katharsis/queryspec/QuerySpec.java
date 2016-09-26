@@ -35,7 +35,7 @@ public class QuerySpec {
 	 * @param resources resources
 	 * @return sorted, filtered list.
 	 */
-	public <T> List<T> apply(List<T> resources) {
+	public <T> List<T> apply(Iterable<T> resources) {
 		InMemoryEvaluator eval = new InMemoryEvaluator();
 		return eval.eval(resources, this);
 	}

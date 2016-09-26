@@ -31,7 +31,7 @@ public class RelationshipRepositoryAdapter<T, T_ID extends Serializable, D, D_ID
     public JsonApiResponse setRelation(T source, D_ID targetId, String fieldName, QueryAdapter queryAdapter) {
         if (isAnnotated) {
             ((AnnotatedRelationshipRepositoryAdapter) relationshipRepository)
-                .setRelation(source, targetId, fieldName, toQueryParams(queryAdapter));
+                .setRelation(source, targetId, fieldName, queryAdapter);
         } else if(relationshipRepository instanceof QuerySpecRelationshipRepository){
         	((QuerySpecRelationshipRepository)relationshipRepository).setRelation(source, targetId, fieldName);
         } else {
@@ -43,7 +43,7 @@ public class RelationshipRepositoryAdapter<T, T_ID extends Serializable, D, D_ID
     public JsonApiResponse setRelations(T source, Iterable<D_ID> targetIds, String fieldName, QueryAdapter queryAdapter) {
         if (isAnnotated) {
             ((AnnotatedRelationshipRepositoryAdapter) relationshipRepository)
-                .setRelations(source, targetIds, fieldName, toQueryParams(queryAdapter));
+                .setRelations(source, targetIds, fieldName, queryAdapter);
         } else if(relationshipRepository instanceof QuerySpecRelationshipRepository){
         	((QuerySpecRelationshipRepository)relationshipRepository).setRelations(source, targetIds, fieldName);
         } else {
@@ -55,7 +55,7 @@ public class RelationshipRepositoryAdapter<T, T_ID extends Serializable, D, D_ID
     public JsonApiResponse addRelations(T source, Iterable<D_ID> targetIds, String fieldName, QueryAdapter queryAdapter) {
         if (isAnnotated) {
             ((AnnotatedRelationshipRepositoryAdapter) relationshipRepository)
-                .addRelations(source, targetIds, fieldName, toQueryParams(queryAdapter));
+                .addRelations(source, targetIds, fieldName, queryAdapter);
         } else if(relationshipRepository instanceof QuerySpecRelationshipRepository){
         	((QuerySpecRelationshipRepository)relationshipRepository).addRelations(source, targetIds, fieldName);
         } else {
@@ -67,7 +67,7 @@ public class RelationshipRepositoryAdapter<T, T_ID extends Serializable, D, D_ID
     public JsonApiResponse removeRelations(T source, Iterable<D_ID> targetIds, String fieldName, QueryAdapter queryAdapter) {
         if (isAnnotated) {
             ((AnnotatedRelationshipRepositoryAdapter) relationshipRepository)
-                .removeRelations(source, targetIds, fieldName, toQueryParams(queryAdapter));
+                .removeRelations(source, targetIds, fieldName, queryAdapter);
         } else if(relationshipRepository instanceof QuerySpecRelationshipRepository){
         	((QuerySpecRelationshipRepository)relationshipRepository).removeRelations(source, targetIds, fieldName);
         } else {
@@ -80,9 +80,11 @@ public class RelationshipRepositoryAdapter<T, T_ID extends Serializable, D, D_ID
         Object resource;
         if (isAnnotated) {
             resource = ((AnnotatedRelationshipRepositoryAdapter) relationshipRepository)
-                .findOneTarget(sourceId, fieldName, toQueryParams(queryAdapter));
+                .findOneTarget(sourceId, fieldName, queryAdapter);
         } else if(relationshipRepository instanceof QuerySpecRelationshipRepository){
-        	resource = ((QuerySpecRelationshipRepository)relationshipRepository).findOneTarget(sourceId, fieldName, toQuerySpec(queryAdapter));
+        	QuerySpecRelationshipRepository querySpecRepository = (QuerySpecRelationshipRepository) relationshipRepository;
+        	Class<?> targetResourceClass = querySpecRepository.getTargetResourceClass();
+        	resource = querySpecRepository.findOneTarget(sourceId, fieldName, toQuerySpec(queryAdapter, targetResourceClass));
         } else {
             resource = ((RelationshipRepository) relationshipRepository)
                 .findOneTarget(sourceId, fieldName, toQueryParams(queryAdapter));
@@ -94,9 +96,11 @@ public class RelationshipRepositoryAdapter<T, T_ID extends Serializable, D, D_ID
         Object resources;
         if (isAnnotated) {
             resources = ((AnnotatedRelationshipRepositoryAdapter) relationshipRepository)
-                .findManyTargets(sourceId, fieldName, toQueryParams(queryAdapter));
+                .findManyTargets(sourceId, fieldName, queryAdapter);
         }else if(relationshipRepository instanceof QuerySpecRelationshipRepository){
-            	resources = ((QuerySpecRelationshipRepository)relationshipRepository).findManyTargets(sourceId, fieldName, toQuerySpec(queryAdapter));
+        	QuerySpecRelationshipRepository querySpecRepository = (QuerySpecRelationshipRepository) relationshipRepository;
+        	Class<?> targetResourceClass = querySpecRepository.getTargetResourceClass();
+            	resources = querySpecRepository.findManyTargets(sourceId, fieldName, toQuerySpec(queryAdapter, targetResourceClass));
         } else {
             resources = ((RelationshipRepository) relationshipRepository)
                 .findManyTargets(sourceId, fieldName, toQueryParams(queryAdapter));
@@ -110,12 +114,7 @@ public class RelationshipRepositoryAdapter<T, T_ID extends Serializable, D, D_ID
 	}
 	
 	@Override
-	public FilterOperator getDefaultOperator() {
-		return ((QuerySpecRelationshipRepository<?,?,?,?>) relationshipRepository).getDefaultOperator();
-	}
-
-	@Override
-	public Set<FilterOperator> getSupportedOperators() {
-		return ((QuerySpecRelationshipRepository<?,?,?,?>) relationshipRepository).getSupportedOperators();
+	protected Class<?> getResourceClass(Object repository) {
+		return ((QuerySpecRelationshipRepository)repository).getTargetResourceClass();
 	}
 }

@@ -43,7 +43,7 @@ public interface JpaQueryBackend<F, O, P, E> {
 
 	public P or(List<P> predicates);
 
-	public Class<?> getJavaType(E currentCriteriaPath);
+	public Class<?> getJavaElementType(E currentCriteriaPath);
 
 	public E getAttribute(E currentCriteriaPath, MetaAttribute pathElement);
 

@@ -90,4 +90,9 @@ public class QuerySpecAdapter implements QueryAdapter {
 			params.put(getResourceTypee(spec), new IncludedFieldsParams(set));
 		}
 	}
+
+	@Override
+	public Class<?> getResourceClass() {
+		return querySpec.getResourceClass();
+	}
 }

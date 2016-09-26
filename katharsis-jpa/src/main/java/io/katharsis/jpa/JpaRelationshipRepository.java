@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Set;
 
 import javax.persistence.EntityManager;
 
@@ -12,11 +11,9 @@ import io.katharsis.jpa.internal.JpaRepositoryUtils;
 import io.katharsis.jpa.internal.meta.MetaAttribute;
 import io.katharsis.jpa.internal.meta.MetaEntity;
 import io.katharsis.jpa.internal.meta.MetaType;
-import io.katharsis.jpa.query.JpaFilterOperators;
 import io.katharsis.jpa.query.JpaQuery;
 import io.katharsis.jpa.query.JpaQueryExecutor;
 import io.katharsis.jpa.query.JpaQueryFactory;
-import io.katharsis.queryspec.FilterOperator;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.QuerySpecRelationshipRepository;
 
@@ -182,22 +179,11 @@ public class JpaRelationshipRepository<T, I extends Serializable, D, J extends S
 
 	@Override
 	public Class<T> getSourceResourceClass() {
-		// TODO Auto-generated method stub
-		return null;
+		return entityClass;
 	}
 
 	@Override
 	public Class<D> getTargetResourceClass() {
 		return relatedEntityClass;
-	}
-
-	@Override
-	public Set<FilterOperator> getSupportedOperators() {
-		return JpaFilterOperators.getSupportedOperators();
-	}
-
-	@Override
-	public FilterOperator getDefaultOperator() {
-		return JpaFilterOperators.getDefaultOperator();
 	}
 }
