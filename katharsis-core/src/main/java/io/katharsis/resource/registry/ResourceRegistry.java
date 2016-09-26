@@ -51,6 +51,9 @@ public class ResourceRegistry {
     public RegistryEntry getEntry(String searchType) {
         for (Map.Entry<Class, RegistryEntry> entry : resources.entrySet()) {
             String type = getResourceType(entry.getKey());
+            if (type == null) {
+                return null;
+            }
             if (type.equals(searchType)) {
                 return entry.getValue();
             }
@@ -124,6 +127,9 @@ public class ResourceRegistry {
             return null;
         }
         ResourceInformation resourceInformation = entry.getResourceInformation();
+        if (resourceInformation == null) {
+            return null;
+        }
         return resourceInformation.getResourceType();
     }
 

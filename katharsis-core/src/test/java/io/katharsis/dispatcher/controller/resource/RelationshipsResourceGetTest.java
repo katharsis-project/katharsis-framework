@@ -18,8 +18,12 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 
+import static junit.framework.TestCase.assertTrue;
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -148,15 +152,28 @@ public class RelationshipsResourceGetTest extends BaseControllerTest {
 
         resultJson = objectMapper.writeValueAsString(baseResponseContext);
         ReadContext resultCtx = com.jayway.jsonpath.JsonPath.parse(resultJson);
-        assertInclude("44", 0, resultCtx);
-        assertInclude("45", 1, resultCtx);
+        assertIncludeDoNotCareAboutOrder(new ArrayList<>(Arrays.asList("44", "45")), Arrays.asList(0, 1), resultCtx);
 
     }
 
-    private void assertInclude(String id, int index, ReadContext resultCtx) {
-        assertEquals("tasks", resultCtx.read("data[" + index + "].type"));
-        String idStr = resultCtx.read("data[" + index + "].id").toString();
-        assertEquals(id, idStr);
+    private void assertIncludeDoNotCareAboutOrder(List<String> ids, List<Integer> indexes, ReadContext resultCtx) {
+
+        for (Integer index : indexes) {
+            assertEquals("tasks", resultCtx.read("data[" + index + "].type"));
+        }
+
+        for (Iterator<String> iterator = ids.iterator(); iterator.hasNext(); ) {
+            String id = iterator.next();
+            for (Integer index : indexes) {
+                String idStr = resultCtx.read("data[" + index + "].id").toString();
+                if (id.equals(idStr)) {
+                    iterator.remove();
+                }
+            }
+        }
+
+        assertTrue("Could not find ids" + ids, ids.size() == 0);
+
 
     }
 }
