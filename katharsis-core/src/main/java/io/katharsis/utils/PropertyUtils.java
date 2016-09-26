@@ -55,7 +55,6 @@ public class PropertyUtils {
      * @param beanClass  bean to be accessed
      * @param field bean's fieldName
      * @return bean's property class
-     * @return
      */
     public static Class<?> getPropertyClass(Class<?> beanClass, String field) {
         try {

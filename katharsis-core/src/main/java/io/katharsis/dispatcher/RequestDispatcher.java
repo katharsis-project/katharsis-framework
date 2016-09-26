@@ -61,7 +61,6 @@ public class RequestDispatcher {
      * @param jsonPath          built {@link JsonPath} instance which represents the URI sent in the request
      * @param requestType       type of the request e.g. POST, GET, PATCH
      * @param parameterProvider repository method parameter provider
-     * @param queryAdapter      built object containing query parameters of the request
      * @param requestBody       deserialized body of the client request
      * @return the response form the Katharsis
      */
