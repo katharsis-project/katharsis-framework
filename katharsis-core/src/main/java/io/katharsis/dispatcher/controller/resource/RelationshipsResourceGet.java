@@ -1,9 +1,5 @@
 package io.katharsis.dispatcher.controller.resource;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
@@ -17,15 +13,15 @@ import io.katharsis.resource.include.IncludeLookupSetter;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.responseRepository.RelationshipRepositoryAdapter;
-import io.katharsis.response.BaseResponseContext;
-import io.katharsis.response.CollectionResponseContext;
-import io.katharsis.response.JsonApiResponse;
-import io.katharsis.response.LinkageContainer;
-import io.katharsis.response.ResourceResponseContext;
+import io.katharsis.response.*;
 import io.katharsis.utils.Generics;
 import io.katharsis.utils.parser.TypeParser;
 
-public class RelationshipsResourceGet extends ResourceIncludeField  {
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
+public class RelationshipsResourceGet extends ResourceIncludeField {
 
     public RelationshipsResourceGet(ResourceRegistry resourceRegistry, TypeParser typeParser, IncludeLookupSetter fieldSetter) {
         super(resourceRegistry, typeParser, fieldSetter);
@@ -34,8 +30,8 @@ public class RelationshipsResourceGet extends ResourceIncludeField  {
     @Override
     public boolean isAcceptable(JsonPath jsonPath, String requestType) {
         return !jsonPath.isCollection()
-            && jsonPath instanceof RelationshipsPath
-            && HttpMethod.GET.name().equals(requestType);
+                && jsonPath instanceof RelationshipsPath
+                && HttpMethod.GET.name().equals(requestType);
     }
 
     @Override
@@ -48,36 +44,35 @@ public class RelationshipsResourceGet extends ResourceIncludeField  {
         Serializable castedResourceId = getResourceId(resourceIds, registryEntry);
         String elementName = jsonPath.getElementName();
         ResourceField relationshipField = registryEntry.getResourceInformation()
-            .findRelationshipFieldByName(elementName);
+                .findRelationshipFieldByName(elementName);
         if (relationshipField == null) {
             throw new ResourceFieldNotFoundException(elementName);
         }
 
         Class<?> baseRelationshipFieldClass = relationshipField.getType();
         Class<?> relationshipFieldClass = Generics
-            .getResourceClass(relationshipField.getGenericType(), baseRelationshipFieldClass);
+                .getResourceClass(relationshipField.getGenericType(), baseRelationshipFieldClass);
 
         RelationshipRepositoryAdapter relationshipRepositoryForClass = registryEntry
-            .getRelationshipRepositoryForClass(relationshipFieldClass, parameterProvider);
-        RegistryEntry relationshipFieldEntry = resourceRegistry.getEntry(relationshipFieldClass);
+                .getRelationshipRepositoryForClass(relationshipFieldClass, parameterProvider);
         BaseResponseContext target;
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
             @SuppressWarnings("unchecked")
             JsonApiResponse response = relationshipRepositoryForClass
-                .findManyTargets(castedResourceId, elementName, queryAdapter);
+                    .findManyTargets(castedResourceId, elementName, queryAdapter);
             includeFieldSetter.setIncludedElements(resourceName, response, queryAdapter, parameterProvider);
 
-            List<LinkageContainer> dataList = getLinkages(relationshipFieldClass, relationshipFieldEntry, response);
+            List<LinkageContainer> dataList = getLinkages(relationshipFieldClass, response);
             response.setEntity(dataList);
             target = new CollectionResponseContext(response, jsonPath, queryAdapter);
         } else {
             @SuppressWarnings("unchecked")
             JsonApiResponse response = relationshipRepositoryForClass
-                .findOneTarget(castedResourceId, elementName, queryAdapter);
+                    .findOneTarget(castedResourceId, elementName, queryAdapter);
             includeFieldSetter.setIncludedElements(resourceName, response, queryAdapter, parameterProvider);
 
             if (response.getEntity() != null) {
-                LinkageContainer linkageContainer = getLinkage(relationshipFieldClass, relationshipFieldEntry, response);
+                LinkageContainer linkageContainer = getLinkage(relationshipFieldClass, response);
                 response.setEntity(linkageContainer);
                 target = new ResourceResponseContext(response, jsonPath, queryAdapter);
             } else {
@@ -88,15 +83,15 @@ public class RelationshipsResourceGet extends ResourceIncludeField  {
         return target;
     }
 
-    private LinkageContainer getLinkage(Class<?> relationshipFieldClass, RegistryEntry relationshipFieldEntry, Object targetObject) {
+    private LinkageContainer getLinkage(Class<?> relationshipFieldClass, Object targetObject) {
         if (targetObject instanceof JsonApiResponse) {
-            return new LinkageContainer(((JsonApiResponse)targetObject).getEntity(), relationshipFieldClass, relationshipFieldEntry);
+            return new LinkageContainer(((JsonApiResponse) targetObject).getEntity(), relationshipFieldClass, resourceRegistry.getEntry(((JsonApiResponse) targetObject).getEntity()));
         } else {
-            return new LinkageContainer(targetObject, relationshipFieldClass, relationshipFieldEntry);
+            return new LinkageContainer(targetObject, relationshipFieldClass, resourceRegistry.getEntry(targetObject));
         }
     }
 
-    private List<LinkageContainer> getLinkages(Class<?> relationshipFieldClass, RegistryEntry relationshipFieldEntry,
+    private List<LinkageContainer> getLinkages(Class<?> relationshipFieldClass,
                                                JsonApiResponse targetObjects) {
         List<LinkageContainer> dataList = new ArrayList<>();
         if (targetObjects == null) {
@@ -105,7 +100,7 @@ public class RelationshipsResourceGet extends ResourceIncludeField  {
         Iterable resources = (Iterable) targetObjects.getEntity();
 
         for (Object resource : resources) {
-            dataList.add(new LinkageContainer(resource, relationshipFieldClass, relationshipFieldEntry));
+            dataList.add(new LinkageContainer(resource, relationshipFieldClass, resourceRegistry.getEntry(resource)));
         }
         return dataList;
     }
@@ -113,9 +108,9 @@ public class RelationshipsResourceGet extends ResourceIncludeField  {
     private Serializable getResourceId(PathIds resourceIds, RegistryEntry<?> registryEntry) {
         String resourceId = resourceIds.getIds().get(0);
         @SuppressWarnings("unchecked") Class<? extends Serializable> idClass = (Class<? extends Serializable>) registryEntry
-            .getResourceInformation()
-            .getIdField()
-            .getType();
+                .getResourceInformation()
+                .getIdField()
+                .getType();
         return typeParser.parse(resourceId, idClass);
     }
 }

@@ -1,15 +1,15 @@
 package io.katharsis.resource.registry;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.exception.init.ResourceNotFoundInitializationException;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.utils.java.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class ResourceRegistry {
@@ -51,11 +51,34 @@ public class ResourceRegistry {
     public RegistryEntry getEntry(String searchType) {
         for (Map.Entry<Class, RegistryEntry> entry : resources.entrySet()) {
             String type = getResourceType(entry.getKey());
+            if (type == null) {
+                return null;
+            }
             if (type.equals(searchType)) {
                 return entry.getValue();
             }
         }
         return null;
+    }
+
+    /**
+     * Searches the registry for a resource identified by,
+     * 1) JSON API resource type.
+     * 2) JSON API resource class.
+     * <p>
+     * If a resource cannot be found, {@link ResourceNotFoundInitializationException} is thrown.
+     *
+     * @param searchType resource type
+     * @param clazz      resource type
+     * @return registry entry
+     * @throws ResourceNotFoundInitializationException if resource is not found
+     */
+    public RegistryEntry getEntry(String searchType, Class clazz) {
+        RegistryEntry entry = getEntry(searchType);
+        if (entry == null) {
+            return getEntry(clazz, false);
+        }
+        return entry;
     }
 
     /**
@@ -79,6 +102,18 @@ public class ResourceRegistry {
         return resources.get(resourceClazz.get());
     }
 
+    public RegistryEntry getEntry(Object targetDataObject) {
+        Class<?> targetDataObjClass = targetDataObject.getClass();
+        RegistryEntry relationshipEntry;
+        if (targetDataObjClass.getAnnotation(JsonApiResource.class) != null) {
+            relationshipEntry = getEntry(targetDataObjClass.getAnnotation(JsonApiResource.class).type(),
+                    targetDataObjClass.getClass());
+        } else {
+            relationshipEntry = getEntry(targetDataObject.getClass());
+        }
+        return relationshipEntry;
+    }
+
     /**
      * Returns a JSON API resource type used by Katharsis. If a class cannot be found, <i>null</i> is returned.
      * The value is fetched from {@link ResourceInformation#getResourceType()} attribute.
@@ -92,6 +127,9 @@ public class ResourceRegistry {
             return null;
         }
         ResourceInformation resourceInformation = entry.getResourceInformation();
+        if (resourceInformation == null) {
+            return null;
+        }
         return resourceInformation.getResourceType();
     }
 

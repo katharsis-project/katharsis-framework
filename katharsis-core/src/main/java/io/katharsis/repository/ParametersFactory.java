@@ -25,7 +25,6 @@ public class ParametersFactory {
      *
      * @param firstParameters parameters to be returned as the firsts element in the return array
      * @param method          repository method
-     * @param queryParams     {@link QueryParams} object associated with the request
      * @param annotationType  method annotation
      * @return array of resolved parameters
      */

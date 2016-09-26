@@ -6,14 +6,12 @@ import io.katharsis.queryParams.params.TypedParams;
 
 public interface QueryAdapter {
 
-	boolean hasIncludedRelations();
+    boolean hasIncludedRelations();
 
-	TypedParams<IncludedRelationsParams> getIncludedRelations();
+    TypedParams<IncludedRelationsParams> getIncludedRelations();
 
-	TypedParams<IncludedFieldsParams> getIncludedFields();
+    TypedParams<IncludedFieldsParams> getIncludedFields();
 
 	Class<?> getResourceClass();
-
-
 
 }

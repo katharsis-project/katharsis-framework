@@ -45,9 +45,9 @@ public class KatharsisHandler implements Handler<RoutingContext> {
 
         JsonPath jsonPath = buildPath(ctx);
         String requestMethod = ctx.request().method().name();
-        
+
         Map<String, Set<String>> parameters = getParameters(ctx);
-        
+
         RepositoryMethodParameterProvider provider = parameterProviderFactory.provider(ctx);
         RequestBody body = requestBody(ctx.getBodyAsString());
 
