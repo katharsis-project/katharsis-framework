@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 
+import javax.annotation.Priority;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
@@ -59,6 +60,7 @@ import io.katharsis.rs.type.JsonApiMediaType;
  * </p>
  */
 @PreMatching
+@Priority(Integer.MAX_VALUE) // Greatest value is applied last
 public class KatharsisFilter implements ContainerRequestFilter {
 	
 	private Logger logger = LoggerFactory.getLogger(getClass());
