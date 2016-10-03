@@ -4,7 +4,6 @@ import javax.ws.rs.core.UriInfo;
 
 public class UriInfoServiceUrlProvider implements ServiceUrlProvider {
 
-	@Deprecated
 	private UriInfo globalUrlInfo;
 
 	private ThreadLocal<UriInfo> threadLocal = new ThreadLocal<>();
@@ -13,6 +12,9 @@ public class UriInfoServiceUrlProvider implements ServiceUrlProvider {
 		// make use of thread local and started/finish events to get uriInfo
 	}
 
+	/**
+	 * @deprecated Make use of the default constructor instead.
+	 */
 	@Deprecated
 	public UriInfoServiceUrlProvider(UriInfo info) {
 		this.globalUrlInfo = info;
