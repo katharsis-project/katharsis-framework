@@ -36,6 +36,10 @@ public class ResourceRegistryTest {
         assertThat(tasksEntry).isNotNull();
     }
 
+    @Test
+    public void testGetSeriveUrlProvider(){
+    	assertThat(resourceRegistry.getServiceUrlProvider().getUrl()).isEqualTo(TEST_MODELS_URL);
+    }
 
     @Test
     public void testSecondaryConstructor() {

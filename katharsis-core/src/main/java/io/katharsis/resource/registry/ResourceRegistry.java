@@ -1,15 +1,16 @@
 package io.katharsis.resource.registry;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.exception.init.ResourceNotFoundInitializationException;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.utils.java.Optional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 
 public class ResourceRegistry {
@@ -149,7 +150,7 @@ public class ResourceRegistry {
         return Optional.empty();
     }
 
-    public String getResourceUrl(Class clazz) {
+    public String getResourceUrl(Class<?> clazz) {
         return serviceUrlProvider.getUrl() + "/" + getResourceType(clazz);
     }
 
@@ -157,6 +158,10 @@ public class ResourceRegistry {
         return serviceUrlProvider.getUrl();
     }
 
+    public ServiceUrlProvider getServiceUrlProvider(){
+    	return serviceUrlProvider;
+    }
+    
     /**
      * Get a list of all registered resources by Katharsis.
      *
