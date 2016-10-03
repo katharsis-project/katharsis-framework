@@ -18,6 +18,7 @@ import io.katharsis.queryspec.FilterSpec;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.QuerySpecDeserializerContext;
 import io.katharsis.queryspec.SortSpec;
+import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.registry.ResourceRegistry;
 
@@ -46,7 +47,7 @@ public class DefaultQuerySpecDeserializerTest extends AbstractQuerySpecTest {
 		Assert.assertEquals(FilterOperator.LIKE, deserializer.getDefaultOperator());
 		Assert.assertEquals(1, deserializer.getSupportedOperators().size());
 	}
-
+	
 	@Test
 	public void testFindAll() throws InstantiationException, IllegalAccessException {
 		Map<String, Set<String>> params = new HashMap<>();
@@ -56,6 +57,32 @@ public class DefaultQuerySpecDeserializerTest extends AbstractQuerySpecTest {
 		Assert.assertEquals(expectedSpec, actualSpec);
 	}
 
+
+    @Test
+    public void defaultPaginationOnRoot(){
+    	Map<String, Set<String>> params = new HashMap<>();
+    	deserializer.setDefaultLimit(12L);
+    	deserializer.setDefaultOffset(1L);
+		QuerySpec actualSpec = deserializer.deserialize(Task.class, params);
+		Assert.assertEquals(1L, actualSpec.getOffset());
+		Assert.assertEquals(12L, actualSpec.getLimit().longValue());
+    }
+    
+    @Test
+    public void defaultPaginationOnRelation(){
+    	Map<String, Set<String>> params = new HashMap<>();
+    	add(params, "sort[projects]", "name");
+    	deserializer.setDefaultLimit(12L);
+    	deserializer.setDefaultOffset(1L);
+		QuerySpec actualSpec = deserializer.deserialize(Task.class, params);
+		Assert.assertEquals(1L, actualSpec.getOffset());
+		Assert.assertEquals(12L, actualSpec.getLimit().longValue());
+		QuerySpec projectQuerySpec = actualSpec.getQuerySpec(Project.class);
+		Assert.assertNotNull(projectQuerySpec);
+		Assert.assertEquals(1L, projectQuerySpec.getOffset());
+		Assert.assertEquals(12L, projectQuerySpec.getLimit().longValue());
+    }
+	
 	@Test
 	public void testFindAllOrderByAsc() throws InstantiationException, IllegalAccessException {
 		QuerySpec expectedSpec = new QuerySpec(Task.class);

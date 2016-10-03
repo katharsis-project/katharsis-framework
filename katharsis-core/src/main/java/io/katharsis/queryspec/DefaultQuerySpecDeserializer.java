@@ -17,6 +17,9 @@ import io.katharsis.utils.PropertyUtils;
 import io.katharsis.utils.parser.ParserException;
 import io.katharsis.utils.parser.TypeParser;
 
+/**
+ * Maps url parameters to QuerySpec.
+ */
 public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 
 	private static final String OFFSET_PARAMETER = "offset";
@@ -25,10 +28,13 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 
 	private static final Pattern PARAMETER_PATTERN = Pattern.compile("(\\w+)(\\[(\\w+)\\])?([\\w\\[\\]]*)");
 
-
 	private TypeParser typeParser = new TypeParser();
 
 	private FilterOperator defaultOperator = FilterOperator.EQ;
+
+	private long defaultOffset = 0;
+
+	private Long defaultLimit = null;
 
 	private Set<FilterOperator> supportedOperators = new HashSet<>();
 
@@ -42,6 +48,32 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 		supportedOperators.add(FilterOperator.GE);
 		supportedOperators.add(FilterOperator.LT);
 		supportedOperators.add(FilterOperator.LE);
+	}
+
+	public long getDefaultOffset() {
+		return defaultOffset;
+	}
+
+	/**
+	 * Sets the default offset if no pagination is used.
+	 * 
+	 * @param defaultOffset
+	 */
+	public void setDefaultOffset(long defaultOffset) {
+		this.defaultOffset = defaultOffset;
+	}
+
+	public Long getDefaultLimit() {
+		return defaultLimit;
+	}
+
+	/**
+	 * Sets the default limit if no pagination is used.
+	 * 
+	 * @param defaultLimit
+	 */
+	public void setDefaultLimit(Long defaultLimit) {
+		this.defaultLimit = defaultLimit;
 	}
 
 	public FilterOperator getDefaultOperator() {
@@ -67,12 +99,16 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 
 	@Override
 	public QuerySpec deserialize(Class<?> rootResourceClass, Map<String, Set<String>> parameterMap) {
-
 		QuerySpec rootQuerySpec = new QuerySpec(rootResourceClass);
-
+		setupDefaults(rootQuerySpec);
+		
 		List<Parameter> parameters = parseParameters(parameterMap, rootResourceClass);
 		for (Parameter parameter : parameters) {
-			QuerySpec querySpec = rootQuerySpec.getOrCreateQuerySpec(parameter.resourceClass);
+			QuerySpec querySpec = rootQuerySpec.getQuerySpec(parameter.resourceClass);
+			if(querySpec == null){
+				querySpec = rootQuerySpec.getOrCreateQuerySpec(parameter.resourceClass);
+				setupDefaults(querySpec);
+			}
 			switch (parameter.paramType) {
 				case sort:
 					deserializeSort(querySpec, parameter);
@@ -96,6 +132,11 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 		}
 
 		return rootQuerySpec;
+	}
+
+	private void setupDefaults(QuerySpec querySpec) {
+		querySpec.setOffset(defaultOffset);
+		querySpec.setLimit(defaultLimit);
 	}
 
 	private void deserializeIncludes(QuerySpec querySpec, Parameter parameter) {
