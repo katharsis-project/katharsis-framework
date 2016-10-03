@@ -38,6 +38,7 @@ import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.resource.registry.ServiceUrlProvider;
 import io.katharsis.resource.registry.UriInfoServiceUrlProvider;
 import io.katharsis.response.BaseResponseContext;
 import io.katharsis.rs.parameterProvider.JaxRsParameterProvider;
@@ -123,11 +124,18 @@ public class KatharsisFilter implements ContainerRequestFilter {
         UriInfo uriInfo = requestContext.getUriInfo();
         BaseResponseContext katharsisResponse = null;
         boolean passToMethodMatcher = false;
-        //TODO: Refactor
+        ServiceUrlProvider serviceUrlProvider = resourceRegistry.getServiceUrlProvider();
         try {
             String path = buildPath(uriInfo);
-            ResourceRegistry newRegistry = new ResourceRegistry(resourceRegistry.getResources(), new UriInfoServiceUrlProvider(uriInfo));
-            JsonPath jsonPath = new PathBuilder(newRegistry).buildPath(path);
+            
+            if(serviceUrlProvider instanceof UriInfoServiceUrlProvider){
+            	// TODO not a particular nice way of doing this. With Katharsis 3.0 and the serialization
+            	// refacotring there should be a better way achieving this. At that point 
+            	// serialization should be serialization only, no further logic like reading urls.
+            	((UriInfoServiceUrlProvider)serviceUrlProvider).onRequestStarted(uriInfo);
+            }
+            
+            JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath(path);
             
             Map<String, Set<String>> parameters = getParameters(uriInfo);
 
@@ -146,6 +154,10 @@ public class KatharsisFilter implements ContainerRequestFilter {
         } finally {
             if (!passToMethodMatcher) {
                 abortWithResponse(requestContext, katharsisResponse);
+            }
+            
+            if(serviceUrlProvider instanceof UriInfoServiceUrlProvider){
+            	((UriInfoServiceUrlProvider)serviceUrlProvider).onRequestFinished();
             }
         }
     }
