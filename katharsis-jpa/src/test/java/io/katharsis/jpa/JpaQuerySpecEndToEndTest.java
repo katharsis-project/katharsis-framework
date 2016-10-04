@@ -28,6 +28,7 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 
 	private QuerySpecResourceRepositoryStub<TestEntity, Long> testRepo;
 
+	@Override
 	@Before
 	public void setup() {
 		super.setup();
