@@ -115,4 +115,9 @@ public class MetaAttributeImpl extends MetaElementImpl implements MetaAttribute 
 		Collection col = (Collection) getValue(dataObject);
 		col.remove(value);
 	}
+
+	@Override
+	public boolean isId() {
+		return false;
+	}
 }

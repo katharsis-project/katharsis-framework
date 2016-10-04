@@ -4,7 +4,9 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 
 import javax.persistence.ElementCollection;
+import javax.persistence.EmbeddedId;
 import javax.persistence.FetchType;
+import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -19,12 +21,18 @@ import io.katharsis.jpa.internal.meta.MetaType;
 public class AbstractMetaEntityAttributeImpl extends MetaAttributeImpl {
 
 	protected Field field;
+
 	private boolean derived;
 
 	private boolean lazy = false;
+
 	private String mappedBy = null;
+
 	private MetaAttribute oppositeAttr;
+
 	private boolean version = false;
+
+	private boolean idField;
 
 	public AbstractMetaEntityAttributeImpl(MetaDataObjectImpl parent, PropertyDescriptor desc) {
 		super(parent, desc);
@@ -32,7 +40,8 @@ public class AbstractMetaEntityAttributeImpl extends MetaAttributeImpl {
 		field = getField(parent, desc);
 		if (field != null) {
 			readAnnotations(field);
-		} else {
+		}
+		else {
 			derived = true;
 		}
 	}
@@ -42,7 +51,8 @@ public class AbstractMetaEntityAttributeImpl extends MetaAttributeImpl {
 			Field field = parent.getImplementationClass().getDeclaredField(desc.getName());
 			field.setAccessible(true);
 			return field;
-		} catch (NoSuchFieldException e) { // NOSONAR
+		}
+		catch (NoSuchFieldException e) { // NOSONAR
 			return null;
 		}
 	}
@@ -75,14 +85,20 @@ public class AbstractMetaEntityAttributeImpl extends MetaAttributeImpl {
 			mappedBy = null;
 		}
 
-		setAssociation(manyManyAnnotation != null || manyOneAnnotation != null || oneManyAnnotation != null
-				|| oneOneAnnotation != null);
+		setAssociation(
+				manyManyAnnotation != null || manyOneAnnotation != null || oneManyAnnotation != null || oneOneAnnotation != null);
 
-		boolean lazyCollection = elemCollectionAnnotation != null
-				&& elemCollectionAnnotation.fetch() != FetchType.EAGER;
+		boolean lazyCollection = elemCollectionAnnotation != null && elemCollectionAnnotation.fetch() != FetchType.EAGER;
 		boolean lazyAssociation = isAssociation() && (fetchType == null || fetchType == FetchType.LAZY);
 
 		lazy = lazyCollection || lazyAssociation;
+
+		idField = field.getAnnotation(EmbeddedId.class) != null || field.getAnnotation(Id.class) != null;
+	}
+
+	@Override
+	public boolean isId() {
+		return idField;
 	}
 
 	@Override
