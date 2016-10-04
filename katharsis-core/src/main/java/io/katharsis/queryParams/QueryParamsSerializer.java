@@ -1,9 +1,7 @@
-package io.katharsis.client.internal;
+package io.katharsis.queryParams;
 
 import java.util.Map;
 import java.util.Set;
-
-import io.katharsis.queryParams.QueryParams;
 
 /**
  * Converts {@link QueryParams} into URL parameters.

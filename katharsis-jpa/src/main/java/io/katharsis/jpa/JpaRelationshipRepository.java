@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.persistence.EntityManager;
 
@@ -11,13 +12,19 @@ import io.katharsis.jpa.internal.JpaRepositoryUtils;
 import io.katharsis.jpa.internal.meta.MetaAttribute;
 import io.katharsis.jpa.internal.meta.MetaEntity;
 import io.katharsis.jpa.internal.meta.MetaType;
+import io.katharsis.jpa.internal.paging.DefaultPagedLinksInformation;
+import io.katharsis.jpa.internal.paging.DefaultPagedMetaInformation;
+import io.katharsis.jpa.internal.paging.PagedLinksInformation;
+import io.katharsis.jpa.internal.paging.PagedMetaInformation;
+import io.katharsis.jpa.internal.paging.PagedRepositoryBase;
+import io.katharsis.jpa.internal.paging.PagedResultList;
 import io.katharsis.jpa.query.JpaQuery;
 import io.katharsis.jpa.query.JpaQueryExecutor;
 import io.katharsis.jpa.query.JpaQueryFactory;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.QuerySpecRelationshipRepository;
 
-public class JpaRelationshipRepository<T, I extends Serializable, D, J extends Serializable>
+public class JpaRelationshipRepository<T, I extends Serializable, D, J extends Serializable> extends PagedRepositoryBase<D>
 		implements QuerySpecRelationshipRepository<T, I, D, J> {
 
 	private JpaModule module;
@@ -163,9 +170,16 @@ public class JpaRelationshipRepository<T, I extends Serializable, D, J extends S
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public Iterable<D> findManyTargets(I sourceId, String fieldName, QuerySpec querySpec) {
+	public List<D> findManyTargets(I sourceId, String fieldName, QuerySpec querySpec) {
 		JpaQueryExecutor<?> executor = getExecutor(sourceId, fieldName, querySpec);
-		return (Iterable<D>) executor.getResultList();
+		List<D> list = (List<D>) executor.getResultList();
+		if (querySpec.getLimit() != null) {
+			long totalRowCount = executor.getTotalRowCount();
+			return new PagedResultList<>(list, totalRowCount, entityClass, sourceId, fieldName);
+		}
+		else {
+			return list;
+		}
 	}
 
 	private JpaQueryExecutor<?> getExecutor(I sourceId, String fieldName, QuerySpec querySpec) {
@@ -185,5 +199,15 @@ public class JpaRelationshipRepository<T, I extends Serializable, D, J extends S
 	@Override
 	public Class<D> getTargetResourceClass() {
 		return relatedEntityClass;
+	}
+
+	@Override
+	protected PagedMetaInformation newPagedMetaInformation() {
+		return new DefaultPagedMetaInformation();
+	}
+
+	@Override
+	protected PagedLinksInformation newPagedLinksInformation() {
+		return new DefaultPagedLinksInformation();
 	}
 }

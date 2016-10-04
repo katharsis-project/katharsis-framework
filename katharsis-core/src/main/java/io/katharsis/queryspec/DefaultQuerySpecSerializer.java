@@ -1,4 +1,4 @@
-package io.katharsis.client.internal;
+package io.katharsis.queryspec;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -8,12 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import io.katharsis.queryspec.Direction;
-import io.katharsis.queryspec.FilterSpec;
-import io.katharsis.queryspec.IncludeFieldSpec;
-import io.katharsis.queryspec.IncludeRelationSpec;
-import io.katharsis.queryspec.QuerySpec;
-import io.katharsis.queryspec.SortSpec;
 import io.katharsis.repository.exception.RepositoryNotFoundException;
 import io.katharsis.resource.RestrictedQueryParamsMembers;
 import io.katharsis.resource.registry.RegistryEntry;

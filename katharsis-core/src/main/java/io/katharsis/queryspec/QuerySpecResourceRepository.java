@@ -11,9 +11,9 @@ import io.katharsis.resource.exception.ResourceNotFoundException;
  * implementation.
  *
  * @param <T>  Type of an entity
- * @param <ID> Type of Identifier of an entity
+ * @param <I> Type of Identifier of an entity
  */
-public interface QuerySpecResourceRepository<T, ID extends Serializable>{
+public interface QuerySpecResourceRepository<T, I extends Serializable>{
 	
 	/**
 	 * @return the class returned by this repository
@@ -28,7 +28,7 @@ public interface QuerySpecResourceRepository<T, ID extends Serializable>{
      * @param querySpec querySpec sent along with the request as parameters
      * @return an instance of the resource
      */
-    T findOne(ID id, QuerySpec querySpec);
+    T findOne(I id, QuerySpec querySpec);
 
     /**
      * Search for all of the resources. An instance of {@link QueryParams} can be used if necessary. If no
@@ -47,7 +47,7 @@ public interface QuerySpecResourceRepository<T, ID extends Serializable>{
      * @param querySpec querySpec sent along with the request as parameters
      * @return a list of found resources
      */
-    Iterable<T> findAll(Iterable<ID> ids, QuerySpec querySpec);
+    Iterable<T> findAll(Iterable<I> ids, QuerySpec querySpec);
 
     /**
      * Saves a resource. A Returning resource must include assigned identifier created for the instance of resource.
@@ -63,6 +63,6 @@ public interface QuerySpecResourceRepository<T, ID extends Serializable>{
      *
      * @param id identified of the resource to be removed
      */
-    void delete(ID id);
+    void delete(I id);
 
 }

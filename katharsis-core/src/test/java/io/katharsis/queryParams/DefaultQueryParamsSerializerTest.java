@@ -1,8 +1,5 @@
-package io.katharsis.client;
+package io.katharsis.queryParams;
 
-import com.squareup.okhttp.HttpUrl;
-import io.katharsis.client.internal.RequestUrlBuilder;
-import io.katharsis.client.mock.models.Task;
 import io.katharsis.locator.JsonServiceLocator;
 import io.katharsis.locator.SampleJsonServiceLocator;
 import io.katharsis.queryParams.DefaultQueryParamsParser;
@@ -11,10 +8,13 @@ import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
 import io.katharsis.resource.information.ResourceInformationBuilder;
+import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.registry.ConstantServiceUrlProvider;
 import io.katharsis.resource.registry.DefaultResourceLookup;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryBuilder;
+import io.katharsis.utils.JsonApiUrlBuilder;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -27,7 +27,7 @@ import static org.junit.Assert.assertEquals;
 public class DefaultQueryParamsSerializerTest {
 
 	private QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
-	private RequestUrlBuilder urlBuilder;
+	private JsonApiUrlBuilder urlBuilder;
 	private DefaultResourceLookup resourceLookup;
 	private ResourceRegistryBuilder resourceRegistryBuilder;
 
@@ -37,22 +37,22 @@ public class DefaultQueryParamsSerializerTest {
 		ResourceInformationBuilder resourceInformationBuilder = new AnnotationResourceInformationBuilder(
 				new ResourceFieldNameTransformer());
 		resourceRegistryBuilder = new ResourceRegistryBuilder(jsonServiceLocator, resourceInformationBuilder);
-		resourceLookup = new DefaultResourceLookup("io.katharsis.client.mock");
+		resourceLookup = new DefaultResourceLookup("io.katharsis.resource.mock");
 		ResourceRegistry resourceRegistry = resourceRegistryBuilder.build(resourceLookup, new ConstantServiceUrlProvider("http://127.0.0.1"));
-		urlBuilder = new RequestUrlBuilder(resourceRegistry);
+		urlBuilder = new JsonApiUrlBuilder(resourceRegistry);
 	}
 
 	@Test
 	public void testHttpsSchema() {
 		ResourceRegistry resourceRegistry = resourceRegistryBuilder.build(resourceLookup, new ConstantServiceUrlProvider("https://127.0.0.1"));
-		urlBuilder = new RequestUrlBuilder(resourceRegistry);
+		urlBuilder = new JsonApiUrlBuilder(resourceRegistry);
 		check("https://127.0.0.1/tasks/", null, new QueryParams());
 	}
 	
 	@Test
 	public void testPort() {
 		ResourceRegistry resourceRegistry = resourceRegistryBuilder.build(resourceLookup, new ConstantServiceUrlProvider("https://127.0.0.1:1234"));
-		urlBuilder = new RequestUrlBuilder(resourceRegistry);
+		urlBuilder = new JsonApiUrlBuilder(resourceRegistry);
 		check("https://127.0.0.1:1234/tasks/", null, new QueryParams());
 	}
 	
@@ -98,11 +98,11 @@ public class DefaultQueryParamsSerializerTest {
 	}
 
 	@Test
-	public void testFilterByMany() throws InstantiationException, IllegalAccessException {
+	public void testFilterByMany() throws InstantiationException, IllegalAccessException, UnsupportedEncodingException {
 		Map<String, Set<String>> params = new HashMap<String, Set<String>>();
 		addParams(params, "filter[test][stringValue]", "value0,value1");
 		QueryParams queryParams = queryParamsBuilder.buildQueryParams(params);
-		check("http://127.0.0.1/tasks/?filter[test][stringValue]=value0,value1", null, queryParams);
+		check("http://127.0.0.1/tasks/?filter[test][stringValue]=" + URLEncoder.encode("value0,value1", "UTF-8"), null, queryParams);
 	}
 
 	@Test
@@ -160,9 +160,9 @@ public class DefaultQueryParamsSerializerTest {
 	}
 
 	private void check(String expectedUrl, Object id, QueryParams queryParams) {
-		HttpUrl actualUrl = urlBuilder.buildUrl(Task.class, id, queryParams);
-		HttpUrl expectedUrlObj = HttpUrl.parse(expectedUrl);
-		assertEquals(expectedUrlObj, actualUrl);
+		String actualUrl = urlBuilder.buildUrl(Task.class, id, queryParams);
+		
+		assertEquals(expectedUrl, actualUrl);
 	}
 
 	private void addParams(Map<String, Set<String>> params, String key, String value) {

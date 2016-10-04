@@ -12,9 +12,10 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.katharsis.client.response.JsonLinksInformation;
+import io.katharsis.client.response.JsonMetaInformation;
 import io.katharsis.dispatcher.controller.resource.ResourceUpsert;
 import io.katharsis.jackson.exception.JsonDeserializationException;
-import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.dto.DataBody;
@@ -26,6 +27,8 @@ import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponseContext;
 import io.katharsis.response.CollectionResponseContext;
 import io.katharsis.response.JsonApiResponse;
+import io.katharsis.response.LinksInformation;
+import io.katharsis.response.MetaInformation;
 import io.katharsis.response.ResourceResponseContext;
 import io.katharsis.utils.parser.TypeParser;
 
@@ -38,6 +41,8 @@ public class BaseResponseDeserializer extends JsonDeserializer<BaseResponseConte
 
 	private static final String INCLUDED_FIELD_NAME = "included";
 	private static final String DATA_FIELD_NAME = "data";
+	private static final String META_FIELD_NAME = "meta";
+	private static final String LINKS_FIELD_NAME = "links";
 
 	private ResourceRegistry resourceRegistry;
 	private ObjectMapper objectMapper;
@@ -59,6 +64,8 @@ public class BaseResponseDeserializer extends JsonDeserializer<BaseResponseConte
 
 		JsonNode data = node.get(DATA_FIELD_NAME);
 		JsonNode included = node.get(INCLUDED_FIELD_NAME);
+		LinksInformation links = readLinks(node);
+		MetaInformation meta = readMeta(node);
 		if(data == null){
 			throw new IllegalStateException("no data received");
 		}
@@ -74,23 +81,40 @@ public class BaseResponseDeserializer extends JsonDeserializer<BaseResponseConte
 		upsert.setRelations(dataBodies);
 		upsert.setRelations(includedBodies);
 
+		JsonApiResponse response = new JsonApiResponse();
+		response.setLinksInformation(links);
+		response.setMetaInformation(meta);
 		if (dataBodies.isCollection) {
-			JsonApiResponse response = new JsonApiResponse();
 			response.setEntity(dataBodies.resources);
 			return new CollectionResponseContext(response, null, null);
 		} else {
-			JsonApiResponse apiResponse = new JsonApiResponse();
-
 			if (dataBodies.resources.size() == 1) {
-				apiResponse.setEntity(dataBodies.resources.get(0));
+				response.setEntity(dataBodies.resources.get(0));
 			} else {
-				apiResponse.setEntity(null);
+				response.setEntity(null);
 			}
-
-			return new ResourceResponseContext(apiResponse, -1);
+			return new ResourceResponseContext(response, -1);
 		}
 	}
 	
+	private LinksInformation readLinks(JsonNode node) {
+		JsonNode data = node.get(LINKS_FIELD_NAME);
+		if(data != null){
+			return new JsonLinksInformation(data);
+		}else{
+			return null;
+		}
+	}
+
+	private MetaInformation readMeta(JsonNode node) {
+		JsonNode data = node.get(META_FIELD_NAME);
+		if(data != null){
+			return new JsonMetaInformation(data);
+		}else{
+			return null;
+		}
+	}
+
 	class ClientResourceUpsert extends ResourceUpsert{
 		
 		private HashMap<Object, Object> resourceMap = new HashMap<>();

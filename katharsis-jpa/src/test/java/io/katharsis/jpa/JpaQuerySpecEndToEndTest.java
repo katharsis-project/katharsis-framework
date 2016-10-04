@@ -14,6 +14,9 @@ import org.junit.Test;
 import io.katharsis.client.QuerySpecRelationshipRepositoryStub;
 import io.katharsis.client.QuerySpecResourceRepositoryStub;
 import io.katharsis.client.ResourceRepositoryStub;
+import io.katharsis.client.response.JsonLinksInformation;
+import io.katharsis.client.response.JsonMetaInformation;
+import io.katharsis.client.response.ResourceList;
 import io.katharsis.jpa.model.RelatedEntity;
 import io.katharsis.jpa.model.TestEmbeddedIdEntity;
 import io.katharsis.jpa.model.TestEntity;
@@ -172,6 +175,76 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 		savedTask = testRepo.findOne(1L, new QuerySpec(TestEntity.class));
 		Assert.assertEquals(task.getId(), savedTask.getId());
 		Assert.assertEquals(task.getStringValue(), savedTask.getStringValue());
+	}
+
+	@Test
+	public void testRootPaging() {
+		for (long i = 0; i < 5; i++) {
+			TestEntity task = new TestEntity();
+			task.setId(i);
+			task.setStringValue("test");
+			testRepo.save(task);
+		}
+
+		QuerySpec querySpec = new QuerySpec(TestEntity.class);
+		querySpec.setOffset(2L);
+		querySpec.setLimit(2L);
+
+		ResourceList<TestEntity> list = testRepo.findAll(querySpec);
+		Assert.assertEquals(2, list.size());
+		Assert.assertEquals(2, list.get(0).getId().intValue());
+		Assert.assertEquals(3, list.get(1).getId().intValue());
+
+		JsonMetaInformation meta = list.getMetaInformation(JsonMetaInformation.class);
+		JsonLinksInformation links = list.getLinksInformation(JsonLinksInformation.class);
+		Assert.assertNotNull(meta);
+		Assert.assertNotNull(links);
+
+		String baseUri = getBaseUri().toString();
+		Assert.assertEquals(baseUri + "test/?page[limit]=2", links.asJsonNode().get("first").asText());
+		Assert.assertEquals(baseUri + "test/?page[limit]=2&page[offset]=4", links.asJsonNode().get("last").asText());
+		Assert.assertEquals(baseUri + "test/?page[limit]=2", links.asJsonNode().get("prev").asText());
+		Assert.assertEquals(baseUri + "test/?page[limit]=2&page[offset]=4", links.asJsonNode().get("next").asText());
+	}
+	
+	@Test
+	public void testRelationPaging() {
+		TestEntity test = new TestEntity();
+		test.setId(1L);
+		test.setStringValue("test");
+		testRepo.save(test);
+
+		ResourceRepositoryStub<RelatedEntity, Long> relatedRepo = client.getRepository(RelatedEntity.class);
+		QuerySpecRelationshipRepositoryStub<TestEntity, Long, RelatedEntity, Long> relRepo = client
+				.getQuerySpecRepository(TestEntity.class, RelatedEntity.class);
+		for(long i = 0; i < 5;i++){
+			RelatedEntity related1 = new RelatedEntity();
+			related1.setId(i);
+			related1.setStringValue("related" + i);
+			relatedRepo.save(related1);
+			
+			relRepo.addRelations(test, Arrays.asList(i), TestEntity.ATTR_manyRelatedValues);
+		}
+
+		QuerySpec querySpec = new QuerySpec(RelatedEntity.class);
+		querySpec.setOffset(2L);
+		querySpec.setLimit(2L);
+
+		ResourceList<RelatedEntity> list = relRepo.findManyTargets(test.getId(), TestEntity.ATTR_manyRelatedValues, querySpec);
+		Assert.assertEquals(2, list.size());
+		Assert.assertEquals(2, list.get(0).getId().intValue());
+		Assert.assertEquals(3, list.get(1).getId().intValue());
+
+		JsonMetaInformation meta = list.getMetaInformation(JsonMetaInformation.class);
+		JsonLinksInformation links = list.getLinksInformation(JsonLinksInformation.class);
+		Assert.assertNotNull(meta);
+		Assert.assertNotNull(links);
+
+		String baseUri = getBaseUri().toString();
+		Assert.assertEquals(baseUri + "test/1/relationships/manyRelatedValues/?page[limit]=2", links.asJsonNode().get("first").asText());
+		Assert.assertEquals(baseUri + "test/1/relationships/manyRelatedValues/?page[limit]=2&page[offset]=4", links.asJsonNode().get("last").asText());
+		Assert.assertEquals(baseUri + "test/1/relationships/manyRelatedValues/?page[limit]=2", links.asJsonNode().get("prev").asText());
+		Assert.assertEquals(baseUri + "test/1/relationships/manyRelatedValues/?page[limit]=2&page[offset]=4", links.asJsonNode().get("next").asText());
 	}
 
 	@Test
