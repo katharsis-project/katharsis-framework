@@ -12,6 +12,8 @@ import org.junit.Test;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.katharsis.jpa.JpaEntityRepository;
+import io.katharsis.jpa.internal.paging.PagedLinksInformation;
+import io.katharsis.jpa.internal.paging.PagedMetaInformation;
 import io.katharsis.jpa.model.RelatedEntity;
 import io.katharsis.jpa.model.TestEntity;
 import io.katharsis.jpa.query.AbstractJpaTest;
@@ -31,6 +33,7 @@ public abstract class JpaEntityRepositoryTestBase extends AbstractJpaTest {
 	public void setup() {
 		super.setup();
 		repo = new JpaEntityRepository<>(module, TestEntity.class);
+		repo.setResourceRegistry(resourceRegistry);
 	}
 
 	@Test
@@ -204,13 +207,64 @@ public abstract class JpaEntityRepositoryTestBase extends AbstractJpaTest {
 	@Test
 	public void testPaging() throws InstantiationException, IllegalAccessException {
 		QuerySpec querySpec = new QuerySpec(TestEntity.class);
-		querySpec.setOffset(1L);
+		querySpec.setOffset(2L);
 		querySpec.setLimit(2L);
 
 		List<TestEntity> list = repo.findAll(querySpec);
 		Assert.assertEquals(2, list.size());
-		Assert.assertEquals(1, list.get(0).getId().intValue());
-		Assert.assertEquals(2, list.get(1).getId().intValue());
+		Assert.assertEquals(2, list.get(0).getId().intValue());
+		Assert.assertEquals(3, list.get(1).getId().intValue());
+
+		PagedMetaInformation metaInformation = repo.getMetaInformation(list, querySpec);
+		Assert.assertEquals(5, metaInformation.getTotalResourceCount().longValue());
+
+		PagedLinksInformation linksInformation = repo.getLinksInformation(list, querySpec);
+		Assert.assertEquals("http://localhost:1234/test/?page[limit]=2", linksInformation.getFirst());
+		Assert.assertEquals("http://localhost:1234/test/?page[limit]=2&page[offset]=4", linksInformation.getLast());
+		Assert.assertEquals("http://localhost:1234/test/?page[limit]=2", linksInformation.getPrev());
+		Assert.assertEquals("http://localhost:1234/test/?page[limit]=2&page[offset]=4", linksInformation.getNext());
+	}
+
+	@Test
+	public void testPagingFirst() throws InstantiationException, IllegalAccessException {
+		QuerySpec querySpec = new QuerySpec(TestEntity.class);
+		querySpec.setOffset(0L);
+		querySpec.setLimit(3L);
+
+		List<TestEntity> list = repo.findAll(querySpec);
+		Assert.assertEquals(3, list.size());
+		Assert.assertEquals(0, list.get(0).getId().intValue());
+		Assert.assertEquals(1, list.get(1).getId().intValue());
+		Assert.assertEquals(2, list.get(2).getId().intValue());
+
+		PagedLinksInformation linksInformation = repo.getLinksInformation(list, querySpec);
+		Assert.assertEquals("http://localhost:1234/test/?page[limit]=3", linksInformation.getFirst());
+		Assert.assertEquals("http://localhost:1234/test/?page[limit]=3&page[offset]=3", linksInformation.getLast());
+		Assert.assertNull(linksInformation.getPrev());
+		Assert.assertEquals("http://localhost:1234/test/?page[limit]=3&page[offset]=3", linksInformation.getNext());
+
+		PagedMetaInformation metaInformation = repo.getMetaInformation(list, querySpec);
+		Assert.assertEquals(5, metaInformation.getTotalResourceCount().longValue());
+	}
+
+	@Test
+	public void testPagingLast() throws InstantiationException, IllegalAccessException {
+		QuerySpec querySpec = new QuerySpec(TestEntity.class);
+		querySpec.setOffset(4L);
+		querySpec.setLimit(4L);
+
+		List<TestEntity> list = repo.findAll(querySpec);
+		Assert.assertEquals(1, list.size());
+		Assert.assertEquals(4, list.get(0).getId().intValue());
+
+		PagedLinksInformation linksInformation = repo.getLinksInformation(list, querySpec);
+		Assert.assertEquals("http://localhost:1234/test/?page[limit]=4", linksInformation.getFirst());
+		Assert.assertEquals("http://localhost:1234/test/?page[limit]=4&page[offset]=4", linksInformation.getLast());
+		Assert.assertEquals("http://localhost:1234/test/?page[limit]=4", linksInformation.getFirst());
+		Assert.assertNull(linksInformation.getNext());
+
+		PagedMetaInformation metaInformation = repo.getMetaInformation(list, querySpec);
+		Assert.assertEquals(5, metaInformation.getTotalResourceCount().longValue());
 	}
 
 	@Test

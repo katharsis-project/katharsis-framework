@@ -7,23 +7,30 @@ import com.squareup.okhttp.Request.Builder;
 import com.squareup.okhttp.Response;
 import io.katharsis.client.ClientException;
 import io.katharsis.client.KatharsisClient;
+import io.katharsis.client.response.ResourceList;
 import io.katharsis.errorhandling.ErrorData;
 import io.katharsis.errorhandling.ErrorResponse;
 import io.katharsis.errorhandling.mapper.ExceptionMapper;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
 import io.katharsis.response.BaseResponseContext;
+import io.katharsis.response.JsonApiResponse;
+import io.katharsis.response.LinksInformation;
+import io.katharsis.response.MetaInformation;
+import io.katharsis.utils.JsonApiUrlBuilder;
 import io.katharsis.utils.java.Optional;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 public class AbstractStub {
 
 	private static final String CONTENT_TYPE = "application/vnd.api+json";
 
 	protected KatharsisClient katharsis;
-	protected RequestUrlBuilder urlBuilder;
+	protected JsonApiUrlBuilder urlBuilder;
 
-	public AbstractStub(KatharsisClient client, RequestUrlBuilder urlBuilder) {
+	public AbstractStub(KatharsisClient client, JsonApiUrlBuilder urlBuilder) {
 		this.katharsis = client;
 		this.urlBuilder = urlBuilder;
 	}
@@ -39,6 +46,20 @@ public class AbstractStub {
 		return execute(builder, false);
 	}
 
+	@SuppressWarnings("unchecked")
+	protected <T> ResourceList<T> toList(JsonApiResponse response) {
+		Object entity = response.getEntity();
+		List<T> list;
+		if(entity instanceof List){
+			list = (List<T>) entity;
+		}else{
+			list = (List<T>) Arrays.asList(entity);
+		}
+		LinksInformation linksInformation = response.getLinksInformation();
+		MetaInformation metaInformation = response.getMetaInformation();
+		return new ResourceList<>(list, linksInformation, metaInformation);
+	}
+	
 	protected BaseResponseContext execute(Builder builder, boolean getResponse) {
 		try {
 			Builder complementedBuilder = builder.header("Content-Type", CONTENT_TYPE);

@@ -4,167 +4,193 @@ import io.katharsis.utils.CompareUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 public class QuerySpec {
 
-    private Class<?> resourceClass;
-    private Long limit = null;
-    private long offset = 0;
-    private List<FilterSpec> filters = new ArrayList<>();
-    private List<SortSpec> sort = new ArrayList<>();
-    private List<IncludeFieldSpec> includedFields = new ArrayList<>();
-    private List<IncludeRelationSpec> includedRelations = new ArrayList<>();
-    private Map<Class<?>, QuerySpec> relatedSpecs = new HashMap<>();
+	private Class<?> resourceClass;
 
-    public QuerySpec(Class<?> resourceClass) {
-        this.resourceClass = resourceClass;
-    }
+	private Long limit = null;
 
-    public Class<?> getResourceClass() {
-        return resourceClass;
-    }
+	private long offset = 0;
 
-    /**
-     * Evaluates this querySpec against the provided list in memory. It supports
-     * sorting, filter and paging.
-     * <p>
-     * TODO currently ignores relations and inclusions, has room for improvements
-     *
-     * @param <T>       the type of resources in this Iterable
-     * @param resources resources
-     * @return sorted, filtered list.
-     */
-    public <T> List<T> apply(Iterable<T> resources) {
-        InMemoryEvaluator eval = new InMemoryEvaluator();
-        return eval.eval(resources, this);
-    }
+	private List<FilterSpec> filters = new ArrayList<>();
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((filters == null) ? 0 : filters.hashCode());
-        result = prime * result + ((includedFields == null) ? 0 : includedFields.hashCode());
-        result = prime * result + ((includedRelations == null) ? 0 : includedRelations.hashCode());
-        result = prime * result + ((limit == null) ? 0 : limit.hashCode());
-        result = prime * result + Long.valueOf(offset).hashCode();
-        result = prime * result + ((relatedSpecs == null) ? 0 : relatedSpecs.hashCode());
-        result = prime * result + ((sort == null) ? 0 : sort.hashCode());
-        return result;
-    }
+	private List<SortSpec> sort = new ArrayList<>();
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null || getClass() != obj.getClass())
-            return false;
-        QuerySpec other = (QuerySpec) obj;
-        return CompareUtils.isEquals(filters, other.filters) // NOSONAR
-                && CompareUtils.isEquals(includedFields, other.includedFields)
-                && CompareUtils.isEquals(includedRelations, other.includedRelations)
-                && CompareUtils.isEquals(limit, other.limit) && CompareUtils.isEquals(offset, other.offset)
-                && CompareUtils.isEquals(relatedSpecs, other.relatedSpecs) && CompareUtils.isEquals(sort, other.sort);
-    }
+	private List<IncludeFieldSpec> includedFields = new ArrayList<>();
 
-    public Long getLimit() {
-        return limit;
-    }
+	private List<IncludeRelationSpec> includedRelations = new ArrayList<>();
 
-    public void setLimit(Long limit) {
-        this.limit = limit;
-    }
+	private Map<Class<?>, QuerySpec> relatedSpecs = new HashMap<>();
 
-    public long getOffset() {
-        return offset;
-    }
+	public QuerySpec(Class<?> resourceClass) {
+		this.resourceClass = resourceClass;
+	}
 
-    public void setOffset(long offset) {
-        this.offset = offset;
-    }
+	public Class<?> getResourceClass() {
+		return resourceClass;
+	}
 
-    public List<FilterSpec> getFilters() {
-        return filters;
-    }
+	/**
+	 * Evaluates this querySpec against the provided list in memory. It supports
+	 * sorting, filter and paging.
+	 * <p>
+	 * TODO currently ignores relations and inclusions, has room for improvements
+	 *
+	 * @param <T>       the type of resources in this Iterable
+	 * @param resources resources
+	 * @return sorted, filtered list.
+	 */
+	public <T> List<T> apply(Iterable<T> resources) {
+		InMemoryEvaluator eval = new InMemoryEvaluator();
+		return eval.eval(resources, this);
+	}
 
-    public void setFilters(List<FilterSpec> filters) {
-        this.filters = filters;
-    }
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((filters == null) ? 0 : filters.hashCode());
+		result = prime * result + ((includedFields == null) ? 0 : includedFields.hashCode());
+		result = prime * result + ((includedRelations == null) ? 0 : includedRelations.hashCode());
+		result = prime * result + ((limit == null) ? 0 : limit.hashCode());
+		result = prime * result + Long.valueOf(offset).hashCode();
+		result = prime * result + ((relatedSpecs == null) ? 0 : relatedSpecs.hashCode());
+		result = prime * result + ((sort == null) ? 0 : sort.hashCode());
+		return result;
+	}
 
-    public List<SortSpec> getSort() {
-        return sort;
-    }
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null || getClass() != obj.getClass())
+			return false;
+		QuerySpec other = (QuerySpec) obj;
+		return CompareUtils.isEquals(filters, other.filters) // NOSONAR
+				&& CompareUtils.isEquals(includedFields, other.includedFields)
+				&& CompareUtils.isEquals(includedRelations, other.includedRelations) && CompareUtils.isEquals(limit, other.limit)
+				&& CompareUtils.isEquals(offset, other.offset) && CompareUtils.isEquals(relatedSpecs, other.relatedSpecs)
+				&& CompareUtils.isEquals(sort, other.sort);
+	}
 
-    public void setSort(List<SortSpec> sort) {
-        this.sort = sort;
-    }
+	public Long getLimit() {
+		return limit;
+	}
 
-    public List<IncludeFieldSpec> getIncludedFields() {
-        return includedFields;
-    }
+	public void setLimit(Long limit) {
+		this.limit = limit;
+	}
 
-    public void setIncludedFields(List<IncludeFieldSpec> includedFields) {
-        this.includedFields = includedFields;
-    }
+	public long getOffset() {
+		return offset;
+	}
 
-    public List<IncludeRelationSpec> getIncludedRelations() {
-        return includedRelations;
-    }
+	public void setOffset(long offset) {
+		this.offset = offset;
+	}
 
-    public void setIncludedRelations(List<IncludeRelationSpec> includedRelations) {
-        this.includedRelations = includedRelations;
-    }
+	public List<FilterSpec> getFilters() {
+		return filters;
+	}
 
-    public Map<Class<?>, QuerySpec> getRelatedSpecs() {
-        return relatedSpecs;
-    }
+	public void setFilters(List<FilterSpec> filters) {
+		this.filters = filters;
+	}
 
-    public void setRelatedSpecs(Map<Class<?>, QuerySpec> relatedSpecs) {
-        this.relatedSpecs = relatedSpecs;
-    }
+	public List<SortSpec> getSort() {
+		return sort;
+	}
 
-    public void addFilter(FilterSpec filterSpec) {
-        this.filters.add(filterSpec);
-    }
+	public void setSort(List<SortSpec> sort) {
+		this.sort = sort;
+	}
 
-    public void addSort(SortSpec sortSpec) {
-        this.sort.add(sortSpec);
-    }
+	public List<IncludeFieldSpec> getIncludedFields() {
+		return includedFields;
+	}
 
-    public void includeField(List<String> attrPath) {
-        this.includedFields.add(new IncludeFieldSpec(attrPath));
-    }
+	public void setIncludedFields(List<IncludeFieldSpec> includedFields) {
+		this.includedFields = includedFields;
+	}
 
-    public void includeRelation(List<String> attrPath) {
-        this.includedRelations.add(new IncludeRelationSpec(attrPath));
-    }
+	public List<IncludeRelationSpec> getIncludedRelations() {
+		return includedRelations;
+	}
 
-    /**
-     * @param resourceClass resource class
-     * @return QuerySpec for the given class, either the root QuerySpec or any
-     * related QuerySpec.
-     */
-    public QuerySpec getQuerySpec(Class<?> resourceClass) {
-        if (resourceClass.equals(this.resourceClass))
-            return this;
-        return relatedSpecs.get(resourceClass);
-    }
+	public void setIncludedRelations(List<IncludeRelationSpec> includedRelations) {
+		this.includedRelations = includedRelations;
+	}
 
-    public QuerySpec getOrCreateQuerySpec(Class<?> resourceClass) {
-        QuerySpec querySpec = getQuerySpec(resourceClass);
-        if (querySpec == null) {
-            querySpec = new QuerySpec(resourceClass);
-            relatedSpecs.put(resourceClass, querySpec);
-        }
-        return querySpec;
-    }
+	public Map<Class<?>, QuerySpec> getRelatedSpecs() {
+		return relatedSpecs;
+	}
 
-    public void putRelatedSpec(Class<?> relatedResourceClass, QuerySpec relatedSpec) {
-        if (relatedResourceClass.equals(resourceClass)) {
-            throw new IllegalArgumentException("cannot set related spec with root resourceClass");
-        }
-        relatedSpecs.put(relatedResourceClass, relatedSpec);
-    }
+	public void setRelatedSpecs(Map<Class<?>, QuerySpec> relatedSpecs) {
+		this.relatedSpecs = relatedSpecs;
+	}
+
+	public void addFilter(FilterSpec filterSpec) {
+		this.filters.add(filterSpec);
+	}
+
+	public void addSort(SortSpec sortSpec) {
+		this.sort.add(sortSpec);
+	}
+
+	public void includeField(List<String> attrPath) {
+		this.includedFields.add(new IncludeFieldSpec(attrPath));
+	}
+
+	public void includeRelation(List<String> attrPath) {
+		this.includedRelations.add(new IncludeRelationSpec(attrPath));
+	}
+
+	/**
+	 * @param resourceClass resource class
+	 * @return QuerySpec for the given class, either the root QuerySpec or any
+	 * related QuerySpec.
+	 */
+	public QuerySpec getQuerySpec(Class<?> resourceClass) {
+		if (resourceClass.equals(this.resourceClass))
+			return this;
+		return relatedSpecs.get(resourceClass);
+	}
+
+	public QuerySpec getOrCreateQuerySpec(Class<?> resourceClass) {
+		QuerySpec querySpec = getQuerySpec(resourceClass);
+		if (querySpec == null) {
+			querySpec = new QuerySpec(resourceClass);
+			relatedSpecs.put(resourceClass, querySpec);
+		}
+		return querySpec;
+	}
+
+	public void putRelatedSpec(Class<?> relatedResourceClass, QuerySpec relatedSpec) {
+		if (relatedResourceClass.equals(resourceClass)) {
+			throw new IllegalArgumentException("cannot set related spec with root resourceClass");
+		}
+		relatedSpecs.put(relatedResourceClass, relatedSpec);
+	}
+
+	public QuerySpec duplicate() {
+		QuerySpec copy = new QuerySpec(resourceClass);
+		copy.limit = limit;
+		copy.offset = offset;
+		copy.includedFields.addAll(includedFields);
+		copy.includedRelations.addAll(includedRelations);
+		copy.sort.addAll(sort);
+		copy.filters.addAll(filters);
+
+		Iterator<Entry<Class<?>, QuerySpec>> iterator = relatedSpecs.entrySet().iterator();
+		while (iterator.hasNext()) {
+			Entry<Class<?>, QuerySpec> entry = iterator.next();
+			copy.relatedSpecs.put(entry.getKey(), entry.getValue().duplicate());
+		}
+		return copy;
+	}
 }

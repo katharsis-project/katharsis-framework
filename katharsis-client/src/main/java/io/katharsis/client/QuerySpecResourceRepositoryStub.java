@@ -1,8 +1,8 @@
 package io.katharsis.client;
 
 import java.io.Serializable;
-import java.util.List;
 
+import io.katharsis.client.response.ResourceList;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.QuerySpecResourceRepository;
@@ -11,13 +11,13 @@ import io.katharsis.repository.ResourceRepository;
 /**
  * Implemented by every {@link ResourceRepository} stub.
  */
-public interface QuerySpecResourceRepositoryStub<T, ID extends Serializable> extends QuerySpecResourceRepository<T, ID> {
+public interface QuerySpecResourceRepositoryStub<T, I extends Serializable> extends QuerySpecResourceRepository<T, I> {
 
 	@Override
-	public List<T> findAll(QuerySpec querySpec);
+	public ResourceList<T> findAll(QuerySpec querySpec);
 
 	@Override
-	public List<T> findAll(Iterable<ID> ids, QuerySpec querySpec);
+	public ResourceList<T> findAll(Iterable<I> ids, QuerySpec querySpec);
 
 	/**
 	 * Saves the given entity without any of its relationships.

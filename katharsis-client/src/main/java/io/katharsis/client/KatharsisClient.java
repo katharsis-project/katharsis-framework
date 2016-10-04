@@ -29,6 +29,7 @@ import io.katharsis.resource.registry.repository.ResponseRelationshipEntry;
 import io.katharsis.resource.registry.responseRepository.RelationshipRepositoryAdapter;
 import io.katharsis.resource.registry.responseRepository.ResourceRepositoryAdapter;
 import io.katharsis.response.BaseResponseContext;
+import io.katharsis.utils.JsonApiUrlBuilder;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -45,7 +46,7 @@ public class KatharsisClient {
 	private ResourceRegistry resourceRegistry;
 
 	private ModuleRegistry moduleRegistry;
-	private RequestUrlBuilder urlBuilder;
+	private JsonApiUrlBuilder urlBuilder;
 
 	private boolean initialized = false;
 
@@ -57,7 +58,7 @@ public class KatharsisClient {
 	 */
 	public KatharsisClient(String serviceUrl, String resourceSearchPackage) {
 		resourceRegistry = new ResourceRegistry(new ConstantServiceUrlProvider(normalize(serviceUrl)));
-		urlBuilder = new RequestUrlBuilder(resourceRegistry);
+		urlBuilder = new JsonApiUrlBuilder(resourceRegistry);
 
 		objectMapper = new ObjectMapper();
 		objectMapper.enable(SerializationFeature.INDENT_OUTPUT);

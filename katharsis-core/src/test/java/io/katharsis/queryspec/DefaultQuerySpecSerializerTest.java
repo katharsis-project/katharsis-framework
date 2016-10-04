@@ -1,34 +1,28 @@
-package io.katharsis.client;
+package io.katharsis.queryspec;
 
 import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.squareup.okhttp.HttpUrl;
-
-import io.katharsis.client.internal.RequestUrlBuilder;
-import io.katharsis.client.mock.models.Task;
 import io.katharsis.locator.JsonServiceLocator;
 import io.katharsis.locator.SampleJsonServiceLocator;
-import io.katharsis.queryspec.Direction;
-import io.katharsis.queryspec.FilterOperator;
-import io.katharsis.queryspec.FilterSpec;
-import io.katharsis.queryspec.QuerySpec;
-import io.katharsis.queryspec.SortSpec;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
 import io.katharsis.resource.information.ResourceInformationBuilder;
+import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.registry.ConstantServiceUrlProvider;
 import io.katharsis.resource.registry.DefaultResourceLookup;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryBuilder;
+import io.katharsis.utils.JsonApiUrlBuilder;
 
 public class DefaultQuerySpecSerializerTest {
 
-	private RequestUrlBuilder urlBuilder;
+	private JsonApiUrlBuilder urlBuilder;
 
 	private DefaultResourceLookup resourceLookup;
 
@@ -40,17 +34,17 @@ public class DefaultQuerySpecSerializerTest {
 		ResourceInformationBuilder resourceInformationBuilder = new AnnotationResourceInformationBuilder(
 				new ResourceFieldNameTransformer());
 		resourceRegistryBuilder = new ResourceRegistryBuilder(jsonServiceLocator, resourceInformationBuilder);
-		resourceLookup = new DefaultResourceLookup("io.katharsis.client.mock");
+		resourceLookup = new DefaultResourceLookup("io.katharsis.resource.mock");
 		ResourceRegistry resourceRegistry = resourceRegistryBuilder.build(resourceLookup,
 				new ConstantServiceUrlProvider("http://127.0.0.1"));
-		urlBuilder = new RequestUrlBuilder(resourceRegistry);
+		urlBuilder = new JsonApiUrlBuilder(resourceRegistry);
 	}
 
 	@Test
 	public void testHttpsSchema() {
 		ResourceRegistry resourceRegistry = resourceRegistryBuilder.build(resourceLookup,
 				new ConstantServiceUrlProvider("https://127.0.0.1"));
-		urlBuilder = new RequestUrlBuilder(resourceRegistry);
+		urlBuilder = new JsonApiUrlBuilder(resourceRegistry);
 		check("https://127.0.0.1/tasks/", null, new QuerySpec(Task.class));
 	}
 
@@ -58,7 +52,7 @@ public class DefaultQuerySpecSerializerTest {
 	public void testPort() {
 		ResourceRegistry resourceRegistry = resourceRegistryBuilder.build(resourceLookup,
 				new ConstantServiceUrlProvider("https://127.0.0.1:1234"));
-		urlBuilder = new RequestUrlBuilder(resourceRegistry);
+		urlBuilder = new JsonApiUrlBuilder(resourceRegistry);
 		check("https://127.0.0.1:1234/tasks/", null, new QuerySpec(Task.class));
 	}
 
@@ -102,7 +96,12 @@ public class DefaultQuerySpecSerializerTest {
 	public void testFilterByMany() throws InstantiationException, IllegalAccessException {
 		QuerySpec querySpec = new QuerySpec(Task.class);
 		querySpec.addFilter(new FilterSpec(Arrays.asList("name"), FilterOperator.EQ, Arrays.asList("value1", "value2")));
-		check("http://127.0.0.1/tasks/?filter[tasks][name][EQ]=value2&filter[tasks][name][EQ]=value1", null, querySpec);
+		
+		String actualUrl = urlBuilder.buildUrl(Task.class, null, querySpec);
+		String expectedUrl0 = "http://127.0.0.1/tasks/?filter[tasks][name][EQ]=value2&filter[tasks][name][EQ]=value1";
+		String expectedUrl1 = "http://127.0.0.1/tasks/?filter[tasks][name][EQ]=value1&filter[tasks][name][EQ]=value2";
+		
+		Assert.assertTrue(expectedUrl0.equals(actualUrl) || expectedUrl1.equals(actualUrl));
 	}
 
 	@Test
@@ -143,8 +142,7 @@ public class DefaultQuerySpecSerializerTest {
 	}
 
 	private void check(String expectedUrl, Object id, QuerySpec querySpec) {
-		HttpUrl actualUrl = urlBuilder.buildUrl(Task.class, id, querySpec);
-		HttpUrl expectedUrlObj = HttpUrl.parse(expectedUrl);
-		assertEquals(expectedUrlObj, actualUrl);
+		String actualUrl = urlBuilder.buildUrl(Task.class, id, querySpec);
+		assertEquals(expectedUrl, actualUrl);
 	}
 }

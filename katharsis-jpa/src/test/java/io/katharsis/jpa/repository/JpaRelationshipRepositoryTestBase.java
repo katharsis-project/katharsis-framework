@@ -12,6 +12,8 @@ import org.junit.Test;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.katharsis.jpa.JpaRelationshipRepository;
+import io.katharsis.jpa.internal.paging.PagedLinksInformation;
+import io.katharsis.jpa.internal.paging.PagedMetaInformation;
 import io.katharsis.jpa.model.RelatedEntity;
 import io.katharsis.jpa.model.TestEntity;
 import io.katharsis.jpa.query.AbstractJpaTest;
@@ -32,8 +34,10 @@ public abstract class JpaRelationshipRepositoryTestBase extends AbstractJpaTest 
 		super.setup();
 		repo = new JpaRelationshipRepository<TestEntity, Long, RelatedEntity, Long>(module, TestEntity.class,
 				RelatedEntity.class);
+		repo.setResourceRegistry(resourceRegistry);
 		relatedRepo = new JpaRelationshipRepository<RelatedEntity, Long, TestEntity, Long>(module, RelatedEntity.class,
 				TestEntity.class);
+		relatedRepo.setResourceRegistry(resourceRegistry);
 	}
 
 	@Test
@@ -152,17 +156,10 @@ public abstract class JpaRelationshipRepositoryTestBase extends AbstractJpaTest 
 
 	@Test
 	public void testGetManyRelation() {
-		TestEntity test = em.find(TestEntity.class, 1L);
-		Assert.assertThat(test.getManyRelatedValues().size(), Is.is(0));
-
-		repo.addRelations(test, Arrays.asList(101L,102L), TestEntity.ATTR_manyRelatedValues);
-		em.flush();
-		em.clear();
-		test = em.find(TestEntity.class, 1L);
-		Assert.assertThat(test.getManyRelatedValues().size(), Is.is(2));
+		TestEntity test = setupManyRelation(Arrays.asList(101L, 102L));
 
 		QuerySpec querySpec = new QuerySpec(RelatedEntity.class);
-		Iterable<RelatedEntity> targets = repo.findManyTargets(1L, TestEntity.ATTR_manyRelatedValues, querySpec);
+		Iterable<RelatedEntity> targets = repo.findManyTargets(test.getId(), TestEntity.ATTR_manyRelatedValues, querySpec);
 		List<RelatedEntity> res = new ArrayList<>();
 		for (RelatedEntity relatedEntity : targets) {
 			res.add(relatedEntity);
@@ -170,5 +167,38 @@ public abstract class JpaRelationshipRepositoryTestBase extends AbstractJpaTest 
 		Assert.assertThat(res.size(), Is.is(2));
 		Assert.assertThat(res.get(0).getId(), Is.is(101L));
 		Assert.assertThat(res.get(1).getId(), Is.is(102L));
+	}
+
+	@Test
+	public void testGetManyRelationWithPaging() throws InstantiationException, IllegalAccessException {
+		TestEntity test = setupManyRelation(Arrays.asList(100L, 101L, 102L, 103L, 104L));
+
+		QuerySpec querySpec = new QuerySpec(TestEntity.class);
+		querySpec.setOffset(2L);
+		querySpec.setLimit(2L);
+
+		List<RelatedEntity> list =  repo.findManyTargets(test.getId(), TestEntity.ATTR_manyRelatedValues, querySpec);
+		Assert.assertEquals(2, list.size());
+		Assert.assertEquals(102, list.get(0).getId().intValue());
+		Assert.assertEquals(103, list.get(1).getId().intValue());
+
+		PagedMetaInformation metaInformation = repo.getMetaInformation(list, querySpec);
+		Assert.assertEquals(5, metaInformation.getTotalResourceCount().longValue());
+
+		PagedLinksInformation linksInformation = repo.getLinksInformation(list, querySpec);
+		Assert.assertEquals("http://localhost:1234/test/1/relationships/manyRelatedValues/?page[limit]=2", linksInformation.getFirst());
+		Assert.assertEquals("http://localhost:1234/test/1/relationships/manyRelatedValues/?page[limit]=2&page[offset]=4", linksInformation.getLast());
+		Assert.assertEquals("http://localhost:1234/test/1/relationships/manyRelatedValues/?page[limit]=2", linksInformation.getPrev());
+		Assert.assertEquals("http://localhost:1234/test/1/relationships/manyRelatedValues/?page[limit]=2&page[offset]=4", linksInformation.getNext());
+	}
+
+	private TestEntity setupManyRelation(List<Long> ids) {
+		TestEntity test = em.find(TestEntity.class, 1L);
+		Assert.assertThat(test.getManyRelatedValues().size(), Is.is(0));
+		repo.addRelations(test,ids, TestEntity.ATTR_manyRelatedValues);
+		em.flush();
+		em.clear();
+		test = em.find(TestEntity.class, 1L);
+		return test;
 	}
 }

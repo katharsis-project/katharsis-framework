@@ -9,6 +9,12 @@ import javax.persistence.EntityManager;
 import io.katharsis.jpa.internal.JpaRepositoryUtils;
 import io.katharsis.jpa.internal.meta.MetaAttribute;
 import io.katharsis.jpa.internal.meta.MetaEntity;
+import io.katharsis.jpa.internal.paging.DefaultPagedLinksInformation;
+import io.katharsis.jpa.internal.paging.DefaultPagedMetaInformation;
+import io.katharsis.jpa.internal.paging.PagedLinksInformation;
+import io.katharsis.jpa.internal.paging.PagedMetaInformation;
+import io.katharsis.jpa.internal.paging.PagedRepositoryBase;
+import io.katharsis.jpa.internal.paging.PagedResultList;
 import io.katharsis.jpa.query.JpaQuery;
 import io.katharsis.jpa.query.JpaQueryExecutor;
 import io.katharsis.jpa.query.JpaQueryFactory;
@@ -19,7 +25,8 @@ import io.katharsis.queryspec.QuerySpecResourceRepository;
 /**
  * Exposes a JPA entity as ResourceRepository.
  */
-public class JpaEntityRepository<T, I extends Serializable> implements QuerySpecResourceRepository<T, I> {
+public class JpaEntityRepository<T, I extends Serializable> extends PagedRepositoryBase<T>
+		implements QuerySpecResourceRepository<T, I> {
 
 	private Class<T> entityType;
 
@@ -54,7 +61,14 @@ public class JpaEntityRepository<T, I extends Serializable> implements QuerySpec
 		JpaRepositoryUtils.prepareQuery(query, querySpec);
 		JpaQueryExecutor<T> executor = query.buildExecutor();
 		JpaRepositoryUtils.prepareExecutor(executor, querySpec);
-		return executor.getResultList();
+		List<T> list = executor.getResultList();
+		if (querySpec.getLimit() != null) {
+			long totalRowCount = executor.getTotalRowCount();
+			return new PagedResultList<>(list, totalRowCount);
+		}
+		else {
+			return list;
+		}
 	}
 
 	@Override
@@ -96,5 +110,15 @@ public class JpaEntityRepository<T, I extends Serializable> implements QuerySpec
 	@Override
 	public Class<T> getResourceClass() {
 		return entityType;
+	}
+
+	@Override
+	protected PagedMetaInformation newPagedMetaInformation() {
+		return new DefaultPagedMetaInformation();
+	}
+
+	@Override
+	protected PagedLinksInformation newPagedLinksInformation() {
+		return new DefaultPagedLinksInformation();
 	}
 }

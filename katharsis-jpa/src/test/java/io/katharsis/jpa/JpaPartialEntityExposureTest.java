@@ -25,6 +25,7 @@ public class JpaPartialEntityExposureTest extends AbstractJpaJerseyTest {
 
 	protected ResourceRepositoryStub<TestEntity, Long> testRepo;
 
+	@Override
 	@Before
 	public void setup() {
 		super.setup();

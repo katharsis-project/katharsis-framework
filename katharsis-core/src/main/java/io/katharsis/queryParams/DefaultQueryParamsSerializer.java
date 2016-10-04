@@ -1,4 +1,4 @@
-package io.katharsis.client.internal;
+package io.katharsis.queryParams;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -6,9 +6,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import io.katharsis.queryParams.QueryParams;
-import io.katharsis.queryParams.RestrictedPaginationKeys;
-import io.katharsis.queryParams.RestrictedSortingValues;
 import io.katharsis.queryParams.include.Inclusion;
 import io.katharsis.queryParams.params.FilterParams;
 import io.katharsis.queryParams.params.IncludedFieldsParams;

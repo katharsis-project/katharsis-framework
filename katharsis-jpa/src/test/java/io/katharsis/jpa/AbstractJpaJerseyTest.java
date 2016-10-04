@@ -82,7 +82,6 @@ public abstract class AbstractJpaJerseyTest extends JerseyTest {
 
 		public TestApplication() {
 			property(KatharsisProperties.RESOURCE_SEARCH_PACKAGE, "io.katharsis.client.mock");
-			property(KatharsisProperties.RESOURCE_DEFAULT_DOMAIN, "http://test.local");
 
 			Assert.assertNull(context);
 
