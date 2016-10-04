@@ -26,4 +26,6 @@ public interface MetaAttribute extends MetaTypedElement {
 
 	public boolean isVersion();
 
+	public boolean isId();
+
 }

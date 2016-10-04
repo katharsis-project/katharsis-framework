@@ -103,4 +103,9 @@ public class MetaMapAttributeImpl extends MetaElementImpl implements MetaMapAttr
 	public boolean isVersion() {
 		throw new UnsupportedOperationException();
 	}
+
+	@Override
+	public boolean isId() {
+		throw new UnsupportedOperationException();
+	}
 }
