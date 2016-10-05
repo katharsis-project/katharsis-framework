@@ -16,17 +16,8 @@
  */
 package io.katharsis.servlet;
 
-import static net.javacrumbs.jsonunit.JsonAssert.assertJsonPartEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import io.katharsis.invoker.JsonApiMediaType;
-
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletResponse;
-
+import io.katharsis.utils.StringUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,8 +28,17 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockServletConfig;
 import org.springframework.mock.web.MockServletContext;
 
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletResponse;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+
+import static net.javacrumbs.jsonunit.JsonAssert.assertJsonPartEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test for {@link AbstractKatharsisServlet}.
@@ -73,9 +73,9 @@ public class KatharsisServletTest {
         ((MockServletContext) servletContext).setContextPath("");
         servletConfig = new MockServletConfig(servletContext);
         ((MockServletConfig) servletConfig).addInitParameter(KatharsisProperties.RESOURCE_SEARCH_PACKAGE,
-                                                             RESOURCE_SEARCH_PACKAGE);
+                RESOURCE_SEARCH_PACKAGE);
         ((MockServletConfig) servletConfig).addInitParameter(KatharsisProperties.RESOURCE_DEFAULT_DOMAIN,
-                                                             RESOURCE_DEFAULT_DOMAIN);
+                RESOURCE_DEFAULT_DOMAIN);
 
         katharsisServlet.init(servletConfig);
     }
@@ -191,6 +191,25 @@ public class KatharsisServletTest {
         assertEquals(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE, response.getStatus());
         String responseContent = response.getContentAsString();
         assertTrue(responseContent == null || "".equals(responseContent.trim()));
+    }
+
+    @Test
+    public void testKatharsisMatchingException() throws Exception {
+        MockHttpServletRequest request = new MockHttpServletRequest(servletContext);
+        request.setMethod("GET");
+        request.setContextPath("");
+        request.setServletPath("/api");
+        request.setPathInfo("/tasks-matching-exception");
+        request.setRequestURI("/api/matching-exception");
+        request.setContentType(JsonApiMediaType.APPLICATION_JSON_API);
+        request.addHeader("Accept", "*/*");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        katharsisServlet.service(request, response);
+
+        String responseContent = response.getContentAsString();
+        assertTrue("Response should not be returned for non matching resource type", StringUtils.isBlank(responseContent));
+        assertEquals(404, response.getStatus());
+
     }
 
 }
