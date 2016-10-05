@@ -40,16 +40,16 @@ public abstract class AbstractJpaJerseyTest extends JerseyTest {
 
 	@Before
 	public void setup() {
-		client = new KatharsisClient(getBaseUri().toString(), "io.katharsis.client.mock");
+		client = new KatharsisClient(getBaseUri().toString(), "io.katharsis.jpa.model.dto");
 
-		JpaModule module = new JpaModule(TestEntity.class.getPackage().getName());
-		setupModule(module);
+		JpaModule module = JpaModule.newClientModule(TestEntity.class.getPackage().getName());
+		setupModule(module, false);
 		client.addModule(module);
 
 		client.getHttpClient().setReadTimeout(1000000, TimeUnit.MILLISECONDS);
 	}
 
-	protected void setupModule(JpaModule module) {
+	protected void setupModule(JpaModule module, boolean server) {
 	}
 
 	@Override
@@ -94,9 +94,9 @@ public abstract class AbstractJpaJerseyTest extends JerseyTest {
 			KatharsisFeature feature = new KatharsisFeature(new ObjectMapper(),
 					new QueryParamsBuilder(new DefaultQueryParamsParser()), new SampleJsonServiceLocator());
 
-			JpaModule module = new JpaModule(emFactory, em, transactionRunner);
+			JpaModule module = JpaModule.newServerModule(emFactory, em, transactionRunner);
 			module.setQueryFactory(QuerydslQueryFactory.newInstance(module.getMetaLookup(), em));
-			setupModule(module);
+			setupModule(module, true);
 			feature.addModule(module);
 
 			register(feature);

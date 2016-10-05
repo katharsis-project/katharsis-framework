@@ -15,4 +15,9 @@ public interface JpaQueryFactory {
 	 */
 	<T> JpaQuery<T> query(Class<?> entityClass, String attrName, List<?> entityIds);
 
+	/**
+	 * @return ComputedAttributeRegistry holding registered computed attributes
+	 */
+	ComputedAttributeRegistry getComputedAttributes();
+
 }

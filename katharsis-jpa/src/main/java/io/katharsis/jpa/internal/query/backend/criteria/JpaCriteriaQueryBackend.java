@@ -20,7 +20,7 @@ import javax.persistence.criteria.Selection;
 import io.katharsis.jpa.internal.meta.MetaAttribute;
 import io.katharsis.jpa.internal.meta.MetaAttributePath;
 import io.katharsis.jpa.internal.query.JoinRegistry;
-import io.katharsis.jpa.internal.query.MetaVirtualAttribute;
+import io.katharsis.jpa.internal.query.MetaComputedAttribute;
 import io.katharsis.jpa.internal.query.QueryUtil;
 import io.katharsis.jpa.internal.query.backend.JpaQueryBackend;
 import io.katharsis.jpa.query.criteria.JpaCriteriaExpressionFactory;
@@ -300,9 +300,9 @@ public class JpaCriteriaQueryBackend<T> implements JpaQueryBackend<From<?, ?>, O
 	@Override
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Expression<?> getAttribute(Expression<?> currentCriteriaPath, MetaAttribute pathElement) {
-		if (pathElement instanceof MetaVirtualAttribute) {
-			MetaVirtualAttribute projAttr = (MetaVirtualAttribute) pathElement;
-			JpaCriteriaExpressionFactory expressionFactory = (JpaCriteriaExpressionFactory<?>) queryImpl.getVirtualAttrs()
+		if (pathElement instanceof MetaComputedAttribute) {
+			MetaComputedAttribute projAttr = (MetaComputedAttribute) pathElement;
+			JpaCriteriaExpressionFactory expressionFactory = (JpaCriteriaExpressionFactory<?>) queryImpl.getComputedAttrs()
 					.get(projAttr);
 
 			From from = (From) currentCriteriaPath;
@@ -322,10 +322,10 @@ public class JpaCriteriaQueryBackend<T> implements JpaQueryBackend<From<?, ?>, O
 	@SuppressWarnings("unchecked")
 	@Override
 	public From<?, ?> doJoin(MetaAttribute targetAttr, JoinType joinType, From<?, ?> parent) {
-		if (targetAttr instanceof MetaVirtualAttribute) {
-			MetaVirtualAttribute projAttr = (MetaVirtualAttribute) targetAttr;
+		if (targetAttr instanceof MetaComputedAttribute) {
+			MetaComputedAttribute projAttr = (MetaComputedAttribute) targetAttr;
 			@SuppressWarnings("rawtypes")
-			JpaCriteriaExpressionFactory expressionFactory = (JpaCriteriaExpressionFactory<?>) queryImpl.getVirtualAttrs()
+			JpaCriteriaExpressionFactory expressionFactory = (JpaCriteriaExpressionFactory<?>) queryImpl.getComputedAttrs()
 					.get(projAttr);
 
 			return (From<?, ?>) expressionFactory.getExpression(parent, getCriteriaQuery());

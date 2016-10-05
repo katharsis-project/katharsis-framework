@@ -8,19 +8,19 @@ import javax.persistence.criteria.CriteriaQuery;
 
 import io.katharsis.jpa.internal.meta.MetaLookup;
 import io.katharsis.jpa.internal.query.AbstractJpaQueryImpl;
-import io.katharsis.jpa.internal.query.VirtualAttributeRegistry;
+import io.katharsis.jpa.internal.query.ComputedAttributeRegistryImpl;
 import io.katharsis.jpa.query.criteria.JpaCriteriaQuery;
 
 public class JpaCriteriaQueryImpl<T> extends AbstractJpaQueryImpl<T, JpaCriteriaQueryBackend<T>>
 		implements JpaCriteriaQuery<T> {
 
 	public JpaCriteriaQueryImpl(MetaLookup metaLookup, EntityManager em, Class<T> clazz,
-			VirtualAttributeRegistry virtualAttrs) {
+			ComputedAttributeRegistryImpl virtualAttrs) {
 		super(metaLookup, em, clazz, virtualAttrs);
 	}
 
 	public JpaCriteriaQueryImpl(MetaLookup metaLookup, EntityManager em, Class<?> clazz,
-			VirtualAttributeRegistry virtualAttrs, String attrName, List<?> entityIds) {
+			ComputedAttributeRegistryImpl virtualAttrs, String attrName, List<?> entityIds) {
 		super(metaLookup, em, clazz, virtualAttrs, attrName, entityIds);
 	}
 

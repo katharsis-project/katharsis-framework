@@ -33,7 +33,8 @@ public class JpaPartialEntityExposureTest extends AbstractJpaJerseyTest {
 	}
 
 	@Override
-	protected void setupModule(JpaModule module) {
+	protected void setupModule(JpaModule module, boolean server) {
+		super.setupModule(module, server);
 		this.module = module;
 		this.module.removeEntityClass(RelatedEntity.class);
 	}

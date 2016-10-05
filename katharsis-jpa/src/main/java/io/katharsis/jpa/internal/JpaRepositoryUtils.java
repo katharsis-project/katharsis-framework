@@ -1,5 +1,8 @@
 package io.katharsis.jpa.internal;
 
+import java.util.Arrays;
+import java.util.Set;
+
 import io.katharsis.jpa.internal.meta.MetaAttribute;
 import io.katharsis.jpa.internal.meta.MetaEntity;
 import io.katharsis.jpa.internal.meta.MetaKey;
@@ -27,7 +30,12 @@ public class JpaRepositoryUtils {
 		return primaryKey.getElements().get(0);
 	}
 
-	public static void prepareQuery(JpaQuery<?> query, QuerySpec querySpec) {
+	public static void prepareQuery(JpaQuery<?> query, QuerySpec querySpec, Set<String> computedAttrs) {
+
+		for (String computedAttr : computedAttrs) {
+			query.addSelection(Arrays.asList(computedAttr));
+		}
+
 		for (FilterSpec filter : querySpec.getFilters()) {
 			query.addFilter(filter);
 		}

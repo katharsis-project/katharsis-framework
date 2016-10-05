@@ -27,7 +27,7 @@ public final class QueryFilterBuilder<P, F> {
 
 	private JpaQueryBackend<F, ?, P, ?> backend;
 
-	protected QueryFilterBuilder(final VirtualAttributeRegistry virtualAttrs, JpaQueryBackend<F, ?, P, ?> backend, MetaAttributeFinder attributeFinder) {
+	protected QueryFilterBuilder(final ComputedAttributeRegistryImpl virtualAttrs, JpaQueryBackend<F, ?, P, ?> backend, MetaAttributeFinder attributeFinder) {
 		this.backend = backend;
 		this.attributeFinder = attributeFinder;
 	}

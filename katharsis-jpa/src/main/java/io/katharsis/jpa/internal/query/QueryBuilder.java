@@ -29,12 +29,12 @@ public class QueryBuilder<T, F, O, P, E> {
 		this.query = query;
 		this.backend = backend;
 
-		final VirtualAttributeRegistry virtualAttrs = query.getVirtualAttrs();
+		final ComputedAttributeRegistryImpl virtualAttrs = query.getComputedAttrs();
 		this.attributeFinder = new MetaAttributeFinder() {
 
 			@Override
 			public MetaAttribute getAttribute(MetaDataObject meta, String name) {
-				MetaVirtualAttribute attr = virtualAttrs.get(meta, name);
+				MetaComputedAttribute attr = virtualAttrs.get(meta, name);
 				if (attr != null) {
 					return attr;
 				}
@@ -109,7 +109,7 @@ public class QueryBuilder<T, F, O, P, E> {
 	}
 
 	protected void applyFilterSpec() {
-		QueryFilterBuilder<P, F> predicateBuilder = new QueryFilterBuilder<>(query.getVirtualAttrs(), backend, attributeFinder);
+		QueryFilterBuilder<P, F> predicateBuilder = new QueryFilterBuilder<>(query.getComputedAttrs(), backend, attributeFinder);
 
 		MetaDataObject meta = query.getMeta();
 		List<FilterSpec> filters = query.getFilterSpecs();

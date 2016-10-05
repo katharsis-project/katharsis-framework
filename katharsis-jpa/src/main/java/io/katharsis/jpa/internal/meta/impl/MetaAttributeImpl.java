@@ -47,7 +47,11 @@ public class MetaAttributeImpl extends MetaElementImpl implements MetaAttribute 
 
 	@Override
 	public MetaType getType() {
-		return lookup.getMeta(type).asType();
+		if(lookup == null){
+			throw new IllegalStateException();
+		}
+		MetaElement meta = lookup.getMeta(type);
+		return meta.asType();
 	}
 
 	@Override

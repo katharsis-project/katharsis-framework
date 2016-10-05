@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 import javax.persistence.criteria.JoinType;
 
 import com.google.common.collect.ImmutableList;
+import com.querydsl.core.support.FetchableSubQueryBase;
 import com.querydsl.core.types.CollectionExpression;
 import com.querydsl.core.types.EntityPath;
 import com.querydsl.core.types.Expression;
@@ -28,15 +29,16 @@ import com.querydsl.core.types.dsl.MapPath;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.core.types.dsl.SimpleExpression;
 import com.querydsl.core.types.dsl.StringExpression;
+import com.querydsl.jpa.JPAQueryBase;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import io.katharsis.jpa.internal.meta.MetaAttribute;
 import io.katharsis.jpa.internal.meta.MetaAttributePath;
 import io.katharsis.jpa.internal.query.JoinRegistry;
-import io.katharsis.jpa.internal.query.MetaVirtualAttribute;
+import io.katharsis.jpa.internal.query.MetaComputedAttribute;
 import io.katharsis.jpa.internal.query.QueryUtil;
-import io.katharsis.jpa.internal.query.VirtualAttributeRegistry;
+import io.katharsis.jpa.internal.query.ComputedAttributeRegistryImpl;
 import io.katharsis.jpa.internal.query.backend.JpaQueryBackend;
 import io.katharsis.jpa.query.querydsl.QuerydslExpressionFactory;
 import io.katharsis.queryspec.Direction;
@@ -192,6 +194,8 @@ public class QuerydslQueryBackend<T> implements JpaQueryBackend<Expression<?>, O
 	}
 
 	private Predicate handle(Expression expression, FilterOperator operator, Object value) { // NOSONAR
+		// checking multiple comparision implementations is a mess, created
+		// https://github.com/querydsl/querydsl/issues/2028
 		if (operator == FilterOperator.EQ || operator == FilterOperator.NEQ) {
 			return handleEquals(expression, operator, value);
 		}
@@ -199,7 +203,10 @@ public class QuerydslQueryBackend<T> implements JpaQueryBackend<Expression<?>, O
 			return ((StringExpression) expression).lower().like(value.toString().toLowerCase());
 		}
 		else if (operator == FilterOperator.GT) {
-			if (expression instanceof NumberExpression) {
+			if (expression instanceof FetchableSubQueryBase) {
+				return ((FetchableSubQueryBase) expression).gt((Number) value);
+			}
+			else if (expression instanceof NumberExpression) {
 				return ((NumberExpression) expression).gt((Number) value);
 			}
 			else {
@@ -207,7 +214,10 @@ public class QuerydslQueryBackend<T> implements JpaQueryBackend<Expression<?>, O
 			}
 		}
 		else if (operator == FilterOperator.LT) {
-			if (expression instanceof NumberExpression) {
+			if (expression instanceof FetchableSubQueryBase) {
+				return ((FetchableSubQueryBase) expression).lt((Number) value);
+			}
+			else if (expression instanceof NumberExpression) {
 				return ((NumberExpression) expression).lt((Number) value);
 			}
 			else {
@@ -215,7 +225,10 @@ public class QuerydslQueryBackend<T> implements JpaQueryBackend<Expression<?>, O
 			}
 		}
 		else if (operator == FilterOperator.GE) {
-			if (expression instanceof NumberExpression) {
+			if (expression instanceof FetchableSubQueryBase) {
+				return ((FetchableSubQueryBase) expression).goe((Number) value);
+			}
+			else if (expression instanceof NumberExpression) {
 				return ((NumberExpression) expression).goe((Number) value);
 			}
 			else {
@@ -223,7 +236,10 @@ public class QuerydslQueryBackend<T> implements JpaQueryBackend<Expression<?>, O
 			}
 		}
 		else if (operator == FilterOperator.LE) {
-			if (expression instanceof NumberExpression) {
+			if (expression instanceof FetchableSubQueryBase) {
+				return ((FetchableSubQueryBase) expression).loe((Number) value);
+			}
+			else if (expression instanceof NumberExpression) {
 				return ((NumberExpression) expression).loe((Number) value);
 			}
 			else {
@@ -259,8 +275,7 @@ public class QuerydslQueryBackend<T> implements JpaQueryBackend<Expression<?>, O
 
 	private Expression<?> handleConversions(Expression<?> expression, FilterOperator operator) {
 		// convert to String for LIKE operators
-		if (expression.getType() != String.class
-				&& (operator == FilterOperator.LIKE)) {
+		if (expression.getType() != String.class && (operator == FilterOperator.LIKE)) {
 			return ((LiteralExpression) expression).stringValue();
 		}
 		else {
@@ -349,10 +364,10 @@ public class QuerydslQueryBackend<T> implements JpaQueryBackend<Expression<?>, O
 
 	@Override
 	public Expression<?> getAttribute(final Expression<?> expression, MetaAttribute pathElement) {
-		if (pathElement instanceof MetaVirtualAttribute) {
-			VirtualAttributeRegistry virtualAttrs = queryImpl.getVirtualAttrs();
+		if (pathElement instanceof MetaComputedAttribute) {
+			ComputedAttributeRegistryImpl virtualAttrs = queryImpl.getComputedAttrs();
 			QuerydslExpressionFactory expressionFactory = (QuerydslExpressionFactory) virtualAttrs
-					.get((MetaVirtualAttribute) pathElement);
+					.get((MetaComputedAttribute) pathElement);
 			return expressionFactory.getExpression(expression, getQuery());
 		}
 		else {
@@ -369,11 +384,11 @@ public class QuerydslQueryBackend<T> implements JpaQueryBackend<Expression<?>, O
 
 	@Override
 	public Expression<?> doJoin(MetaAttribute targetAttr, JoinType joinType, Expression<?> parent) {
-		if (targetAttr instanceof MetaVirtualAttribute) {
+		if (targetAttr instanceof MetaComputedAttribute) {
 
-			MetaVirtualAttribute virtualAttr = (MetaVirtualAttribute) targetAttr;
-			QuerydslExpressionFactory expressionFactory = (QuerydslExpressionFactory<?>) queryImpl.getVirtualAttrs()
-					.get(virtualAttr);
+			MetaComputedAttribute computedAttr = (MetaComputedAttribute) targetAttr;
+			QuerydslExpressionFactory expressionFactory = (QuerydslExpressionFactory<?>) queryImpl.getComputedAttrs()
+					.get(computedAttr);
 
 			return expressionFactory.getExpression(parent, getQuery());
 		}

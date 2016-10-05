@@ -9,7 +9,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import io.katharsis.jpa.internal.meta.MetaLookup;
 import io.katharsis.jpa.internal.query.AbstractJpaQueryImpl;
-import io.katharsis.jpa.internal.query.VirtualAttributeRegistry;
+import io.katharsis.jpa.internal.query.ComputedAttributeRegistryImpl;
 import io.katharsis.jpa.query.querydsl.QuerydslQuery;
 
 public class QuerydslQueryImpl<T> extends AbstractJpaQueryImpl<T, QuerydslQueryBackend<T>> implements QuerydslQuery<T> {
@@ -17,13 +17,13 @@ public class QuerydslQueryImpl<T> extends AbstractJpaQueryImpl<T, QuerydslQueryB
 	private JPAQueryFactory queryFactory;
 
 	public QuerydslQueryImpl(MetaLookup metaLookup, EntityManager em, Class<T> clazz,
-			VirtualAttributeRegistry virtualAttrs) {
-		super(metaLookup, em, clazz, virtualAttrs);
+			ComputedAttributeRegistryImpl computedAttrs) {
+		super(metaLookup, em, clazz, computedAttrs);
 		queryFactory = new JPAQueryFactory(em);
 	}
 
 	public QuerydslQueryImpl(MetaLookup metaLookup, EntityManager em, Class<?> clazz,
-			VirtualAttributeRegistry virtualAttrs, String attrName, List<?> entityIds) {
+			ComputedAttributeRegistryImpl virtualAttrs, String attrName, List<?> entityIds) {
 		super(metaLookup, em, clazz, virtualAttrs, attrName, entityIds);
 		queryFactory = new JPAQueryFactory(em);
 	}
