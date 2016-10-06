@@ -12,6 +12,9 @@ import io.katharsis.queryParams.QueryParamsSerializer;
 import io.katharsis.queryspec.DefaultQuerySpecSerializer;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.QuerySpecSerializer;
+import io.katharsis.queryspec.internal.QueryAdapter;
+import io.katharsis.queryspec.internal.QueryParamsAdapter;
+import io.katharsis.queryspec.internal.QuerySpecAdapter;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -37,6 +40,14 @@ public class JsonApiUrlBuilder {
 		return buildUrl(resourceClass, id, querySpec, null);
 	}
 
+	public <T> String buildUrl(Class<T> resourceClass, Object id, QueryAdapter queryAdapter, String relationshipName) {
+		if(queryAdapter instanceof QuerySpecAdapter){
+			return buildUrl(resourceClass, id, ((QuerySpecAdapter)queryAdapter).getQuerySpec(), relationshipName);
+		}else{
+			return buildUrl(resourceClass, id, ((QueryParamsAdapter)queryAdapter).getQueryParams(), relationshipName);
+		}
+	}
+	
 	public <T> String buildUrl(Class<T> resourceClass, Object id, QuerySpec querySpec, String relationshipName) {
 		return buildUrlInternal(resourceClass, id, querySpec, relationshipName);
 	}

@@ -27,6 +27,7 @@ import io.katharsis.jpa.util.TestConfig;
 import io.katharsis.locator.SampleJsonServiceLocator;
 import io.katharsis.queryParams.DefaultQueryParamsParser;
 import io.katharsis.queryParams.QueryParamsBuilder;
+import io.katharsis.queryspec.DefaultQuerySpecDeserializer;
 import io.katharsis.rs.KatharsisFeature;
 import io.katharsis.rs.KatharsisProperties;
 
@@ -37,6 +38,8 @@ public abstract class AbstractJpaJerseyTest extends JerseyTest {
 	protected QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
 
 	protected AnnotationConfigApplicationContext context;
+	
+	private boolean useQuerySpec = true;
 
 	@Before
 	public void setup() {
@@ -91,8 +94,13 @@ public abstract class AbstractJpaJerseyTest extends JerseyTest {
 			EntityManager em = context.getBean(EntityManagerProducer.class).getEntityManager();
 			SpringTransactionRunner transactionRunner = context.getBean(SpringTransactionRunner.class);
 
-			KatharsisFeature feature = new KatharsisFeature(new ObjectMapper(),
+			KatharsisFeature feature;
+			if(useQuerySpec){
+				feature = new KatharsisFeature(new ObjectMapper(),
 					new QueryParamsBuilder(new DefaultQueryParamsParser()), new SampleJsonServiceLocator());
+			}else{
+				feature = new KatharsisFeature(new ObjectMapper(), new DefaultQuerySpecDeserializer(), new SampleJsonServiceLocator());
+			}
 
 			JpaModule module = JpaModule.newServerModule(emFactory, em, transactionRunner);
 			module.setQueryFactory(QuerydslQueryFactory.newInstance(module.getMetaLookup(), em));

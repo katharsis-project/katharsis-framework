@@ -14,11 +14,8 @@ import io.katharsis.jpa.internal.JpaRepositoryUtils;
 import io.katharsis.jpa.internal.meta.MetaAttribute;
 import io.katharsis.jpa.internal.meta.MetaEntity;
 import io.katharsis.jpa.internal.meta.MetaType;
-import io.katharsis.jpa.internal.paging.DefaultPagedLinksInformation;
 import io.katharsis.jpa.internal.paging.DefaultPagedMetaInformation;
-import io.katharsis.jpa.internal.paging.PagedLinksInformation;
 import io.katharsis.jpa.internal.paging.PagedMetaInformation;
-import io.katharsis.jpa.internal.paging.PagedResultList;
 import io.katharsis.jpa.mapping.IdentityMapper;
 import io.katharsis.jpa.mapping.JpaMapper;
 import io.katharsis.jpa.query.ComputedAttributeRegistry;
@@ -28,6 +25,7 @@ import io.katharsis.jpa.query.JpaQueryFactory;
 import io.katharsis.jpa.query.Tuple;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.QuerySpecRelationshipRepository;
+import io.katharsis.response.paging.PagedResultList;
 
 public class JpaRelationshipRepository<S, I extends Serializable, T, J extends Serializable> extends JpaRepositoryBase<T>
 		implements QuerySpecRelationshipRepository<S, I, T, J> {
@@ -162,7 +160,7 @@ public class JpaRelationshipRepository<S, I extends Serializable, T, J extends S
 		MetaAttribute attrMeta = entityMeta.getAttribute(fieldName);
 		MetaAttribute oppositeAttrMeta = attrMeta.getOppositeAttribute();
 		Class<?> targetType = getElementType(attrMeta);
-		
+
 		Object sourceEntity = sourceMapper.unmap(source);
 
 		EntityManager em = module.getEntityManager();
@@ -190,7 +188,7 @@ public class JpaRelationshipRepository<S, I extends Serializable, T, J extends S
 		Class<?> targetType = getElementType(attrMeta);
 
 		Object sourceEntity = sourceMapper.unmap(source);
-		
+
 		EntityManager em = module.getEntityManager();
 		for (J targetId : targetIds) {
 			Object target = em.find(targetType, targetId);
@@ -242,7 +240,7 @@ public class JpaRelationshipRepository<S, I extends Serializable, T, J extends S
 		// compute total row count if necessary to do proper paging
 		if (querySpec.getLimit() != null) {
 			long totalRowCount = executor.getTotalRowCount();
-			list = new PagedResultList<>(list, totalRowCount, sourceResourceClass, sourceId, fieldName);
+			list = new PagedResultList<>(list, totalRowCount);
 		}
 		else {
 			return list;
@@ -267,10 +265,5 @@ public class JpaRelationshipRepository<S, I extends Serializable, T, J extends S
 	@Override
 	protected PagedMetaInformation newPagedMetaInformation() {
 		return new DefaultPagedMetaInformation();
-	}
-
-	@Override
-	protected PagedLinksInformation newPagedLinksInformation() {
-		return new DefaultPagedLinksInformation();
 	}
 }

@@ -1,9 +1,7 @@
 package io.katharsis.resource.registry.responseRepository;
 
 import java.io.Serializable;
-import java.util.Set;
 
-import io.katharsis.queryspec.FilterOperator;
 import io.katharsis.queryspec.QuerySpecRelationshipRepository;
 import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.repository.RelationshipRepository;
@@ -89,7 +87,8 @@ public class RelationshipRepositoryAdapter<T, T_ID extends Serializable, D, D_ID
             resource = ((RelationshipRepository) relationshipRepository)
                 .findOneTarget(sourceId, fieldName, toQueryParams(queryAdapter));
         }
-        return getResponse(relationshipRepository, resource, queryAdapter);
+        RequestSpec requestSpec = new RequestSpec(queryAdapter, sourceId, fieldName, resourceInformation.getResourceClass());
+        return getResponse(relationshipRepository, resource, requestSpec);
     }
 
 	public JsonApiResponse findManyTargets(T_ID sourceId, String fieldName, QueryAdapter queryAdapter) {
@@ -105,7 +104,8 @@ public class RelationshipRepositoryAdapter<T, T_ID extends Serializable, D, D_ID
             resources = ((RelationshipRepository) relationshipRepository)
                 .findManyTargets(sourceId, fieldName, toQueryParams(queryAdapter));
         }
-        return getResponse(relationshipRepository, resources, queryAdapter);
+        RequestSpec requestSpec = new RequestSpec(queryAdapter, sourceId, fieldName, resourceInformation.getResourceClass());
+        return getResponse(relationshipRepository, resources, requestSpec);
     }
 	
 

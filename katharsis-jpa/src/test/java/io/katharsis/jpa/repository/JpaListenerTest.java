@@ -32,7 +32,6 @@ public class JpaListenerTest extends AbstractJpaTest {
 	public void setup() {
 		super.setup();
 		repo = new JpaEntityRepository<>(module, TestEntity.class);
-		repo.setResourceRegistry(resourceRegistry);
 	}
 
 	@SuppressWarnings("unchecked")
