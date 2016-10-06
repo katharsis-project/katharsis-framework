@@ -36,6 +36,8 @@ import io.katharsis.jpa.mapping.JpaMapping;
 import io.katharsis.jpa.query.JpaQueryFactory;
 import io.katharsis.jpa.query.criteria.JpaCriteriaQueryFactory;
 import io.katharsis.module.Module;
+import io.katharsis.queryspec.QuerySpecRelationshipRepository;
+import io.katharsis.queryspec.QuerySpecResourceRepository;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ResourceLookup;
 import io.katharsis.response.BaseResponseContext;
@@ -404,11 +406,27 @@ public class JpaModule implements Module {
 	private void setupMappedRepository(MappedRegistration<?, ?> mapping) {
 		MetaEntity metaEntity = metaLookup.getMeta(mapping.getEntityClass()).asEntity();
 		if (isValidEntity(metaEntity)) {
-			JpaEntityRepository<?, ?> repository = repositoryFactory.createEntityRepository(this, mapping.getDtoClass());
+			QuerySpecResourceRepository<?, ?> repository = filterCreation(
+					repositoryFactory.createEntityRepository(this, mapping.getDtoClass()));
 			context.addRepository(mapping.getDtoClass(), repository);
-
 			setupRelationshipRepositories(mapping.getDtoClass());
 		}
+	}
+
+	private QuerySpecResourceRepository<?, ?> filterCreation(JpaEntityRepository<?, ?> repository) {
+		QuerySpecResourceRepository<?, ?> filteredRepository = repository;
+		for (JpaRepositoryFilter filter : filters) {
+			filteredRepository = filter.filterCreation(repository);
+		}
+		return filteredRepository;
+	}
+
+	private QuerySpecRelationshipRepository<?, ?, ?, ?> filterCreation(JpaRelationshipRepository<?, ?, ?, ?> repository) {
+		QuerySpecRelationshipRepository<?, ?, ?, ?> filteredRepository = repository;
+		for (JpaRepositoryFilter filter : filters) {
+			filteredRepository = filter.filterCreation(repository);
+		}
+		return filteredRepository;
 	}
 
 	@SuppressWarnings({ "rawtypes" })
@@ -418,11 +436,10 @@ public class JpaModule implements Module {
 		MetaEntity metaEntity = meta.asEntity();
 		if (isValidEntity(metaEntity)) {
 			Class<?> resourceClass = metaEntity.getImplementationClass();
-			JpaEntityRepository repository = repositoryFactory.createEntityRepository(this, resourceClass);
+			QuerySpecResourceRepository repository = filterCreation(
+					repositoryFactory.createEntityRepository(this, resourceClass));
 			context.addRepository(resourceClass, repository);
-
 			setupRelationshipRepositories(resourceClass);
-
 		}
 	}
 
@@ -444,8 +461,8 @@ public class JpaModule implements Module {
 
 				// only include relations that are exposed as repositories
 				if (entityClasses.contains(attrImplClass)) {
-					JpaRelationshipRepository<?, ?, ?, ?> relationshipRepository = repositoryFactory
-							.createRelationshipRepository(this, resourceClass, attrImplClass);
+					QuerySpecRelationshipRepository<?, ?, ?, ?> relationshipRepository = filterCreation(
+							repositoryFactory.createRelationshipRepository(this, resourceClass, attrImplClass));
 					context.addRepository(resourceClass, attrImplClass, relationshipRepository);
 				}
 			}
@@ -458,8 +475,8 @@ public class JpaModule implements Module {
 				MappedRegistration<?, ?> targetMapping = mappings.get(attrImplClass);
 				Class<?> targetDtoClass = targetMapping.getDtoClass();
 
-				JpaRelationshipRepository<?, ?, ?, ?> relationshipRepository = repositoryFactory
-						.createRelationshipRepository(this, resourceClass, targetDtoClass);
+				QuerySpecRelationshipRepository<?, ?, ?, ?> relationshipRepository = filterCreation(
+						repositoryFactory.createRelationshipRepository(this, resourceClass, targetDtoClass));
 				context.addRepository(resourceClass, targetDtoClass, relationshipRepository);
 			}
 			else {

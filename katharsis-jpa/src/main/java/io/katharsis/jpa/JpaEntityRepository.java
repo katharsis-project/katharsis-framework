@@ -43,6 +43,7 @@ public class JpaEntityRepository<T, I extends Serializable> extends JpaRepositor
 
 	@Override
 	public final T findOne(I id, QuerySpec querySpec) {
+		checkReadable();
 		QuerySpec idQuerySpec = querySpec.duplicate();
 		idQuerySpec.addFilter(new FilterSpec(Arrays.asList(primaryKeyAttr.getName()), FilterOperator.EQ, id));
 		List<T> results = findAll(idQuerySpec);
@@ -51,6 +52,7 @@ public class JpaEntityRepository<T, I extends Serializable> extends JpaRepositor
 
 	@Override
 	public final List<T> findAll(Iterable<I> ids, QuerySpec querySpec) {
+		checkReadable();
 		QuerySpec idQuerySpec = querySpec.duplicate();
 		idQuerySpec.addFilter(new FilterSpec(Arrays.asList(primaryKeyAttr.getName()), FilterOperator.EQ, ids));
 		return findAll(querySpec);
@@ -58,6 +60,7 @@ public class JpaEntityRepository<T, I extends Serializable> extends JpaRepositor
 
 	@Override
 	public List<T> findAll(QuerySpec querySpec) {
+		checkReadable();
 		QuerySpec filteredQuerySpec = filterQuerySpec(querySpec);
 		JpaQueryFactory queryFactory = module.getQueryFactory();
 		JpaQuery<?> query = queryFactory.query(entityClass);
@@ -88,8 +91,14 @@ public class JpaEntityRepository<T, I extends Serializable> extends JpaRepositor
 	@Override
 	public <S extends T> S save(S resource) {
 		Object entity = mapper.unmap(resource);
-
+		
 		EntityManager em = module.getEntityManager();
+		if(em.contains(entity)){
+			checkUpdateable();
+		}else{
+			checkCreateable();
+		}
+		
 		em.persist(entity);
 		em.flush();
 
@@ -104,6 +113,7 @@ public class JpaEntityRepository<T, I extends Serializable> extends JpaRepositor
 
 	@Override
 	public void delete(I id) {
+		checkDeleteable();
 		EntityManager em = module.getEntityManager();
 
 		Object object = em.find(entityClass, id);

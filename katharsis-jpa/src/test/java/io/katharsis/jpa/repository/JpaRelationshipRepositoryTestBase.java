@@ -183,6 +183,55 @@ public abstract class JpaRelationshipRepositoryTestBase extends AbstractJpaTest 
 		Assert.assertEquals(5, metaInformation.getTotalResourceCount().longValue());
 	}
 
+	@Test(expected = UnsupportedOperationException.class)
+	public void testReadableFindOneTarget() {
+		repo.setReadable(false);
+		repo.findOneTarget(0L, "asdf", new QuerySpec(TestEntity.class));
+	}
+
+	@Test(expected = UnsupportedOperationException.class)
+	public void testReadableFindManyTarget() {
+		repo.setReadable(false);
+		repo.findManyTargets(0L, "asdf", new QuerySpec(TestEntity.class));
+	}
+
+	@Test(expected = UnsupportedOperationException.class)
+	public void testUpdateableSetRelation() {
+		repo.setUpdateable(false);
+		repo.setRelation(null, null, null);
+	}
+
+	@Test(expected = UnsupportedOperationException.class)
+	public void testUpdateableSetRelationsAdd() {
+		repo.setCreateable(false);
+
+		TestEntity test = em.find(TestEntity.class, 1L);
+		Assert.assertEquals(0, test.getManyRelatedValues().size());
+		repo.addRelations(test, Arrays.asList(101L), TestEntity.ATTR_manyRelatedValues);
+
+	}
+
+	@Test(expected = UnsupportedOperationException.class)
+	public void testUpdateableSetRelationsRemove() {
+		TestEntity test = em.find(TestEntity.class, 1L);
+		repo.addRelations(test, Arrays.asList(101L), TestEntity.ATTR_manyRelatedValues);
+
+		repo.setDeleteable(false);
+		repo.removeRelations(test, Arrays.asList(101L), TestEntity.ATTR_manyRelatedValues);
+	}
+
+	@Test(expected = UnsupportedOperationException.class)
+	public void setCreateableAddRelations() {
+		repo.setCreateable(false);
+		repo.addRelations(null, null, null);
+	}
+
+	@Test(expected = UnsupportedOperationException.class)
+	public void setDeleteableRemoveRelations() {
+		repo.setDeleteable(false);
+		repo.removeRelations(null, null, null);
+	}
+
 	private TestEntity setupManyRelation(List<Long> ids) {
 		TestEntity test = em.find(TestEntity.class, 1L);
 		Assert.assertThat(test.getManyRelatedValues().size(), Is.is(0));

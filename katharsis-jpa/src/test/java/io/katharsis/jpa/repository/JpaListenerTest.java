@@ -11,14 +11,13 @@ import org.mockito.Mockito;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.katharsis.jpa.JpaEntityRepository;
-import io.katharsis.jpa.JpaRepositoryFilter;
+import io.katharsis.jpa.JpaRepositoryFilterBase;
 import io.katharsis.jpa.internal.meta.MetaLookup;
 import io.katharsis.jpa.model.TestEntity;
 import io.katharsis.jpa.query.AbstractJpaTest;
 import io.katharsis.jpa.query.JpaQuery;
 import io.katharsis.jpa.query.JpaQueryExecutor;
 import io.katharsis.jpa.query.JpaQueryFactory;
-import io.katharsis.jpa.query.Tuple;
 import io.katharsis.jpa.query.querydsl.QuerydslQueryFactory;
 import io.katharsis.queryspec.QuerySpec;
 
@@ -38,7 +37,7 @@ public class JpaListenerTest extends AbstractJpaTest {
 	@Test
 	public void test() throws InstantiationException, IllegalAccessException {
 
-		TestFilter filter = Mockito.spy(new TestFilter());
+		JpaRepositoryFilterBase filter = Mockito.spy(new JpaRepositoryFilterBase());
 		module.addFilter(filter);
 
 		QuerySpec querySpec = new QuerySpec(TestEntity.class);
@@ -59,36 +58,4 @@ public class JpaListenerTest extends AbstractJpaTest {
 		return QuerydslQueryFactory.newInstance(new MetaLookup(), em);
 	}
 
-	class TestFilter implements JpaRepositoryFilter {
-
-		@Override
-		public boolean accept(Class<?> resourceType) {
-			return true;
-		}
-
-		@Override
-		public QuerySpec filterQuerySpec(Object repository, QuerySpec querySpec) {
-			return querySpec;
-		}
-
-		@Override
-		public <T> JpaQuery<T> filterQuery(Object repository, QuerySpec querySpec, JpaQuery<T> query) {
-			return query;
-		}
-
-		@Override
-		public <T> JpaQueryExecutor<T> filterExecutor(Object repository, QuerySpec querySpec, JpaQueryExecutor<T> executor) {
-			return executor;
-		}
-
-		@Override
-		public List<Tuple> filterTuples(Object repository, QuerySpec querySpec, List<Tuple> tuples) {
-			return tuples;
-		}
-
-		@Override
-		public <T> List<T> filterResults(Object repository, QuerySpec querySpec, List<T> resources) {
-			return resources;
-		}
-	}
 }
