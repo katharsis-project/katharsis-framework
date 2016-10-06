@@ -38,7 +38,7 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable> extends Respo
 		else {
 			resource = ((ResourceRepository) resourceRepository).findOne(id, toQueryParams(queryAdapter));
 		}
-		return getResponse(resourceRepository, resource, queryAdapter);
+		return getResponse(resourceRepository, resource, new RequestSpec(queryAdapter));
 	}
 
 	public JsonApiResponse findAll(QueryAdapter queryAdapter) {
@@ -53,7 +53,7 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable> extends Respo
 		else {
 			resources = ((ResourceRepository) resourceRepository).findAll(toQueryParams(queryAdapter));
 		}
-		return getResponse(resourceRepository, resources, queryAdapter);
+		return getResponse(resourceRepository, resources, new RequestSpec(queryAdapter));
 	}
 
 	public JsonApiResponse findAll(Iterable ids, QueryAdapter queryAdapter) {
@@ -68,7 +68,7 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable> extends Respo
 		else {
 			resources = ((ResourceRepository) resourceRepository).findAll(ids, toQueryParams(queryAdapter));
 		}
-		return getResponse(resourceRepository, resources, queryAdapter);
+		return getResponse(resourceRepository, resources, new RequestSpec(queryAdapter));
 	}
 
 	public <S extends T> JsonApiResponse save(S entity, QueryAdapter queryAdapter) {
@@ -82,7 +82,7 @@ public class ResourceRepositoryAdapter<T, ID extends Serializable> extends Respo
 		else {
 			resource = ((ResourceRepository) resourceRepository).save(entity);
 		}
-		return getResponse(resourceRepository, resource, queryAdapter);
+		return getResponse(resourceRepository, resource, new RequestSpec(queryAdapter));
 	}
 
 	public JsonApiResponse delete(ID id, QueryAdapter queryAdapter) {

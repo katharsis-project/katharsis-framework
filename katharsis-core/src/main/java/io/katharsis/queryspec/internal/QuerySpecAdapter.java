@@ -95,4 +95,29 @@ public class QuerySpecAdapter implements QueryAdapter {
 	public Class<?> getResourceClass() {
 		return querySpec.getResourceClass();
 	}
+
+	@Override
+	public Long getLimit() {
+		return querySpec.getLimit();
+	}
+
+	@Override
+	public long getOffset() {
+		return querySpec.getOffset();
+	}
+
+	@Override
+	public QueryAdapter duplicate() {
+		return new QuerySpecAdapter(querySpec.duplicate(), resourceRegistry);
+	}
+
+	@Override
+	public void setLimit(Long limit) {
+		querySpec.setLimit(limit);
+	}
+
+	@Override
+	public void setOffset(long offset) {
+		querySpec.setOffset(offset);
+	}
 }

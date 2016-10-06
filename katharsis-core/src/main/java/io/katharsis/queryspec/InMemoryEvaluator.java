@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
+import io.katharsis.response.paging.PagedResultList;
 import io.katharsis.utils.PropertyUtils;
 
 /**
@@ -21,6 +22,7 @@ public class InMemoryEvaluator {
 		while(iterator.hasNext()){
 			results.add(iterator.next());
 		}
+		long totalCount = results.size();
 
 		// filter
 		if (!querySpec.getFilters().isEmpty()) {
@@ -34,7 +36,7 @@ public class InMemoryEvaluator {
 		// offset/limit
 		results = applyPaging(results, querySpec);
 
-		return results;
+		return new PagedResultList<>(results, totalCount);
 	}
 
 	private <T> void applySorting(List<T> results, List<SortSpec> sortSpec) {

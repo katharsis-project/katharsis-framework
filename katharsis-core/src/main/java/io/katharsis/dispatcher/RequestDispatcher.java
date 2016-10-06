@@ -1,5 +1,6 @@
 package io.katharsis.dispatcher;
 
+import java.lang.reflect.ParameterizedType;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -19,7 +20,6 @@ import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.queryspec.internal.QueryAdapterBuilder;
 import io.katharsis.queryspec.internal.QueryParamsAdapter;
-import io.katharsis.queryspec.internal.QueryParamsAdapterBuilder;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.repository.exception.RepositoryNotFoundException;
 import io.katharsis.request.dto.RequestBody;
@@ -104,7 +104,11 @@ public class RequestDispatcher {
 	            if (relationshipField == null) {
 	                throw new ResourceFieldNotFoundException(elementName);
 	            }
-	            return relationshipField.getType();
+	             Class<?> type = relationshipField.getType();
+	             if(Iterable.class.isAssignableFrom(type)){
+	            	 type = (Class<?>)((ParameterizedType)relationshipField.getGenericType()).getActualTypeArguments()[0];
+	             }
+	             return type;
         }else{
         	return registryEntry.getResourceInformation().getResourceClass();
         }

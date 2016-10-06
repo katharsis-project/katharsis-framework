@@ -57,4 +57,29 @@ public class QueryParamsAdapter implements QueryAdapter {
 		}
 		return resourceRegistry;
 	}
+
+	@Override
+	public Long getLimit() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public long getOffset() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public QueryAdapter duplicate() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void setLimit(Long limit) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void setOffset(long offset) {
+		throw new UnsupportedOperationException();
+	}
 }

@@ -128,6 +128,16 @@ public class DefaultQuerySpecSerializerTest {
 	}
 
 	@Test
+	public void testPagingOnRelation() throws InstantiationException, IllegalAccessException {
+		QuerySpec querySpec = new QuerySpec(Task.class);
+		querySpec.setLimit(2L);
+		querySpec.setOffset(1L);
+		
+		String actualUrl = urlBuilder.buildUrl(Task.class, 1L, querySpec, "projects");
+		assertEquals("http://127.0.0.1/tasks/1/relationships/projects/?page[limit]=2&page[offset]=1", actualUrl);
+	}
+	
+	@Test
 	public void testIncludeRelations() throws InstantiationException, IllegalAccessException {
 		QuerySpec querySpec = new QuerySpec(Task.class);
 		querySpec.includeRelation(Arrays.asList("project"));

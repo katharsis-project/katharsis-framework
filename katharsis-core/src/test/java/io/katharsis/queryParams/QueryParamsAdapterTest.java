@@ -32,4 +32,39 @@ public class QueryParamsAdapterTest {
 		QueryParamsAdapter adapter = new QueryParamsAdapter(params);
 		adapter.getResourceRegistry();
 	}
+
+	@Test(expected = UnsupportedOperationException.class)
+	public void testDuplicate() {
+		QueryParams params = new QueryParams();
+		QueryParamsAdapter adapter = new QueryParamsAdapter(params);
+		adapter.duplicate();
+	}
+
+	@Test(expected = UnsupportedOperationException.class)
+	public void testGetLimit() {
+		QueryParams params = new QueryParams();
+		QueryParamsAdapter adapter = new QueryParamsAdapter(params);
+		adapter.getLimit();
+	}
+
+	@Test(expected = UnsupportedOperationException.class)
+	public void testGetOffset() {
+		QueryParams params = new QueryParams();
+		QueryParamsAdapter adapter = new QueryParamsAdapter(params);
+		adapter.getOffset();
+	}
+
+	@Test(expected = UnsupportedOperationException.class)
+	public void testSetLimit() {
+		QueryParams params = new QueryParams();
+		QueryParamsAdapter adapter = new QueryParamsAdapter(params);
+		adapter.setLimit(0L);
+	}
+
+	@Test(expected = UnsupportedOperationException.class)
+	public void testSetOffset() {
+		QueryParams params = new QueryParams();
+		QueryParamsAdapter adapter = new QueryParamsAdapter(params);
+		adapter.setOffset(0L);
+	}
 }

@@ -11,11 +11,8 @@ import io.katharsis.jpa.internal.JpaRepositoryBase;
 import io.katharsis.jpa.internal.JpaRepositoryUtils;
 import io.katharsis.jpa.internal.meta.MetaAttribute;
 import io.katharsis.jpa.internal.meta.MetaEntity;
-import io.katharsis.jpa.internal.paging.DefaultPagedLinksInformation;
 import io.katharsis.jpa.internal.paging.DefaultPagedMetaInformation;
-import io.katharsis.jpa.internal.paging.PagedLinksInformation;
 import io.katharsis.jpa.internal.paging.PagedMetaInformation;
-import io.katharsis.jpa.internal.paging.PagedResultList;
 import io.katharsis.jpa.mapping.IdentityMapper;
 import io.katharsis.jpa.mapping.JpaMapper;
 import io.katharsis.jpa.query.ComputedAttributeRegistry;
@@ -27,6 +24,7 @@ import io.katharsis.queryspec.FilterOperator;
 import io.katharsis.queryspec.FilterSpec;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.QuerySpecResourceRepository;
+import io.katharsis.response.paging.PagedResultList;
 import io.katharsis.utils.PropertyUtils;
 
 /**
@@ -141,10 +139,5 @@ public class JpaEntityRepository<T, I extends Serializable> extends JpaRepositor
 	@Override
 	protected PagedMetaInformation newPagedMetaInformation() {
 		return new DefaultPagedMetaInformation();
-	}
-
-	@Override
-	protected PagedLinksInformation newPagedLinksInformation() {
-		return new DefaultPagedLinksInformation();
 	}
 }
