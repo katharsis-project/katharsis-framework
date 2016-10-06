@@ -14,12 +14,15 @@ import com.querydsl.core.types.Expression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 
+import io.katharsis.client.QuerySpecRelationshipRepositoryStub;
 import io.katharsis.client.QuerySpecResourceRepositoryStub;
 import io.katharsis.client.response.ResourceList;
 import io.katharsis.jpa.AbstractJpaJerseyTest;
 import io.katharsis.jpa.JpaModule;
 import io.katharsis.jpa.model.QTestEntity;
+import io.katharsis.jpa.model.RelatedEntity;
 import io.katharsis.jpa.model.TestEntity;
+import io.katharsis.jpa.model.dto.RelatedDTO;
 import io.katharsis.jpa.model.dto.TestDTO;
 import io.katharsis.jpa.query.querydsl.QuerydslExpressionFactory;
 import io.katharsis.jpa.query.querydsl.QuerydslQueryFactory;
@@ -30,7 +33,7 @@ import io.katharsis.queryspec.QuerySpec;
 /**
  * Example of how to do DTO mapping and computed attributes.
  */
-public class JpaComputedAttributeEndToEndTest extends AbstractJpaJerseyTest {
+public class DtoMappingTest extends AbstractJpaJerseyTest {
 
 	private QuerySpecResourceRepositoryStub<TestEntity, Long> testRepo;
 
@@ -75,6 +78,42 @@ public class JpaComputedAttributeEndToEndTest extends AbstractJpaJerseyTest {
 	}
 
 	@Test
+	public void testMappedRelation() {
+		QuerySpecResourceRepositoryStub<TestDTO, Serializable> testRepo = client.getQuerySpecRepository(TestDTO.class);
+		QuerySpecResourceRepositoryStub<RelatedDTO, Serializable> relatedRepo = client.getQuerySpecRepository(RelatedDTO.class);
+		QuerySpecRelationshipRepositoryStub<TestDTO, Serializable, RelatedDTO, Serializable> relRepo = client
+				.getQuerySpecRepository(TestDTO.class, RelatedDTO.class);
+
+		TestDTO test = new TestDTO();
+		test.setId(2L);
+		test.setStringValue("createdDto");
+		test = testRepo.save(test);
+
+		RelatedDTO related = new RelatedDTO();
+		related.setId(2L);
+		related.setStringValue("createdDto");
+		related = relatedRepo.save(related);
+
+		relRepo.setRelation(test, related.getId(), TestEntity.ATTR_oneRelatedValue);
+
+		// test relationship access
+		RelatedDTO actualRelated = relRepo.findOneTarget(test.getId(), TestEntity.ATTR_oneRelatedValue,
+				new QuerySpec(RelatedDTO.class));
+		Assert.assertNotNull(actualRelated);
+		Assert.assertEquals(related.getId(), actualRelated.getId());
+
+		// test include
+		QuerySpec querySpec = new QuerySpec(TestDTO.class);
+		querySpec.includeRelation(Arrays.asList(TestEntity.ATTR_oneRelatedValue));
+		ResourceList<TestDTO> list = testRepo.findAll(querySpec);
+		Assert.assertEquals(1, list.size());
+		TestDTO actualTest = list.get(0);
+		actualRelated = actualTest.getOneRelatedValue();
+		Assert.assertNotNull(actualRelated);
+		Assert.assertEquals(related.getId(), actualRelated.getId());
+	}
+
+	@Test
 	public void testInsertDeleteDto() {
 		QuerySpecResourceRepositoryStub<TestDTO, Serializable> dtoRepo = client.getQuerySpecRepository(TestDTO.class);
 
@@ -114,7 +153,7 @@ public class JpaComputedAttributeEndToEndTest extends AbstractJpaJerseyTest {
 		// select, sort, filter by complex subquery
 		QuerySpec querySpec = new QuerySpec(TestDTO.class);
 		querySpec.addFilter(new FilterSpec(Arrays.asList(TestDTO.ATTR_COMPUTED_NUMBER_OF_SMALLER_IDS), FilterOperator.LT, 4));
-		
+
 		// TODO enable querySpec parser
 		// querySpec.addSort(new SortSpec(Arrays.asList(TestDTO.ATTR_COMPUTED_NUMBER_OF_SMALLER_IDS), Direction.DESC));
 
@@ -157,6 +196,7 @@ public class JpaComputedAttributeEndToEndTest extends AbstractJpaJerseyTest {
 			queryFactory.registerComputedAttribute(TestEntity.class, TestDTO.ATTR_COMPUTED_NUMBER_OF_SMALLER_IDS, Long.class,
 					complexComputedValueFactory);
 			module.addMappedEntityClass(TestEntity.class, TestDTO.class, new TestDTOMapper(entityManager));
+			module.addMappedEntityClass(RelatedEntity.class, RelatedDTO.class, new RelatedDTOMapper(entityManager));
 		}
 	}
 }

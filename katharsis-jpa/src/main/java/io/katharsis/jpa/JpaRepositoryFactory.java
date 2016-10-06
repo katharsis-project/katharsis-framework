@@ -27,8 +27,8 @@ public interface JpaRepositoryFactory {
 	 * @param relatedEntityClass
 	 * @return repository
 	 */
-	public <T, U extends Serializable, D, J extends Serializable> JpaRelationshipRepository<T, U, D, J> createRelationshipRepository(
-			JpaModule module, Class<T> entityClass, Class<D> relatedEntityClass);
+	public <S, U extends Serializable, T, J extends Serializable> JpaRelationshipRepository<S, U, T, J> createRelationshipRepository(
+			JpaModule module, Class<S> entityClass, Class<T> relatedEntityClass);
 
 	/**
 	 *  Creates a resource repository that maps entities to DTOs and makes the DTOs available as json api endpoints.
@@ -47,13 +47,16 @@ public interface JpaRepositoryFactory {
 	 * 
 	 * @param module
 	 * @param sourceEntityClass
+	 * @param sourceResourceClass
 	 * @param targetEntityClass
-	 * @param targetDtoClass
+	 * @param targetResourceClass
+	 * @param sourceMapper
 	 * @param targetMapper
 	 * @return repository
 	 */
-	public <T, I extends Serializable, D, J extends Serializable, E> JpaRelationshipRepository<T, I, D, J> createMappedRelationshipRepository(
-			JpaModule module, Class<T> sourceEntityClass, Class<E> targetEntityClass, Class<D> targetDtoClass,
-			JpaMapper<E, D> targetMapper);
+	public <S, I extends Serializable, T, J extends Serializable, E, F> JpaRelationshipRepository<S, I, T, J> createMappedRelationshipRepository(
+			JpaModule module, Class<E> sourceEntityClass, Class<S> sourceResourceClass, Class<F> targetEntityClass, Class<T> targetResourceClass,
+			JpaMapper<E, S> sourceMapper, JpaMapper<F, T> targetMapper);
+		
 
 }

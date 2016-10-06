@@ -24,10 +24,11 @@ public class DefaultJpaRepositoryFactory implements JpaRepositoryFactory {
 	}
 
 	@Override
-	public <T, I extends Serializable, D, J extends Serializable, E> JpaRelationshipRepository<T, I, D, J> createMappedRelationshipRepository(
-			JpaModule module, Class<T> sourceEntityClass, Class<E> targetEntityClass, Class<D> targetDtoClass,
-			JpaMapper<E, D> targetMapper) {
-		return new JpaRelationshipRepository<>(module, sourceEntityClass, targetEntityClass, targetDtoClass, targetMapper);
+	public <S, I extends Serializable, T, J extends Serializable, E, F> JpaRelationshipRepository<S, I, T, J> createMappedRelationshipRepository(
+			JpaModule module, Class<E> sourceEntityClass, Class<S> sourceResourceClass, Class<F> targetEntityClass,
+			Class<T> targetResourceClass, JpaMapper<E, S> sourceMapper, JpaMapper<F, T> targetMapper) {
+		return new JpaRelationshipRepository<>(module, sourceEntityClass, sourceResourceClass, targetEntityClass,
+				targetResourceClass, sourceMapper, targetMapper);
 	}
 
 }

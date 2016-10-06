@@ -32,25 +32,52 @@ import io.katharsis.queryspec.QuerySpecRelationshipRepository;
 public class JpaRelationshipRepository<S, I extends Serializable, T, J extends Serializable> extends JpaRepositoryBase<T>
 		implements QuerySpecRelationshipRepository<S, I, T, J> {
 
-	private Class<S> sourceEntityClass;
+	private Class<S> sourceResourceClass;
+
+	private Class<?> sourceEntityClass;
 
 	private Class<?> targetEntityClass;
 
 	private MetaEntity entityMeta;
 
-	public JpaRelationshipRepository(JpaModule module, Class<S> entityClass, Class<T> relatedEntityClass) {
+	private JpaMapper<?, S> sourceMapper;
+
+	/**
+	 * JPA relationship directly exposed as repository
+	 * 
+	 * @param module
+	 * @param sourceEntityClass
+	 * @param relatedEntityClass
+	 */
+	public JpaRelationshipRepository(JpaModule module, Class<S> sourceEntityClass, Class<T> relatedEntityClass) {
 		super(module, relatedEntityClass, IdentityMapper.newInstance());
-		this.sourceEntityClass = entityClass;
-		this.entityMeta = module.getMetaLookup().getMeta(entityClass).asEntity();
+		this.sourceEntityClass = sourceEntityClass;
+		this.sourceResourceClass = sourceEntityClass;
+		this.entityMeta = module.getMetaLookup().getMeta(sourceEntityClass).asEntity();
 		this.targetEntityClass = relatedEntityClass;
+		this.sourceMapper = IdentityMapper.newInstance();
 	}
 
-	public <E> JpaRelationshipRepository(JpaModule module, Class<S> entityClass, Class<E> relatedEntityClass,
-			Class<T> relatedDtoClass, JpaMapper<E, T> mapper) {
-		super(module, relatedDtoClass, mapper);
-		this.sourceEntityClass = entityClass;
-		this.entityMeta = module.getMetaLookup().getMeta(entityClass).asEntity();
+	/**
+	 * JPA relationship mapped to a DTO relationship and exposed as repository
+	 * 
+	 * @param module
+	 * @param sourceEntityClass
+	 * @param sourceResourceClass
+	 * @param relatedEntityClass
+	 * @param relatedResourceClass
+	 * @param sourceMapper
+	 * @param targetMapper
+	 */
+	public <D, E> JpaRelationshipRepository(JpaModule module, Class<D> sourceEntityClass, Class<S> sourceResourceClass,
+			Class<E> relatedEntityClass, Class<T> relatedResourceClass, JpaMapper<D, S> sourceMapper,
+			JpaMapper<E, T> targetMapper) {
+		super(module, relatedResourceClass, targetMapper);
+		this.sourceResourceClass = sourceResourceClass;
+		this.sourceEntityClass = sourceEntityClass;
+		this.entityMeta = module.getMetaLookup().getMeta(sourceEntityClass).asEntity();
 		this.targetEntityClass = relatedEntityClass;
+		this.sourceMapper = sourceMapper;
 	}
 
 	@Override
@@ -59,16 +86,18 @@ public class JpaRelationshipRepository<S, I extends Serializable, T, J extends S
 		MetaAttribute oppositeAttrMeta = attrMeta.getOppositeAttribute();
 		Class<?> targetType = getElementType(attrMeta);
 
+		Object sourceEntity = sourceMapper.unmap(source);
+
 		EntityManager em = module.getEntityManager();
 		Object target = targetId != null ? em.find(targetType, targetId) : null;
-		attrMeta.setValue(source, target);
+		attrMeta.setValue(sourceEntity, target);
 
 		if (target != null && oppositeAttrMeta != null) {
 			if (oppositeAttrMeta.getType().isCollection()) {
-				oppositeAttrMeta.addValue(target, source);
+				oppositeAttrMeta.addValue(target, sourceEntity);
 			}
 			else {
-				oppositeAttrMeta.setValue(target, source);
+				oppositeAttrMeta.setValue(target, sourceEntity);
 			}
 			em.persist(target);
 		}
@@ -80,6 +109,8 @@ public class JpaRelationshipRepository<S, I extends Serializable, T, J extends S
 		MetaAttribute oppositeAttrMeta = attrMeta.getOppositeAttribute();
 		Class<?> targetType = getElementType(attrMeta);
 
+		Object sourceEntity = sourceMapper.unmap(source);
+
 		EntityManager em = module.getEntityManager();
 		Collection<Object> targets = attrMeta.getType().asCollection().newInstance();
 		for (J targetId : targetIds) {
@@ -89,13 +120,13 @@ public class JpaRelationshipRepository<S, I extends Serializable, T, J extends S
 
 		// detach current
 		if (oppositeAttrMeta != null) {
-			Collection<?> col = (Collection<?>) attrMeta.getValue(source);
+			Collection<?> col = (Collection<?>) attrMeta.getValue(sourceEntity);
 			Iterator<?> iterator = col.iterator();
 			while (iterator.hasNext()) {
 				Object prevTarget = iterator.next();
 				iterator.remove();
 				if (oppositeAttrMeta.getType().isCollection()) {
-					oppositeAttrMeta.removeValue(prevTarget, source);
+					oppositeAttrMeta.removeValue(prevTarget, sourceEntity);
 				}
 				else {
 					oppositeAttrMeta.setValue(prevTarget, null);
@@ -107,15 +138,15 @@ public class JpaRelationshipRepository<S, I extends Serializable, T, J extends S
 		for (Object target : targets) {
 			if (oppositeAttrMeta != null) {
 				if (oppositeAttrMeta.getType().isCollection()) {
-					oppositeAttrMeta.addValue(target, source);
+					oppositeAttrMeta.addValue(target, sourceEntity);
 				}
 				else {
-					oppositeAttrMeta.setValue(target, source);
+					oppositeAttrMeta.setValue(target, sourceEntity);
 				}
 				em.persist(target);
 			}
 		}
-		attrMeta.setValue(source, targets);
+		attrMeta.setValue(sourceEntity, targets);
 	}
 
 	private Class<?> getElementType(MetaAttribute attrMeta) {
@@ -207,7 +238,7 @@ public class JpaRelationshipRepository<S, I extends Serializable, T, J extends S
 		// compute total row count if necessary to do proper paging
 		if (querySpec.getLimit() != null) {
 			long totalRowCount = executor.getTotalRowCount();
-			list = new PagedResultList<>(list, totalRowCount, sourceEntityClass, sourceId, fieldName);
+			list = new PagedResultList<>(list, totalRowCount, sourceResourceClass, sourceId, fieldName);
 		}
 		else {
 			return list;
@@ -217,7 +248,7 @@ public class JpaRelationshipRepository<S, I extends Serializable, T, J extends S
 
 	@Override
 	public Class<S> getSourceResourceClass() {
-		return sourceEntityClass;
+		return sourceResourceClass;
 	}
 
 	@Override

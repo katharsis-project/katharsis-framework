@@ -13,7 +13,7 @@ import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
 import io.katharsis.resource.information.ResourceInformation;
 
-public class MetaResourceImpl extends MetaDataObjectImpl implements MetaEntity {
+public class MetaResourceImpl extends MetaDataObjectImpl {
 
 	private MetaAttributeImpl idAttr;
 

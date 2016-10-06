@@ -31,6 +31,7 @@ import io.katharsis.jpa.internal.meta.MetaLookup;
 import io.katharsis.jpa.internal.meta.MetaType;
 import io.katharsis.jpa.internal.meta.impl.MetaResourceImpl;
 import io.katharsis.jpa.internal.util.KatharsisAssert;
+import io.katharsis.jpa.mapping.IdentityMapper;
 import io.katharsis.jpa.mapping.JpaMapper;
 import io.katharsis.jpa.query.JpaQueryFactory;
 import io.katharsis.jpa.query.criteria.JpaCriteriaQueryFactory;
@@ -452,16 +453,31 @@ public class JpaModule implements Module {
 				}
 			}
 			else if (attrType instanceof MetaResourceImpl) {
-				if (!mappings.containsKey(attrType)) {
+				Class<?> attrImplClass = attrType.getImplementationClass();
+				if (!mappings.containsKey(attrImplClass)) {
 					throw new IllegalStateException(
 							"no mapped entity for " + attrType.getName() + " reference by " + attr.getId() + " registered");
 				}
-				MappedRegistration<?, ?> mapping = mappings.get(attrType);
-				Class<?> targetEntityClass = mapping.getEntityClass();
-				Class<?> targetDtoClass = mapping.getDtoClass();
-				JpaMapper targetMapper = mapping.getMapper();
+				MappedRegistration<?, ?> targetMapping = mappings.get(attrImplClass);
+				Class<?> targetEntityClass = targetMapping.getEntityClass();
+				Class<?> targetDtoClass = targetMapping.getDtoClass();
+				JpaMapper targetMapper = targetMapping.getMapper();
+
+				Class sourceEntityClass;
+				JpaMapper sourceMapper;
+				if (meta instanceof MetaEntity) {
+					sourceEntityClass = resourceClass;
+					sourceMapper = IdentityMapper.newInstance();
+				}
+				else {
+					MappedRegistration<?, ?> sourceMapping = mappings.get(resourceClass);
+					sourceEntityClass = sourceMapping.getEntityClass();
+					sourceMapper = sourceMapping.getMapper();
+				}
+
 				JpaRelationshipRepository<?, ?, ?, ?> relationshipRepository = repositoryFactory
-						.createMappedRelationshipRepository(this, resourceClass, targetEntityClass, targetDtoClass, targetMapper);
+						.createMappedRelationshipRepository(this, sourceEntityClass, resourceClass, targetEntityClass, targetDtoClass,
+								sourceMapper, targetMapper);
 				context.addRepository(resourceClass, targetDtoClass, relationshipRepository);
 			}
 			else {
