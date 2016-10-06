@@ -292,4 +292,43 @@ public abstract class JpaEntityRepositoryTestBase extends AbstractJpaTest {
 		querySpec.addSort(new SortSpec(Arrays.asList("test"), Direction.DESC));
 		repo.findAll(querySpec);
 	}
+
+	@Test(expected = UnsupportedOperationException.class)
+	public void testReadableFindAll() {
+		repo.setReadable(false);
+		repo.findAll(new QuerySpec(TestEntity.class));
+	}
+
+	@Test(expected = UnsupportedOperationException.class)
+	public void testReadableFindOne() {
+		repo.setReadable(false);
+		repo.findOne(1L, new QuerySpec(TestEntity.class));
+	}
+
+	@Test(expected = UnsupportedOperationException.class)
+	public void testReadableFindAllByIds() {
+		repo.setReadable(false);
+		repo.findAll(Arrays.asList(1L), new QuerySpec(TestEntity.class));
+	}
+
+	@Test(expected = UnsupportedOperationException.class)
+	public void testUpdateable() {
+		List<TestEntity> list = repo.findAll(new QuerySpec(TestEntity.class));
+		TestEntity entity = list.get(0);
+
+		repo.setUpdateable(false);
+		repo.save(entity);
+	}
+
+	@Test(expected = UnsupportedOperationException.class)
+	public void testDeletable() {
+		repo.setDeleteable(false);
+		repo.delete(1L);
+	}
+
+	@Test(expected = UnsupportedOperationException.class)
+	public void testCreatable() {
+		repo.setCreateable(false);
+		repo.save(new TestEntity());
+	}
 }

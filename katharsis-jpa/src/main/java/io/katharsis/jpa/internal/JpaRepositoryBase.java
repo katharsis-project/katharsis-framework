@@ -27,6 +27,14 @@ public abstract class JpaRepositoryBase<T> extends PagedRepositoryBase<T> {
 	 */
 	protected Class<?> entityClass;
 
+	private boolean readable = true;
+
+	private boolean updateable = true;
+
+	private boolean createable = true;
+
+	private boolean deleteable = true;
+
 	protected <E> JpaRepositoryBase(JpaModule module, Class<T> resourceType) {
 		this.module = module;
 		this.resourceClass = resourceType;
@@ -110,5 +118,73 @@ public abstract class JpaRepositoryBase<T> extends PagedRepositoryBase<T> {
 			resources.add(mapper.map(tuple));
 		}
 		return resources;
+	}
+
+	public boolean isReadable() {
+		return readable;
+	}
+
+	/**
+	 * @param createable if true no reads will be allowed
+	 */
+	public void setReadable(boolean readable) {
+		this.readable = readable;
+	}
+
+	public boolean isUpdateable() {
+		return updateable;
+	}
+
+	/**
+	 * @param createable if true no updates will be allowed
+	 */
+	public void setUpdateable(boolean updateable) {
+		this.updateable = updateable;
+	}
+
+	public boolean isCreateable() {
+		return createable;
+	}
+
+	/**
+	 * @param createable if true no creations will be allowed
+	 */
+	public void setCreateable(boolean createable) {
+		this.createable = createable;
+	}
+
+	public boolean isDeleteable() {
+		return deleteable;
+	}
+
+	/**
+	 * @param createable if true no deletions will be allowed
+	 */
+	public void setDeleteable(boolean deleteable) {
+		this.deleteable = deleteable;
+	}
+
+	protected void checkReadable() {
+		if (!readable) {
+			throw new UnsupportedOperationException("reads not supported");
+		}
+	}
+
+	protected void checkDeleteable() {
+		if (!deleteable) {
+			throw new UnsupportedOperationException("deletions not supported");
+		}
+	}
+
+	protected void checkCreateable() {
+		if (!createable) {
+			throw new UnsupportedOperationException("creation not supported");
+		}
+	}
+
+	protected void checkUpdateable() {
+		if (!updateable) {
+			throw new UnsupportedOperationException("updates not supported");
+		}
 	}
 }

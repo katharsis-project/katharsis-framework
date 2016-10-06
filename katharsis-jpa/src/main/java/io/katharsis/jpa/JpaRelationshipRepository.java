@@ -63,7 +63,8 @@ public class JpaRelationshipRepository<S, I extends Serializable, T, J extends S
 	}
 
 	@Override
-	public void setRelation(S source, J targetId, String fieldName) {
+	public void setRelation(S source, J targetId, String fieldName){
+		checkUpdateable();
 		MetaAttribute attrMeta = entityMeta.getAttribute(fieldName);
 		MetaAttribute oppositeAttrMeta = attrMeta.getOppositeAttribute();
 		Class<?> targetType = getElementType(attrMeta);
@@ -96,6 +97,8 @@ public class JpaRelationshipRepository<S, I extends Serializable, T, J extends S
 		EntityManager em = module.getEntityManager();
 		Collection<Object> targets = attrMeta.getType().asCollection().newInstance();
 		for (J targetId : targetIds) {
+			checkCreateable();
+			
 			Object target = em.find(targetType, targetId);
 			targets.add(target);
 		}
@@ -106,6 +109,7 @@ public class JpaRelationshipRepository<S, I extends Serializable, T, J extends S
 			Iterator<?> iterator = col.iterator();
 			while (iterator.hasNext()) {
 				Object prevTarget = iterator.next();
+				checkDeleteable();
 				iterator.remove();
 				if (oppositeAttrMeta.getType().isCollection()) {
 					oppositeAttrMeta.removeValue(prevTarget, sourceEntity);
@@ -119,6 +123,7 @@ public class JpaRelationshipRepository<S, I extends Serializable, T, J extends S
 		// attach new targets
 		for (Object target : targets) {
 			if (oppositeAttrMeta != null) {
+				checkCreateable();
 				if (oppositeAttrMeta.getType().isCollection()) {
 					oppositeAttrMeta.addValue(target, sourceEntity);
 				}
@@ -141,6 +146,7 @@ public class JpaRelationshipRepository<S, I extends Serializable, T, J extends S
 
 	@Override
 	public void addRelations(S source, Iterable<J> targetIds, String fieldName) {
+		checkCreateable();
 		MetaAttribute attrMeta = entityMeta.getAttribute(fieldName);
 		MetaAttribute oppositeAttrMeta = attrMeta.getOppositeAttribute();
 		Class<?> targetType = getElementType(attrMeta);
@@ -167,6 +173,7 @@ public class JpaRelationshipRepository<S, I extends Serializable, T, J extends S
 
 	@Override
 	public void removeRelations(S source, Iterable<J> targetIds, String fieldName) {
+		checkDeleteable();
 		MetaAttribute attrMeta = entityMeta.getAttribute(fieldName);
 		MetaAttribute oppositeAttrMeta = attrMeta.getOppositeAttribute();
 		Class<?> targetType = getElementType(attrMeta);
@@ -191,11 +198,13 @@ public class JpaRelationshipRepository<S, I extends Serializable, T, J extends S
 
 	@Override
 	public T findOneTarget(I sourceId, String fieldName, QuerySpec querySpec) {
+		checkReadable();
 		return getUniqueOrNull(getResults(sourceId, fieldName, querySpec));
 	}
 
 	@Override
 	public List<T> findManyTargets(I sourceId, String fieldName, QuerySpec querySpec) {
+		checkReadable();
 		return getResults(sourceId, fieldName, querySpec);
 
 	}

@@ -1,5 +1,6 @@
 package io.katharsis.jpa;
 
+import java.io.Serializable;
 import java.util.List;
 
 import io.katharsis.jpa.query.JpaQuery;
@@ -12,6 +13,23 @@ import io.katharsis.queryspec.QuerySpec;
  * The filter then has to possiblity to do all kinds of changes.
  */
 public interface JpaRepositoryFilter {
+
+	/**
+	 * Called when repository is created. Allows customizations and replacement.
+	 * 
+	 * @param repository
+	 * @param filtered repository 
+	 */
+	<T, I extends Serializable> JpaEntityRepository<T, I> filterCreation(JpaEntityRepository<T, I> repository);
+
+	/**
+	 * Called when repository is created. Allows customizations and replacement.
+	 * 
+	 * @param repository
+	 * @param filtered repository 
+	 */
+	<S, I extends Serializable, T, J extends Serializable> JpaRelationshipRepository<S, I, T, J> filterCreation(
+			JpaRelationshipRepository<S, I, T, J> repository);
 
 	/**
 	 * Specifies whether any of the filter methods should be executed for the given resourceType.;

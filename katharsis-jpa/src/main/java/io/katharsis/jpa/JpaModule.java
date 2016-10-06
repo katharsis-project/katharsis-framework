@@ -36,6 +36,8 @@ import io.katharsis.jpa.mapping.JpaMapping;
 import io.katharsis.jpa.query.JpaQueryFactory;
 import io.katharsis.jpa.query.criteria.JpaCriteriaQueryFactory;
 import io.katharsis.module.Module;
+import io.katharsis.queryspec.QuerySpecRelationshipRepository;
+import io.katharsis.queryspec.QuerySpecResourceRepository;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ResourceLookup;
 import io.katharsis.response.BaseResponseContext;
@@ -280,14 +282,17 @@ public class JpaModule implements Module {
 			this.mapper = mapper;
 		}
 
+		@Override
 		public Class<E> getEntityClass() {
 			return entityClass;
 		}
 
+		@Override
 		public Class<D> getDtoClass() {
 			return dtoClass;
 		}
 
+		@Override
 		public JpaMapper<E, D> getMapper() {
 			return mapper;
 		}
@@ -404,11 +409,33 @@ public class JpaModule implements Module {
 	private void setupMappedRepository(MappedRegistration<?, ?> mapping) {
 		MetaEntity metaEntity = metaLookup.getMeta(mapping.getEntityClass()).asEntity();
 		if (isValidEntity(metaEntity)) {
-			JpaEntityRepository<?, ?> repository = repositoryFactory.createEntityRepository(this, mapping.getDtoClass());
+			QuerySpecResourceRepository<?, ?> repository = filterResourceCreation(mapping.getDtoClass(),
+					repositoryFactory.createEntityRepository(this, mapping.getDtoClass()));
 			context.addRepository(mapping.getDtoClass(), repository);
-
 			setupRelationshipRepositories(mapping.getDtoClass());
 		}
+	}
+
+	private QuerySpecResourceRepository<?, ?> filterResourceCreation(Class<?> resourceClass,
+			JpaEntityRepository<?, ?> repository) {
+		JpaEntityRepository<?, ?> filteredRepository = repository;
+		for (JpaRepositoryFilter filter : filters) {
+			if (filter.accept(resourceClass)) {
+				filteredRepository = filter.filterCreation(filteredRepository);
+			}
+		}
+		return filteredRepository;
+	}
+
+	private QuerySpecRelationshipRepository<?, ?, ?, ?> filterRelationshipCreation(Class<?> resourceClass,
+			JpaRelationshipRepository<?, ?, ?, ?> repository) {
+		JpaRelationshipRepository<?, ?, ?, ?> filteredRepository = repository;
+		for (JpaRepositoryFilter filter : filters) {
+			if (filter.accept(resourceClass)) {
+				filteredRepository = filter.filterCreation(filteredRepository);
+			}
+		}
+		return filteredRepository;
 	}
 
 	@SuppressWarnings({ "rawtypes" })
@@ -418,11 +445,10 @@ public class JpaModule implements Module {
 		MetaEntity metaEntity = meta.asEntity();
 		if (isValidEntity(metaEntity)) {
 			Class<?> resourceClass = metaEntity.getImplementationClass();
-			JpaEntityRepository repository = repositoryFactory.createEntityRepository(this, resourceClass);
+			QuerySpecResourceRepository repository = filterResourceCreation(resourceClass,
+					repositoryFactory.createEntityRepository(this, resourceClass));
 			context.addRepository(resourceClass, repository);
-
 			setupRelationshipRepositories(resourceClass);
-
 		}
 	}
 
@@ -444,8 +470,8 @@ public class JpaModule implements Module {
 
 				// only include relations that are exposed as repositories
 				if (entityClasses.contains(attrImplClass)) {
-					JpaRelationshipRepository<?, ?, ?, ?> relationshipRepository = repositoryFactory
-							.createRelationshipRepository(this, resourceClass, attrImplClass);
+					QuerySpecRelationshipRepository<?, ?, ?, ?> relationshipRepository = filterRelationshipCreation(attrImplClass,
+							repositoryFactory.createRelationshipRepository(this, resourceClass, attrImplClass));
 					context.addRepository(resourceClass, attrImplClass, relationshipRepository);
 				}
 			}
@@ -458,8 +484,8 @@ public class JpaModule implements Module {
 				MappedRegistration<?, ?> targetMapping = mappings.get(attrImplClass);
 				Class<?> targetDtoClass = targetMapping.getDtoClass();
 
-				JpaRelationshipRepository<?, ?, ?, ?> relationshipRepository = repositoryFactory
-						.createRelationshipRepository(this, resourceClass, targetDtoClass);
+				QuerySpecRelationshipRepository<?, ?, ?, ?> relationshipRepository = filterRelationshipCreation(targetDtoClass,
+						repositoryFactory.createRelationshipRepository(this, resourceClass, targetDtoClass));
 				context.addRepository(resourceClass, targetDtoClass, relationshipRepository);
 			}
 			else {

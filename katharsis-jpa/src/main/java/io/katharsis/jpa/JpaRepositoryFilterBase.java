@@ -1,5 +1,6 @@
 package io.katharsis.jpa;
 
+import java.io.Serializable;
 import java.util.List;
 
 import io.katharsis.jpa.query.JpaQuery;
@@ -40,5 +41,16 @@ public class JpaRepositoryFilterBase implements JpaRepositoryFilter {
 	@Override
 	public <T> List<T> filterResults(Object repository, QuerySpec querySpec, List<T> resources) {
 		return resources;
+	}
+
+	@Override
+	public <T, I extends Serializable> JpaEntityRepository<T, I> filterCreation(JpaEntityRepository<T, I> repository) {
+		return repository;
+	}
+
+	@Override
+	public <S, I extends Serializable, T, J extends Serializable> JpaRelationshipRepository<S, I, T, J> filterCreation(
+			JpaRelationshipRepository<S, I, T, J> repository) {
+		return repository;
 	}
 }
