@@ -22,16 +22,17 @@ public class JpaCriteriaQueryFactory extends JpaQueryFactoryBase implements JpaQ
 
 	@Override
 	public <T> JpaCriteriaQuery<T> query(Class<T> entityClass) {
-		return new JpaCriteriaQueryImpl<>(metaLookup, em, entityClass, virtualAttrs);
+		return new JpaCriteriaQueryImpl<>(metaLookup, em, entityClass, computedAttrs);
 	}
 
 	@Override
 	public <T> JpaCriteriaQuery<T> query(Class<?> entityClass, String attrName, List<?> entityIds) {
-		return new JpaCriteriaQueryImpl<>(metaLookup, em, entityClass, virtualAttrs, attrName, entityIds);
+		return new JpaCriteriaQueryImpl<>(metaLookup, em, entityClass, computedAttrs, attrName, entityIds);
 	}
 
-	public void registerVirtualAttribute(Class<?> targetClass, String attributeName, Type attributeType,
+	public void registerComputedAttribute(Class<?> targetClass, String attributeName, Type attributeType,
 			JpaCriteriaExpressionFactory<?> expressionFactory) {
-		virtualAttrs.register(targetClass, attributeName, expressionFactory, attributeType);
+		computedAttrs.register(targetClass, attributeName, expressionFactory, attributeType);
 	}
+
 }

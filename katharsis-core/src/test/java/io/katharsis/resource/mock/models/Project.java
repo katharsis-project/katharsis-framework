@@ -24,7 +24,7 @@ public class Project {
     private Task task;
 
     @JsonApiToOne
-    @JsonApiIncludeByDefault
+	@JsonApiIncludeByDefault
     private ProjectEager projectEager;
 
     @JsonApiToMany

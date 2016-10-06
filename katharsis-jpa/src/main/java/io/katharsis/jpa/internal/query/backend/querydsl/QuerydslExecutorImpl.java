@@ -66,10 +66,12 @@ public class QuerydslExecutorImpl<T> extends AbstractQueryExecutorImpl<T> implem
 
 		List<QuerydslTuple> tuples = new ArrayList<>();
 		for (Object result : results) {
-			if (!(result instanceof Tuple)) {
-				throw new IllegalStateException("not a tuple result: " + result);
+			if (result instanceof Tuple) {
+				tuples.add(new QuerydslTupleImpl((Tuple) result, selectionBindings));
 			}
-			tuples.add(new QuerydslTupleImpl((Tuple) result, selectionBindings));
+			else {
+				tuples.add(new SingleObjectTupleImpl(result));
+			}
 		}
 		return tuples;
 	}

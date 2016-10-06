@@ -53,21 +53,21 @@ public abstract class AbstractJpaQueryImpl<T, B extends JpaQueryBackend<?, ?, ?,
 
 	protected MetaAttribute parentAttr;
 
-	private VirtualAttributeRegistry virtualAttrs;
+	private ComputedAttributeRegistryImpl computedAttrs;
 
 	protected AbstractJpaQueryImpl(MetaLookup metaLookup, EntityManager em, Class<T> clazz,
-			VirtualAttributeRegistry virtualAttrs) {
+			ComputedAttributeRegistryImpl computedAttrs) {
 		this.em = em;
 		this.clazz = clazz;
 		this.meta = metaLookup.getMeta(clazz).asDataObject();
-		this.virtualAttrs = virtualAttrs;
+		this.computedAttrs = computedAttrs;
 	}
 
 	@SuppressWarnings("unchecked")
 	public AbstractJpaQueryImpl(MetaLookup metaLookup, EntityManager em, Class<?> entityClass,
-			VirtualAttributeRegistry virtualAttrs, String attrName, List<?> entityIds) {
+			ComputedAttributeRegistryImpl virtualAttrs, String attrName, List<?> entityIds) {
 		this.em = em;
-		this.virtualAttrs = virtualAttrs;
+		this.computedAttrs = virtualAttrs;
 
 		MetaDataObject parentMeta = metaLookup.getMeta(entityClass).asDataObject();
 		MetaAttribute attrMeta = parentMeta.getAttribute(attrName);
@@ -168,8 +168,8 @@ public abstract class AbstractJpaQueryImpl<T, B extends JpaQueryBackend<?, ?, ?,
 		return joinType;
 	}
 
-	public VirtualAttributeRegistry getVirtualAttrs() {
-		return virtualAttrs;
+	public ComputedAttributeRegistryImpl getComputedAttrs() {
+		return computedAttrs;
 	}
 
 	public MetaDataObject getMeta() {

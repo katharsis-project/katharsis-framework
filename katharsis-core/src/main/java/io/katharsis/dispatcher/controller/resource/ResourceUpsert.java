@@ -230,15 +230,15 @@ public abstract class ResourceUpsert extends BaseController {
                 first = false;
             }
             Serializable castedRelationshipId = typeParser.parse(linkageData.getId(), idFieldType);
-            Object relationObject = entry.getResourceRepository(parameterProvider)
-                    .findOne(castedRelationshipId, queryAdapter)
-                    .getEntity();
+            
+            Object relationObject = fetchRelatedObject(entry, castedRelationshipId, parameterProvider, queryAdapter);
+            
             relationships.add(relationObject);
         }
         PropertyUtils.setProperty(newResource, relationshipField.getUnderlyingName(), relationships);
     }
 
-    private void setRelationField(Object newResource, RegistryEntry registryEntry,
+    protected void setRelationField(Object newResource, RegistryEntry registryEntry,
                                   Map.Entry<String, LinkageData> property, QueryAdapter queryAdapter,
                                   RepositoryMethodParameterProvider parameterProvider) {
 
@@ -256,15 +256,18 @@ public abstract class ResourceUpsert extends BaseController {
             Class idFieldType = entry.getResourceInformation()
                     .getIdField()
                     .getType();
-            Serializable castedRelationshipId = typeParser.parse(property.getValue()
-                    .getId(), idFieldType);
-            relationObject = entry.getResourceRepository(parameterProvider)
-                    .findOne(castedRelationshipId, queryAdapter)
-                    .getEntity();
+            Serializable castedRelationshipId = typeParser.parse(property.getValue().getId(), idFieldType);
+            
+            relationObject = fetchRelatedObject(entry, castedRelationshipId, parameterProvider, queryAdapter);
         } else {
             relationObject = null;
         }
 
         PropertyUtils.setProperty(newResource, relationshipFieldByName.getUnderlyingName(), relationObject);
     }
+
+	protected Object fetchRelatedObject(RegistryEntry entry, Serializable relationId, RepositoryMethodParameterProvider parameterProvider,
+			QueryAdapter queryAdapter) {
+		return entry.getResourceRepository(parameterProvider).findOne(relationId, queryAdapter).getEntity();
+	}
 }

@@ -1,6 +1,7 @@
 package io.katharsis.client.internal;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -40,13 +41,17 @@ import io.katharsis.utils.parser.TypeParser;
 public class BaseResponseDeserializer extends JsonDeserializer<BaseResponseContext> {
 
 	private static final String INCLUDED_FIELD_NAME = "included";
+
 	private static final String DATA_FIELD_NAME = "data";
+
 	private static final String META_FIELD_NAME = "meta";
+
 	private static final String LINKS_FIELD_NAME = "links";
 
 	private ResourceRegistry resourceRegistry;
+
 	private ObjectMapper objectMapper;
-	
+
 	private TypeParser typeParser = new TypeParser();
 
 	public BaseResponseDeserializer(ResourceRegistry resourceRegistry, ObjectMapper objectMapper) {
@@ -55,7 +60,8 @@ public class BaseResponseDeserializer extends JsonDeserializer<BaseResponseConte
 	}
 
 	@Override
-	public BaseResponseContext deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+	public BaseResponseContext deserialize(JsonParser jp, DeserializationContext ctxt)
+			throws IOException, JsonProcessingException {
 
 		JsonNode node = jp.readValueAsTree();
 		if (node == null) {
@@ -66,18 +72,18 @@ public class BaseResponseDeserializer extends JsonDeserializer<BaseResponseConte
 		JsonNode included = node.get(INCLUDED_FIELD_NAME);
 		LinksInformation links = readLinks(node);
 		MetaInformation meta = readMeta(node);
-		if(data == null){
+		if (data == null) {
 			throw new IllegalStateException("no data received");
 		}
-		
+
 		ClientResourceUpsert upsert = new ClientResourceUpsert(resourceRegistry, typeParser, objectMapper);
-		
+
 		ResourceBodies dataBodies = upsert.parse(data, jp);
 		ResourceBodies includedBodies = upsert.parse(included, jp);
-		
+
 		upsert.allocateResources(dataBodies);
 		upsert.allocateResources(includedBodies);
-		
+
 		upsert.setRelations(dataBodies);
 		upsert.setRelations(includedBodies);
 
@@ -87,75 +93,97 @@ public class BaseResponseDeserializer extends JsonDeserializer<BaseResponseConte
 		if (dataBodies.isCollection) {
 			response.setEntity(dataBodies.resources);
 			return new CollectionResponseContext(response, null, null);
-		} else {
+		}
+		else {
 			if (dataBodies.resources.size() == 1) {
 				response.setEntity(dataBodies.resources.get(0));
-			} else {
+			}
+			else {
 				response.setEntity(null);
 			}
 			return new ResourceResponseContext(response, -1);
 		}
 	}
-	
+
 	private LinksInformation readLinks(JsonNode node) {
 		JsonNode data = node.get(LINKS_FIELD_NAME);
-		if(data != null){
+		if (data != null) {
 			return new JsonLinksInformation(data);
-		}else{
+		}
+		else {
 			return null;
 		}
 	}
 
 	private MetaInformation readMeta(JsonNode node) {
 		JsonNode data = node.get(META_FIELD_NAME);
-		if(data != null){
+		if (data != null) {
 			return new JsonMetaInformation(data);
-		}else{
+		}
+		else {
 			return null;
 		}
 	}
 
-	class ClientResourceUpsert extends ResourceUpsert{
-		
+	class ClientResourceUpsert extends ResourceUpsert {
+
 		private HashMap<Object, Object> resourceMap = new HashMap<>();
 
-		public ClientResourceUpsert(ResourceRegistry resourceRegistry, TypeParser typeParser,
-				ObjectMapper objectMapper) {
+		public ClientResourceUpsert(ResourceRegistry resourceRegistry, TypeParser typeParser, ObjectMapper objectMapper) {
 			super(resourceRegistry, typeParser, objectMapper);
 		}
-		
-		public String getUID(DataBody body){
+
+		public String getUID(DataBody body) {
 			return body.getType() + "#" + body.getId();
+		}
+		
+		public String getUID(RegistryEntry<?> entry, Serializable id) {
+			return entry.getResourceInformation().getResourceType() + "#" + id;
 		}
 
 		public void setRelations(ResourceBodies dataBodies) {
-			for(DataBody body : dataBodies.dataBodies){
+			for (DataBody body : dataBodies.dataBodies) {
 				String uid = getUID(body);
 				Object resource = resourceMap.get(uid);
-				
+
 				RegistryEntry registryEntry = resourceRegistry.getEntry(body.getType());
 				QueryAdapter queryAdapter = null;
 				RepositoryMethodParameterProvider parameterProvider = null;
-				
-				// FIXME read includes
+
 				setRelations(resource, registryEntry, body, queryAdapter, parameterProvider);
-			}			
+			}
 		}
-			
+
+		/**
+		 * Get relations from includes section or create a remote proxy
+		 */
+		@Override
+		protected Object fetchRelatedObject(RegistryEntry entry, Serializable relationId,
+				RepositoryMethodParameterProvider parameterProvider, QueryAdapter queryAdapter) {
+
+			String uid = getUID(entry, relationId);
+			Object relatedResource = resourceMap.get(uid);
+			if(relatedResource != null){
+				return relatedResource;
+			}else{
+				return null; // TODO create remote proxy
+			}
+		}
+
 		public void allocateResources(ResourceBodies dataBodies) {
-			for(DataBody body : dataBodies.dataBodies){
-				
+			for (DataBody body : dataBodies.dataBodies) {
+
 				RegistryEntry<?> registryEntry = resourceRegistry.getEntry(body.getType());
 				ResourceInformation resourceInformation = registryEntry.getResourceInformation();
-				
+
 				Object resource = newResource(resourceInformation, body);
 				setId(body, resource, resourceInformation);
 				setAttributes(body, resource, resourceInformation);
 				dataBodies.resources.add(resource);
-				
+
 				String uid = getUID(body);
 				resourceMap.put(uid, resource);
-			}			
+			}
 		}
 
 		@Override
@@ -168,7 +196,7 @@ public class BaseResponseDeserializer extends JsonDeserializer<BaseResponseConte
 				RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody) {
 			throw new IllegalStateException();
 		}
-		
+
 		public ResourceBodies parse(JsonNode node, JsonParser jp) throws JsonProcessingException {
 			ResourceBodies bodies = new ResourceBodies();
 			if (node != null) {
@@ -179,40 +207,48 @@ public class BaseResponseDeserializer extends JsonDeserializer<BaseResponseConte
 						bodies.dataBodies.add(newLinkage);
 					}
 					bodies.isCollection = true;
-				} else if (node.isObject()) {
+				}
+				else if (node.isObject()) {
 					bodies.dataBodies.add(jp.getCodec().treeToValue(node, ClientDataBody.class));
-				} else if (!node.isNull()) {
+				}
+				else if (!node.isNull()) {
 					throw new JsonDeserializationException("data field has wrong type: " + node.toString());
 				}
-			}	
+			}
 			return bodies;
 		}
 	};
-	
-	public static class ClientDataBody extends DataBody{
-		
+
+	public static class ClientDataBody extends DataBody {
+
 		// TODO support processing of those fields
 		private JsonNode links;
+
 		private JsonNode meta;
-		
+
 		public JsonNode getLinks() {
 			return links;
 		}
+
 		public void setLinks(JsonNode links) {
 			this.links = links;
 		}
+
 		public JsonNode getMeta() {
 			return meta;
 		}
+
 		public void setMeta(JsonNode meta) {
 			this.meta = meta;
 		}
 	}
-	
-	
-	class ResourceBodies{
+
+	class ResourceBodies {
+
 		ArrayList<Object> resources = new ArrayList<>();
+
 		ArrayList<DataBody> dataBodies = new ArrayList<>();
+
 		boolean isCollection = false;
 	}
 
