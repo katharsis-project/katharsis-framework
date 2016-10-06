@@ -99,7 +99,7 @@ public class JpaModule implements Module {
 
 	private MetaLookup metaLookup = new MetaLookup();
 
-	private HashSet<Class<?>> entityClasses = new HashSet<>();;
+	private HashSet<Class<?>> entityClasses = new HashSet<>();
 
 	private Map<Class<?>, MappedRegistration<?, ?>> mappings = new HashMap<>();
 

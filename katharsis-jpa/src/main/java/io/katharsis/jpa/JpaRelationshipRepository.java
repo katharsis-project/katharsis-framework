@@ -162,23 +162,25 @@ public class JpaRelationshipRepository<S, I extends Serializable, T, J extends S
 		MetaAttribute attrMeta = entityMeta.getAttribute(fieldName);
 		MetaAttribute oppositeAttrMeta = attrMeta.getOppositeAttribute();
 		Class<?> targetType = getElementType(attrMeta);
+		
+		Object sourceEntity = sourceMapper.unmap(source);
 
 		EntityManager em = module.getEntityManager();
 		for (J targetId : targetIds) {
 			Object target = em.find(targetType, targetId);
-			attrMeta.addValue(source, target);
+			attrMeta.addValue(sourceEntity, target);
 
 			if (oppositeAttrMeta != null) {
 				if (oppositeAttrMeta.getType().isCollection()) {
-					oppositeAttrMeta.addValue(target, source);
+					oppositeAttrMeta.addValue(target, sourceEntity);
 				}
 				else {
-					oppositeAttrMeta.setValue(target, source);
+					oppositeAttrMeta.setValue(target, sourceEntity);
 				}
 				em.persist(target);
 			}
 		}
-		em.persist(source);
+		em.persist(sourceEntity);
 	}
 
 	@Override
@@ -187,14 +189,16 @@ public class JpaRelationshipRepository<S, I extends Serializable, T, J extends S
 		MetaAttribute oppositeAttrMeta = attrMeta.getOppositeAttribute();
 		Class<?> targetType = getElementType(attrMeta);
 
+		Object sourceEntity = sourceMapper.unmap(source);
+		
 		EntityManager em = module.getEntityManager();
 		for (J targetId : targetIds) {
 			Object target = em.find(targetType, targetId);
-			attrMeta.removeValue(source, target);
+			attrMeta.removeValue(sourceEntity, target);
 
 			if (target != null && oppositeAttrMeta != null) {
 				if (oppositeAttrMeta.getType().isCollection()) {
-					oppositeAttrMeta.removeValue(target, source);
+					oppositeAttrMeta.removeValue(target, sourceEntity);
 				}
 				else {
 					oppositeAttrMeta.setValue(target, null);

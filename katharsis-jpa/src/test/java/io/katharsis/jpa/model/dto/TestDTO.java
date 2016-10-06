@@ -1,8 +1,11 @@
 package io.katharsis.jpa.model.dto;
 
+import java.util.List;
+
 import io.katharsis.resource.annotations.JsonApiId;
 import io.katharsis.resource.annotations.JsonApiLookupIncludeAutomatically;
 import io.katharsis.resource.annotations.JsonApiResource;
+import io.katharsis.resource.annotations.JsonApiToMany;
 import io.katharsis.resource.annotations.JsonApiToOne;
 
 @JsonApiResource(type = "testDTO")
@@ -24,6 +27,10 @@ public class TestDTO {
 	@JsonApiToOne
 	@JsonApiLookupIncludeAutomatically
 	private RelatedDTO oneRelatedValue;
+
+	@JsonApiToMany
+	@JsonApiLookupIncludeAutomatically
+	private List<RelatedDTO> manyRelatedValues;
 
 	public Long getId() {
 		return id;
@@ -63,5 +70,13 @@ public class TestDTO {
 
 	public void setComputedNumberOfSmallerIds(long computedNumberOfSmallerIds) {
 		this.computedNumberOfSmallerIds = computedNumberOfSmallerIds;
+	}
+
+	public List<RelatedDTO> getManyRelatedValues() {
+		return manyRelatedValues;
+	}
+
+	public void setManyRelatedValues(List<RelatedDTO> manyRelatedValues) {
+		this.manyRelatedValues = manyRelatedValues;
 	}
 }

@@ -19,11 +19,13 @@ import io.katharsis.client.QuerySpecResourceRepositoryStub;
 import io.katharsis.client.response.ResourceList;
 import io.katharsis.jpa.AbstractJpaJerseyTest;
 import io.katharsis.jpa.JpaModule;
+import io.katharsis.jpa.JpaRepositoryFilterBase;
 import io.katharsis.jpa.model.QTestEntity;
 import io.katharsis.jpa.model.RelatedEntity;
 import io.katharsis.jpa.model.TestEntity;
 import io.katharsis.jpa.model.dto.RelatedDTO;
 import io.katharsis.jpa.model.dto.TestDTO;
+import io.katharsis.jpa.query.JpaQuery;
 import io.katharsis.jpa.query.querydsl.QuerydslExpressionFactory;
 import io.katharsis.jpa.query.querydsl.QuerydslQueryFactory;
 import io.katharsis.queryspec.FilterOperator;
@@ -42,6 +44,48 @@ public class DtoMappingTest extends AbstractJpaJerseyTest {
 	public void setup() {
 		super.setup();
 		testRepo = client.getQuerySpecRepository(TestEntity.class);
+	}
+
+	@Override
+	protected void setupModule(JpaModule module, boolean server) {
+		super.setupModule(module, server);
+
+		if (server) {
+			EntityManager entityManager = module.getEntityManager();
+			QuerydslExpressionFactory<QTestEntity> basicComputedValueFactory = new QuerydslExpressionFactory<QTestEntity>() {
+
+				@Override
+				public Expression<String> getExpression(QTestEntity parent, JPAQuery<?> jpaQuery) {
+					return parent.stringValue.upper();
+				}
+			};
+			QuerydslExpressionFactory<QTestEntity> complexComputedValueFactory = new QuerydslExpressionFactory<QTestEntity>() {
+
+				@Override
+				public Expression<Long> getExpression(QTestEntity parent, JPAQuery<?> jpaQuery) {
+					QTestEntity root = QTestEntity.testEntity;
+					QTestEntity sub = new QTestEntity("subquery");
+					return JPAExpressions.select(sub.id.count()).from(sub).where(sub.id.lt(root.id));
+				}
+			};
+
+			QuerydslQueryFactory queryFactory = (QuerydslQueryFactory) module.getQueryFactory();
+			queryFactory.registerComputedAttribute(TestEntity.class, TestDTO.ATTR_COMPUTED_UPPER_STRING_VALUE, String.class,
+					basicComputedValueFactory);
+			queryFactory.registerComputedAttribute(TestEntity.class, TestDTO.ATTR_COMPUTED_NUMBER_OF_SMALLER_IDS, Long.class,
+					complexComputedValueFactory);
+			module.addMappedEntityClass(TestEntity.class, TestDTO.class, new TestDTOMapper(entityManager));
+			module.addMappedEntityClass(RelatedEntity.class, RelatedDTO.class, new RelatedDTOMapper(entityManager));
+
+			module.addFilter(new JpaRepositoryFilterBase() {
+
+				@Override
+				public <T> JpaQuery<T> filterQuery(Object repository, QuerySpec querySpec, JpaQuery<T> query) {
+					query.setDistinct(true);
+					return query;
+				}
+			});
+		}
 	}
 
 	@Test
@@ -78,7 +122,7 @@ public class DtoMappingTest extends AbstractJpaJerseyTest {
 	}
 
 	@Test
-	public void testMappedRelation() {
+	public void testMappedOneRelation() {
 		QuerySpecResourceRepositoryStub<TestDTO, Serializable> testRepo = client.getQuerySpecRepository(TestDTO.class);
 		QuerySpecResourceRepositoryStub<RelatedDTO, Serializable> relatedRepo = client.getQuerySpecRepository(RelatedDTO.class);
 		QuerySpecRelationshipRepositoryStub<TestDTO, Serializable, RelatedDTO, Serializable> relRepo = client
@@ -90,7 +134,7 @@ public class DtoMappingTest extends AbstractJpaJerseyTest {
 		test = testRepo.save(test);
 
 		RelatedDTO related = new RelatedDTO();
-		related.setId(2L);
+		related.setId(3L);
 		related.setStringValue("createdDto");
 		related = relatedRepo.save(related);
 
@@ -111,6 +155,58 @@ public class DtoMappingTest extends AbstractJpaJerseyTest {
 		actualRelated = actualTest.getOneRelatedValue();
 		Assert.assertNotNull(actualRelated);
 		Assert.assertEquals(related.getId(), actualRelated.getId());
+	}
+
+	@Test
+	public void testMappedManyRelation() {
+		QuerySpecResourceRepositoryStub<TestDTO, Serializable> testRepo = client.getQuerySpecRepository(TestDTO.class);
+		QuerySpecResourceRepositoryStub<RelatedDTO, Serializable> relatedRepo = client.getQuerySpecRepository(RelatedDTO.class);
+		QuerySpecRelationshipRepositoryStub<TestDTO, Long, RelatedDTO, Long> relRepo = client
+				.getQuerySpecRepository(TestDTO.class, RelatedDTO.class);
+
+		TestDTO test = new TestDTO();
+		test.setId(2L);
+		test.setStringValue("createdDto");
+		test = testRepo.save(test);
+
+		RelatedDTO related1 = new RelatedDTO();
+		related1.setId(1L);
+		related1.setStringValue("related1");
+		related1 = relatedRepo.save(related1);
+
+		RelatedDTO related2 = new RelatedDTO();
+		related2.setId(2L);
+		related2.setStringValue("related2");
+		related2 = relatedRepo.save(related2);
+
+		Assert.assertEquals(1, testRepo.findAll(new QuerySpec(TestDTO.class)).size());
+		relRepo.addRelations(test, Arrays.asList(related1.getId(), related2.getId()), TestEntity.ATTR_manyRelatedValues);
+		Assert.assertEquals(1, testRepo.findAll(new QuerySpec(TestDTO.class)).size());
+
+		// test relationship access
+		List<RelatedDTO> actualRelatedList = relRepo.findManyTargets(test.getId(), TestEntity.ATTR_manyRelatedValues,
+				new QuerySpec(RelatedDTO.class));
+		Assert.assertEquals(2, actualRelatedList.size());
+
+		// test include
+		Assert.assertEquals(1, testRepo.findAll(new QuerySpec(TestDTO.class)).size());
+
+		// TODO distinct problem in H2 to investigate
+		//		QuerySpec querySpec = new QuerySpec(TestDTO.class);
+		//		querySpec.includeRelation(Arrays.asList(TestEntity.ATTR_manyRelatedValues));
+		//		ResourceList<TestDTO> list = testRepo.findAll(querySpec);
+		//		Assert.assertEquals(1, list.size());
+		//		TestDTO actualTest = list.get(0);
+		//		actualRelatedList = actualTest.getManyRelatedValues();
+		//		Assert.assertEquals(2, actualRelatedList.size());
+
+		// test removal
+		// TODO DELETE request with body not supported by jersey?
+		//		relRepo.removeRelations(test, Arrays.asList(related2.getId()), TestEntity.ATTR_manyRelatedValues);
+		//		actualRelatedList = relRepo.findManyTargets(test.getId(), TestEntity.ATTR_manyRelatedValues,
+		//				new QuerySpec(RelatedDTO.class));
+		//		Assert.assertEquals(1, actualRelatedList.size());
+		//		Assert.assertEquals(related1.getId(), actualRelatedList.get(0).getId());
 	}
 
 	@Test
@@ -164,39 +260,6 @@ public class DtoMappingTest extends AbstractJpaJerseyTest {
 			int j = i;// 4 - i;
 			Assert.assertEquals(100 + j, dto.getId().longValue());
 			Assert.assertEquals(j, dto.getComputedNumberOfSmallerIds());
-		}
-	}
-
-	@Override
-	protected void setupModule(JpaModule module, boolean server) {
-		super.setupModule(module, server);
-
-		if (server) {
-			EntityManager entityManager = module.getEntityManager();
-			QuerydslExpressionFactory<QTestEntity> basicComputedValueFactory = new QuerydslExpressionFactory<QTestEntity>() {
-
-				@Override
-				public Expression<String> getExpression(QTestEntity parent, JPAQuery<?> jpaQuery) {
-					return parent.stringValue.upper();
-				}
-			};
-			QuerydslExpressionFactory<QTestEntity> complexComputedValueFactory = new QuerydslExpressionFactory<QTestEntity>() {
-
-				@Override
-				public Expression<Long> getExpression(QTestEntity parent, JPAQuery<?> jpaQuery) {
-					QTestEntity root = QTestEntity.testEntity;
-					QTestEntity sub = new QTestEntity("subquery");
-					return JPAExpressions.select(sub.id.count()).from(sub).where(sub.id.lt(root.id));
-				}
-			};
-
-			QuerydslQueryFactory queryFactory = (QuerydslQueryFactory) module.getQueryFactory();
-			queryFactory.registerComputedAttribute(TestEntity.class, TestDTO.ATTR_COMPUTED_UPPER_STRING_VALUE, String.class,
-					basicComputedValueFactory);
-			queryFactory.registerComputedAttribute(TestEntity.class, TestDTO.ATTR_COMPUTED_NUMBER_OF_SMALLER_IDS, Long.class,
-					complexComputedValueFactory);
-			module.addMappedEntityClass(TestEntity.class, TestDTO.class, new TestDTOMapper(entityManager));
-			module.addMappedEntityClass(RelatedEntity.class, RelatedDTO.class, new RelatedDTOMapper(entityManager));
 		}
 	}
 }
