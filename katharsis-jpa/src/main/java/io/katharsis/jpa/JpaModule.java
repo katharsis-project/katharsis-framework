@@ -282,14 +282,17 @@ public class JpaModule implements Module {
 			this.mapper = mapper;
 		}
 
+		@Override
 		public Class<E> getEntityClass() {
 			return entityClass;
 		}
 
+		@Override
 		public Class<D> getDtoClass() {
 			return dtoClass;
 		}
 
+		@Override
 		public JpaMapper<E, D> getMapper() {
 			return mapper;
 		}
@@ -421,7 +424,7 @@ public class JpaModule implements Module {
 		return filteredRepository;
 	}
 
-	private QuerySpecRelationshipRepository<?, ?, ?, ?> filterCreation(JpaRelationshipRepository<?, ?, ?, ?> repository) {
+	private QuerySpecRelationshipRepository<?, ?, ?, ?> filterRelationshipCreation(JpaRelationshipRepository<?, ?, ?, ?> repository) {
 		QuerySpecRelationshipRepository<?, ?, ?, ?> filteredRepository = repository;
 		for (JpaRepositoryFilter filter : filters) {
 			filteredRepository = filter.filterCreation(repository);
@@ -461,7 +464,7 @@ public class JpaModule implements Module {
 
 				// only include relations that are exposed as repositories
 				if (entityClasses.contains(attrImplClass)) {
-					QuerySpecRelationshipRepository<?, ?, ?, ?> relationshipRepository = filterCreation(
+					QuerySpecRelationshipRepository<?, ?, ?, ?> relationshipRepository = filterRelationshipCreation(
 							repositoryFactory.createRelationshipRepository(this, resourceClass, attrImplClass));
 					context.addRepository(resourceClass, attrImplClass, relationshipRepository);
 				}
@@ -475,7 +478,7 @@ public class JpaModule implements Module {
 				MappedRegistration<?, ?> targetMapping = mappings.get(attrImplClass);
 				Class<?> targetDtoClass = targetMapping.getDtoClass();
 
-				QuerySpecRelationshipRepository<?, ?, ?, ?> relationshipRepository = filterCreation(
+				QuerySpecRelationshipRepository<?, ?, ?, ?> relationshipRepository = filterRelationshipCreation(
 						repositoryFactory.createRelationshipRepository(this, resourceClass, targetDtoClass));
 				context.addRepository(resourceClass, targetDtoClass, relationshipRepository);
 			}
