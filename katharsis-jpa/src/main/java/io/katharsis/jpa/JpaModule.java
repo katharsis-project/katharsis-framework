@@ -417,7 +417,7 @@ public class JpaModule implements Module {
 	}
 
 	private QuerySpecResourceRepository<?, ?> filterCreation(JpaEntityRepository<?, ?> repository) {
-		QuerySpecResourceRepository<?, ?> filteredRepository = repository;
+		JpaEntityRepository<?, ?> filteredRepository = repository;
 		for (JpaRepositoryFilter filter : filters) {
 			filteredRepository = filter.filterCreation(repository);
 		}
@@ -425,7 +425,7 @@ public class JpaModule implements Module {
 	}
 
 	private QuerySpecRelationshipRepository<?, ?, ?, ?> filterRelationshipCreation(JpaRelationshipRepository<?, ?, ?, ?> repository) {
-		QuerySpecRelationshipRepository<?, ?, ?, ?> filteredRepository = repository;
+		JpaRelationshipRepository<?, ?, ?, ?> filteredRepository = repository;
 		for (JpaRepositoryFilter filter : filters) {
 			filteredRepository = filter.filterCreation(repository);
 		}
