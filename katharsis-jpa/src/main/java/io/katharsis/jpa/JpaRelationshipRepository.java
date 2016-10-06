@@ -18,6 +18,7 @@ import io.katharsis.jpa.internal.paging.DefaultPagedMetaInformation;
 import io.katharsis.jpa.internal.paging.PagedMetaInformation;
 import io.katharsis.jpa.mapping.IdentityMapper;
 import io.katharsis.jpa.mapping.JpaMapper;
+import io.katharsis.jpa.mapping.JpaMapping;
 import io.katharsis.jpa.query.ComputedAttributeRegistry;
 import io.katharsis.jpa.query.JpaQuery;
 import io.katharsis.jpa.query.JpaQueryExecutor;
@@ -34,8 +35,6 @@ public class JpaRelationshipRepository<S, I extends Serializable, T, J extends S
 
 	private Class<?> sourceEntityClass;
 
-	private Class<?> targetEntityClass;
-
 	private MetaEntity entityMeta;
 
 	private JpaMapper<?, S> sourceMapper;
@@ -44,38 +43,23 @@ public class JpaRelationshipRepository<S, I extends Serializable, T, J extends S
 	 * JPA relationship directly exposed as repository
 	 * 
 	 * @param module
-	 * @param sourceEntityClass
-	 * @param relatedEntityClass
-	 */
-	public JpaRelationshipRepository(JpaModule module, Class<S> sourceEntityClass, Class<T> relatedEntityClass) {
-		super(module, relatedEntityClass, IdentityMapper.newInstance());
-		this.sourceEntityClass = sourceEntityClass;
-		this.sourceResourceClass = sourceEntityClass;
-		this.entityMeta = module.getMetaLookup().getMeta(sourceEntityClass).asEntity();
-		this.targetEntityClass = relatedEntityClass;
-		this.sourceMapper = IdentityMapper.newInstance();
-	}
-
-	/**
-	 * JPA relationship mapped to a DTO relationship and exposed as repository
-	 * 
-	 * @param module
-	 * @param sourceEntityClass
 	 * @param sourceResourceClass
-	 * @param relatedEntityClass
-	 * @param relatedResourceClass
-	 * @param sourceMapper
-	 * @param targetMapper
+	 * @param targetResourceClass
 	 */
-	public <D, E> JpaRelationshipRepository(JpaModule module, Class<D> sourceEntityClass, Class<S> sourceResourceClass,
-			Class<E> relatedEntityClass, Class<T> relatedResourceClass, JpaMapper<D, S> sourceMapper,
-			JpaMapper<E, T> targetMapper) {
-		super(module, relatedResourceClass, targetMapper);
+	public JpaRelationshipRepository(JpaModule module, Class<S> sourceResourceClass, Class<T> targetResourceClass) {
+		super(module, targetResourceClass);
 		this.sourceResourceClass = sourceResourceClass;
-		this.sourceEntityClass = sourceEntityClass;
+		
+		JpaMapping<?, S> sourceMapping = module.getMapping(sourceResourceClass);
+		if (sourceMapping != null) {
+			this.sourceEntityClass = sourceMapping.getEntityClass();
+			this.sourceMapper = sourceMapping.getMapper();
+		}
+		else {
+			this.sourceEntityClass = sourceResourceClass;
+			this.sourceMapper = IdentityMapper.newInstance();
+		}
 		this.entityMeta = module.getMetaLookup().getMeta(sourceEntityClass).asEntity();
-		this.targetEntityClass = relatedEntityClass;
-		this.sourceMapper = sourceMapper;
 	}
 
 	@Override
@@ -224,7 +208,7 @@ public class JpaRelationshipRepository<S, I extends Serializable, T, J extends S
 		query = filterQuery(filteredQuerySpec, query);
 
 		ComputedAttributeRegistry computedAttributesRegistry = queryFactory.getComputedAttributes();
-		Set<String> computedAttrs = computedAttributesRegistry.getForType(targetEntityClass);
+		Set<String> computedAttrs = computedAttributesRegistry.getForType(entityClass);
 
 		JpaRepositoryUtils.prepareQuery(query, filteredQuerySpec, computedAttrs);
 
@@ -259,7 +243,7 @@ public class JpaRelationshipRepository<S, I extends Serializable, T, J extends S
 	}
 
 	public Class<?> getTargetEntityClass() {
-		return targetEntityClass;
+		return entityClass;
 	}
 
 	@Override

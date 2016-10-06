@@ -6,7 +6,9 @@ import java.util.List;
 import io.katharsis.jpa.JpaModule;
 import io.katharsis.jpa.JpaRepositoryFilter;
 import io.katharsis.jpa.internal.paging.PagedRepositoryBase;
+import io.katharsis.jpa.mapping.IdentityMapper;
 import io.katharsis.jpa.mapping.JpaMapper;
+import io.katharsis.jpa.mapping.JpaMapping;
 import io.katharsis.jpa.query.JpaQuery;
 import io.katharsis.jpa.query.JpaQueryExecutor;
 import io.katharsis.jpa.query.Tuple;
@@ -20,11 +22,24 @@ public abstract class JpaRepositoryBase<T> extends PagedRepositoryBase<T> {
 
 	protected JpaMapper<?, T> mapper;
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	protected <E> JpaRepositoryBase(JpaModule module, Class<T> resourceType, JpaMapper mapper) {
+	/**
+	 * In case of a mapping the entityType differents from the resourceType
+	 */
+	protected Class<?> entityClass;
+
+	protected <E> JpaRepositoryBase(JpaModule module, Class<T> resourceType) {
 		this.module = module;
 		this.resourceClass = resourceType;
-		this.mapper = mapper;
+
+		JpaMapping<?, T> mapping = module.getMapping(resourceType);
+		if (mapping != null) {
+			entityClass = mapping.getEntityClass();
+			mapper = mapping.getMapper();
+		}
+		else {
+			entityClass = resourceType;
+			mapper = IdentityMapper.newInstance();
+		}
 	}
 
 	protected static <D> D getUniqueOrNull(List<D> list) {

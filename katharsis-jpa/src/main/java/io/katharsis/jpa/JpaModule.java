@@ -31,8 +31,8 @@ import io.katharsis.jpa.internal.meta.MetaLookup;
 import io.katharsis.jpa.internal.meta.MetaType;
 import io.katharsis.jpa.internal.meta.impl.MetaResourceImpl;
 import io.katharsis.jpa.internal.util.KatharsisAssert;
-import io.katharsis.jpa.mapping.IdentityMapper;
 import io.katharsis.jpa.mapping.JpaMapper;
+import io.katharsis.jpa.mapping.JpaMapping;
 import io.katharsis.jpa.query.JpaQueryFactory;
 import io.katharsis.jpa.query.criteria.JpaCriteriaQueryFactory;
 import io.katharsis.module.Module;
@@ -266,7 +266,7 @@ public class JpaModule implements Module {
 		mappings.remove(dtoClass);
 	}
 
-	private static class MappedRegistration<E, D> {
+	private static class MappedRegistration<E, D> implements JpaMapping<E, D> {
 
 		Class<E> entityClass;
 
@@ -401,12 +401,10 @@ public class JpaModule implements Module {
 		}
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void setupMappedRepository(MappedRegistration<?, ?> mapping) {
 		MetaEntity metaEntity = metaLookup.getMeta(mapping.getEntityClass()).asEntity();
 		if (isValidEntity(metaEntity)) {
-			JpaEntityRepository<?, ?> repository = repositoryFactory.createMappedEntityRepository(this, mapping.getEntityClass(),
-					mapping.getDtoClass(), (JpaMapper) mapping.getMapper());
+			JpaEntityRepository<?, ?> repository = repositoryFactory.createEntityRepository(this, mapping.getDtoClass());
 			context.addRepository(mapping.getDtoClass(), repository);
 
 			setupRelationshipRepositories(mapping.getDtoClass());
@@ -432,7 +430,6 @@ public class JpaModule implements Module {
 	 * Sets up  relationship repositories for the given resource class. In case of a mapper
 	 * the resource class might not correspond to the entity class.
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void setupRelationshipRepositories(Class<?> resourceClass) {
 		MetaDataObject meta = metaLookup.getMeta(resourceClass).asDataObject();
 
@@ -459,25 +456,10 @@ public class JpaModule implements Module {
 							"no mapped entity for " + attrType.getName() + " reference by " + attr.getId() + " registered");
 				}
 				MappedRegistration<?, ?> targetMapping = mappings.get(attrImplClass);
-				Class<?> targetEntityClass = targetMapping.getEntityClass();
 				Class<?> targetDtoClass = targetMapping.getDtoClass();
-				JpaMapper targetMapper = targetMapping.getMapper();
-
-				Class sourceEntityClass;
-				JpaMapper sourceMapper;
-				if (meta instanceof MetaEntity) {
-					sourceEntityClass = resourceClass;
-					sourceMapper = IdentityMapper.newInstance();
-				}
-				else {
-					MappedRegistration<?, ?> sourceMapping = mappings.get(resourceClass);
-					sourceEntityClass = sourceMapping.getEntityClass();
-					sourceMapper = sourceMapping.getMapper();
-				}
 
 				JpaRelationshipRepository<?, ?, ?, ?> relationshipRepository = repositoryFactory
-						.createMappedRelationshipRepository(this, sourceEntityClass, resourceClass, targetEntityClass, targetDtoClass,
-								sourceMapper, targetMapper);
+						.createRelationshipRepository(this, resourceClass, targetDtoClass);
 				context.addRepository(resourceClass, targetDtoClass, relationshipRepository);
 			}
 			else {
@@ -531,5 +513,16 @@ public class JpaModule implements Module {
 	 */
 	public EntityManagerFactory getEntityManagerFactory() {
 		return emFactory;
+	}
+
+	/**
+	 * Returns the mapper used for the given resource class.
+	 * 
+	 * @param resourceClass
+	 * @return mapping
+	 */
+	@SuppressWarnings("unchecked")
+	public <E, D> JpaMapping<E, D> getMapping(Class<D> resourceClass) {
+		return (JpaMapping<E, D>) mappings.get(resourceClass);
 	}
 }

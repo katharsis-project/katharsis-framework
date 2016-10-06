@@ -13,8 +13,6 @@ import io.katharsis.jpa.internal.meta.MetaAttribute;
 import io.katharsis.jpa.internal.meta.MetaEntity;
 import io.katharsis.jpa.internal.paging.DefaultPagedMetaInformation;
 import io.katharsis.jpa.internal.paging.PagedMetaInformation;
-import io.katharsis.jpa.mapping.IdentityMapper;
-import io.katharsis.jpa.mapping.JpaMapper;
 import io.katharsis.jpa.query.ComputedAttributeRegistry;
 import io.katharsis.jpa.query.JpaQuery;
 import io.katharsis.jpa.query.JpaQueryExecutor;
@@ -33,26 +31,13 @@ import io.katharsis.utils.PropertyUtils;
 public class JpaEntityRepository<T, I extends Serializable> extends JpaRepositoryBase<T>
 		implements QuerySpecResourceRepository<T, I> {
 
-	/**
-	 * In case of a mapping the entityType differents from the resourceType
-	 */
-	private Class<?> entityType;
-
 	private MetaEntity meta;
 
 	private MetaAttribute primaryKeyAttr;
 
-	public JpaEntityRepository(JpaModule module, Class<T> entityType) {
-		super(module, entityType, IdentityMapper.newInstance());
-		this.entityType = entityType;
-		this.meta = module.getMetaLookup().getMeta(entityType).asEntity();
-		this.primaryKeyAttr = JpaRepositoryUtils.getPrimaryKeyAttr(meta);
-	}
-
-	public <E> JpaEntityRepository(JpaModule module, Class<E> entityType, Class<T> resourceType, JpaMapper<E, T> mapper) {
-		super(module, resourceType, mapper);
-		this.entityType = entityType;
-		this.meta = module.getMetaLookup().getMeta(entityType).asEntity();
+	public JpaEntityRepository(JpaModule module, Class<T> resourceType) {
+		super(module, resourceType);
+		this.meta = module.getMetaLookup().getMeta(entityClass).asEntity();
 		this.primaryKeyAttr = JpaRepositoryUtils.getPrimaryKeyAttr(meta);
 	}
 
@@ -75,10 +60,10 @@ public class JpaEntityRepository<T, I extends Serializable> extends JpaRepositor
 	public List<T> findAll(QuerySpec querySpec) {
 		QuerySpec filteredQuerySpec = filterQuerySpec(querySpec);
 		JpaQueryFactory queryFactory = module.getQueryFactory();
-		JpaQuery<?> query = queryFactory.query(entityType);
+		JpaQuery<?> query = queryFactory.query(entityClass);
 
 		ComputedAttributeRegistry computedAttributesRegistry = queryFactory.getComputedAttributes();
-		Set<String> computedAttrs = computedAttributesRegistry.getForType(entityType);
+		Set<String> computedAttrs = computedAttributesRegistry.getForType(entityClass);
 
 		JpaRepositoryUtils.prepareQuery(query, filteredQuerySpec, computedAttrs);
 		query = filterQuery(filteredQuerySpec, query);
@@ -121,7 +106,7 @@ public class JpaEntityRepository<T, I extends Serializable> extends JpaRepositor
 	public void delete(I id) {
 		EntityManager em = module.getEntityManager();
 
-		Object object = em.find(entityType, id);
+		Object object = em.find(entityClass, id);
 		if (object != null) {
 			em.remove(object);
 		}
@@ -133,7 +118,7 @@ public class JpaEntityRepository<T, I extends Serializable> extends JpaRepositor
 	}
 
 	public Class<?> getEntityClass() {
-		return entityType;
+		return entityClass;
 	}
 
 	@Override
