@@ -55,7 +55,7 @@ public class JpaListenerTest extends AbstractJpaTest {
 
 	@Override
 	protected JpaQueryFactory createQueryFactory(EntityManager em) {
-		return QuerydslQueryFactory.newInstance(new MetaLookup(), em);
+		return QuerydslQueryFactory.newInstance();
 	}
 
 }

@@ -9,7 +9,7 @@ public class JoinedTableInheritanceQuerydslTest extends JoinedTableInheritanceQu
 
 	@Override
 	protected JpaQueryFactory createQueryFactory(EntityManager em) {
-		return QuerydslQueryFactory.newInstance(module.getMetaLookup(), em);
+		return QuerydslQueryFactory.newInstance();
 	}
 
 }

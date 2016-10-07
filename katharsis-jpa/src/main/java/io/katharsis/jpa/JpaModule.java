@@ -34,6 +34,7 @@ import io.katharsis.jpa.internal.util.KatharsisAssert;
 import io.katharsis.jpa.mapping.JpaMapper;
 import io.katharsis.jpa.mapping.JpaMapping;
 import io.katharsis.jpa.query.JpaQueryFactory;
+import io.katharsis.jpa.query.JpaQueryFactoryContext;
 import io.katharsis.jpa.query.criteria.JpaCriteriaQueryFactory;
 import io.katharsis.module.Module;
 import io.katharsis.queryspec.QuerySpecRelationshipRepository;
@@ -135,7 +136,7 @@ public class JpaModule implements Module {
 		this.emFactory = emFactory;
 		this.em = em;
 		this.transactionRunner = transactionRunner;
-		this.queryFactory = JpaCriteriaQueryFactory.newInstance(metaLookup, em);
+		setQueryFactory(JpaCriteriaQueryFactory.newInstance());
 
 		if (emFactory != null) {
 			Set<ManagedType<?>> managedTypes = emFactory.getMetamodel().getManagedTypes();
@@ -525,6 +526,19 @@ public class JpaModule implements Module {
 
 	public void setQueryFactory(JpaQueryFactory queryFactory) {
 		this.queryFactory = queryFactory;
+
+		queryFactory.initalize(new JpaQueryFactoryContext() {
+
+			@Override
+			public EntityManager getEntityManager() {
+				return em;
+			}
+
+			@Override
+			public MetaLookup getMetaLookup() {
+				return metaLookup;
+			}
+		});
 	}
 
 	/**

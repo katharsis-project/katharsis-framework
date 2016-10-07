@@ -103,7 +103,7 @@ public abstract class AbstractJpaJerseyTest extends JerseyTest {
 			}
 
 			JpaModule module = JpaModule.newServerModule(emFactory, em, transactionRunner);
-			module.setQueryFactory(QuerydslQueryFactory.newInstance(module.getMetaLookup(), em));
+			module.setQueryFactory(QuerydslQueryFactory.newInstance());
 			setupModule(module, true);
 			feature.addModule(module);
 

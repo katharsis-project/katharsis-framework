@@ -9,7 +9,7 @@ public class EmbeddableIdQuerydslTest extends EmbeddableIdQueryTestBase {
 
 	@Override
 	protected JpaQueryFactory createQueryFactory(EntityManager em) {
-		return QuerydslQueryFactory.newInstance(module.getMetaLookup(), em);
+		return QuerydslQueryFactory.newInstance();
 	}
 
 }

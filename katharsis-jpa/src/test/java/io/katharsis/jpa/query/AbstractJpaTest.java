@@ -155,6 +155,7 @@ public abstract class AbstractJpaTest {
 		em.clear();
 
 		queryFactory = createQueryFactory(em);
+		module.setQueryFactory(queryFactory);
 	}
 
 	/**
@@ -170,10 +171,20 @@ public abstract class AbstractJpaTest {
 	}
 
 	public static void clear(EntityManager em) {
-		clear(em, JpaCriteriaQueryFactory.newInstance(new MetaLookup(), em));
+		clear(em, JpaCriteriaQueryFactory.newInstance());
 	}
 
-	public static void clear(EntityManager em, JpaQueryFactory factory) {
+	public static void clear(final EntityManager em, JpaQueryFactory factory) {
+		factory.initalize(new JpaQueryFactoryContext(){
+			@Override
+			public EntityManager getEntityManager() {
+				return em;
+			}
+
+			@Override
+			public MetaLookup getMetaLookup() {
+				return new MetaLookup();
+			}});
 		clear(em, factory.query(RelatedEntity.class).buildExecutor().getResultList());
 		clear(em, factory.query(TestEntity.class).buildExecutor().getResultList());
 		em.flush();
