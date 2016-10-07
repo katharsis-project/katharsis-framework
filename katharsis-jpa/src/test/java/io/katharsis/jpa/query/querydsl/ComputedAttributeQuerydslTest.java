@@ -14,7 +14,7 @@ public class ComputedAttributeQuerydslTest extends ComputedAttributeTestBase {
 
 	@Override
 	protected JpaQueryFactory createQueryFactory(EntityManager em) {
-		QuerydslQueryFactory factory = QuerydslQueryFactory.newInstance(module.getMetaLookup(), em);
+		QuerydslQueryFactory factory = QuerydslQueryFactory.newInstance();
 
 		factory.registerComputedAttribute(TestEntity.class, ATTR_VIRTUAL_VALUE, String.class,
 				new QuerydslExpressionFactory<QTestEntity>() {

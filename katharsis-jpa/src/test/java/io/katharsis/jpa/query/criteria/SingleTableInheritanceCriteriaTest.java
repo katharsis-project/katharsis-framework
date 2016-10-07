@@ -9,7 +9,7 @@ public class SingleTableInheritanceCriteriaTest extends SingleTableInheritanceQu
 
 	@Override
 	protected JpaQueryFactory createQueryFactory(EntityManager em) {
-		return JpaCriteriaQueryFactory.newInstance(module.getMetaLookup(), em);
+		return JpaCriteriaQueryFactory.newInstance();
 	}
 
 }

@@ -3,21 +3,17 @@ package io.katharsis.jpa.query.criteria;
 import java.lang.reflect.Type;
 import java.util.List;
 
-import javax.persistence.EntityManager;
-
 import io.katharsis.jpa.internal.JpaQueryFactoryBase;
-import io.katharsis.jpa.internal.meta.MetaLookup;
 import io.katharsis.jpa.internal.query.backend.criteria.JpaCriteriaQueryImpl;
 import io.katharsis.jpa.query.JpaQueryFactory;
 
 public class JpaCriteriaQueryFactory extends JpaQueryFactoryBase implements JpaQueryFactory {
 
-	private JpaCriteriaQueryFactory(MetaLookup metaLookup, EntityManager em) {
-		super(metaLookup, em);
+	private JpaCriteriaQueryFactory() {
 	}
 
-	public static JpaCriteriaQueryFactory newInstance(MetaLookup metaLookup, EntityManager em) {
-		return new JpaCriteriaQueryFactory(metaLookup, em);
+	public static JpaCriteriaQueryFactory newInstance() {
+		return new JpaCriteriaQueryFactory();
 	}
 
 	@Override

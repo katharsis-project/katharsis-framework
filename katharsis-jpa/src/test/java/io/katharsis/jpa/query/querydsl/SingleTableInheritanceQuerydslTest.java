@@ -9,6 +9,6 @@ public class SingleTableInheritanceQuerydslTest extends SingleTableInheritanceQu
 
 	@Override
 	protected JpaQueryFactory createQueryFactory(EntityManager em) {
-		return QuerydslQueryFactory.newInstance(module.getMetaLookup(), em);
+		return QuerydslQueryFactory.newInstance();
 	}
 }

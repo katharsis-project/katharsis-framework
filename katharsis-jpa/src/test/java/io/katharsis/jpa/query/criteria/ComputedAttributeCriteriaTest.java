@@ -15,7 +15,7 @@ public class ComputedAttributeCriteriaTest extends ComputedAttributeTestBase {
 
 	@Override
 	protected JpaQueryFactory createQueryFactory(final EntityManager em) {
-		JpaCriteriaQueryFactory factory = JpaCriteriaQueryFactory.newInstance(module.getMetaLookup(), em);
+		JpaCriteriaQueryFactory factory = JpaCriteriaQueryFactory.newInstance();
 
 		factory.registerComputedAttribute(TestEntity.class, ATTR_VIRTUAL_VALUE, String.class,
 				new JpaCriteriaExpressionFactory<From<?, TestEntity>>() {

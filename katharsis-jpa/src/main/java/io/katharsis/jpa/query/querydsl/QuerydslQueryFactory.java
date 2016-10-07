@@ -3,21 +3,17 @@ package io.katharsis.jpa.query.querydsl;
 import java.lang.reflect.Type;
 import java.util.List;
 
-import javax.persistence.EntityManager;
-
 import io.katharsis.jpa.internal.JpaQueryFactoryBase;
-import io.katharsis.jpa.internal.meta.MetaLookup;
 import io.katharsis.jpa.internal.query.backend.querydsl.QuerydslQueryImpl;
 import io.katharsis.jpa.query.JpaQueryFactory;
 
 public class QuerydslQueryFactory extends JpaQueryFactoryBase implements JpaQueryFactory {
 
-	private QuerydslQueryFactory(MetaLookup metaLookup, EntityManager em) {
-		super(metaLookup, em);
+	private QuerydslQueryFactory() {
 	}
 
-	public static QuerydslQueryFactory newInstance(MetaLookup metaLookup, EntityManager em) {
-		return new QuerydslQueryFactory(metaLookup, em);
+	public static QuerydslQueryFactory newInstance() {
+		return new QuerydslQueryFactory();
 	}
 
 	@Override
