@@ -1,5 +1,6 @@
 package io.katharsis.resource.field;
 
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Objects;
 
@@ -91,4 +92,16 @@ public class ResourceField {
     public int hashCode() {
         return Objects.hash(jsonName, underlyingName, type, genericType, lazy, includeByDefault, lookupIncludeBehavior);
     }
+
+    /**
+     * Returns the non-collection type. Matches {@link #getType()} for non-collections. Returns the type argument in case of 
+     * a collection type.
+     */
+	public Class<?> getElementType() {
+         if(Iterable.class.isAssignableFrom(type)){
+        	 return (Class<?>)((ParameterizedType)getGenericType()).getActualTypeArguments()[0];
+         }else{
+        	 return type;
+         }
+	}
 }

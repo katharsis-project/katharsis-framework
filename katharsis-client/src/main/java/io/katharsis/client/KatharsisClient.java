@@ -124,13 +124,14 @@ public class KatharsisClient {
 				return repositoryStub;
 			}
 		};
-		ResourceEntry<T, ID> resourceEntry = new DirectResponseResourceEntry<T, ID>(repositoryInstanceBuilder);
+		ResourceEntry<T, ID> resourceEntry = new DirectResponseResourceEntry<>(repositoryInstanceBuilder);
 		Set<ResourceField> relationshipFields = resourceInformation.getRelationshipFields();
 		List<ResponseRelationshipEntry<T, ?>> relationshipEntries = new ArrayList<>();
-		RegistryEntry<T> registryEntry = new RegistryEntry<T>(resourceInformation, resourceEntry, relationshipEntries);
+		RegistryEntry<T> registryEntry = new RegistryEntry<>(resourceInformation, resourceEntry, relationshipEntries);
 
 		for (ResourceField relationshipField : relationshipFields) {
-			final Class<?> targetClass = relationshipField.getType();
+			final Class<?> targetClass = relationshipField.getElementType();
+			
 			final RelationshipRepositoryStubImpl relationshipRepositoryStub = new RelationshipRepositoryStubImpl(this,
 					resourceClass, targetClass, resourceInformation, urlBuilder, registryEntry);
 			RepositoryInstanceBuilder<RelationshipRepository> relationshipRepositoryInstanceBuilder = new RepositoryInstanceBuilder<RelationshipRepository>(
