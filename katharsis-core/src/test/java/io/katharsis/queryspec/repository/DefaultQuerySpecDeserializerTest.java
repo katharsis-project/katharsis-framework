@@ -155,6 +155,18 @@ public class DefaultQuerySpecDeserializerTest extends AbstractQuerySpecTest {
 		Assert.assertEquals(expectedSpec, actualSpec);
 	}
 
+	@Test
+	public void testFilterGreaterOnRoot() throws InstantiationException, IllegalAccessException {
+		QuerySpec expectedSpec = new QuerySpec(Task.class);
+		expectedSpec.addFilter(new FilterSpec(Arrays.asList("id"), FilterOperator.LE, 1L));
+
+		Map<String, Set<String>> params = new HashMap<>();
+		add(params, "filter[id][LE]", "1");
+
+		QuerySpec actualSpec = deserializer.deserialize(Task.class, params);
+		Assert.assertEquals(expectedSpec, actualSpec);
+	}
+
 	//
 	@Test
 	public void testPaging() throws InstantiationException, IllegalAccessException {
@@ -181,7 +193,19 @@ public class DefaultQuerySpecDeserializerTest extends AbstractQuerySpecTest {
 		QuerySpec actualSpec = deserializer.deserialize(Task.class, params);
 		Assert.assertEquals(expectedSpec, actualSpec);
 	}
+	
+	@Test
+	public void testIncludeRelationsOnRoot() throws InstantiationException, IllegalAccessException {
+		QuerySpec expectedSpec = new QuerySpec(Task.class);
+		expectedSpec.includeRelation(Arrays.asList("project"));
 
+		Map<String, Set<String>> params = new HashMap<>();
+		add(params, "include", "project");
+
+		QuerySpec actualSpec = deserializer.deserialize(Task.class, params);
+		Assert.assertEquals(expectedSpec, actualSpec);
+	}
+	
 	@Test
 	public void testIncludeAttributes() throws InstantiationException, IllegalAccessException {
 		QuerySpec expectedSpec = new QuerySpec(Task.class);
@@ -189,6 +213,18 @@ public class DefaultQuerySpecDeserializerTest extends AbstractQuerySpecTest {
 
 		Map<String, Set<String>> params = new HashMap<>();
 		add(params, "fields[tasks]", "name");
+
+		QuerySpec actualSpec = deserializer.deserialize(Task.class, params);
+		Assert.assertEquals(expectedSpec, actualSpec);
+	}
+	
+	@Test
+	public void testIncludeAttributesOnRoot() throws InstantiationException, IllegalAccessException {
+		QuerySpec expectedSpec = new QuerySpec(Task.class);
+		expectedSpec.includeField(Arrays.asList("name"));
+
+		Map<String, Set<String>> params = new HashMap<>();
+		add(params, "fields", "name");
 
 		QuerySpec actualSpec = deserializer.deserialize(Task.class, params);
 		Assert.assertEquals(expectedSpec, actualSpec);

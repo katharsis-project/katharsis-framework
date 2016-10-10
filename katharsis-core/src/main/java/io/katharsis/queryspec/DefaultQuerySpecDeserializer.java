@@ -162,10 +162,14 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 	}
 
 	private void deserializePage(QuerySpec querySpec, Parameter parameter) {
-		if (OFFSET_PARAMETER.equalsIgnoreCase(parameter.name)) {
+		if(!parameter.name.startsWith("[") || !parameter.name.endsWith("]")){
+			throw new ParserException(parameter.toString());
+		}
+		String name = parameter.name.substring(1, parameter.name.length() - 1);
+		if (OFFSET_PARAMETER.equalsIgnoreCase(name)) {
 			querySpec.setOffset(parameter.getLongValue());
 		}
-		else if (LIMIT_PARAMETER.equalsIgnoreCase(parameter.name)) {
+		else if (LIMIT_PARAMETER.equalsIgnoreCase(name)) {
 			querySpec.setLimit(parameter.getLongValue());
 		}
 		else {
@@ -240,8 +244,14 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 			param.paramType = RestrictedQueryParamsMembers.valueOf(strParamType.toLowerCase());
 			param.values = entry.getValue();
 			if (registryEntry == null) {
+				// first parameter is not the resourceType => JSON API spec
 				param.resourceClass = rootResourceClass;
-				param.name = emptyToNull(nullToEmpty(resourceType) + nullToEmpty(path));
+				String attrName = resourceType; 
+				if(attrName != null){
+					param.name = "[" + attrName + "]" + nullToEmpty(path);
+				}else{
+					param.name = emptyToNull(path);
+				}
 			}
 			else {
 				param.resourceClass = registryEntry.getResourceInformation().getResourceClass();
@@ -257,7 +267,7 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 	}
 
 	private static String nullToEmpty(String value) {
-		return value.length() > 0 ? value : "";
+		return value != null && value.length() > 0 ? value : "";
 	}
 
 	class Parameter {
