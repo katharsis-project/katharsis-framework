@@ -143,7 +143,6 @@ public class IncludeLookupSetter {
 		List<Serializable> resourceIds = getIds(resources, resourceInformation);
 
 		boolean isMany = Iterable.class.isAssignableFrom(relationshipField.getType());
-		boolean isList = List.class.isAssignableFrom(relationshipField.getType());
 		Class<?> relationshipFieldClass = relationshipField.getElementType();
 
 		Set loadedEntities = new HashSet();

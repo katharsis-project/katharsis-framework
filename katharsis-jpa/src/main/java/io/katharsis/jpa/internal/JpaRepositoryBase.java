@@ -62,7 +62,7 @@ public abstract class JpaRepositoryBase<T> extends PagedRepositoryBase<T> {
 	 * 
 	 * @param fieldName
 	 */
-	protected boolean fetchRelations(String fieldName) {
+	protected boolean fetchRelations(String fieldName) { // NOSONAR
 		return false;
 	}
 

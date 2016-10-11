@@ -21,7 +21,6 @@ import io.katharsis.queryspec.internal.QueryParamsAdapter;
 import io.katharsis.queryspec.internal.QuerySpecAdapter;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
-import io.katharsis.resource.include.IncludeLookupSetter;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.response.BaseResponseContext;
 import io.katharsis.response.CollectionResponseContext;
