@@ -37,4 +37,6 @@ public interface JpaQuery<T> {
 
 	public void addSelection(List<String> path);
 
+	public void addParentIdSelection();
+
 }

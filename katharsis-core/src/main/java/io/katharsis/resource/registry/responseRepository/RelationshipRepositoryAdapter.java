@@ -1,7 +1,11 @@
 package io.katharsis.resource.registry.responseRepository;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import io.katharsis.queryspec.QuerySpecBulkRelationshipRepository;
 import io.katharsis.queryspec.QuerySpecRelationshipRepository;
 import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.repository.RelationshipRepository;
@@ -26,7 +30,8 @@ public class RelationshipRepositoryAdapter<T, T_ID extends Serializable, D, D_ID
         this.isAnnotated = relationshipRepository instanceof AnnotatedRelationshipRepositoryAdapter;
     }
 
-    public JsonApiResponse setRelation(T source, D_ID targetId, String fieldName, QueryAdapter queryAdapter) {
+    @SuppressWarnings("rawtypes")
+	public JsonApiResponse setRelation(T source, D_ID targetId, String fieldName, QueryAdapter queryAdapter) {
         if (isAnnotated) {
             ((AnnotatedRelationshipRepositoryAdapter) relationshipRepository)
                 .setRelation(source, targetId, fieldName, queryAdapter);
@@ -38,7 +43,8 @@ public class RelationshipRepositoryAdapter<T, T_ID extends Serializable, D, D_ID
         return new JsonApiResponse();
     }
 
-    public JsonApiResponse setRelations(T source, Iterable<D_ID> targetIds, String fieldName, QueryAdapter queryAdapter) {
+    @SuppressWarnings("rawtypes")
+	public JsonApiResponse setRelations(T source, Iterable<D_ID> targetIds, String fieldName, QueryAdapter queryAdapter) {
         if (isAnnotated) {
             ((AnnotatedRelationshipRepositoryAdapter) relationshipRepository)
                 .setRelations(source, targetIds, fieldName, queryAdapter);
@@ -50,7 +56,8 @@ public class RelationshipRepositoryAdapter<T, T_ID extends Serializable, D, D_ID
         return new JsonApiResponse();
     }
 
-    public JsonApiResponse addRelations(T source, Iterable<D_ID> targetIds, String fieldName, QueryAdapter queryAdapter) {
+    @SuppressWarnings("rawtypes")
+	public JsonApiResponse addRelations(T source, Iterable<D_ID> targetIds, String fieldName, QueryAdapter queryAdapter) {
         if (isAnnotated) {
             ((AnnotatedRelationshipRepositoryAdapter) relationshipRepository)
                 .addRelations(source, targetIds, fieldName, queryAdapter);
@@ -62,7 +69,8 @@ public class RelationshipRepositoryAdapter<T, T_ID extends Serializable, D, D_ID
         return new JsonApiResponse();
     }
 
-    public JsonApiResponse removeRelations(T source, Iterable<D_ID> targetIds, String fieldName, QueryAdapter queryAdapter) {
+    @SuppressWarnings("rawtypes")
+	public JsonApiResponse removeRelations(T source, Iterable<D_ID> targetIds, String fieldName, QueryAdapter queryAdapter) {
         if (isAnnotated) {
             ((AnnotatedRelationshipRepositoryAdapter) relationshipRepository)
                 .removeRelations(source, targetIds, fieldName, queryAdapter);
@@ -74,7 +82,8 @@ public class RelationshipRepositoryAdapter<T, T_ID extends Serializable, D, D_ID
         return new JsonApiResponse();
     }
 
-    public JsonApiResponse findOneTarget(T_ID sourceId, String fieldName, QueryAdapter queryAdapter) {
+    @SuppressWarnings("rawtypes")
+	public JsonApiResponse findOneTarget(T_ID sourceId, String fieldName, QueryAdapter queryAdapter) {
         Object resource;
         if (isAnnotated) {
             resource = ((AnnotatedRelationshipRepositoryAdapter) relationshipRepository)
@@ -91,6 +100,7 @@ public class RelationshipRepositoryAdapter<T, T_ID extends Serializable, D, D_ID
         return getResponse(relationshipRepository, resource, requestSpec);
     }
 
+	@SuppressWarnings("rawtypes")
 	public JsonApiResponse findManyTargets(T_ID sourceId, String fieldName, QueryAdapter queryAdapter) {
         Object resources;
         if (isAnnotated) {
@@ -108,6 +118,55 @@ public class RelationshipRepositoryAdapter<T, T_ID extends Serializable, D, D_ID
         return getResponse(relationshipRepository, resources, requestSpec);
     }
 	
+	@SuppressWarnings("rawtypes")
+	public Map<T_ID, JsonApiResponse> findBulkManyTargets(List<T_ID> sourceIds, String fieldName, QueryAdapter queryAdapter) {
+		if(relationshipRepository instanceof QuerySpecBulkRelationshipRepository){
+			QuerySpecBulkRelationshipRepository bulkRepository = (QuerySpecBulkRelationshipRepository) relationshipRepository;
+			Class<?> targetResourceClass = bulkRepository.getTargetResourceClass();
+			Map<T_ID, Iterable<D>> targetsMap = bulkRepository.findManyTargets(sourceIds, fieldName, toQuerySpec(queryAdapter, targetResourceClass));
+			return toResponses(targetsMap, queryAdapter, fieldName);
+		}else{
+			// fallback to non-bulk operation
+			Map<T_ID, JsonApiResponse> responseMap = new HashMap<>();
+			for(T_ID sourceId : sourceIds){
+				JsonApiResponse response = findManyTargets(sourceId, fieldName, queryAdapter);
+				responseMap.put(sourceId, response);
+			}
+			return responseMap;
+		}
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public Map<T_ID, JsonApiResponse> findBulkOneTargets(List<T_ID> sourceIds, String fieldName, QueryAdapter queryAdapter) {
+		if(relationshipRepository instanceof QuerySpecBulkRelationshipRepository){
+			QuerySpecBulkRelationshipRepository bulkRepository = (QuerySpecBulkRelationshipRepository) relationshipRepository;
+			Class<?> targetResourceClass = bulkRepository.getTargetResourceClass();
+			Map targetsMap = bulkRepository.findOneTargets(sourceIds, fieldName, toQuerySpec(queryAdapter, targetResourceClass));
+			return toResponses(targetsMap, queryAdapter, fieldName);
+		}else{
+			// fallback to non-bulk operation
+			Map<T_ID, JsonApiResponse> responseMap = new HashMap<>();
+			for(T_ID sourceId : sourceIds){
+				JsonApiResponse response = findOneTarget(sourceId, fieldName, queryAdapter);
+				responseMap.put(sourceId, response);
+			}
+			return responseMap;
+		}
+	}
+	
+
+	private Map<T_ID, JsonApiResponse> toResponses(Map<T_ID, ?> targetsMap, QueryAdapter queryAdapter, String fieldName) {
+		Map<T_ID, JsonApiResponse> responseMap = new HashMap<>();
+		for(Map.Entry<T_ID, ?> entry : targetsMap.entrySet()){
+			T_ID sourceId = entry.getKey();
+			Object targets = entry.getValue();
+			
+			RequestSpec requestSpec = new RequestSpec(queryAdapter, sourceId, fieldName, resourceInformation.getResourceClass());
+			JsonApiResponse response = getResponse(relationshipRepository, targets, requestSpec);
+			responseMap.put(sourceId, response);
+		}
+		return responseMap;
+	}
 
 	public Object getRelationshipRepository() {
 		return relationshipRepository;

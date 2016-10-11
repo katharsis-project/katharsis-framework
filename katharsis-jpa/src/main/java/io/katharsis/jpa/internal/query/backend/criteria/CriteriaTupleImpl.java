@@ -1,5 +1,6 @@
 package io.katharsis.jpa.internal.query.backend.criteria;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -11,6 +12,8 @@ public class CriteriaTupleImpl implements Tuple, io.katharsis.jpa.query.Tuple {
 	private Object[] data;
 
 	private Map<String, Integer> selectionBindings;
+
+	private int numEntriesToIgnore = 0;
 
 	protected CriteriaTupleImpl(Object[] data, Map<String, Integer> selectionBindings) {
 		this.data = data;
@@ -40,21 +43,31 @@ public class CriteriaTupleImpl implements Tuple, io.katharsis.jpa.query.Tuple {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <X> X get(int i, Class<X> type) {
-		return (X) data[i];
+		return (X) data[i + numEntriesToIgnore];
 	}
 
 	@Override
 	public Object get(int i) {
-		return data[i];
+		return data[i + numEntriesToIgnore];
 	}
 
 	@Override
 	public Object[] toArray() {
-		return data;
+		if (numEntriesToIgnore > 0) {
+			return Arrays.copyOfRange(data, numEntriesToIgnore, data.length - numEntriesToIgnore);
+		}
+		else {
+			return data;
+		}
 	}
 
 	@Override
 	public List<TupleElement<?>> getElements() {
 		throw new UnsupportedOperationException("not implemented");
+	}
+
+	@Override
+	public void reduce(int numEntriesToIgnore) {
+		this.numEntriesToIgnore = numEntriesToIgnore;
 	}
 }

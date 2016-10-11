@@ -1,7 +1,12 @@
 package io.katharsis.jpa.internal;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+
+import javax.persistence.EntityManager;
 
 import io.katharsis.jpa.JpaModule;
 import io.katharsis.jpa.JpaRepositoryFilter;
@@ -50,6 +55,28 @@ public abstract class JpaRepositoryBase<T> extends PagedRepositoryBase<T> {
 		}
 	}
 
+	
+	/**
+	 * By default LookupIncludeBehavior.ALWAYS is in place and we let the relationship repositories load the relations. There 
+	 * is no need to do join fetches, which can lead to problems with paging (evaluated in memory instead of the db).
+	 * 
+	 * @param fieldName
+	 */
+	protected boolean fetchRelations(String fieldName) {
+		return false;
+	}
+
+	/**
+	 * For read we always use a clean entity manager and return detached entities.
+	 * For example, Jackson cannot handle proxies. And Katharsis is modifying the entities
+	 * for subgraph loading.
+	 */
+	protected void resetEntityManager() {
+		EntityManager em = module.getEntityManager();
+		em.flush();
+		em.clear();
+	}
+	
 	protected static <D> D getUniqueOrNull(List<D> list) {
 		if (list.isEmpty()) {
 			return null;
@@ -60,6 +87,24 @@ public abstract class JpaRepositoryBase<T> extends PagedRepositoryBase<T> {
 		else {
 			throw new IllegalStateException("unique result expected");
 		}
+	}
+
+	protected static <D, I> Map<I, D> getUniqueOrNull(Map<I, Iterable<D>> map) {
+		Map<I, D> oneMap = new HashMap<>();
+		for (Map.Entry<I, Iterable<D>> entry : map.entrySet()) {
+			I id = entry.getKey();
+			Iterable<D> values = entry.getValue();
+			
+			Iterator<D> iterator = values.iterator();
+			if(iterator.hasNext()){
+				D value = iterator.next();
+				if(iterator.hasNext()){
+					throw new IllegalStateException("expected unique result for " + id);
+				}
+				oneMap.put(id, value);
+			}
+		}
+		return oneMap;
 	}
 
 	protected QuerySpec filterQuerySpec(QuerySpec querySpec) {

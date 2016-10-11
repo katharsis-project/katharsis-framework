@@ -47,9 +47,11 @@ public class JpaRepositoryUtils {
 		}
 	}
 
-	public static void prepareExecutor(JpaQueryExecutor<?> executor, QuerySpec querySpec) {
-		for (IncludeSpec included : querySpec.getIncludedRelations()) {
-			executor.fetch(included.getAttributePath());
+	public static void prepareExecutor(JpaQueryExecutor<?> executor, QuerySpec querySpec, boolean includeRelations) {
+		if (includeRelations) {
+			for (IncludeSpec included : querySpec.getIncludedRelations()) {
+				executor.fetch(included.getAttributePath());
+			}
 		}
 		executor.setOffset((int) querySpec.getOffset());
 		if (querySpec.getOffset() > Integer.MAX_VALUE) {

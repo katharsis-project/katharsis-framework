@@ -8,25 +8,21 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 @Entity
-public class RelatedEntity {
+public class OtherRelatedEntity {
 
 	public static final String ATTR_id = "id";
 
 	public static final String ATTR_stringValue = "stringValue";
 
-	public static final String ATTR_testEntity = "testEntity";
+	public OtherRelatedEntity() {
 
-	public static final String ATTR_otherEntity = "otherEntity";
+	}
 
 	@Id
 	private Long id;
 
 	@Column
 	private String stringValue;
-
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn
-	private TestEntity testEntity;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn
@@ -46,14 +42,6 @@ public class RelatedEntity {
 
 	public void setStringValue(String stringValue) {
 		this.stringValue = stringValue;
-	}
-
-	public TestEntity getTestEntity() {
-		return testEntity;
-	}
-
-	public void setTestEntity(TestEntity testEntity) {
-		this.testEntity = testEntity;
 	}
 
 	public OtherRelatedEntity getOtherEntity() {

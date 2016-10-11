@@ -60,6 +60,7 @@ public class JpaEntityRepository<T, I extends Serializable> extends JpaRepositor
 
 	@Override
 	public List<T> findAll(QuerySpec querySpec) {
+		resetEntityManager();
 		checkReadable();
 		QuerySpec filteredQuerySpec = filterQuerySpec(querySpec);
 		JpaQueryFactory queryFactory = module.getQueryFactory();
@@ -71,9 +72,10 @@ public class JpaEntityRepository<T, I extends Serializable> extends JpaRepositor
 		JpaRepositoryUtils.prepareQuery(query, filteredQuerySpec, computedAttrs);
 		query = filterQuery(filteredQuerySpec, query);
 		JpaQueryExecutor<?> executor = query.buildExecutor();
-		JpaRepositoryUtils.prepareExecutor(executor, filteredQuerySpec);
+		JpaRepositoryUtils.prepareExecutor(executor, filteredQuerySpec, fetchRelations(null));
 		executor = filterExecutor(filteredQuerySpec, executor);
-
+		resetEntityManager();
+		
 		List<Tuple> tuples = executor.getResultTuples();
 		tuples = filterTuples(filteredQuerySpec, tuples);
 		List<T> resources = map(tuples);

@@ -53,6 +53,8 @@ public abstract class AbstractJpaQueryImpl<T, B extends JpaQueryBackend<?, ?, ?,
 
 	protected MetaAttribute parentAttr;
 
+	protected boolean parentIdSelection;
+
 	private ComputedAttributeRegistryImpl computedAttrs;
 
 	protected AbstractJpaQueryImpl(MetaLookup metaLookup, EntityManager em, Class<T> clazz,
@@ -71,7 +73,7 @@ public abstract class AbstractJpaQueryImpl<T, B extends JpaQueryBackend<?, ?, ?,
 
 		MetaDataObject parentMeta = metaLookup.getMeta(entityClass).asDataObject();
 		MetaAttribute attrMeta = parentMeta.getAttribute(attrName);
-		if(attrMeta.getType().isCollection()) {
+		if (attrMeta.getType().isCollection()) {
 			this.meta = attrMeta.getType().asCollection().getElementType().asEntity();
 		}
 		else {
@@ -82,6 +84,11 @@ public abstract class AbstractJpaQueryImpl<T, B extends JpaQueryBackend<?, ?, ?,
 		this.parentEntityClass = entityClass;
 		this.parentAttr = attrMeta;
 		this.parentIds = entityIds;
+	}
+
+	@Override
+	public void addParentIdSelection() {
+		this.parentIdSelection = true;
 	}
 
 	@Override
@@ -187,7 +194,7 @@ public abstract class AbstractJpaQueryImpl<T, B extends JpaQueryBackend<?, ?, ?,
 
 		@SuppressWarnings({ "rawtypes", "unchecked" })
 		QueryBuilder executorFactory = new QueryBuilder(this, backend);
-		Map<String,Integer> selectionBindings = executorFactory.applySelectionSpec();
+		Map<String, Integer> selectionBindings = executorFactory.applySelectionSpec();
 		executorFactory.applyFilterSpec();
 		executorFactory.applySortSpec();
 		int numAutoSelections = executorFactory.applyDistinct();
@@ -195,7 +202,8 @@ public abstract class AbstractJpaQueryImpl<T, B extends JpaQueryBackend<?, ?, ?,
 		return newExecutor(backend, numAutoSelections, selectionBindings);
 	}
 
-	protected abstract AbstractQueryExecutorImpl<T> newExecutor(B ctx, int numAutoSelections, Map<String, Integer> selectionBindings);
+	protected abstract AbstractQueryExecutorImpl<T> newExecutor(B ctx, int numAutoSelections,
+			Map<String, Integer> selectionBindings);
 
 	protected abstract B newBackend();
 
@@ -211,4 +219,5 @@ public abstract class AbstractJpaQueryImpl<T, B extends JpaQueryBackend<?, ?, ?,
 	public MetaAttribute getParentAttr() {
 		return parentAttr;
 	}
+
 }

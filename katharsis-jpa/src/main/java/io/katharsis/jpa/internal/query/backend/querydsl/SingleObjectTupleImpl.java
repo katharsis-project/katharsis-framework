@@ -68,4 +68,9 @@ public class SingleObjectTupleImpl implements QuerydslTuple, JpaCriteriaTuple {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
+	public void reduce(int numEntriesToIgnore) {
+		throw new UnsupportedOperationException();
+	}
+
 }
