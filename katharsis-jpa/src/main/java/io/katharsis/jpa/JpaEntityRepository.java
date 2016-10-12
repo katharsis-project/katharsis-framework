@@ -55,7 +55,7 @@ public class JpaEntityRepository<T, I extends Serializable> extends JpaRepositor
 		checkReadable();
 		QuerySpec idQuerySpec = querySpec.duplicate();
 		idQuerySpec.addFilter(new FilterSpec(Arrays.asList(primaryKeyAttr.getName()), FilterOperator.EQ, ids));
-		return findAll(querySpec);
+		return findAll(idQuerySpec);
 	}
 
 	@Override
