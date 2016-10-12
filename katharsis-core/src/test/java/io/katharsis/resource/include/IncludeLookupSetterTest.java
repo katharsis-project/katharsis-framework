@@ -6,28 +6,22 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import io.katharsis.locator.JsonServiceLocator;
-import io.katharsis.locator.SampleJsonServiceLocator;
 import io.katharsis.queryParams.DefaultQueryParamsParser;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.queryspec.internal.QueryParamsAdapter;
-import io.katharsis.resource.field.ResourceFieldNameTransformer;
-import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
-import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
-import io.katharsis.resource.registry.ConstantServiceUrlProvider;
-import io.katharsis.resource.registry.DefaultResourceLookup;
+import io.katharsis.resource.mock.repository.MockRepositoryUtil;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.resource.registry.ResourceRegistryBuilder;
 import io.katharsis.resource.registry.responseRepository.RelationshipRepositoryAdapter;
 import io.katharsis.resource.registry.responseRepository.ResourceRepositoryAdapter;
 
@@ -38,21 +32,13 @@ public class IncludeLookupSetterTest {
 
 	private IncludeLookupSetter sut;
 
-	protected DefaultResourceLookup newResourceLookup() {
-		return new DefaultResourceLookup("io.katharsis.resource.mock");
-	}
-
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Before
 	public void setUp() throws Exception {
+		MockRepositoryUtil.clear();
+
 		// setup repositories
-		JsonServiceLocator jsonServiceLocator = new SampleJsonServiceLocator();
-		ResourceInformationBuilder resourceInformationBuilder = new AnnotationResourceInformationBuilder(
-				new ResourceFieldNameTransformer());
-		ResourceRegistryBuilder resourceRegistryBuilder = new ResourceRegistryBuilder(jsonServiceLocator,
-				resourceInformationBuilder);
-		DefaultResourceLookup resourceLookup = newResourceLookup();
-		resourceRegistry = resourceRegistryBuilder.build(resourceLookup, new ConstantServiceUrlProvider("http://127.0.0.1"));
+		resourceRegistry = MockRepositoryUtil.setupResourceRegistry();
 
 		// get repositories
 		ResourceRepositoryAdapter taskRepository = resourceRegistry.getEntry(Task.class).getResourceRepository(null);
@@ -71,6 +57,11 @@ public class IncludeLookupSetterTest {
 		relRepository.addRelations(task, Arrays.asList(project.getId()), "includedProjects", null);
 
 		sut = new IncludeLookupSetter(resourceRegistry);
+	}
+
+	@After
+	public void tearDown() {
+		MockRepositoryUtil.clear();
 	}
 
 	protected QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());

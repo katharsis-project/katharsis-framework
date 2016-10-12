@@ -12,6 +12,10 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ProjectRepository implements ResourceRepository<Project, Long> {
 
     private static final ConcurrentHashMap<Long, Project> THREAD_LOCAL_REPOSITORY = new ConcurrentHashMap<>();
+    
+    public static void clear(){
+    	THREAD_LOCAL_REPOSITORY.clear();
+    }
 
     @Override
     public <S extends Project> S save(S entity) {
