@@ -1,14 +1,16 @@
 package io.katharsis.queryspec.repository;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryspec.QuerySpec;
-import io.katharsis.queryspec.QuerySpecRelationshipRepository;
+import io.katharsis.queryspec.QuerySpecBulkRelationshipRepository;
 import io.katharsis.repository.LinksRepository;
 import io.katharsis.repository.MetaRepository;
 import io.katharsis.resource.mock.models.Project;
@@ -17,8 +19,8 @@ import io.katharsis.resource.mock.repository.util.Relation;
 import io.katharsis.response.LinksInformation;
 import io.katharsis.response.MetaInformation;
 
-public class TestQuerySpecRelationshipRepository
-		implements QuerySpecRelationshipRepository<Task, Long, Project, Long>, MetaRepository<Project>, LinksRepository<Project> {
+public class TestQuerySpecRelationshipRepository implements QuerySpecBulkRelationshipRepository<Task, Long, Project, Long>,
+		MetaRepository<Project>, LinksRepository<Project> {
 
 	private static final ConcurrentMap<Relation<Task>, Integer> THREAD_LOCAL_REPOSITORY = new ConcurrentHashMap<>();
 
@@ -125,6 +127,24 @@ public class TestQuerySpecRelationshipRepository
 	}
 
 	public static void clear() {
-		THREAD_LOCAL_REPOSITORY.clear();		
+		THREAD_LOCAL_REPOSITORY.clear();
+	}
+
+	@Override
+	public Map<Long, Project> findOneTargets(Iterable<Long> sourceIds, String fieldName, QuerySpec querySpec) {
+		Map<Long, Project> map = new HashMap<>();
+		for (Long sourceId : sourceIds) {
+			map.put(sourceId, findOneTarget(sourceId, fieldName, querySpec));
+		}
+		return map;
+	}
+
+	@Override
+	public Map<Long, Iterable<Project>> findManyTargets(Iterable<Long> sourceIds, String fieldName, QuerySpec querySpec) {
+		Map<Long, Iterable<Project>> map = new HashMap<>();
+		for (Long sourceId : sourceIds) {
+			map.put(sourceId, findManyTargets(sourceId, fieldName, querySpec));
+		}
+		return map;
 	}
 }

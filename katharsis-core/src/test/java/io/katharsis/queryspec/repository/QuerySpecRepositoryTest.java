@@ -103,6 +103,19 @@ public class QuerySpecRepositoryTest extends AbstractQuerySpecTest {
 		projects = (List<Project>) relAdapter.findManyTargets(2L, "projects", queryAdapter).getEntity();
 		Assert.assertEquals(1, projects.size());
 
+		// check bulk find
+		Map<?, JsonApiResponse>  bulkMap = relAdapter.findBulkManyTargets(Arrays.asList(2L), "projects", queryAdapter);
+		Assert.assertEquals(1, bulkMap.size());
+		Assert.assertTrue(bulkMap.containsKey(2L));
+		projects = (List<Project>) bulkMap.get(2L).getEntity();
+		Assert.assertEquals(1, projects.size());
+		
+		bulkMap = relAdapter.findBulkOneTargets(Arrays.asList(2L), "project", queryAdapter);
+		Assert.assertEquals(1, bulkMap.size());
+		Assert.assertTrue(bulkMap.containsKey(2L));
+		Assert.assertNotNull(bulkMap.get(2L));
+		
+		
 		// deletion
 		adapter.delete(task.getId(), queryAdapter);
 		tasks = (List<Task>) adapter.findAll(queryAdapter).getEntity();
@@ -110,6 +123,7 @@ public class QuerySpecRepositoryTest extends AbstractQuerySpecTest {
 		Assert.assertNull(adapter.findOne(2L, queryAdapter).getEntity());
 		tasks = (List<Task>) adapter.findAll(Arrays.asList(2L), queryAdapter).getEntity();
 		Assert.assertEquals(0, tasks.size());
+		
 	}
 
 }
