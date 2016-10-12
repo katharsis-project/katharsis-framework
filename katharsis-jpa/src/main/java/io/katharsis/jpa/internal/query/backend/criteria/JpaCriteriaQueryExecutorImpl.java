@@ -18,7 +18,7 @@ import javax.persistence.criteria.Selection;
 import io.katharsis.jpa.internal.meta.MetaDataObject;
 import io.katharsis.jpa.internal.query.AbstractQueryExecutorImpl;
 import io.katharsis.jpa.internal.query.QueryUtil;
-import io.katharsis.jpa.internal.query.backend.querydsl.SingleObjectTupleImpl;
+import io.katharsis.jpa.internal.query.backend.querydsl.ObjectArrayTupleImpl;
 import io.katharsis.jpa.query.criteria.JpaCriteriaQueryExecutor;
 
 public class JpaCriteriaQueryExecutorImpl<T> extends AbstractQueryExecutorImpl<T> implements JpaCriteriaQueryExecutor<T> {
@@ -99,7 +99,7 @@ public class JpaCriteriaQueryExecutorImpl<T> extends AbstractQueryExecutorImpl<T
 				tuples.add(new CriteriaTupleImpl((Object[]) result, selectionBindings));
 			}
 			else {
-				tuples.add(new SingleObjectTupleImpl(result));
+				tuples.add(new ObjectArrayTupleImpl(result));
 			}
 		}
 		return tuples;

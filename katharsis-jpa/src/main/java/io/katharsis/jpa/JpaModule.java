@@ -147,8 +147,8 @@ public class JpaModule implements Module {
 					entityClasses.add(managedJavaType);
 				}
 			}
-			this.setRepositoryFactory(new DefaultJpaRepositoryFactory());
 		}
+		this.setRepositoryFactory(new DefaultJpaRepositoryFactory());
 	}
 
 	/**

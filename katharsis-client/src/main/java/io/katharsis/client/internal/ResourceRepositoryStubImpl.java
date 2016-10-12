@@ -21,7 +21,6 @@ import io.katharsis.queryspec.internal.QueryParamsAdapter;
 import io.katharsis.queryspec.internal.QuerySpecAdapter;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
-import io.katharsis.resource.include.IncludeLookupSetter;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.response.BaseResponseContext;
 import io.katharsis.response.CollectionResponseContext;
@@ -46,10 +45,6 @@ public class ResourceRepositoryStubImpl<T, ID extends Serializable> extends Abst
 	private BaseResponseContext executePost(HttpUrl requestUrl, T resource, QueryAdapter queryAdapter) {
 		JsonApiResponse response = new JsonApiResponse();
 		response.setEntity(resource);
-
-		IncludeLookupSetter includeFieldSetter = new IncludeLookupSetter(katharsis.getRegistry());
-		String resourceName = katharsis.getRegistry().getResourceType(resourceClass);
-		includeFieldSetter.setIncludedElements(resourceName, response, queryAdapter, null);
 
 		JsonPath jsonPath = new ResourcePath(resourceInformation.getResourceType());
 		ResourceResponseContext context = new ResourceResponseContext(response, jsonPath, queryAdapter);

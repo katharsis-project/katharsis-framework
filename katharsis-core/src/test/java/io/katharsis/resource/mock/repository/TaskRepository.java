@@ -16,6 +16,10 @@ import java.util.concurrent.ConcurrentHashMap;
 public class TaskRepository {
 
     private static final ConcurrentHashMap<Long, Task> THREAD_LOCAL_REPOSITORY = new ConcurrentHashMap<>();
+    
+    public static void clear(){
+    	THREAD_LOCAL_REPOSITORY.clear();
+    }
 
     @JsonApiSave
     public <S extends Task> S save(S entity) {

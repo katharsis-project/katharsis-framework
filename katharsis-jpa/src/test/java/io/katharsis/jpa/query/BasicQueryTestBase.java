@@ -42,6 +42,18 @@ public abstract class BasicQueryTestBase extends AbstractJpaTest {
 	}
 
 	@Test
+	public void testRelationsWithParentIdSelection() {
+		List<Long> ids = Arrays.asList(1L);
+		JpaQuery<RelatedEntity> builder = queryFactory.query(TestEntity.class, TestEntity.ATTR_oneRelatedValue, ids);
+		builder.addParentIdSelection();
+		List<Tuple> tuples = builder.buildExecutor().getResultTuples();
+		Assert.assertEquals(1, tuples.size());
+		Tuple tuple = tuples.get(0);
+		Assert.assertEquals(1L, tuple.get(0, Object.class));
+		Assert.assertEquals(101L, tuple.get(1, RelatedEntity.class).getId().longValue());
+	}
+
+	@Test
 	public void testTupleQuery() {
 		JpaQuery<TestEntity> query = builder();
 		query.addSortBy(Arrays.asList(TestEntity.ATTR_stringValue), Direction.ASC);

@@ -1,7 +1,5 @@
 package io.katharsis.jpa.repository;
 
-import static org.junit.Assert.assertTrue;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -245,19 +243,6 @@ public abstract class JpaEntityRepositoryTestBase extends AbstractJpaTest {
 
 		PagedMetaInformation metaInformation = repo.getMetaInformation(list, querySpec);
 		Assert.assertEquals(5, metaInformation.getTotalResourceCount().longValue());
-	}
-
-	@Test
-	public void testIncludeRelations() throws InstantiationException, IllegalAccessException {
-		QuerySpec querySpec = new QuerySpec(TestEntity.class);
-		querySpec.includeRelation(Arrays.asList(TestEntity.ATTR_oneRelatedValue));
-
-		List<TestEntity> list = repo.findAll(querySpec);
-		Assert.assertEquals(numTestEntities, list.size());
-		for (TestEntity test : list) {
-			assertTrue(Hibernate.isInitialized(test));
-			assertTrue(Hibernate.isInitialized(test.getOneRelatedValue()));
-		}
 	}
 
 	@Test

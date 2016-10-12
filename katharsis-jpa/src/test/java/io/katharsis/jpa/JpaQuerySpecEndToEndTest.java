@@ -17,11 +17,14 @@ import io.katharsis.client.ResourceRepositoryStub;
 import io.katharsis.client.response.JsonLinksInformation;
 import io.katharsis.client.response.JsonMetaInformation;
 import io.katharsis.client.response.ResourceList;
+import io.katharsis.jpa.model.OtherRelatedEntity;
 import io.katharsis.jpa.model.RelatedEntity;
 import io.katharsis.jpa.model.TestEmbeddedIdEntity;
 import io.katharsis.jpa.model.TestEntity;
 import io.katharsis.jpa.model.TestIdEmbeddable;
 import io.katharsis.jpa.model.VersionedEntity;
+import io.katharsis.queryspec.FilterOperator;
+import io.katharsis.queryspec.FilterSpec;
 import io.katharsis.queryspec.QuerySpec;
 
 public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
@@ -36,7 +39,7 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 	}
 
 	@Test
-	public void testIncludeRelations() throws InstantiationException, IllegalAccessException {
+	public void testIncludeOneRelations() throws InstantiationException, IllegalAccessException {
 		addTestWithOneRelation();
 
 		QuerySpec querySpec = new QuerySpec(TestEntity.class);
@@ -46,6 +49,80 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 		Assert.assertEquals(1, list.size());
 		for (TestEntity test : list) {
 			Assert.assertNotNull(test.getOneRelatedValue());
+		}
+	}
+	
+	@Test
+	public void testIncludeEmptyRelations() throws InstantiationException, IllegalAccessException {
+		addTest();
+
+		QuerySpec querySpec = new QuerySpec(TestEntity.class);
+		querySpec.includeRelation(Arrays.asList(TestEntity.ATTR_oneRelatedValue));
+		querySpec.includeRelation(Arrays.asList(TestEntity.ATTR_manyRelatedValues));
+		List<TestEntity> list = testRepo.findAll(querySpec);
+
+		Assert.assertEquals(1, list.size());
+		for (TestEntity test : list) {
+			Assert.assertNull(test.getOneRelatedValue());
+			Assert.assertEquals(0, test.getManyRelatedValues().size());
+		}
+	}
+
+	@Test
+	public void testIncludeNested() throws InstantiationException, IllegalAccessException {
+		addTestWithManyRelations();
+
+		QuerySpec querySpec = new QuerySpec(TestEntity.class);
+		querySpec.includeRelation(Arrays.asList(TestEntity.ATTR_manyRelatedValues, RelatedEntity.ATTR_otherEntity));
+		List<TestEntity> list = testRepo.findAll(querySpec);
+
+		Assert.assertEquals(1, list.size());
+		TestEntity testEntity = list.get(0);
+
+		List<RelatedEntity> manyRelatedValues = testEntity.getManyRelatedValues();
+		Assert.assertNotNull(manyRelatedValues);
+		Assert.assertEquals(3, manyRelatedValues.size());
+
+		for (RelatedEntity relatedEntity : manyRelatedValues) {
+			Assert.assertNotNull(relatedEntity.getOtherEntity());
+		}
+	}
+
+	@Test
+	public void testIncludeManyRelations() throws InstantiationException, IllegalAccessException {
+		addTestWithManyRelations();
+
+		QuerySpec querySpec = new QuerySpec(TestEntity.class);
+		querySpec.includeRelation(Arrays.asList(TestEntity.ATTR_manyRelatedValues));
+		List<TestEntity> list = testRepo.findAll(querySpec);
+
+		Assert.assertEquals(1, list.size());
+		TestEntity testEntity = list.get(0);
+
+		List<RelatedEntity> manyRelatedValues = testEntity.getManyRelatedValues();
+		Assert.assertNotNull(manyRelatedValues);
+		Assert.assertEquals(3, manyRelatedValues.size());
+	}
+
+	@Test
+	public void testIncludeAndFilterManyRelations() throws InstantiationException, IllegalAccessException {
+		addTestWithManyRelations();
+
+		QuerySpec querySpec = new QuerySpec(TestEntity.class);
+		querySpec.includeRelation(Arrays.asList(TestEntity.ATTR_manyRelatedValues));
+		QuerySpec relatedSpec = querySpec.getOrCreateQuerySpec(RelatedEntity.class);
+		relatedSpec.addFilter(new FilterSpec(Arrays.asList(RelatedEntity.ATTR_id), FilterOperator.LT, 103L));
+		List<TestEntity> list = testRepo.findAll(querySpec);
+
+		Assert.assertEquals(1, list.size());
+		TestEntity testEntity = list.get(0);
+
+		List<RelatedEntity> manyRelatedValues = testEntity.getManyRelatedValues();
+		Assert.assertNotNull(manyRelatedValues);
+		Assert.assertEquals(2, manyRelatedValues.size());
+
+		for (RelatedEntity manyRelatedValue : manyRelatedValues) {
+			Assert.assertTrue(manyRelatedValue.getId() == 101L || manyRelatedValue.getId() == 102L);
 		}
 	}
 
@@ -207,7 +284,7 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 		Assert.assertEquals(baseUri + "test/?page[limit]=2", links.asJsonNode().get("prev").asText());
 		Assert.assertEquals(baseUri + "test/?page[limit]=2&page[offset]=4", links.asJsonNode().get("next").asText());
 	}
-	
+
 	@Test
 	public void testRelationPaging() {
 		TestEntity test = new TestEntity();
@@ -218,12 +295,12 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 		ResourceRepositoryStub<RelatedEntity, Long> relatedRepo = client.getRepository(RelatedEntity.class);
 		QuerySpecRelationshipRepositoryStub<TestEntity, Long, RelatedEntity, Long> relRepo = client
 				.getQuerySpecRepository(TestEntity.class, RelatedEntity.class);
-		for(long i = 0; i < 5;i++){
+		for (long i = 0; i < 5; i++) {
 			RelatedEntity related1 = new RelatedEntity();
 			related1.setId(i);
 			related1.setStringValue("related" + i);
 			relatedRepo.save(related1);
-			
+
 			relRepo.addRelations(test, Arrays.asList(i), TestEntity.ATTR_manyRelatedValues);
 		}
 
@@ -242,10 +319,14 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 		Assert.assertNotNull(links);
 
 		String baseUri = getBaseUri().toString();
-		Assert.assertEquals(baseUri + "test/1/relationships/manyRelatedValues/?page[limit]=2", links.asJsonNode().get("first").asText());
-		Assert.assertEquals(baseUri + "test/1/relationships/manyRelatedValues/?page[limit]=2&page[offset]=4", links.asJsonNode().get("last").asText());
-		Assert.assertEquals(baseUri + "test/1/relationships/manyRelatedValues/?page[limit]=2", links.asJsonNode().get("prev").asText());
-		Assert.assertEquals(baseUri + "test/1/relationships/manyRelatedValues/?page[limit]=2&page[offset]=4", links.asJsonNode().get("next").asText());
+		Assert.assertEquals(baseUri + "test/1/relationships/manyRelatedValues/?page[limit]=2",
+				links.asJsonNode().get("first").asText());
+		Assert.assertEquals(baseUri + "test/1/relationships/manyRelatedValues/?page[limit]=2&page[offset]=4",
+				links.asJsonNode().get("last").asText());
+		Assert.assertEquals(baseUri + "test/1/relationships/manyRelatedValues/?page[limit]=2",
+				links.asJsonNode().get("prev").asText());
+		Assert.assertEquals(baseUri + "test/1/relationships/manyRelatedValues/?page[limit]=2&page[offset]=4",
+				links.asJsonNode().get("next").asText());
 	}
 
 	@Test
@@ -335,7 +416,7 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 		Assert.assertEquals(test.getId(), savedTest.getId());
 		Assert.assertEquals(test.getStringValue(), savedTest.getStringValue());
 		Assert.assertNull(savedTest.getOneRelatedValue());
-		
+
 		// TOOD should @JsonApiIncludeByDefault trigger this?
 		//		Assert.assertNotNull(savedTest.getEagerRelatedValue());
 		//		Assert.assertEquals(1L, savedTest.getEagerRelatedValue().getId().longValue());
@@ -386,6 +467,67 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 		test.setStringValue("test");
 		test.setOneRelatedValue(related);
 		testRepo.save(test, includeOneRelatedValueParams());
+		return test;
+	}
+	
+	private TestEntity addTest() {
+		TestEntity test = new TestEntity();
+		test.setId(2L);
+		test.setStringValue("test");
+		testRepo.save(test);
+		return test;
+	}
+
+	private TestEntity addTestWithManyRelations() {
+		QuerySpecResourceRepositoryStub<OtherRelatedEntity, Long> otherRepo = client
+				.getQuerySpecRepository(OtherRelatedEntity.class);
+		QuerySpecResourceRepositoryStub<RelatedEntity, Long> relatedRepo = client.getQuerySpecRepository(RelatedEntity.class);
+		QuerySpecRelationshipRepositoryStub<TestEntity, Long, RelatedEntity, Long> relRepo = client
+				.getQuerySpecRepository(TestEntity.class, RelatedEntity.class);
+		QuerySpecRelationshipRepositoryStub<RelatedEntity, Long, OtherRelatedEntity, Long> otherRelRepo = client
+				.getQuerySpecRepository(RelatedEntity.class, OtherRelatedEntity.class);
+
+		TestEntity test = new TestEntity();
+		test.setId(2L);
+		test.setStringValue("test");
+		testRepo.save(test);
+
+		RelatedEntity related1 = new RelatedEntity();
+		related1.setId(101L);
+		related1.setStringValue("related1");
+		relatedRepo.save(related1);
+
+		RelatedEntity related2 = new RelatedEntity();
+		related2.setId(102L);
+		related2.setStringValue("related2");
+		relatedRepo.save(related2);
+
+		RelatedEntity related3 = new RelatedEntity();
+		related3.setId(103L);
+		related3.setStringValue("related3");
+		relatedRepo.save(related3);
+
+		OtherRelatedEntity other1 = new OtherRelatedEntity();
+		other1.setId(101L);
+		other1.setStringValue("related1");
+		otherRepo.save(other1);
+
+		OtherRelatedEntity other2 = new OtherRelatedEntity();
+		other2.setId(102L);
+		other2.setStringValue("related2");
+		otherRepo.save(other2);
+
+		OtherRelatedEntity other3 = new OtherRelatedEntity();
+		other3.setId(103L);
+		other3.setStringValue("related3");
+		otherRepo.save(other3);
+
+		List<Long> relatedIds = Arrays.asList(related1.getId(), related2.getId(), related3.getId());
+		relRepo.addRelations(test, relatedIds, TestEntity.ATTR_manyRelatedValues);
+		otherRelRepo.setRelation(related1, other1.getId(), RelatedEntity.ATTR_otherEntity);
+		otherRelRepo.setRelation(related2, other2.getId(), RelatedEntity.ATTR_otherEntity);
+		otherRelRepo.setRelation(related3, other3.getId(), RelatedEntity.ATTR_otherEntity);
+
 		return test;
 	}
 }

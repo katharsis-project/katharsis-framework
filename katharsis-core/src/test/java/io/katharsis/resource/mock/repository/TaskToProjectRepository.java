@@ -15,6 +15,10 @@ import java.util.concurrent.ConcurrentMap;
 public class TaskToProjectRepository extends AbstractRelationShipRepository<Task> implements RelationshipRepository<Task, Long, Project, Long> {
 
     private final static ConcurrentMap<Relation<Task>, Integer> STATIC_REPOSITORY = new ConcurrentHashMap<>();
+    
+    public static void clear(){
+    	STATIC_REPOSITORY.clear();
+    }
 
     @Override
     ConcurrentMap<Relation<Task>, Integer> getRepo() {

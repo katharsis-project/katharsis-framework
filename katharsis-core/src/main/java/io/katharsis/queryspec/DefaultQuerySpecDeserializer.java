@@ -101,11 +101,11 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 	public QuerySpec deserialize(Class<?> rootResourceClass, Map<String, Set<String>> parameterMap) {
 		QuerySpec rootQuerySpec = new QuerySpec(rootResourceClass);
 		setupDefaults(rootQuerySpec);
-		
+
 		List<Parameter> parameters = parseParameters(parameterMap, rootResourceClass);
 		for (Parameter parameter : parameters) {
 			QuerySpec querySpec = rootQuerySpec.getQuerySpec(parameter.resourceClass);
-			if(querySpec == null){
+			if (querySpec == null) {
 				querySpec = rootQuerySpec.getOrCreateQuerySpec(parameter.resourceClass);
 				setupDefaults(querySpec);
 			}
@@ -144,10 +144,16 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 			throw new ParserException("invalid parameter " + parameter);
 		}
 
-		for (String value : parameter.values) {
-			List<String> attributePath = splitAttributePath(value, parameter);
-			querySpec.includeRelation(attributePath);
+		for (String values : parameter.values) {
+			for (String value : splitValues(values)) {
+				List<String> attributePath = splitAttributePath(value, parameter);
+				querySpec.includeRelation(attributePath);
+			}
 		}
+	}
+
+	private String[] splitValues(String values) {
+		return values.split(",");
 	}
 
 	private void deserializeFields(QuerySpec querySpec, Parameter parameter) {
@@ -155,14 +161,16 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 			throw new ParserException("invalid parameter " + parameter);
 		}
 
-		for (String value : parameter.values) {
-			List<String> attributePath = splitAttributePath(value, parameter);
-			querySpec.includeField(attributePath);
+		for (String values : parameter.values) {
+			for (String value : splitValues(values)) {
+				List<String> attributePath = splitAttributePath(value, parameter);
+				querySpec.includeField(attributePath);
+			}
 		}
 	}
 
 	private void deserializePage(QuerySpec querySpec, Parameter parameter) {
-		if(!parameter.name.startsWith("[") || !parameter.name.endsWith("]")){
+		if (!parameter.name.startsWith("[") || !parameter.name.endsWith("]")) {
 			throw new ParserException(parameter.toString());
 		}
 		String name = parameter.name.substring(1, parameter.name.length() - 1);
@@ -246,10 +254,11 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 			if (registryEntry == null) {
 				// first parameter is not the resourceType => JSON API spec
 				param.resourceClass = rootResourceClass;
-				String attrName = resourceType; 
-				if(attrName != null){
+				String attrName = resourceType;
+				if (attrName != null) {
 					param.name = "[" + attrName + "]" + nullToEmpty(path);
-				}else{
+				}
+				else {
 					param.name = emptyToNull(path);
 				}
 			}

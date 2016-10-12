@@ -29,11 +29,14 @@ import com.querydsl.core.types.dsl.MapPath;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.core.types.dsl.SimpleExpression;
 import com.querydsl.core.types.dsl.StringExpression;
+import com.querydsl.jpa.JPAQueryBase;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import io.katharsis.jpa.internal.meta.MetaAttribute;
 import io.katharsis.jpa.internal.meta.MetaAttributePath;
+import io.katharsis.jpa.internal.meta.MetaEntity;
+import io.katharsis.jpa.internal.meta.MetaKey;
 import io.katharsis.jpa.internal.query.ComputedAttributeRegistryImpl;
 import io.katharsis.jpa.internal.query.JoinRegistry;
 import io.katharsis.jpa.internal.query.MetaComputedAttribute;
@@ -54,12 +57,12 @@ public class QuerydslQueryBackend<T> implements JpaQueryBackend<Expression<?>, O
 
 	private QuerydslQueryImpl<T> queryImpl;
 
-	private JPAQuery<T> querydslQuery;
+	private JPAQueryBase querydslQuery;
 
 	private List<OrderSpecifier<?>> orderList = new ArrayList<>();
 
 	public QuerydslQueryBackend(QuerydslQueryImpl<T> queryImpl, Class<T> clazz, Class<?> parentEntityClass,
-			MetaAttribute parentAttr) {
+			MetaAttribute parentAttr, boolean addParentSelection) {
 		this.queryImpl = queryImpl;
 
 		JPAQueryFactory queryFactory = queryImpl.getQueryFactory();
@@ -72,7 +75,14 @@ public class QuerydslQueryBackend<T> implements JpaQueryBackend<Expression<?>, O
 			joinHelper = new JoinRegistry<>(this, queryImpl);
 
 			joinHelper.putJoin(new MetaAttributePath(), root);
-			querydslQuery = queryFactory.select(root);
+			
+			if(addParentSelection){
+				Expression<Object> parentIdExpr = getParentIdExpression(parentAttr);
+				querydslQuery = queryFactory.select(parentIdExpr, root);
+			}else{
+				querydslQuery = queryFactory.select(root);
+			}
+			
 			querydslQuery = querydslQuery.from(parentFrom);
 			if (joinPath instanceof CollectionExpression) {
 				querydslQuery = querydslQuery.join((CollectionExpression) joinPath, root);
@@ -90,12 +100,23 @@ public class QuerydslQueryBackend<T> implements JpaQueryBackend<Expression<?>, O
 		}
 	}
 
-	public JPAQuery<T> getQuery() {
-		JPAQuery<T> finalQuery = querydslQuery;
-		for (OrderSpecifier<?> order : orderList) {
-			finalQuery = finalQuery.orderBy(order);
+	private Expression<Object> getParentIdExpression(MetaAttribute parentAttr) {
+		MetaEntity parentEntity = parentAttr.getParent().asEntity();
+		MetaKey primaryKey = parentEntity.getPrimaryKey();
+		List<MetaAttribute> elements = primaryKey.getElements();
+		if (elements.size() != 1) {
+			throw new UnsupportedOperationException("composite primary keys not supported yet");
 		}
-		return finalQuery;
+		MetaAttribute primaryKeyAttr = elements.get(0);
+		return QuerydslUtils.get(parentFrom, primaryKeyAttr.getName());
+	}
+
+	public JPAQuery<T> getQuery() {
+		JPAQueryBase finalQuery = querydslQuery;
+		for (OrderSpecifier<?> order : orderList) {
+			finalQuery = (JPAQueryBase) finalQuery.orderBy(order);
+		}
+		return (JPAQuery<T>) finalQuery;
 	}
 
 	@Override
@@ -105,7 +126,7 @@ public class QuerydslQueryBackend<T> implements JpaQueryBackend<Expression<?>, O
 
 	@Override
 	public void addPredicate(Predicate predicate) {
-		querydslQuery = querydslQuery.where(predicate);
+		querydslQuery = (JPAQueryBase) querydslQuery.where(predicate);
 	}
 
 	@Override
@@ -135,7 +156,7 @@ public class QuerydslQueryBackend<T> implements JpaQueryBackend<Expression<?>, O
 
 	@Override
 	public void distinct() {
-		querydslQuery = querydslQuery.distinct();
+		querydslQuery = (JPAQueryBase) querydslQuery.distinct();
 	}
 
 	@Override
@@ -147,7 +168,7 @@ public class QuerydslQueryBackend<T> implements JpaQueryBackend<Expression<?>, O
 
 	@Override
 	public boolean hasManyRootsFetchesOrJoins() {
-		return QuerydslUtils.hasManyRootsFetchesOrJoins(querydslQuery);
+		return QuerydslUtils.hasManyRootsFetchesOrJoins((JPAQuery<?>) querydslQuery);
 	}
 
 	@Override

@@ -279,7 +279,9 @@ public class JpaResourceInformationBuilder implements ResourceInformationBuilder
 		// read Katharsis annotations
 		boolean lazy = AnnotatedResourceField.isLazy(annotations, lazyDefault);
 		boolean includeByDefault = AnnotatedResourceField.getIncludeByDefault(annotations);
-		LookupIncludeBehavior lookupIncludeBehavior = AnnotatedResourceField.getLookupIncludeBehavior(annotations);
+		
+		// related repositories should lookup, we ignore the hibernate proxies
+		LookupIncludeBehavior lookupIncludeBehavior = AnnotatedResourceField.getLookupIncludeBehavior(annotations, LookupIncludeBehavior.AUTOMATICALLY_ALWAYS);
 		return new ResourceField(jsonName, underlyingName, type, genericType, lazy, includeByDefault,
 				lookupIncludeBehavior);
 	}

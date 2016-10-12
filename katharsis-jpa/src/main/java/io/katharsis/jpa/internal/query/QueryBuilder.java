@@ -77,10 +77,12 @@ public class QueryBuilder<T, F, O, P, E> {
 		Map<String, Integer> selectionBindings = new HashMap<>();
 
 		int index = 1;
+		
 		List<IncludeFieldSpec> includedFields = query.getIncludedFields();
 		for (IncludeFieldSpec includedField : includedFields) {
 			MetaAttributePath path = meta.resolvePath(includedField.getAttributePath(), attributeFinder);
 			E attr = backend.getAttribute(path);
+			
 			backend.addSelection(attr, path.toString());
 			selectionBindings.put(path.toString(), index++);
 		}
