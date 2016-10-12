@@ -1,5 +1,6 @@
 package io.katharsis.jpa.internal.query.backend.querydsl;
 
+import java.util.Arrays;
 import java.util.List;
 
 import javax.persistence.TupleElement;
@@ -9,23 +10,24 @@ import com.querydsl.core.types.Expression;
 import io.katharsis.jpa.query.criteria.JpaCriteriaTuple;
 import io.katharsis.jpa.query.querydsl.QuerydslTuple;
 
-public class SingleObjectTupleImpl implements QuerydslTuple, JpaCriteriaTuple {
+public class ObjectArrayTupleImpl implements QuerydslTuple, JpaCriteriaTuple {
 
-	private Object entity;
+	private Object[] data;
+	private int numEntriesToIgnore;
 
-	public SingleObjectTupleImpl(Object entity) {
-		this.entity = entity;
+	public ObjectArrayTupleImpl(Object entity) {
+		if (entity instanceof Object[]) {
+			data = (Object[]) entity;
+		}
+		else {
+			data = new Object[] { entity };
+		}
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T> T get(int index, Class<T> type) {
-		if (index == 0) {
-			return (T) entity;
-		}
-		else {
-			throw new IndexOutOfBoundsException("index=" + index);
-		}
+		return (T) data[index + numEntriesToIgnore];
 	}
 
 	@Override
@@ -35,12 +37,16 @@ public class SingleObjectTupleImpl implements QuerydslTuple, JpaCriteriaTuple {
 
 	@Override
 	public int size() {
-		return 1;
+		return data.length - numEntriesToIgnore;
 	}
 
 	@Override
 	public Object[] toArray() {
-		return new Object[] { entity };
+		if(numEntriesToIgnore > 0){
+			return Arrays.copyOfRange(data, numEntriesToIgnore, data.length - numEntriesToIgnore);
+		}else{
+			return data;
+		}
 	}
 
 	@Override
@@ -70,7 +76,7 @@ public class SingleObjectTupleImpl implements QuerydslTuple, JpaCriteriaTuple {
 
 	@Override
 	public void reduce(int numEntriesToIgnore) {
-		throw new UnsupportedOperationException();
+		this.numEntriesToIgnore = numEntriesToIgnore;
 	}
 
 }
