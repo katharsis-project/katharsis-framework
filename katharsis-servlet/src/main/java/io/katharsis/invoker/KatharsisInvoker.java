@@ -95,11 +95,7 @@ public class KatharsisInvoker {
             katharsisResponse = requestDispatcher.dispatchRequest(jsonPath, method, parameters, parameterProvider,
                     requestBody);
         } catch (KatharsisMappableException e) {
-            if (log.isDebugEnabled()) {
-                log.warn("Error occurred while dispatching katharsis request. " + e, e);
-            } else {
-                log.warn("Error occurred while dispatching katharsis request. " + e);
-            }
+            // log error in KatharsisMappableException mapper.
             katharsisResponse = new KatharsisExceptionMapper().toErrorResponse(e);
         } catch (KatharsisMatchingException e) {
             passToMethodMatcher = true;
