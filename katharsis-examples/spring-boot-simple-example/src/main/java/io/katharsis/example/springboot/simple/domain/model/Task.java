@@ -16,15 +16,11 @@
  */
 package io.katharsis.example.springboot.simple.domain.model;
 
-import io.katharsis.resource.annotations.JsonApiId;
-import io.katharsis.resource.annotations.JsonApiIncludeByDefault;
-import io.katharsis.resource.annotations.JsonApiResource;
-import io.katharsis.resource.annotations.JsonApiToOne;
-
-import javax.validation.constraints.Size;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.katharsis.resource.annotations.*;
+
+import javax.validation.constraints.Size;
 
 @JsonApiResource(type = "tasks")
 public class Task {
@@ -45,12 +41,20 @@ public class Task {
     @JsonApiIncludeByDefault
     private Project project;
 
+    @JsonApiToOne
+    @JsonApiIncludeByDefault
+    private Location location = new Location();
+
     public Task() {
     }
 
     public Task(Long id, String name) {
         this.id = id;
         this.name = name;
+    }
+
+    public Location getLocation() {
+        return location;
     }
 
     public Long getId() {
