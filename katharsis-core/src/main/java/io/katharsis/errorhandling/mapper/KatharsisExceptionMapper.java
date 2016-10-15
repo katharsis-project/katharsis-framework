@@ -14,7 +14,13 @@ public final class KatharsisExceptionMapper implements JsonApiExceptionMapper<Ka
 
     @Override
     public ErrorResponse toErrorResponse(KatharsisMappableException exception) {
-        logger.warn("failed to process request", exception);
+        // log 5xx status as error and anything else as warn
+        if (exception.getHttpStatus() >= 500 || exception.getHttpStatus() < 600) {
+            logger.error("failed to process request", exception);
+        } else {
+            logger.error("failed to process request", exception);
+        }
+
         return ErrorResponse.builder()
                 .setStatus(exception.getHttpStatus())
                 .setSingleErrorData(exception.getErrorData())
