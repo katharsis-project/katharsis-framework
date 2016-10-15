@@ -18,7 +18,7 @@ public final class KatharsisExceptionMapper implements JsonApiExceptionMapper<Ka
         if (exception.getHttpStatus() >= 500 && exception.getHttpStatus() < 600) {
             logger.error("failed to process request", exception);
         } else {
-            logger.error("failed to process request", exception);
+            logger.warn("failed to process request", exception);
         }
 
         return ErrorResponse.builder()
