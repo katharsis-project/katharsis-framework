@@ -51,8 +51,6 @@ import io.katharsis.servlet.util.BufferedRequestWrapper;
 @Priority(20)
 public class KatharsisFilterV2 implements Filter, BeanFactoryAware {
 
-    private static final Logger log = LoggerFactory.getLogger(KatharsisFilterV2.class);
-
     private static final int BUFFER_SIZE = 4096;
 
     private ObjectMapper objectMapper;

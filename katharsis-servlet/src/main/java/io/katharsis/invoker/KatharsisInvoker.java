@@ -48,8 +48,6 @@ import java.util.Set;
  */
 public class KatharsisInvoker {
 
-    private static Logger log = LoggerFactory.getLogger(KatharsisInvoker.class);
-
     private static int BUFFER_SIZE = 4096;
 
     private ObjectMapper objectMapper;
