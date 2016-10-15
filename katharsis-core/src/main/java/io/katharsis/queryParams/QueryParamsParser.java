@@ -17,16 +17,14 @@
 
 package io.katharsis.queryParams;
 
-import java.util.Map;
-import java.util.Set;
+import io.katharsis.queryParams.context.QueryParamsParserContext;
 
+/**
+ * QueryParamsParser implementations will create QueryParams objects using the given
+ * QueryParamsParserContext.
+ *
+ * Known implementations: {@link DefaultQueryParamsParser} {@link JsonApiQueryParamsParser}
+ */
 public interface QueryParamsParser {
-
-    Map<String, Set<String>> parseFiltersParameters(Map<String, Set<String>> queryParams);
-    Map<String, Set<String>> parseSortingParameters(Map<String, Set<String>> queryParams);
-    Map<String, Set<String>> parseGroupingParameters(Map<String, Set<String>> queryParams);
-    Map<String, Set<String>> parseIncludedFieldsParameters(Map<String, Set<String>> queryParams);
-    Map<String, Set<String>> parseIncludedRelationsParameters(Map<String, Set<String>> queryParams);
-    Map<String, Set<String>> parsePaginationParameters(Map<String, Set<String>> queryParams);
-
+    QueryParams parse(QueryParamsParserContext context);
 }

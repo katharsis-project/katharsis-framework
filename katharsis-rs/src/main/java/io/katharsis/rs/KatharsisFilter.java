@@ -63,7 +63,7 @@ import io.katharsis.rs.type.JsonApiMediaType;
 @PreMatching
 @Priority(Integer.MAX_VALUE) // Greatest value is applied last
 public class KatharsisFilter implements ContainerRequestFilter {
-	
+
 	private Logger logger = LoggerFactory.getLogger(getClass());
 
     private ObjectMapper objectMapper;
@@ -127,16 +127,16 @@ public class KatharsisFilter implements ContainerRequestFilter {
         ServiceUrlProvider serviceUrlProvider = resourceRegistry.getServiceUrlProvider();
         try {
             String path = buildPath(uriInfo);
-            
+
             if(serviceUrlProvider instanceof UriInfoServiceUrlProvider){
             	// TODO not a particular nice way of doing this. With Katharsis 3.0 and the serialization
-            	// refacotring there should be a better way achieving this. At that point 
+            	// refacotring there should be a better way achieving this. At that point
             	// serialization should be serialization only, no further logic like reading urls.
             	((UriInfoServiceUrlProvider)serviceUrlProvider).onRequestStarted(uriInfo);
             }
-            
+
             JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath(path);
-            
+
             Map<String, Set<String>> parameters = getParameters(uriInfo);
 
             String method = requestContext.getMethod();
@@ -155,7 +155,7 @@ public class KatharsisFilter implements ContainerRequestFilter {
             if (!passToMethodMatcher) {
                 abortWithResponse(requestContext, katharsisResponse);
             }
-            
+
             if(serviceUrlProvider instanceof UriInfoServiceUrlProvider){
             	((UriInfoServiceUrlProvider)serviceUrlProvider).onRequestFinished();
             }
@@ -197,9 +197,9 @@ public class KatharsisFilter implements ContainerRequestFilter {
         }
         requestContext.abortWith(response);
     }
-    
 
-    
+
+
     public RequestBody inputStreamToBody(InputStream is) throws IOException {
         if (is == null) {
             return null;
