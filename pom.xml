@@ -41,6 +41,13 @@
         <gpg.passphrase/>
     </properties>
 
+    <scm>
+        <connection>scm:git:git@github.com:katharsis-project/katharsis-framework.git</connection>
+        <developerConnection>scm:git:git@github.com:katharsis-project/katharsis-framework.git</developerConnection>
+        <url>http://github.com/katharsis-project/katharsis-framework.git</url>
+        <tag>HEAD</tag>
+    </scm>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
