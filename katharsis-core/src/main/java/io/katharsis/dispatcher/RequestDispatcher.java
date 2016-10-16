@@ -79,13 +79,13 @@ public class RequestDispatcher {
 			DefaultFilterChain chain = new DefaultFilterChain(controller);
 			return chain.doFilter(context);
         } catch (Exception e) {
-        	logger.warn("failed to process request", e);
             Optional<JsonApiExceptionMapper> exceptionMapper = exceptionMapperRegistry.findMapperFor(e.getClass());
             if (exceptionMapper.isPresent()) {
                 //noinspection unchecked
                 return exceptionMapper.get()
                         .toErrorResponse(e);
             } else {
+                logger.error("failed to process request", e);
                 throw e;
             }
         }
