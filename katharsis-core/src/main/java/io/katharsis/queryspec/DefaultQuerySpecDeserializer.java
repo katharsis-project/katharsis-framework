@@ -10,11 +10,11 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import io.katharsis.jackson.exception.ParametersDeserializationException;
 import io.katharsis.resource.RestrictedQueryParamsMembers;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.utils.PropertyUtils;
-import io.katharsis.utils.parser.ParserException;
 import io.katharsis.utils.parser.TypeParser;
 
 /**
@@ -141,7 +141,7 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 
 	private void deserializeIncludes(QuerySpec querySpec, Parameter parameter) {
 		if (parameter.name != null) {
-			throw new ParserException("invalid parameter " + parameter);
+			throw new ParametersDeserializationException("invalid parameter " + parameter);
 		}
 
 		for (String values : parameter.values) {
@@ -158,7 +158,7 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 
 	private void deserializeFields(QuerySpec querySpec, Parameter parameter) {
 		if (parameter.name != null) {
-			throw new ParserException("invalid parameter " + parameter);
+			throw new ParametersDeserializationException("invalid parameter " + parameter);
 		}
 
 		for (String values : parameter.values) {
@@ -171,7 +171,7 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 
 	private void deserializePage(QuerySpec querySpec, Parameter parameter) {
 		if (!parameter.name.startsWith("[") || !parameter.name.endsWith("]")) {
-			throw new ParserException(parameter.toString());
+			throw new ParametersDeserializationException(parameter.toString());
 		}
 		String name = parameter.name.substring(1, parameter.name.length() - 1);
 		if (OFFSET_PARAMETER.equalsIgnoreCase(name)) {
@@ -181,7 +181,7 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 			querySpec.setLimit(parameter.getLongValue());
 		}
 		else {
-			throw new ParserException(parameter.toString());
+			throw new ParametersDeserializationException(parameter.toString());
 		}
 	}
 
@@ -217,7 +217,7 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 
 	private void deserializeSort(QuerySpec querySpec, Parameter parameter) {
 		if (parameter.name != null) {
-			throw new ParserException("invalid parameter " + parameter);
+			throw new ParametersDeserializationException("invalid parameter " + parameter);
 		}
 
 		for (String value : parameter.values) {
@@ -239,7 +239,7 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 			Matcher m = PARAMETER_PATTERN.matcher(entry.getKey());
 			boolean accepted = m.matches();
 			if (!accepted) {
-				throw new ParserException("failed to parse parameter " + entry.getKey());
+				throw new ParametersDeserializationException("failed to parse parameter " + entry.getKey());
 			}
 
 			String strParamType = m.group(1);
@@ -293,13 +293,13 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 
 		public Long getLongValue() {
 			if (values.size() != 1) {
-				throw new ParserException("expected a Long for " + toString());
+				throw new ParametersDeserializationException("expected a Long for " + toString());
 			}
 			try {
 				return Long.parseLong(values.iterator().next());
 			}
 			catch (NumberFormatException e) {
-				throw new ParserException("expected a Long for " + toString());
+				throw new ParametersDeserializationException("expected a Long for " + toString());
 			}
 		}
 
@@ -311,7 +311,7 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 
 	private List<String> splitKeyPath(String pathString, Parameter param) {
 		if (!pathString.startsWith("[") || !pathString.endsWith("]")) {
-			throw new ParserException("invalid attribute path in " + param.toString());
+			throw new ParametersDeserializationException("invalid attribute path in " + param.toString());
 		}
 		String temp = pathString.substring(1, pathString.length() - 1);
 
