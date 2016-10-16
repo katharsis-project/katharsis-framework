@@ -1,11 +1,11 @@
-package io.katharsis.jpa.internal.util;
+package io.katharsis.utils;
 
-public class KatharsisAssert {
+public class PreconditionUtil {
 
 	/**
 	 * Protect constructor since it is a static only class
 	 */
-	protected KatharsisAssert() {
+	protected PreconditionUtil() {
 	}
 
 	/**

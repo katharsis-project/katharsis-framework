@@ -29,8 +29,8 @@ import io.katharsis.jpa.internal.meta.impl.MetaMappedSuperclassImpl;
 import io.katharsis.jpa.internal.meta.impl.MetaPrimitiveType;
 import io.katharsis.jpa.internal.meta.impl.MetaResourceImpl;
 import io.katharsis.jpa.internal.meta.impl.MetaSetTypeImpl;
-import io.katharsis.jpa.internal.util.KatharsisAssert;
 import io.katharsis.resource.annotations.JsonApiResource;
+import io.katharsis.utils.PreconditionUtil;
 
 public class MetaLookup {
 
@@ -136,7 +136,7 @@ public class MetaLookup {
 
 	private MetaElement allocateMetaFromParamerizedType(ParameterizedType paramType) {
 		if (paramType.getRawType() instanceof Class && Map.class.isAssignableFrom((Class<?>) paramType.getRawType())) {
-			KatharsisAssert.assertEquals(2, paramType.getActualTypeArguments().length);
+			PreconditionUtil.assertEquals(2, paramType.getActualTypeArguments().length);
 			MetaType keyType = getMeta(paramType.getActualTypeArguments()[0]).asType();
 			MetaType valueType = getMeta(paramType.getActualTypeArguments()[1]).asType();
 			return new MetaMapTypeImpl(null, (Class<?>) paramType.getRawType(), paramType, keyType, valueType);
@@ -149,7 +149,7 @@ public class MetaLookup {
 	}
 
 	private MetaElement allocateMetaFromCollectionType(ParameterizedType paramType) {
-		KatharsisAssert.assertEquals(1, paramType.getActualTypeArguments().length);
+		PreconditionUtil.assertEquals(1, paramType.getActualTypeArguments().length);
 		MetaType elementType = getMeta(paramType.getActualTypeArguments()[0]).asType();
 
 		boolean isSet = Set.class.isAssignableFrom((Class<?>) paramType.getRawType());

@@ -27,7 +27,7 @@ import io.katharsis.jpa.internal.meta.MetaMapAttribute;
 import io.katharsis.jpa.internal.meta.MetaMapType;
 import io.katharsis.jpa.internal.meta.MetaProjection;
 import io.katharsis.jpa.internal.meta.MetaType;
-import io.katharsis.jpa.internal.util.KatharsisAssert;
+import io.katharsis.utils.PreconditionUtil;
 
 public class MetaDataObjectImpl extends MetaTypeImpl implements MetaDataObject {
 
@@ -129,7 +129,7 @@ public class MetaDataObjectImpl extends MetaTypeImpl implements MetaDataObject {
 	@Override
 	public MetaAttribute getAttribute(String name) {
 		MetaAttributeImpl attr = attrMap.get(name);
-		KatharsisAssert.assertNotNull(getName() + "." + name, attr);
+		PreconditionUtil.assertNotNull(getName() + "." + name, attr);
 		return attr;
 	}
 

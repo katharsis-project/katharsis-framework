@@ -235,6 +235,7 @@
                 <module>katharsis-vertx</module>
                 <module>katharsis-client</module>
                 <module>katharsis-jpa</module>
+                <module>katharsis-validator</module>
                 <module>katharsis-examples</module>
             </modules>
         </profile>

@@ -6,13 +6,13 @@ import java.util.Set;
 import io.katharsis.jpa.internal.meta.MetaAttribute;
 import io.katharsis.jpa.internal.meta.MetaEntity;
 import io.katharsis.jpa.internal.meta.MetaKey;
-import io.katharsis.jpa.internal.util.KatharsisAssert;
 import io.katharsis.jpa.query.JpaQuery;
 import io.katharsis.jpa.query.JpaQueryExecutor;
 import io.katharsis.queryspec.FilterSpec;
 import io.katharsis.queryspec.IncludeSpec;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.SortSpec;
+import io.katharsis.utils.PreconditionUtil;
 
 public class JpaRepositoryUtils {
 
@@ -25,8 +25,8 @@ public class JpaRepositoryUtils {
 	 */
 	public static MetaAttribute getPrimaryKeyAttr(MetaEntity meta) {
 		MetaKey primaryKey = meta.getPrimaryKey();
-		KatharsisAssert.assertNotNull(primaryKey);
-		KatharsisAssert.assertEquals(1, primaryKey.getElements().size());
+		PreconditionUtil.assertNotNull(primaryKey);
+		PreconditionUtil.assertEquals(1, primaryKey.getElements().size());
 		return primaryKey.getElements().get(0);
 	}
 
