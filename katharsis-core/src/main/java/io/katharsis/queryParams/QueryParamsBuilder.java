@@ -54,7 +54,7 @@ public class QueryParamsBuilder {
         } catch (KatharsisException e) {
             throw e;
         } catch (RuntimeException e) {
-            throw new ParametersDeserializationException(e.getMessage());
+            throw new ParametersDeserializationException(e.getMessage(), e);
         }
     }
 }
