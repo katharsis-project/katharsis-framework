@@ -28,11 +28,12 @@ public class DefaultQuerySpecConverter implements QuerySpecConverter {
 
 	private TypeParser typeParser = new TypeParser();
 
-	private FilterOperatorRegistry operatorRegistry;
+	private DefaultQuerySpecDeserializer deserializer;
 
-	public DefaultQuerySpecConverter(ResourceRegistry resourceRegistry, FilterOperatorRegistry operatorRegistry) {
+
+	public DefaultQuerySpecConverter(ResourceRegistry resourceRegistry) {
 		this.resourceRegistry = resourceRegistry;
-		this.operatorRegistry = operatorRegistry;
+		this.deserializer = new DefaultQuerySpecDeserializer();
 	}
 
 	@Override
@@ -93,7 +94,7 @@ public class DefaultQuerySpecConverter implements QuerySpecConverter {
 		// find operation
 		FilterOperator filterOp = null;
 		String attributePathString = parameterName;
-		for (FilterOperator op : operatorRegistry.getAll()) {
+		for (FilterOperator op : deserializer.getSupportedOperators()) {
 			String opSuffix = "." + op.toString().toLowerCase().replace("_", "");
 			if (parameterName.toLowerCase().endsWith(opSuffix)) {
 				attributePathString = parameterName.substring(0, parameterName.length() - opSuffix.length());
@@ -102,7 +103,7 @@ public class DefaultQuerySpecConverter implements QuerySpecConverter {
 			}
 		}
 		if (filterOp == null) {
-			filterOp = operatorRegistry.getDefaultOperator();
+			filterOp = deserializer.getDefaultOperator();
 		}
 
 		List<String> attributePath = splitPath(attributePathString);

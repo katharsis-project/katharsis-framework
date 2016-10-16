@@ -96,12 +96,12 @@ public class IncludedRelationshipExtractor {
     }
 
     private boolean isFieldIncluded(BaseResponseContext response, String fieldName) {
-        if (response.getQueryParams() == null ||
-                response.getQueryParams().getIncludedRelations() == null ||
-                response.getQueryParams().getIncludedRelations().getParams() == null) {
+        if (response.getQueryAdapter() == null ||
+                response.getQueryAdapter().getIncludedRelations() == null ||
+                response.getQueryAdapter().getIncludedRelations().getParams() == null) {
             return false;
         }
-        IncludedRelationsParams includedRelationsParams = response.getQueryParams().getIncludedRelations().getParams().get(response.getJsonPath().getElementName());
+        IncludedRelationsParams includedRelationsParams = response.getQueryAdapter().getIncludedRelations().getParams().get(response.getJsonPath().getElementName());
         if (includedRelationsParams == null ||
                 includedRelationsParams.getParams() == null) {
             return false;
@@ -133,10 +133,10 @@ public class IncludedRelationshipExtractor {
 
     private void populateIncludedRelationships(Object resource, BaseResponseContext response, Map<ResourceDigest, Container> includedResources)
             throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
-        if (response.getQueryParams() == null || response.getJsonPath() == null) {
+        if (response.getQueryAdapter() == null || response.getJsonPath() == null) {
             return;
         }
-        TypedParams<IncludedRelationsParams> includedRelations = response.getQueryParams()
+        TypedParams<IncludedRelationsParams> includedRelations = response.getQueryAdapter()
                 .getIncludedRelations();
         String elementName = response.getJsonPath()
                 .getElementName();

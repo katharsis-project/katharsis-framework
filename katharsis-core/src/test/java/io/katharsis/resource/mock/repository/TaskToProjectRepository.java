@@ -6,69 +6,51 @@ import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.repository.util.Relation;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-public class TaskToProjectRepository implements RelationshipRepository<Task, Long, Project, Long> {
+public class TaskToProjectRepository extends AbstractRelationShipRepository<Task> implements RelationshipRepository<Task, Long, Project, Long> {
 
-    private static final ConcurrentMap<Relation<Task>, Integer> THREAD_LOCAL_REPOSITORY = new ConcurrentHashMap<>();
+    private final static ConcurrentMap<Relation<Task>, Integer> STATIC_REPOSITORY = new ConcurrentHashMap<>();
+    
+    public static void clear(){
+    	STATIC_REPOSITORY.clear();
+    }
+
+    @Override
+    ConcurrentMap<Relation<Task>, Integer> getRepo() {
+        return STATIC_REPOSITORY;
+    }
 
     @Override
     public void setRelation(Task source, Long targetId, String fieldName) {
-        removeRelations(fieldName);
-        if (targetId != null) {
-            THREAD_LOCAL_REPOSITORY.put(new Relation<>(source, targetId, fieldName), 0);
-        }
+        super.setRelation(source, targetId, fieldName);
     }
 
     @Override
     public void setRelations(Task source, Iterable<Long> targetIds, String fieldName) {
-        removeRelations(fieldName);
-        if (targetIds != null) {
-            for (Long targetId : targetIds) {
-                THREAD_LOCAL_REPOSITORY.put(new Relation<>(source, targetId, fieldName), 0);
-            }
-        }
+        super.setRelations(source, targetIds, fieldName);
     }
 
     @Override
     public void addRelations(Task source, Iterable<Long> targetIds, String fieldName) {
-        for (Long targetId : targetIds) {
-            THREAD_LOCAL_REPOSITORY.put(new Relation<>(source, targetId, fieldName), 0);
-        }
+        super.addRelations(source, targetIds, fieldName);
     }
 
     @Override
     public void removeRelations(Task source, Iterable<Long> targetIds, String fieldName) {
-        for (Long targetId : targetIds) {
-            Iterator<Relation<Task>> iterator = THREAD_LOCAL_REPOSITORY.keySet().iterator();
-            while (iterator.hasNext()) {
-                Relation<Task> next = iterator.next();
-                if (next.getFieldName().equals(fieldName) && next.getTargetId().equals(targetId)) {
-                    iterator.remove();
-                }
-            }
-        }
-    }
-
-    public void removeRelations(String fieldName) {
-        Iterator<Relation<Task>> iterator = THREAD_LOCAL_REPOSITORY.keySet().iterator();
-        while (iterator.hasNext()) {
-            Relation<Task> next = iterator.next();
-            if (next.getFieldName().equals(fieldName)) {
-                iterator.remove();
-            }
-        }
+        super.removeRelations(source, targetIds, fieldName);
     }
 
     @Override
     public Project findOneTarget(Long sourceId, String fieldName, QueryParams queryParams) {
-        for (Relation<Task> relation : THREAD_LOCAL_REPOSITORY.keySet()) {
+        Map<Relation<Task>, Integer> repo = getRepo();
+        for (Relation<Task> relation : repo.keySet()) {
             if (relation.getSource().getId().equals(sourceId) &&
-                relation.getFieldName().equals(fieldName)) {
+                    relation.getFieldName().equals(fieldName)) {
                 Project project = new Project();
                 project.setId((Long) relation.getTargetId());
                 return project;
@@ -80,7 +62,7 @@ public class TaskToProjectRepository implements RelationshipRepository<Task, Lon
     @Override
     public Iterable<Project> findManyTargets(Long sourceId, String fieldName, QueryParams queryParams) {
         List<Project> projects = new LinkedList<>();
-        for (Relation<Task> relation : THREAD_LOCAL_REPOSITORY.keySet()) {
+        for (Relation<Task> relation : getRepo().keySet()) {
             if (relation.getSource().getId().equals(sourceId) && relation.getFieldName().equals(fieldName)) {
                 Project project = new Project();
                 project.setId((Long) relation.getTargetId());

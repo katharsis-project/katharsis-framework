@@ -42,6 +42,34 @@ public class QuerySpecTest {
 	}
 
 	@Test
+	public void testDuplicate() {
+		QuerySpec spec = new QuerySpec(Project.class);
+		spec.addFilter(new FilterSpec(Arrays.asList("filterAttr"), FilterOperator.EQ, "test"));
+		spec.addSort(new SortSpec(Arrays.asList("sortAttr"), Direction.ASC));
+		spec.includeField(Arrays.asList("includedField"));
+		spec.includeRelation(Arrays.asList("includedRelation"));
+		spec.setLimit(2L);
+		spec.setOffset(1L);
+
+		QuerySpec duplicate = spec.duplicate();
+		Assert.assertNotSame(spec, duplicate);
+		Assert.assertEquals(spec, duplicate);
+	}
+
+	@Test
+	public void testDuplicateWithRelations() {
+		QuerySpec spec = new QuerySpec(Project.class);
+		QuerySpec relatedSpec = new QuerySpec(Task.class);
+		spec.putRelatedSpec(Task.class, relatedSpec);
+
+		QuerySpec duplicate = spec.duplicate();
+		Assert.assertNotSame(spec, duplicate);
+		Assert.assertEquals(spec, duplicate);
+		Assert.assertNotSame(spec.getQuerySpec(Task.class), duplicate.getQuerySpec(Task.class));
+		Assert.assertEquals(spec.getQuerySpec(Task.class), duplicate.getQuerySpec(Task.class));
+	}
+
+	@Test
 	public void testEquals() {
 		QuerySpec spec1 = new QuerySpec(Task.class);
 		spec1.addFilter(new FilterSpec(Arrays.asList("filterAttr"), FilterOperator.EQ, "test"));
@@ -65,6 +93,7 @@ public class QuerySpecTest {
 
 		spec2.getIncludedFields().clear();
 		Assert.assertNotEquals(spec1, spec2);
+		Assert.assertNotEquals(spec1.hashCode(), spec2.hashCode());
 		spec2.includeField(Arrays.asList("includedField"));
 		Assert.assertEquals(spec1, spec2);
 
@@ -88,6 +117,7 @@ public class QuerySpecTest {
 		spec2.setLimit(null);
 		Assert.assertEquals(spec1, spec2);
 
+		Assert.assertNotEquals(spec1, "someOtherType");
 	}
 
 }

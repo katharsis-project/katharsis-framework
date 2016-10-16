@@ -1,9 +1,18 @@
 package io.katharsis.dispatcher.controller.resource;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+
+import java.util.Collections;
+
+import org.junit.Test;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.katharsis.dispatcher.controller.BaseControllerTest;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.QueryParams;
+import io.katharsis.queryspec.internal.QueryParamsAdapter;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.dto.ResourceRelationships;
@@ -18,12 +27,6 @@ import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponseContext;
 import io.katharsis.response.HttpStatus;
 import io.katharsis.response.ResourceResponseContext;
-import org.junit.Test;
-
-import java.util.Collections;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class RelationshipsResourceDeleteTest extends BaseControllerTest {
 
@@ -73,7 +76,7 @@ public class RelationshipsResourceDeleteTest extends BaseControllerTest {
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
 
         // WHEN -- adding a task
-        BaseResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParams(), null, newTaskBody);
+        BaseResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(new QueryParams()), null, newTaskBody);
 
         // THEN
         assertThat(taskResponse.getResponse().getEntity()).isExactlyInstanceOf(Task.class);
@@ -92,7 +95,7 @@ public class RelationshipsResourceDeleteTest extends BaseControllerTest {
         JsonPath projectPath = pathBuilder.buildPath("/projects");
 
         // WHEN -- adding a project
-        ResourceResponseContext projectResponse = resourcePost.handle(projectPath, new QueryParams(), null, newProjectBody);
+        ResourceResponseContext projectResponse = resourcePost.handle(projectPath, new QueryParamsAdapter(new QueryParams()), null, newProjectBody);
 
         // THEN
         assertThat(projectResponse.getResponse().getEntity()).isExactlyInstanceOf(Project.class);
@@ -114,7 +117,7 @@ public class RelationshipsResourceDeleteTest extends BaseControllerTest {
         RelationshipsResourcePost relationshipsResourcePost = new RelationshipsResourcePost(resourceRegistry, typeParser);
 
         // WHEN -- adding a relation between task and project
-        BaseResponseContext projectRelationshipResponse = relationshipsResourcePost.handle(savedTaskPath, new QueryParams(), null, newTaskToProjectBody);
+        BaseResponseContext projectRelationshipResponse = relationshipsResourcePost.handle(savedTaskPath, new QueryParamsAdapter(new QueryParams()), null, newTaskToProjectBody);
         assertThat(projectRelationshipResponse).isNotNull();
 
         // THEN
@@ -128,7 +131,7 @@ public class RelationshipsResourceDeleteTest extends BaseControllerTest {
         RelationshipsResourceDelete sut = new RelationshipsResourceDelete(resourceRegistry, typeParser);
 
         // WHEN -- removing a relation between task and project
-        BaseResponseContext result = sut.handle(savedTaskPath, new QueryParams(), null, newTaskToProjectBody);
+        BaseResponseContext result = sut.handle(savedTaskPath, new QueryParamsAdapter(new QueryParams()), null, newTaskToProjectBody);
         assertThat(result).isNotNull();
 
         // THEN
@@ -151,7 +154,7 @@ public class RelationshipsResourceDeleteTest extends BaseControllerTest {
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
 
         // WHEN -- adding a user
-        BaseResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParams(), null, newUserBody);
+        BaseResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(new QueryParams()), null, newUserBody);
 
         // THEN
         assertThat(taskResponse.getResponse().getEntity()).isExactlyInstanceOf(User.class);
@@ -170,7 +173,7 @@ public class RelationshipsResourceDeleteTest extends BaseControllerTest {
         JsonPath projectPath = pathBuilder.buildPath("/projects");
 
         // WHEN -- adding a project
-        ResourceResponseContext projectResponse = resourcePost.handle(projectPath, new QueryParams(), null, newProjectBody);
+        ResourceResponseContext projectResponse = resourcePost.handle(projectPath, new QueryParamsAdapter(new QueryParams()), null, newProjectBody);
 
         // THEN
         assertThat(projectResponse.getResponse().getEntity()).isExactlyInstanceOf(Project.class);
@@ -192,7 +195,7 @@ public class RelationshipsResourceDeleteTest extends BaseControllerTest {
         RelationshipsResourcePost relationshipsResourcePost = new RelationshipsResourcePost(resourceRegistry, typeParser);
 
         // WHEN -- adding a relation between user and project
-        BaseResponseContext projectRelationshipResponse = relationshipsResourcePost.handle(savedTaskPath, new QueryParams(), null, newTaskToProjectBody);
+        BaseResponseContext projectRelationshipResponse = relationshipsResourcePost.handle(savedTaskPath, new QueryParamsAdapter(new QueryParams()), null, newTaskToProjectBody);
         assertThat(projectRelationshipResponse).isNotNull();
 
         // THEN
@@ -206,7 +209,7 @@ public class RelationshipsResourceDeleteTest extends BaseControllerTest {
         RelationshipsResourceDelete sut = new RelationshipsResourceDelete(resourceRegistry, typeParser);
 
         // WHEN -- removing a relation between task and project
-        BaseResponseContext result = sut.handle(savedTaskPath, new QueryParams(), null, newTaskToProjectBody);
+        BaseResponseContext result = sut.handle(savedTaskPath, new QueryParamsAdapter(new QueryParams()), null, newTaskToProjectBody);
         assertThat(result).isNotNull();
 
         // THEN

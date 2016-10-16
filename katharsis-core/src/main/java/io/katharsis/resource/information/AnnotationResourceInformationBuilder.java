@@ -1,5 +1,22 @@
 package io.katharsis.resource.information;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
@@ -22,23 +39,6 @@ import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.field.FieldOrderedComparator;
 import io.katharsis.utils.ClassUtils;
 import io.katharsis.utils.java.Optional;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 
 /**
  * A builder which creates ResourceInformation instances of a specific class. It extracts information about a resource
@@ -354,6 +354,10 @@ public class AnnotationResourceInformationBuilder implements ResourceInformation
 		}
 
     	public static LookupIncludeBehavior getLookupIncludeBehavior(List<Annotation> annotations) {
+    		return getLookupIncludeBehavior(annotations, LookupIncludeBehavior.NONE);
+    	}
+    	
+    	public static LookupIncludeBehavior getLookupIncludeBehavior(List<Annotation> annotations, LookupIncludeBehavior defaultBehavior) {
     		for (Annotation annotation : annotations) {
     			 if(annotation instanceof JsonApiLookupIncludeAutomatically){
     				 JsonApiLookupIncludeAutomatically includeAnnotation = (JsonApiLookupIncludeAutomatically) annotation;
@@ -363,7 +367,7 @@ public class AnnotationResourceInformationBuilder implements ResourceInformation
     					 return LookupIncludeBehavior.AUTOMATICALLY_WHEN_NULL;
     			 }
     		}
-    		return LookupIncludeBehavior.NONE;
+    		return defaultBehavior;
 		}
 
     	public static boolean isLazy(List<Annotation> annotations) {

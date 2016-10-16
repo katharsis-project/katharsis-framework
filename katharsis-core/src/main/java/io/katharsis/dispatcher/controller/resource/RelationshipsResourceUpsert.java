@@ -2,7 +2,7 @@ package io.katharsis.dispatcher.controller.resource;
 
 import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.dispatcher.controller.HttpMethod;
-import io.katharsis.queryParams.QueryParams;
+import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.RequestBody;
@@ -51,11 +51,11 @@ public abstract class RelationshipsResourceUpsert extends BaseController {
      * @param relationshipIdType             {@link Class} class of the relationship's id field
      * @param elementName                    field's name
      * @param dataBodies                     Data bodies with relationships
-     * @param queryParams                    query params
+     * @param queryAdapter                   QueryAdapter
      * @param relationshipRepositoryForClass Relationship repository
      */
     protected abstract void processToManyRelationship(Object resource, Class<? extends Serializable> relationshipIdType,
-                                                      String elementName, Iterable<DataBody> dataBodies, QueryParams queryParams,
+                                                      String elementName, Iterable<DataBody> dataBodies, QueryAdapter queryAdapter,
                                                       RelationshipRepositoryAdapter relationshipRepositoryForClass);
 
     /**
@@ -65,11 +65,11 @@ public abstract class RelationshipsResourceUpsert extends BaseController {
      * @param relationshipIdType             {@link Class} class of the relationship's id field
      * @param elementName                    field's name
      * @param dataBody                       Data body with a relationship
-     * @param queryParams                    query params
+     * @param queryAdapter                   QueryAdapter
      * @param relationshipRepositoryForClass Relationship repository
      */
     protected abstract void processToOneRelationship(Object resource, Class<? extends Serializable> relationshipIdType,
-                                                     String elementName, DataBody dataBody, QueryParams queryParams,
+                                                     String elementName, DataBody dataBody, QueryAdapter queryAdapter,
                                                      RelationshipRepositoryAdapter relationshipRepositoryForClass);
 
     @Override
@@ -80,8 +80,8 @@ public abstract class RelationshipsResourceUpsert extends BaseController {
     }
 
     @Override
-    public final BaseResponseContext handle(JsonPath jsonPath, QueryParams queryParams,
-                                               RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody) {
+    public final BaseResponseContext handle(JsonPath jsonPath, QueryAdapter queryAdapter,
+                                            RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody) {
         String resourceName = jsonPath.getResourceName();
         PathIds resourceIds = jsonPath.getIds();
         RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
@@ -95,38 +95,38 @@ public abstract class RelationshipsResourceUpsert extends BaseController {
 
         Serializable castedResourceId = getResourceId(resourceIds, registryEntry);
         ResourceField relationshipField = registryEntry.getResourceInformation().findRelationshipFieldByName(jsonPath
-            .getElementName());
+                .getElementName());
         if (relationshipField == null) {
             throw new ResourceFieldNotFoundException(jsonPath.getElementName());
         }
         ResourceRepositoryAdapter resourceRepository = registryEntry.getResourceRepository(parameterProvider);
         @SuppressWarnings("unchecked")
-        JsonApiResponse response = resourceRepository.findOne(castedResourceId, queryParams);
+        JsonApiResponse response = resourceRepository.findOne(castedResourceId, queryAdapter);
         Object resource = extractResource(response);
 
         Class<?> baseRelationshipFieldClass = relationshipField.getType();
         Class<?> relationshipFieldClass = Generics
-            .getResourceClass(relationshipField.getGenericType(), baseRelationshipFieldClass);
+                .getResourceClass(relationshipField.getGenericType(), baseRelationshipFieldClass);
         @SuppressWarnings("unchecked") Class<? extends Serializable> relationshipIdType = (Class<? extends Serializable>) resourceRegistry
                 .getEntry(relationshipFieldClass).getResourceInformation().getIdField().getType();
 
         @SuppressWarnings("unchecked")
         RelationshipRepositoryAdapter relationshipRepositoryForClass = registryEntry
-            .getRelationshipRepositoryForClass(relationshipFieldClass, parameterProvider);
+                .getRelationshipRepositoryForClass(relationshipFieldClass, parameterProvider);
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
             if (!requestBody.isMultiple()) {
                 throw new RequestBodyException(HttpMethod.POST, resourceName, "Non-multiple data in body");
             }
             Iterable<DataBody> dataBodies = requestBody.getMultipleData();
-            processToManyRelationship(resource, relationshipIdType, jsonPath.getElementName(), dataBodies, queryParams,
-                relationshipRepositoryForClass);
+            processToManyRelationship(resource, relationshipIdType, jsonPath.getElementName(), dataBodies, queryAdapter,
+                    relationshipRepositoryForClass);
         } else {
             if (requestBody.isMultiple()) {
                 throw new RequestBodyException(HttpMethod.POST, resourceName, "Multiple data in body");
             }
             DataBody dataBody = requestBody.getSingleData();
-            processToOneRelationship(resource, relationshipIdType, jsonPath.getElementName(), dataBody, queryParams,
-                relationshipRepositoryForClass);
+            processToOneRelationship(resource, relationshipIdType, jsonPath.getElementName(), dataBody, queryAdapter,
+                    relationshipRepositoryForClass);
         }
 
         return new ResourceResponseContext(response, HttpStatus.NO_CONTENT_204);

@@ -63,8 +63,8 @@ public class RegistryEntry<T> {
         if(repoInstance instanceof ResourceRegistryAware){
         	((ResourceRegistryAware)repoInstance).setResourceRegistry(resourceRegistry);
         }
-        
-        return new ResourceRepositoryAdapter(repoInstance);
+
+        return new ResourceRepositoryAdapter(resourceInformation, resourceRegistry, repoInstance);
     }
 
     public List<ResponseRelationshipEntry<T, ?>> getRelationshipEntries() {
@@ -96,7 +96,7 @@ public class RegistryEntry<T> {
         	((ResourceRegistryAware)repoInstance).setResourceRegistry(resourceRegistry);
         }
          
-        return new RelationshipRepositoryAdapter(repoInstance);
+        return new RelationshipRepositoryAdapter(resourceInformation, resourceRegistry, repoInstance);
     }
 
     public ResourceInformation getResourceInformation() {

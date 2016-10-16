@@ -3,6 +3,7 @@ package io.katharsis.dispatcher.controller.resource;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.QueryParams;
+import io.katharsis.queryspec.internal.QueryParamsAdapter;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.dto.ResourceRelationships;
@@ -79,7 +80,7 @@ public class FieldResourcePostTest extends BaseControllerTest {
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper);
 
         // WHEN
-        BaseResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParams(), null, newTaskBody);
+        BaseResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(new QueryParams()), null, newTaskBody);
 
         // THEN
         assertThat(taskResponse.getResponse().getEntity()).isExactlyInstanceOf(Task.class);
@@ -99,7 +100,7 @@ public class FieldResourcePostTest extends BaseControllerTest {
         FieldResourcePost sut = new FieldResourcePost(resourceRegistry, typeParser, objectMapper);
 
         // WHEN
-        ResourceResponseContext projectResponse = sut.handle(projectPath, new QueryParams(), null, newProjectBody);
+        ResourceResponseContext projectResponse = sut.handle(projectPath, new QueryParamsAdapter(new QueryParams()), null, newProjectBody);
 
         // THEN
         assertThat(projectResponse.getHttpStatus()).isEqualTo(HttpStatus.CREATED_201);
@@ -128,7 +129,7 @@ public class FieldResourcePostTest extends BaseControllerTest {
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper);
 
         // WHEN
-        BaseResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParams(), null, newTaskBody);
+        BaseResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(new QueryParams()), null, newTaskBody);
 
         // THEN
         assertThat(taskResponse.getResponse().getEntity()).isExactlyInstanceOf(Task.class);
@@ -148,7 +149,7 @@ public class FieldResourcePostTest extends BaseControllerTest {
         FieldResourcePost sut = new FieldResourcePost(resourceRegistry, typeParser, objectMapper);
 
         // WHEN
-        ResourceResponseContext projectResponse = sut.handle(projectPath, new QueryParams(), null, newProjectBody);
+        ResourceResponseContext projectResponse = sut.handle(projectPath, new QueryParamsAdapter(new QueryParams()), null, newProjectBody);
 
         // THEN
         assertThat(projectResponse.getHttpStatus()).isEqualTo(HttpStatus.CREATED_201);

@@ -23,7 +23,9 @@ import io.katharsis.resource.registry.ResourceRegistryBuilder;
 public abstract class AbstractQuerySpecTest {
 
 	protected DefaultQuerySpecConverter parser;
+
 	protected QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
+
 	protected ResourceRegistry resourceRegistry;
 
 	@Before
@@ -33,17 +35,13 @@ public abstract class AbstractQuerySpecTest {
 				new ResourceFieldNameTransformer());
 		ResourceRegistryBuilder resourceRegistryBuilder = new ResourceRegistryBuilder(jsonServiceLocator,
 				resourceInformationBuilder);
-		DefaultResourceLookup resourceLookup = new DefaultResourceLookup(Task.class.getPackage().getName() + "," + getClass().getPackage().getName());
+		DefaultResourceLookup resourceLookup = newResourceLookup();
 		resourceRegistry = resourceRegistryBuilder.build(resourceLookup, new ConstantServiceUrlProvider("http://127.0.0.1"));
-		FilterOperatorRegistry operators = new FilterOperatorRegistry();
-		operators.register(FilterOperator.EQ);
-		operators.register(FilterOperator.NEQ);
-		operators.register(FilterOperator.GE);
-		operators.register(FilterOperator.GT);
-		operators.register(FilterOperator.LE);
-		operators.register(FilterOperator.LT);
-		operators.setDefaultOperator(FilterOperator.EQ);
-		parser = new DefaultQuerySpecConverter(resourceRegistry, operators);
+		parser = new DefaultQuerySpecConverter(resourceRegistry);
+	}
+
+	protected DefaultResourceLookup newResourceLookup() {
+		return new DefaultResourceLookup(Task.class.getPackage().getName() + "," + getClass().getPackage().getName());
 	}
 
 	protected static void addParams(Map<String, Set<String>> params, String key, String value) {

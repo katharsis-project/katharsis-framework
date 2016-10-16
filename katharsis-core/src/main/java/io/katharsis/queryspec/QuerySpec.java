@@ -1,21 +1,30 @@
 package io.katharsis.queryspec;
 
+import io.katharsis.utils.CompareUtils;
+
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import io.katharsis.utils.CompareUtils;
+import java.util.Map.Entry;
 
 public class QuerySpec {
 
 	private Class<?> resourceClass;
+
 	private Long limit = null;
+
 	private long offset = 0;
+
 	private List<FilterSpec> filters = new ArrayList<>();
+
 	private List<SortSpec> sort = new ArrayList<>();
+
 	private List<IncludeFieldSpec> includedFields = new ArrayList<>();
+
 	private List<IncludeRelationSpec> includedRelations = new ArrayList<>();
+
 	private Map<Class<?>, QuerySpec> relatedSpecs = new HashMap<>();
 
 	public QuerySpec(Class<?> resourceClass) {
@@ -28,14 +37,15 @@ public class QuerySpec {
 
 	/**
 	 * Evaluates this querySpec against the provided list in memory. It supports
-	 * sorting, filter and paging. 
-	 * 
+	 * sorting, filter and paging.
+	 * <p>
 	 * TODO currently ignores relations and inclusions, has room for improvements
-	 * 
+	 *
+	 * @param <T>       the type of resources in this Iterable
 	 * @param resources resources
 	 * @return sorted, filtered list.
 	 */
-	public <T> List<T> apply(List<T> resources) {
+	public <T> List<T> apply(Iterable<T> resources) {
 		InMemoryEvaluator eval = new InMemoryEvaluator();
 		return eval.eval(resources, this);
 	}
@@ -63,9 +73,9 @@ public class QuerySpec {
 		QuerySpec other = (QuerySpec) obj;
 		return CompareUtils.isEquals(filters, other.filters) // NOSONAR
 				&& CompareUtils.isEquals(includedFields, other.includedFields)
-				&& CompareUtils.isEquals(includedRelations, other.includedRelations)
-				&& CompareUtils.isEquals(limit, other.limit) && CompareUtils.isEquals(offset, other.offset)
-				&& CompareUtils.isEquals(relatedSpecs, other.relatedSpecs) && CompareUtils.isEquals(sort, other.sort);
+				&& CompareUtils.isEquals(includedRelations, other.includedRelations) && CompareUtils.isEquals(limit, other.limit)
+				&& CompareUtils.isEquals(offset, other.offset) && CompareUtils.isEquals(relatedSpecs, other.relatedSpecs)
+				&& CompareUtils.isEquals(sort, other.sort);
 	}
 
 	public Long getLimit() {
@@ -143,7 +153,7 @@ public class QuerySpec {
 	/**
 	 * @param resourceClass resource class
 	 * @return QuerySpec for the given class, either the root QuerySpec or any
-	 *         related QuerySpec.
+	 * related QuerySpec.
 	 */
 	public QuerySpec getQuerySpec(Class<?> resourceClass) {
 		if (resourceClass.equals(this.resourceClass))
@@ -165,5 +175,22 @@ public class QuerySpec {
 			throw new IllegalArgumentException("cannot set related spec with root resourceClass");
 		}
 		relatedSpecs.put(relatedResourceClass, relatedSpec);
+	}
+
+	public QuerySpec duplicate() {
+		QuerySpec copy = new QuerySpec(resourceClass);
+		copy.limit = limit;
+		copy.offset = offset;
+		copy.includedFields.addAll(includedFields);
+		copy.includedRelations.addAll(includedRelations);
+		copy.sort.addAll(sort);
+		copy.filters.addAll(filters);
+
+		Iterator<Entry<Class<?>, QuerySpec>> iterator = relatedSpecs.entrySet().iterator();
+		while (iterator.hasNext()) {
+			Entry<Class<?>, QuerySpec> entry = iterator.next();
+			copy.relatedSpecs.put(entry.getKey(), entry.getValue().duplicate());
+		}
+		return copy;
 	}
 }

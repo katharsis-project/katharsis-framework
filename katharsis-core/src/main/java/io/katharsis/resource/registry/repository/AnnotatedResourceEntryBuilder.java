@@ -1,11 +1,12 @@
 package io.katharsis.resource.registry.repository;
 
+import java.io.Serializable;
+
 import io.katharsis.repository.ParametersFactory;
 import io.katharsis.repository.RepositoryInstanceBuilder;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.repository.annotated.AnnotatedResourceRepositoryAdapter;
-
-import java.io.Serializable;
+import io.katharsis.resource.registry.ResourceRegistry;
 
 public class AnnotatedResourceEntryBuilder<T, ID extends Serializable> implements ResourceEntry<T, ID> {
     private final RepositoryInstanceBuilder repositoryInstanceBuilder;

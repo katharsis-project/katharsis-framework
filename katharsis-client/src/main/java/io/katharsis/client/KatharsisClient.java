@@ -29,6 +29,7 @@ import io.katharsis.resource.registry.repository.ResponseRelationshipEntry;
 import io.katharsis.resource.registry.responseRepository.RelationshipRepositoryAdapter;
 import io.katharsis.resource.registry.responseRepository.ResourceRepositoryAdapter;
 import io.katharsis.response.BaseResponseContext;
+import io.katharsis.utils.JsonApiUrlBuilder;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -45,7 +46,7 @@ public class KatharsisClient {
 	private ResourceRegistry resourceRegistry;
 
 	private ModuleRegistry moduleRegistry;
-	private RequestUrlBuilder urlBuilder;
+	private JsonApiUrlBuilder urlBuilder;
 
 	private boolean initialized = false;
 
@@ -57,7 +58,7 @@ public class KatharsisClient {
 	 */
 	public KatharsisClient(String serviceUrl, String resourceSearchPackage) {
 		resourceRegistry = new ResourceRegistry(new ConstantServiceUrlProvider(normalize(serviceUrl)));
-		urlBuilder = new RequestUrlBuilder(resourceRegistry);
+		urlBuilder = new JsonApiUrlBuilder(resourceRegistry);
 
 		objectMapper = new ObjectMapper();
 		objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
@@ -123,13 +124,14 @@ public class KatharsisClient {
 				return repositoryStub;
 			}
 		};
-		ResourceEntry<T, ID> resourceEntry = new DirectResponseResourceEntry<T, ID>(repositoryInstanceBuilder);
+		ResourceEntry<T, ID> resourceEntry = new DirectResponseResourceEntry<>(repositoryInstanceBuilder);
 		Set<ResourceField> relationshipFields = resourceInformation.getRelationshipFields();
 		List<ResponseRelationshipEntry<T, ?>> relationshipEntries = new ArrayList<>();
-		RegistryEntry<T> registryEntry = new RegistryEntry<T>(resourceInformation, resourceEntry, relationshipEntries);
+		RegistryEntry<T> registryEntry = new RegistryEntry<>(resourceInformation, resourceEntry, relationshipEntries);
 
 		for (ResourceField relationshipField : relationshipFields) {
-			final Class<?> targetClass = relationshipField.getType();
+			final Class<?> targetClass = relationshipField.getElementType();
+			
 			final RelationshipRepositoryStubImpl relationshipRepositoryStub = new RelationshipRepositoryStubImpl(this,
 					resourceClass, targetClass, resourceInformation, urlBuilder, registryEntry);
 			RepositoryInstanceBuilder<RelationshipRepository> relationshipRepositoryInstanceBuilder = new RepositoryInstanceBuilder<RelationshipRepository>(
@@ -166,6 +168,21 @@ public class KatharsisClient {
 		ResourceRepositoryAdapter repositoryAdapter = entry.getResourceRepository(null);
 		return (ResourceRepositoryStub<T, ID>) repositoryAdapter.getResourceRepository();
 	}
+	
+	/**
+	 * @param resourceClass resource class
+	 * @return stub for the given resourceClass
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public <T, ID extends Serializable> QuerySpecResourceRepositoryStub<T, ID> getQuerySpecRepository(Class<T> resourceClass) {
+		init();
+
+		RegistryEntry<T> entry = resourceRegistry.getEntry(resourceClass);
+
+		// TODO fix this in katharsis, should be able to get original resource
+		ResourceRepositoryAdapter repositoryAdapter = entry.getResourceRepository(null);
+		return (QuerySpecResourceRepositoryStub<T, ID>) repositoryAdapter.getResourceRepository();
+	}
 
 	/**
 	 * @param sourceClass source class
@@ -182,6 +199,23 @@ public class KatharsisClient {
 
 		RelationshipRepositoryAdapter repositoryAdapter = entry.getRelationshipRepositoryForClass(targetClass, null);
 		return (RelationshipRepositoryStub<T, ID, D, DID>) repositoryAdapter.getRelationshipRepository();
+	}
+	
+	/**
+	 * @param sourceClass source class
+	 * @param targetClass target class
+	 * @return stub for the relationship between the given source and target
+	 *         class
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public <T, ID extends Serializable, D, DID extends Serializable> QuerySpecRelationshipRepositoryStub<T, ID, D, DID> getQuerySpecRepository(
+			Class<T> sourceClass, Class<D> targetClass) {
+		init();
+
+		RegistryEntry<T> entry = resourceRegistry.getEntry(sourceClass);
+
+		RelationshipRepositoryAdapter repositoryAdapter = entry.getRelationshipRepositoryForClass(targetClass, null);
+		return (QuerySpecRelationshipRepositoryStub<T, ID, D, DID>) repositoryAdapter.getRelationshipRepository();
 	}
 
 	/**

@@ -1,5 +1,7 @@
 package io.katharsis.utils;
 
+import io.katharsis.repository.exception.RepositoryMethodException;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -55,7 +57,6 @@ public class PropertyUtils {
      * @param beanClass  bean to be accessed
      * @param field bean's fieldName
      * @return bean's property class
-     * @return
      */
     public static Class<?> getPropertyClass(Class<?> beanClass, String field) {
         try {
@@ -187,7 +188,11 @@ public class PropertyUtils {
         try {
             return beanClass.getMethod("get" + upperCaseName);
         } catch (NoSuchMethodException e) {
-            return beanClass.getMethod("is" + upperCaseName);
+            try {
+                return beanClass.getMethod("is" + upperCaseName);
+            } catch (NoSuchMethodException e1) {
+                throw new RepositoryMethodException(String.format("Unable to find accessor method for %s.%s",beanClass.getName(),fieldName));
+            }
         }
     }
 

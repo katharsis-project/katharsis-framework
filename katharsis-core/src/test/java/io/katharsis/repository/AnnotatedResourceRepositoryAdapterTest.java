@@ -1,6 +1,18 @@
 package io.katharsis.repository;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+
+import java.util.Collections;
+import java.util.List;
+
+import org.junit.Before;
+import org.junit.Test;
+
 import io.katharsis.queryParams.QueryParams;
+import io.katharsis.queryspec.internal.QueryParamsAdapter;
 import io.katharsis.repository.annotated.AnnotatedResourceRepositoryAdapter;
 import io.katharsis.repository.annotations.JsonApiDelete;
 import io.katharsis.repository.annotations.JsonApiFindAll;
@@ -12,24 +24,16 @@ import io.katharsis.repository.exception.RepositoryAnnotationNotFoundException;
 import io.katharsis.repository.exception.RepositoryMethodException;
 import io.katharsis.repository.mock.NewInstanceRepositoryMethodParameterProvider;
 import io.katharsis.resource.mock.models.Project;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.util.Collections;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
 
 public class AnnotatedResourceRepositoryAdapterTest {
     private QueryParams queryParams;
+    private QueryParamsAdapter queryAdapter;
     private ParametersFactory parameterProvider;
 
     @Before
     public void setUp() throws Exception {
         queryParams = new QueryParams();
+        queryAdapter = new QueryParamsAdapter(queryParams);
         parameterProvider = new ParametersFactory(new NewInstanceRepositoryMethodParameterProvider());
     }
 
@@ -40,7 +44,7 @@ public class AnnotatedResourceRepositoryAdapterTest {
         AnnotatedResourceRepositoryAdapter<Project, Long> sut = new AnnotatedResourceRepositoryAdapter<>(repo, parameterProvider);
 
         // WHEN
-        sut.findOne(1L, queryParams);
+        sut.findOne(1L, queryAdapter);
     }
 
     @Test(expected = RepositoryMethodException.class)
@@ -50,7 +54,7 @@ public class AnnotatedResourceRepositoryAdapterTest {
         AnnotatedResourceRepositoryAdapter<Project, Long> sut = new AnnotatedResourceRepositoryAdapter<>(repo, parameterProvider);
 
         // WHEN
-        sut.findOne(1L, queryParams);
+        sut.findOne(1L, queryAdapter);
     }
 
     @Test
@@ -60,7 +64,7 @@ public class AnnotatedResourceRepositoryAdapterTest {
         AnnotatedResourceRepositoryAdapter<Project, Long> sut = new AnnotatedResourceRepositoryAdapter<>(repo, parameterProvider);
 
         // WHEN
-        Object result = sut.findOne(1L, queryParams);
+        Object result = sut.findOne(1L, queryAdapter);
 
         // THEN
         verify(repo).findOne(eq(1L), eq(queryParams), eq(""));
@@ -75,7 +79,7 @@ public class AnnotatedResourceRepositoryAdapterTest {
         AnnotatedResourceRepositoryAdapter<Project, Long> sut = new AnnotatedResourceRepositoryAdapter<>(repo, parameterProvider);
 
         // WHEN
-        sut.findAll(queryParams);
+        sut.findAll(queryAdapter);
     }
 
     @Test
@@ -85,7 +89,7 @@ public class AnnotatedResourceRepositoryAdapterTest {
         AnnotatedResourceRepositoryAdapter<Project, Long> sut = new AnnotatedResourceRepositoryAdapter<>(repo, parameterProvider);
 
         // WHEN
-        Object result = sut.findAll(queryParams);
+        Object result = sut.findAll(queryAdapter);
 
         // THEN
         verify(repo).findAll(eq(queryParams), eq(""));
@@ -101,7 +105,7 @@ public class AnnotatedResourceRepositoryAdapterTest {
         AnnotatedResourceRepositoryAdapter<Project, Long> sut = new AnnotatedResourceRepositoryAdapter<>(repo, parameterProvider);
 
         // WHEN
-        sut.findAll(Collections.singletonList(1L), queryParams);
+        sut.findAll(Collections.singletonList(1L), queryAdapter);
     }
 
     @Test(expected = RepositoryMethodException.class)
@@ -111,7 +115,7 @@ public class AnnotatedResourceRepositoryAdapterTest {
         AnnotatedResourceRepositoryAdapter<Project, Long> sut = new AnnotatedResourceRepositoryAdapter<>(repo, parameterProvider);
 
         // WHEN
-        sut.findAll(Collections.singletonList(1L), queryParams);
+        sut.findAll(Collections.singletonList(1L), queryAdapter);
     }
 
     @Test
@@ -122,7 +126,7 @@ public class AnnotatedResourceRepositoryAdapterTest {
         List<Long> ids = Collections.singletonList(1L);
 
         // WHEN
-        Object result = sut.findAll(ids, queryParams);
+        Object result = sut.findAll(ids, queryAdapter);
 
         // THEN
         verify(repo).findAll(eq(ids), eq(queryParams), eq(""));
@@ -174,7 +178,7 @@ public class AnnotatedResourceRepositoryAdapterTest {
         AnnotatedResourceRepositoryAdapter<Project, Long> sut = new AnnotatedResourceRepositoryAdapter<>(repo, parameterProvider);
 
         // WHEN
-        sut.delete(1L, queryParams);
+        sut.delete(1L, queryAdapter);
     }
 
     @Test(expected = RepositoryMethodException.class)
@@ -184,7 +188,7 @@ public class AnnotatedResourceRepositoryAdapterTest {
         AnnotatedResourceRepositoryAdapter<Project, Long> sut = new AnnotatedResourceRepositoryAdapter<>(repo, parameterProvider);
 
         // WHEN
-        sut.delete(1L, queryParams);
+        sut.delete(1L, queryAdapter);
     }
 
     @Test
@@ -194,7 +198,7 @@ public class AnnotatedResourceRepositoryAdapterTest {
         AnnotatedResourceRepositoryAdapter<Project, Long> sut = new AnnotatedResourceRepositoryAdapter<>(repo, parameterProvider);
 
         // WHEN
-        sut.delete(1L, queryParams);
+        sut.delete(1L, queryAdapter);
 
         // THEN
         verify(repo).delete(eq(1L), eq(""));

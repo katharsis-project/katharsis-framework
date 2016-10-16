@@ -1,8 +1,10 @@
 package io.katharsis.dispatcher.controller.resource;
 
+import java.io.Serializable;
+
 import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.dispatcher.controller.HttpMethod;
-import io.katharsis.queryParams.QueryParams;
+import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
@@ -13,8 +15,6 @@ import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponseContext;
 import io.katharsis.utils.parser.TypeParser;
-
-import java.io.Serializable;
 
 public class ResourceDelete extends BaseController {
 
@@ -39,7 +39,7 @@ public class ResourceDelete extends BaseController {
     }
 
     @Override
-    public BaseResponseContext handle(JsonPath jsonPath, QueryParams queryParams,
+    public BaseResponseContext handle(JsonPath jsonPath, QueryAdapter queryAdapter,
                                          RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody) {
         String resourceName = jsonPath.getElementName();
         PathIds resourceIds = jsonPath.getIds();
@@ -55,7 +55,7 @@ public class ResourceDelete extends BaseController {
                     .getType();
             Serializable castedId = registryEntry.getResourceInformation().parseIdString(id);
             //noinspection unchecked
-            registryEntry.getResourceRepository(parameterProvider).delete(castedId, queryParams);
+            registryEntry.getResourceRepository(parameterProvider).delete(castedId, queryAdapter);
         }
 
         //TODO: Avoid nulls - use optional

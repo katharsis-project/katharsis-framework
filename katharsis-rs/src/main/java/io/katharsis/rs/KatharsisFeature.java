@@ -1,6 +1,14 @@
 package io.katharsis.rs;
 
+import javax.ws.rs.ConstrainedTo;
+import javax.ws.rs.RuntimeType;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Feature;
+import javax.ws.rs.core.FeatureContext;
+import javax.ws.rs.ext.Provider;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.katharsis.dispatcher.RequestDispatcher;
 import io.katharsis.dispatcher.registry.ControllerRegistry;
 import io.katharsis.dispatcher.registry.ControllerRegistryBuilder;
@@ -13,19 +21,22 @@ import io.katharsis.module.CoreModule;
 import io.katharsis.module.Module;
 import io.katharsis.module.ModuleRegistry;
 import io.katharsis.queryParams.QueryParamsBuilder;
+import io.katharsis.queryspec.QuerySpecDeserializer;
+import io.katharsis.queryspec.internal.QueryAdapterBuilder;
+import io.katharsis.queryspec.internal.QueryParamsAdapterBuilder;
+import io.katharsis.queryspec.internal.QuerySpecAdapterBuilder;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
-import io.katharsis.resource.registry.*;
+import io.katharsis.resource.registry.ConstantServiceUrlProvider;
+import io.katharsis.resource.registry.DefaultResourceLookup;
+import io.katharsis.resource.registry.ResourceLookup;
+import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.resource.registry.ResourceRegistryBuilder;
+import io.katharsis.resource.registry.ServiceUrlProvider;
+import io.katharsis.resource.registry.UriInfoServiceUrlProvider;
 import io.katharsis.rs.parameterProvider.RequestContextParameterProviderLookup;
 import io.katharsis.rs.parameterProvider.RequestContextParameterProviderRegistry;
 import io.katharsis.rs.parameterProvider.RequestContextParameterProviderRegistryBuilder;
 import io.katharsis.utils.parser.TypeParser;
-
-import javax.ws.rs.ConstrainedTo;
-import javax.ws.rs.RuntimeType;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Feature;
-import javax.ws.rs.core.FeatureContext;
-import javax.ws.rs.ext.Provider;
 
 /**
  * Basic Katharsis feature that initializes core classes and provides a starting point to use the framework in
@@ -41,17 +52,47 @@ public class KatharsisFeature implements Feature {
     private final JsonServiceLocator jsonServiceLocator;
     private final ObjectMapper objectMapper;
     private final QueryParamsBuilder queryParamsBuilder;
+	private final QuerySpecDeserializer querySpecDeserializer;
+	private ServiceUrlProvider customServiceUrlProvider;
+	private boolean configured;
 
     public KatharsisFeature(ObjectMapper objectMapper,
                             QueryParamsBuilder queryParamsBuilder,
                             JsonServiceLocator jsonServiceLocator) {
         this.objectMapper = objectMapper;
         this.queryParamsBuilder = queryParamsBuilder;
+        this.querySpecDeserializer = null;
         this.jsonServiceLocator = jsonServiceLocator;
         this.moduleRegistry = new ModuleRegistry();
     }
     
-    public void addModule(Module module){
+    public KatharsisFeature(ObjectMapper objectMapper,
+            QuerySpecDeserializer querySpecDeserializer,
+            JsonServiceLocator jsonServiceLocator) {
+		this.objectMapper = objectMapper;
+		this.queryParamsBuilder = null;
+		this.querySpecDeserializer = querySpecDeserializer;
+		this.jsonServiceLocator = jsonServiceLocator;
+		this.moduleRegistry = new ModuleRegistry();
+	}
+    
+    /**
+     * Sets a custom ServiceUrlProvider.
+     * 
+     * @param serviceUrlProvider
+     */
+    public void setServiceUrlProvider(ServiceUrlProvider serviceUrlProvider){
+    	checkNotConfiguredYet();
+    	this.customServiceUrlProvider = serviceUrlProvider;
+    }
+    
+    private void checkNotConfiguredYet() {
+    	if(configured){
+    		throw new IllegalStateException("cannot further modify KatharsisFeature once configured/initialized by JAX-RS");
+    	}
+	}
+
+	public void addModule(Module module){
     	moduleRegistry.addModule(module);
     }
 
@@ -73,6 +114,8 @@ public class KatharsisFeature implements Feature {
 
     @Override
     public boolean configure(FeatureContext context) {
+    	this.configured = true;
+    	
         String resourceDefaultDomain = (String) context
             .getConfiguration()
             .getProperty(KatharsisProperties.RESOURCE_DEFAULT_DOMAIN);
@@ -86,9 +129,9 @@ public class KatharsisFeature implements Feature {
         ResourceFieldNameTransformer resourceFieldNameTransformer = new ResourceFieldNameTransformer(objectMapper.getSerializationConfig());
         moduleRegistry.addModule(new CoreModule(resourceSearchPackage, resourceFieldNameTransformer));
        
-        String serviceUrl = buildServiceUrl(resourceDefaultDomain, webPathPrefix);
+        ServiceUrlProvider serviceUrlProvider = buildServiceUrlProvider(resourceDefaultDomain, webPathPrefix);
         ResourceLookup resourceLookup = createResourceLookup(context);
-        ResourceRegistry resourceRegistry = buildResourceRegistry(resourceLookup, serviceUrl);
+        ResourceRegistry resourceRegistry = buildResourceRegistry(resourceLookup, serviceUrlProvider);
 
         moduleRegistry.init(objectMapper, resourceRegistry);
         
@@ -112,7 +155,19 @@ public class KatharsisFeature implements Feature {
         return true;
     }
 
-    private RequestContextParameterProviderRegistry buildParameterProviderRegistry(RequestContextParameterProviderLookup containerRequestContextProviderLookup) {
+    private ServiceUrlProvider buildServiceUrlProvider(String resourceDefaultDomain, String webPathPrefix) {
+    	if(customServiceUrlProvider != null){
+    		return customServiceUrlProvider;
+    	}else if(resourceDefaultDomain != null){
+    		String serviceUrl = buildServiceUrl(resourceDefaultDomain, webPathPrefix);
+    		return new ConstantServiceUrlProvider(serviceUrl);
+    	}else{
+    		// serviceUrl is obtained from incoming request context
+    		return new UriInfoServiceUrlProvider();
+    	}
+	}
+
+	private RequestContextParameterProviderRegistry buildParameterProviderRegistry(RequestContextParameterProviderLookup containerRequestContextProviderLookup) {
         RequestContextParameterProviderRegistryBuilder builder = new RequestContextParameterProviderRegistryBuilder();
         return builder.build(containerRequestContextProviderLookup);
     }
@@ -126,9 +181,9 @@ public class KatharsisFeature implements Feature {
         return mapperRegistryBuilder.build(exceptionMapperLookup);
     }
 
-    private ResourceRegistry buildResourceRegistry(ResourceLookup lookup, String serviceUrl) {
+    private ResourceRegistry buildResourceRegistry(ResourceLookup lookup, ServiceUrlProvider serviceUrlProvider) {
         ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(jsonServiceLocator, moduleRegistry.getResourceInformationBuilder());
-        return registryBuilder.build(lookup, new ConstantServiceUrlProvider(serviceUrl));
+        return registryBuilder.build(lookup, serviceUrlProvider);
     }
 
     protected KatharsisFilter createKatharsisFilter(ResourceRegistry resourceRegistry,
@@ -142,6 +197,14 @@ public class KatharsisFeature implements Feature {
         ControllerRegistryBuilder controllerRegistryBuilder = new ControllerRegistryBuilder(resourceRegistry,
             typeParser, objectMapper);
         ControllerRegistry controllerRegistry = controllerRegistryBuilder.build();
-        return new RequestDispatcher(moduleRegistry, controllerRegistry, exceptionMapperRegistry);
+        
+        QueryAdapterBuilder queryAdapterBuilder;
+        if(queryParamsBuilder != null){
+        	queryAdapterBuilder = new QueryParamsAdapterBuilder(queryParamsBuilder, resourceRegistry);
+        }else{
+        	queryAdapterBuilder = new QuerySpecAdapterBuilder(querySpecDeserializer, resourceRegistry);
+        }
+        
+        return new RequestDispatcher(moduleRegistry, controllerRegistry, exceptionMapperRegistry, queryAdapterBuilder);
     }
 }

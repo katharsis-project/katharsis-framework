@@ -5,6 +5,7 @@ import io.katharsis.dispatcher.controller.BaseControllerTest;
 import io.katharsis.queryParams.DefaultQueryParamsParser;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
+import io.katharsis.queryspec.internal.QueryParamsAdapter;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.dto.ResourceRelationships;
@@ -92,7 +93,7 @@ public class ResourceGetTest extends BaseControllerTest {
 
         // WHEN
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper);
-        ResourceResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParams(), null, newTaskBody);
+        ResourceResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newTaskBody);
         assertThat(taskResponse.getResponse().getEntity()).isExactlyInstanceOf(Task.class);
         Long taskId = ((Task) (taskResponse.getResponse().getEntity())).getId();
         assertThat(taskId).isNotNull();
@@ -102,7 +103,7 @@ public class ResourceGetTest extends BaseControllerTest {
         ResourceGet sut = new ResourceGet(resourceRegistry, typeParser, includeFieldSetter);
 
         // WHEN
-        BaseResponseContext response = sut.handle(jsonPath, new QueryParams(), null, null);
+        BaseResponseContext response = sut.handle(jsonPath, new QueryParamsAdapter(REQUEST_PARAMS), null, null);
 
         // THEN
         Assert.assertNotNull(response);
@@ -119,7 +120,7 @@ public class ResourceGetTest extends BaseControllerTest {
         QueryParams queryParamsObject = new QueryParamsBuilder(new DefaultQueryParamsParser()).buildQueryParams(queryParams);
 
         // WHEN
-        BaseResponseContext response = responseGetResp.handle(jsonPath, queryParamsObject, null, null);
+        BaseResponseContext response = responseGetResp.handle(jsonPath, new QueryParamsAdapter(queryParamsObject), null, null);
 
         // THEN
         Assert.assertNotNull(response);
@@ -145,7 +146,7 @@ public class ResourceGetTest extends BaseControllerTest {
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper);
 
         // WHEN -- adding a task
-        BaseResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParams(), null, newTaskBody);
+        BaseResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newTaskBody);
 
         // THEN
         assertThat(taskResponse.getResponse().getEntity()).isExactlyInstanceOf(Task.class);
@@ -164,7 +165,7 @@ public class ResourceGetTest extends BaseControllerTest {
         JsonPath projectPath = pathBuilder.buildPath("/projects");
 
         // WHEN -- adding a project
-        ResourceResponseContext projectResponse = resourcePost.handle(projectPath, new QueryParams(), null, newProjectBody);
+        ResourceResponseContext projectResponse = resourcePost.handle(projectPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newProjectBody);
 
         // THEN
         assertThat(projectResponse.getResponse().getEntity()).isExactlyInstanceOf(Project.class);
@@ -186,7 +187,7 @@ public class ResourceGetTest extends BaseControllerTest {
         RelationshipsResourcePost sut = new RelationshipsResourcePost(resourceRegistry, typeParser);
 
         // WHEN -- adding a relation between task and project
-        BaseResponseContext projectRelationshipResponse = sut.handle(savedTaskPath, new QueryParams(), null, newTaskToProjectBody);
+        BaseResponseContext projectRelationshipResponse = sut.handle(savedTaskPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newTaskToProjectBody);
         assertThat(projectRelationshipResponse).isNotNull();
 
         // THEN
@@ -203,7 +204,7 @@ public class ResourceGetTest extends BaseControllerTest {
         QueryParams requestParams = new QueryParamsBuilder(new DefaultQueryParamsParser()).buildQueryParams(queryParams);
 
         // WHEN
-        BaseResponseContext response = responseGetResp.handle(jsonPath, requestParams, null, null);
+        BaseResponseContext response = responseGetResp.handle(jsonPath, new QueryParamsAdapter(requestParams), null, null);
 
         // THEN
         Assert.assertNotNull(response);

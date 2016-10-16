@@ -1,9 +1,12 @@
 package io.katharsis.resource.mock.repository;
 
 import io.katharsis.queryParams.QueryParams;
+import io.katharsis.repository.RepositoryAdapterTest;
 import io.katharsis.repository.annotations.*;
+import io.katharsis.resource.annotations.JsonApiMetaInformation;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.mock.models.Task;
+import io.katharsis.response.MetaInformation;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -13,6 +16,10 @@ import java.util.concurrent.ConcurrentHashMap;
 public class TaskRepository {
 
     private static final ConcurrentHashMap<Long, Task> THREAD_LOCAL_REPOSITORY = new ConcurrentHashMap<>();
+    
+    public static void clear(){
+    	THREAD_LOCAL_REPOSITORY.clear();
+    }
 
     @JsonApiSave
     public <S extends Task> S save(S entity) {
@@ -63,5 +70,13 @@ public class TaskRepository {
     @JsonApiDelete
     public void delete(Long aLong) {
         THREAD_LOCAL_REPOSITORY.remove(aLong);
+    }
+
+    @JsonApiMeta
+    public MetaInformation getMetaInformation(Iterable<Task> resources, QueryParams queryParams) {
+        return new MetaData();
+    }
+
+    public static class MetaData implements MetaInformation {
     }
 }

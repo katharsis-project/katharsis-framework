@@ -6,6 +6,8 @@ import io.katharsis.errorhandling.ErrorData;
 import io.katharsis.queryParams.DefaultQueryParamsParser;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
+import io.katharsis.queryspec.internal.QueryAdapter;
+import io.katharsis.queryspec.internal.QueryParamsAdapter;
 import io.katharsis.request.path.FieldPath;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathBuilder;
@@ -28,7 +30,7 @@ import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 
 public class BaseResponseSerializerTest extends BaseSerializerTest {
 
-    private static final QueryParams REQUEST_PARAMS = new QueryParams();
+    private static final QueryAdapter REQUEST_PARAMS = new QueryParamsAdapter(new QueryParams());
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -72,7 +74,7 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
         JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath("/tasks");
 
         // WHEN
-        String result = sut.writeValueAsString(new Container(task, new ResourceResponseContext(null, jsonPath, queryParams)));
+        String result = sut.writeValueAsString(new Container(task, new ResourceResponseContext(null, jsonPath, new QueryParamsAdapter(queryParams))));
 
         // THEN
         assertThatJson(result).node("id").isEqualTo("\"1\"");
@@ -271,7 +273,7 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
             }
 
             @Override
-            public QueryParams getQueryParams() {
+            public QueryAdapter getQueryAdapter() {
                 return null;
             }
         });
@@ -295,7 +297,7 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
 
         // WHEN
         String result = sut
-                .writeValueAsString(new ResourceResponseContext(buildResponse(task), new ResourcePath("projects"), queryParams));
+                .writeValueAsString(new ResourceResponseContext(buildResponse(task), new ResourcePath("projects"), new QueryParamsAdapter(queryParams)));
 
         // THEN
         assertThatJson(result).node("data").isPresent();
@@ -326,7 +328,7 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
 
         // WHEN
         String result = sut
-                .writeValueAsString(new ResourceResponseContext(buildResponse(project), new FieldPath("project"), queryParams));
+                .writeValueAsString(new ResourceResponseContext(buildResponse(project), new FieldPath("project"), new QueryParamsAdapter(queryParams)));
 
         // THEN
         assertThatJson(result).node("data").isPresent();
@@ -354,7 +356,7 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
 
         // WHEN
         String result = sut
-                .writeValueAsString(new ResourceResponseContext(buildResponse(project), new FieldPath("project"), queryParams));
+                .writeValueAsString(new ResourceResponseContext(buildResponse(project), new FieldPath("project"), new QueryParamsAdapter(queryParams)));
 
         // THEN
         assertThatJson(result).node("data").isPresent();
@@ -382,7 +384,7 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
 
         // WHEN
         String result = sut
-                .writeValueAsString(new ResourceResponseContext(buildResponse(project), new FieldPath("project"), new QueryParams()));
+                .writeValueAsString(new ResourceResponseContext(buildResponse(project), new FieldPath("project"), new QueryParamsAdapter(new QueryParams())));
 
         // THEN
         assertThatJson(result).node("data").isPresent();
@@ -409,7 +411,7 @@ public class BaseResponseSerializerTest extends BaseSerializerTest {
 
         // WHEN
         String result = sut
-                .writeValueAsString(new ResourceResponseContext(buildResponse(projectEager), new FieldPath("project"), new QueryParams()));
+                .writeValueAsString(new ResourceResponseContext(buildResponse(projectEager), new FieldPath("project"), new QueryParamsAdapter(new QueryParams())));
 
         // THEN
         assertThatJson(result).node("data").isPresent();

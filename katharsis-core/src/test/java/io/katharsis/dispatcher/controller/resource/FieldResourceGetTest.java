@@ -2,6 +2,7 @@ package io.katharsis.dispatcher.controller.resource;
 
 import io.katharsis.dispatcher.controller.BaseControllerTest;
 import io.katharsis.queryParams.QueryParams;
+import io.katharsis.queryspec.internal.QueryParamsAdapter;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.include.IncludeLookupSetter;
@@ -69,7 +70,7 @@ public class FieldResourceGetTest extends BaseControllerTest {
         FieldResourceGet sut = new FieldResourceGet(resourceRegistry, typeParser, includeFieldSetter);
 
         // WHEN
-        BaseResponseContext response = sut.handle(jsonPath, new QueryParams(), null, null);
+        BaseResponseContext response = sut.handle(jsonPath, new QueryParamsAdapter(new QueryParams()), null, null);
 
         // THEN
         Assert.assertNotNull(response);
@@ -83,7 +84,7 @@ public class FieldResourceGetTest extends BaseControllerTest {
         FieldResourceGet sut = new FieldResourceGet(resourceRegistry, typeParser, includeFieldSetter);
 
         // WHEN
-        BaseResponseContext response = sut.handle(jsonPath, new QueryParams(), null, null);
+        BaseResponseContext response = sut.handle(jsonPath, new QueryParamsAdapter(new QueryParams()), null, null);
 
         // THEN
         Assert.assertNotNull(response);

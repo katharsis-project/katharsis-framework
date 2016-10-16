@@ -1,24 +1,9 @@
 package io.katharsis.module;
 
-import io.katharsis.queryParams.QueryParams;
-import io.katharsis.repository.ResourceRepository;
+import io.katharsis.queryspec.QuerySpec;
+import io.katharsis.queryspec.QuerySpecResourceRepository;
 
-class TestRepository implements ResourceRepository<TestResource, Integer> {
-
-	@Override
-	public TestResource findOne(Integer id, QueryParams queryParams) {
-		return null;
-	}
-
-	@Override
-	public Iterable<TestResource> findAll(QueryParams queryParams) {
-		return null;
-	}
-
-	@Override
-	public Iterable<TestResource> findAll(Iterable<Integer> ids, QueryParams queryParams) {
-		return null;
-	}
+class TestRepository implements QuerySpecResourceRepository<TestResource, Integer> {
 
 	@Override
 	public <S extends TestResource> S save(S entity) {
@@ -27,5 +12,25 @@ class TestRepository implements ResourceRepository<TestResource, Integer> {
 
 	@Override
 	public void delete(Integer id) {
+	}
+
+	@Override
+	public Class<TestResource> getResourceClass() {
+		return null;
+	}
+
+	@Override
+	public TestResource findOne(Integer id, QuerySpec querySpec) {
+		return null;
+	}
+
+	@Override
+	public Iterable<TestResource> findAll(QuerySpec querySpec) {
+		return null;
+	}
+
+	@Override
+	public Iterable<TestResource> findAll(Iterable<Integer> ids, QuerySpec querySpec) {
+		return null;
 	}
 }

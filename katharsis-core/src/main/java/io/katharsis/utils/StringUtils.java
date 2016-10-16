@@ -22,4 +22,31 @@ public class StringUtils {
         }
         return ab.toString();
     }
+
+    /**
+     * <p>Checks if a String is whitespace, empty ("") or null.</p>
+     * <p>
+     * <pre>
+     * StringUtils.isBlank(null)      = true
+     * StringUtils.isBlank("")        = true
+     * StringUtils.isBlank(" ")       = true
+     * StringUtils.isBlank("katharsis")     = false
+     * StringUtils.isBlank("  katharsis  ") = false
+     * </pre>
+     *
+     * @param value the String to check, may be null
+     * @return <code>true</code> if the String is null, empty or whitespace
+     */
+    public static boolean isBlank(String value) {
+        int strLen;
+        if (value == null || (strLen = value.length()) == 0) {
+            return true;
+        }
+        for (int i = 0; i < strLen; i++) {
+            if ((!Character.isWhitespace(value.charAt(i)))) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

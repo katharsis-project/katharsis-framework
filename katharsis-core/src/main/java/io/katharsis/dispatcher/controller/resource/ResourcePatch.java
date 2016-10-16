@@ -1,9 +1,16 @@
 package io.katharsis.dispatcher.controller.resource;
 
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.QueryParams;
+import io.katharsis.queryspec.internal.QueryAdapter;
+import io.katharsis.queryspec.internal.QueryParamsAdapter;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.RequestBody;
@@ -20,10 +27,6 @@ import io.katharsis.response.JsonApiResponse;
 import io.katharsis.response.ResourceResponseContext;
 import io.katharsis.utils.parser.TypeParser;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
-
 public class ResourcePatch extends ResourceUpsert {
 
     public ResourcePatch(ResourceRegistry resourceRegistry, TypeParser typeParser, @SuppressWarnings("SameParameterValue") ObjectMapper objectMapper) {
@@ -38,7 +41,7 @@ public class ResourcePatch extends ResourceUpsert {
     }
 
     @Override
-    public BaseResponseContext handle(JsonPath jsonPath, QueryParams queryParams,
+    public BaseResponseContext handle(JsonPath jsonPath, QueryAdapter queryAdapter,
                                          RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody) {
 
         String resourceEndpointName = jsonPath.getResourceName();
@@ -70,12 +73,12 @@ public class ResourcePatch extends ResourceUpsert {
 
         ResourceRepositoryAdapter resourceRepository = endpointRegistryEntry.getResourceRepository(parameterProvider);
         @SuppressWarnings("unchecked")
-        Object resource = extractResource(resourceRepository.findOne(resourceId, queryParams));
+        Object resource = extractResource(resourceRepository.findOne(resourceId, queryAdapter));
 
         String attributesFromFindOne = null;
         try {
             // extract attributes from find one without any manipulation by query params (such as sparse fieldsets)
-            attributesFromFindOne = this.extractAttributesFromResourceAsJson(resource, jsonPath, new QueryParams());
+            attributesFromFindOne = this.extractAttributesFromResourceAsJson(resource, jsonPath, new QueryParamsAdapter(new QueryParams()));
             Map<String,Object> attributesToUpdate = objectMapper.readValue(attributesFromFindOne, Map.class);
             // get the JSON form the request and deserialize into a map
             String attributesAsJson = objectMapper.writeValueAsString(dataBody.getAttributes());
@@ -89,17 +92,17 @@ public class ResourcePatch extends ResourceUpsert {
         }
 
         setAttributes(dataBody, resource, bodyRegistryEntry.getResourceInformation());
-        setRelations(resource, bodyRegistryEntry, dataBody, queryParams, parameterProvider);
-        JsonApiResponse response = resourceRepository.save(resource, queryParams);
+        setRelations(resource, bodyRegistryEntry, dataBody, queryAdapter, parameterProvider);
+        JsonApiResponse response = resourceRepository.save(resource, queryAdapter);
 
-        return new ResourceResponseContext(response, jsonPath, queryParams);
+        return new ResourceResponseContext(response, jsonPath, queryAdapter);
     }
 
-    private String extractAttributesFromResourceAsJson(Object resource, JsonPath jsonPath, QueryParams queryParams) throws Exception {
+    private String extractAttributesFromResourceAsJson(Object resource, JsonPath jsonPath, QueryAdapter queryAdapter) throws Exception {
 
         JsonApiResponse response = new JsonApiResponse();
         response.setEntity(resource);
-        ResourceResponseContext katharsisResponse = new ResourceResponseContext(response, jsonPath, queryParams);
+        ResourceResponseContext katharsisResponse = new ResourceResponseContext(response, jsonPath, queryAdapter);
         // deserialize using the objectMapper so it becomes json-api
         String newRequestBody = objectMapper.writeValueAsString(katharsisResponse);
         JsonNode node = objectMapper.readTree(newRequestBody);

@@ -21,7 +21,7 @@ public class JsonApiModuleBuilder {
      * Creates Katharsis Jackson module with all required serializers
      *
      * @param resourceRegistry initialized registry with all of the required resources
-     * @param isClient is katharsis client
+     * @param isClient         is katharsis client
      * @return {@link com.fasterxml.jackson.databind.Module} with custom serializers
      */
     public SimpleModule build(ResourceRegistry resourceRegistry, boolean isClient) {
@@ -31,7 +31,7 @@ public class JsonApiModuleBuilder {
         simpleModule.addSerializer(new ContainerSerializer(resourceRegistry, isClient))
                 .addSerializer(new DataLinksContainerSerializer(resourceRegistry))
                 .addSerializer(new RelationshipContainerSerializer(resourceRegistry, isClient))
-                .addSerializer(new LinkageContainerSerializer(resourceRegistry))
+                .addSerializer(new LinkageContainerSerializer())
                 .addSerializer(new BaseResponseSerializer(resourceRegistry))
                 .addSerializer(new ErrorResponseSerializer());
 

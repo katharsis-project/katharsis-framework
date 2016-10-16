@@ -6,7 +6,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static junit.framework.TestCase.assertFalse;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class StringUtilsTest {
 
@@ -34,4 +36,15 @@ public class StringUtilsTest {
         // THEN
         assertThat(result).isEqualTo("hello world");
     }
+
+    @Test
+    public void onIsBlankValues() throws Exception {
+        assertTrue(StringUtils.isBlank(null));
+        assertTrue(StringUtils.isBlank(""));
+        assertTrue(StringUtils.isBlank(" "));
+        assertFalse(StringUtils.isBlank("katharsis"));
+        assertFalse(StringUtils.isBlank("  katharsis  "));
+    }
+
+
 }
