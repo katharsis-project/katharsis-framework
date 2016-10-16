@@ -4,6 +4,8 @@ import java.util.Map;
 import java.util.Set;
 
 import io.katharsis.queryParams.QueryParamsBuilder;
+import io.katharsis.queryParams.context.SimpleQueryParamsParserContext;
+import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.ResourceRegistry;
 
 public class QueryParamsAdapterBuilder implements QueryAdapterBuilder {
@@ -19,6 +21,8 @@ public class QueryParamsAdapterBuilder implements QueryAdapterBuilder {
 
 	@Override
 	public QueryAdapter build(Class<?> resourceClass, Map<String, Set<String>> parameters) {
-		return new QueryParamsAdapter(resourceClass, queryParamsBuilder.buildQueryParams(parameters), resourceRegistry);
+		ResourceInformation info = resourceRegistry.getEntry(resourceClass).getResourceInformation();
+		SimpleQueryParamsParserContext context = new SimpleQueryParamsParserContext(parameters, info);
+		return new QueryParamsAdapter(resourceClass, queryParamsBuilder.buildQueryParams(context), resourceRegistry);
 	}
 }
