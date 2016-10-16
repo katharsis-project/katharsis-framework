@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -10,7 +9,7 @@
 
     <groupId>io.katharsis</groupId>
     <artifactId>katharsis-build</artifactId>
-    <version>2.7.0-SNAPSHOT</version>
+    <version>2.7.0</version>
     <packaging>pom</packaging>
 
     <name>Katharsis build POM</name>
@@ -38,7 +37,7 @@
         <gitlog-maven-plugin.version>1.12.3</gitlog-maven-plugin.version>
         <maven-bundle-plugin.version>2.5.3</maven-bundle-plugin.version>
 
-        <gpg.passphrase/>
+        <gpg.passphrase />
     </properties>
 
     <scm>
