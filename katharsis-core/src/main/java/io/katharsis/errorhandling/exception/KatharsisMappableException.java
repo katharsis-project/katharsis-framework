@@ -11,7 +11,11 @@ public abstract class KatharsisMappableException extends KatharsisException {
     private final int httpStatus;
 
     protected KatharsisMappableException(int httpStatus, ErrorData errorData) {
-        super(errorData.getDetail());
+        this(httpStatus, errorData, null);
+    }
+
+    protected KatharsisMappableException(int httpStatus, ErrorData errorData, Throwable cause) {
+        super(errorData.getDetail(), cause);
         this.httpStatus = httpStatus;
         this.errorData = errorData;
     }

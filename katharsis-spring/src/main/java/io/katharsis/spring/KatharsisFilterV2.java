@@ -222,6 +222,7 @@ public class KatharsisFilterV2 implements Filter, BeanFactoryAware {
      * body parameters, but we don't expect to receive such body.
      *
      * @param request request body
+     * @path
      * @return query parameters
      */
     private Map<String, Set<String>> getParameters(HttpServletRequest request) {

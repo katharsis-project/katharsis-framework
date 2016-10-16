@@ -11,10 +11,15 @@ public class ParametersDeserializationException extends KatharsisMappableExcepti
     private static final String TITLE = "Request parameters error";
 
     public ParametersDeserializationException(String message) {
+        this(message, null);
+    }
+
+    public ParametersDeserializationException(String message, Throwable cause) {
         super(HttpStatus.BAD_REQUEST_400, ErrorData.builder()
                 .setTitle(TITLE)
                 .setDetail(message)
                 .setStatus(String.valueOf(HttpStatus.BAD_REQUEST_400))
-                .build());
+                .build(),
+                cause);
     }
 }
