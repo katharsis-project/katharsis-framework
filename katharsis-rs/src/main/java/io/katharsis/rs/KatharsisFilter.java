@@ -39,7 +39,7 @@ import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ServiceUrlProvider;
-import io.katharsis.resource.registry.UriInfoServiceUrlProvider;
+import io.katharsis.rs.resource.registry.UriInfoServiceUrlProvider;
 import io.katharsis.response.BaseResponseContext;
 import io.katharsis.rs.parameterProvider.JaxRsParameterProvider;
 import io.katharsis.rs.parameterProvider.RequestContextParameterProviderRegistry;
