@@ -146,7 +146,7 @@ public class KatharsisFilter implements ContainerRequestFilter {
             katharsisResponse = requestDispatcher
                 .dispatchRequest(jsonPath, method, parameters, parameterProvider, requestBody);
         } catch (KatharsisMappableException e) {
-        	logger.warn("failed to process request", e);
+            // log error in KatharsisMappableException mapper.
             katharsisResponse = new KatharsisExceptionMapper().toErrorResponse(e);
         } catch (KatharsisMatchingException e) {
         	logger.warn("failed to process request", e);

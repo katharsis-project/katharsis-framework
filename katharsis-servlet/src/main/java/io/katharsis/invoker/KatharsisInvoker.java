@@ -30,8 +30,6 @@ import io.katharsis.request.path.PathBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponseContext;
 import io.katharsis.servlet.util.QueryStringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
@@ -43,8 +41,6 @@ import java.util.Set;
  * Katharsis dispatcher invoker.
  */
 public class KatharsisInvoker {
-
-    private static Logger log = LoggerFactory.getLogger(KatharsisInvoker.class);
 
     private static int BUFFER_SIZE = 4096;
 
@@ -91,11 +87,7 @@ public class KatharsisInvoker {
             katharsisResponse = requestDispatcher.dispatchRequest(jsonPath, method, parameters, parameterProvider,
                     requestBody);
         } catch (KatharsisMappableException e) {
-            if (log.isDebugEnabled()) {
-                log.warn("Error occurred while dispatching katharsis request. " + e, e);
-            } else {
-                log.warn("Error occurred while dispatching katharsis request. " + e);
-            }
+            // log error in KatharsisMappableException mapper.
             katharsisResponse = new KatharsisExceptionMapper().toErrorResponse(e);
         } catch (KatharsisMatchingException e) {
             passToMethodMatcher = true;
