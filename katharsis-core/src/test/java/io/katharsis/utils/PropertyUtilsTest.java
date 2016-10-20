@@ -4,6 +4,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -80,6 +81,15 @@ public class PropertyUtilsTest {
     public void onStringPublicReturnStringClass() throws Exception {
         // WHEN
         Object result = PropertyUtils.getPropertyClass(Bean.class, "publicProperty");
+
+        // THEN
+        assertThat(result).isEqualTo(String.class);
+    }
+    
+    @Test
+    public void onStringPublicReturnStringType() throws Exception {
+        // WHEN
+        Object result = PropertyUtils.getPropertyType(Bean.class, "publicProperty");
 
         // THEN
         assertThat(result).isEqualTo(String.class);
@@ -361,6 +371,30 @@ public class PropertyUtilsTest {
 
         // WHEN
         PropertyUtils.setProperty(bean, "checkedExceptionalField", "value");
+    }
+    
+    @Test
+    public void unknownPropertyThrowingException() throws Exception {
+    	 // GIVEN
+        Bean bean = new Bean();
+
+        // THEN
+        expectedException.expect(PropertyException.class);
+        
+        // WHEN
+        PropertyUtils.setProperty(bean, "checkedExceptionalField", "attrThatDoesNotExist");
+    }
+    
+    @Test
+    public void nullBeanResultsInNullValue() throws Exception {
+    	 // GIVEN
+        Bean bean = null;
+
+        // WHEN
+        Object result = PropertyUtils.getProperty(bean, Arrays.asList("publicProperty"));
+
+        // THEN
+        assertThat(result).isNull();
     }
 
     public static class Bean {
