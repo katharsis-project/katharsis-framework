@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Validation;
+import javax.validation.ValidationException;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 
@@ -22,6 +23,11 @@ public class ProjectRepository implements ResourceRepository<Project, Long> {
 
 	@Override
 	public <S extends Project> S save(S entity) {
+
+		if (entity.getName() != null && entity.getName().equals(ValidationException.class.getSimpleName())) {
+			throw new ValidationException("messageKey");
+		}
+
 		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
 		Validator validator = factory.getValidator();
 		Set<ConstraintViolation<S>> violations = validator.validate(entity);

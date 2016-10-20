@@ -94,6 +94,10 @@ public class ResourceRegistry {
         return getEntry(clazz, false);
     }
 
+    public boolean hasEntry(Class<?> clazz){
+    	return getEntry(clazz, true) != null;
+    }
+    
     private RegistryEntry<?> getEntry(Class<?> clazz, boolean allowNull) {
         Optional<Class<?>> resourceClazz = getResourceClass(clazz);
         if (allowNull && !resourceClazz.isPresent())

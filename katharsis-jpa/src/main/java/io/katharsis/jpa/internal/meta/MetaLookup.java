@@ -136,7 +136,7 @@ public class MetaLookup {
 
 	private MetaElement allocateMetaFromParamerizedType(ParameterizedType paramType) {
 		if (paramType.getRawType() instanceof Class && Map.class.isAssignableFrom((Class<?>) paramType.getRawType())) {
-			PreconditionUtil.assertEquals(2, paramType.getActualTypeArguments().length);
+			PreconditionUtil.assertEquals("expected 2 type arguments", 2, paramType.getActualTypeArguments().length);
 			MetaType keyType = getMeta(paramType.getActualTypeArguments()[0]).asType();
 			MetaType valueType = getMeta(paramType.getActualTypeArguments()[1]).asType();
 			return new MetaMapTypeImpl(null, (Class<?>) paramType.getRawType(), paramType, keyType, valueType);
@@ -149,7 +149,7 @@ public class MetaLookup {
 	}
 
 	private MetaElement allocateMetaFromCollectionType(ParameterizedType paramType) {
-		PreconditionUtil.assertEquals(1, paramType.getActualTypeArguments().length);
+		PreconditionUtil.assertEquals("expected single type argument", 1, paramType.getActualTypeArguments().length);
 		MetaType elementType = getMeta(paramType.getActualTypeArguments()[0]).asType();
 
 		boolean isSet = Set.class.isAssignableFrom((Class<?>) paramType.getRawType());

@@ -1,6 +1,8 @@
 package io.katharsis.validation.internal;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -18,29 +20,33 @@ import io.katharsis.errorhandling.ErrorDataBuilder;
 import io.katharsis.errorhandling.ErrorResponse;
 import io.katharsis.errorhandling.mapper.ExceptionMapper;
 import io.katharsis.module.Module.ModuleContext;
-import io.katharsis.resource.exception.init.ResourceNotFoundInitializationException;
 import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.utils.PreconditionUtil;
 import io.katharsis.utils.PropertyUtils;
-import io.katharsis.utils.StringUtils;
 
 public class ConstraintViolationExceptionMapper implements ExceptionMapper<ConstraintViolationException> {
 
 	private static final String HIBERNATE_PROPERTY_NODE_IMPL = "org.hibernate.validator.path.PropertyNode";
 
-	protected static final String META_RESOURCE_ID = "resourceId";
-	protected static final String META_RESOURCE_TYPE = "resourceType";
-	protected static final String META_RESOURCE_PATH = "attributePath";
+	private static final Object HIBERNATE_PROPERTY_NODE_ENGINE_IMPL = "org.hibernate.validator.internal.engine.path.NodeImpl";
 
-	private static final String META_TYPE_KEY = "type";
-	private static final Object META_TYPE_VALUE = "ConstraintViolation";
+	protected static final String META_RESOURCE_ID = "resourceId";
+
+	protected static final String META_RESOURCE_TYPE = "resourceType";
+
+	protected static final String META_TYPE_KEY = "type";
+
+	protected static final Object META_TYPE_VALUE = "ConstraintViolation";
+
+	protected static final String META_MESSAGE_TEMPLATE = "messageTemplate";
 
 	private ModuleContext context;
-	
-	private static final int UNPROCESSABLE_ENTITY_422 = 422;
+
+	static final int UNPROCESSABLE_ENTITY_422 = 422;
+
+	private static final String DEFAULT_PRIMARY_KEY_NAME = "id";
 
 	public ConstraintViolationExceptionMapper(ModuleContext context) {
 		this.context = context;
@@ -55,24 +61,19 @@ public class ConstraintViolationExceptionMapper implements ExceptionMapper<Const
 			builder = builder.addMetaField(META_TYPE_KEY, META_TYPE_VALUE);
 			builder = builder.setStatus(String.valueOf(UNPROCESSABLE_ENTITY_422));
 			builder = builder.setTitle(violation.getMessage());
-			builder = builder.setDetail(violation.getMessage());
 
-			builder = builder.setCode(violation.getMessageTemplate());
+			builder = builder.setCode(toCode(violation));
+			if (violation.getMessageTemplate() != null) {
+				builder = builder.addMetaField(META_MESSAGE_TEMPLATE, violation.getMessageTemplate());
+			}
 
+			// for now we just provide root resource validation information
+			// depending on bulk update spec, we might also provide the leaf information in the future
 			if (violation.getRootBean() != null) {
-				ResourceRef resourceRef = resolveLeafResourcePath(violation);
-				builder = builder.addMetaField(META_RESOURCE_ID, resourceRef.getResourceId());
-				builder = builder.addMetaField(META_RESOURCE_TYPE, resourceRef.getResourceType());
-				builder = builder.addMetaField(META_RESOURCE_PATH, resourceRef.getPathString());
-
-				if (violation.getRootBean() == violation.getLeafBean()) {
-					builder = builder.setSourcePointer(createSourcePointer(resourceRef));
-				}
-				else {
-					// json pointer syntax quite limited, we would need to
-					// reference the array position within includes as a source
-					// pointer needs access to request for this
-				}
+				ResourceRef resourceRef = resolvePath(violation);
+				builder = builder.addMetaField(META_RESOURCE_ID, resourceRef.getRootResourceId());
+				builder = builder.addMetaField(META_RESOURCE_TYPE, resourceRef.getRootResourceType());
+				builder = builder.setSourcePointer(resourceRef.getRootSourcePointer());
 			}
 
 			ErrorData error = builder.build();
@@ -80,6 +81,27 @@ public class ConstraintViolationExceptionMapper implements ExceptionMapper<Const
 		}
 
 		return ErrorResponse.builder().setStatus(UNPROCESSABLE_ENTITY_422).setErrorData(errors).build();
+	}
+
+	private String toCode(ConstraintViolation<?> violation) {
+		if (violation.getConstraintDescriptor() != null) {
+			Annotation annotation = violation.getConstraintDescriptor().getAnnotation();
+
+			if (annotation != null) {
+				Class<?> clazz = annotation.getClass();
+				Class<?> superclass = annotation.getClass().getSuperclass();
+				Class<?>[] interfaces = annotation.getClass().getInterfaces();
+				if (superclass == Proxy.class && interfaces.length == 1) {
+					clazz = interfaces[0];
+				}
+
+				return clazz.getName();
+			}
+		}
+		if (violation.getMessageTemplate() != null) {
+			return violation.getMessageTemplate().replace("{", "").replaceAll("}", "");
+		}
+		return null;
 	}
 
 	@Override
@@ -116,7 +138,7 @@ public class ConstraintViolationExceptionMapper implements ExceptionMapper<Const
 	 * are mapped back to an entity violation and a proper path to the
 	 * embeddable attribute.
 	 */
-	protected ResourceRef resolveLeafResourcePath(ConstraintViolation<?> violation) {
+	protected ResourceRef resolvePath(ConstraintViolation<?> violation) {
 		Object resource = violation.getRootBean();
 		assertResource(resource);
 
@@ -128,12 +150,13 @@ public class ConstraintViolationExceptionMapper implements ExceptionMapper<Const
 			Node node = iterator.next();
 
 			// visit list, set, map references
-			nodeObject = getNodeReference(nodeObject, node);
+			nodeObject = ref.getNodeReference(nodeObject, node);
 			ref.visitNode(nodeObject);
 
 			// visit property
 			nodeObject = ref.visitProperty(nodeObject, node);
 		}
+
 		return ref;
 	}
 
@@ -143,133 +166,193 @@ public class ConstraintViolationExceptionMapper implements ExceptionMapper<Const
 		}
 	}
 
-	private static Object getNodeReference(Object element, Node node) {
-		Integer index = node.getIndex();
-		Object key = node.getKey();
-		if (index != null) {
-			return ((List<?>) element).get(index);
-		}
-		else if (key != null) {
-			return ((Map<?, ?>) element).get(key);
-		}
-		else if (element instanceof Set && getValue(node) != null) {
-			return getValue(node);
-		}
-		return element;
-	}
-
 	private static Object getValue(Node propertyNode) {
 		// bean validation not sufficient for sets
 		// not possible to access elements, reverting to
 		// Hibernate implementation
 		// TODO investigate other implementation next to
 		// hibernate, JSR 303 v1.1 not sufficient
-		if (propertyNode.getClass().getName().equals(HIBERNATE_PROPERTY_NODE_IMPL)) { // NOSONAR
+		if (propertyNode.getClass().getName().equals(HIBERNATE_PROPERTY_NODE_IMPL)
+				|| propertyNode.getClass().getName().equals(HIBERNATE_PROPERTY_NODE_ENGINE_IMPL)) { // NOSONAR
 			try {
+				Method parentMethod = propertyNode.getClass().getMethod("getParent");
 				Method valueMethod = propertyNode.getClass().getMethod("getValue");
-				return valueMethod.invoke(propertyNode);
+				Object parentNode = parentMethod.invoke(propertyNode);
+				if (parentNode != null) {
+					return valueMethod.invoke(parentNode);
+				}
+				else {
+					return valueMethod.invoke(propertyNode);
+				}
 			}
 			catch (Exception e) {
 				throw new UnsupportedOperationException(e);
 			}
 		}
 		else {
-			throw new UnsupportedOperationException("cannot convert violations for java.util.Set elements, consider using Hibernate validator");
+			throw new UnsupportedOperationException(
+					"cannot convert violations for java.util.Set elements, consider using Hibernate validator");
 		}
 	}
 
 	class ResourceRef {
 
-		private Object resource;
-		private List<String> path = new ArrayList<>();
+		private Object rootResource;
+
+		private Object leafResource;
+
+		private StringBuilder rootSourcePointer = new StringBuilder();
+
+		private StringBuilder leafSourcePointer = new StringBuilder();
 
 		public ResourceRef(Object resource) {
-			this.resource = resource;
+			this.leafResource = resource;
+			this.rootResource = resource;
 		}
 
-		public String getPathString() {
-			return StringUtils.join(".", path);
+		public String getRootSourcePointer() {
+			return rootSourcePointer.toString();
 		}
 
 		public Object visitProperty(Object nodeObject, Node node) {
+			Object next;
 			if (node.getKind() == ElementKind.PROPERTY) {
-				path.add(node.getName());
-				return PropertyUtils.getProperty(nodeObject, node.getName());
+				next = PropertyUtils.getProperty(nodeObject, node.getName());
 			}
 			else if (node.getKind() == ElementKind.BEAN) {
-				return nodeObject;
+				next = nodeObject;
 			}
 			else {
 				throw new UnsupportedOperationException("unknown node: " + node);
+			}
+
+			if (node.getName() != null) {
+				appendSeparator();
+				if (!isResource(nodeObject.getClass()) || isPrimaryKey(nodeObject.getClass(), node.getName())) {
+					// continue along attributes path or primary key on root
+					appendSourcePointer(node.getName());
+				}
+				else if (isAssociation(nodeObject.getClass(), node.getName())) {
+					appendSourcePointer("data/relationships/");
+					appendSourcePointer(node.getName());
+				}
+				else {
+
+					appendSourcePointer("data/attributes/");
+					appendSourcePointer(node.getName());
+				}
+			}
+			return next;
+		}
+
+		private Object getNodeReference(Object element, Node node) {
+			Integer index = node.getIndex();
+			Object key = node.getKey();
+			if (index != null) {
+				appendSeparator();
+				appendSourcePointer(index);
+				return ((List<?>) element).get(index);
+			}
+			else if (key != null) {
+				appendSeparator();
+				appendSourcePointer(key);
+				return ((Map<?, ?>) element).get(key);
+			}
+			else if (element instanceof Set && getValue(node) != null) {
+				Object elementEntry = getValue(node);
+
+				// since sets get translated to arrays, we do the same here
+				// katharsis-client allocates sets that preserver the order
+				// of arrays
+				List<Object> list = new ArrayList<>();
+				list.addAll((Set<?>) element);
+				index = list.indexOf(elementEntry);
+
+				appendSeparator();
+				appendSourcePointer(index);
+
+				return getValue(node);
+			}
+			return element;
+		}
+
+		private void appendSourcePointer(Object object) {
+			leafSourcePointer.append(object);
+			if (!withinRelation()) {
+				// bulk update of resource not support by json api spec,
+				//so we stop for sourcePointer computation when a relation
+				// could not be validated. How to continue depends on future implementations
+				rootSourcePointer.append(object);
+			}
+		}
+
+		private boolean withinRelation() {
+			return rootResource != leafResource;
+		}
+
+		private void appendSeparator() {
+			if (leafSourcePointer.length() > 0) {
+				appendSourcePointer("/");
+			}
+		}
+
+		private boolean isPrimaryKey(Class<? extends Object> clazz, String name) {
+			ResourceRegistry resourceRegistry = context.getResourceRegistry();
+			RegistryEntry<?> entry = resourceRegistry.getEntry(clazz);
+			if (entry != null) {
+				ResourceInformation resourceInformation = entry.getResourceInformation();
+				ResourceField idField = resourceInformation.getIdField();
+				return idField.getUnderlyingName().equals(name);
+			}
+			else {
+				return DEFAULT_PRIMARY_KEY_NAME.equals(name);
+			}
+		}
+
+		private boolean isAssociation(Class<? extends Object> clazz, String name) {
+			ResourceRegistry resourceRegistry = context.getResourceRegistry();
+			RegistryEntry<?> entry = resourceRegistry.getEntry(clazz);
+			if (entry != null) {
+				ResourceInformation resourceInformation = entry.getResourceInformation();
+				ResourceField relationshipField = resourceInformation.findRelationshipFieldByName(name);
+				return relationshipField != null;
+			}
+			else {
+				return false;
 			}
 		}
 
 		public void visitNode(Object nodeValue) {
 			boolean isResource = nodeValue != null && isResource(nodeValue.getClass());
 			if (isResource) {
-				path.clear();
-				resource = nodeValue;
+				leafSourcePointer = new StringBuilder();
+				leafResource = nodeValue;
 			}
 		}
 
-		public Object getResourceId() {
-			return ConstraintViolationExceptionMapper.this.getResourceId(resource);
+		public Object getRootResourceId() {
+			return ConstraintViolationExceptionMapper.this.getResourceId(rootResource);
 		}
 
-		public Object getResourceType() {
-			return ConstraintViolationExceptionMapper.this.getResourceType(resource);
+		public Object getRootResourceType() {
+			return ConstraintViolationExceptionMapper.this.getResourceType(rootResource);
 		}
 
 		/**
 		 * Leaf resource being validated.
 		 */
-		public Object getResource() {
-			return resource;
+		public Object getLeafResource() {
+			return leafResource;
 		}
 
-		/**
-		 * Path within the leaf resource being validated.
-		 */
-		public List<String> getPath() {
-			return path;
-		}
-
-		public boolean isAssociation() {
-			if (path.size() != 1) {
-				return false;
-			}
-			ResourceRegistry resourceRegistry = context.getResourceRegistry();
-			RegistryEntry<?> entry = resourceRegistry.getEntry(resource.getClass());
-			ResourceInformation resourceInformation = entry.getResourceInformation();
-			ResourceField relationshipField = resourceInformation.findRelationshipFieldByName(path.get(0));
-			return relationshipField != null;
+		public Object getRootResource() {
+			return rootResource;
 		}
 	}
 
 	private boolean isResource(Class<?> clazz) {
 		ResourceRegistry resourceRegistry = context.getResourceRegistry();
-		try {
-			// TODO better API
-			resourceRegistry.getEntry(clazz);
-			return true;
-		} catch (ResourceNotFoundInitializationException e) { // NOSONAR
-			return false;
-		}
-	}
-
-	private String createSourcePointer(ResourceRef ref) {
-		String attrPath = ref.toString().replaceAll(".", "/");
-		if (ref.path.isEmpty()) {
-			return "/data";
-		}
-		else if (ref.isAssociation()) {
-			PreconditionUtil.assertEquals("relations must be added to the resource directly", 1, ref.path.size());
-			return "/data/attributes/" + attrPath;
-		}
-		else {
-			// TODO in case of collection an array access is needed
-			return "/data/relationships/" + attrPath;
-		}
+		return resourceRegistry.hasEntry(clazz);
 	}
 
 	/**

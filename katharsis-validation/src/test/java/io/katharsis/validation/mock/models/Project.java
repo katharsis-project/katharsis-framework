@@ -1,10 +1,15 @@
 package io.katharsis.validation.mock.models;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import io.katharsis.resource.annotations.JsonApiId;
 import io.katharsis.resource.annotations.JsonApiResource;
@@ -26,6 +31,21 @@ public class Project {
 	@Valid
 	private ProjectData data;
 
+	@Valid
+	private List<ProjectData> dataList = new ArrayList<>();
+
+	@Valid
+	private Set<ProjectData> dataSet = new HashSet<>();
+
+	@Valid
+	private Map<String, ProjectData> dataMap = new HashMap<>();
+
+	@Size(min = 0, max = 3)
+	private List<String> keywords = new ArrayList<>();
+
+	@NotNull
+	private Map<String, String> attributes = new HashMap<>();
+
 	@JsonApiToMany
 	@Valid
 	private List<Task> tasks = new ArrayList<>();
@@ -43,12 +63,44 @@ public class Project {
 		return this;
 	}
 
+	public List<ProjectData> getDataList() {
+		return dataList;
+	}
+
+	public void setDataList(List<ProjectData> dataList) {
+		this.dataList = dataList;
+	}
+
+	public Map<String, ProjectData> getDataMap() {
+		return dataMap;
+	}
+
+	public void setDataMap(Map<String, ProjectData> dataMap) {
+		this.dataMap = dataMap;
+	}
+
 	public String getName() {
 		return name;
 	}
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public List<String> getKeywords() {
+		return keywords;
+	}
+
+	public void setKeywords(List<String> keywords) {
+		this.keywords = keywords;
+	}
+
+	public Map<String, String> getAttributes() {
+		return attributes;
+	}
+
+	public void setAttributes(Map<String, String> attributes) {
+		this.attributes = attributes;
 	}
 
 	public String getDescription() {
@@ -82,4 +134,13 @@ public class Project {
 	public void setTask(Task task) {
 		this.task = task;
 	}
+
+	public Set<ProjectData> getDataSet() {
+		return dataSet;
+	}
+
+	public void setDataSet(Set<ProjectData> dataSet) {
+		this.dataSet = dataSet;
+	}
+
 }

@@ -25,8 +25,8 @@ public class JpaRepositoryUtils {
 	 */
 	public static MetaAttribute getPrimaryKeyAttr(MetaEntity meta) {
 		MetaKey primaryKey = meta.getPrimaryKey();
-		PreconditionUtil.assertNotNull(primaryKey);
-		PreconditionUtil.assertEquals(1, primaryKey.getElements().size());
+		PreconditionUtil.assertNotNull("no primary key", primaryKey);
+		PreconditionUtil.assertEquals("non-compound primary key expected", 1, primaryKey.getElements().size());
 		return primaryKey.getElements().get(0);
 	}
 
