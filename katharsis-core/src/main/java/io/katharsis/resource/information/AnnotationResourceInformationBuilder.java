@@ -1,34 +1,9 @@
 package io.katharsis.resource.information;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-
 import io.katharsis.repository.exception.RepositoryAnnotationNotFoundException;
-import io.katharsis.resource.annotations.JsonApiId;
-import io.katharsis.resource.annotations.JsonApiIncludeByDefault;
-import io.katharsis.resource.annotations.JsonApiLinksInformation;
-import io.katharsis.resource.annotations.JsonApiLookupIncludeAutomatically;
-import io.katharsis.resource.annotations.JsonApiMetaInformation;
-import io.katharsis.resource.annotations.JsonApiResource;
-import io.katharsis.resource.annotations.JsonApiToMany;
-import io.katharsis.resource.annotations.JsonApiToOne;
+import io.katharsis.resource.annotations.*;
 import io.katharsis.resource.exception.init.MultipleJsonApiLinksInformationException;
 import io.katharsis.resource.exception.init.MultipleJsonApiMetaInformationException;
 import io.katharsis.resource.exception.init.ResourceDuplicateIdException;
@@ -39,6 +14,14 @@ import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.field.FieldOrderedComparator;
 import io.katharsis.utils.ClassUtils;
 import io.katharsis.utils.java.Optional;
+import lombok.ToString;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
+import java.util.*;
 
 /**
  * A builder which creates ResourceInformation instances of a specific class. It extracts information about a resource
@@ -329,7 +312,8 @@ public class AnnotationResourceInformationBuilder implements ResourceInformation
             return discarded;
         }
     }
-    
+
+    @ToString(of = "annotations", callSuper = true)
     public static class AnnotatedResourceField extends ResourceField {
 
     	private List<Annotation> annotations;

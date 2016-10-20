@@ -1,6 +1,7 @@
 package io.katharsis.response;
 
 import io.katharsis.jackson.serializer.ContainerSerializer;
+import lombok.ToString;
 
 import java.util.Objects;
 
@@ -8,6 +9,7 @@ import java.util.Objects;
  * A class responsible for representing a single data filed within top-level JSON object returned by Katharsis. The
  * resulting JSON is serialized using {@link ContainerSerializer}.
  */
+@ToString
 public class Container {
 
     private final Object data;

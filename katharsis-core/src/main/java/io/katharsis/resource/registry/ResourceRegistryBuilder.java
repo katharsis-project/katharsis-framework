@@ -50,7 +50,7 @@ public class ResourceRegistryBuilder {
         Set<ResourceInformation> resourceInformationSet = new HashSet<>(jsonApiResources.size());
         for (Class<?> clazz : jsonApiResources) {
             resourceInformationSet.add(resourceInformationBuilder.build(clazz));
-            LOGGER.info("{} registered as a resource", clazz);
+            LOGGER.trace("{} registered as a resource", clazz);
         }
 
         Set<RegistryEntry> registryEntries = new HashSet<>(resourceInformationSet.size());
@@ -58,10 +58,10 @@ public class ResourceRegistryBuilder {
             Class<?> resourceClass = resourceInformation.getResourceClass();
 
             ResourceEntry<?, ?> resourceEntry = repositoryEntryBuilder.buildResourceRepository(resourceLookup, resourceClass);
-            LOGGER.info("{} has a resource repository {}", resourceInformation.getResourceClass(), resourceEntry);
+            LOGGER.trace("{} has a resource repository {}", resourceInformation.getResourceClass(), resourceEntry);
             List<ResponseRelationshipEntry<?, ?>> relationshipEntries = repositoryEntryBuilder
             .buildRelationshipRepositories(resourceLookup, resourceClass);
-            LOGGER.info("{} has relationship repositories {}", resourceInformation.getResourceClass(), relationshipEntries);
+            LOGGER.trace("{} has relationship repositories {}", resourceInformation.getResourceClass(), relationshipEntries);
 
             registryEntries.add(new RegistryEntry(resourceInformation, resourceEntry, relationshipEntries));
 

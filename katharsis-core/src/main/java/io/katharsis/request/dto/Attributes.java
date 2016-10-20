@@ -2,17 +2,15 @@ package io.katharsis.request.dto;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
+import lombok.Getter;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class Attributes {
-    private final Map<String, Object> attributesMap = new HashMap<>();
 
-    @JsonAnyGetter
-    public Map<String, Object> getAttributesMap() {
-        return this.attributesMap;
-    }
+    @Getter(onMethod = @__(@JsonAnyGetter))
+    private final Map<String, Object> attributesMap = new HashMap<>();
 
     @JsonAnySetter
     public void addAttribute(String name, Object value) {
