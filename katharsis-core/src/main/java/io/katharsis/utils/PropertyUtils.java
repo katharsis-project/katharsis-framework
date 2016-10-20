@@ -1,15 +1,16 @@
 package io.katharsis.utils;
 
-import io.katharsis.repository.exception.RepositoryMethodException;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+
+import io.katharsis.repository.exception.RepositoryMethodException;
 
 /**
  * <p>
@@ -61,6 +62,21 @@ public class PropertyUtils {
     public static Class<?> getPropertyClass(Class<?> beanClass, String field) {
         try {
             return INSTANCE.findPropertyClass(beanClass, field);
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            throw handleReflectionException(beanClass, field, e);
+        }
+    }
+    
+    /**
+     * Similar to {@link PropertyUtils#getPropertyClass(Class,List)} but returns the property class.
+     *
+     * @param beanClass  bean to be accessed
+     * @param field bean's fieldName
+     * @return bean's property class
+     */
+    public static Type getPropertyType(Class<?> beanClass, String field) {
+        try {
+            return INSTANCE.findPropertyType(beanClass, field);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             throw handleReflectionException(beanClass, field, e);
         }
@@ -147,6 +163,23 @@ public class PropertyUtils {
             return getter.getReturnType();
         }
     }
+    
+    private Type findPropertyType(Class<?> beanClass, String fieldName)
+            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+
+            Field foundField = findField(beanClass, fieldName);
+            if (foundField != null) {
+            	return foundField.getGenericType();
+            } else {
+                Method getter = findGetter(beanClass, fieldName);
+                if (getter == null) {
+                    String message = String
+                        .format("Cannot find an getter for %s.%s", beanClass.getCanonicalName(), fieldName);
+                    throw new PropertyException(message, beanClass, fieldName);
+                }
+                return getter.getGenericReturnType();
+            }
+        }
 
     private Method findGetter(Class<?> beanClass, String fieldName) {
         List<Method> classGetters = ClassUtils.getClassGetters(beanClass);

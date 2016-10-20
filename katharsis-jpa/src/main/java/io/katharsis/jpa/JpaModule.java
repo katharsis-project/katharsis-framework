@@ -30,7 +30,6 @@ import io.katharsis.jpa.internal.meta.MetaEntity;
 import io.katharsis.jpa.internal.meta.MetaLookup;
 import io.katharsis.jpa.internal.meta.MetaType;
 import io.katharsis.jpa.internal.meta.impl.MetaResourceImpl;
-import io.katharsis.jpa.internal.util.KatharsisAssert;
 import io.katharsis.jpa.mapping.JpaMapper;
 import io.katharsis.jpa.mapping.JpaMapping;
 import io.katharsis.jpa.query.JpaQueryFactory;
@@ -42,6 +41,7 @@ import io.katharsis.queryspec.QuerySpecResourceRepository;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ResourceLookup;
 import io.katharsis.response.BaseResponseContext;
+import io.katharsis.utils.PreconditionUtil;
 
 /**
  * Katharsis module that adds support to expose JPA entities as repositories. It
@@ -324,7 +324,7 @@ public class JpaModule implements Module {
 	}
 
 	private void checkNotInitialized() {
-		KatharsisAssert.assertNull("module is already initialized, no further changes can be performed", context);
+		PreconditionUtil.assertNull("module is already initialized, no further changes can be performed", context);
 	}
 
 	@Override

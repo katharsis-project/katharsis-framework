@@ -1,14 +1,16 @@
 package io.katharsis.utils;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import static org.assertj.core.api.Assertions.assertThat;
 
+import java.lang.reflect.ParameterizedType;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 public class PropertyUtilsTest {
 
@@ -49,6 +51,48 @@ public class PropertyUtilsTest {
         // THEN
         assertThat(result).isEqualTo(true);
     }
+    
+    
+    @Test
+    public void methodPropertyShouldReturnValue() throws Exception {
+        // GIVEN
+        Bean bean = new Bean();
+
+        // WHEN
+        Object result = PropertyUtils
+            .getProperty(bean, "methodProperty");
+
+        // THEN
+        assertThat(result).isEqualTo("noFieldsHere");
+    }
+    
+    @Test
+    public void getPropertyClassForMethodPropertyShouldReturnClass() throws Exception {
+        // WHEN
+        Object result = PropertyUtils.getPropertyClass(Bean.class, "methodProperty");
+
+        // THEN
+        assertThat(result).isEqualTo(String.class);
+    }
+    
+    @Test
+    public void getPropertyTypeForMethodPropertyShouldReturnType() throws Exception {
+        // WHEN
+        Object result = PropertyUtils.getPropertyType(Bean.class, "methodProperty");
+
+        // THEN
+        assertThat(result).isEqualTo(String.class);
+    }
+    
+    @Test
+    public void getPropertyTypeForSetShouldReturnGenericType() throws Exception {
+        // WHEN
+        Object result = PropertyUtils.getPropertyType(Bean.class, "setProperty");
+
+        // THEN
+        assertThat(ParameterizedType.class).isAssignableFrom(result.getClass());
+    }
+    
 
     @Test
     public void onBooleanWithMutatorsShouldReturnValue() throws Exception {
@@ -80,6 +124,15 @@ public class PropertyUtilsTest {
     public void onStringPublicReturnStringClass() throws Exception {
         // WHEN
         Object result = PropertyUtils.getPropertyClass(Bean.class, "publicProperty");
+
+        // THEN
+        assertThat(result).isEqualTo(String.class);
+    }
+    
+    @Test
+    public void onStringPublicReturnStringType() throws Exception {
+        // WHEN
+        Object result = PropertyUtils.getPropertyType(Bean.class, "publicProperty");
 
         // THEN
         assertThat(result).isEqualTo(String.class);
@@ -130,6 +183,19 @@ public class PropertyUtilsTest {
 
         // THEN
         assertThat(result).isEqualTo("valueProperty");
+    }
+    
+
+    @Test
+    public void onListValueForSetPropertyShouldGetConverted() throws Exception {
+        // GIVEN
+    	Bean bean = new Bean();
+
+        // WHEN
+    	PropertyUtils.setProperty(bean, "setProperty", Arrays.asList("1", "2"));
+
+        // THEN
+        assertThat(bean.getSetProperty().size()).isEqualTo(2);
     }
 
     @Test
@@ -362,14 +428,65 @@ public class PropertyUtilsTest {
         // WHEN
         PropertyUtils.setProperty(bean, "checkedExceptionalField", "value");
     }
+    
+    @Test
+    public void unknownPropertyThrowingException() throws Exception {
+    	 // GIVEN
+        Bean bean = new Bean();
+
+        // THEN
+        expectedException.expect(PropertyException.class);
+        
+        // WHEN
+        PropertyUtils.setProperty(bean, "attrThatDoesNotExist", "value");
+    }
+    
+    @Test
+    public void unknownPropertyClassThrowingException() throws Exception {
+        // THEN
+        expectedException.expect(PropertyException.class);
+        
+        // WHEN
+        PropertyUtils.getPropertyClass(Bean.class, "attrThatDoesNotExist");
+    }
+    
+    @Test
+    public void unknownPropertyTypeThrowingException() throws Exception {
+        // THEN
+        expectedException.expect(PropertyException.class);
+        
+        // WHEN
+        PropertyUtils.getPropertyType(Bean.class,"attrThatDoesNotExist");
+    }
+    
+    @Test
+    public void nullBeanResultsInNullValue() throws Exception {
+    	 // GIVEN
+        Bean bean = null;
+
+        // WHEN
+        Object result = PropertyUtils.getProperty(bean, Arrays.asList("publicProperty"));
+
+        // THEN
+        assertThat(result).isNull();
+    }
 
     public static class Bean {
         private String privatePropertyWithMutators;
         private boolean booleanPrimitivePropertyWithMutators;
         private Boolean booleanPropertyWithMutators;
         public String publicProperty;
+        private Set<String> setProperty;
 
-        public String getPrivatePropertyWithMutators() {
+		public Set<String> getSetProperty() {
+			return setProperty;
+		}
+		
+		public void setSetProperty(Set<String> setProperty) {
+			this.setProperty = setProperty;
+		}
+
+		public String getPrivatePropertyWithMutators() {
             return privatePropertyWithMutators;
         }
 
@@ -407,6 +524,10 @@ public class PropertyUtilsTest {
 
         public void setCheckedExceptionalField(String value) throws IllegalAccessException {
             throw new IllegalAccessException();
+        }
+        
+        public String getMethodProperty(){
+        	return "noFieldsHere";
         }
     }
 
