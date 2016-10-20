@@ -1,29 +1,24 @@
 package io.katharsis.jpa;
 
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-
-import javax.persistence.EntityManager;
-
 import io.katharsis.jpa.internal.JpaRepositoryBase;
 import io.katharsis.jpa.internal.JpaRepositoryUtils;
 import io.katharsis.jpa.internal.meta.MetaAttribute;
 import io.katharsis.jpa.internal.meta.MetaEntity;
 import io.katharsis.jpa.internal.paging.DefaultPagedMetaInformation;
 import io.katharsis.jpa.internal.paging.PagedMetaInformation;
-import io.katharsis.jpa.query.ComputedAttributeRegistry;
-import io.katharsis.jpa.query.JpaQuery;
-import io.katharsis.jpa.query.JpaQueryExecutor;
-import io.katharsis.jpa.query.JpaQueryFactory;
-import io.katharsis.jpa.query.Tuple;
+import io.katharsis.jpa.query.*;
 import io.katharsis.queryspec.FilterOperator;
 import io.katharsis.queryspec.FilterSpec;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.QuerySpecResourceRepository;
 import io.katharsis.response.paging.PagedResultList;
 import io.katharsis.utils.PropertyUtils;
+
+import javax.persistence.EntityManager;
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Exposes a JPA entity as ResourceRepository.
@@ -80,7 +75,7 @@ public class JpaEntityRepository<T, I extends Serializable> extends JpaRepositor
 		tuples = filterTuples(filteredQuerySpec, tuples);
 		List<T> resources = map(tuples);
 		resources = filterResults(filteredQuerySpec, resources);
-		if (filteredQuerySpec.getLimit() != null) {
+		if (filteredQuerySpec.getPagingSpec() != null) {
 			long totalRowCount = executor.getTotalRowCount();
 			return new PagedResultList<>(resources, totalRowCount);
 		}

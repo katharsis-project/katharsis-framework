@@ -6,31 +6,20 @@ import io.katharsis.queryParams.params.TypedParams;
 
 public interface QueryAdapter {
 
-	boolean hasIncludedRelations();
+    boolean hasIncludedRelations();
 
-	TypedParams<IncludedRelationsParams> getIncludedRelations();
+    TypedParams<IncludedRelationsParams> getIncludedRelations();
 
-	TypedParams<IncludedFieldsParams> getIncludedFields();
+    TypedParams<IncludedFieldsParams> getIncludedFields();
 
-	Class<?> getResourceClass();
+    Class<?> getResourceClass();
 
-	/**
-	 * @return maximum number of resources to return or null for unbounded
-	 */
-	Long getLimit();
+    PageQueryAdapter getPageAdapter();
+    void setPageAdapter(PageQueryAdapter adapter);
 
-	/**
-	 * @return maximum number of resources to skip in the response.
-	 */
-	public long getOffset();
-
-	/**
-	 * @return clone of this instance
-	 */
-	QueryAdapter duplicate();
-
-	void setLimit(Long limit);
-
-	void setOffset(long offset);
+    /**
+     * @return clone of this instance
+     */
+    QueryAdapter duplicate();
 
 }

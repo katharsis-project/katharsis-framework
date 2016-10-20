@@ -1,17 +1,12 @@
 package io.katharsis.queryspec;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.junit.Assert;
-import org.junit.Test;
-
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.util.*;
 
 public class DefaultQuerySpecConverterTest extends AbstractQuerySpecTest {
 
@@ -163,8 +158,8 @@ public class DefaultQuerySpecConverterTest extends AbstractQuerySpecTest {
 		QueryParams queryParams = queryParamsBuilder.buildQueryParams(params);
 
 		QuerySpec spec = parser.fromParams(Task.class, queryParams);
-		Assert.assertEquals(1L, spec.getOffset());
-		Assert.assertEquals(Long.valueOf(2L), spec.getLimit());
+		Assert.assertEquals(1L, spec.getPagingSpec().getOffset());
+		Assert.assertEquals(2L, spec.getPagingSpec().getLimit());
 	}
 
 	@Test

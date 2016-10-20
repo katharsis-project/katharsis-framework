@@ -2,20 +2,14 @@ package io.katharsis.queryspec;
 
 import io.katharsis.utils.CompareUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 public class QuerySpec {
 
 	private Class<?> resourceClass;
 
-	private Long limit = null;
-
-	private long offset = 0;
+	private PagingSpec pagingSpec;
 
 	private List<FilterSpec> filters = new ArrayList<>();
 
@@ -29,6 +23,11 @@ public class QuerySpec {
 
 	public QuerySpec(Class<?> resourceClass) {
 		this.resourceClass = resourceClass;
+	}
+
+	public QuerySpec(Class<?> resourceClass, PagingSpec pagingSpec) {
+		this.resourceClass = resourceClass;
+		this.pagingSpec = pagingSpec;
 	}
 
 	public Class<?> getResourceClass() {
@@ -57,8 +56,7 @@ public class QuerySpec {
 		result = prime * result + ((filters == null) ? 0 : filters.hashCode());
 		result = prime * result + ((includedFields == null) ? 0 : includedFields.hashCode());
 		result = prime * result + ((includedRelations == null) ? 0 : includedRelations.hashCode());
-		result = prime * result + ((limit == null) ? 0 : limit.hashCode());
-		result = prime * result + Long.valueOf(offset).hashCode();
+		result = prime * result + ((pagingSpec == null) ? 0 : pagingSpec.hashCode());
 		result = prime * result + ((relatedSpecs == null) ? 0 : relatedSpecs.hashCode());
 		result = prime * result + ((sort == null) ? 0 : sort.hashCode());
 		return result;
@@ -73,25 +71,17 @@ public class QuerySpec {
 		QuerySpec other = (QuerySpec) obj;
 		return CompareUtils.isEquals(filters, other.filters) // NOSONAR
 				&& CompareUtils.isEquals(includedFields, other.includedFields)
-				&& CompareUtils.isEquals(includedRelations, other.includedRelations) && CompareUtils.isEquals(limit, other.limit)
-				&& CompareUtils.isEquals(offset, other.offset) && CompareUtils.isEquals(relatedSpecs, other.relatedSpecs)
+				&& CompareUtils.isEquals(includedRelations, other.includedRelations)
+				&& CompareUtils.isEquals(pagingSpec, other.pagingSpec) && CompareUtils.isEquals(relatedSpecs, other.relatedSpecs)
 				&& CompareUtils.isEquals(sort, other.sort);
 	}
 
-	public Long getLimit() {
-		return limit;
+	public PagingSpec getPagingSpec() {
+		return pagingSpec;
 	}
 
-	public void setLimit(Long limit) {
-		this.limit = limit;
-	}
-
-	public long getOffset() {
-		return offset;
-	}
-
-	public void setOffset(long offset) {
-		this.offset = offset;
+	public void setPagingSpec(PagingSpec pagingSpec) {
+		this.pagingSpec = pagingSpec;
 	}
 
 	public List<FilterSpec> getFilters() {
@@ -179,8 +169,7 @@ public class QuerySpec {
 
 	public QuerySpec duplicate() {
 		QuerySpec copy = new QuerySpec(resourceClass);
-		copy.limit = limit;
-		copy.offset = offset;
+		copy.pagingSpec = pagingSpec;
 		copy.includedFields.addAll(includedFields);
 		copy.includedRelations.addAll(includedRelations);
 		copy.sort.addAll(sort);

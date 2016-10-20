@@ -1,31 +1,22 @@
 package io.katharsis.jpa;
 
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.List;
-
-import javax.persistence.OptimisticLockException;
-
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-
 import io.katharsis.client.QuerySpecRelationshipRepositoryStub;
 import io.katharsis.client.QuerySpecResourceRepositoryStub;
 import io.katharsis.client.ResourceRepositoryStub;
 import io.katharsis.client.response.JsonLinksInformation;
 import io.katharsis.client.response.JsonMetaInformation;
 import io.katharsis.client.response.ResourceList;
-import io.katharsis.jpa.model.OtherRelatedEntity;
-import io.katharsis.jpa.model.RelatedEntity;
-import io.katharsis.jpa.model.TestEmbeddedIdEntity;
-import io.katharsis.jpa.model.TestEntity;
-import io.katharsis.jpa.model.TestIdEmbeddable;
-import io.katharsis.jpa.model.VersionedEntity;
-import io.katharsis.queryspec.FilterOperator;
-import io.katharsis.queryspec.FilterSpec;
-import io.katharsis.queryspec.QuerySpec;
+import io.katharsis.jpa.model.*;
+import io.katharsis.queryspec.*;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+
+import javax.persistence.OptimisticLockException;
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
 
 public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 
@@ -264,9 +255,7 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 			testRepo.save(task);
 		}
 
-		QuerySpec querySpec = new QuerySpec(TestEntity.class);
-		querySpec.setOffset(2L);
-		querySpec.setLimit(2L);
+		QuerySpec querySpec = new QuerySpec(TestEntity.class, new OffsetBasedPagingSpec(2, 2));
 
 		ResourceList<TestEntity> list = testRepo.findAll(querySpec);
 		Assert.assertEquals(2, list.size());
@@ -279,9 +268,9 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 		Assert.assertNotNull(links);
 
 		String baseUri = getBaseUri().toString();
-		Assert.assertEquals(baseUri + "test/?page[limit]=2", links.asJsonNode().get("first").asText());
+		Assert.assertEquals(baseUri + "test/?page[limit]=2&page[offset]=0", links.asJsonNode().get("first").asText());
 		Assert.assertEquals(baseUri + "test/?page[limit]=2&page[offset]=4", links.asJsonNode().get("last").asText());
-		Assert.assertEquals(baseUri + "test/?page[limit]=2", links.asJsonNode().get("prev").asText());
+		Assert.assertEquals(baseUri + "test/?page[limit]=2&page[offset]=0", links.asJsonNode().get("prev").asText());
 		Assert.assertEquals(baseUri + "test/?page[limit]=2&page[offset]=4", links.asJsonNode().get("next").asText());
 	}
 
@@ -304,9 +293,7 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 			relRepo.addRelations(test, Arrays.asList(i), TestEntity.ATTR_manyRelatedValues);
 		}
 
-		QuerySpec querySpec = new QuerySpec(RelatedEntity.class);
-		querySpec.setOffset(2L);
-		querySpec.setLimit(2L);
+		QuerySpec querySpec = new QuerySpec(RelatedEntity.class, new PageBasedPagingSpec(1, 2));
 
 		ResourceList<RelatedEntity> list = relRepo.findManyTargets(test.getId(), TestEntity.ATTR_manyRelatedValues, querySpec);
 		Assert.assertEquals(2, list.size());
@@ -319,13 +306,13 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 		Assert.assertNotNull(links);
 
 		String baseUri = getBaseUri().toString();
-		Assert.assertEquals(baseUri + "test/1/relationships/manyRelatedValues/?page[limit]=2",
+		Assert.assertEquals(baseUri + "test/1/relationships/manyRelatedValues/?page[number]=0&page[size]=2",
 				links.asJsonNode().get("first").asText());
-		Assert.assertEquals(baseUri + "test/1/relationships/manyRelatedValues/?page[limit]=2&page[offset]=4",
+		Assert.assertEquals(baseUri + "test/1/relationships/manyRelatedValues/?page[number]=2&page[size]=2",
 				links.asJsonNode().get("last").asText());
-		Assert.assertEquals(baseUri + "test/1/relationships/manyRelatedValues/?page[limit]=2",
+		Assert.assertEquals(baseUri + "test/1/relationships/manyRelatedValues/?page[number]=0&page[size]=2",
 				links.asJsonNode().get("prev").asText());
-		Assert.assertEquals(baseUri + "test/1/relationships/manyRelatedValues/?page[limit]=2&page[offset]=4",
+		Assert.assertEquals(baseUri + "test/1/relationships/manyRelatedValues/?page[number]=2&page[size]=2",
 				links.asJsonNode().get("next").asText());
 	}
 

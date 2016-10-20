@@ -1,8 +1,5 @@
 package io.katharsis.jpa.internal;
 
-import java.util.Arrays;
-import java.util.Set;
-
 import io.katharsis.jpa.internal.meta.MetaAttribute;
 import io.katharsis.jpa.internal.meta.MetaEntity;
 import io.katharsis.jpa.internal.meta.MetaKey;
@@ -10,9 +7,13 @@ import io.katharsis.jpa.query.JpaQuery;
 import io.katharsis.jpa.query.JpaQueryExecutor;
 import io.katharsis.queryspec.FilterSpec;
 import io.katharsis.queryspec.IncludeSpec;
+import io.katharsis.queryspec.PagingSpec;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.SortSpec;
 import io.katharsis.utils.PreconditionUtil;
+
+import java.util.Arrays;
+import java.util.Set;
 
 public class JpaRepositoryUtils {
 
@@ -53,15 +54,16 @@ public class JpaRepositoryUtils {
 				executor.fetch(included.getAttributePath());
 			}
 		}
-		executor.setOffset((int) querySpec.getOffset());
-		if (querySpec.getOffset() > Integer.MAX_VALUE) {
+		if (querySpec.getPagingSpec() == null)
+			return;
+		PagingSpec pagingSpec = querySpec.getPagingSpec();
+		if (pagingSpec.getOffset() > Integer.MAX_VALUE) {
 			throw new IllegalArgumentException("offset cannot be larger than Integer.MAX_VALUE");
 		}
-		if (querySpec.getLimit() != null) {
-			if (querySpec.getLimit() > Integer.MAX_VALUE) {
-				throw new IllegalArgumentException("limit cannot be larger than Integer.MAX_VALUE");
-			}
-			executor.setLimit((int) querySpec.getLimit().longValue());
+		executor.setOffset((int) pagingSpec.getOffset());
+		if (pagingSpec.getLimit() > Integer.MAX_VALUE) {
+			throw new IllegalArgumentException("limit cannot be larger than Integer.MAX_VALUE");
 		}
+		executor.setLimit((int) pagingSpec.getLimit());
 	}
 }

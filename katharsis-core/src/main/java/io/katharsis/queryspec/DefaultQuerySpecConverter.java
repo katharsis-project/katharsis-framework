@@ -1,26 +1,18 @@
 package io.katharsis.queryspec;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.RestrictedPaginationKeys;
 import io.katharsis.queryParams.RestrictedSortingValues;
 import io.katharsis.queryParams.include.Inclusion;
-import io.katharsis.queryParams.params.FilterParams;
-import io.katharsis.queryParams.params.IncludedFieldsParams;
-import io.katharsis.queryParams.params.IncludedRelationsParams;
-import io.katharsis.queryParams.params.SortingParams;
-import io.katharsis.queryParams.params.TypedParams;
+import io.katharsis.queryParams.params.*;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.utils.PropertyUtils;
 import io.katharsis.utils.parser.TypeParser;
+
+import java.util.*;
+import java.util.Map.Entry;
 
 public class DefaultQuerySpecConverter implements QuerySpecConverter {
 
@@ -56,20 +48,93 @@ public class DefaultQuerySpecConverter implements QuerySpecConverter {
 		return resourceInformation.getResourceClass();
 	}
 
+	/**
+	 *
+	 * @param rootQuerySpec
+	 * @param queryParams
+	 */
 	protected void applyPaging(QuerySpec rootQuerySpec, QueryParams queryParams) {
 		Map<RestrictedPaginationKeys, Integer> pagination = queryParams.getPagination();
-		if (pagination != null) {
-			for (Map.Entry<RestrictedPaginationKeys, Integer> entry : pagination.entrySet()) {
-				RestrictedPaginationKeys key = entry.getKey();
-				if (key == RestrictedPaginationKeys.limit) {
-					rootQuerySpec.setLimit(entry.getValue().longValue());
-				} else if (key == RestrictedPaginationKeys.offset) {
-					rootQuerySpec.setOffset(entry.getValue());
-				} else {
-					throw new UnsupportedOperationException("not supported: " + key);
-				}
+		if (pagination == null) return;
+
+		Long pageNumber = null, pageSize = null, limit = null, offset = null;
+		for (Map.Entry<RestrictedPaginationKeys, Integer> entry : pagination.entrySet()) {
+			RestrictedPaginationKeys key = entry.getKey();
+			if (key == RestrictedPaginationKeys.limit) {
+				limit = entry.getValue().longValue();
+			} else if (key == RestrictedPaginationKeys.offset) {
+				offset = entry.getValue().longValue();
+			} else if (key == RestrictedPaginationKeys.size) {
+				pageSize = entry.getValue().longValue();
+			} else if (key == RestrictedPaginationKeys.number) {
+				pageNumber = entry.getValue().longValue();
+			} else {
+				throw new UnsupportedOperationException("not supported: " + key);
 			}
 		}
+
+		PagingSpec pagingSpec = buildOffsetBasedPagingSpec(offset, limit);
+		if (pagingSpec == null)
+			pagingSpec = buildPageBasedPagingSpec(pageNumber, pageSize);
+
+		if (pagingSpec != null)
+			rootQuerySpec.setPagingSpec(pagingSpec);
+	}
+
+	/**
+	 * Builds a page based paging spec from potentially null values.
+	 * <p>
+	 * Returns null if:
+	 * <ul>
+	 * <li>both page number and size are null</li>
+	 * <li>page size is null</li>
+	 * </ul>
+	 * <p>
+	 * Otherwise, if pageNumber is null, it will default pageNumber to 0, and return a {@link PageBasedPagingSpec}
+	 *
+	 * @param pageNumber
+	 * @param pageSize
+	 * @return null according to rules above, or the page based paging spec
+	 */
+	protected PageBasedPagingSpec buildPageBasedPagingSpec(Long pageNumber, Long pageSize) {
+		if (pageNumber == null && pageSize == null)
+			return null;
+
+		if (pageSize == null)
+			return null;
+
+		if (pageNumber == null)
+			pageNumber = 0L;
+
+		return new PageBasedPagingSpec(pageNumber, pageSize, RestrictedPaginationKeys.number.name(), RestrictedPaginationKeys.size.name());
+	}
+
+	/**
+	 * Builds an offset based paging spec from potentially null values.
+	 * <p>
+	 * Returns null if:
+	 * <ul>
+	 * <li>both limit and offset are null</li>
+	 * <li>limit is null</li>
+	 * </ul>
+	 * <p>
+	 * Otherwise, if offset is null, but limit is not, it will default offset to 0, and return a {@link OffsetBasedPagingSpec}
+	 *
+	 * @param offset
+	 * @param limit
+	 * @return null according to rules above, or the offset based paging spec
+	 */
+	protected OffsetBasedPagingSpec buildOffsetBasedPagingSpec(Long offset, Long limit) {
+		if (offset == null && limit == null)
+			return null;
+
+		if (limit == null)
+			return null;
+
+		if (offset == null)
+			offset = 0L;
+
+		return new OffsetBasedPagingSpec(offset, limit, RestrictedPaginationKeys.offset.name(), RestrictedPaginationKeys.limit.name());
 	}
 
 	protected void applyFiltering(QuerySpec rootQuerySpec, QueryParams queryParams) {

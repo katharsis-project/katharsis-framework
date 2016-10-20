@@ -1,26 +1,14 @@
 package io.katharsis.queryspec.repository;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
+import io.katharsis.queryspec.*;
+import io.katharsis.resource.mock.models.Project;
+import io.katharsis.resource.mock.models.Task;
+import io.katharsis.resource.registry.ResourceRegistry;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import io.katharsis.queryspec.AbstractQuerySpecTest;
-import io.katharsis.queryspec.DefaultQuerySpecDeserializer;
-import io.katharsis.queryspec.Direction;
-import io.katharsis.queryspec.FilterOperator;
-import io.katharsis.queryspec.FilterSpec;
-import io.katharsis.queryspec.QuerySpec;
-import io.katharsis.queryspec.QuerySpecDeserializerContext;
-import io.katharsis.queryspec.SortSpec;
-import io.katharsis.resource.mock.models.Project;
-import io.katharsis.resource.mock.models.Task;
-import io.katharsis.resource.registry.ResourceRegistry;
+import java.util.*;
 
 public class DefaultQuerySpecDeserializerTest extends AbstractQuerySpecTest {
 
@@ -57,31 +45,23 @@ public class DefaultQuerySpecDeserializerTest extends AbstractQuerySpecTest {
 		Assert.assertEquals(expectedSpec, actualSpec);
 	}
 
-
     @Test
     public void defaultPaginationOnRoot(){
     	Map<String, Set<String>> params = new HashMap<>();
-    	deserializer.setDefaultLimit(12L);
-    	deserializer.setDefaultOffset(1L);
 		QuerySpec actualSpec = deserializer.deserialize(Task.class, params);
-		Assert.assertEquals(1L, actualSpec.getOffset());
-		Assert.assertEquals(12L, actualSpec.getLimit().longValue());
-    }
-    
+		Assert.assertNull(actualSpec.getPagingSpec());
+	}
+
     @Test
     public void defaultPaginationOnRelation(){
     	Map<String, Set<String>> params = new HashMap<>();
     	add(params, "sort[projects]", "name");
-    	deserializer.setDefaultLimit(12L);
-    	deserializer.setDefaultOffset(1L);
 		QuerySpec actualSpec = deserializer.deserialize(Task.class, params);
-		Assert.assertEquals(1L, actualSpec.getOffset());
-		Assert.assertEquals(12L, actualSpec.getLimit().longValue());
+		Assert.assertNull(actualSpec.getPagingSpec());
 		QuerySpec projectQuerySpec = actualSpec.getQuerySpec(Project.class);
 		Assert.assertNotNull(projectQuerySpec);
-		Assert.assertEquals(1L, projectQuerySpec.getOffset());
-		Assert.assertEquals(12L, projectQuerySpec.getLimit().longValue());
-    }
+		Assert.assertNull(projectQuerySpec.getPagingSpec());
+	}
 	
 	@Test
 	public void testFindAllOrderByAsc() throws InstantiationException, IllegalAccessException {
@@ -171,14 +151,14 @@ public class DefaultQuerySpecDeserializerTest extends AbstractQuerySpecTest {
 	@Test
 	public void testPaging() throws InstantiationException, IllegalAccessException {
 		QuerySpec expectedSpec = new QuerySpec(Task.class);
-		expectedSpec.setLimit(2L);
-		expectedSpec.setOffset(1L);
+		expectedSpec.setPagingSpec(new OffsetBasedPagingSpec(1, 2));
 
 		Map<String, Set<String>> params = new HashMap<>();
 		add(params, "page[offset]", "1");
 		add(params, "page[limit]", "2");
 
 		QuerySpec actualSpec = deserializer.deserialize(Task.class, params);
+		actualSpec.setPagingSpec(new OffsetBasedPagingSpec(1, 2));
 		Assert.assertEquals(expectedSpec, actualSpec);
 	}
 

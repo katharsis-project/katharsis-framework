@@ -1,15 +1,5 @@
 package io.katharsis.queryspec;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import io.katharsis.jackson.exception.ParametersDeserializationException;
 import io.katharsis.resource.RestrictedQueryParamsMembers;
 import io.katharsis.resource.registry.RegistryEntry;
@@ -17,24 +7,21 @@ import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.utils.PropertyUtils;
 import io.katharsis.utils.parser.TypeParser;
 
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * Maps url parameters to QuerySpec.
  */
 public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
-
-	private static final String OFFSET_PARAMETER = "offset";
-
-	private static final String LIMIT_PARAMETER = "limit";
 
 	private static final Pattern PARAMETER_PATTERN = Pattern.compile("(\\w+)(\\[(\\w+)\\])?([\\w\\[\\]]*)");
 
 	private TypeParser typeParser = new TypeParser();
 
 	private FilterOperator defaultOperator = FilterOperator.EQ;
-
-	private long defaultOffset = 0;
-
-	private Long defaultLimit = null;
 
 	private Set<FilterOperator> supportedOperators = new HashSet<>();
 
@@ -48,32 +35,6 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 		supportedOperators.add(FilterOperator.GE);
 		supportedOperators.add(FilterOperator.LT);
 		supportedOperators.add(FilterOperator.LE);
-	}
-
-	public long getDefaultOffset() {
-		return defaultOffset;
-	}
-
-	/**
-	 * Sets the default offset if no pagination is used.
-	 * 
-	 * @param defaultOffset
-	 */
-	public void setDefaultOffset(long defaultOffset) {
-		this.defaultOffset = defaultOffset;
-	}
-
-	public Long getDefaultLimit() {
-		return defaultLimit;
-	}
-
-	/**
-	 * Sets the default limit if no pagination is used.
-	 * 
-	 * @param defaultLimit
-	 */
-	public void setDefaultLimit(Long defaultLimit) {
-		this.defaultLimit = defaultLimit;
 	}
 
 	public FilterOperator getDefaultOperator() {
@@ -100,6 +61,7 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 	@Override
 	public QuerySpec deserialize(Class<?> rootResourceClass, Map<String, Set<String>> parameterMap) {
 		QuerySpec rootQuerySpec = new QuerySpec(rootResourceClass);
+		DefaultPageParamDeserializer pageParamDeserializer = new DefaultPageParamDeserializer();
 		setupDefaults(rootQuerySpec);
 
 		List<Parameter> parameters = parseParameters(parameterMap, rootResourceClass);
@@ -123,20 +85,21 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 					deserializeFields(querySpec, parameter);
 					break;
 				case page:
-					deserializePage(querySpec, parameter);
+					pageParamDeserializer.collectPageParam(parameter);
 					break;
 				default:
 					throw new IllegalStateException(parameter.paramType.toString());
 			}
 
 		}
+		PagingSpec pageSpec = pageParamDeserializer.deserialize();
+		if (pageSpec != null)
+			rootQuerySpec.setPagingSpec(pageSpec);
 
 		return rootQuerySpec;
 	}
 
 	private void setupDefaults(QuerySpec querySpec) {
-		querySpec.setOffset(defaultOffset);
-		querySpec.setLimit(defaultLimit);
 	}
 
 	private void deserializeIncludes(QuerySpec querySpec, Parameter parameter) {
@@ -169,21 +132,6 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 		}
 	}
 
-	private void deserializePage(QuerySpec querySpec, Parameter parameter) {
-		if (!parameter.name.startsWith("[") || !parameter.name.endsWith("]")) {
-			throw new ParametersDeserializationException(parameter.toString());
-		}
-		String name = parameter.name.substring(1, parameter.name.length() - 1);
-		if (OFFSET_PARAMETER.equalsIgnoreCase(name)) {
-			querySpec.setOffset(parameter.getLongValue());
-		}
-		else if (LIMIT_PARAMETER.equalsIgnoreCase(name)) {
-			querySpec.setLimit(parameter.getLongValue());
-		}
-		else {
-			throw new ParametersDeserializationException(parameter.toString());
-		}
-	}
 
 	private void deserializeFilter(QuerySpec querySpec, Parameter parameter) {
 		List<String> attributePath = splitKeyPath(parameter.name, parameter);

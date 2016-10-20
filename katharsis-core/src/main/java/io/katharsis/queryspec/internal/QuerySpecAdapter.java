@@ -1,10 +1,5 @@
 package io.katharsis.queryspec.internal;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 import io.katharsis.queryParams.include.Inclusion;
 import io.katharsis.queryParams.params.IncludedFieldsParams;
 import io.katharsis.queryParams.params.IncludedRelationsParams;
@@ -17,15 +12,29 @@ import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.utils.StringUtils;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 public class QuerySpecAdapter implements QueryAdapter {
 
 	private QuerySpec querySpec;
 
 	private ResourceRegistry resourceRegistry;
 
+	private PageQueryAdapter pageQuerySpecAdapter;
+
 	public QuerySpecAdapter(QuerySpec querySpec, ResourceRegistry resourceRegistry) {
 		this.querySpec = querySpec;
 		this.resourceRegistry = resourceRegistry;
+		this.pageQuerySpecAdapter = new PageQuerySpecAdapter(querySpec.getPagingSpec());
+	}
+
+	public QuerySpecAdapter(QuerySpec querySpec, ResourceRegistry resourceRegistry, PageQuerySpecAdapter pageQuerySpecAdapter) {
+		this.querySpec = querySpec;
+		this.resourceRegistry = resourceRegistry;
+		this.pageQuerySpecAdapter = pageQuerySpecAdapter;
 	}
 
 	public QuerySpec getQuerySpec() {
@@ -97,27 +106,21 @@ public class QuerySpecAdapter implements QueryAdapter {
 	}
 
 	@Override
-	public Long getLimit() {
-		return querySpec.getLimit();
-	}
-
-	@Override
-	public long getOffset() {
-		return querySpec.getOffset();
-	}
-
-	@Override
 	public QueryAdapter duplicate() {
-		return new QuerySpecAdapter(querySpec.duplicate(), resourceRegistry);
+		return new QuerySpecAdapter(querySpec.duplicate(), resourceRegistry, (PageQuerySpecAdapter) pageQuerySpecAdapter.duplicate());
 	}
 
 	@Override
-	public void setLimit(Long limit) {
-		querySpec.setLimit(limit);
+	public PageQueryAdapter getPageAdapter() {
+		return this.pageQuerySpecAdapter;
 	}
 
 	@Override
-	public void setOffset(long offset) {
-		querySpec.setOffset(offset);
+	public void setPageAdapter(PageQueryAdapter adapter) {
+		if (!(adapter instanceof PageQuerySpecAdapter))
+			throw new UnsupportedOperationException("QuerySpecAdapter only supports PageQuerySpecAdapters and derivative types");
+		this.pageQuerySpecAdapter = adapter;
+		PageQuerySpecAdapter pageAdapter = (PageQuerySpecAdapter) adapter;
+		querySpec.setPagingSpec(pageAdapter.getPagingSpec());
 	}
 }

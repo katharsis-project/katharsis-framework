@@ -5,6 +5,7 @@ import io.katharsis.queryspec.DefaultQuerySpecConverter;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.QuerySpecLinksRepository;
 import io.katharsis.queryspec.QuerySpecMetaRepository;
+import io.katharsis.queryspec.internal.PageQueryAdapter;
 import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.queryspec.internal.QueryParamsAdapter;
 import io.katharsis.queryspec.internal.QuerySpecAdapter;
@@ -105,9 +106,9 @@ public abstract class ResponseRepository {
 
     private LinksInformation enrichPageLinksInformation(LinksInformation linksInformation, Iterable<?> resources,
 			QueryAdapter queryAdapter, RequestSpec requestSpec) {
-    	if(!(resources instanceof PagedResultList) || queryAdapter.getLimit() == null){
-    		return linksInformation;
-    	}
+		if (!(resources instanceof PagedResultList) || queryAdapter.getPageAdapter() == null) {
+			return linksInformation;
+		}
     
 		if(linksInformation != null && !(linksInformation instanceof PagedLinksInformation)){
 			throw new IllegalStateException(linksInformation + " must implement " + PagedLinksInformation.class.getName() + " to support pagination link computation with " + PagedResultList.class);
@@ -132,9 +133,11 @@ public abstract class ResponseRepository {
 
 	private void doEnrichPageLinksInformation(PagedLinksInformation pagedLinksInformation, PagedResultList<?> pageResultList,
 			QueryAdapter queryAdapter, RequestSpec requestSpec) {
-    	long total = pageResultList.getTotalCount();
-		long pageSize = queryAdapter.getLimit().longValue();
-		long offset = queryAdapter.getOffset();
+
+		PageQueryAdapter pageAdapter = queryAdapter.getPageAdapter();
+		long total = pageResultList.getTotalCount();
+		long pageSize = pageAdapter.getLimit();
+		long offset = pageAdapter.getOffset();
 
 		long currentPage = offset / pageSize;
 		if (currentPage * pageSize != offset) {
@@ -142,23 +145,26 @@ public abstract class ResponseRepository {
 		}
 		long totalPages = (total + pageSize - 1) / pageSize;
 
-		QueryAdapter pageSpec = queryAdapter.duplicate();
-		pageSpec.setLimit(pageSize);
+		pageAdapter.setTotalCount(total);
+		pageAdapter.setTotalPages(totalPages);
 
-		pageSpec.setOffset(0);
-		pagedLinksInformation.setFirst(toUrl(pageSpec, pageResultList, requestSpec));
+		QueryAdapter adapterClone = queryAdapter.duplicate();
+		PageQueryAdapter pageAdapterCurrentPage = adapterClone.getPageAdapter();
 
-		pageSpec.setOffset((totalPages - 1) * pageSize);
-		pagedLinksInformation.setLast(toUrl(pageSpec, pageResultList, requestSpec));
+		adapterClone.setPageAdapter(pageAdapterCurrentPage.first());
+		pagedLinksInformation.setFirst(toUrl(adapterClone, pageResultList, requestSpec));
 
-		if (currentPage > 0) {
-			pageSpec.setOffset((currentPage - 1) * pageSize);
-			pagedLinksInformation.setPrev(toUrl(pageSpec, pageResultList, requestSpec));
+		adapterClone.setPageAdapter(pageAdapterCurrentPage.last());
+		pagedLinksInformation.setLast(toUrl(adapterClone, pageResultList, requestSpec));
+
+		if (pageAdapterCurrentPage.hasPrev()) {
+			adapterClone.setPageAdapter(pageAdapterCurrentPage.prev());
+			pagedLinksInformation.setPrev(toUrl(adapterClone, pageResultList, requestSpec));
 		}
 
-		if (currentPage < totalPages - 1) {
-			pageSpec.setOffset((currentPage + 1) * pageSize);
-			pagedLinksInformation.setNext(toUrl(pageSpec, pageResultList, requestSpec));
+		if (pageAdapterCurrentPage.hasNext()) {
+			adapterClone.setPageAdapter(pageAdapterCurrentPage.next());
+			pagedLinksInformation.setNext(toUrl(adapterClone, pageResultList, requestSpec));
 		}		
 	}
 	
