@@ -1,10 +1,6 @@
 package io.katharsis.client.internal;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.squareup.okhttp.HttpUrl;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Request.Builder;
-import com.squareup.okhttp.Response;
 import io.katharsis.client.ClientException;
 import io.katharsis.client.KatharsisClient;
 import io.katharsis.client.response.ResourceList;
@@ -18,6 +14,10 @@ import io.katharsis.response.LinksInformation;
 import io.katharsis.response.MetaInformation;
 import io.katharsis.utils.JsonApiUrlBuilder;
 import io.katharsis.utils.java.Optional;
+import okhttp3.HttpUrl;
+import okhttp3.Request;
+import okhttp3.Request.Builder;
+import okhttp3.Response;
 
 import java.io.IOException;
 import java.util.Arrays;

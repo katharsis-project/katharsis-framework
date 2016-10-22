@@ -1,10 +1,21 @@
 package io.katharsis.client;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.squareup.okhttp.OkHttpClient;
-import io.katharsis.client.internal.*;
+
+import io.katharsis.client.http.HttpAdapter;
+import io.katharsis.client.http.okhttp.OkHttpAdapter;
+import io.katharsis.client.internal.BaseResponseDeserializer;
+import io.katharsis.client.internal.ErrorResponseDeserializer;
+import io.katharsis.client.internal.RelationshipRepositoryStubImpl;
+import io.katharsis.client.internal.ResourceRepositoryStubImpl;
+import io.katharsis.client.module.HttpAdapterAware;
 import io.katharsis.errorhandling.ErrorResponse;
 import io.katharsis.errorhandling.mapper.ExceptionMapperLookup;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
@@ -30,22 +41,21 @@ import io.katharsis.resource.registry.responseRepository.RelationshipRepositoryA
 import io.katharsis.resource.registry.responseRepository.ResourceRepositoryAdapter;
 import io.katharsis.response.BaseResponseContext;
 import io.katharsis.utils.JsonApiUrlBuilder;
+import okhttp3.OkHttpClient;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 /**
  * Client implementation giving access to JSON API repositories using stubs.
  */
 public class KatharsisClient {
 
-	private OkHttpClient client = new OkHttpClient();
+	private OkHttpAdapter httpAdapter;
+
 	private ObjectMapper objectMapper;
 
 	private ResourceRegistry resourceRegistry;
 
 	private ModuleRegistry moduleRegistry;
+
 	private JsonApiUrlBuilder urlBuilder;
 
 	private boolean initialized = false;
@@ -57,6 +67,8 @@ public class KatharsisClient {
 	 * @param resourceSearchPackage search package
 	 */
 	public KatharsisClient(String serviceUrl, String resourceSearchPackage) {
+		httpAdapter = new OkHttpAdapter();
+
 		resourceRegistry = new ResourceRegistry(new ConstantServiceUrlProvider(normalize(serviceUrl)));
 		urlBuilder = new JsonApiUrlBuilder(resourceRegistry);
 
@@ -69,8 +81,7 @@ public class KatharsisClient {
 		// consider use of katharsis module in the future
 		JsonApiModuleBuilder moduleBuilder = new JsonApiModuleBuilder();
 		SimpleModule jsonApiModule = moduleBuilder.build(resourceRegistry, true);
-		jsonApiModule.addDeserializer(BaseResponseContext.class,
-				new BaseResponseDeserializer(resourceRegistry, objectMapper));
+		jsonApiModule.addDeserializer(BaseResponseContext.class, new BaseResponseDeserializer(resourceRegistry, objectMapper));
 		jsonApiModule.addDeserializer(ErrorResponse.class, new ErrorResponseDeserializer());
 		objectMapper.registerModule(jsonApiModule);
 	}
@@ -78,7 +89,8 @@ public class KatharsisClient {
 	private static String normalize(String serviceUrl) {
 		if (serviceUrl.endsWith("/")) {
 			return serviceUrl.substring(0, serviceUrl.length() - 1);
-		}else{
+		}
+		else {
 			return serviceUrl;
 		}
 	}
@@ -119,6 +131,7 @@ public class KatharsisClient {
 
 		// create interface for it!
 		RepositoryInstanceBuilder repositoryInstanceBuilder = new RepositoryInstanceBuilder(null, null) {
+
 			@Override
 			public Object buildRepository() {
 				return repositoryStub;
@@ -131,11 +144,12 @@ public class KatharsisClient {
 
 		for (ResourceField relationshipField : relationshipFields) {
 			final Class<?> targetClass = relationshipField.getElementType();
-			
+
 			final RelationshipRepositoryStubImpl relationshipRepositoryStub = new RelationshipRepositoryStubImpl(this,
 					resourceClass, targetClass, resourceInformation, urlBuilder, registryEntry);
 			RepositoryInstanceBuilder<RelationshipRepository> relationshipRepositoryInstanceBuilder = new RepositoryInstanceBuilder<RelationshipRepository>(
 					null, null) {
+
 				@Override
 				public RelationshipRepository buildRepository() {
 					return relationshipRepositoryStub;
@@ -159,29 +173,29 @@ public class KatharsisClient {
 	 * @return stub for the given resourceClass
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public <T, ID extends Serializable> ResourceRepositoryStub<T, ID> getRepository(Class<T> resourceClass) {
+	public <T, I extends Serializable> ResourceRepositoryStub<T, I> getRepository(Class<T> resourceClass) {
 		init();
 
 		RegistryEntry<T> entry = resourceRegistry.getEntry(resourceClass);
 
 		// TODO fix this in katharsis, should be able to get original resource
 		ResourceRepositoryAdapter repositoryAdapter = entry.getResourceRepository(null);
-		return (ResourceRepositoryStub<T, ID>) repositoryAdapter.getResourceRepository();
+		return (ResourceRepositoryStub<T, I>) repositoryAdapter.getResourceRepository();
 	}
-	
+
 	/**
 	 * @param resourceClass resource class
 	 * @return stub for the given resourceClass
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public <T, ID extends Serializable> QuerySpecResourceRepositoryStub<T, ID> getQuerySpecRepository(Class<T> resourceClass) {
+	public <T, I extends Serializable> QuerySpecResourceRepositoryStub<T, I> getQuerySpecRepository(Class<T> resourceClass) {
 		init();
 
 		RegistryEntry<T> entry = resourceRegistry.getEntry(resourceClass);
 
 		// TODO fix this in katharsis, should be able to get original resource
 		ResourceRepositoryAdapter repositoryAdapter = entry.getResourceRepository(null);
-		return (QuerySpecResourceRepositoryStub<T, ID>) repositoryAdapter.getResourceRepository();
+		return (QuerySpecResourceRepositoryStub<T, I>) repositoryAdapter.getResourceRepository();
 	}
 
 	/**
@@ -191,16 +205,16 @@ public class KatharsisClient {
 	 *         class
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public <T, ID extends Serializable, D, DID extends Serializable> RelationshipRepositoryStub<T, ID, D, DID> getRepository(
+	public <T, I extends Serializable, D, J extends Serializable> RelationshipRepositoryStub<T, I, D, J> getRepository(
 			Class<T> sourceClass, Class<D> targetClass) {
 		init();
 
 		RegistryEntry<T> entry = resourceRegistry.getEntry(sourceClass);
 
 		RelationshipRepositoryAdapter repositoryAdapter = entry.getRelationshipRepositoryForClass(targetClass, null);
-		return (RelationshipRepositoryStub<T, ID, D, DID>) repositoryAdapter.getRelationshipRepository();
+		return (RelationshipRepositoryStub<T, I, D, J>) repositoryAdapter.getRelationshipRepository();
 	}
-	
+
 	/**
 	 * @param sourceClass source class
 	 * @param targetClass target class
@@ -208,14 +222,14 @@ public class KatharsisClient {
 	 *         class
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public <T, ID extends Serializable, D, DID extends Serializable> QuerySpecRelationshipRepositoryStub<T, ID, D, DID> getQuerySpecRepository(
+	public <T, I extends Serializable, D, J extends Serializable> QuerySpecRelationshipRepositoryStub<T, I, D, J> getQuerySpecRepository(
 			Class<T> sourceClass, Class<D> targetClass) {
 		init();
 
 		RegistryEntry<T> entry = resourceRegistry.getEntry(sourceClass);
 
 		RelationshipRepositoryAdapter repositoryAdapter = entry.getRelationshipRepositoryForClass(targetClass, null);
-		return (QuerySpecRelationshipRepositoryStub<T, ID, D, DID>) repositoryAdapter.getRelationshipRepository();
+		return (QuerySpecRelationshipRepositoryStub<T, I, D, J>) repositoryAdapter.getRelationshipRepository();
 	}
 
 	/**
@@ -229,7 +243,18 @@ public class KatharsisClient {
 	 * @return http client library in use
 	 */
 	public OkHttpClient getHttpClient() {
-		return client;
+		return httpAdapter.getImplementation();
+	}
+
+	public void setHttpClient(HttpAdapter httpAdapter) {
+		this.httpAdapter = (OkHttpAdapter) httpAdapter;
+
+		List<Module> modules = moduleRegistry.getModules();
+		for (Module module : modules) {
+			if (module instanceof HttpAdapterAware) {
+				((HttpAdapterAware) module).setHttpAdapter(getHttpAdapter());
+			}
+		}
 	}
 
 	/**
@@ -245,7 +270,14 @@ public class KatharsisClient {
 	 * @param module
 	 */
 	public void addModule(Module module) {
+		if (module instanceof HttpAdapterAware) {
+			((HttpAdapterAware) module).setHttpAdapter(getHttpAdapter());
+		}
 		this.moduleRegistry.addModule(module);
+	}
+
+	public HttpAdapter getHttpAdapter() {
+		return httpAdapter;
 	}
 
 	public ExceptionMapperRegistry getExceptionMapperRegistry() {

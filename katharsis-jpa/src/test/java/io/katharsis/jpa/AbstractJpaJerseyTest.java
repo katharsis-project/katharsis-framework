@@ -1,7 +1,6 @@
 package io.katharsis.jpa;
 
 import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -38,7 +37,7 @@ public abstract class AbstractJpaJerseyTest extends JerseyTest {
 	protected QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
 
 	protected AnnotationConfigApplicationContext context;
-	
+
 	private boolean useQuerySpec = true;
 
 	@Before
@@ -48,8 +47,6 @@ public abstract class AbstractJpaJerseyTest extends JerseyTest {
 		JpaModule module = JpaModule.newClientModule(TestEntity.class.getPackage().getName());
 		setupModule(module, false);
 		client.addModule(module);
-
-		client.getHttpClient().setReadTimeout(1000000, TimeUnit.MILLISECONDS);
 	}
 
 	protected void setupModule(JpaModule module, boolean server) {
@@ -95,11 +92,13 @@ public abstract class AbstractJpaJerseyTest extends JerseyTest {
 			SpringTransactionRunner transactionRunner = context.getBean(SpringTransactionRunner.class);
 
 			KatharsisFeature feature;
-			if(useQuerySpec){
-				feature = new KatharsisFeature(new ObjectMapper(),
-					new QueryParamsBuilder(new DefaultQueryParamsParser()), new SampleJsonServiceLocator());
-			}else{
-				feature = new KatharsisFeature(new ObjectMapper(), new DefaultQuerySpecDeserializer(), new SampleJsonServiceLocator());
+			if (useQuerySpec) {
+				feature = new KatharsisFeature(new ObjectMapper(), new QueryParamsBuilder(new DefaultQueryParamsParser()),
+						new SampleJsonServiceLocator());
+			}
+			else {
+				feature = new KatharsisFeature(new ObjectMapper(), new DefaultQuerySpecDeserializer(),
+						new SampleJsonServiceLocator());
 			}
 
 			JpaModule module = JpaModule.newServerModule(emFactory, em, transactionRunner);

@@ -27,8 +27,11 @@ import io.katharsis.validation.mock.repository.TaskRepository;
 public abstract class AbstractValidationTest extends JerseyTest {
 
 	protected KatharsisClient client;
+
 	protected ResourceRepositoryStub<Task, Long> taskRepo;
+
 	protected ResourceRepositoryStub<Project, Long> projectRepo;
+
 	protected RelationshipRepositoryStub<Task, Long, Project, Long> relRepo;
 
 	protected QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
@@ -41,8 +44,6 @@ public abstract class AbstractValidationTest extends JerseyTest {
 		projectRepo = client.getRepository(Project.class);
 		relRepo = client.getRepository(Task.class, Project.class);
 		TaskRepository.map.clear();
-
-		client.getHttpClient().setReadTimeout(1000000, TimeUnit.MILLISECONDS);
 	}
 
 	@Override
@@ -52,11 +53,13 @@ public abstract class AbstractValidationTest extends JerseyTest {
 
 	@ApplicationPath("/")
 	private static class TestApplication extends ResourceConfig {
+
 		public TestApplication() {
 			property(KatharsisProperties.RESOURCE_SEARCH_PACKAGE, getClass().getPackage().getName());
 			property(KatharsisProperties.RESOURCE_DEFAULT_DOMAIN, "http://test.local");
 
-			KatharsisFeature feature = new KatharsisFeature(new ObjectMapper(), new QueryParamsBuilder(new DefaultQueryParamsParser()), new SampleJsonServiceLocator());
+			KatharsisFeature feature = new KatharsisFeature(new ObjectMapper(),
+					new QueryParamsBuilder(new DefaultQueryParamsParser()), new SampleJsonServiceLocator());
 			feature.addModule(new ValidationModule());
 			register(feature);
 

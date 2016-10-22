@@ -16,7 +16,6 @@ import io.katharsis.module.SimpleModule.RelationshipRepositoryRegistration;
 import io.katharsis.module.SimpleModule.ResourceRepositoryRegistration;
 import io.katharsis.queryspec.QuerySpecRelationshipRepository;
 import io.katharsis.queryspec.QuerySpecResourceRepository;
-import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.repository.RepositoryInstanceBuilder;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.resource.information.ResourceInformation;
@@ -27,7 +26,6 @@ import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.repository.DirectResponseRelationshipEntry;
 import io.katharsis.resource.registry.repository.DirectResponseResourceEntry;
 import io.katharsis.resource.registry.repository.ResponseRelationshipEntry;
-import net.jodah.typetools.TypeResolver;
 
 /**
  * Container for setting up and holding {@link Module} instances;
@@ -35,15 +33,14 @@ import net.jodah.typetools.TypeResolver;
 public class ModuleRegistry {
 
 	private ObjectMapper objectMapper;
+
 	private ResourceRegistry resourceRegistry;
 
 	private List<Module> modules = new ArrayList<Module>();
 
 	private SimpleModule aggregatedModule = new SimpleModule(null);
-	private volatile boolean initialized;
 
-	public ModuleRegistry() {
-	}
+	private volatile boolean initialized;
 
 	/**
 	 * Register an new module to this registry and setup the module.
@@ -94,19 +91,19 @@ public class ModuleRegistry {
 		@Override
 		public void addFilter(Filter filter) {
 			checkNotInitialized();
-			aggregatedModule.addFilter(filter);			
+			aggregatedModule.addFilter(filter);
 		}
 
 		@Override
 		public void addExceptionMapperLookup(ExceptionMapperLookup exceptionMapperLookup) {
 			checkNotInitialized();
-			aggregatedModule.addExceptionMapperLookup(exceptionMapperLookup);			
+			aggregatedModule.addExceptionMapperLookup(exceptionMapperLookup);
 		}
 
 		@Override
 		public void addExceptionMapper(ExceptionMapper<?> exceptionMapper) {
 			checkNotInitialized();
-			aggregatedModule.addExceptionMapper(exceptionMapper);			
+			aggregatedModule.addExceptionMapper(exceptionMapper);
 		}
 
 		@Override
@@ -119,7 +116,7 @@ public class ModuleRegistry {
 		public void addRepository(Class<?> sourceType, Class<?> targetType,
 				QuerySpecRelationshipRepository<?, ?, ?, ?> repository) {
 			checkNotInitialized();
-			aggregatedModule.addRepository(sourceType, targetType, repository);			
+			aggregatedModule.addRepository(sourceType, targetType, repository);
 		}
 	}
 
@@ -194,7 +191,6 @@ public class ModuleRegistry {
 		}
 	}
 
-	
 	/**
 	 * Combines all {@link ExceptionMapperLookup} instances provided by the registered
 	 * {@link Module}.
@@ -209,9 +205,9 @@ public class ModuleRegistry {
 
 		@SuppressWarnings("rawtypes")
 		@Override
-		public  Set<JsonApiExceptionMapper> getExceptionMappers() {
+		public Set<JsonApiExceptionMapper> getExceptionMappers() {
 			Set<JsonApiExceptionMapper> set = new HashSet<JsonApiExceptionMapper>();
-			for(ExceptionMapperLookup lookup : lookups){
+			for (ExceptionMapperLookup lookup : lookups) {
 				set.addAll(lookup.getExceptionMappers());
 			}
 			return set;
@@ -277,8 +273,9 @@ public class ModuleRegistry {
 		// TODO this needs to be merged with ResourceRegistryBuilder
 		for (final ResourceRepositoryRegistration resourceRepositoryRegistration : resourceRepositoryRegistrations) {
 			Class<?> resourceClass = resourceRepositoryRegistration.getResourceClass();
-			RepositoryInstanceBuilder<ResourceRepository<?, ?>> repositoryInstanceBuilder = new RepositoryInstanceBuilder(
-					null, null) {
+			RepositoryInstanceBuilder<ResourceRepository<?, ?>> repositoryInstanceBuilder = new RepositoryInstanceBuilder(null,
+					null) {
+
 				public Object buildRepository() {
 					return resourceRepositoryRegistration.getRepository();
 				}
@@ -290,21 +287,23 @@ public class ModuleRegistry {
 				if (relationshipRepositoryRegistration.getSourceType() == resourceClass) {
 					RepositoryInstanceBuilder<QuerySpecRelationshipRepository> relationshipInstanceBuilder = new RepositoryInstanceBuilder<QuerySpecRelationshipRepository>(
 							null, null) {
+
 						public QuerySpecRelationshipRepository buildRepository() {
 							return relationshipRepositoryRegistration.getRepository();
 						}
-						
+
 						@Override
-					    public Class getRepositoryClass() {
-					        return relationshipRepositoryRegistration.getRepository().getClass();
-					    }
+						public Class getRepositoryClass() {
+							return relationshipRepositoryRegistration.getRepository().getClass();
+						}
 					};
 					ResponseRelationshipEntry relationshipEntry = new DirectResponseRelationshipEntry(
-							relationshipInstanceBuilder){
+							relationshipInstanceBuilder) {
+
 						@Override
-					    public Class<?> getTargetAffiliation() {
+						public Class<?> getTargetAffiliation() {
 							return relationshipRepositoryRegistration.getTargetType();
-					    }
+						}
 					};
 					relationshipEntries.add(relationshipEntry);
 				}
@@ -328,5 +327,8 @@ public class ModuleRegistry {
 	public ExceptionMapperLookup getExceptionMapperLookup() {
 		return new CombinedExceptionMapperLookup(aggregatedModule.getExceptionMapperLookups());
 	}
-	
+
+	public List<Module> getModules() {
+		return modules;
+	}
 }
