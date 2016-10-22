@@ -1,7 +1,6 @@
 package io.katharsis.client;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.MultivaluedMap;
@@ -26,7 +25,9 @@ import io.katharsis.rs.KatharsisProperties;
 public abstract class AbstractClientTest extends JerseyTest {
 
 	protected KatharsisClient client;
+
 	protected TestApplication testApplication;
+
 	protected QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
 
 	@Before
@@ -37,8 +38,6 @@ public abstract class AbstractClientTest extends JerseyTest {
 		TaskRepository.clear();
 		ProjectRepository.clear();
 		TaskToProjectRepository.clear();
-
-		client.getHttpClient().setReadTimeout(1000000, TimeUnit.MILLISECONDS);
 	}
 
 	@Override
@@ -46,7 +45,7 @@ public abstract class AbstractClientTest extends JerseyTest {
 		if (testApplication == null) {
 			testApplication = new TestApplication(false);
 		}
-		
+
 		return testApplication;
 	}
 
@@ -60,16 +59,12 @@ public abstract class AbstractClientTest extends JerseyTest {
 			property(KatharsisProperties.RESOURCE_DEFAULT_DOMAIN, "http://test.local");
 
 			if (!querySpec) {
-				feature = new KatharsisTestFeature(
-					new ObjectMapper(), 
-					new QueryParamsBuilder(new DefaultQueryParamsParser()),
-					new SampleJsonServiceLocator());
+				feature = new KatharsisTestFeature(new ObjectMapper(), new QueryParamsBuilder(new DefaultQueryParamsParser()),
+						new SampleJsonServiceLocator());
 			}
 			else {
-				feature = new KatharsisTestFeature(
-					new ObjectMapper(), 
-					new DefaultQuerySpecDeserializer(),
-					new SampleJsonServiceLocator());
+				feature = new KatharsisTestFeature(new ObjectMapper(), new DefaultQuerySpecDeserializer(),
+						new SampleJsonServiceLocator());
 			}
 
 			feature.addModule(new TestModule());
@@ -91,10 +86,10 @@ public abstract class AbstractClientTest extends JerseyTest {
 	protected void assertHasHeaderValue(String name, String value) {
 		MultivaluedMap<String, String> headers = getLastReceivedHeaders();
 		Assert.assertNotNull(headers);
-		
+
 		List<String> values = headers.get(name);
 		Assert.assertNotNull(values);
-		
+
 		Assert.assertTrue(values.contains(value));
 	}
 

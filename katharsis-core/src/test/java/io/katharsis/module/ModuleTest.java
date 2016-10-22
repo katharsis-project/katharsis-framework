@@ -65,6 +65,11 @@ public class ModuleTest {
 		Assert.assertEquals(resourceRegistry, moduleRegistry.getResourceRegistry());
 	}
 
+	@Test
+	public void getModules() {
+		Assert.assertEquals(2, moduleRegistry.getModules().size());
+	}
+
 	@Test(expected = IllegalStateException.class)
 	public void testNotInitialized() {
 		moduleRegistry = new ModuleRegistry();
