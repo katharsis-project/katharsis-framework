@@ -1,18 +1,12 @@
 package io.katharsis.queryspec;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import io.katharsis.repository.exception.RepositoryNotFoundException;
 import io.katharsis.resource.RestrictedQueryParamsMembers;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.utils.StringUtils;
+
+import java.util.*;
 
 public class DefaultQuerySpecSerializer implements QuerySpecSerializer {
 
@@ -119,11 +113,15 @@ public class DefaultQuerySpecSerializer implements QuerySpecSerializer {
 	}
 
 	public void serializePagination(QuerySpec querySpec, String resourceType, Map<String, Set<String>> map) {
-		if (querySpec.getOffset() != 0) {
-			put(map, "page[offset]", Long.toString(querySpec.getOffset()));
-		}
-		if (querySpec.getLimit() != null) {
-			put(map, "page[limit]", Long.toString(querySpec.getLimit()));
+		PagingSpec pagingSpec = querySpec.getPagingSpec();
+		if (pagingSpec == null) return;
+
+		Map<String, String> nameValues = pagingSpec.getSerializationNameValues();
+		if (nameValues == null) return;
+
+		for (Map.Entry<String, String> nameValue : nameValues.entrySet()) {
+			String name = String.format("page[%s]", nameValue.getKey());
+			put(map, name, nameValue.getValue());
 		}
 	}
 

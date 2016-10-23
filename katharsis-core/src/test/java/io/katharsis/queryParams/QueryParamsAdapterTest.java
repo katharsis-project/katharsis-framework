@@ -1,12 +1,11 @@
 package io.katharsis.queryParams;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import io.katharsis.queryspec.internal.QueryParamsAdapter;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.registry.ConstantServiceUrlProvider;
 import io.katharsis.resource.registry.ResourceRegistry;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class QueryParamsAdapterTest {
 
@@ -41,30 +40,16 @@ public class QueryParamsAdapterTest {
 	}
 
 	@Test(expected = UnsupportedOperationException.class)
-	public void testGetLimit() {
+	public void testGetPageAdapter() {
 		QueryParams params = new QueryParams();
 		QueryParamsAdapter adapter = new QueryParamsAdapter(params);
-		adapter.getLimit();
+        adapter.getPageAdapter();
 	}
 
 	@Test(expected = UnsupportedOperationException.class)
-	public void testGetOffset() {
+	public void testSetPageAdapter() {
 		QueryParams params = new QueryParams();
 		QueryParamsAdapter adapter = new QueryParamsAdapter(params);
-		adapter.getOffset();
-	}
-
-	@Test(expected = UnsupportedOperationException.class)
-	public void testSetLimit() {
-		QueryParams params = new QueryParams();
-		QueryParamsAdapter adapter = new QueryParamsAdapter(params);
-		adapter.setLimit(0L);
-	}
-
-	@Test(expected = UnsupportedOperationException.class)
-	public void testSetOffset() {
-		QueryParams params = new QueryParams();
-		QueryParamsAdapter adapter = new QueryParamsAdapter(params);
-		adapter.setOffset(0L);
+		adapter.setPageAdapter(null);
 	}
 }

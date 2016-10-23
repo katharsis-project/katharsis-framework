@@ -1,16 +1,5 @@
 package io.katharsis.jpa.repository;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-
-import org.hamcrest.core.Is;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.transaction.annotation.Transactional;
-
 import io.katharsis.jpa.JpaRelationshipRepository;
 import io.katharsis.jpa.internal.paging.PagedMetaInformation;
 import io.katharsis.jpa.model.RelatedEntity;
@@ -18,7 +7,18 @@ import io.katharsis.jpa.model.TestEntity;
 import io.katharsis.jpa.query.AbstractJpaTest;
 import io.katharsis.queryspec.FilterOperator;
 import io.katharsis.queryspec.FilterSpec;
+import io.katharsis.queryspec.OffsetBasedPagingSpec;
 import io.katharsis.queryspec.QuerySpec;
+import org.hamcrest.core.Is;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 
 @Transactional
 public abstract class JpaRelationshipRepositoryTestBase extends AbstractJpaTest {
@@ -170,9 +170,7 @@ public abstract class JpaRelationshipRepositoryTestBase extends AbstractJpaTest 
 	public void testGetManyRelationWithPaging() throws InstantiationException, IllegalAccessException {
 		TestEntity test = setupManyRelation(Arrays.asList(100L, 101L, 102L, 103L, 104L));
 
-		QuerySpec querySpec = new QuerySpec(TestEntity.class);
-		querySpec.setOffset(2L);
-		querySpec.setLimit(2L);
+		QuerySpec querySpec = new QuerySpec(TestEntity.class, new OffsetBasedPagingSpec(2, 2));
 
 		List<RelatedEntity> list = repo.findManyTargets(test.getId(), TestEntity.ATTR_manyRelatedValues, querySpec);
 		Assert.assertEquals(2, list.size());

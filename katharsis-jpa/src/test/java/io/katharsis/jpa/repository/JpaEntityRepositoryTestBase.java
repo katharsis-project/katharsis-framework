@@ -1,24 +1,19 @@
 package io.katharsis.jpa.repository;
 
-import java.util.Arrays;
-import java.util.List;
-
+import io.katharsis.jpa.JpaEntityRepository;
+import io.katharsis.jpa.internal.paging.PagedMetaInformation;
+import io.katharsis.jpa.model.RelatedEntity;
+import io.katharsis.jpa.model.TestEntity;
+import io.katharsis.jpa.query.AbstractJpaTest;
+import io.katharsis.queryspec.*;
 import org.hibernate.Hibernate;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.transaction.annotation.Transactional;
 
-import io.katharsis.jpa.JpaEntityRepository;
-import io.katharsis.jpa.internal.paging.PagedMetaInformation;
-import io.katharsis.jpa.model.RelatedEntity;
-import io.katharsis.jpa.model.TestEntity;
-import io.katharsis.jpa.query.AbstractJpaTest;
-import io.katharsis.queryspec.Direction;
-import io.katharsis.queryspec.FilterOperator;
-import io.katharsis.queryspec.FilterSpec;
-import io.katharsis.queryspec.QuerySpec;
-import io.katharsis.queryspec.SortSpec;
+import java.util.Arrays;
+import java.util.List;
 
 @Transactional
 public abstract class JpaEntityRepositoryTestBase extends AbstractJpaTest {
@@ -202,9 +197,7 @@ public abstract class JpaEntityRepositoryTestBase extends AbstractJpaTest {
 
 	@Test
 	public void testPaging() throws InstantiationException, IllegalAccessException {
-		QuerySpec querySpec = new QuerySpec(TestEntity.class);
-		querySpec.setOffset(2L);
-		querySpec.setLimit(2L);
+		QuerySpec querySpec = new QuerySpec(TestEntity.class, new OffsetBasedPagingSpec(2, 2));
 
 		List<TestEntity> list = repo.findAll(querySpec);
 		Assert.assertEquals(2, list.size());
@@ -217,9 +210,7 @@ public abstract class JpaEntityRepositoryTestBase extends AbstractJpaTest {
 
 	@Test
 	public void testPagingFirst() throws InstantiationException, IllegalAccessException {
-		QuerySpec querySpec = new QuerySpec(TestEntity.class);
-		querySpec.setOffset(0L);
-		querySpec.setLimit(3L);
+		QuerySpec querySpec = new QuerySpec(TestEntity.class, new OffsetBasedPagingSpec(0, 3));
 
 		List<TestEntity> list = repo.findAll(querySpec);
 		Assert.assertEquals(3, list.size());
@@ -233,9 +224,7 @@ public abstract class JpaEntityRepositoryTestBase extends AbstractJpaTest {
 
 	@Test
 	public void testPagingLast() throws InstantiationException, IllegalAccessException {
-		QuerySpec querySpec = new QuerySpec(TestEntity.class);
-		querySpec.setOffset(4L);
-		querySpec.setLimit(4L);
+		QuerySpec querySpec = new QuerySpec(TestEntity.class, new OffsetBasedPagingSpec(4, 4));
 
 		List<TestEntity> list = repo.findAll(querySpec);
 		Assert.assertEquals(1, list.size());

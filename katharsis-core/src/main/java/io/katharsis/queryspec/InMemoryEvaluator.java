@@ -1,17 +1,15 @@
 package io.katharsis.queryspec;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-
 import io.katharsis.response.paging.PagedResultList;
 import io.katharsis.utils.PropertyUtils;
+
+import java.util.*;
 
 /**
  * Applies the given QuerySpec to the provided list in memory. Result available
  * with getResult(). Use QuerySpec.apply to make use of this class.
+ *
+ * Pagination prefers limit/offset over page number/size when both are set.
  */
 public class InMemoryEvaluator {
 
@@ -46,14 +44,10 @@ public class InMemoryEvaluator {
 	}
 
 	private <T> List<T> applyPaging(List<T> results, QuerySpec querySpec) {
-		int offset = (int) Math.min(querySpec.getOffset(), Integer.MAX_VALUE);
-		int limit = (int) Math.min(Integer.MAX_VALUE,
-				querySpec.getLimit() != null ? querySpec.getLimit() : Integer.MAX_VALUE);
-		limit = Math.min(results.size() - offset, limit);
-		if (offset > 0 || limit < results.size()) {
-			return results.subList(offset, offset + limit);
-		}
-		return results;
+		PagingSpec pagingSpec = querySpec.getPagingSpec();
+		if (pagingSpec == null)
+			return results;
+		return pagingSpec.applyPaging(results);
 	}
 
 	private <T> void applyFilter(List<T> results, FilterSpec filterSpec) {

@@ -1,13 +1,5 @@
 package io.katharsis.queryspec;
 
-import static org.junit.Assert.assertEquals;
-
-import java.util.Arrays;
-
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
 import io.katharsis.locator.JsonServiceLocator;
 import io.katharsis.locator.SampleJsonServiceLocator;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
@@ -19,6 +11,13 @@ import io.katharsis.resource.registry.DefaultResourceLookup;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryBuilder;
 import io.katharsis.utils.JsonApiUrlBuilder;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.Arrays;
+
+import static org.junit.Assert.assertEquals;
 
 public class DefaultQuerySpecSerializerTest {
 
@@ -122,17 +121,15 @@ public class DefaultQuerySpecSerializerTest {
 	@Test
 	public void testPaging() throws InstantiationException, IllegalAccessException {
 		QuerySpec querySpec = new QuerySpec(Task.class);
-		querySpec.setLimit(2L);
-		querySpec.setOffset(1L);
+		querySpec.setPagingSpec(new OffsetBasedPagingSpec(1, 2));
 		check("http://127.0.0.1/tasks/?page[limit]=2&page[offset]=1", null, querySpec);
 	}
 
 	@Test
 	public void testPagingOnRelation() throws InstantiationException, IllegalAccessException {
 		QuerySpec querySpec = new QuerySpec(Task.class);
-		querySpec.setLimit(2L);
-		querySpec.setOffset(1L);
-		
+		querySpec.setPagingSpec(new OffsetBasedPagingSpec(1, 2));
+
 		String actualUrl = urlBuilder.buildUrl(Task.class, 1L, querySpec, "projects");
 		assertEquals("http://127.0.0.1/tasks/1/relationships/projects/?page[limit]=2&page[offset]=1", actualUrl);
 	}

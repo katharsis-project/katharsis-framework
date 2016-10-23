@@ -1,14 +1,13 @@
 package io.katharsis.queryspec;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-
+import io.katharsis.resource.mock.models.Project;
+import io.katharsis.resource.mock.models.Task;
 import org.junit.Assert;
 import org.junit.Test;
 
-import io.katharsis.resource.mock.models.Project;
-import io.katharsis.resource.mock.models.Task;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 
 public class QuerySpecTest {
 
@@ -48,8 +47,8 @@ public class QuerySpecTest {
 		spec.addSort(new SortSpec(Arrays.asList("sortAttr"), Direction.ASC));
 		spec.includeField(Arrays.asList("includedField"));
 		spec.includeRelation(Arrays.asList("includedRelation"));
-		spec.setLimit(2L);
-		spec.setOffset(1L);
+
+		spec.setPagingSpec(new OffsetBasedPagingSpec(1, 2));
 
 		QuerySpec duplicate = spec.duplicate();
 		Assert.assertNotSame(spec, duplicate);
@@ -107,16 +106,10 @@ public class QuerySpecTest {
 		spec2.addSort(new SortSpec(Arrays.asList("sortAttr"), Direction.ASC));
 		Assert.assertEquals(spec1, spec2);
 
-		spec2.setOffset(2);
+        spec1.setPagingSpec(new OffsetBasedPagingSpec(2, 10));
 		Assert.assertNotEquals(spec1, spec2);
-		spec2.setOffset(0);
+        spec2.setPagingSpec(new OffsetBasedPagingSpec(2, 10));
 		Assert.assertEquals(spec1, spec2);
-
-		spec2.setLimit(2L);
-		Assert.assertNotEquals(spec1, spec2);
-		spec2.setLimit(null);
-		Assert.assertEquals(spec1, spec2);
-
 		Assert.assertNotEquals(spec1, "someOtherType");
 	}
 

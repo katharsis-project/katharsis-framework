@@ -1,18 +1,5 @@
 package io.katharsis.jpa;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.persistence.EntityManager;
-
 import io.katharsis.jpa.internal.JpaRepositoryBase;
 import io.katharsis.jpa.internal.JpaRepositoryUtils;
 import io.katharsis.jpa.internal.meta.MetaAttribute;
@@ -23,14 +10,14 @@ import io.katharsis.jpa.internal.paging.PagedMetaInformation;
 import io.katharsis.jpa.mapping.IdentityMapper;
 import io.katharsis.jpa.mapping.JpaMapper;
 import io.katharsis.jpa.mapping.JpaMapping;
-import io.katharsis.jpa.query.ComputedAttributeRegistry;
-import io.katharsis.jpa.query.JpaQuery;
-import io.katharsis.jpa.query.JpaQueryExecutor;
-import io.katharsis.jpa.query.JpaQueryFactory;
-import io.katharsis.jpa.query.Tuple;
+import io.katharsis.jpa.query.*;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.QuerySpecBulkRelationshipRepository;
 import io.katharsis.response.paging.PagedResultList;
+
+import javax.persistence.EntityManager;
+import java.io.Serializable;
+import java.util.*;
 
 public class JpaRelationshipRepository<S, I extends Serializable, T, J extends Serializable> extends JpaRepositoryBase<T>
 		implements QuerySpecBulkRelationshipRepository<S, I, T, J> {
@@ -221,7 +208,7 @@ public class JpaRelationshipRepository<S, I extends Serializable, T, J extends S
 			sourceIdLists.add(sourceId);
 		}
 
-		if (querySpec.getLimit() != null && sourceIdLists.size() > 1) {
+		if (querySpec.getPagingSpec() != null && sourceIdLists.size() > 1) {
 			throw new UnsupportedOperationException("page limit not supported for bulk inclusions");
 		}
 
@@ -250,7 +237,7 @@ public class JpaRelationshipRepository<S, I extends Serializable, T, J extends S
 		Map<I, Iterable<T>> map = mapTuples(tuples);
 
 		// support paging for non-bulk requests
-		if (sourceIdLists.size() == 1 && querySpec.getLimit() != null) {
+		if (sourceIdLists.size() == 1 && querySpec.getPagingSpec() != null) {
 			long totalRowCount = executor.getTotalRowCount();
 			I sourceId = sourceIdLists.get(0);
 			Iterable<T> iterable = map.get(sourceId);

@@ -1,14 +1,13 @@
 package io.katharsis.queryspec;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
+import io.katharsis.resource.mock.models.Task;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import io.katharsis.resource.mock.models.Task;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class InMemoryEvaluatorTest {
 
@@ -33,24 +32,15 @@ public class InMemoryEvaluatorTest {
 	}
 
 	@Test
-	public void setLimit() {
+	public void setPageSpec() {
 		QuerySpec spec = new QuerySpec(Task.class);
-		spec.setLimit(2L);
+        spec.setPagingSpec(new OffsetBasedPagingSpec(3, 2));
 		Assert.assertEquals(2, spec.apply(tasks).size());
-	}
 
-	@Test
-	public void setOffset() {
-		QuerySpec spec = new QuerySpec(Task.class);
-		spec.setOffset(2L);
-		Assert.assertEquals(3, spec.apply(tasks).size());
-	}
+        spec.setPagingSpec(new PageBasedPagingSpec(0, 2));
+		Assert.assertEquals(2, spec.apply(tasks).size());
 
-	@Test
-	public void setOffsetLimit() {
-		QuerySpec spec = new QuerySpec(Task.class);
-		spec.setOffset(2L);
-		spec.setLimit(1L);
+		spec.setPagingSpec(new OffsetBasedPagingSpec(2, 1));
 		List<Task> results = spec.apply(tasks);
 		Assert.assertEquals(1, results.size());
 		Assert.assertEquals(Long.valueOf(2L), results.get(0).getId());
