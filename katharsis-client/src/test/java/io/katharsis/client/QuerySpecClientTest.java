@@ -1,5 +1,7 @@
 package io.katharsis.client;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -7,11 +9,17 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import io.katharsis.client.http.okhttp.OkHttpAdapter;
+import io.katharsis.client.http.okhttp.OkHttpAdapterListener;
 import io.katharsis.client.mock.models.Project;
 import io.katharsis.client.mock.models.Task;
 import io.katharsis.queryspec.Direction;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.SortSpec;
+import okhttp3.Interceptor;
+import okhttp3.OkHttpClient.Builder;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class QuerySpecClientTest extends AbstractClientTest {
 
@@ -41,7 +49,7 @@ public class QuerySpecClientTest extends AbstractClientTest {
 			Task task = new Task();
 			task.setId(Long.valueOf(i));
 			task.setName("task" + i);
-			taskRepo.save(task);
+			taskRepo.create(task);
 		}
 		QuerySpec querySpec = new QuerySpec(Task.class);
 		querySpec.addSort(new SortSpec(Arrays.asList("name"), Direction.ASC));
@@ -58,7 +66,7 @@ public class QuerySpecClientTest extends AbstractClientTest {
 			Task task = new Task();
 			task.setId(Long.valueOf(i));
 			task.setName("task" + i);
-			taskRepo.save(task);
+			taskRepo.create(task);
 		}
 		QuerySpec querySpec = new QuerySpec(Task.class);
 		querySpec.addSort(new SortSpec(Arrays.asList("name"), Direction.DESC));
@@ -87,11 +95,11 @@ public class QuerySpecClientTest extends AbstractClientTest {
 	}
 
 	@Test
-	public void testSaveAndFind() {
+	public void testCreateAndFind() {
 		Task task = new Task();
 		task.setId(1L);
 		task.setName("test");
-		taskRepo.save(task);
+		taskRepo.create(task);
 
 		// check retrievable with findAll
 		List<Task> tasks = taskRepo.findAll(new QuerySpec(Task.class));
@@ -114,11 +122,85 @@ public class QuerySpecClientTest extends AbstractClientTest {
 	}
 
 	@Test
+	public void testUpdatePushAlways() {
+		client.setPushAlways(true);
+		testUpdate(true);
+	}
+
+	@Test
+	public void testUpdate() {
+		client.setPushAlways(false);
+		testUpdate(false);
+	}
+
+	public void testUpdate(boolean pushAlways) {
+		final List<String> methods = new ArrayList<>();
+		final List<String> paths = new ArrayList<>();
+		final Interceptor interceptor = new Interceptor() {
+
+			@Override
+			public Response intercept(Chain chain) throws IOException {
+				Request request = chain.request();
+
+				methods.add(request.method());
+				paths.add(request.url().encodedPath());
+
+				return chain.proceed(request);
+			}
+		};
+
+		OkHttpAdapter httpAdapter = (OkHttpAdapter) client.getHttpAdapter();
+		httpAdapter.addListener(new OkHttpAdapterListener() {
+
+			@Override
+			public void onBuild(Builder builder) {
+				builder.addInterceptor(interceptor);
+			}
+		});
+
+		Task task = new Task();
+		task.setId(1L);
+		task.setName("test");
+		taskRepo.create(task);
+
+		Task savedTask = taskRepo.findOne(1L, new QuerySpec(Task.class));
+		Assert.assertNotNull(savedTask);
+
+		// perform update
+		task.setName("updatedName");
+		taskRepo.save(task);
+
+		// check updated
+		savedTask = taskRepo.findOne(1L, new QuerySpec(Task.class));
+		Assert.assertNotNull(savedTask);
+		Assert.assertEquals("updatedName", task.getName());
+
+		// check HTTP handling
+		Assert.assertEquals(4, methods.size());
+		Assert.assertEquals(4, paths.size());
+		Assert.assertEquals("POST", methods.get(0));
+		Assert.assertEquals("GET", methods.get(1));
+		if (pushAlways) {
+			Assert.assertEquals("POST", methods.get(2));
+			Assert.assertEquals("/tasks/", paths.get(2));
+		}
+		else {
+			Assert.assertEquals("PATCH", methods.get(2));
+			Assert.assertEquals("/tasks/1/", paths.get(2));
+		}
+		Assert.assertEquals("GET", methods.get(3));
+
+		Assert.assertEquals("/tasks/", paths.get(0));
+		Assert.assertEquals("/tasks/1/", paths.get(1));
+		Assert.assertEquals("/tasks/1/", paths.get(3));
+	}
+
+	@Test
 	public void testGeneratedId() {
 		Task task = new Task();
 		task.setId(null);
 		task.setName("test");
-		Task savedTask = taskRepo.save(task);
+		Task savedTask = taskRepo.create(task);
 		Assert.assertNotNull(savedTask.getId());
 	}
 
@@ -127,7 +209,7 @@ public class QuerySpecClientTest extends AbstractClientTest {
 		Task task = new Task();
 		task.setId(1L);
 		task.setName("test");
-		taskRepo.save(task);
+		taskRepo.create(task);
 
 		taskRepo.delete(1L);
 
@@ -140,12 +222,12 @@ public class QuerySpecClientTest extends AbstractClientTest {
 		Project project = new Project();
 		project.setId(1L);
 		project.setName("project");
-		projectRepo.save(project);
+		projectRepo.create(project);
 
 		Task task = new Task();
 		task.setId(2L);
 		task.setName("test");
-		taskRepo.save(task);
+		taskRepo.create(task);
 
 		relRepo.setRelation(task, project.getId(), "project");
 
@@ -159,17 +241,17 @@ public class QuerySpecClientTest extends AbstractClientTest {
 		Project project0 = new Project();
 		project0.setId(1L);
 		project0.setName("project0");
-		projectRepo.save(project0);
+		projectRepo.create(project0);
 
 		Project project1 = new Project();
 		project1.setId(2L);
 		project1.setName("project1");
-		projectRepo.save(project1);
+		projectRepo.create(project1);
 
 		Task task = new Task();
 		task.setId(3L);
 		task.setName("test");
-		taskRepo.save(task);
+		taskRepo.create(task);
 
 		relRepo.addRelations(task, Arrays.asList(project0.getId(), project1.getId()), "projects");
 		List<Project> relProjects = relRepo.findManyTargets(task.getId(), "projects", new QuerySpec(Task.class));

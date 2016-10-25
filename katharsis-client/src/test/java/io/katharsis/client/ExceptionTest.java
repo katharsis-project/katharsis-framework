@@ -23,7 +23,7 @@ public class ExceptionTest extends AbstractClientTest {
 		task.setId(10000L);
 		task.setName("test");
 		try {
-			taskRepo.save(task);
+			taskRepo.create(task);
 			Assert.fail();
 		}
 		catch (TestException e) {

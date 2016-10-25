@@ -39,4 +39,25 @@ public interface QuerySpecResourceRepositoryStub<T, I extends Serializable> exte
 	 * @return persisted resource
 	 */
 	public <S extends T> S save(S entity, QuerySpec querySpec);
+	
+	
+	/**
+	 * Creates the given entity without any of its relationships.
+	 *
+	 * @param entity resource to be saved
+	 * @param <S> resource type
+	 * @return persisted resource
+	 */
+	public <S extends T> S create(S entity);
+
+	/**
+	 * Creates the given entity. {@link QueryParams} allows to specify which
+	 * relationships should be saved as well (just the relation, not the related resource).
+	 *
+	 * @param entity resource to be saved
+	 * @param querySpec querySpec
+	 * @param <S> resource type
+	 * @return persisted resource
+	 */
+	public <S extends T> S create(S entity, QuerySpec querySpec);
 }
