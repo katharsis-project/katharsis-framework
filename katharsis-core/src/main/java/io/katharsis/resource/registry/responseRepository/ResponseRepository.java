@@ -145,21 +145,23 @@ public abstract class ResponseRepository {
 		QueryAdapter pageSpec = queryAdapter.duplicate();
 		pageSpec.setLimit(pageSize);
 
-		pageSpec.setOffset(0);
-		pagedLinksInformation.setFirst(toUrl(pageSpec, pageResultList, requestSpec));
-
-		pageSpec.setOffset((totalPages - 1) * pageSize);
-		pagedLinksInformation.setLast(toUrl(pageSpec, pageResultList, requestSpec));
-
-		if (currentPage > 0) {
-			pageSpec.setOffset((currentPage - 1) * pageSize);
-			pagedLinksInformation.setPrev(toUrl(pageSpec, pageResultList, requestSpec));
+		if(totalPages > 0){
+			pageSpec.setOffset(0);
+			pagedLinksInformation.setFirst(toUrl(pageSpec, pageResultList, requestSpec));
+	
+			pageSpec.setOffset((totalPages - 1) * pageSize);
+			pagedLinksInformation.setLast(toUrl(pageSpec, pageResultList, requestSpec));
+	
+			if (currentPage > 0) {
+				pageSpec.setOffset((currentPage - 1) * pageSize);
+				pagedLinksInformation.setPrev(toUrl(pageSpec, pageResultList, requestSpec));
+			}
+	
+			if (currentPage < totalPages - 1) {
+				pageSpec.setOffset((currentPage + 1) * pageSize);
+				pagedLinksInformation.setNext(toUrl(pageSpec, pageResultList, requestSpec));
+			}		
 		}
-
-		if (currentPage < totalPages - 1) {
-			pageSpec.setOffset((currentPage + 1) * pageSize);
-			pagedLinksInformation.setNext(toUrl(pageSpec, pageResultList, requestSpec));
-		}		
 	}
 	
 	/**
