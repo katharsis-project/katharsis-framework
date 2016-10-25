@@ -43,7 +43,7 @@ public class ModuleTest extends AbstractClientTest {
 		Task task = new Task();
 		task.setId(1L);
 		task.setName("task");
-		taskRepo.save(task);
+		taskRepo.create(task);
 
 		List<Task> tasks = taskRepo.findAll(new QuerySpec(Task.class));
 		Assert.assertEquals(1, tasks.size());

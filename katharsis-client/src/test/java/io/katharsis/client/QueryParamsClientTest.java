@@ -55,7 +55,7 @@ public class QueryParamsClientTest extends AbstractClientTest {
 		Task task = new Task();
 		task.setId(1L);
 		task.setName("test");
-		taskRepo.save(task);
+		taskRepo.create(task);
 
 		// check retrievable with findAll
 		List<Task> tasks = taskRepo.findAll(new QueryParams());
@@ -82,7 +82,7 @@ public class QueryParamsClientTest extends AbstractClientTest {
 		Task task = new Task();
 		task.setId(null);
 		task.setName("test");
-		Task savedTask = taskRepo.save(task);
+		Task savedTask = taskRepo.create(task);
 		Assert.assertNotNull(savedTask.getId());
 	}
 
@@ -91,7 +91,7 @@ public class QueryParamsClientTest extends AbstractClientTest {
 		Task task = new Task();
 		task.setId(1L);
 		task.setName("test");
-		taskRepo.save(task);
+		taskRepo.create(task);
 
 		taskRepo.delete(1L);
 
@@ -129,12 +129,12 @@ public class QueryParamsClientTest extends AbstractClientTest {
 		Project project = new Project();
 		project.setId(1L);
 		project.setName("project");
-		projectRepo.save(project);
+		projectRepo.create(project);
 
 		Task task = new Task();
 		task.setId(2L);
 		task.setName("test");
-		taskRepo.save(task);
+		taskRepo.create(task);
 
 		relRepo.setRelation(task, project.getId(), "project");
 
@@ -148,17 +148,17 @@ public class QueryParamsClientTest extends AbstractClientTest {
 		Project project0 = new Project();
 		project0.setId(1L);
 		project0.setName("project0");
-		projectRepo.save(project0);
+		projectRepo.create(project0);
 
 		Project project1 = new Project();
 		project1.setId(2L);
 		project1.setName("project1");
-		projectRepo.save(project1);
+		projectRepo.create(project1);
 
 		Task task = new Task();
 		task.setId(3L);
 		task.setName("test");
-		taskRepo.save(task);
+		taskRepo.create(task);
 
 		relRepo.addRelations(task, Arrays.asList(project0.getId(), project1.getId()), "projects");
 		List<Project> relProjects = relRepo.findManyTargets(task.getId(), "projects", new QueryParams());

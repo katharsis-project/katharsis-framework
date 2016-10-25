@@ -62,6 +62,8 @@ public class KatharsisClient {
 
 	private ExceptionMapperRegistry exceptionMapperRegistry;
 
+	private boolean pushAlways = true;
+
 	/**
 	 * @param serviceUrl service url
 	 * @param resourceSearchPackage search package
@@ -84,6 +86,23 @@ public class KatharsisClient {
 		jsonApiModule.addDeserializer(BaseResponseContext.class, new BaseResponseDeserializer(resourceRegistry, objectMapper));
 		jsonApiModule.addDeserializer(ErrorResponse.class, new ErrorResponseDeserializer());
 		objectMapper.registerModule(jsonApiModule);
+	}
+
+	/**
+	 * Older KatharsisClient implementation only supported a save() operation that POSTs the resource to the server. No difference is made
+	 * between insert and update. The server-implementation still does not make a difference. 
+	 * 
+	 * By default the flag is enabled to maintain backward compatibility. But it is strongly adviced to turn id on. It will become
+	 * the default in one of the subsequent releases.
+	 * 
+	 * @param pushAlways
+	 */
+	public void setPushAlways(boolean pushAlways) {
+		this.pushAlways = pushAlways;
+	}
+
+	public boolean getPushAlways() {
+		return pushAlways;
 	}
 
 	private static String normalize(String serviceUrl) {
@@ -124,9 +143,9 @@ public class KatharsisClient {
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private <T, ID extends Serializable> void allocateRepository(Class<T> resourceClass) {
+	private <T, I extends Serializable> void allocateRepository(Class<T> resourceClass) {
 		ResourceInformation resourceInformation = moduleRegistry.getResourceInformationBuilder().build(resourceClass);
-		final ResourceRepositoryStub<T, ID> repositoryStub = new ResourceRepositoryStubImpl<>(this, resourceClass,
+		final ResourceRepositoryStub<T, I> repositoryStub = new ResourceRepositoryStubImpl<>(this, resourceClass,
 				resourceInformation, urlBuilder);
 
 		// create interface for it!
@@ -137,7 +156,7 @@ public class KatharsisClient {
 				return repositoryStub;
 			}
 		};
-		ResourceEntry<T, ID> resourceEntry = new DirectResponseResourceEntry<>(repositoryInstanceBuilder);
+		ResourceEntry<T, I> resourceEntry = new DirectResponseResourceEntry<>(repositoryInstanceBuilder);
 		Set<ResourceField> relationshipFields = resourceInformation.getRelationshipFields();
 		List<ResponseRelationshipEntry<T, ?>> relationshipEntries = new ArrayList<>();
 		RegistryEntry<T> registryEntry = new RegistryEntry<>(resourceInformation, resourceEntry, relationshipEntries);
