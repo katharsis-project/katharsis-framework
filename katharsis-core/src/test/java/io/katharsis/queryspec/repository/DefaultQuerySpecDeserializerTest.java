@@ -47,7 +47,7 @@ public class DefaultQuerySpecDeserializerTest extends AbstractQuerySpecTest {
 		Assert.assertEquals(FilterOperator.LIKE, deserializer.getDefaultOperator());
 		Assert.assertEquals(1, deserializer.getSupportedOperators().size());
 	}
-	
+
 	@Test
 	public void testFindAll() throws InstantiationException, IllegalAccessException {
 		Map<String, Set<String>> params = new HashMap<>();
@@ -57,23 +57,22 @@ public class DefaultQuerySpecDeserializerTest extends AbstractQuerySpecTest {
 		Assert.assertEquals(expectedSpec, actualSpec);
 	}
 
-
-    @Test
-    public void defaultPaginationOnRoot(){
-    	Map<String, Set<String>> params = new HashMap<>();
-    	deserializer.setDefaultLimit(12L);
-    	deserializer.setDefaultOffset(1L);
+	@Test
+	public void defaultPaginationOnRoot() {
+		Map<String, Set<String>> params = new HashMap<>();
+		deserializer.setDefaultLimit(12L);
+		deserializer.setDefaultOffset(1L);
 		QuerySpec actualSpec = deserializer.deserialize(Task.class, params);
 		Assert.assertEquals(1L, actualSpec.getOffset());
 		Assert.assertEquals(12L, actualSpec.getLimit().longValue());
-    }
-    
-    @Test
-    public void defaultPaginationOnRelation(){
-    	Map<String, Set<String>> params = new HashMap<>();
-    	add(params, "sort[projects]", "name");
-    	deserializer.setDefaultLimit(12L);
-    	deserializer.setDefaultOffset(1L);
+	}
+
+	@Test
+	public void defaultPaginationOnRelation() {
+		Map<String, Set<String>> params = new HashMap<>();
+		add(params, "sort[projects]", "name");
+		deserializer.setDefaultLimit(12L);
+		deserializer.setDefaultOffset(1L);
 		QuerySpec actualSpec = deserializer.deserialize(Task.class, params);
 		Assert.assertEquals(1L, actualSpec.getOffset());
 		Assert.assertEquals(12L, actualSpec.getLimit().longValue());
@@ -81,8 +80,8 @@ public class DefaultQuerySpecDeserializerTest extends AbstractQuerySpecTest {
 		Assert.assertNotNull(projectQuerySpec);
 		Assert.assertEquals(1L, projectQuerySpec.getOffset());
 		Assert.assertEquals(12L, projectQuerySpec.getLimit().longValue());
-    }
-	
+	}
+
 	@Test
 	public void testFindAllOrderByAsc() throws InstantiationException, IllegalAccessException {
 		QuerySpec expectedSpec = new QuerySpec(Task.class);
@@ -90,6 +89,18 @@ public class DefaultQuerySpecDeserializerTest extends AbstractQuerySpecTest {
 
 		Map<String, Set<String>> params = new HashMap<>();
 		add(params, "sort[tasks]", "name");
+		QuerySpec actualSpec = deserializer.deserialize(Task.class, params);
+		Assert.assertEquals(expectedSpec, actualSpec);
+	}
+
+	@Test
+	public void testOrderByMultipleAttributes() throws InstantiationException, IllegalAccessException {
+		QuerySpec expectedSpec = new QuerySpec(Task.class);
+		expectedSpec.addSort(new SortSpec(Arrays.asList("name"), Direction.ASC));
+		expectedSpec.addSort(new SortSpec(Arrays.asList("id"), Direction.ASC));
+
+		Map<String, Set<String>> params = new HashMap<>();
+		add(params, "sort[tasks]", "name,id");
 		QuerySpec actualSpec = deserializer.deserialize(Task.class, params);
 		Assert.assertEquals(expectedSpec, actualSpec);
 	}
@@ -193,7 +204,7 @@ public class DefaultQuerySpecDeserializerTest extends AbstractQuerySpecTest {
 		QuerySpec actualSpec = deserializer.deserialize(Task.class, params);
 		Assert.assertEquals(expectedSpec, actualSpec);
 	}
-	
+
 	@Test
 	public void testIncludeRelationsOnRoot() throws InstantiationException, IllegalAccessException {
 		QuerySpec expectedSpec = new QuerySpec(Task.class);
@@ -205,7 +216,7 @@ public class DefaultQuerySpecDeserializerTest extends AbstractQuerySpecTest {
 		QuerySpec actualSpec = deserializer.deserialize(Task.class, params);
 		Assert.assertEquals(expectedSpec, actualSpec);
 	}
-	
+
 	@Test
 	public void testIncludeAttributes() throws InstantiationException, IllegalAccessException {
 		QuerySpec expectedSpec = new QuerySpec(Task.class);
@@ -217,7 +228,7 @@ public class DefaultQuerySpecDeserializerTest extends AbstractQuerySpecTest {
 		QuerySpec actualSpec = deserializer.deserialize(Task.class, params);
 		Assert.assertEquals(expectedSpec, actualSpec);
 	}
-	
+
 	@Test
 	public void testIncludeAttributesOnRoot() throws InstantiationException, IllegalAccessException {
 		QuerySpec expectedSpec = new QuerySpec(Task.class);
