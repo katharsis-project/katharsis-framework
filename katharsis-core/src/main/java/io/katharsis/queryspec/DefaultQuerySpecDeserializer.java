@@ -220,14 +220,16 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 			throw new ParametersDeserializationException("invalid parameter " + parameter);
 		}
 
-		for (String value : parameter.values) {
-			boolean desc = value.startsWith("-");
-			if (desc) {
-				value = value.substring(1);
+		for (String values : parameter.values) {
+			for (String value : splitValues(values)) {
+				boolean desc = value.startsWith("-");
+				if (desc) {
+					value = value.substring(1);
+				}
+				List<String> attributePath = splitAttributePath(value, parameter);
+				Direction dir = desc ? Direction.DESC : Direction.ASC;
+				querySpec.addSort(new SortSpec(attributePath, dir));
 			}
-			List<String> attributePath = splitAttributePath(value, parameter);
-			Direction dir = desc ? Direction.DESC : Direction.ASC;
-			querySpec.addSort(new SortSpec(attributePath, dir));
 		}
 	}
 
