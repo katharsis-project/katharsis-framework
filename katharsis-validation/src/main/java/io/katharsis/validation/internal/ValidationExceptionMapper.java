@@ -7,18 +7,24 @@ import java.util.Map;
 
 import javax.validation.ValidationException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.katharsis.errorhandling.ErrorData;
 import io.katharsis.errorhandling.ErrorDataBuilder;
 import io.katharsis.errorhandling.ErrorResponse;
 import io.katharsis.errorhandling.mapper.ExceptionMapper;
 
 public class ValidationExceptionMapper implements ExceptionMapper<ValidationException> {
+	
+	private static final Logger logger = LoggerFactory.getLogger(ValidationExceptionMapper.class);
 
 	private static final String META_TYPE_VALUE = "ValidationException";
 
 	@Override
 	public ErrorResponse toErrorResponse(ValidationException exception) {
-
+		logger.warn("a ValidationException occured", exception);
+		
 		List<ErrorData> errors = new ArrayList<>();
 
 		ErrorDataBuilder builder = ErrorData.builder();

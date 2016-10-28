@@ -15,6 +15,9 @@ import javax.validation.ConstraintViolationException;
 import javax.validation.ElementKind;
 import javax.validation.Path.Node;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.katharsis.errorhandling.ErrorData;
 import io.katharsis.errorhandling.ErrorDataBuilder;
 import io.katharsis.errorhandling.ErrorResponse;
@@ -27,6 +30,8 @@ import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.utils.PropertyUtils;
 
 public class ConstraintViolationExceptionMapper implements ExceptionMapper<ConstraintViolationException> {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(ConstraintViolationExceptionMapper.class);
 
 	private static final String HIBERNATE_PROPERTY_NODE_IMPL = "org.hibernate.validator.path.PropertyNode";
 
@@ -54,6 +59,8 @@ public class ConstraintViolationExceptionMapper implements ExceptionMapper<Const
 
 	@Override
 	public ErrorResponse toErrorResponse(ConstraintViolationException cve) {
+		LOGGER.warn("a ConstraintViolationException occured", cve);
+		
 		List<ErrorData> errors = new ArrayList<>();
 		for (ConstraintViolation<?> violation : cve.getConstraintViolations()) {
 
