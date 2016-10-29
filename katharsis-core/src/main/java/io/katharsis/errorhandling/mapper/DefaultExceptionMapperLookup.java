@@ -17,9 +17,7 @@ public class DefaultExceptionMapperLookup implements ExceptionMapperLookup {
     private List<String> resourceSearchPackages;
 
     public DefaultExceptionMapperLookup(String resourceSearchPackage) {
-    	if(resourceSearchPackage != null){
-    		this.resourceSearchPackages = Arrays.asList(resourceSearchPackage.split(","));
-    	}
+    	this(resourceSearchPackage != null ? Arrays.asList(resourceSearchPackage.split(",")) : null);
     }
 
     public DefaultExceptionMapperLookup(List<String> resourceSearchPackages) {
