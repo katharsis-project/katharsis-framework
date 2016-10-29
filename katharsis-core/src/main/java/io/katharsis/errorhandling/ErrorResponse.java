@@ -1,5 +1,6 @@
 package io.katharsis.errorhandling;
 
+import java.util.Collections;
 import java.util.Objects;
 
 import io.katharsis.queryspec.internal.QueryAdapter;
@@ -20,6 +21,9 @@ public final class ErrorResponse implements BaseResponseContext {
     }
 
     public Iterable<ErrorData> getErrors(){
+    	if(data == null){
+    		return Collections.emptyList();
+    	}
     	return data;
     }
     

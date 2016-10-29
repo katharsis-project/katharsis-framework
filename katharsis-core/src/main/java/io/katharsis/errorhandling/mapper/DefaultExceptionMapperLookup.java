@@ -3,7 +3,9 @@ package io.katharsis.errorhandling.mapper;
 import io.katharsis.resource.exception.init.InvalidResourceException;
 import org.reflections.Reflections;
 
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -11,20 +13,24 @@ import java.util.Set;
  * are annotated with the {@link ExceptionMapperProvider} annotation.
  */
 public class DefaultExceptionMapperLookup implements ExceptionMapperLookup {
-    private String resourceSearchPackage;
+	
+    private List<String> resourceSearchPackages;
 
     public DefaultExceptionMapperLookup(String resourceSearchPackage) {
-        this.resourceSearchPackage = resourceSearchPackage;
+    	this(resourceSearchPackage != null ? Arrays.asList(resourceSearchPackage.split(",")) : null);
+    }
+
+    public DefaultExceptionMapperLookup(List<String> resourceSearchPackages) {
+        this.resourceSearchPackages = resourceSearchPackages;
     }
 
     @Override
     public Set<JsonApiExceptionMapper> getExceptionMappers() {
         Reflections reflections;
-        if (resourceSearchPackage != null) {
-            String[] packageNames = resourceSearchPackage.split(",");
-            reflections = new Reflections(packageNames);
+        if (resourceSearchPackages != null) {
+            reflections = new Reflections(resourceSearchPackages);
         } else {
-            reflections = new Reflections(resourceSearchPackage);
+            reflections = new Reflections();
         }
         Set<Class<?>> exceptionMapperClasses = reflections.getTypesAnnotatedWith(ExceptionMapperProvider.class);
 

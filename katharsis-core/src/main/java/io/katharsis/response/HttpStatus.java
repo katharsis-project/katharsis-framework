@@ -7,6 +7,7 @@ public interface HttpStatus {
     int NO_CONTENT_204 = 204;
     int NOT_FOUND_404 = 404;
     int BAD_REQUEST_400 = 400;
+    int UNAUTHORIZED_401 = 401;
     int FORBIDDEN_403 = 403;
     int CONFLICT_409 = 409;
     int INTERNAL_SERVER_ERROR_500 = 500;

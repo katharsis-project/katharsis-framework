@@ -1,13 +1,13 @@
 package io.katharsis.resource.exception;
 
 import io.katharsis.errorhandling.ErrorData;
-import io.katharsis.errorhandling.exception.KatharsisMappableException;
+import io.katharsis.errorhandling.exception.InternalServerErrorException;
 import io.katharsis.response.HttpStatus;
 
 /**
  * General exception regarding resource building.
  */
-public class ResourceException extends KatharsisMappableException {
+public class ResourceException extends InternalServerErrorException {  // NOSONAR exception hierarchy deep but ok
 
     private static final String TITLE = "Resource error";
 
