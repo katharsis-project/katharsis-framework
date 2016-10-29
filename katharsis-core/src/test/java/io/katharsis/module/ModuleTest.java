@@ -87,6 +87,11 @@ public class ModuleTest {
 		Assert.assertTrue(classes.contains(IllegalStateExceptionMapper.class));
 		Assert.assertTrue(classes.contains(SomeIllegalStateExceptionMapper.class));
 	}
+	
+	@Test
+	public void testInitCalled() {
+		Assert.assertTrue(testModule.initialized);
+	}
 
 	@Test(expected = IllegalStateException.class)
 	public void testModuleChangeAfterAddModule() {
@@ -200,9 +205,10 @@ public class ModuleTest {
 		Assert.assertNotNull(responseRelationshipEntry);
 	}
 
-	class TestModule implements Module {
+	class TestModule implements InitialzingModule {
 
 		private ModuleContext context;
+		private boolean initialized;
 
 		@Override
 		public String getModuleName() {
@@ -243,6 +249,11 @@ public class ModuleTest {
 					return set;
 				}
 			});
+		}
+
+		@Override
+		public void init() {
+			initialized = true;
 		}
 	}
 
