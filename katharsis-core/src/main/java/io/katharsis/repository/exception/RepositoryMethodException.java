@@ -1,10 +1,10 @@
 package io.katharsis.repository.exception;
 
 import io.katharsis.errorhandling.ErrorData;
-import io.katharsis.errorhandling.exception.KatharsisMappableException;
+import io.katharsis.errorhandling.exception.InternalServerErrorException;
 import io.katharsis.response.HttpStatus;
 
-public class RepositoryMethodException extends KatharsisMappableException {
+public class RepositoryMethodException extends InternalServerErrorException {
     private static final String TITLE = "Resource method error";
 
     public RepositoryMethodException(String message) {
