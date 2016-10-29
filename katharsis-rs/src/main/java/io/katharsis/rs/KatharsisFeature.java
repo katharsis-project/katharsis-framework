@@ -3,8 +3,10 @@ package io.katharsis.rs;
 import javax.ws.rs.ConstrainedTo;
 import javax.ws.rs.RuntimeType;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.FeatureContext;
+import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.ext.Provider;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,10 +34,11 @@ import io.katharsis.resource.registry.ResourceLookup;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryBuilder;
 import io.katharsis.resource.registry.ServiceUrlProvider;
-import io.katharsis.rs.resource.registry.UriInfoServiceUrlProvider;
+import io.katharsis.rs.internal.JaxrsModule;
 import io.katharsis.rs.parameterProvider.RequestContextParameterProviderLookup;
 import io.katharsis.rs.parameterProvider.RequestContextParameterProviderRegistry;
 import io.katharsis.rs.parameterProvider.RequestContextParameterProviderRegistryBuilder;
+import io.katharsis.rs.resource.registry.UriInfoServiceUrlProvider;
 import io.katharsis.utils.parser.TypeParser;
 
 /**
@@ -55,6 +58,9 @@ public class KatharsisFeature implements Feature {
 	private final QuerySpecDeserializer querySpecDeserializer;
 	private ServiceUrlProvider customServiceUrlProvider;
 	private boolean configured;
+	
+	@Context
+	private SecurityContext securityContext;
 
     public KatharsisFeature(ObjectMapper objectMapper,
                             QueryParamsBuilder queryParamsBuilder,
@@ -128,6 +134,7 @@ public class KatharsisFeature implements Feature {
                 
         ResourceFieldNameTransformer resourceFieldNameTransformer = new ResourceFieldNameTransformer(objectMapper.getSerializationConfig());
         moduleRegistry.addModule(new CoreModule(resourceSearchPackage, resourceFieldNameTransformer));
+    	moduleRegistry.addModule(new JaxrsModule(securityContext));
        
         ServiceUrlProvider serviceUrlProvider = buildServiceUrlProvider(resourceDefaultDomain, webPathPrefix);
         ResourceLookup resourceLookup = createResourceLookup(context);

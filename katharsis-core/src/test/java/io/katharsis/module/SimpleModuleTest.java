@@ -25,10 +25,12 @@ import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.registry.ResourceLookup;
 import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.security.SecurityProvider;
 
 public class SimpleModuleTest {
 
 	private TestModuleContext context;
+
 	private SimpleModule module;
 
 	@Before
@@ -87,6 +89,7 @@ public class SimpleModuleTest {
 	@Test
 	public void testJacksonModule() {
 		module.addJacksonModule(new com.fasterxml.jackson.databind.module.SimpleModule() {
+
 			private static final long serialVersionUID = 7829254359521781942L;
 
 			@Override
@@ -183,12 +186,20 @@ public class SimpleModuleTest {
 	class TestModuleContext implements ModuleContext {
 
 		private int numResourceInformationBuilds = 0;
+
 		private int numResourceLookups = 0;
+
 		private int numJacksonModules = 0;
+
 		private int numResourceRepositoreis = 0;
+
 		private int numRelationshipRepositories = 0;
+
 		private int numFilters = 0;
+
 		private int numExceptionMapperLookup = 0;
+
+		private int numSecurityProviders = 0;
 
 		@Override
 		public void addResourceInformationBuilder(ResourceInformationBuilder resourceInformationBuilder) {
@@ -234,6 +245,16 @@ public class SimpleModuleTest {
 		@Override
 		public void addExceptionMapper(ExceptionMapper<?> exceptionMapper) {
 			numExceptionMapperLookup++;
+		}
+
+		@Override
+		public void addSecurityProvider(SecurityProvider securityProvider) {
+			numSecurityProviders++;
+		}
+
+		@Override
+		public SecurityProvider getSecurityProvider() {
+			throw new UnsupportedOperationException();
 		}
 	}
 }

@@ -43,6 +43,7 @@ import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceLookup;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.repository.DirectResponseRelationshipEntry;
+import io.katharsis.security.SecurityProvider;
 
 public class ModuleTest {
 
@@ -87,7 +88,7 @@ public class ModuleTest {
 		Assert.assertTrue(classes.contains(IllegalStateExceptionMapper.class));
 		Assert.assertTrue(classes.contains(SomeIllegalStateExceptionMapper.class));
 	}
-	
+
 	@Test
 	public void testInitCalled() {
 		Assert.assertTrue(testModule.initialized);
@@ -192,6 +193,13 @@ public class ModuleTest {
 	}
 
 	@Test
+	public void testSecurityProvider() throws Exception {
+		Assert.assertTrue(moduleRegistry.getSecurityProvider().isUserInRole("testRole"));
+		Assert.assertFalse(moduleRegistry.getSecurityProvider().isUserInRole("nonExistingRole"));
+		Assert.assertTrue(testModule.getContext().getSecurityProvider().isUserInRole("testRole"));
+	}
+
+	@Test
 	public void testRepositoryRegistration() {
 		RegistryEntry<?> entry = resourceRegistry.getEntry(TestResource2.class);
 		ResourceInformation info = entry.getResourceInformation();
@@ -208,6 +216,7 @@ public class ModuleTest {
 	class TestModule implements InitialzingModule {
 
 		private ModuleContext context;
+
 		private boolean initialized;
 
 		@Override
@@ -232,6 +241,14 @@ public class ModuleTest {
 				@Override
 				public String getModuleName() {
 					return "test";
+				}
+			});
+
+			context.addSecurityProvider(new SecurityProvider() {
+
+				@Override
+				public boolean isUserInRole(String role) {
+					return "testRole".equals(role);
 				}
 			});
 

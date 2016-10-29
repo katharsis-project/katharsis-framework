@@ -14,6 +14,7 @@ import io.katharsis.queryspec.QuerySpecRelationshipRepository;
 import io.katharsis.queryspec.QuerySpecResourceRepository;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ResourceLookup;
+import io.katharsis.security.SecurityProvider;
 
 /**
  * Vanilla {@link Module} implementation that allows registration of extensions.
@@ -23,6 +24,8 @@ public class SimpleModule implements Module {
 	private List<ResourceInformationBuilder> resourceInformationBuilders = new ArrayList<>();
 
 	private List<Filter> filters = new ArrayList<>();
+	
+	private List<SecurityProvider> securityProviders = new ArrayList<>();
 
 	private List<ResourceLookup> resourceLookups = new ArrayList<>();
 
@@ -37,7 +40,7 @@ public class SimpleModule implements Module {
 	private String moduleName;
 
 	private ModuleContext context;
-
+	
 	public SimpleModule(String moduleName) {
 		this.moduleName = moduleName;
 	}
@@ -109,12 +112,18 @@ public class SimpleModule implements Module {
 		checkInitialized();
 		filters.add(filter);
 	}
-
+	
 	protected List<Filter> getFilters() {
 		checkInitialized();
 		return Collections.unmodifiableList(filters);
 	}
 
+
+	public void addSecurityProvider(SecurityProvider securityProvider) {
+		checkInitialized();
+		securityProviders.add(securityProvider);		
+	}
+	
 	public void addJacksonModule(com.fasterxml.jackson.databind.Module module) {
 		checkInitialized();
 		jacksonModules.add(module);
@@ -229,4 +238,9 @@ public class SimpleModule implements Module {
 			return set;
 		}
 	}
+
+	public List<SecurityProvider> getSecurityProviders() {
+		return Collections.unmodifiableList(securityProviders);
+	}
+
 }

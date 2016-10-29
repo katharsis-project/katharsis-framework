@@ -20,12 +20,15 @@ import io.katharsis.repository.RepositoryInstanceBuilder;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.information.ResourceInformationBuilder;
+import io.katharsis.resource.registry.MultiResourceLookup;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceLookup;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.repository.DirectResponseRelationshipEntry;
 import io.katharsis.resource.registry.repository.DirectResponseResourceEntry;
 import io.katharsis.resource.registry.repository.ResponseRelationshipEntry;
+import io.katharsis.security.SecurityProvider;
+import io.katharsis.utils.PreconditionUtil;
 
 /**
  * Container for setting up and holding {@link Module} instances;
@@ -36,7 +39,7 @@ public class ModuleRegistry {
 
 	private ResourceRegistry resourceRegistry;
 
-	private List<Module> modules = new ArrayList<Module>();
+	private List<Module> modules = new ArrayList<>();
 
 	private SimpleModule aggregatedModule = new SimpleModule(null);
 
@@ -118,6 +121,17 @@ public class ModuleRegistry {
 			checkNotInitialized();
 			aggregatedModule.addRepository(sourceType, targetType, repository);
 		}
+
+		@Override
+		public void addSecurityProvider(SecurityProvider securityProvider) {
+			checkNotInitialized();
+			aggregatedModule.addSecurityProvider(securityProvider);
+		}
+
+		@Override
+		public SecurityProvider getSecurityProvider() {
+			return ModuleRegistry.this.getSecurityProvider();
+		}
 	}
 
 	/**
@@ -154,7 +168,19 @@ public class ModuleRegistry {
 	 * @return resource lookup
 	 */
 	public ResourceLookup getResourceLookup() {
-		return new CombinedResourceLookup(aggregatedModule.getResourceLookups());
+		return new MultiResourceLookup(aggregatedModule.getResourceLookups());
+	}
+
+	/**
+	 * Returns a {@link SecurityProvider} instance that combines all
+	 * instances registered by modules.
+	 *
+	 * @return resource lookup
+	 */
+	public SecurityProvider getSecurityProvider() {
+		List<SecurityProvider> securityProviders = aggregatedModule.getSecurityProviders();
+		PreconditionUtil.assertEquals("exactly one security provide must be installed, got: " + securityProviders, 1, securityProviders.size());
+		return securityProviders.get(0);
 	}
 
 	/**
@@ -215,37 +241,6 @@ public class ModuleRegistry {
 	}
 
 	/**
-	 * Combines all {@link ResourceLookup} instances provided by the registered
-	 * {@link Module}.
-	 */
-	static class CombinedResourceLookup implements ResourceLookup {
-
-		private Collection<ResourceLookup> lookups;
-
-		public CombinedResourceLookup(List<ResourceLookup> lookups) {
-			this.lookups = lookups;
-		}
-
-		@Override
-		public Set<Class<?>> getResourceClasses() {
-			Set<Class<?>> set = new HashSet<Class<?>>();
-			for (ResourceLookup lookup : lookups) {
-				set.addAll(lookup.getResourceClasses());
-			}
-			return set;
-		}
-
-		@Override
-		public Set<Class<?>> getResourceRepositoryClasses() {
-			Set<Class<?>> set = new HashSet<Class<?>>();
-			for (ResourceLookup lookup : lookups) {
-				set.addAll(lookup.getResourceRepositoryClasses());
-			}
-			return set;
-		}
-	}
-
-	/**
 	 * Initializes the {@link ModuleRegistry} and applies all pending changes. After the initialization
 	 * completed, it is not possible to add any further modules.
 	 * 
@@ -260,7 +255,7 @@ public class ModuleRegistry {
 			this.objectMapper.registerModules(getJacksonModules());
 
 			applyRepositoryRegistration(resourceRegistry);
-			
+
 			for (Module module : modules) {
 				if (module instanceof InitialzingModule) {
 					((InitialzingModule) module).init();
@@ -282,6 +277,7 @@ public class ModuleRegistry {
 			RepositoryInstanceBuilder<ResourceRepository<?, ?>> repositoryInstanceBuilder = new RepositoryInstanceBuilder(null,
 					null) {
 
+				@Override
 				public Object buildRepository() {
 					return resourceRepositoryRegistration.getRepository();
 				}
@@ -294,6 +290,7 @@ public class ModuleRegistry {
 					RepositoryInstanceBuilder<QuerySpecRelationshipRepository> relationshipInstanceBuilder = new RepositoryInstanceBuilder<QuerySpecRelationshipRepository>(
 							null, null) {
 
+						@Override
 						public QuerySpecRelationshipRepository buildRepository() {
 							return relationshipRepositoryRegistration.getRepository();
 						}
