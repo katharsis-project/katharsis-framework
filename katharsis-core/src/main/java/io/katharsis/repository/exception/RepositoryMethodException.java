@@ -4,7 +4,7 @@ import io.katharsis.errorhandling.ErrorData;
 import io.katharsis.errorhandling.exception.InternalServerErrorException;
 import io.katharsis.response.HttpStatus;
 
-public class RepositoryMethodException extends InternalServerErrorException {
+public class RepositoryMethodException extends InternalServerErrorException {  // NOSONAR exception hierarchy deep but ok
     private static final String TITLE = "Resource method error";
 
     public RepositoryMethodException(String message) {

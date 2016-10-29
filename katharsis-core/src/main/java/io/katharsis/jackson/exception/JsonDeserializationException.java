@@ -7,7 +7,7 @@ import io.katharsis.response.HttpStatus;
 /**
  * Thrown, when is unable to read request body
  */
-public class JsonDeserializationException extends BadRequestException {
+public class JsonDeserializationException extends BadRequestException { // NOSONAR exception hierarchy deep but ok
     private static final String TITLE = "invalid request body";
 
     public JsonDeserializationException(String message) {

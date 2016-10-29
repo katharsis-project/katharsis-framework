@@ -7,7 +7,7 @@ import io.katharsis.response.HttpStatus;
 /**
  * Thrown when a Jackson serialization related exception occurs.
  */
-public class JsonSerializationException extends InternalServerErrorException {
+public class JsonSerializationException extends InternalServerErrorException {  // NOSONAR exception hierarchy deep but ok
     private static final String TITLE = "JSON serialization error";
 
     public JsonSerializationException(String message) {

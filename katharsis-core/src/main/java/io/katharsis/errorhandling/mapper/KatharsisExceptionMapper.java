@@ -56,11 +56,12 @@ public final class KatharsisExceptionMapper implements ExceptionMapper<Katharsis
 
 	private String getMessage(ErrorResponse errorResponse) {
 		Iterator<ErrorData> errors = errorResponse.getErrors().iterator();
+		String message = null;
 		if (errors.hasNext()) {
 			ErrorData data = errors.next();
-			return data.getDetail();
+			message = data.getDetail();
 		}
-		return null;
+		return message;
 	}
 
 	@Override

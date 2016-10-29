@@ -7,7 +7,7 @@ import io.katharsis.response.HttpStatus;
 /**
  * Thrown, when is unable to read request parameters
  */
-public class ParametersDeserializationException extends BadRequestException {
+public class ParametersDeserializationException extends BadRequestException {  // NOSONAR exception hierarchy deep but ok
     private static final String TITLE = "Request parameters error";
 
     public ParametersDeserializationException(String message) {

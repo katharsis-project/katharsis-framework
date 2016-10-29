@@ -7,7 +7,7 @@ import io.katharsis.response.HttpStatus;
 /**
  * General exception regarding resource building.
  */
-public class ResourceException extends InternalServerErrorException {
+public class ResourceException extends InternalServerErrorException {  // NOSONAR exception hierarchy deep but ok
 
     private static final String TITLE = "Resource error";
 

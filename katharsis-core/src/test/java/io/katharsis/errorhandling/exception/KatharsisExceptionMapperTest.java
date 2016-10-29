@@ -39,6 +39,13 @@ public class KatharsisExceptionMapperTest {
 		assertThat(exception.getMessage()).isEqualTo("testMessage");
 	}
 
+
+	@Test(expected=IllegalStateException.class)
+	public void invalidExceptionNotManagedByMapper() {
+		KatharsisExceptionMapper mapper = new KatharsisExceptionMapper();
+		mapper.fromErrorResponse(new ErrorResponse(null, 123));
+	}
+
 	@Test
 	public void badRequest() {
 		KatharsisExceptionMapper mapper = new KatharsisExceptionMapper();

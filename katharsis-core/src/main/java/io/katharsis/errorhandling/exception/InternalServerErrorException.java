@@ -3,7 +3,7 @@ package io.katharsis.errorhandling.exception;
 import io.katharsis.errorhandling.ErrorData;
 import io.katharsis.response.HttpStatus;
 
-public class InternalServerErrorException extends KatharsisMappableException {
+public class InternalServerErrorException extends KatharsisMappableException {  // NOSONAR exception hierarchy deep but ok
 
 	private static final String TITLE = "INTERNAL_SERVER_ERROR";
 
