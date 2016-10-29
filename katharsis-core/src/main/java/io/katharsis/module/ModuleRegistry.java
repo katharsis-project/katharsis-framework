@@ -260,6 +260,12 @@ public class ModuleRegistry {
 			this.objectMapper.registerModules(getJacksonModules());
 
 			applyRepositoryRegistration(resourceRegistry);
+			
+			for (Module module : modules) {
+				if (module instanceof InitialzingModule) {
+					((InitialzingModule) module).init();
+				}
+			}
 		}
 	}
 
