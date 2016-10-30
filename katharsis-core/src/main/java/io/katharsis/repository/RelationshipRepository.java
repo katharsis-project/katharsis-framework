@@ -32,7 +32,7 @@ import java.io.Serializable;
  * @param <D> target class type
  * @param <D_ID> D class id type
  */
-public interface RelationshipRepository<T, T_ID extends Serializable, D, D_ID extends Serializable> {
+public interface RelationshipRepository<T, T_ID extends Serializable, D, D_ID extends Serializable> extends Repository {
 
     int TARGET_TYPE_GENERIC_PARAMETER_IDX = 2;
 

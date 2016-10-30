@@ -18,6 +18,7 @@ import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.katharsis.internal.boot.TransactionRunner;
 import io.katharsis.dispatcher.filter.AbstractFilter;
 import io.katharsis.dispatcher.filter.FilterChain;
 import io.katharsis.dispatcher.filter.FilterRequestContext;

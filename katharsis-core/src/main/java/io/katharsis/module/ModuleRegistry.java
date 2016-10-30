@@ -14,20 +14,24 @@ import io.katharsis.errorhandling.mapper.ExceptionMapperLookup;
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
 import io.katharsis.module.SimpleModule.RelationshipRepositoryRegistration;
 import io.katharsis.module.SimpleModule.ResourceRepositoryRegistration;
-import io.katharsis.queryspec.QuerySpecRelationshipRepository;
-import io.katharsis.queryspec.QuerySpecResourceRepository;
 import io.katharsis.repository.RepositoryInstanceBuilder;
 import io.katharsis.repository.ResourceRepository;
+import io.katharsis.repository.annotations.JsonApiRelationshipRepository;
+import io.katharsis.repository.annotations.JsonApiResourceRepository;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.registry.MultiResourceLookup;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceLookup;
 import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.resource.registry.repository.AnnotatedRelationshipEntryBuilder;
+import io.katharsis.resource.registry.repository.AnnotatedResourceEntry;
 import io.katharsis.resource.registry.repository.DirectResponseRelationshipEntry;
 import io.katharsis.resource.registry.repository.DirectResponseResourceEntry;
+import io.katharsis.resource.registry.repository.ResourceEntry;
 import io.katharsis.resource.registry.repository.ResponseRelationshipEntry;
 import io.katharsis.security.SecurityProvider;
+import io.katharsis.utils.ClassUtils;
 import io.katharsis.utils.PreconditionUtil;
 
 /**
@@ -44,6 +48,8 @@ public class ModuleRegistry {
 	private SimpleModule aggregatedModule = new SimpleModule(null);
 
 	private volatile boolean initialized;
+
+	private ServiceDiscovery serviceDiscovery;
 
 	/**
 	 * Register an new module to this registry and setup the module.
@@ -110,14 +116,13 @@ public class ModuleRegistry {
 		}
 
 		@Override
-		public void addRepository(Class<?> type, QuerySpecResourceRepository<?, ?> repository) {
+		public void addRepository(Class<?> type, Object repository) {
 			checkNotInitialized();
 			aggregatedModule.addRepository(type, repository);
 		}
 
 		@Override
-		public void addRepository(Class<?> sourceType, Class<?> targetType,
-				QuerySpecRelationshipRepository<?, ?, ?, ?> repository) {
+		public void addRepository(Class<?> sourceType, Class<?> targetType, Object repository) {
 			checkNotInitialized();
 			aggregatedModule.addRepository(sourceType, targetType, repository);
 		}
@@ -131,6 +136,11 @@ public class ModuleRegistry {
 		@Override
 		public SecurityProvider getSecurityProvider() {
 			return ModuleRegistry.this.getSecurityProvider();
+		}
+
+		@Override
+		public ServiceDiscovery getServiceDiscovery() {
+			return ModuleRegistry.this.getServiceDiscovery();
 		}
 	}
 
@@ -179,8 +189,20 @@ public class ModuleRegistry {
 	 */
 	public SecurityProvider getSecurityProvider() {
 		List<SecurityProvider> securityProviders = aggregatedModule.getSecurityProviders();
-		PreconditionUtil.assertEquals("exactly one security provide must be installed, got: " + securityProviders, 1, securityProviders.size());
+		PreconditionUtil.assertEquals("exactly one security provide must be installed, got: " + securityProviders, 1,
+				securityProviders.size());
 		return securityProviders.get(0);
+	}
+
+	/**
+	 * Returns a {@link SecurityProvider} instance that combines all
+	 * instances registered by modules.
+	 *
+	 * @return resource lookup
+	 */
+	public ServiceDiscovery getServiceDiscovery() {
+		PreconditionUtil.assertNotNull("serviceDiscovery not yet available", serviceDiscovery);
+		return serviceDiscovery;
 	}
 
 	/**
@@ -264,6 +286,10 @@ public class ModuleRegistry {
 		}
 	}
 
+	public void setServiceDiscovery(ServiceDiscovery serviceDiscovery){
+		this.serviceDiscovery = serviceDiscovery;
+	}
+	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void applyRepositoryRegistration(ResourceRegistry resourceRegistry) {
 		List<RelationshipRepositoryRegistration> relationshipRepositoryRegistrations = aggregatedModule
@@ -274,46 +300,66 @@ public class ModuleRegistry {
 		// TODO this needs to be merged with ResourceRegistryBuilder
 		for (final ResourceRepositoryRegistration resourceRepositoryRegistration : resourceRepositoryRegistrations) {
 			Class<?> resourceClass = resourceRepositoryRegistration.getResourceClass();
+			final Object repository = resourceRepositoryRegistration.getRepository();
 			RepositoryInstanceBuilder<ResourceRepository<?, ?>> repositoryInstanceBuilder = new RepositoryInstanceBuilder(null,
 					null) {
 
 				@Override
 				public Object buildRepository() {
-					return resourceRepositoryRegistration.getRepository();
+					return repository;
 				}
 			};
-			DirectResponseResourceEntry resourceEntry = new DirectResponseResourceEntry(repositoryInstanceBuilder);
+
+			ResourceEntry resourceEntry;
+			if (ClassUtils.getAnnotation(repository.getClass(), JsonApiResourceRepository.class).isPresent()) {
+				resourceEntry = new AnnotatedResourceEntry(repositoryInstanceBuilder);
+			}
+			else {
+				resourceEntry = new DirectResponseResourceEntry(repositoryInstanceBuilder);
+			}
+
 			ResourceInformation resourceInformation = getResourceInformationBuilder().build(resourceClass);
 			List<ResponseRelationshipEntry> relationshipEntries = new ArrayList<>();
 			for (final RelationshipRepositoryRegistration relationshipRepositoryRegistration : relationshipRepositoryRegistrations) {
 				if (relationshipRepositoryRegistration.getSourceType() == resourceClass) {
-					RepositoryInstanceBuilder<QuerySpecRelationshipRepository> relationshipInstanceBuilder = new RepositoryInstanceBuilder<QuerySpecRelationshipRepository>(
-							null, null) {
-
-						@Override
-						public QuerySpecRelationshipRepository buildRepository() {
-							return relationshipRepositoryRegistration.getRepository();
-						}
-
-						@Override
-						public Class getRepositoryClass() {
-							return relationshipRepositoryRegistration.getRepository().getClass();
-						}
-					};
-					ResponseRelationshipEntry relationshipEntry = new DirectResponseRelationshipEntry(
-							relationshipInstanceBuilder) {
-
-						@Override
-						public Class<?> getTargetAffiliation() {
-							return relationshipRepositoryRegistration.getTargetType();
-						}
-					};
-					relationshipEntries.add(relationshipEntry);
+					setupRelationShip(relationshipEntries, relationshipRepositoryRegistration);
 				}
 			}
 			// TODO get also relations from resource lookup
 			RegistryEntry registryEntry = new RegistryEntry(resourceInformation, resourceEntry, relationshipEntries);
 			resourceRegistry.addEntry(resourceClass, registryEntry);
+		}
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private void setupRelationShip(List<ResponseRelationshipEntry> relationshipEntries,
+			final RelationshipRepositoryRegistration relationshipRepositoryRegistration) {
+		Object relRepository = relationshipRepositoryRegistration.getRepository();
+		RepositoryInstanceBuilder<Object> relationshipInstanceBuilder = new RepositoryInstanceBuilder<Object>(null, null) {
+
+			@Override
+			public Object buildRepository() {
+				return relationshipRepositoryRegistration.getRepository();
+			}
+
+			@Override
+			public Class getRepositoryClass() {
+				return relationshipRepositoryRegistration.getRepository().getClass();
+			}
+		};
+
+		if (ClassUtils.getAnnotation(relRepository.getClass(), JsonApiRelationshipRepository.class).isPresent()) {
+			relationshipEntries.add(new AnnotatedRelationshipEntryBuilder(relationshipInstanceBuilder));
+		}
+		else {
+			ResponseRelationshipEntry<?, ?> relationshipEntry = new DirectResponseRelationshipEntry(relationshipInstanceBuilder) {
+
+				@Override
+				public Class<?> getTargetAffiliation() {
+					return relationshipRepositoryRegistration.getTargetType();
+				}
+			};
+			relationshipEntries.add(relationshipEntry);
 		}
 	}
 

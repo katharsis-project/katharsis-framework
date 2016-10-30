@@ -3,8 +3,6 @@ package io.katharsis.module;
 import io.katharsis.dispatcher.filter.Filter;
 import io.katharsis.errorhandling.mapper.ExceptionMapper;
 import io.katharsis.errorhandling.mapper.ExceptionMapperLookup;
-import io.katharsis.queryspec.QuerySpecRelationshipRepository;
-import io.katharsis.queryspec.QuerySpecResourceRepository;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ResourceLookup;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -38,6 +36,11 @@ public interface Module {
 	interface ModuleContext {
 
 		/**
+		 * @return ServiceDiscovery
+		 */
+		public ServiceDiscovery getServiceDiscovery();
+
+		/**
 		 * Register the given {@link ResourceInformationBuilder} in Katharsis.
 		 *
 		 * @param resourceInformationBuilder resource information builder
@@ -64,7 +67,7 @@ public interface Module {
 		 * @param resourceClass resource class
 		 * @param repository    repository
 		 */
-		void addRepository(Class<?> resourceClass, QuerySpecResourceRepository<?, ?> repository);
+		void addRepository(Class<?> resourceClass, Object repository);
 
 		/**
 		 * Adds the given repository for the given source and target type.
@@ -73,8 +76,7 @@ public interface Module {
 		 * @param targetResourceClass target resource class
 		 * @param repository          repository
 		 */
-		void addRepository(Class<?> sourceResourceClass, Class<?> targetResourceClass,
-				QuerySpecRelationshipRepository<?, ?, ?, ?> repository);
+		void addRepository(Class<?> sourceResourceClass, Class<?> targetResourceClass, Object repository);
 
 		/**
 		 * Adds a new exception mapper lookup.

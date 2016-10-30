@@ -61,7 +61,7 @@ public class ModuleTest extends AbstractClientTest {
 		}
 	}
 
-	class OkHttpTestModule implements Module, HttpAdapterAware {
+	private class OkHttpTestModule implements Module, HttpAdapterAware {
 
 		@Override
 		public String getModuleName() {

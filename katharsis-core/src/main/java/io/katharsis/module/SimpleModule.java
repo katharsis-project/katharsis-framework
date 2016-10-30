@@ -10,8 +10,6 @@ import java.util.Set;
 import io.katharsis.dispatcher.filter.Filter;
 import io.katharsis.errorhandling.mapper.ExceptionMapperLookup;
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
-import io.katharsis.queryspec.QuerySpecRelationshipRepository;
-import io.katharsis.queryspec.QuerySpecResourceRepository;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ResourceLookup;
 import io.katharsis.security.SecurityProvider;
@@ -24,7 +22,7 @@ public class SimpleModule implements Module {
 	private List<ResourceInformationBuilder> resourceInformationBuilders = new ArrayList<>();
 
 	private List<Filter> filters = new ArrayList<>();
-	
+
 	private List<SecurityProvider> securityProviders = new ArrayList<>();
 
 	private List<ResourceLookup> resourceLookups = new ArrayList<>();
@@ -40,7 +38,7 @@ public class SimpleModule implements Module {
 	private String moduleName;
 
 	private ModuleContext context;
-	
+
 	public SimpleModule(String moduleName) {
 		this.moduleName = moduleName;
 	}
@@ -112,18 +110,17 @@ public class SimpleModule implements Module {
 		checkInitialized();
 		filters.add(filter);
 	}
-	
+
 	protected List<Filter> getFilters() {
 		checkInitialized();
 		return Collections.unmodifiableList(filters);
 	}
 
-
 	public void addSecurityProvider(SecurityProvider securityProvider) {
 		checkInitialized();
-		securityProviders.add(securityProvider);		
+		securityProviders.add(securityProvider);
 	}
-	
+
 	public void addJacksonModule(com.fasterxml.jackson.databind.Module module) {
 		checkInitialized();
 		jacksonModules.add(module);
@@ -149,12 +146,12 @@ public class SimpleModule implements Module {
 		return Collections.unmodifiableList(resourceLookups);
 	}
 
-	public void addRepository(Class<?> type, QuerySpecResourceRepository<?, ?> repository) {
+	public void addRepository(Class<?> resourceClass, Object repository) {
 		checkInitialized();
-		resourceRepositoryRegistrations.add(new ResourceRepositoryRegistration(type, repository));
+		resourceRepositoryRegistrations.add(new ResourceRepositoryRegistration(resourceClass, repository));
 	}
 
-	public void addRepository(Class<?> sourceType, Class<?> targetType, QuerySpecRelationshipRepository<?, ?, ?, ?> repository) {
+	public void addRepository(Class<?> sourceType, Class<?> targetType, Object repository) {
 		checkInitialized();
 		relationshipRepositoryRegistrations.add(new RelationshipRepositoryRegistration(sourceType, targetType, repository));
 	}
@@ -167,16 +164,15 @@ public class SimpleModule implements Module {
 		return Collections.unmodifiableList(resourceRepositoryRegistrations);
 	}
 
-	public static class RelationshipRepositoryRegistration {
+	public class RelationshipRepositoryRegistration {
 
 		private Class<?> sourceType;
 
 		private Class<?> targetType;
 
-		private QuerySpecRelationshipRepository<?, ?, ?, ?> repository;
+		private Object repository;
 
-		public RelationshipRepositoryRegistration(Class<?> sourceType, Class<?> targetType,
-				QuerySpecRelationshipRepository<?, ?, ?, ?> repository) {
+		public RelationshipRepositoryRegistration(Class<?> sourceType, Class<?> targetType, Object repository) {
 			this.sourceType = sourceType;
 			this.targetType = targetType;
 			this.repository = repository;
@@ -190,7 +186,7 @@ public class SimpleModule implements Module {
 			return targetType;
 		}
 
-		public QuerySpecRelationshipRepository<?, ?, ?, ?> getRepository() {
+		public Object getRepository() {
 			return repository;
 		}
 
@@ -200,9 +196,9 @@ public class SimpleModule implements Module {
 
 		private Class<?> resourceClass;
 
-		private QuerySpecResourceRepository<?, ?> repository;
+		private Object repository;
 
-		public ResourceRepositoryRegistration(Class<?> resourceClass, QuerySpecResourceRepository<?, ?> repository) {
+		public ResourceRepositoryRegistration(Class<?> resourceClass, Object repository) {
 			this.resourceClass = resourceClass;
 			this.repository = repository;
 		}
@@ -211,7 +207,7 @@ public class SimpleModule implements Module {
 			return resourceClass;
 		}
 
-		public QuerySpecResourceRepository<?, ?> getRepository() {
+		public Object getRepository() {
 			return repository;
 		}
 	}

@@ -12,7 +12,7 @@ import java.io.Serializable;
  * @param <T>  Type of an entity
  * @param <ID> Type of Identifier of an entity
  */
-public interface ResourceRepository<T, ID extends Serializable> {
+public interface ResourceRepository<T, ID extends Serializable> extends Repository{
 
     /**
      * Search one resource with a given ID. If a resource cannot be found, a {@link ResourceNotFoundException}

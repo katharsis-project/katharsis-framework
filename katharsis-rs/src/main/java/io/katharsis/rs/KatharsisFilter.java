@@ -33,16 +33,15 @@ import io.katharsis.errorhandling.exception.KatharsisMappableException;
 import io.katharsis.errorhandling.exception.KatharsisMatchingException;
 import io.katharsis.errorhandling.mapper.KatharsisExceptionMapper;
 import io.katharsis.jackson.exception.JsonDeserializationException;
-import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ServiceUrlProvider;
-import io.katharsis.rs.resource.registry.UriInfoServiceUrlProvider;
 import io.katharsis.response.BaseResponseContext;
 import io.katharsis.rs.parameterProvider.JaxRsParameterProvider;
 import io.katharsis.rs.parameterProvider.RequestContextParameterProviderRegistry;
+import io.katharsis.rs.resource.registry.UriInfoServiceUrlProvider;
 import io.katharsis.rs.type.JsonApiMediaType;
 
 /**
@@ -64,7 +63,7 @@ import io.katharsis.rs.type.JsonApiMediaType;
 @Priority(Integer.MAX_VALUE) // Greatest value is applied last
 public class KatharsisFilter implements ContainerRequestFilter {
 
-	private Logger logger = LoggerFactory.getLogger(getClass());
+	private static final Logger LOGGER = LoggerFactory.getLogger(KatharsisFilter.class);
 
     private ObjectMapper objectMapper;
     private ResourceRegistry resourceRegistry;
@@ -73,7 +72,6 @@ public class KatharsisFilter implements ContainerRequestFilter {
     private String webPathPrefix;
 
     public KatharsisFilter(ObjectMapper objectMapper,
-                           QueryParamsBuilder queryParamsBuilder,
                            ResourceRegistry resourceRegistry, RequestDispatcher
             requestDispatcher, RequestContextParameterProviderRegistry parameterProviderRegistry, String webPathPrefix) {
         this.objectMapper = objectMapper;
@@ -112,10 +110,10 @@ public class KatharsisFilter implements ContainerRequestFilter {
         try {
             dispatchRequest(requestContext);
         } catch (WebApplicationException e) {
-        	logger.error("failed to dispatch request", e);
+        	LOGGER.error("failed to dispatch request", e);
             throw e;
         } catch (Exception e) {
-        	logger.error("failed to dispatch request", e);
+        	LOGGER.error("failed to dispatch request", e);
             throw new WebApplicationException(e);
         }
     }
@@ -149,7 +147,7 @@ public class KatharsisFilter implements ContainerRequestFilter {
             // log error in KatharsisMappableException mapper.
             katharsisResponse = new KatharsisExceptionMapper().toErrorResponse(e);
         } catch (KatharsisMatchingException e) {
-        	logger.warn("failed to process request", e);
+        	LOGGER.warn("failed to process request", e);
             passToMethodMatcher = true;
         } finally {
             if (!passToMethodMatcher) {

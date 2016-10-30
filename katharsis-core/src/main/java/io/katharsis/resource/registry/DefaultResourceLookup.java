@@ -1,6 +1,8 @@
 package io.katharsis.resource.registry;
 
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.reflections.Reflections;
@@ -19,19 +21,34 @@ import io.katharsis.resource.annotations.JsonApiResource;
  */
 public class DefaultResourceLookup implements ResourceLookup {
 
-	private String packageName;
+	private List<String> packageNames;
 	private Reflections reflections;
 
 	public DefaultResourceLookup(String packageName) {
-		this.packageName = packageName;
         if (packageName != null) {
-            String[] packageNames = packageName.split(",");
-            reflections = new Reflections(packageNames);
+            String[] packageNamesArray = packageName.split(",");
+            reflections = new Reflections((Object[])packageNamesArray);
+           packageNames = Arrays.asList(packageNamesArray);
         } else {
             reflections = new Reflections(packageName);
         }
 	}
 
+	public DefaultResourceLookup(List<String> packageNames) {
+		this.packageNames = packageNames;
+        if (packageNames != null) {
+            reflections = new Reflections((Object[])packageNames.toArray(new String[packageNames.size()]));
+        } else {
+            reflections = new Reflections((String)null);
+        }
+	}
+
+	@Override
+	public String toString(){
+		return getClass().getName() + "[packageNames=" + packageNames + "]";
+	}
+	
+	
 	@Override
 	public Set<Class<?>> getResourceClasses() {
         return reflections.getTypesAnnotatedWith(JsonApiResource.class);

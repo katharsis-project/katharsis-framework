@@ -242,6 +242,7 @@
                 <module>katharsis-core</module>
                 <module>katharsis-rs</module>
                 <module>katharsis-servlet</module>
+                <module>katharsis-cdi</module>
                 <module>katharsis-spring</module>
                 <module>katharsis-vertx</module>
                 <module>katharsis-client</module>

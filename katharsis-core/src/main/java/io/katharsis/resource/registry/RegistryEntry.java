@@ -4,7 +4,7 @@ import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.repository.exception.RelationshipRepositoryNotFoundException;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.repository.AnnotatedRelationshipEntryBuilder;
-import io.katharsis.resource.registry.repository.AnnotatedResourceEntryBuilder;
+import io.katharsis.resource.registry.repository.AnnotatedResourceEntry;
 import io.katharsis.resource.registry.repository.DirectResponseRelationshipEntry;
 import io.katharsis.resource.registry.repository.DirectResponseResourceEntry;
 import io.katharsis.resource.registry.repository.ResourceEntry;
@@ -56,8 +56,8 @@ public class RegistryEntry<T> {
         Object repoInstance = null;
         if (resourceEntry instanceof DirectResponseResourceEntry) {
             repoInstance = ((DirectResponseResourceEntry<T, ?>) resourceEntry).getResourceRepository();
-        } else if (resourceEntry instanceof AnnotatedResourceEntryBuilder) {
-            repoInstance = ((AnnotatedResourceEntryBuilder<T, ?>) resourceEntry).build(parameterProvider);
+        } else if (resourceEntry instanceof AnnotatedResourceEntry) {
+            repoInstance = ((AnnotatedResourceEntry<T, ?>) resourceEntry).build(parameterProvider);
         }
         
         if(repoInstance instanceof ResourceRegistryAware){
