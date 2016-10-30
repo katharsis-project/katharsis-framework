@@ -144,8 +144,11 @@ public class ConstraintViolationExceptionMapper implements ExceptionMapper<Const
 	 * resource path. For example, embeddables belonging to an entity resource
 	 * are mapped back to an entity violation and a proper path to the
 	 * embeddable attribute.
+	 * 
+	 * @param violation to compute the reference
+	 * @return computaed reference
 	 */
-	protected ResourceRef resolvePath(ConstraintViolation<?> violation) {
+	private ResourceRef resolvePath(ConstraintViolation<?> violation) {
 		Object resource = violation.getRootBean();
 		assertResource(resource);
 
@@ -363,6 +366,7 @@ public class ConstraintViolationExceptionMapper implements ExceptionMapper<Const
 	}
 
 	/**
+	 * @param resource to get the id from
 	 * @return id of the given resource
 	 */
 	protected String getResourceId(Object resource) {

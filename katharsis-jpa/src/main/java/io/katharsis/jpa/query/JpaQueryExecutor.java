@@ -5,7 +5,7 @@ import java.util.List;
 public interface JpaQueryExecutor<T> {
 
 	/**
-	 * Count the number of objects returned without any paging applied.
+	 * @return Count the number of objects returned without any paging applied.
 	 */
 	public long getTotalRowCount();
 

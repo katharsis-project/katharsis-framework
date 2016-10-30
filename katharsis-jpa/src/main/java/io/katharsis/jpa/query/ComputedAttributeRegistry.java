@@ -8,7 +8,7 @@ import java.util.Set;
 public interface ComputedAttributeRegistry {
 
 	/**
-	 * @param entityType
+	 * @param entityType for whom to get the computed attributes.
 	 * @return list of computed attribute names for the given entity type
 	 */
 	Set<String> getForType(Class<?> entityType);
