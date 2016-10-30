@@ -111,7 +111,7 @@ public interface Module {
 		/**
 		 * Adds a securityProvider.
 		 * 
-		 * @param securityProvider
+		 * @param securityProvider Ask remo
 		 */
 		void addSecurityProvider(SecurityProvider securityProvider);
 
