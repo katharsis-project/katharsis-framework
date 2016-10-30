@@ -60,7 +60,8 @@ public abstract class JpaRepositoryBase<T> extends PagedRepositoryBase<T> {
 	 * By default LookupIncludeBehavior.ALWAYS is in place and we let the relationship repositories load the relations. There 
 	 * is no need to do join fetches, which can lead to problems with paging (evaluated in memory instead of the db).
 	 * 
-	 * @param fieldName
+	 * @param fieldName of the relation to fetch
+	 * @return relation will be eagerly fetched if true
 	 */
 	protected boolean fetchRelations(String fieldName) { // NOSONAR
 		return false;
@@ -170,7 +171,7 @@ public abstract class JpaRepositoryBase<T> extends PagedRepositoryBase<T> {
 	}
 
 	/**
-	 * @param createable if true no reads will be allowed
+	 * @param readable if true no reads will be allowed
 	 */
 	public void setReadable(boolean readable) {
 		this.readable = readable;
@@ -181,7 +182,7 @@ public abstract class JpaRepositoryBase<T> extends PagedRepositoryBase<T> {
 	}
 
 	/**
-	 * @param createable if true no updates will be allowed
+	 * @param updateable if true no updates will be allowed
 	 */
 	public void setUpdateable(boolean updateable) {
 		this.updateable = updateable;
@@ -203,7 +204,7 @@ public abstract class JpaRepositoryBase<T> extends PagedRepositoryBase<T> {
 	}
 
 	/**
-	 * @param createable if true no deletions will be allowed
+	 * @param deleteable if true no deletions will be allowed
 	 */
 	public void setDeleteable(boolean deleteable) {
 		this.deleteable = deleteable;

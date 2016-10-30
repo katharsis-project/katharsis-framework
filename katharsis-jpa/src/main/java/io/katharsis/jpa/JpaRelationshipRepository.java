@@ -46,9 +46,9 @@ public class JpaRelationshipRepository<S, I extends Serializable, T, J extends S
 	/**
 	 * JPA relationship directly exposed as repository
 	 * 
-	 * @param module
-	 * @param sourceResourceClass
-	 * @param targetResourceClass
+	 * @param module that manages this repository
+	 * @param sourceResourceClass from this relation
+	 * @param targetResourceClass from this relation
 	 */
 	public JpaRelationshipRepository(JpaModule module, Class<S> sourceResourceClass, Class<T> targetResourceClass) {
 		super(module, targetResourceClass);

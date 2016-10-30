@@ -13,12 +13,14 @@ public interface MetaKey extends MetaTypedElement {
 	MetaAttribute getUniqueElement();
 
 	/**
-	 * Converts a string to a key
+	 * @param idString to conver to
+	 * @return Converts a string to a key
 	 */
 	Object fromKeyString(String idString);
 
 	/**
-	 * Converts a key to a string
+	 * @param id object to convert
+	 * @return Converts a key to a string
 	 */
 	String toKeyString(Object id);
 

@@ -49,35 +49,26 @@ import io.katharsis.utils.PreconditionUtil;
  * supports:
  * 
  * <ul>
- * <li>Sorting <code>
- * 			?sort[task][name]=asc
- * 		</code></li>
- * <li>Filtering <code>
- * 			?filter[task][name]=MyTask
- * 		</code></li>
- * <li>Access to relationships for any operation (sorting, filtering, etc.)
- * <code>
- * 			?filter[task][project][name]=MyProject
- * 		</code></li>
- * <li>Includes for relationships <code>
- * 			?include[task]=project
- * 		</code></li>
- * <li>Paging <code>
- * 			?page[offset]=20&page[limit]=10
- * 		</code></li>
+ * <li>Sorting</li>
+ * <li>Filtering</li>
+ * <li>Access to relationships for any operation (sorting, filtering, etc.)</li>
+ * <li>Includes for relationships </li>
+ * <li>Paging</li>
+ * <li>Mapping to DTOs</li>
+ * <li>Criteria API and QueryDSL support</li>
+ * <li>Computated attributes that map JPA Criteria/QueryDSL expressions to DTO attributes</li>
+ * <li>JpaRepositoryFilter to customize the repositories</li>
+ * <li>Client and server support</li>
+ * <li>No need for katharsis annotations by default. Reads the entity annotations.</li>
  * </ul>
  * 
  * 
  * Not supported so far:
  * 
  * <ul>
- * <li>Selection of fields, always all fields are returned. <code>
- * 			?fields[task]=id,name
- * 		</code></li>
+ * <li>Selection of fields, always all fields are returned.</li>
  * <li>Sorting and filtering on related resources. Consider doing separate
- * requests on the relations where necessary. <code>
- * 			/tasks/?sort[project][name]=asc
- * 		</code></li>
+ * requests on the relations where necessary.</li>
  * </ul>
  * 
  */
@@ -168,10 +159,9 @@ public class JpaModule implements Module {
 	 * {@link #addEntityClass(Class)} andd {@link #addMappedEntityClass(Class, Class, JpaMapper)}
 	 * to add resources.
 	 * 
-	 * @param emFactory
-	 * @param entityManager
-	 * @param transactionRunner
-	 * @return module
+	 * @param em to use
+	 * @param transactionRunner to use
+	 * @return created module
 	 */
 	public static JpaModule newServerModule(EntityManager em, TransactionRunner transactionRunner) {
 		return new JpaModule(null, em, transactionRunner);
@@ -182,10 +172,10 @@ public class JpaModule implements Module {
 	 * the provided EntityManagerFactory are registered to the module 
 	 * and exposed as JSON API resources if not later configured otherwise.
 	 * 
-	 * @param emFactory
-	 * @param entityManager
-	 * @param transactionRunner
-	 * @return module
+	 * @param emFactory to retrieve the managed entities.
+	 * @param em to use
+	 * @param transactionRunner to use
+	 * @return created module
 	 */
 	public static JpaModule newServerModule(EntityManagerFactory emFactory, EntityManager em,
 			TransactionRunner transactionRunner) {
@@ -195,7 +185,7 @@ public class JpaModule implements Module {
 	/**
 	 * Adds the given filter to this module. Filter will be used by all repositories managed by this module.
 	 * 
-	 * @param filter
+	 * @param filter to add
 	 */
 	public void addFilter(JpaRepositoryFilter filter) {
 		filters.add(filter);
@@ -204,7 +194,7 @@ public class JpaModule implements Module {
 	/**
 	 * Removes the given filter to this module. 
 	 * 
-	 * @param filter
+	 * @param filter to remove
 	 */
 	public void removeFilter(JpaRepositoryFilter filter) {
 		filters.remove(filter);
@@ -236,7 +226,7 @@ public class JpaModule implements Module {
 	/**
 	 * Adds the given entity class to expose the entity as repository.
 	 * 
-	 * @param entityClass
+	 * @param entityClass to expose as repository
 	 */
 	public void addEntityClass(Class<?> entityClass) {
 		checkNotInitialized();
@@ -246,9 +236,11 @@ public class JpaModule implements Module {
 	/**
 	 * Adds the given entity class which is mapped to a DTO with the provided mapper.
 	 * 
-	 * @param entityClass
-	 * @param dtoClass
-	 * @param mapper
+	 * @param <E> entity class
+	 * @param <D> dto class
+	 * @param entityClass to add as repository
+	 * @param dtoClass to map the entity to
+	 * @param mapper to use to map the entity to the dto
 	 */
 	public <E, D> void addMappedEntityClass(Class<E> entityClass, Class<D> dtoClass, JpaMapper<E, D> mapper) {
 		checkNotInitialized();
@@ -261,9 +253,8 @@ public class JpaModule implements Module {
 	/**
 	 * Adds the given entity class which is mapped to a DTO with the provided mapper.
 	 * 
-	 * @param entityClass
-	 * @param dtoClass
-	 * @param mapper
+	 * @param <D> dto type
+	 * @param dtoClass to remove
 	 */
 	public <D> void removeMappedEntityClass(Class<D> dtoClass) {
 		checkNotInitialized();
@@ -303,7 +294,7 @@ public class JpaModule implements Module {
 	/**
 	 * Removes the given entity class to not expose the entity as repository.
 	 * 
-	 * @param entityClass
+	 * @param entityClass to remove
 	 */
 	public void removeEntityClass(Class<?> entityClass) {
 		checkNotInitialized();
@@ -510,7 +501,7 @@ public class JpaModule implements Module {
 	}
 
 	/**
-	 * ResourceInformationBuilder used to describe JPA entity classes.
+	 * @return ResourceInformationBuilder used to describe JPA entity classes.
 	 */
 	public ResourceInformationBuilder getResourceInformationBuilder() {
 		if (resourceInformationBuilder == null)
@@ -519,7 +510,7 @@ public class JpaModule implements Module {
 	}
 
 	/**
-	 * {@link JpaQueryFactory}} implementation used to create JPA queries.
+	 * @return {@link JpaQueryFactory}} implementation used to create JPA queries.
 	 */
 	public JpaQueryFactory getQueryFactory() {
 		return queryFactory;
@@ -543,27 +534,29 @@ public class JpaModule implements Module {
 	}
 
 	/**
-	 * {@link EntityManager}} in use.
+	 * @return {@link EntityManager}} in use.
 	 */
 	public EntityManager getEntityManager() {
 		return em;
 	}
 
 	/**
-	 * {@link EntityManagerFactory}} in use.
+	 * @return {@link EntityManagerFactory}} in use.
 	 */
 	public EntityManagerFactory getEntityManagerFactory() {
 		return emFactory;
 	}
 
 	/**
-	 * Returns the mapper used for the given resource class.
+	 * Returns the mapper used for the given dto class.
 	 * 
-	 * @param resourceClass
-	 * @return mapping
+	 * @param <E> entity
+	 * @param <D> dto
+	 * @param dtoClass to find the mapper for
+	 * @return mapper for this dtoClass
 	 */
 	@SuppressWarnings("unchecked")
-	public <E, D> JpaMapping<E, D> getMapping(Class<D> resourceClass) {
-		return (JpaMapping<E, D>) mappings.get(resourceClass);
+	public <E, D> JpaMapping<E, D> getMapping(Class<D> dtoClass) {
+		return (JpaMapping<E, D>) mappings.get(dtoClass);
 	}
 }

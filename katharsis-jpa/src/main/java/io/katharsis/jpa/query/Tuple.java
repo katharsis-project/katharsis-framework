@@ -9,7 +9,7 @@ public interface Tuple {
 	/**
 	 * Ignores the given number of entries by incrementing any index access accordingly.
 	 * 
-	 * @param numEntriesToIgnore
+	 * @param numEntriesToIgnore for this tuple
 	 */
 	public void reduce(int numEntriesToIgnore);
 }

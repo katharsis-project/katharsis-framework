@@ -13,6 +13,8 @@ public interface AnyTypeObject {
 	public Object getValue();
 
 	/**
+	 * @param <T> value type
+	 * @param clazz to cast the value to
 	 * @return the value of this anytype cast to the desired class.
 	 */
 	public <T> T getValue(Class<T> clazz);

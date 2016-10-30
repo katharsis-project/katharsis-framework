@@ -12,9 +12,11 @@ public interface JpaRepositoryFactory {
 	 * Creates a resource repository that maps an entity to a JSON API endpoint. The provided resource class not necessarily has to be
 	 * an entity class. The JpaModule is checked whether there is a mapping available.
 	 * 
-	 * @param module
-	 * @param resourceClass
-	 * @return repository
+	 * @param <T> resource type
+	 * @param <I> identifier type
+	 * @param module managing the repository
+	 * @param resourceClass to create the jpa. Might either be the entity or a mapped dto.
+	 * @return created repository
 	 */
 	public <T, I extends Serializable> JpaEntityRepository<T, I> createEntityRepository(JpaModule module, Class<T> resourceClass);
 
@@ -22,12 +24,16 @@ public interface JpaRepositoryFactory {
 	 *  Creates a relationship repository that maps an entity relationship to a JSON API endpoint. The provided resource classes do not necessarily have to be
 	 * an entity class. The JpaModule is checked whether there is a mapping available.
 	 * 
-	 * @param module
-	 * @param sourceResourceClass
-	 * @param targetResourceClass
-	 * @return repository
+	 * @param <S> source resource type
+	 * @param <I> source identifier type
+	 * @param <T> target resource type
+	 * @param <J> target identifier type
+	 * @param module managing the repository
+	 * @param sourceResourceClass representing the source of the relation (entity or mapped dto)
+	 * @param targetResourceClass representing the target of the relation (entity or mapped dto)
+	 * @return created repository
 	 */
-	public <S, U extends Serializable, T, J extends Serializable> JpaRelationshipRepository<S, U, T, J> createRelationshipRepository(
+	public <S, I extends Serializable, T, J extends Serializable> JpaRelationshipRepository<S, I, T, J> createRelationshipRepository(
 			JpaModule module, Class<S> sourceResourceClass, Class<T> targetResourceClass);
 
 		

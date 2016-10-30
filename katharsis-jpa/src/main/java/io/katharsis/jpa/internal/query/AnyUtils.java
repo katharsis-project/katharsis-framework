@@ -13,11 +13,9 @@ public class AnyUtils {
 	/**
 	 * Sets the value of the given anytype.
 	 * 
-	 * @param dataObject
-	 *            the anytype for which the value is set.
-	 * @param value
-	 *            the new value
-	 * @return return the attributename of the newly set attribute.
+	 * @param metaLookup to use to retrieve information
+	 * @param dataObject the anytype for which the value is set.
+	 * @param value the new value
 	 */
 	public static void setValue(MetaLookup metaLookup, AnyTypeObject dataObject, Object value) {
 		MetaDataObject meta = metaLookup.getMeta(dataObject.getClass()).asDataObject();
@@ -39,6 +37,7 @@ public class AnyUtils {
 	/**
 	 * Gets the meta attribute for a dataobject.
 	 * 
+	 * @param metaLookup to use to retrieve information
 	 * @param dataObject
 	 *            the data object
 	 * @param attributeName
@@ -57,6 +56,7 @@ public class AnyUtils {
 	/**
 	 * Gets the java type name for the given attribute.
 	 * 
+	 * @param metaLookup to use to retrieve information
 	 * @param dataObject
 	 *            the data object
 	 * @param attributeName
@@ -74,6 +74,7 @@ public class AnyUtils {
 	/**
 	 * Gets the value of the given attribute.
 	 * 
+	 * @param metaLookup to use to retrieve information
 	 * @param dataObject
 	 *            the data object
 	 * @param attributeName
@@ -96,8 +97,6 @@ public class AnyUtils {
 	 * @param value
 	 *            the value
 	 * @return the attribute which will accept the given value
-	 * @throw IllegalArgumentException if value is <code>null</code> or no
-	 *        corresponding attribute can be found.
 	 */
 	public static MetaAttribute findAttribute(MetaDataObject meta, Object value) {
 		if (value == null) {
@@ -117,5 +116,4 @@ public class AnyUtils {
 		}
 		throw new IllegalArgumentException("cannot find anyType attribute for value '" + value + '\'');
 	}
-
 }

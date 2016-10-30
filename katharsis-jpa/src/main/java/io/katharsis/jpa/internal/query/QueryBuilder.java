@@ -44,10 +44,12 @@ public class QueryBuilder<T, F, O, P, E> {
 	}
 
 	/**
-	 * Returns true if distinct is set manually or the "auto distinct" mode is
-	 * enabled and the user performs a join or fetch on a many assocation. In
-	 * this case, attributes from referenced entities included in the sort
-	 * clause are also added to the select clause.
+	 * Adds order expressions to selection if in "auto distinct" mode and
+	 * the query performs a join or fetch on a relation. In
+	 * this case, attributes from referenced entities inlucded in the sort
+	 * clause must be added to the select clause as well.
+	 * 
+	 * @return number of attributes that were needed to compute a distinct
 	 */
 	protected int applyDistinct() {
 		int numAutoSelections = 0;

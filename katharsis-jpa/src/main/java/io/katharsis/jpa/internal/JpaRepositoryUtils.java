@@ -20,7 +20,8 @@ public class JpaRepositoryUtils {
 	}
 
 	/**
-	 * Gets the primary key attribute of the given entity. Assumes a primary key
+	 * @param meta of the entity
+	 * @return Gets the primary key attribute of the given entity. Assumes a primary key
 	 * is available and no compound primary keys are supported.
 	 */
 	public static MetaAttribute getPrimaryKeyAttr(MetaEntity meta) {

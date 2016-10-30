@@ -334,6 +334,9 @@ public class MetaDataObjectImpl extends MetaTypeImpl implements MetaDataObject {
 
 	/**
 	 * Gets the subtype with the given name (simple or qualitified).
+	 * 
+	 * @param name of the type
+	 * @return meta object
 	 */
 	public MetaDataObject findSubTypeOrSelf(String name) {
 		HashMap<String, MetaDataObject> cache = subTypesMapCache;
