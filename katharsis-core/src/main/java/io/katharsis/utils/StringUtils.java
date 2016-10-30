@@ -25,7 +25,6 @@ public class StringUtils {
 
     /**
      * <p>Checks if a String is whitespace, empty ("") or null.</p>
-     * <p>
      * <pre>
      * StringUtils.isBlank(null)      = true
      * StringUtils.isBlank("")        = true

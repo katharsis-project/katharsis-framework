@@ -96,6 +96,8 @@ public class ResourceField {
     /**
      * Returns the non-collection type. Matches {@link #getType()} for non-collections. Returns the type argument in case of 
      * a collection type.
+     *
+     * @return Ask Remmo
      */
 	public Class<?> getElementType() {
          if(Iterable.class.isAssignableFrom(type)){

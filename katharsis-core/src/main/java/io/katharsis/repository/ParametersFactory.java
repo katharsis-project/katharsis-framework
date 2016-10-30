@@ -1,8 +1,5 @@
 package io.katharsis.repository;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryspec.DefaultQuerySpecConverter;
 import io.katharsis.queryspec.QuerySpec;
@@ -10,7 +7,9 @@ import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.queryspec.internal.QueryParamsAdapter;
 import io.katharsis.queryspec.internal.QuerySpecAdapter;
 import io.katharsis.repository.exception.RepositoryMethodException;
-import io.katharsis.resource.registry.ResourceRegistry;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 
 public class ParametersFactory {
 
@@ -26,6 +25,7 @@ public class ParametersFactory {
      * @param firstParameters parameters to be returned as the firsts element in the return array
      * @param method          repository method
      * @param annotationType  method annotation
+     * @param queryAdapter Ask remmo
      * @return array of resolved parameters
      */
     public Object[] buildParameters(Object[] firstParameters, Method method, QueryAdapter queryAdapter,
