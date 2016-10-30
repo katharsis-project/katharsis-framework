@@ -1,6 +1,9 @@
 package io.katharsis.internal.boot;
 
+import java.util.List;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.katharsis.dispatcher.RequestDispatcher;
 import io.katharsis.dispatcher.filter.Filter;
 import io.katharsis.dispatcher.registry.ControllerRegistry;
@@ -11,7 +14,11 @@ import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryBuilder;
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
 import io.katharsis.jackson.JsonApiModuleBuilder;
 import io.katharsis.locator.JsonServiceLocator;
-import io.katharsis.module.*;
+import io.katharsis.module.Module;
+import io.katharsis.module.ModuleRegistry;
+import io.katharsis.module.ServiceDiscovery;
+import io.katharsis.module.ServiceDiscoveryFactory;
+import io.katharsis.module.SimpleModule;
 import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.queryspec.DefaultQuerySpecDeserializer;
 import io.katharsis.queryspec.QuerySpecDeserializer;
@@ -34,8 +41,6 @@ import io.katharsis.utils.ClassUtils;
 import io.katharsis.utils.PreconditionUtil;
 import io.katharsis.utils.parser.TypeParser;
 import net.jodah.typetools.TypeResolver;
-
-import java.util.List;
 
 /**
  * Facilitates the startup of Katharsis in various environments (Spring, CDI, JAX-RS, etc.).
@@ -91,7 +96,7 @@ public class KatharsisBoot {
 	/**
 	 * Sets a JsonServiceLocator.  No longer necessary if a ServiceDiscovery implementation is in place.
 	 * 
-	 * @param serviceLocator Don't know, didn't write it
+	 * @param serviceLocator Ask Remmo
 	 */
 	public void setServiceLocator(JsonServiceLocator serviceLocator) {
 		this.serviceLocator = serviceLocator;
@@ -100,7 +105,7 @@ public class KatharsisBoot {
 	/**
 	 * Adds a module. No longer necessary if a ServiceDiscovery implementation is in place.
 	 * 
-	 * @param module I don't know, I didn't write the code
+	 * @param module Ask Remmo
 	 */
 	public void addModule(Module module) {
 		moduleRegistry.addModule(module);
@@ -109,7 +114,7 @@ public class KatharsisBoot {
 	/**
 	* Sets a ServiceUrlProvider.  No longer necessary if a ServiceDiscovery implementation is in place.
 	* 
-	* @param serviceUrlProvider the strategy for determining the http://host:port part of a resource link
+	* @param serviceUrlProvider Ask Remmo
 	*/
 	public void setServiceUrlProvider(ServiceUrlProvider serviceUrlProvider) {
 		checkNotConfiguredYet();
@@ -123,7 +128,7 @@ public class KatharsisBoot {
 	}
 
 	/**
-	 * Performs the setup. 
+	 * Performs the setup.
 	 */
 	public void boot() {
 		configured = true;
@@ -175,15 +180,6 @@ public class KatharsisBoot {
 		return new RequestDispatcher(moduleRegistry, controllerRegistry, exceptionMapperRegistry, queryAdapterBuilder);
 	}
 
-	//	private ResourceLookup createResourceLookupLegacy(String resourceSearchPackage) {
-	//		return new DefaultResourceLookup(resourceSearchPackage);
-	//	}
-	//
-	//	private ResourceRegistry buildResourceRegistryLegacy(ResourceLookup lookup, ServiceUrlProvider serviceUrlProvider) {
-	//		ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(serviceLocator,
-	//				moduleRegistry.getResourceInformationBuilder());
-	//		return registryBuilder.build(lookup, serviceUrlProvider);
-	//	}
 
 	private ExceptionMapperRegistry buildExceptionMapperRegistry() {
 		ExceptionMapperLookup exceptionMapperLookup = moduleRegistry.getExceptionMapperLookup();
