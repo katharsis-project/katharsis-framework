@@ -7,6 +7,7 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -53,6 +54,8 @@ public class ModuleTest {
 
 	private TestModule testModule;
 
+	private ServiceDiscovery serviceDiscovery = Mockito.mock(ServiceDiscovery.class);
+
 	@Before
 	public void setup() {
 		resourceRegistry = new ResourceRegistry(new ConstantServiceUrlProvider("http://localhost"));
@@ -61,6 +64,7 @@ public class ModuleTest {
 		moduleRegistry = new ModuleRegistry();
 		moduleRegistry.addModule(new CoreModule("io.katharsis.module.mock", new ResourceFieldNameTransformer()));
 		moduleRegistry.addModule(testModule);
+		moduleRegistry.setServiceDiscovery(serviceDiscovery);
 		moduleRegistry.init(new ObjectMapper(), resourceRegistry);
 
 		Assert.assertEquals(resourceRegistry, moduleRegistry.getResourceRegistry());
@@ -69,6 +73,12 @@ public class ModuleTest {
 	@Test
 	public void getModules() {
 		Assert.assertEquals(2, moduleRegistry.getModules().size());
+	}
+	
+	@Test
+	public void testGetServiceDiscovery() {
+		Assert.assertEquals(serviceDiscovery, moduleRegistry.getServiceDiscovery());
+		Assert.assertEquals(serviceDiscovery, testModule.context.getServiceDiscovery());
 	}
 
 	@Test(expected = IllegalStateException.class)
