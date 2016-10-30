@@ -51,6 +51,7 @@ public class DefaultQueryParamsParser implements QueryParamsParser {
      * <li>{@code GET /tasks/?filter[tasks][name][][$startWith]=Super&filter[tasks][name][][$endWith]=task}</li>
      * </ul>
      *
+     * @param context No idea. I didn't write this code.
      * @return {@link TypedParams} Map of filtering params passed to a request grouped by type of resource
      */
     protected TypedParams<FilterParams> parseFiltersParameters(final QueryParamsParserContext context) {
@@ -101,6 +102,7 @@ public class DefaultQueryParamsParser implements QueryParamsParser {
      * </ul>
      *
      * @return {@link TypedParams} Map of sorting params passed to request grouped by type of resource
+     * @param context Don't know, didn't write the code
      */
     protected TypedParams<SortingParams> parseSortingParameters(final QueryParamsParserContext context) {
         String sortingKey = RestrictedQueryParamsMembers.sort.name();
@@ -153,6 +155,7 @@ public class DefaultQueryParamsParser implements QueryParamsParser {
      * <li>{@code GET /project/?group[users]=name.firstName&include[projects]=team}</li>
      * </ul>
      *
+     * @param context I don't know, I didn't write the code
      * @return {@link Map} Map of grouping params passed to request grouped by type of resource
      */
     protected TypedParams<GroupingParams> parseGroupingParameters(final QueryParamsParserContext context) {
@@ -207,7 +210,7 @@ public class DefaultQueryParamsParser implements QueryParamsParser {
      * <li>{@code GET /tasks/?fields[tasks][]=name&fields[tasks][]=dueDate}</li>
      * <li>{@code GET /tasks/?fields[users]=name.surname&include[tasks]=author}</li>
      * </ul>
-     *
+     * @param context Don't know, didn't write the code
      * @return {@link TypedParams} Map of sparse field set params passed to a request grouped by type of resource
      */
     protected TypedParams<IncludedFieldsParams> parseIncludedFieldsParameters(final QueryParamsParserContext context) {
@@ -262,6 +265,7 @@ public class DefaultQueryParamsParser implements QueryParamsParser {
      * <li>{@code GET /projects/?include[projects]=task&include[tasks]=comments}</li>
      * </ul>
      *
+     * @param context Don't know, didn't write the code
      * @return {@link TypedParams} Map of sparse field set params passed to a request grouped by type of resource
      */
     protected TypedParams<IncludedRelationsParams> parseIncludedRelationsParameters(QueryParamsParserContext context) {
@@ -313,6 +317,7 @@ public class DefaultQueryParamsParser implements QueryParamsParser {
      * <ul>
      * <li>{@code GET /projects/?page[offset]=0&page[limit]=10}</li>
      * </ul>
+     * @param context Don't know, didn't write the code
      *
      * @return {@link Map} Map of pagination keys passed to request
      */
