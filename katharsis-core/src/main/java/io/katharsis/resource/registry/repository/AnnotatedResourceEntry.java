@@ -8,10 +8,10 @@ import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.repository.annotated.AnnotatedResourceRepositoryAdapter;
 import io.katharsis.resource.registry.ResourceRegistry;
 
-public class AnnotatedResourceEntryBuilder<T, ID extends Serializable> implements ResourceEntry<T, ID> {
+public class AnnotatedResourceEntry<T, ID extends Serializable> implements ResourceEntry<T, ID> {
     private final RepositoryInstanceBuilder repositoryInstanceBuilder;
 
-    public AnnotatedResourceEntryBuilder(RepositoryInstanceBuilder RepositoryInstanceBuilder) {
+    public AnnotatedResourceEntry(RepositoryInstanceBuilder RepositoryInstanceBuilder) {
         this.repositoryInstanceBuilder = RepositoryInstanceBuilder;
     }
 

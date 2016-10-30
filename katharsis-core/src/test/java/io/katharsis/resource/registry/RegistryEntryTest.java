@@ -12,7 +12,7 @@ import io.katharsis.resource.mock.models.Thing;
 import io.katharsis.resource.mock.models.User;
 import io.katharsis.resource.mock.repository.TaskRepository;
 import io.katharsis.resource.mock.repository.TaskToProjectRepository;
-import io.katharsis.resource.registry.repository.AnnotatedResourceEntryBuilder;
+import io.katharsis.resource.registry.repository.AnnotatedResourceEntry;
 import io.katharsis.resource.registry.repository.DirectResponseRelationshipEntry;
 import io.katharsis.resource.registry.responseRepository.RelationshipRepositoryAdapter;
 import nl.jqno.equalsverifier.EqualsVerifier;
@@ -35,7 +35,7 @@ public class RegistryEntryTest {
     @Test
     public void onValidRelationshipClassShouldReturnRelationshipRepository() throws Exception {
         // GIVEN
-        RegistryEntry<Task> sut = new RegistryEntry(null, new AnnotatedResourceEntryBuilder<>(
+        RegistryEntry<Task> sut = new RegistryEntry(null, new AnnotatedResourceEntry<>(
             new RepositoryInstanceBuilder(new SampleJsonServiceLocator(), TaskRepository.class)),
             Collections.singletonList(new DirectResponseRelationshipEntry<>(new RepositoryInstanceBuilder(new SampleJsonServiceLocator(), TaskToProjectRepository.class))));
 

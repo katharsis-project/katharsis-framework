@@ -21,4 +21,6 @@ public interface FilterRequestContext {
 
 	QueryAdapter getQueryAdapter();
 
+	String getMethod();
+
 }

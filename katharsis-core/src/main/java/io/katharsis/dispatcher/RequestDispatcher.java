@@ -39,141 +39,152 @@ public class RequestDispatcher {
 
 	private Logger logger = LoggerFactory.getLogger(getClass());
 
-    private final ControllerRegistry controllerRegistry;
-    private final ExceptionMapperRegistry exceptionMapperRegistry;
-    
+	private final ControllerRegistry controllerRegistry;
+
+	private final ExceptionMapperRegistry exceptionMapperRegistry;
+
 	private ModuleRegistry moduleRegistry;
 
 	private QueryAdapterBuilder queryAdapterBuilder;
 
-
-    public RequestDispatcher(ModuleRegistry moduleRegistry, ControllerRegistry controllerRegistry,
+	public RequestDispatcher(ModuleRegistry moduleRegistry, ControllerRegistry controllerRegistry,
 			ExceptionMapperRegistry exceptionMapperRegistry, QueryAdapterBuilder queryAdapterBuilder) {
-    	this.controllerRegistry = controllerRegistry;
-    	this.moduleRegistry = moduleRegistry;
-    	this.exceptionMapperRegistry = exceptionMapperRegistry;
-    	this.queryAdapterBuilder = queryAdapterBuilder;
-    }
+		this.controllerRegistry = controllerRegistry;
+		this.moduleRegistry = moduleRegistry;
+		this.exceptionMapperRegistry = exceptionMapperRegistry;
+		this.queryAdapterBuilder = queryAdapterBuilder;
+	}
 
-    /**
-     * Dispatch the request from a client
-     *
-     * @param jsonPath          built {@link JsonPath} instance which represents the URI sent in the request
-     * @param requestType       type of the request e.g. POST, GET, PATCH
-     * @param parameterProvider repository method parameter provider
-     * @param requestBody       deserialized body of the client request
-     * @return the response form the Katharsis
-     */
-    public BaseResponseContext dispatchRequest(JsonPath jsonPath, String requestType, Map<String, Set<String>> parameters,
-                                                  RepositoryMethodParameterProvider parameterProvider,
-                                                  @SuppressWarnings("SameParameterValue") RequestBody requestBody) {
+	/**
+	 * Dispatch the request from a client
+	 *
+	 * @param jsonPath          built {@link JsonPath} instance which represents the URI sent in the request
+	 * @param method       type of the request e.g. POST, GET, PATCH
+	 * @param parameterProvider repository method parameter provider
+	 * @param requestBody       deserialized body of the client request
+	 * @return the response form the Katharsis
+	 */
+	public BaseResponseContext dispatchRequest(JsonPath jsonPath, String method, Map<String, Set<String>> parameters,
+			RepositoryMethodParameterProvider parameterProvider,
+			RequestBody requestBody) {
 
-        try {
-            BaseController controller = controllerRegistry.getController(jsonPath, requestType);
+		try {
+			BaseController controller = controllerRegistry.getController(jsonPath, method);
 
-        	Class<?> resourceClass = getRequestedResource(jsonPath);
-        	QueryAdapter queryAdapter = queryAdapterBuilder.build(resourceClass, parameters);
+			Class<?> resourceClass = getRequestedResource(jsonPath);
+			QueryAdapter queryAdapter = queryAdapterBuilder.build(resourceClass, parameters);
 
-			DefaultFilterRequestContext context = new DefaultFilterRequestContext(jsonPath, queryAdapter,
-					parameterProvider, requestBody);
+			DefaultFilterRequestContext context = new DefaultFilterRequestContext(jsonPath, queryAdapter, parameterProvider,
+					requestBody, method);
 			DefaultFilterChain chain = new DefaultFilterChain(controller);
 			return chain.doFilter(context);
-        } catch (Exception e) {
-            Optional<JsonApiExceptionMapper> exceptionMapper = exceptionMapperRegistry.findMapperFor(e.getClass());
-            if (exceptionMapper.isPresent()) {
-                //noinspection unchecked
-                return exceptionMapper.get()
-                        .toErrorResponse(e);
-            } else {
-                logger.error("failed to process request", e);
-                throw e;
-            }
-        }
-    }
+		} catch (Exception e) {
+			Optional<JsonApiExceptionMapper> exceptionMapper = exceptionMapperRegistry.findMapperFor(e.getClass());
+			if (exceptionMapper.isPresent()) {
+				//noinspection unchecked
+				return exceptionMapper.get().toErrorResponse(e);
+			}else {
+				logger.error("failed to process request", e);
+				throw e;
+			}
+		}
+	}
 
+	private Class<?> getRequestedResource(JsonPath jsonPath) {
+		ResourceRegistry resourceRegistry = moduleRegistry.getResourceRegistry();
+		RegistryEntry<?> registryEntry = resourceRegistry.getEntry(jsonPath.getResourceName());
+		if (registryEntry == null) {
+			throw new RepositoryNotFoundException(jsonPath.getResourceName());
+		}
+		String elementName = jsonPath.getElementName();
+		if (elementName != null && !elementName.equals(jsonPath.getResourceName())) {
+			ResourceField relationshipField = registryEntry.getResourceInformation().findRelationshipFieldByName(elementName);
+			if (relationshipField == null) {
+				throw new ResourceFieldNotFoundException(elementName);
+			}
+			Class<?> type = relationshipField.getType();
+			if (Iterable.class.isAssignableFrom(type)) {
+				type = (Class<?>) ((ParameterizedType) relationshipField.getGenericType()).getActualTypeArguments()[0];
+			}
+			return type;
+		}else {
+			return registryEntry.getResourceInformation().getResourceClass();
+		}
+	}
 
-    private Class<?> getRequestedResource(JsonPath jsonPath){
-    	ResourceRegistry resourceRegistry = moduleRegistry.getResourceRegistry();
-   	 	RegistryEntry<?> registryEntry = resourceRegistry.getEntry(jsonPath.getResourceName());
-        if(registryEntry == null){
-        	throw new RepositoryNotFoundException(jsonPath.getResourceName());
-        }
-        String elementName = jsonPath.getElementName();
-        if(elementName != null && !elementName.equals(jsonPath.getResourceName())){
-	            ResourceField relationshipField = registryEntry.getResourceInformation().findRelationshipFieldByName(elementName);
-	            if (relationshipField == null) {
-	                throw new ResourceFieldNotFoundException(elementName);
-	            }
-	             Class<?> type = relationshipField.getType();
-	             if(Iterable.class.isAssignableFrom(type)){
-	            	 type = (Class<?>)((ParameterizedType)relationshipField.getGenericType()).getActualTypeArguments()[0];
-	             }
-	             return type;
-        }else{
-        	return registryEntry.getResourceInformation().getResourceClass();
-        }
-   }
+	class DefaultFilterChain implements FilterChain {
 
-    class DefaultFilterChain implements FilterChain {
+		protected int filterIndex = 0;
 
-        protected int filterIndex = 0;
-        protected BaseController controller;
+		protected BaseController controller;
 
-        public DefaultFilterChain(BaseController controller) {
-            this.controller = controller;
-        }
+		public DefaultFilterChain(BaseController controller) {
+			this.controller = controller;
+		}
 
-        @Override
-        public BaseResponseContext doFilter(FilterRequestContext context) {
-            List<Filter> filters = moduleRegistry.getFilters();
-            if (filterIndex == filters.size()) {
-                return controller.handle(context.getJsonPath(), context.getQueryAdapter(), context.getParameterProvider(), context.getRequestBody());
-            } else {
-                Filter filter = filters.get(filterIndex);
-                filterIndex++;
-                return filter.filter(context, this);
-            }
-        }
-    }
+		@Override
+		public BaseResponseContext doFilter(FilterRequestContext context) {
+			List<Filter> filters = moduleRegistry.getFilters();
+			if (filterIndex == filters.size()) {
+				return controller.handle(context.getJsonPath(), context.getQueryAdapter(), context.getParameterProvider(), context.getRequestBody());
+			}
+			else {
+				Filter filter = filters.get(filterIndex);
+				filterIndex++;
+				return filter.filter(context, this);
+			}
+		}
+	}
 
-    class DefaultFilterRequestContext implements FilterRequestContext {
+	class DefaultFilterRequestContext implements FilterRequestContext {
 
-        protected JsonPath jsonPath;
-        protected QueryAdapter queryAdapter;
-        protected RepositoryMethodParameterProvider parameterProvider;
-        protected RequestBody requestBody;
+		protected JsonPath jsonPath;
 
-        public DefaultFilterRequestContext(JsonPath jsonPath, QueryAdapter queryAdapter,
-                                           RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody) {
-            this.jsonPath = jsonPath;
-            this.queryAdapter = queryAdapter;
-            this.parameterProvider = parameterProvider;
-            this.requestBody = requestBody;
-        }
+		protected QueryAdapter queryAdapter;
 
-        @Override
-        public RequestBody getRequestBody() {
-            return requestBody;
-        }
+		protected RepositoryMethodParameterProvider parameterProvider;
 
-        @Override
-        public RepositoryMethodParameterProvider getParameterProvider() {
-            return parameterProvider;
-        }
+		protected RequestBody requestBody;
 
-        @Override
-        public QueryParams getQueryParams() {
-            return ((QueryParamsAdapter) queryAdapter).getQueryParams();
-        }
+		private String method;
 
-        @Override
-        public QueryAdapter getQueryAdapter() {
-            return queryAdapter;
-        }
+		public DefaultFilterRequestContext(JsonPath jsonPath, QueryAdapter queryAdapter,
+				RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody, String method) {
+			this.jsonPath = jsonPath;
+			this.queryAdapter = queryAdapter;
+			this.parameterProvider = parameterProvider;
+			this.requestBody = requestBody;
+			this.method = method;
+		}
 
-        @Override
-        public JsonPath getJsonPath() {
-            return jsonPath;
-        }
-    }
+		@Override
+		public RequestBody getRequestBody() {
+			return requestBody;
+		}
+
+		@Override
+		public RepositoryMethodParameterProvider getParameterProvider() {
+			return parameterProvider;
+		}
+
+		@Override
+		public QueryParams getQueryParams() {
+			return ((QueryParamsAdapter) queryAdapter).getQueryParams();
+		}
+
+		@Override
+		public QueryAdapter getQueryAdapter() {
+			return queryAdapter;
+		}
+
+		@Override
+		public JsonPath getJsonPath() {
+			return jsonPath;
+		}
+
+		@Override
+		public String getMethod() {
+			return method;
+		}
+	}
 }

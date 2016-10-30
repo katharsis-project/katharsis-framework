@@ -1,7 +1,8 @@
 package io.katharsis.queryspec;
 
 import java.io.Serializable;
-import java.util.Set;
+
+import io.katharsis.repository.Repository;
 
 /**
  * <p>
@@ -31,7 +32,7 @@ import java.util.Set;
  * @param <D> target class type
  * @param <D_ID> D class id type
  */
-public interface QuerySpecRelationshipRepository<T, T_ID extends Serializable, D, D_ID extends Serializable>{
+public interface QuerySpecRelationshipRepository<T, T_ID extends Serializable, D, D_ID extends Serializable> extends Repository{
 	
 	/**
 	 * @return the class that specifies the relation.

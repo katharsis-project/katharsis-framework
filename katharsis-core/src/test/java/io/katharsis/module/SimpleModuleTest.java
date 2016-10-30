@@ -19,7 +19,6 @@ import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
 import io.katharsis.errorhandling.mapper.KatharsisExceptionMapper;
 import io.katharsis.module.Module.ModuleContext;
 import io.katharsis.module.SimpleModule.RelationshipRepositoryRegistration;
-import io.katharsis.queryspec.QuerySpecRelationshipRepository;
 import io.katharsis.queryspec.QuerySpecResourceRepository;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.mock.models.Task;
@@ -217,13 +216,12 @@ public class SimpleModuleTest {
 		}
 
 		@Override
-		public void addRepository(Class<?> resourceClass, QuerySpecResourceRepository<?, ?> repository) {
+		public void addRepository(Class<?> resourceClass, Object repository) {
 			numResourceRepositoreis++;
 		}
 
 		@Override
-		public void addRepository(Class<?> sourceResourceClass, Class<?> targetResourceClass,
-				QuerySpecRelationshipRepository<?, ?, ?, ?> repository) {
+		public void addRepository(Class<?> sourceResourceClass, Class<?> targetResourceClass, Object repository) {
 			numRelationshipRepositories++;
 		}
 
@@ -254,6 +252,11 @@ public class SimpleModuleTest {
 
 		@Override
 		public SecurityProvider getSecurityProvider() {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public ServiceDiscovery getServiceDiscovery() {
 			throw new UnsupportedOperationException();
 		}
 	}

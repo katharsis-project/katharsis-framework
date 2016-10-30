@@ -1,5 +1,7 @@
 package io.katharsis.rs;
 
+import io.katharsis.internal.boot.KatharsisBootProperties;
+
 /**
  * Katharsis configuration properties.
  */
@@ -20,7 +22,7 @@ public final class KatharsisProperties {
      *
      * @since 0.9.0
      */
-    public static final String RESOURCE_SEARCH_PACKAGE = "katharsis.config.core.resource.package";
+    public static final String RESOURCE_SEARCH_PACKAGE = KatharsisBootProperties.RESOURCE_SEARCH_PACKAGE;
 
     /**
      * Set default domain.
@@ -34,7 +36,7 @@ public final class KatharsisProperties {
      *
      * @since 0.9.0
      */
-    public static final String RESOURCE_DEFAULT_DOMAIN = "katharsis.config.core.resource.domain";
+    public static final String RESOURCE_DEFAULT_DOMAIN = KatharsisBootProperties.RESOURCE_DEFAULT_DOMAIN;
 
     /**
      * Set prefix to be searched when performing method matching and building building <i>links</i> objects in
@@ -46,7 +48,7 @@ public final class KatharsisProperties {
      *
      * @since 0.9.4
      */
-    public static final String WEB_PATH_PREFIX = "katharsis.config.web.path.prefix";
+    public static final String WEB_PATH_PREFIX = KatharsisBootProperties.WEB_PATH_PREFIX;
 
     private KatharsisProperties() {
         throw new InstantiationError("This class should not be instantiated");

@@ -19,16 +19,16 @@ import io.katharsis.security.UnauthorizedException;
  */
 public final class KatharsisExceptionMapper implements ExceptionMapper<KatharsisMappableException> {
 
-	private Logger logger = LoggerFactory.getLogger(getClass());
+	private static final Logger LOGGER = LoggerFactory.getLogger(KatharsisExceptionMapper.class);
 
 	@Override
 	public ErrorResponse toErrorResponse(KatharsisMappableException exception) {
 		// log 5xx status as error and anything else as warn
 		if (exception.getHttpStatus() >= 500 && exception.getHttpStatus() < 600) {
-			logger.error("failed to process request", exception);
+			LOGGER.error("failed to process request", exception);
 		}
 		else {
-			logger.warn("failed to process request", exception);
+			LOGGER.warn("failed to process request", exception);
 		}
 
 		return ErrorResponse.builder().setStatus(exception.getHttpStatus()).setSingleErrorData(exception.getErrorData()).build();

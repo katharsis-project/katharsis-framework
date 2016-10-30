@@ -103,5 +103,6 @@ public class FilterTest {
 		Assert.assertEquals("tasks", value.getJsonPath().getElementName());
 		Assert.assertEquals(parameterProvider, value.getParameterProvider());
 		Assert.assertEquals(requestBody, value.getRequestBody());
+		Assert.assertEquals("GET", value.getMethod());
 	}
 }

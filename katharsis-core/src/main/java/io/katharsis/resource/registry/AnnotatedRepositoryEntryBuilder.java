@@ -10,7 +10,7 @@ import io.katharsis.repository.RepositoryInstanceBuilder;
 import io.katharsis.repository.annotations.JsonApiRelationshipRepository;
 import io.katharsis.repository.annotations.JsonApiResourceRepository;
 import io.katharsis.resource.registry.repository.AnnotatedRelationshipEntryBuilder;
-import io.katharsis.resource.registry.repository.AnnotatedResourceEntryBuilder;
+import io.katharsis.resource.registry.repository.AnnotatedResourceEntry;
 import io.katharsis.resource.registry.repository.ResourceEntry;
 import io.katharsis.resource.registry.repository.ResponseRelationshipEntry;
 import io.katharsis.utils.Predicate1;
@@ -39,7 +39,7 @@ public class AnnotatedRepositoryEntryBuilder implements RepositoryEntryBuilder {
         if (repositoryClasses.size() == 0) {
             return null;
         } else {
-            return new AnnotatedResourceEntryBuilder<>(new RepositoryInstanceBuilder<>(jsonServiceLocator, repositoryClasses.get(0)));
+            return new AnnotatedResourceEntry<>(new RepositoryInstanceBuilder<>(jsonServiceLocator, repositoryClasses.get(0)));
         }
     }
 
