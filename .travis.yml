@@ -8,7 +8,7 @@ addons:
     packages:
     - oracle-java8-installer
 script:
-  - "./build.sh"
+  - mvn release:prepare release:perform
   - jdk_switcher use oraclejdk8
   - "./sonar.sh"
 notifications:
