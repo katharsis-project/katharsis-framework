@@ -36,7 +36,7 @@ public class QuerySpecRepositoryTest extends AbstractQuerySpecTest {
 		TestQuerySpecRelationshipRepository.clear();
 
 		super.setup();
-		RegistryEntry<?> registryEntry = resourceRegistry.getEntry(Task.class);
+		RegistryEntry<Task> registryEntry = resourceRegistry.getEntry(Task.class);
 		TestQuerySpecResourceRepository repo = (TestQuerySpecResourceRepository) registryEntry.getResourceRepository(null)
 				.getResourceRepository();
 
@@ -73,7 +73,7 @@ public class QuerySpecRepositoryTest extends AbstractQuerySpecTest {
 		task.setName("myTask");
 		task.setProject(project);
 		task.setProjects(Arrays.asList(project));
-		adapter.save(task, queryAdapter);
+		adapter.create(task, queryAdapter);
 
 		// adapter
 		List<Task> tasks = (List<Task>) adapter.findAll(queryAdapter).getEntity();

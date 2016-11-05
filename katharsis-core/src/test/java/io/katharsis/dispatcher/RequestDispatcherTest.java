@@ -59,11 +59,11 @@ public class RequestDispatcherTest {
             new ResourceFieldNameTransformer());
         ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonServiceLocator(),
             resourceInformationBuilder);
-        resourceRegistry = registryBuilder
-            .build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, new ConstantServiceUrlProvider(ResourceRegistryTest.TEST_MODELS_URL));
-        
         moduleRegistry = new ModuleRegistry();
-        moduleRegistry.init(new ObjectMapper(), resourceRegistry);
+        resourceRegistry = registryBuilder
+            .build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, moduleRegistry, new ConstantServiceUrlProvider(ResourceRegistryTest.TEST_MODELS_URL));
+        
+        moduleRegistry.init(new ObjectMapper());
     }
     
     @Test

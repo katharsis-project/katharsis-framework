@@ -1,21 +1,19 @@
 package io.katharsis.resource.registry;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertNotNull;
+
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+
+import io.katharsis.module.ModuleRegistry;
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.exception.init.ResourceNotFoundInitializationException;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.utils.java.Optional;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.mockito.Mockito;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertNotNull;
 
 public class ResourceRegistryTest {
 
@@ -26,7 +24,7 @@ public class ResourceRegistryTest {
 
     @Before
     public void resetResourceRegistry() {
-        resourceRegistry = new ResourceRegistry(new ConstantServiceUrlProvider(TEST_MODELS_URL));
+        resourceRegistry = new ResourceRegistry(new ModuleRegistry(), new ConstantServiceUrlProvider(TEST_MODELS_URL));
     }
 
     @Test
@@ -40,17 +38,6 @@ public class ResourceRegistryTest {
     public void testGetSeriveUrlProvider(){
     	assertThat(resourceRegistry.getServiceUrlProvider().getUrl()).isEqualTo(TEST_MODELS_URL);
     }
-
-    @Test
-    public void testSecondaryConstructor() {
-        RegistryEntry entry = Mockito.mock(RegistryEntry.class);
-        Map<Class, RegistryEntry> map = new HashMap<>();
-        map.put(Task.class, entry);
-        resourceRegistry = new ResourceRegistry(map, new ConstantServiceUrlProvider(TEST_MODELS_URL));
-        assertThat(resourceRegistry.getEntry(Task.class)).isSameAs(entry);
-        assertThat(resourceRegistry.getResources().size()).isEqualTo(1);
-    }
-
 
     @Test
     public void testGetServiceUrl() {

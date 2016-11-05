@@ -2,6 +2,7 @@ package io.katharsis.resource.information;
 
 import io.katharsis.resource.field.ResourceAttributesBridge;
 import io.katharsis.resource.field.ResourceField;
+import io.katharsis.utils.PropertyUtils;
 import io.katharsis.utils.parser.TypeParser;
 
 import java.io.Serializable;
@@ -187,5 +188,13 @@ public class ResourceInformation {
 		TypeParser parser = new TypeParser();
 		Class idType = getIdField().getType();
 		return parser.parse(id, idType);
+	}
+
+	/**
+	 * @param resource
+	 * @return id of the resource
+	 */
+	public Object getId(Object resource) {
+		return PropertyUtils.getProperty(resource, idField.getUnderlyingName());
 	}
 }

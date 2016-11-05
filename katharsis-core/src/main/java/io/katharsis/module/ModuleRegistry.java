@@ -18,6 +18,7 @@ import io.katharsis.repository.RepositoryInstanceBuilder;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.repository.annotations.JsonApiRelationshipRepository;
 import io.katharsis.repository.annotations.JsonApiResourceRepository;
+import io.katharsis.repository.filter.RepositoryFilter;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.registry.MultiResourceLookup;
@@ -141,6 +142,12 @@ public class ModuleRegistry {
 		@Override
 		public ServiceDiscovery getServiceDiscovery() {
 			return ModuleRegistry.this.getServiceDiscovery();
+		}
+
+		@Override
+		public void addRepositoryFilter(RepositoryFilter filter) {
+			checkNotInitialized();
+			aggregatedModule.addRepositoryFilter(filter);			
 		}
 	}
 
@@ -269,11 +276,10 @@ public class ModuleRegistry {
 	 * @param objectMapper object mapper
 	 * @param resourceRegistry resource registry
 	 */
-	public synchronized void init(ObjectMapper objectMapper, ResourceRegistry resourceRegistry) {
+	public void init(ObjectMapper objectMapper) {
 		if (!initialized) {
 			this.initialized = true;
 			this.objectMapper = objectMapper;
-			this.resourceRegistry = resourceRegistry;
 			this.objectMapper.registerModules(getJacksonModules());
 
 			applyRepositoryRegistration(resourceRegistry);
@@ -369,6 +375,13 @@ public class ModuleRegistry {
 	public List<Filter> getFilters() {
 		return aggregatedModule.getFilters();
 	}
+	
+	/**
+	 * @return {@link Filter} added by all modules
+	 */
+	public List<RepositoryFilter> getRepositoryFilters() {
+		return aggregatedModule.getRepositoryFilters();
+	}
 
 	/**
 	 * @return combined {@link ExceptionMapperLookup} added by all modules
@@ -379,5 +392,9 @@ public class ModuleRegistry {
 
 	public List<Module> getModules() {
 		return modules;
+	}
+
+	public void setResourceRegistry(ResourceRegistry resourceRegistry) {
+		this.resourceRegistry = resourceRegistry;
 	}
 }

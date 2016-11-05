@@ -9,6 +9,7 @@ import org.junit.Before;
 
 import io.katharsis.locator.JsonServiceLocator;
 import io.katharsis.locator.SampleJsonServiceLocator;
+import io.katharsis.module.ModuleRegistry;
 import io.katharsis.queryParams.DefaultQueryParamsParser;
 import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
@@ -36,7 +37,7 @@ public abstract class AbstractQuerySpecTest {
 		ResourceRegistryBuilder resourceRegistryBuilder = new ResourceRegistryBuilder(jsonServiceLocator,
 				resourceInformationBuilder);
 		DefaultResourceLookup resourceLookup = newResourceLookup();
-		resourceRegistry = resourceRegistryBuilder.build(resourceLookup, new ConstantServiceUrlProvider("http://127.0.0.1"));
+		resourceRegistry = resourceRegistryBuilder.build(resourceLookup, new ModuleRegistry(), new ConstantServiceUrlProvider("http://127.0.0.1"));
 		parser = new DefaultQuerySpecConverter(resourceRegistry);
 	}
 

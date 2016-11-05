@@ -23,7 +23,7 @@ public class PagedLinksInformationQuerySpecTest extends AbstractQuerySpecTest {
 		TestPagedResourceRepository.clear();
 
 		super.setup();
-		RegistryEntry<?> registryEntry = resourceRegistry.getEntry(Task.class);
+		RegistryEntry<Task> registryEntry = resourceRegistry.getEntry(Task.class);
 		TestPagedResourceRepository repo = (TestPagedResourceRepository) registryEntry.getResourceRepository(null)
 				.getResourceRepository();
 
@@ -36,7 +36,7 @@ public class PagedLinksInformationQuerySpecTest extends AbstractQuerySpecTest {
 			Task task = new Task();
 			task.setId(i);
 			task.setName("myTask");
-			adapter.save(task, queryAdapter);
+			adapter.create(task, queryAdapter);
 		}
 
 	}

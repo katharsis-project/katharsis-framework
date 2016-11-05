@@ -58,14 +58,14 @@ public class ModuleTest {
 
 	@Before
 	public void setup() {
-		resourceRegistry = new ResourceRegistry(new ConstantServiceUrlProvider("http://localhost"));
+		moduleRegistry = new ModuleRegistry();
+		resourceRegistry = new ResourceRegistry(moduleRegistry, new ConstantServiceUrlProvider("http://localhost"));
 
 		testModule = new TestModule();
-		moduleRegistry = new ModuleRegistry();
 		moduleRegistry.addModule(new CoreModule("io.katharsis.module.mock", new ResourceFieldNameTransformer()));
 		moduleRegistry.addModule(testModule);
 		moduleRegistry.setServiceDiscovery(serviceDiscovery);
-		moduleRegistry.init(new ObjectMapper(), resourceRegistry);
+		moduleRegistry.init(new ObjectMapper());
 
 		Assert.assertEquals(resourceRegistry, moduleRegistry.getResourceRegistry());
 	}

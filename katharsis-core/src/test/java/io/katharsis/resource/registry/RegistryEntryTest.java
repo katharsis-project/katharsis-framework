@@ -1,6 +1,16 @@
 package io.katharsis.resource.registry;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.lang.reflect.Field;
+import java.util.Collections;
+
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+
 import io.katharsis.locator.SampleJsonServiceLocator;
+import io.katharsis.module.ModuleRegistry;
 import io.katharsis.repository.RepositoryInstanceBuilder;
 import io.katharsis.repository.exception.RelationshipRepositoryNotFoundException;
 import io.katharsis.resource.information.ResourceInformation;
@@ -17,14 +27,6 @@ import io.katharsis.resource.registry.repository.DirectResponseRelationshipEntry
 import io.katharsis.resource.registry.responseRepository.RelationshipRepositoryAdapter;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-
-import java.lang.reflect.Field;
-import java.util.Collections;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @SuppressWarnings("unchecked")
 public class RegistryEntryTest {
@@ -92,14 +94,16 @@ public class RegistryEntryTest {
 
     @Test
     public void equalsContract() throws NoSuchFieldException {
+    	ModuleRegistry moduleRegistry = new ModuleRegistry();
         RegistryEntry blue = new RegistryEntry(new ResourceInformation(String.class, null, null, null, null), null);
         RegistryEntry red = new RegistryEntry(new ResourceInformation(Long.class, null, null, null, null), null);
         EqualsVerifier.forClass(RegistryEntry.class)
                 .withPrefabValues(RegistryEntry.class, blue, red)
                 .withPrefabValues(ResourceInformation.class, new ResourceInformation(String.class, null, null, null, null), new ResourceInformation(Long.class, null, null, null, null))
                 .withPrefabValues(Field.class, String.class.getDeclaredField("value"), String.class.getDeclaredField("hash"))
-                .usingGetClass()
+                .withPrefabValues(ModuleRegistry.class, new ModuleRegistry(), new ModuleRegistry())
                 .suppress(Warning.NONFINAL_FIELDS)
+                .suppress(Warning.STRICT_INHERITANCE)
                 .verify();
     }
 }

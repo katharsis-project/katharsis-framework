@@ -38,11 +38,11 @@ public class KatharsisRegistryConfiguration {
         ResourceRegistryBuilder registryBuilder =
                 new ResourceRegistryBuilder(serviceLocator, moduleRegistry.getResourceInformationBuilder());
 
-        ResourceRegistry resourceRegistry = registryBuilder.build(properties.getResourcePackage(), serviceUrlProvider);
+        ResourceRegistry resourceRegistry = registryBuilder.build(properties.getResourcePackage(), moduleRegistry, serviceUrlProvider);
 
         // NOTE once ModuleRegistry is more widely used, it should be possible
         // to break up the cyclic dependency between ResourceRegistry and ModuleRegistry.
-        moduleRegistry.init(objectMapper, resourceRegistry);
+        moduleRegistry.init(objectMapper);
 
         return resourceRegistry;
     }

@@ -1,19 +1,21 @@
 package io.katharsis.resource.mock.repository;
 
-import io.katharsis.queryParams.QueryParams;
-import io.katharsis.repository.ResourceRepository;
-import io.katharsis.resource.exception.ResourceNotFoundException;
-import io.katharsis.resource.mock.models.User;
-
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class UserRepository implements ResourceRepository<User, Long> {
+import io.katharsis.queryspec.QuerySpec;
+import io.katharsis.queryspec.QuerySpecResourceRepository;
+import io.katharsis.resource.exception.ResourceNotFoundException;
+import io.katharsis.resource.mock.models.User;
 
-    private static final QueryParams REQUEST_PARAMS = new QueryParams();
+public class UserRepository implements QuerySpecResourceRepository<User, Long> {
 
     private static final ConcurrentHashMap<Long, User> THREAD_LOCAL_REPOSITORY = new ConcurrentHashMap<>();
+    
+    public static void clear(){
+    	THREAD_LOCAL_REPOSITORY.clear();
+    }
 
     @Override
     public <S extends User> S save(S entity) {
@@ -24,7 +26,7 @@ public class UserRepository implements ResourceRepository<User, Long> {
     }
 
     @Override
-    public User findOne(Long aLong, QueryParams queryParams) {
+    public User findOne(Long aLong, QuerySpec queryParams) {
         User user = THREAD_LOCAL_REPOSITORY.get(aLong);
         if (user == null) {
             throw new ResourceNotFoundException(User.class.getCanonicalName());
@@ -34,13 +36,13 @@ public class UserRepository implements ResourceRepository<User, Long> {
     }
 
     @Override
-    public Iterable<User> findAll(QueryParams queryParams) {
+    public Iterable<User> findAll(QuerySpec queryParams) {
         return THREAD_LOCAL_REPOSITORY.values();
     }
 
 
     @Override
-    public Iterable<User> findAll(Iterable<Long> ids, QueryParams queryParams) {
+    public Iterable<User> findAll(Iterable<Long> ids, QuerySpec queryParams) {
         List<User> values = new LinkedList<>();
         for (User value : THREAD_LOCAL_REPOSITORY.values()) {
             if (contains(value, ids)) {
@@ -64,4 +66,9 @@ public class UserRepository implements ResourceRepository<User, Long> {
     public void delete(Long aLong) {
         THREAD_LOCAL_REPOSITORY.remove(aLong);
     }
+
+	@Override
+	public Class<User> getResourceClass() {
+		return User.class;
+	}
 }

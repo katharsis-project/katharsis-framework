@@ -82,7 +82,7 @@ public class FieldResourcePost extends ResourceUpsert {
         Object resource = buildNewResource(relationshipRegistryEntry, dataBody, relationshipResourceType);
         setAttributes(dataBody, resource, relationshipRegistryEntry.getResourceInformation());
         ResourceRepositoryAdapter resourceRepository = relationshipRegistryEntry.getResourceRepository(parameterProvider);
-        JsonApiResponse savedResourceResponse = resourceRepository.save(resource, queryAdapter);
+        JsonApiResponse savedResourceResponse = resourceRepository.create(resource, queryAdapter);
         saveRelations(queryAdapter, extractResource(savedResourceResponse), relationshipRegistryEntry, dataBody, parameterProvider);
 
         Serializable resourceId = (Serializable) PropertyUtils

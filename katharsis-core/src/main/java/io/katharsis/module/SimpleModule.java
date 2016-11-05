@@ -10,6 +10,7 @@ import java.util.Set;
 import io.katharsis.dispatcher.filter.Filter;
 import io.katharsis.errorhandling.mapper.ExceptionMapperLookup;
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
+import io.katharsis.repository.filter.RepositoryFilter;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ResourceLookup;
 import io.katharsis.security.SecurityProvider;
@@ -23,6 +24,8 @@ public class SimpleModule implements Module {
 
 	private List<Filter> filters = new ArrayList<>();
 
+	private List<RepositoryFilter> repositoryFilters = new ArrayList<>();
+	
 	private List<SecurityProvider> securityProviders = new ArrayList<>();
 
 	private List<ResourceLookup> resourceLookups = new ArrayList<>();
@@ -59,6 +62,9 @@ public class SimpleModule implements Module {
 		}
 		for (Filter filter : filters) {
 			context.addFilter(filter);
+		}
+		for (RepositoryFilter filter : repositoryFilters) {
+			context.addRepositoryFilter(filter);
 		}
 		for (com.fasterxml.jackson.databind.Module jacksonModule : jacksonModules) {
 			context.addJacksonModule(jacksonModule);
@@ -110,10 +116,20 @@ public class SimpleModule implements Module {
 		checkInitialized();
 		filters.add(filter);
 	}
+	
+	public void addRepositoryFilter(RepositoryFilter filter) {
+		checkInitialized();
+		repositoryFilters.add(filter);
+	}
 
 	protected List<Filter> getFilters() {
 		checkInitialized();
 		return Collections.unmodifiableList(filters);
+	}
+	
+	protected List<RepositoryFilter> getRepositoryFilters() {
+		checkInitialized();
+		return Collections.unmodifiableList(repositoryFilters);
 	}
 
 	public void addSecurityProvider(SecurityProvider securityProvider) {

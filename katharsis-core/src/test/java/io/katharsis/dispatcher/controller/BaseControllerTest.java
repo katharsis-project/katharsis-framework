@@ -3,6 +3,7 @@ package io.katharsis.dispatcher.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.jackson.JsonApiModuleBuilder;
 import io.katharsis.locator.SampleJsonServiceLocator;
+import io.katharsis.module.ModuleRegistry;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.request.path.PathBuilder;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
@@ -34,7 +35,7 @@ public abstract class BaseControllerTest {
         ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonServiceLocator(),
             resourceInformationBuilder);
         resourceRegistry = registryBuilder
-            .build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, new ConstantServiceUrlProvider(ResourceRegistryTest.TEST_MODELS_URL));
+            .build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, new ModuleRegistry(), new ConstantServiceUrlProvider(ResourceRegistryTest.TEST_MODELS_URL));
         pathBuilder = new PathBuilder(resourceRegistry);
         typeParser = new TypeParser();
         includeFieldSetter = new IncludeLookupSetter(resourceRegistry);

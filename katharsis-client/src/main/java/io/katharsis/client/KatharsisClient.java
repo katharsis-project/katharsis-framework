@@ -71,14 +71,15 @@ public class KatharsisClient {
 	public KatharsisClient(String serviceUrl, String resourceSearchPackage) {
 		httpAdapter = new OkHttpAdapter();
 
-		resourceRegistry = new ResourceRegistry(new ConstantServiceUrlProvider(normalize(serviceUrl)));
+		moduleRegistry = new ModuleRegistry();
+		moduleRegistry.addModule(new CoreModule(resourceSearchPackage, new ResourceFieldNameTransformer()));
+
+		resourceRegistry = new ResourceRegistry(moduleRegistry, new ConstantServiceUrlProvider(normalize(serviceUrl)));
 		urlBuilder = new JsonApiUrlBuilder(resourceRegistry);
 
 		objectMapper = new ObjectMapper();
 		objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
 
-		moduleRegistry = new ModuleRegistry();
-		moduleRegistry.addModule(new CoreModule(resourceSearchPackage, new ResourceFieldNameTransformer()));
 
 		// consider use of katharsis module in the future
 		JsonApiModuleBuilder moduleBuilder = new JsonApiModuleBuilder();
@@ -125,7 +126,7 @@ public class KatharsisClient {
 	}
 
 	private void initModuleRegistry() {
-		moduleRegistry.init(objectMapper, resourceRegistry);
+		moduleRegistry.init(objectMapper);
 	}
 
 	private void initRepositories() {

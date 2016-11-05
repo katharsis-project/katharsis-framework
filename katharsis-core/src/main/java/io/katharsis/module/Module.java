@@ -3,6 +3,7 @@ package io.katharsis.module;
 import io.katharsis.dispatcher.filter.Filter;
 import io.katharsis.errorhandling.mapper.ExceptionMapper;
 import io.katharsis.errorhandling.mapper.ExceptionMapperLookup;
+import io.katharsis.repository.filter.RepositoryFilter;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ResourceLookup;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -98,6 +99,13 @@ public interface Module {
 		 * @param filter filter
 		 */
 		void addFilter(Filter filter);
+		
+		/**
+		 * Adds a repository filter to intercept repository calls.
+		 *
+		 * @param RepositoryFilter filter
+		 */
+		void addRepositoryFilter(RepositoryFilter filter);
 
 		/**
 		 * Returns the ResourceRegistry. Note that instance is not yet available

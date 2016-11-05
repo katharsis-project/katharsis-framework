@@ -1,5 +1,9 @@
 package io.katharsis.repository.annotated;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.repository.ParametersFactory;
 import io.katharsis.repository.annotations.JsonApiLinks;
@@ -8,10 +12,6 @@ import io.katharsis.repository.exception.RepositoryAnnotationNotFoundException;
 import io.katharsis.response.LinksInformation;
 import io.katharsis.response.MetaInformation;
 import io.katharsis.utils.ClassUtils;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 public abstract class AnnotatedRepositoryAdapter<T> {
 
@@ -108,4 +108,8 @@ public abstract class AnnotatedRepositoryAdapter<T> {
             }
         }
     }
+    
+	public Object getImplementationObject() {
+		return implementationObject;
+	}
 }

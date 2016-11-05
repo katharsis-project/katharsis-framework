@@ -93,7 +93,7 @@ public class ResourcePatch extends ResourceUpsert {
 
         setAttributes(dataBody, resource, bodyRegistryEntry.getResourceInformation());
         setRelations(resource, bodyRegistryEntry, dataBody, queryAdapter, parameterProvider);
-        JsonApiResponse response = resourceRepository.save(resource, queryAdapter);
+        JsonApiResponse response = resourceRepository.update(resource, queryAdapter);
 
         return new ResourceResponseContext(response, jsonPath, queryAdapter);
     }

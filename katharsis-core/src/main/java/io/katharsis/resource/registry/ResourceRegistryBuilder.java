@@ -1,16 +1,18 @@
 package io.katharsis.resource.registry;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.katharsis.locator.JsonServiceLocator;
+import io.katharsis.module.ModuleRegistry;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.registry.repository.ResourceEntry;
 import io.katharsis.resource.registry.repository.ResponseRelationshipEntry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 /**
  * Builder responsible for building an instance of ResourceRegistry.
@@ -33,8 +35,8 @@ public class ResourceRegistryBuilder {
      * @param serviceUrlProvider  Compute the resource to this service
      * @return an instance of ResourceRegistry
      */
-    public ResourceRegistry build(String packageName, ServiceUrlProvider serviceUrlProvider) {
-        return build(new DefaultResourceLookup(packageName), serviceUrlProvider);
+    public ResourceRegistry build(String packageName, ModuleRegistry moduleRegistry, ServiceUrlProvider serviceUrlProvider) {
+        return build(new DefaultResourceLookup(packageName), moduleRegistry, serviceUrlProvider);
     }
 
     /**
@@ -44,7 +46,7 @@ public class ResourceRegistryBuilder {
      * @param serviceUrl  URL to the service
      * @return an instance of ResourceRegistry
      */
-    public ResourceRegistry build(ResourceLookup resourceLookup,  ServiceUrlProvider serviceUrl) {
+    public ResourceRegistry build(ResourceLookup resourceLookup, ModuleRegistry moduleRegistry, ServiceUrlProvider serviceUrl) {
         Set<Class<?>> jsonApiResources = resourceLookup.getResourceClasses();
         
         Set<ResourceInformation> resourceInformationSet = new HashSet<>(jsonApiResources.size());
@@ -67,7 +69,7 @@ public class ResourceRegistryBuilder {
 
         }
 
-        ResourceRegistry resourceRegistry = new ResourceRegistry(serviceUrl);
+        ResourceRegistry resourceRegistry = new ResourceRegistry(moduleRegistry, serviceUrl);
         for (RegistryEntry registryEntry : registryEntries) {
             Class<?> resourceClass = registryEntry.getResourceInformation().getResourceClass();
             RegistryEntry registryEntryParent = findParent(resourceClass, registryEntries);

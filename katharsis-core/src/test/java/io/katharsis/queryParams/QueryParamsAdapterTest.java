@@ -3,6 +3,7 @@ package io.katharsis.queryParams;
 import org.junit.Assert;
 import org.junit.Test;
 
+import io.katharsis.module.ModuleRegistry;
 import io.katharsis.queryspec.internal.QueryParamsAdapter;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.registry.ConstantServiceUrlProvider;
@@ -12,7 +13,7 @@ public class QueryParamsAdapterTest {
 
 	@Test
 	public void test() {
-		ResourceRegistry resourceRegistry = new ResourceRegistry(new ConstantServiceUrlProvider("http://localhost"));
+		ResourceRegistry resourceRegistry = new ResourceRegistry(new ModuleRegistry(), new ConstantServiceUrlProvider("http://localhost"));
 		QueryParams params = new QueryParams();
 		QueryParamsAdapter adapter = new QueryParamsAdapter(Task.class, params, resourceRegistry);
 		Assert.assertEquals(Task.class, adapter.getResourceClass());

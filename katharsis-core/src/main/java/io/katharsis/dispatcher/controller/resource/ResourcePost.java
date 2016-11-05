@@ -66,7 +66,7 @@ public class ResourcePost extends ResourceUpsert {
         setAttributes(dataBody, newResource, bodyRegistryEntry.getResourceInformation());
         ResourceRepositoryAdapter resourceRepository = endpointRegistryEntry.getResourceRepository(parameterProvider);
         setRelations(newResource, bodyRegistryEntry, dataBody, queryAdapter, parameterProvider);
-        JsonApiResponse response = resourceRepository.save(newResource, queryAdapter);
+        JsonApiResponse response = resourceRepository.create(newResource, queryAdapter);
 
         return new ResourceResponseContext(response, jsonPath, queryAdapter, HttpStatus.CREATED_201);
     }

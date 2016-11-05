@@ -3,7 +3,9 @@ package io.katharsis.dispatcher.filter;
 import io.katharsis.response.BaseResponseContext;
 
 /**
- * Allows to intercept and modify incoming requests and responses.
+ * Allows to intercept and modify incoming requests and responses. This is 
+ * a low-level interface getting called early with the actual
+ * request data structures. 
  */
 public interface Filter {
 
