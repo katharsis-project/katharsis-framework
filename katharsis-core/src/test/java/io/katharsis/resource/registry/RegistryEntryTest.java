@@ -24,7 +24,7 @@ import io.katharsis.resource.mock.repository.TaskRepository;
 import io.katharsis.resource.mock.repository.TaskToProjectRepository;
 import io.katharsis.resource.registry.repository.AnnotatedResourceEntry;
 import io.katharsis.resource.registry.repository.DirectResponseRelationshipEntry;
-import io.katharsis.resource.registry.responseRepository.RelationshipRepositoryAdapter;
+import io.katharsis.resource.registry.repository.adapter.RelationshipRepositoryAdapter;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
 

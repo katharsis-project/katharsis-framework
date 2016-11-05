@@ -5,7 +5,7 @@ import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.resource.registry.responseRepository.RelationshipRepositoryAdapter;
+import io.katharsis.resource.registry.repository.adapter.RelationshipRepositoryAdapter;
 import io.katharsis.utils.parser.TypeParser;
 
 import java.io.Serializable;

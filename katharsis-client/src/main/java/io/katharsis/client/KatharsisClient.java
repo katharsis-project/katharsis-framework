@@ -37,8 +37,8 @@ import io.katharsis.resource.registry.repository.DirectResponseRelationshipEntry
 import io.katharsis.resource.registry.repository.DirectResponseResourceEntry;
 import io.katharsis.resource.registry.repository.ResourceEntry;
 import io.katharsis.resource.registry.repository.ResponseRelationshipEntry;
-import io.katharsis.resource.registry.responseRepository.RelationshipRepositoryAdapter;
-import io.katharsis.resource.registry.responseRepository.ResourceRepositoryAdapter;
+import io.katharsis.resource.registry.repository.adapter.RelationshipRepositoryAdapter;
+import io.katharsis.resource.registry.repository.adapter.ResourceRepositoryAdapter;
 import io.katharsis.response.BaseResponseContext;
 import io.katharsis.utils.JsonApiUrlBuilder;
 import okhttp3.OkHttpClient;

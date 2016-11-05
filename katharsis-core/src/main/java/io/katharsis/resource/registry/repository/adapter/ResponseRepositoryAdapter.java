@@ -1,4 +1,4 @@
-package io.katharsis.resource.registry.responseRepository;
+package io.katharsis.resource.registry.repository.adapter;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -43,13 +43,13 @@ import io.katharsis.utils.PreconditionUtil;
  * The methods need to know if a repository is interface- or annotation-based since repository methods have different
  * signatures.
  */
-public abstract class ResponseRepository {
+public abstract class ResponseRepositoryAdapter {
 
 	protected ResourceInformation resourceInformation;
 
     protected ModuleRegistry moduleRegistry;
 
-    public ResponseRepository(ResourceInformation resourceInformation, ModuleRegistry moduleRegistry) {
+    public ResponseRepositoryAdapter(ResourceInformation resourceInformation, ModuleRegistry moduleRegistry) {
         this.moduleRegistry = moduleRegistry;
         this.resourceInformation = resourceInformation;
     }

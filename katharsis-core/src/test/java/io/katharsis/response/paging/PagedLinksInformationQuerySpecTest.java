@@ -11,7 +11,7 @@ import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.queryspec.internal.QuerySpecAdapter;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.registry.RegistryEntry;
-import io.katharsis.resource.registry.responseRepository.ResourceRepositoryAdapter;
+import io.katharsis.resource.registry.repository.adapter.ResourceRepositoryAdapter;
 
 public class PagedLinksInformationQuerySpecTest extends AbstractQuerySpecTest {
 

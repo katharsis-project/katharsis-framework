@@ -21,7 +21,7 @@ import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.information.ResourceInstanceBuilder;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.resource.registry.responseRepository.RelationshipRepositoryAdapter;
+import io.katharsis.resource.registry.repository.adapter.RelationshipRepositoryAdapter;
 import io.katharsis.utils.Generics;
 import io.katharsis.utils.PropertyUtils;
 import io.katharsis.utils.parser.TypeParser;

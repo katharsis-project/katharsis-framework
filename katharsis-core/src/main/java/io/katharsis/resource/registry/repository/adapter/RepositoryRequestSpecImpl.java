@@ -1,4 +1,4 @@
-package io.katharsis.resource.registry.responseRepository;
+package io.katharsis.resource.registry.repository.adapter;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -13,7 +13,6 @@ import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.queryspec.internal.QueryParamsAdapter;
 import io.katharsis.queryspec.internal.QuerySpecAdapter;
-import io.katharsis.repository.filter.RepositoryFilterContext;
 import io.katharsis.request.repository.RepositoryRequestSpec;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.RegistryEntry;

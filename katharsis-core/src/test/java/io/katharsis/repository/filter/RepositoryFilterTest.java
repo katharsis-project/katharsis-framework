@@ -36,8 +36,8 @@ import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryBuilder;
 import io.katharsis.resource.registry.ResourceRegistryBuilderTest;
 import io.katharsis.resource.registry.ResourceRegistryTest;
-import io.katharsis.resource.registry.responseRepository.RelationshipRepositoryAdapter;
-import io.katharsis.resource.registry.responseRepository.ResourceRepositoryAdapter;
+import io.katharsis.resource.registry.repository.adapter.RelationshipRepositoryAdapter;
+import io.katharsis.resource.registry.repository.adapter.ResourceRepositoryAdapter;
 
 public class RepositoryFilterTest {
 

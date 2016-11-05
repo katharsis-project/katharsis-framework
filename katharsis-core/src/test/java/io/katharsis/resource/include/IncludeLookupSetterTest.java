@@ -22,8 +22,8 @@ import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.repository.MockRepositoryUtil;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.resource.registry.responseRepository.RelationshipRepositoryAdapter;
-import io.katharsis.resource.registry.responseRepository.ResourceRepositoryAdapter;
+import io.katharsis.resource.registry.repository.adapter.RelationshipRepositoryAdapter;
+import io.katharsis.resource.registry.repository.adapter.ResourceRepositoryAdapter;
 
 @RunWith(MockitoJUnitRunner.class)
 public class IncludeLookupSetterTest {

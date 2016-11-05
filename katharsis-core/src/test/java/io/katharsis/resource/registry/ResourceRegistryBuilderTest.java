@@ -12,8 +12,9 @@ import io.katharsis.resource.mock.models.ResourceWithoutRepository;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.models.Thing;
 import io.katharsis.resource.mock.repository.TaskToProjectRepository;
-import io.katharsis.resource.registry.responseRepository.RelationshipRepositoryAdapter;
-import io.katharsis.resource.registry.responseRepository.ResourceRepositoryAdapter;
+import io.katharsis.resource.registry.repository.adapter.RelationshipRepositoryAdapter;
+import io.katharsis.resource.registry.repository.adapter.ResourceRepositoryAdapter;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;

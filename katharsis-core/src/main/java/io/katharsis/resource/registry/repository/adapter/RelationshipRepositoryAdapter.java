@@ -1,4 +1,4 @@
-package io.katharsis.resource.registry.responseRepository;
+package io.katharsis.resource.registry.repository.adapter;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -25,7 +25,7 @@ import io.katharsis.response.JsonApiResponse;
  */
 @SuppressWarnings("unchecked")
 public class RelationshipRepositoryAdapter<T, I extends Serializable, D, J extends Serializable>
-    extends ResponseRepository {
+    extends ResponseRepositoryAdapter {
 
     private final Object relationshipRepository;
     private final boolean isAnnotated;

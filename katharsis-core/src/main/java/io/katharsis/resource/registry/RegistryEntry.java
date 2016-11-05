@@ -15,8 +15,8 @@ import io.katharsis.resource.registry.repository.DirectResponseRelationshipEntry
 import io.katharsis.resource.registry.repository.DirectResponseResourceEntry;
 import io.katharsis.resource.registry.repository.ResourceEntry;
 import io.katharsis.resource.registry.repository.ResponseRelationshipEntry;
-import io.katharsis.resource.registry.responseRepository.RelationshipRepositoryAdapter;
-import io.katharsis.resource.registry.responseRepository.ResourceRepositoryAdapter;
+import io.katharsis.resource.registry.repository.adapter.RelationshipRepositoryAdapter;
+import io.katharsis.resource.registry.repository.adapter.ResourceRepositoryAdapter;
 
 /**
  * Holds information about a resource of type <i>T</i> and its repositories.

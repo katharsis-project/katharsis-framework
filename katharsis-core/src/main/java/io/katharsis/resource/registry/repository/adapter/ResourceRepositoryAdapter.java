@@ -1,4 +1,4 @@
-package io.katharsis.resource.registry.responseRepository;
+package io.katharsis.resource.registry.repository.adapter;
 
 import java.io.Serializable;
 
@@ -17,7 +17,7 @@ import io.katharsis.response.JsonApiResponse;
  * A repository adapter for resource repository.
  */
 @SuppressWarnings("unchecked")
-public class ResourceRepositoryAdapter<T, I extends Serializable> extends ResponseRepository {
+public class ResourceRepositoryAdapter<T, I extends Serializable> extends ResponseRepositoryAdapter {
 
 	private final Object resourceRepository;
 
