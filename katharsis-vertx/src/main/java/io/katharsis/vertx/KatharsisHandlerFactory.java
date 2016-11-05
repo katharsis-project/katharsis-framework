@@ -47,12 +47,12 @@ public class KatharsisHandlerFactory {
                                           @NonNull ParameterProviderFactory parameterProviderFactory) {
 
         ExceptionMapperRegistry exceptionMapperRegistry = buildExceptionMapperRegistry(packagesToScan);
-        ResourceRegistry resourceRegistry = buildRegistry(packagesToScan, webPath);
+        ModuleRegistry moduleRegistry = buildModuleRegistry(objectMapper, packagesToScan);
+        ResourceRegistry resourceRegistry = buildRegistry(packagesToScan, webPath, moduleRegistry);
 
 
         JsonApiModuleBuilder jsonApiModuleBuilder = new JsonApiModuleBuilder();
         objectMapper.registerModule(jsonApiModuleBuilder.build(resourceRegistry, false));
-        ModuleRegistry moduleRegistry = buildModuleRegistry(objectMapper, packagesToScan);
 
         RequestDispatcher requestDispatcher = createRequestDispatcher(objectMapper, moduleRegistry,
                 exceptionMapperRegistry, resourceRegistry);
@@ -90,13 +90,13 @@ public class KatharsisHandlerFactory {
         return moduleRegistry;
     }
 
-    public static ResourceRegistry buildRegistry(@NonNull String packageToScan, @NonNull String webPath) {
+    public static ResourceRegistry buildRegistry(@NonNull String packageToScan, @NonNull String webPath, @NonNull ModuleRegistry moduleRegistry) {
         ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(
                 new SampleJsonServiceLocator(),
                 new AnnotationResourceInformationBuilder(new ResourceFieldNameTransformer()));
 
         ServiceUrlProvider serviceUrlProvider = new ConstantServiceUrlProvider(webPath);
-        return registryBuilder.build(packageToScan, serviceUrlProvider);
+        return registryBuilder.build(packageToScan, moduleRegistry, serviceUrlProvider);
     }
 
     private static ExceptionMapperRegistry buildExceptionMapperRegistry(String resourceSearchPackage) {

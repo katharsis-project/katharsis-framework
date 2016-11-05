@@ -18,8 +18,8 @@ import io.katharsis.queryspec.internal.QueryParamsAdapter;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.registry.RegistryEntry;
-import io.katharsis.resource.registry.responseRepository.RelationshipRepositoryAdapter;
-import io.katharsis.resource.registry.responseRepository.ResourceRepositoryAdapter;
+import io.katharsis.resource.registry.repository.adapter.RelationshipRepositoryAdapter;
+import io.katharsis.resource.registry.repository.adapter.ResourceRepositoryAdapter;
 import io.katharsis.response.JsonApiResponse;
 
 public class QuerySpecRepositoryTest extends AbstractQuerySpecTest {
@@ -36,7 +36,7 @@ public class QuerySpecRepositoryTest extends AbstractQuerySpecTest {
 		TestQuerySpecRelationshipRepository.clear();
 
 		super.setup();
-		RegistryEntry<?> registryEntry = resourceRegistry.getEntry(Task.class);
+		RegistryEntry<Task> registryEntry = resourceRegistry.getEntry(Task.class);
 		TestQuerySpecResourceRepository repo = (TestQuerySpecResourceRepository) registryEntry.getResourceRepository(null)
 				.getResourceRepository();
 
@@ -73,7 +73,7 @@ public class QuerySpecRepositoryTest extends AbstractQuerySpecTest {
 		task.setName("myTask");
 		task.setProject(project);
 		task.setProjects(Arrays.asList(project));
-		adapter.save(task, queryAdapter);
+		adapter.create(task, queryAdapter);
 
 		// adapter
 		List<Task> tasks = (List<Task>) adapter.findAll(queryAdapter).getEntity();

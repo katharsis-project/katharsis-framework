@@ -20,6 +20,7 @@ import io.katharsis.errorhandling.mapper.KatharsisExceptionMapper;
 import io.katharsis.module.Module.ModuleContext;
 import io.katharsis.module.SimpleModule.RelationshipRepositoryRegistration;
 import io.katharsis.queryspec.QuerySpecResourceRepository;
+import io.katharsis.repository.filter.RepositoryFilter;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.registry.ResourceLookup;
@@ -232,7 +233,7 @@ public class SimpleModuleTest {
 
 		@Override
 		public ResourceRegistry getResourceRegistry() {
-			return new ResourceRegistry(null);
+			return new ResourceRegistry(null, null);
 		}
 
 		@Override
@@ -258,6 +259,11 @@ public class SimpleModuleTest {
 		@Override
 		public ServiceDiscovery getServiceDiscovery() {
 			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public void addRepositoryFilter(RepositoryFilter filter) {
+			numFilters++;
 		}
 	}
 }

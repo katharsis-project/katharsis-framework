@@ -1,6 +1,7 @@
 package io.katharsis.resource.registry;
 
 import io.katharsis.locator.SampleJsonServiceLocator;
+import io.katharsis.module.ModuleRegistry;
 import io.katharsis.repository.exception.RepositoryInstanceNotFoundException;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
@@ -11,8 +12,9 @@ import io.katharsis.resource.mock.models.ResourceWithoutRepository;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.models.Thing;
 import io.katharsis.resource.mock.repository.TaskToProjectRepository;
-import io.katharsis.resource.registry.responseRepository.RelationshipRepositoryAdapter;
-import io.katharsis.resource.registry.responseRepository.ResourceRepositoryAdapter;
+import io.katharsis.resource.registry.repository.adapter.RelationshipRepositoryAdapter;
+import io.katharsis.resource.registry.repository.adapter.ResourceRepositoryAdapter;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -44,7 +46,7 @@ public class ResourceRegistryBuilderTest {
             resourceInformationBuilder);
 
         // WHEN
-        ResourceRegistry resourceRegistry = sut.build(TEST_MODELS_PACKAGE, new ConstantServiceUrlProvider(TEST_MODELS_URL));
+        ResourceRegistry resourceRegistry = sut.build(TEST_MODELS_PACKAGE, new ModuleRegistry(), new ConstantServiceUrlProvider(TEST_MODELS_URL));
 
         // THEN
         RegistryEntry tasksEntry = resourceRegistry.getEntry("tasks");
@@ -72,7 +74,7 @@ public class ResourceRegistryBuilderTest {
         String packageNames = String.format("java.lang,%s,io.katharsis.locator", TEST_MODELS_PACKAGE);
 
         // WHEN
-        ResourceRegistry resourceRegistry = sut.build(packageNames, new ConstantServiceUrlProvider(TEST_MODELS_URL));
+        ResourceRegistry resourceRegistry = sut.build(packageNames, new ModuleRegistry(), new ConstantServiceUrlProvider(TEST_MODELS_URL));
 
         // THEN
         RegistryEntry tasksEntry = resourceRegistry.getEntry("tasks");
@@ -96,7 +98,7 @@ public class ResourceRegistryBuilderTest {
         expectedException.expect(RepositoryInstanceNotFoundException.class);
 
         // WHEN
-        sut.build(TEST_MODELS_PACKAGE, new ConstantServiceUrlProvider(TEST_MODELS_URL));
+        sut.build(TEST_MODELS_PACKAGE, new ModuleRegistry(), new ConstantServiceUrlProvider(TEST_MODELS_URL));
     }
 
     @Test
@@ -106,7 +108,7 @@ public class ResourceRegistryBuilderTest {
             new ResourceRegistryBuilder(new SampleJsonServiceLocator(), resourceInformationBuilder);
 
         // WHEN
-        ResourceRegistry result = sut.build(TEST_MODELS_PACKAGE, new ConstantServiceUrlProvider(TEST_MODELS_URL));
+        ResourceRegistry result = sut.build(TEST_MODELS_PACKAGE, new ModuleRegistry(), new ConstantServiceUrlProvider(TEST_MODELS_URL));
 
         // THEN
         RegistryEntry entry = result.getEntry(ResourceWithoutRepository.class);
@@ -125,7 +127,7 @@ public class ResourceRegistryBuilderTest {
         String packageNames = String.format("java.lang,%s,io.katharsis.locator", TEST_MODELS_PACKAGE);
 
         // WHEN
-        ResourceRegistry resourceRegistry = sut.build(packageNames, new ConstantServiceUrlProvider(TEST_MODELS_URL));
+        ResourceRegistry resourceRegistry = sut.build(packageNames, new ModuleRegistry(), new ConstantServiceUrlProvider(TEST_MODELS_URL));
 
         // THEN
         RegistryEntry memorandaEntry = resourceRegistry.getEntry("memoranda");
@@ -142,7 +144,7 @@ public class ResourceRegistryBuilderTest {
             resourceInformationBuilder);
 
         // WHEN
-        ResourceRegistry resourceRegistry = sut.build(TEST_MODELS_PACKAGE, new ConstantServiceUrlProvider(TEST_MODELS_URL));
+        ResourceRegistry resourceRegistry = sut.build(TEST_MODELS_PACKAGE, new ModuleRegistry(), new ConstantServiceUrlProvider(TEST_MODELS_URL));
 
         // THEN
         RegistryEntry tasksEntry = resourceRegistry.getEntry("tasks");

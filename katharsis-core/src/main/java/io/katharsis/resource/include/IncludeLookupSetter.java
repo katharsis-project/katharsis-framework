@@ -23,7 +23,7 @@ import io.katharsis.resource.field.ResourceField.LookupIncludeBehavior;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.resource.registry.responseRepository.RelationshipRepositoryAdapter;
+import io.katharsis.resource.registry.repository.adapter.RelationshipRepositoryAdapter;
 import io.katharsis.response.JsonApiResponse;
 import io.katharsis.utils.PropertyUtils;
 

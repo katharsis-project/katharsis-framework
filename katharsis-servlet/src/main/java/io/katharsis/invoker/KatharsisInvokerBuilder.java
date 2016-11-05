@@ -134,7 +134,7 @@ public class KatharsisInvokerBuilder {
             objectMapper = createObjectMapper(resourceRegistry);
         }
         
-        moduleRegistry.init(objectMapper, resourceRegistry);
+        moduleRegistry.init(objectMapper);
 
         if (requestDispatcher == null) {
             if (exceptionMapperRegistry == null) {
@@ -170,7 +170,7 @@ public class KatharsisInvokerBuilder {
         ResourceRegistryBuilder registryBuilder =
                 new ResourceRegistryBuilder(jsonServiceLocator, moduleRegistry.getResourceInformationBuilder());
         
-        return registryBuilder.build(resourceSearchPackage, new ConstantServiceUrlProvider(resourceDefaultDomain));
+        return registryBuilder.build(resourceSearchPackage, moduleRegistry, new ConstantServiceUrlProvider(resourceDefaultDomain));
     }
 
     protected RequestDispatcher createRequestDispatcher(ResourceRegistry resourceRegistry,

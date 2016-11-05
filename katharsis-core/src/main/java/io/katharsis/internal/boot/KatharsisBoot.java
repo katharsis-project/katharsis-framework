@@ -148,9 +148,9 @@ public class KatharsisBoot {
 	private void bootDiscovery() {
 		addModules();
 		setupComponents();
-		resourceRegistry = new ResourceRegistry(serviceUrlProvider);
+		resourceRegistry = new ResourceRegistry(moduleRegistry, serviceUrlProvider);
 
-		moduleRegistry.init(objectMapper, resourceRegistry);
+		moduleRegistry.init(objectMapper);
 
 		JsonApiModuleBuilder jsonApiModuleBuilder = new JsonApiModuleBuilder();
 		objectMapper.registerModule(jsonApiModuleBuilder.build(resourceRegistry, false));

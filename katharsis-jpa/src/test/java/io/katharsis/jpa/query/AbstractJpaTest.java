@@ -64,12 +64,12 @@ public abstract class AbstractJpaTest {
 	@Before
 	public void setup() {
 
-		resourceRegistry = new ResourceRegistry(new ConstantServiceUrlProvider("http://localhost:1234"));
 		ModuleRegistry moduleRegistry = new ModuleRegistry();
+		resourceRegistry = new ResourceRegistry(moduleRegistry, new ConstantServiceUrlProvider("http://localhost:1234"));
 		module = JpaModule.newServerModule(emFactory, em, transactionRunner);
 		setupModule(module);
 		moduleRegistry.addModule(module);
-		moduleRegistry.init(new ObjectMapper(), resourceRegistry);
+		moduleRegistry.init(new ObjectMapper());
 
 		queryFactory = createQueryFactory(em);
 		module.setQueryFactory(queryFactory);

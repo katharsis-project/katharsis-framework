@@ -21,7 +21,7 @@ import io.katharsis.resource.exception.RequestBodyNotFoundException;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.resource.registry.responseRepository.ResourceRepositoryAdapter;
+import io.katharsis.resource.registry.repository.adapter.ResourceRepositoryAdapter;
 import io.katharsis.response.BaseResponseContext;
 import io.katharsis.response.JsonApiResponse;
 import io.katharsis.response.ResourceResponseContext;
@@ -93,7 +93,7 @@ public class ResourcePatch extends ResourceUpsert {
 
         setAttributes(dataBody, resource, bodyRegistryEntry.getResourceInformation());
         setRelations(resource, bodyRegistryEntry, dataBody, queryAdapter, parameterProvider);
-        JsonApiResponse response = resourceRepository.save(resource, queryAdapter);
+        JsonApiResponse response = resourceRepository.update(resource, queryAdapter);
 
         return new ResourceResponseContext(response, jsonPath, queryAdapter);
     }

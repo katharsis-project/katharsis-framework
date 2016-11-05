@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.QueryParams;
+import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.internal.QueryParamsAdapter;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.RequestBody;
@@ -200,7 +201,7 @@ public class RelationshipsResourceDeleteTest extends BaseControllerTest {
 
         // THEN
         UserToProjectRepository userToProjectRepository = new UserToProjectRepository();
-        Project project = userToProjectRepository.findOneTarget(userId, "assignedProjects", REQUEST_PARAMS);
+        Project project = userToProjectRepository.findOneTarget(userId, "assignedProjects", new QuerySpec(Project.class));
         assertThat(project.getId()).isEqualTo(projectId);
 
         /* ------- */
@@ -213,7 +214,7 @@ public class RelationshipsResourceDeleteTest extends BaseControllerTest {
         assertThat(result).isNotNull();
 
         // THEN
-        Project nullProject = userToProjectRepository.findOneTarget(userId, "assignedProjects", REQUEST_PARAMS);
+        Project nullProject = userToProjectRepository.findOneTarget(userId, "assignedProjects", new QuerySpec(Project.class));
         assertThat(nullProject).isNull();
     }
 }

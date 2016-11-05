@@ -5,6 +5,7 @@ import java.util.Arrays;
 import org.junit.Assert;
 import org.junit.Test;
 
+import io.katharsis.module.ModuleRegistry;
 import io.katharsis.queryParams.params.IncludedFieldsParams;
 import io.katharsis.queryParams.params.IncludedRelationsParams;
 import io.katharsis.queryParams.params.TypedParams;
@@ -19,7 +20,7 @@ public class QuerySpecAdapterTest {
 
 	@Test
 	public void test() {
-		ResourceRegistry resourceRegistry = new ResourceRegistry(new ConstantServiceUrlProvider("http://localhost"));
+		ResourceRegistry resourceRegistry = new ResourceRegistry(new ModuleRegistry(), new ConstantServiceUrlProvider("http://localhost"));
 		resourceRegistry.addEntry(Task.class,
 				new RegistryEntry(new ResourceInformation(Task.class, "tasks", null, null, null), null, null));
 

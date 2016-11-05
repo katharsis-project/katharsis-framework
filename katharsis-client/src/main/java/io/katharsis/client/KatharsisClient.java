@@ -37,8 +37,8 @@ import io.katharsis.resource.registry.repository.DirectResponseRelationshipEntry
 import io.katharsis.resource.registry.repository.DirectResponseResourceEntry;
 import io.katharsis.resource.registry.repository.ResourceEntry;
 import io.katharsis.resource.registry.repository.ResponseRelationshipEntry;
-import io.katharsis.resource.registry.responseRepository.RelationshipRepositoryAdapter;
-import io.katharsis.resource.registry.responseRepository.ResourceRepositoryAdapter;
+import io.katharsis.resource.registry.repository.adapter.RelationshipRepositoryAdapter;
+import io.katharsis.resource.registry.repository.adapter.ResourceRepositoryAdapter;
 import io.katharsis.response.BaseResponseContext;
 import io.katharsis.utils.JsonApiUrlBuilder;
 import okhttp3.OkHttpClient;
@@ -71,14 +71,15 @@ public class KatharsisClient {
 	public KatharsisClient(String serviceUrl, String resourceSearchPackage) {
 		httpAdapter = new OkHttpAdapter();
 
-		resourceRegistry = new ResourceRegistry(new ConstantServiceUrlProvider(normalize(serviceUrl)));
+		moduleRegistry = new ModuleRegistry();
+		moduleRegistry.addModule(new CoreModule(resourceSearchPackage, new ResourceFieldNameTransformer()));
+
+		resourceRegistry = new ResourceRegistry(moduleRegistry, new ConstantServiceUrlProvider(normalize(serviceUrl)));
 		urlBuilder = new JsonApiUrlBuilder(resourceRegistry);
 
 		objectMapper = new ObjectMapper();
 		objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
 
-		moduleRegistry = new ModuleRegistry();
-		moduleRegistry.addModule(new CoreModule(resourceSearchPackage, new ResourceFieldNameTransformer()));
 
 		// consider use of katharsis module in the future
 		JsonApiModuleBuilder moduleBuilder = new JsonApiModuleBuilder();
@@ -125,7 +126,7 @@ public class KatharsisClient {
 	}
 
 	private void initModuleRegistry() {
-		moduleRegistry.init(objectMapper, resourceRegistry);
+		moduleRegistry.init(objectMapper);
 	}
 
 	private void initRepositories() {

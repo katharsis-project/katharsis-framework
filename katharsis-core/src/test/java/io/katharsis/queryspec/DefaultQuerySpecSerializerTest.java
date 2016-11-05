@@ -10,6 +10,7 @@ import org.junit.Test;
 
 import io.katharsis.locator.JsonServiceLocator;
 import io.katharsis.locator.SampleJsonServiceLocator;
+import io.katharsis.module.ModuleRegistry;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
 import io.katharsis.resource.information.ResourceInformationBuilder;
@@ -35,14 +36,14 @@ public class DefaultQuerySpecSerializerTest {
 				new ResourceFieldNameTransformer());
 		resourceRegistryBuilder = new ResourceRegistryBuilder(jsonServiceLocator, resourceInformationBuilder);
 		resourceLookup = new DefaultResourceLookup("io.katharsis.resource.mock");
-		ResourceRegistry resourceRegistry = resourceRegistryBuilder.build(resourceLookup,
+		ResourceRegistry resourceRegistry = resourceRegistryBuilder.build(resourceLookup, new ModuleRegistry(),
 				new ConstantServiceUrlProvider("http://127.0.0.1"));
 		urlBuilder = new JsonApiUrlBuilder(resourceRegistry);
 	}
 
 	@Test
 	public void testHttpsSchema() {
-		ResourceRegistry resourceRegistry = resourceRegistryBuilder.build(resourceLookup,
+		ResourceRegistry resourceRegistry = resourceRegistryBuilder.build(resourceLookup, new ModuleRegistry(),
 				new ConstantServiceUrlProvider("https://127.0.0.1"));
 		urlBuilder = new JsonApiUrlBuilder(resourceRegistry);
 		check("https://127.0.0.1/tasks/", null, new QuerySpec(Task.class));
@@ -50,7 +51,7 @@ public class DefaultQuerySpecSerializerTest {
 
 	@Test
 	public void testPort() {
-		ResourceRegistry resourceRegistry = resourceRegistryBuilder.build(resourceLookup,
+		ResourceRegistry resourceRegistry = resourceRegistryBuilder.build(resourceLookup, new ModuleRegistry(),
 				new ConstantServiceUrlProvider("https://127.0.0.1:1234"));
 		urlBuilder = new JsonApiUrlBuilder(resourceRegistry);
 		check("https://127.0.0.1:1234/tasks/", null, new QuerySpec(Task.class));
