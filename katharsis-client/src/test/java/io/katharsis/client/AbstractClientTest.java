@@ -32,7 +32,7 @@ public abstract class AbstractClientTest extends JerseyTest {
 
 	@Before
 	public void setup() {
-		client = new KatharsisClient(getBaseUri().toString(), "io.katharsis.client.mock");
+		client = new KatharsisClient(getBaseUri().toString());
 		client.addModule(new TestModule());
 
 		TaskRepository.clear();
