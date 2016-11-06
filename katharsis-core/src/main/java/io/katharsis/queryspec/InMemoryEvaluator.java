@@ -1,6 +1,7 @@
 package io.katharsis.queryspec;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -17,19 +18,19 @@ public class InMemoryEvaluator {
 
 	public <T> List<T> eval(Iterable<T> resources, QuerySpec querySpec) {
 		List<T> results = new ArrayList<>();
-		
+
 		Iterator<T> iterator = resources.iterator();
-		while(iterator.hasNext()){
+		while (iterator.hasNext()) {
 			results.add(iterator.next());
 		}
-		long totalCount = results.size();
 
 		// filter
 		if (!querySpec.getFilters().isEmpty()) {
 			FilterSpec filterSpec = FilterSpec.and(querySpec.getFilters());
 			applyFilter(results, filterSpec);
 		}
-
+		long totalCount = results.size();
+		
 		// sort
 		applySorting(results, querySpec.getSort());
 
@@ -47,8 +48,7 @@ public class InMemoryEvaluator {
 
 	private <T> List<T> applyPaging(List<T> results, QuerySpec querySpec) {
 		int offset = (int) Math.min(querySpec.getOffset(), Integer.MAX_VALUE);
-		int limit = (int) Math.min(Integer.MAX_VALUE,
-				querySpec.getLimit() != null ? querySpec.getLimit() : Integer.MAX_VALUE);
+		int limit = (int) Math.min(Integer.MAX_VALUE, querySpec.getLimit() != null ? querySpec.getLimit() : Integer.MAX_VALUE);
 		limit = Math.min(results.size() - offset, limit);
 		if (offset > 0 || limit < results.size()) {
 			return results.subList(offset, offset + limit);
@@ -60,7 +60,8 @@ public class InMemoryEvaluator {
 		if (filterSpec != null) {
 			Iterator<T> iterator = results.iterator();
 			while (iterator.hasNext()) {
-				if (!matches(iterator.next(), filterSpec)) {
+				T next = iterator.next();
+				if (!matches(next, filterSpec)) {
 					iterator.remove();
 				}
 			}
@@ -70,16 +71,40 @@ public class InMemoryEvaluator {
 	public static boolean matches(Object object, FilterSpec filterSpec) {
 		List<FilterSpec> expressions = filterSpec.getExpression();
 		if (expressions == null) {
-			Object value = PropertyUtils.getProperty(object, filterSpec.getAttributePath());
-			return filterSpec.getOperator().matches(value, filterSpec.getValue());
-		} else if (filterSpec.getOperator() == FilterOperator.OR) {
+			return matchesPrimitiveOperator(object, filterSpec);
+		}
+		else if (filterSpec.getOperator() == FilterOperator.OR) {
 			return matchesOr(object, expressions);
-		} else if (filterSpec.getOperator() == FilterOperator.AND) {
+		}
+		else if (filterSpec.getOperator() == FilterOperator.AND) {
 			return matchesAnd(object, expressions);
-		} else if (filterSpec.getOperator() == FilterOperator.NOT) {
+		}
+		else if (filterSpec.getOperator() == FilterOperator.NOT) {
 			return !matches(object, FilterSpec.and(expressions));
 		}
 		throw new UnsupportedOperationException("not implemented " + filterSpec);
+	}
+
+	private static boolean matchesPrimitiveOperator(Object object, FilterSpec filterSpec) {
+		Object value = PropertyUtils.getProperty(object, filterSpec.getAttributePath());
+		FilterOperator operator = filterSpec.getOperator();
+		Object filterValue = filterSpec.getValue();
+		if (value instanceof Collection) {
+			return matchesAny((Collection<?>) value, operator, filterValue);
+		}
+		else {
+			return operator.matches(value, filterValue);
+		}
+	}
+
+	private static boolean matchesAny(Collection<?> col, FilterOperator operator, Object filterValue) {
+		for (Object elem : col) {
+			boolean matches = operator.matches(elem, filterValue);
+			if (matches) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private static boolean matchesOr(Object object, List<FilterSpec> expressions) {
@@ -112,10 +137,8 @@ public class InMemoryEvaluator {
 		@SuppressWarnings("unchecked")
 		public int compare(T o1, T o2) {
 			for (SortSpec orderSpec : sortSpecs) {
-				Comparable<Object> value1 = (Comparable<Object>) PropertyUtils.getProperty(o1,
-						orderSpec.getAttributePath());
-				Comparable<Object> value2 = (Comparable<Object>) PropertyUtils.getProperty(o2,
-						orderSpec.getAttributePath());
+				Comparable<Object> value1 = (Comparable<Object>) PropertyUtils.getProperty(o1, orderSpec.getAttributePath());
+				Comparable<Object> value2 = (Comparable<Object>) PropertyUtils.getProperty(o2, orderSpec.getAttributePath());
 
 				int d = compare(value1, value2);
 				if (orderSpec.getDirection() == Direction.DESC) {

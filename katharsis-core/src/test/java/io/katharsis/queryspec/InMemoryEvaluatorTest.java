@@ -8,7 +8,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
+import io.katharsis.response.paging.PagedResultList;
 
 public class InMemoryEvaluatorTest {
 
@@ -16,12 +18,25 @@ public class InMemoryEvaluatorTest {
 
 	@Before
 	public void setup() {
+		Project project1 = new Project();
+		project1.setId(13L);
+		Project project2 = new Project();
+		project2.setId(14L);
+
 		tasks = new ArrayList<>();
 		for (long i = 0; i < 5; i++) {
 			Task task = new Task();
 			task.setId(i);
 			task.setName("test" + i);
+			task.setProjects(new ArrayList<Project>());
 			tasks.add(task);
+
+			if (i == 0) {
+				task.getProjects().add(project1);
+			}
+			if (i < 2) {
+				task.getProjects().add(project2);
+			}
 		}
 
 	}
@@ -97,9 +112,34 @@ public class InMemoryEvaluatorTest {
 	public void testFilterEquals() {
 		QuerySpec spec = new QuerySpec(Task.class);
 		spec.addFilter(new FilterSpec(Arrays.asList("name"), FilterOperator.EQ, "test1"));
-		List<Task> results = spec.apply(tasks);
+		PagedResultList<Task> results = (PagedResultList<Task>) spec.apply(tasks);
 		Assert.assertEquals(1, results.size());
+		Assert.assertEquals(1L, results.getTotalCount().longValue());
 		Assert.assertEquals("test1", results.get(0).getName());
+	}
+
+	@Test
+	public void testFilterByMultiValuedAttribute1() {
+		QuerySpec spec = new QuerySpec(Task.class);
+		spec.addFilter(new FilterSpec(Arrays.asList("projects", "id"), FilterOperator.EQ, 13L));
+		PagedResultList<Task> results = (PagedResultList<Task>) spec.apply(tasks);
+		Assert.assertEquals(1, results.size());
+	}
+	
+	@Test
+	public void testFilterByMultiValuedAttribute2() {
+		QuerySpec spec = new QuerySpec(Task.class);
+		spec.addFilter(new FilterSpec(Arrays.asList("projects", "id"), FilterOperator.EQ, 14L));
+		PagedResultList<Task> results = (PagedResultList<Task>) spec.apply(tasks);
+		Assert.assertEquals(2, results.size());
+	}
+	
+	@Test
+	public void testFilterByMultiValuedAttributeNoMatch() {
+		QuerySpec spec = new QuerySpec(Task.class);
+		spec.addFilter(new FilterSpec(Arrays.asList("projects", "id"), FilterOperator.EQ, 15L));
+		PagedResultList<Task> results = (PagedResultList<Task>) spec.apply(tasks);
+		Assert.assertEquals(0, results.size());
 	}
 
 	@Test

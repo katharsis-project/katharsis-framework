@@ -1,5 +1,7 @@
 package io.katharsis.queryspec;
 
+import java.util.Collection;
+
 import io.katharsis.utils.CompareUtils;
 
 /**
@@ -18,7 +20,7 @@ public abstract class FilterOperator {
 		}
 
 	};
-	
+
 	/**
 	 * like operation
 	 */
@@ -31,7 +33,6 @@ public abstract class FilterOperator {
 
 	};
 
-	
 	/**
 	 * Boolean or
 	 */
@@ -63,6 +64,9 @@ public abstract class FilterOperator {
 
 		@Override
 		public boolean matches(Object value1, Object value2) {
+			if (value2 instanceof Collection) {
+				return ((Collection<?>) value2).contains(value1);
+			}
 			return CompareUtils.isEquals(value1, value2);
 		}
 
