@@ -17,7 +17,7 @@ public class Project {
 
     private ProjectData data;
 
-    @JsonApiToMany
+    @JsonApiToMany(opposite="project")
     private List<Task> tasks = new ArrayList<>();
 
     @JsonApiToOne

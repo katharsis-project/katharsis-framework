@@ -13,6 +13,7 @@ import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.field.FieldOrderedComparator;
 import io.katharsis.utils.ClassUtils;
+import io.katharsis.utils.StringUtils;
 import io.katharsis.utils.java.Optional;
 import lombok.ToString;
 
@@ -324,11 +325,23 @@ public class AnnotationResourceInformationBuilder implements ResourceInformation
         }
 
     	public AnnotatedResourceField(String jsonName, String underlyingName, Class<?> type, Type genericType, List<Annotation> annotations) {
-    		super(jsonName, underlyingName, type, genericType, isLazy(annotations), getIncludeByDefault(annotations), getLookupIncludeBehavior(annotations));
+    		super(jsonName, underlyingName, type, genericType, getOppositeName(annotations), isLazy(annotations), getIncludeByDefault(annotations), getLookupIncludeBehavior(annotations));
     		this.annotations = annotations;
     	}
 
-    	public static boolean getIncludeByDefault(List<Annotation> annotations) {
+    	private static String getOppositeName(List<Annotation> annotations) {
+			for (Annotation annotation : annotations) {
+				if(annotation instanceof JsonApiToMany){
+					return StringUtils.emptyToNull(((JsonApiToMany)annotation).opposite());
+				}
+				if(annotation instanceof JsonApiToOne){
+					return StringUtils.emptyToNull(((JsonApiToOne)annotation).opposite());
+				}
+			}
+			return null;
+		}
+
+		public static boolean getIncludeByDefault(List<Annotation> annotations) {
     		for (Annotation annotation : annotations) {
 				if(annotation instanceof JsonApiIncludeByDefault){
 					return true;

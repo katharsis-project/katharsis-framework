@@ -14,6 +14,7 @@ import io.katharsis.repository.annotations.JsonApiFindManyTargets;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.models.User;
 import io.katharsis.resource.mock.repository.util.Relation;
+import io.katharsis.utils.MultivaluedMap;
 
 public class UserToTaskRepository implements QuerySpecBulkRelationshipRepository<User, Long, Task, Long> {
 
@@ -68,19 +69,10 @@ public class UserToTaskRepository implements QuerySpecBulkRelationshipRepository
 	}
 
 	@Override
-	public Map<Long, Task> findOneTargets(Iterable<Long> sourceIds, String fieldName, QuerySpec querySpec) {
-		Map<Long, Task> map = new HashMap<>();
+	public MultivaluedMap<Long, Task> findTargets(Iterable<Long> sourceIds, String fieldName, QuerySpec querySpec) {
+		MultivaluedMap<Long, Task> map = new MultivaluedMap<>();
 		for (Long sourceId : sourceIds) {
-			map.put(sourceId, findOneTarget(sourceId, fieldName, querySpec));
-		}
-		return map;
-	}
-
-	@Override
-	public Map<Long, Iterable<Task>> findManyTargets(Iterable<Long> sourceIds, String fieldName, QuerySpec querySpec) {
-		Map<Long, Iterable<Task>> map = new HashMap<>();
-		for (Long sourceId : sourceIds) {
-			map.put(sourceId, findManyTargets(sourceId, fieldName, querySpec));
+			map.addAll(sourceId, findManyTargets(sourceId, fieldName, querySpec));
 		}
 		return map;
 	}

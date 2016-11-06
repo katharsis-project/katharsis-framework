@@ -103,7 +103,8 @@ public class RepositoryFilterTest {
 		userProjectRepository.setRelation(user1, 11L, "assignedProjects");
 
 		UserToTaskRepository userTaskRepository = (UserToTaskRepository) taskRelationAdapter.getRelationshipRepository();
-		userTaskRepository.setRelation(user1, 21L, "assignedTasks");
+		userTaskRepository.addRelations(user1, Arrays.asList(21L), "assignedTasks");
+		userTaskRepository.addRelations(user2, Arrays.asList(22L), "assignedTasks");
 
 	}
 
@@ -519,11 +520,10 @@ public class RepositoryFilterTest {
 		Assert.assertSame(querySpec, requestSpec1.getQuerySpec(User.class));
 	}
 
-
 	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void findBulkOneTargetsBulkImpl() throws Exception {
-		taskRelationAdapter.findBulkManyTargets(Arrays.asList(13L), "assignedTasks", queryAdapter);
+		taskRelationAdapter.findBulkManyTargets(Arrays.asList(1L), "assignedTasks", queryAdapter);
 
 		ArgumentCaptor<RepositoryFilterContext> contexts = ArgumentCaptor.forClass(RepositoryFilterContext.class);
 
@@ -546,15 +546,14 @@ public class RepositoryFilterTest {
 		Assert.assertEquals("assignedTasks", requestSpec1.getRelationshipField());
 		Assert.assertEquals(User.class, requestSpec1.getRelationshipSourceClass());
 		Assert.assertEquals(HttpMethod.GET, requestSpec1.getMethod());
-		Assert.assertEquals(Arrays.asList(13L), requestSpec1.getIds());
+		Assert.assertEquals(Arrays.asList(1L), requestSpec1.getIds());
 		Assert.assertSame(querySpec, requestSpec1.getQuerySpec(User.class));
 	}
-
 
 	@SuppressWarnings({ "unchecked" })
 	@Test
 	public void findBulkManyTargetsBulkImpl() throws Exception {
-		taskRelationAdapter.findBulkManyTargets(Arrays.asList(13L, 14L), "assignedTasks", queryAdapter);
+		taskRelationAdapter.findBulkManyTargets(Arrays.asList(1L, 2L), "assignedTasks", queryAdapter);
 
 		ArgumentCaptor<RepositoryFilterContext> contexts = ArgumentCaptor.forClass(RepositoryFilterContext.class);
 
@@ -577,7 +576,7 @@ public class RepositoryFilterTest {
 		Assert.assertEquals("assignedTasks", requestSpec1.getRelationshipField());
 		Assert.assertEquals(User.class, requestSpec1.getRelationshipSourceClass());
 		Assert.assertEquals(HttpMethod.GET, requestSpec1.getMethod());
-		Assert.assertEquals(Arrays.asList(13L, 14L), requestSpec1.getIds());
+		Assert.assertEquals(Arrays.asList(1L, 2L), requestSpec1.getIds());
 		Assert.assertSame(querySpec, requestSpec1.getQuerySpec(User.class));
 	}
 

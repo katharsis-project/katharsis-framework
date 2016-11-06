@@ -7,7 +7,9 @@ import org.reflections.Reflections;
 
 import io.katharsis.queryspec.QuerySpecBulkRelationshipRepository;
 import io.katharsis.queryspec.QuerySpecRelationshipRepository;
+import io.katharsis.queryspec.QuerySpecRelationshipRepositoryBase;
 import io.katharsis.queryspec.QuerySpecResourceRepository;
+import io.katharsis.queryspec.QuerySpecResourceRepositoryBase;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.repository.annotations.JsonApiRelationshipRepository;
@@ -48,8 +50,6 @@ public class DefaultResourceLookup implements ResourceLookup {
 				.getSubTypesOf(QuerySpecResourceRepository.class);
 		Set<Class<? extends QuerySpecRelationshipRepository>> querySpecRelationshipRepositories = reflections
 				.getSubTypesOf(QuerySpecRelationshipRepository.class);
-		Set<Class<? extends QuerySpecBulkRelationshipRepository>> querySpecBulkRelationshipRepositories = reflections
-				.getSubTypesOf(QuerySpecBulkRelationshipRepository.class);
 
 		Set<Class<?>> result = new HashSet<>();
 		result.addAll(annotatedResourceRepositories);
@@ -58,7 +58,9 @@ public class DefaultResourceLookup implements ResourceLookup {
 		result.addAll(relationshipRepositories);
 		result.addAll(querySpecResourceRepositories);
 		result.addAll(querySpecRelationshipRepositories);
-		result.addAll(querySpecBulkRelationshipRepositories);
+		result.addAll(reflections.getSubTypesOf(QuerySpecBulkRelationshipRepository.class));
+		result.addAll(reflections.getSubTypesOf(QuerySpecResourceRepositoryBase.class));
+		result.addAll(reflections.getSubTypesOf(QuerySpecRelationshipRepositoryBase.class));
 		return result;
 	}
 }

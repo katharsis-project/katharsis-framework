@@ -20,4 +20,11 @@ public @interface JsonApiToMany {
      * @return <i>true</i> if lazy, <i>false</i> otherwise
      */
     boolean lazy() default true;
+    
+    /**
+     * @return opposite attribute name in case of a bidirectional association. Used by {@link QuerySpecRelationshipRepositoryBase} to implement
+     * its findOneTarget and findManyTarget functions by directly searching in the related resource repository with a filter in the opposite direction.
+     * Allow to work with relations with only implementing resource repositories!
+     */
+    String opposite() default "";
 }
