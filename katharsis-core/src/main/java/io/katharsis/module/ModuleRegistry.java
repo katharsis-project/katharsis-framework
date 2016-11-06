@@ -285,8 +285,8 @@ public class ModuleRegistry {
 			applyRepositoryRegistration(resourceRegistry);
 
 			for (Module module : modules) {
-				if (module instanceof InitialzingModule) {
-					((InitialzingModule) module).init();
+				if (module instanceof InitializingModule) {
+					((InitializingModule) module).init();
 				}
 			}
 		}

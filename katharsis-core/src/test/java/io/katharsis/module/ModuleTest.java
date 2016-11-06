@@ -223,7 +223,7 @@ public class ModuleTest {
 		Assert.assertNotNull(responseRelationshipEntry);
 	}
 
-	class TestModule implements InitialzingModule {
+	class TestModule implements InitializingModule {
 
 		private ModuleContext context;
 
