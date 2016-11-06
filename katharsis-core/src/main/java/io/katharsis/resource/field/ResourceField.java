@@ -19,12 +19,14 @@ public class ResourceField {
     private final boolean lazy;
 	private LookupIncludeBehavior lookupIncludeBehavior;
 	private boolean includeByDefault;
+	
+	private String oppositeName;
 
 	public ResourceField(String jsonName, String underlyingName, Class<?> type, Type genericType) {
-    	this(jsonName, underlyingName, type, genericType, true, false, LookupIncludeBehavior.NONE);
+    	this(jsonName, underlyingName, type, genericType, null, true, false, LookupIncludeBehavior.NONE);
     }
     
-    public ResourceField(String jsonName, String underlyingName, Class<?> type, Type genericType, boolean lazy, boolean includeByDefault, LookupIncludeBehavior lookupIncludeBehavior) {
+    public ResourceField(String jsonName, String underlyingName, Class<?> type, Type genericType, String oppositeName, boolean lazy, boolean includeByDefault, LookupIncludeBehavior lookupIncludeBehavior) {
         this.jsonName = jsonName;
         this.underlyingName = underlyingName;
         this.includeByDefault = includeByDefault;
@@ -32,6 +34,7 @@ public class ResourceField {
         this.genericType = genericType;
         this.lazy = lazy;
         this.lookupIncludeBehavior = lookupIncludeBehavior;
+        this.oppositeName = oppositeName;
     }
     
     /**
@@ -43,6 +46,13 @@ public class ResourceField {
     	return lookupIncludeBehavior;
     }
 
+    /**
+     * @return name of opposite attribute in case of a bidirectional relation.
+     */
+    public String getOppositeName(){
+    	return oppositeName;
+    }
+    
     public String getJsonName() {
         return jsonName;
     }

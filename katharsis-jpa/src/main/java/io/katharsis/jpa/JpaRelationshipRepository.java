@@ -5,10 +5,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
@@ -31,6 +29,7 @@ import io.katharsis.jpa.query.Tuple;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.QuerySpecBulkRelationshipRepository;
 import io.katharsis.response.paging.PagedResultList;
+import io.katharsis.utils.MultivaluedMap;
 
 public class JpaRelationshipRepository<S, I extends Serializable, T, J extends Serializable> extends JpaRepositoryBase<T>
 		implements QuerySpecBulkRelationshipRepository<S, I, T, J> {
@@ -201,21 +200,10 @@ public class JpaRelationshipRepository<S, I extends Serializable, T, J extends S
 	}
 
 	@Override
-	public Map<I, T> findOneTargets(Iterable<I> sourceIds, String fieldName, QuerySpec querySpec) {
+	public MultivaluedMap<I, T> findTargets(Iterable<I> sourceIds, String fieldName, QuerySpec querySpec) {
 		checkReadable();
-		return getUniqueOrNull(getResults(sourceIds, fieldName, querySpec));
-	}
-
-	@Override
-	public Map<I, Iterable<T>> findManyTargets(Iterable<I> sourceIds, String fieldName, QuerySpec querySpec) {
-		checkReadable();
-		return getResults(sourceIds, fieldName, querySpec);
-
-	}
-
-	private Map<I, Iterable<T>> getResults(Iterable<I> sourceIds, String fieldName, QuerySpec querySpec) {
 		resetEntityManager();
-		
+
 		List<I> sourceIdLists = new ArrayList<>();
 		for (I sourceId : sourceIds) {
 			sourceIdLists.add(sourceId);
@@ -226,7 +214,7 @@ public class JpaRelationshipRepository<S, I extends Serializable, T, J extends S
 		}
 
 		QuerySpec bulkQuerySpec = querySpec.duplicate();
-		
+
 		QuerySpec filteredQuerySpec = filterQuerySpec(bulkQuerySpec);
 
 		JpaQueryFactory queryFactory = module.getQueryFactory();
@@ -244,20 +232,17 @@ public class JpaRelationshipRepository<S, I extends Serializable, T, J extends S
 		executor = filterExecutor(filteredQuerySpec, executor);
 
 		List<Tuple> tuples = executor.getResultTuples();
-		
+
 		tuples = filterTuples(bulkQuerySpec, tuples);
 
-		Map<I, Iterable<T>> map = mapTuples(tuples);
+		MultivaluedMap<I, T> map = mapTuples(tuples);
 
 		// support paging for non-bulk requests
 		if (sourceIdLists.size() == 1 && querySpec.getLimit() != null) {
 			long totalRowCount = executor.getTotalRowCount();
 			I sourceId = sourceIdLists.get(0);
-			Iterable<T> iterable = map.get(sourceId);
-			if (iterable == null) {
-				iterable = new ArrayList<>();
-			}
-			map.put(sourceId, new PagedResultList<>((List<T>) iterable, totalRowCount));
+			Iterable<T> iterable = map.getList(sourceId);
+			map.set(sourceId, new PagedResultList<>((List<T>) iterable, totalRowCount));
 		}
 
 		resetEntityManager();
@@ -265,47 +250,35 @@ public class JpaRelationshipRepository<S, I extends Serializable, T, J extends S
 	}
 
 	@SuppressWarnings("unchecked")
-	private Map<I, Iterable<T>> mapTuples(List<Tuple> tuples) {
-		Map<I, Iterable<T>> map = new HashMap<>();
+	private MultivaluedMap<I, T> mapTuples(List<Tuple> tuples) {
+		MultivaluedMap<I, T> map = new MultivaluedMap<>();
 		for (Tuple tuple : tuples) {
 			I sourceId = (I) tuple.get(0, Object.class);
 			tuple.reduce(1);
-
-			List<T> iterable = (List<T>) map.get(sourceId);
-			if (iterable == null) {
-				iterable = new ArrayList<>();
-				map.put(sourceId, iterable);
-			}
-			iterable.add(mapper.map(tuple));
+			map.add(sourceId, mapper.map(tuple));
 		}
 		return map;
 	}
 
 	@Override
 	public T findOneTarget(I sourceId, String fieldName, QuerySpec querySpec) {
-		Map<I, T> map = findOneTargets(Arrays.asList(sourceId), fieldName, querySpec);
+		MultivaluedMap<I, T> map = findTargets(Arrays.asList(sourceId), fieldName, querySpec);
 		if (map.isEmpty()) {
 			return null;
 		}
-		else if (map.containsKey(sourceId) && map.size() == 1) {
-			return map.get(sourceId);
-		}
 		else {
-			throw new IllegalStateException("expected sourceId=" + sourceId + "in result " + map);
+			return map.getUnique(sourceId);
 		}
 	}
 
 	@Override
 	public List<T> findManyTargets(I sourceId, String fieldName, QuerySpec querySpec) {
-		Map<I, Iterable<T>> map = findManyTargets(Arrays.asList(sourceId), fieldName, querySpec);
+		MultivaluedMap<I, T> map = findTargets(Arrays.asList(sourceId), fieldName, querySpec);
 		if (map.isEmpty()) {
 			return Collections.emptyList();
 		}
-		else if (map.containsKey(sourceId) && map.size() == 1) {
-			return (List<T>) map.get(sourceId);
-		}
 		else {
-			throw new IllegalStateException("expected sourceId=" + sourceId + "in result " + map);
+			return map.getList(sourceId);
 		}
 	}
 

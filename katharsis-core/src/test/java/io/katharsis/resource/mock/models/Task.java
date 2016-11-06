@@ -15,7 +15,7 @@ public class Task {
 
     private String name;
 
-    @JsonApiToOne
+    @JsonApiToOne(opposite="tasks")
     @JsonApiIncludeByDefault
     private Project project;
 

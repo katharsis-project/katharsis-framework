@@ -19,6 +19,7 @@ import io.katharsis.repository.filter.RepositoryFilterContext;
 import io.katharsis.request.repository.RepositoryRequestSpec;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.response.JsonApiResponse;
+import io.katharsis.utils.MultivaluedMap;
 
 /**
  * A repository adapter for relationship repository.
@@ -215,8 +216,8 @@ public class RelationshipRepositoryAdapter<T, I extends Serializable, D, J exten
 					QuerySpecBulkRelationshipRepository bulkRepository = (QuerySpecBulkRelationshipRepository) relationshipRepository;
 					Class<?> targetResourceClass = bulkRepository.getTargetResourceClass();
 					QuerySpec querySpec = request.getQuerySpec(targetResourceClass);
-					Map<I, Iterable<D>> targetsMap = bulkRepository.findManyTargets(sourceIds, fieldName, querySpec);
-					return toResponses(targetsMap, queryAdapter, fieldName, HttpMethod.GET);
+					MultivaluedMap targetsMap = bulkRepository.findTargets(sourceIds, fieldName, querySpec);
+					return toResponses(targetsMap, true, queryAdapter, fieldName, HttpMethod.GET);
 				}
 			};
 			RepositoryRequestSpec requestSpec = RepositoryRequestSpecImpl.forFindTarget(moduleRegistry.getResourceRegistry(), queryAdapter, sourceIds, fieldName, resourceInformation.getResourceClass());
@@ -247,9 +248,9 @@ public class RelationshipRepositoryAdapter<T, I extends Serializable, D, J exten
 					QueryAdapter queryAdapter = request.getQueryAdapter();
 					
 					QuerySpecBulkRelationshipRepository bulkRepository = (QuerySpecBulkRelationshipRepository) relationshipRepository;
-					Class<?> targetResourceClass = bulkRepository.getTargetResourceClass();
-					Map targetsMap = bulkRepository.findOneTargets(sourceIds, fieldName, request.getQuerySpec(targetResourceClass));
-					return toResponses(targetsMap, queryAdapter, fieldName, HttpMethod.GET);
+					Class targetResourceClass = bulkRepository.getTargetResourceClass();
+					MultivaluedMap<I, D> targetsMap = bulkRepository.findTargets(sourceIds, fieldName, request.getQuerySpec(targetResourceClass));
+					return toResponses(targetsMap, false, queryAdapter, fieldName, HttpMethod.GET);
 				}
 			};
 			RepositoryRequestSpec requestSpec = RepositoryRequestSpecImpl.forFindTarget(moduleRegistry.getResourceRegistry(), queryAdapter, sourceIds, fieldName, resourceInformation.getResourceClass());
@@ -266,12 +267,10 @@ public class RelationshipRepositoryAdapter<T, I extends Serializable, D, J exten
 	}
 	
 
-	private Map<I, JsonApiResponse> toResponses(Map<I, ?> targetsMap, QueryAdapter queryAdapter, String fieldName, HttpMethod method) {
+	private Map<I, JsonApiResponse> toResponses(MultivaluedMap<I, D> targetsMap, boolean isMany, QueryAdapter queryAdapter, String fieldName, HttpMethod method) {
 		Map<I, JsonApiResponse> responseMap = new HashMap<>();
-		for(Map.Entry<I, ?> entry : targetsMap.entrySet()){
-			I sourceId = entry.getKey();
-			Object targets = entry.getValue();
-			
+		for(I sourceId : targetsMap.keySet()){
+			Object targets = isMany ? targetsMap.getList(sourceId) : targetsMap.getUnique(sourceId);
 			RepositoryRequestSpec requestSpec = RepositoryRequestSpecImpl.forRelation(moduleRegistry.getResourceRegistry(), method, null, queryAdapter, Collections.singleton(sourceId), fieldName, resourceInformation.getResourceClass());
 			JsonApiResponse response = getResponse(relationshipRepository, targets, requestSpec);
 			responseMap.put(sourceId, response);
