@@ -14,6 +14,7 @@ import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryBuilder;
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
 import io.katharsis.jackson.JsonApiModuleBuilder;
 import io.katharsis.locator.JsonServiceLocator;
+import io.katharsis.locator.SampleJsonServiceLocator;
 import io.katharsis.module.Module;
 import io.katharsis.module.ModuleRegistry;
 import io.katharsis.module.ServiceDiscovery;
@@ -60,7 +61,7 @@ public class KatharsisBoot {
 
 	private boolean configured;
 
-	private JsonServiceLocator serviceLocator;
+	private JsonServiceLocator serviceLocator = new SampleJsonServiceLocator();
 
 	private ResourceRegistry resourceRegistry;
 
@@ -161,8 +162,6 @@ public class KatharsisBoot {
 
 	}
 
-
-
 	private RequestDispatcher createRequestDispatcher(ExceptionMapperRegistry exceptionMapperRegistry) {
 		TypeParser typeParser = new TypeParser();
 		ControllerRegistryBuilder controllerRegistryBuilder = new ControllerRegistryBuilder(resourceRegistry, typeParser,
@@ -180,14 +179,12 @@ public class KatharsisBoot {
 		return new RequestDispatcher(moduleRegistry, controllerRegistry, exceptionMapperRegistry, queryAdapterBuilder);
 	}
 
-
 	private ExceptionMapperRegistry buildExceptionMapperRegistry() {
 		ExceptionMapperLookup exceptionMapperLookup = moduleRegistry.getExceptionMapperLookup();
 		ExceptionMapperRegistryBuilder mapperRegistryBuilder = new ExceptionMapperRegistryBuilder();
 		return mapperRegistryBuilder.build(exceptionMapperLookup);
 	}
 
-	@SuppressWarnings("rawtypes")
 	private void setupComponents() {
 		ServiceDiscovery serviceDiscovery = moduleRegistry.getServiceDiscovery();
 		SimpleModule module = new SimpleModule("discovery");
@@ -307,5 +304,9 @@ public class KatharsisBoot {
 
 	public ServiceDiscovery getServiceDiscovery() {
 		return moduleRegistry.getServiceDiscovery();
+	}
+
+	public void setDefaultPageLimit(Long defaultPageLimit) {
+		((DefaultQuerySpecDeserializer) this.querySpecDeserializer).setDefaultLimit(defaultPageLimit);
 	}
 }
