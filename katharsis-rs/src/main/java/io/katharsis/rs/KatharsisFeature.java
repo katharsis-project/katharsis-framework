@@ -121,5 +121,12 @@ public class KatharsisFeature implements Feature {
 		return new KatharsisFilter(boot.getObjectMapper(), resourceRegistry, requestDispatcher, parameterProviderRegistry,
 				webPathPrefix);
 	}
-
+	
+	public ObjectMapper getObjectMapper(){
+		return boot.getObjectMapper();
+	}
+	
+	public void setDefaultPageLimit(Long defaultPageLimit){
+		boot.setDefaultPageLimit(defaultPageLimit);
+	}
 }
