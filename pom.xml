@@ -248,6 +248,7 @@
                 <module>katharsis-client</module>
                 <module>katharsis-jpa</module>
                 <module>katharsis-validation</module>
+                <module>katharsis-brave</module>
                 <module>katharsis-examples</module>
                 <module>katharsis-ui</module>
             </modules>
