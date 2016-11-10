@@ -16,8 +16,21 @@
  */
 package io.katharsis.servlet;
 
-import io.katharsis.invoker.JsonApiMediaType;
-import io.katharsis.utils.StringUtils;
+import static net.javacrumbs.jsonunit.JsonAssert.assertJsonPartEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import java.lang.reflect.Field;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletResponse;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,17 +41,8 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockServletConfig;
 import org.springframework.mock.web.MockServletContext;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletResponse;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-
-import static net.javacrumbs.jsonunit.JsonAssert.assertJsonPartEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import io.katharsis.invoker.JsonApiMediaType;
+import io.katharsis.utils.StringUtils;
 
 /**
  * Test for {@link AbstractKatharsisServlet}.
@@ -139,6 +143,86 @@ public class KatharsisServletTest {
         assertJsonPartEquals(FIRST_TASK_LINKS, responseContent, "data.links");
         assertJsonPartEquals(PROJECT1_RELATIONSHIP_LINKS, responseContent, "data.relationships.project.links");
         assertJsonPartEquals("[]", responseContent, "included");
+    }
+
+    @Test
+    public void onSimpleCollectionPostShouldReturnResource() throws Exception
+    {
+        MockHttpServletRequest request = new MockHttpServletRequest(servletContext);
+        request.setMethod("POST");
+        request.setContextPath("");
+        request.setServletPath("/api");
+        request.setPathInfo("/tasks/");
+        request.setRequestURI("/api/tasks/");
+        request.setContentType(JsonApiMediaType.APPLICATION_JSON_API);
+        request.addHeader("Accept", "*/*");
+
+        String payload = "{ \"data\" : { \"type\": \"tasks\", \"attributes\": " + FIRST_TASK_ATTRIBUTES + "} }";
+        request.setContent(payload.getBytes("UTF-8"));
+
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        katharsisServlet.service(request, response);
+
+        String responseContent = response.getContentAsString();
+
+        log.debug("responseContent: {}", responseContent);
+        assertNotNull(responseContent);
+
+        assertJsonPartEquals("tasks", responseContent, "data.type");
+        assertJsonPartEquals("\"1\"", responseContent, "data.id");
+        assertJsonPartEquals(FIRST_TASK_ATTRIBUTES, responseContent, "data.attributes");
+        assertJsonPartEquals(FIRST_TASK_LINKS, responseContent, "data.links");
+        assertJsonPartEquals(PROJECT1_RELATIONSHIP_LINKS, responseContent, "data.relationships.project.links");
+        assertJsonPartEquals("[]", responseContent, "included");
+    }
+
+    @Test
+    public void onSimpleCollectionPostShouldReturnResourceWithCorrectEncoding() throws Exception
+    {
+        String previousCharset = setDefaultCharset("ISO-8859-1");
+
+        MockHttpServletRequest request = new MockHttpServletRequest(servletContext);
+        request.setMethod("POST");
+        request.setContextPath("");
+        request.setServletPath("/api");
+        request.setPathInfo("/tasks/");
+        request.setRequestURI("/api/tasks/");
+        request.setContentType(JsonApiMediaType.APPLICATION_JSON_API);
+        request.addHeader("Accept", "*/*");
+
+        String attributes = "{\"name\":\"你好\"}";
+        request.setContent(("{ \"data\" : { \"type\": \"tasks\", \"attributes\": " + attributes + "} }").getBytes("UTF-8"));
+
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        katharsisServlet.service(request, response);
+
+        String responseContent = response.getContentAsString();
+
+        log.debug("responseContent: {}", responseContent);
+        assertNotNull(responseContent);
+
+        assertJsonPartEquals("tasks", responseContent, "data.type");
+        assertJsonPartEquals("\"1\"", responseContent, "data.id");
+        assertJsonPartEquals(attributes, responseContent, "data.attributes");
+        assertJsonPartEquals(FIRST_TASK_LINKS, responseContent, "data.links");
+        assertJsonPartEquals(PROJECT1_RELATIONSHIP_LINKS, responseContent, "data.relationships.project.links");
+        assertJsonPartEquals("[]", responseContent, "included");
+
+        setDefaultCharset(previousCharset);
+    }
+
+    private static String setDefaultCharset(String newDefaultCharset) throws Exception
+    {
+        final String previousDefaultCharset = Charset.defaultCharset().name();
+        System.setProperty("file.encoding", newDefaultCharset);
+        // hack: make Java re-read the default charset from the system property upon next call of
+        // Charset.defaultCharset() - should be ok to use in tests
+        Field charsetField = Charset.class.getDeclaredField("defaultCharset");
+        charsetField.setAccessible(true);
+        charsetField.set(null, null);
+        return previousDefaultCharset;
     }
 
     @Test
