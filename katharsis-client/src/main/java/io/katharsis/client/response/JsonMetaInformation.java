@@ -1,6 +1,9 @@
 package io.katharsis.client.response;
 
+import java.io.IOException;
+
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.katharsis.response.MetaInformation;
 
@@ -8,11 +11,29 @@ public class JsonMetaInformation implements MetaInformation {
 
 	private JsonNode data;
 
-	public JsonMetaInformation(JsonNode data) {
+	private ObjectMapper mapper;
+
+	public JsonMetaInformation(JsonNode data, ObjectMapper mapper) {
 		this.data = data;
+		this.mapper = mapper;
 	}
 
 	public JsonNode asJsonNode() {
 		return data;
+	}
+
+	/**
+	 * Converts this generic meta information to the provided type.
+	 * 
+	 * @param metaClass to return
+	 * @return meta information based on the provided type.
+	 */
+	public <M extends MetaInformation> M as(Class<M> metaClass) {
+		try {
+			return mapper.readerFor(metaClass).readValue(data);
+		}
+		catch (IOException e) {
+			throw new IllegalStateException(e);
+		}
 	}
 }

@@ -108,7 +108,7 @@ public class BaseResponseDeserializer extends JsonDeserializer<BaseResponseConte
 	private LinksInformation readLinks(JsonNode node) {
 		JsonNode data = node.get(LINKS_FIELD_NAME);
 		if (data != null) {
-			return new JsonLinksInformation(data);
+			return new JsonLinksInformation(data, objectMapper);
 		}
 		else {
 			return null;
@@ -118,7 +118,7 @@ public class BaseResponseDeserializer extends JsonDeserializer<BaseResponseConte
 	private MetaInformation readMeta(JsonNode node) {
 		JsonNode data = node.get(META_FIELD_NAME);
 		if (data != null) {
-			return new JsonMetaInformation(data);
+			return new JsonMetaInformation(data, objectMapper);
 		}
 		else {
 			return null;

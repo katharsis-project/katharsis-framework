@@ -36,16 +36,24 @@ public class ResourceList<T> extends WrappedList<T> {
 
 	@SuppressWarnings("unchecked")
 	public <L extends LinksInformation> L getLinksInformation(Class<L> linksClass) {
-		if(linksClass != JsonLinksInformation.class){
-			throw new IllegalArgumentException(linksClass.getName() + " not supported yet");
+		if (links == null) {
+			return null;
+		}
+		if (linksClass != JsonLinksInformation.class) {
+			JsonLinksInformation jsonLinks = (JsonLinksInformation) links;
+			return jsonLinks.as(linksClass);
 		}
 		return (L) getLinksInformation();
 	}
 
 	@SuppressWarnings("unchecked")
 	public <M extends MetaInformation> M getMetaInformation(Class<M> metaClass) {
-		if(metaClass != JsonMetaInformation.class){
-			throw new IllegalArgumentException(metaClass.getName() + " not supported yet");
+		if (meta == null) {
+			return null;
+		}
+		if (metaClass != JsonMetaInformation.class) {
+			JsonMetaInformation jsonMeta = (JsonMetaInformation) meta;
+			return jsonMeta.as(metaClass);
 		}
 		return (M) getMetaInformation();
 	}
