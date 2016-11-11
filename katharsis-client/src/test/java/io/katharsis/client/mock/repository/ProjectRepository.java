@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import io.katharsis.client.mock.models.Project;
+import io.katharsis.client.mock.models.Project.ProjectLinks;
+import io.katharsis.client.mock.models.Project.ProjectMeta;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.LinksRepository;
 import io.katharsis.repository.MetaRepository;
@@ -25,6 +27,14 @@ public class ProjectRepository implements ResourceRepository<Project, Long>, Met
 	public <S extends Project> S save(S entity) {
 		entity.setId((long) (THREAD_LOCAL_REPOSITORY.size() + 1));
 		THREAD_LOCAL_REPOSITORY.put(entity.getId(), entity);
+
+		ProjectLinks links = new ProjectLinks();
+		links.setValue("someLinkValue");
+		entity.setLinks(links);
+
+		ProjectMeta meta = new ProjectMeta();
+		meta.setValue("someMetaValue");
+		entity.setMeta(meta);
 
 		return entity;
 	}
