@@ -18,10 +18,11 @@ import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.katharsis.internal.boot.TransactionRunner;
 import io.katharsis.dispatcher.filter.AbstractFilter;
 import io.katharsis.dispatcher.filter.FilterChain;
 import io.katharsis.dispatcher.filter.FilterRequestContext;
+import io.katharsis.internal.boot.TransactionRunner;
+import io.katharsis.jpa.internal.JpaRequestContext;
 import io.katharsis.jpa.internal.JpaResourceInformationBuilder;
 import io.katharsis.jpa.internal.OptimisticLockExceptionMapper;
 import io.katharsis.jpa.internal.meta.MetaAttribute;
@@ -31,12 +32,18 @@ import io.katharsis.jpa.internal.meta.MetaEntity;
 import io.katharsis.jpa.internal.meta.MetaLookup;
 import io.katharsis.jpa.internal.meta.MetaType;
 import io.katharsis.jpa.internal.meta.impl.MetaResourceImpl;
+import io.katharsis.jpa.internal.query.backend.querydsl.QuerydslQueryImpl;
 import io.katharsis.jpa.mapping.JpaMapper;
 import io.katharsis.jpa.mapping.JpaMapping;
 import io.katharsis.jpa.query.JpaQueryFactory;
 import io.katharsis.jpa.query.JpaQueryFactoryContext;
 import io.katharsis.jpa.query.criteria.JpaCriteriaQueryFactory;
+import io.katharsis.jpa.query.querydsl.QuerydslQueryFactory;
+import io.katharsis.jpa.query.querydsl.QuerydslRepositoryFilter;
+import io.katharsis.jpa.query.querydsl.QuerydslTranslationContext;
+import io.katharsis.jpa.query.querydsl.QuerydslTranslationInterceptor;
 import io.katharsis.module.Module;
+import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.QuerySpecRelationshipRepository;
 import io.katharsis.queryspec.QuerySpecResourceRepository;
 import io.katharsis.resource.information.ResourceInformationBuilder;
@@ -259,6 +266,29 @@ public class JpaModule implements Module {
 	public <D> void removeMappedEntityClass(Class<D> dtoClass) {
 		checkNotInitialized();
 		mappings.remove(dtoClass);
+	}
+
+	private final class JpaQuerydslTranslationInterceptor implements QuerydslTranslationInterceptor {
+
+		@Override
+		public <T> void intercept(QuerydslQueryImpl<T> query, QuerydslTranslationContext<T> translationContext) {
+
+			JpaRequestContext requestContext = (JpaRequestContext) query.getPrivateData();
+			if (requestContext != null) {
+				for (JpaRepositoryFilter filter : filters) {
+					invokeFilter(filter, requestContext, translationContext);
+				}
+			}
+		}
+
+		private <T> void invokeFilter(JpaRepositoryFilter filter, JpaRequestContext requestContext,
+				QuerydslTranslationContext<T> translationContext) {
+			if (filter instanceof QuerydslRepositoryFilter) {
+				Object repository = requestContext.getRepository();
+				QuerySpec querySpec = requestContext.getQuerySpec();
+				((QuerydslRepositoryFilter) filter).filterQueryTranslation(repository, querySpec, translationContext);
+			}
+		}
 	}
 
 	private static class MappedRegistration<E, D> implements JpaMapping<E, D> {
@@ -531,6 +561,11 @@ public class JpaModule implements Module {
 				return metaLookup;
 			}
 		});
+
+		if (queryFactory instanceof QuerydslQueryFactory) {
+			QuerydslQueryFactory querydslFactory = (QuerydslQueryFactory) queryFactory;
+			querydslFactory.addInterceptor(new JpaQuerydslTranslationInterceptor());
+		}
 	}
 
 	/**

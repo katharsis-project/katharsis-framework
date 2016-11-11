@@ -27,8 +27,14 @@ public class QuerydslExecutorImpl<T> extends AbstractQueryExecutorImpl<T> implem
 		this.query = query;
 	}
 
+	@Override
 	public JPAQuery<T> getQuery() {
 		return query;
+	}
+	
+	@Override
+	public void setQuery(JPAQuery<T> query){
+		this.query = query;
 	}
 
 	@Override

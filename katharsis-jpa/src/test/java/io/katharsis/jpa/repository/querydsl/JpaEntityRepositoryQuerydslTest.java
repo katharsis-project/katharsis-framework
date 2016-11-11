@@ -12,4 +12,5 @@ public class JpaEntityRepositoryQuerydslTest extends JpaEntityRepositoryTestBase
 	protected JpaQueryFactory createQueryFactory(EntityManager em) {
 		return QuerydslQueryFactory.newInstance();
 	}
+
 }

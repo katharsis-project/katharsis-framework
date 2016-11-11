@@ -9,6 +9,7 @@ import javax.persistence.EntityManager;
 
 import io.katharsis.jpa.internal.JpaRepositoryBase;
 import io.katharsis.jpa.internal.JpaRepositoryUtils;
+import io.katharsis.jpa.internal.JpaRequestContext;
 import io.katharsis.jpa.internal.meta.MetaAttribute;
 import io.katharsis.jpa.internal.meta.MetaEntity;
 import io.katharsis.jpa.internal.paging.DefaultPagedMetaInformation;
@@ -65,6 +66,7 @@ public class JpaEntityRepository<T, I extends Serializable> extends JpaRepositor
 		QuerySpec filteredQuerySpec = filterQuerySpec(querySpec);
 		JpaQueryFactory queryFactory = module.getQueryFactory();
 		JpaQuery<?> query = queryFactory.query(entityClass);
+		query.setPrivateData(new JpaRequestContext(this, querySpec));
 
 		ComputedAttributeRegistry computedAttributesRegistry = queryFactory.getComputedAttributes();
 		Set<String> computedAttrs = computedAttributesRegistry.getForType(entityClass);
