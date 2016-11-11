@@ -128,4 +128,19 @@ public class WrappedList<T> implements List<T> {
 	public List<T> subList(int fromIndex, int toIndex) {
 		return list.subList(fromIndex, toIndex);
 	}
+
+	@Override
+	public String toString() {
+		return list.toString();
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		return list.equals(other);
+	}
+
+	@Override
+	public int hashCode() {
+		return list.hashCode();
+	}
 }
