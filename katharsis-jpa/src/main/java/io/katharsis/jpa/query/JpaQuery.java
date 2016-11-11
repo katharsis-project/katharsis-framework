@@ -39,4 +39,12 @@ public interface JpaQuery<T> {
 
 	public void addParentIdSelection();
 
+	/**
+	 * @return private data that can be set by the consumer to provide some context for a query, for example, when being called back by an interceptor. Does
+	 * not have any direct impact on the created query.
+	 */
+	public Object getPrivateData();
+
+	public void setPrivateData(Object privateData);
+
 }

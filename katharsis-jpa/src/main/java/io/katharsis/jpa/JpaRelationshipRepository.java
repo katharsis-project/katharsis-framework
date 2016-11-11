@@ -13,6 +13,7 @@ import javax.persistence.EntityManager;
 
 import io.katharsis.jpa.internal.JpaRepositoryBase;
 import io.katharsis.jpa.internal.JpaRepositoryUtils;
+import io.katharsis.jpa.internal.JpaRequestContext;
 import io.katharsis.jpa.internal.meta.MetaAttribute;
 import io.katharsis.jpa.internal.meta.MetaEntity;
 import io.katharsis.jpa.internal.meta.MetaType;
@@ -219,6 +220,7 @@ public class JpaRelationshipRepository<S, I extends Serializable, T, J extends S
 
 		JpaQueryFactory queryFactory = module.getQueryFactory();
 		JpaQuery<?> query = queryFactory.query(sourceEntityClass, fieldName, sourceIdLists);
+		query.setPrivateData(new JpaRequestContext(this, querySpec));
 		query.addParentIdSelection();
 		query = filterQuery(filteredQuerySpec, query);
 
