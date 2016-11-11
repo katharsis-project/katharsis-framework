@@ -6,6 +6,14 @@ import io.katharsis.validation.internal.ValidationExceptionMapper;
 
 public class ValidationModule implements Module {
 
+	@Deprecated
+	public ValidationModule() {
+	}
+
+	public static final ValidationModule newInstance() {
+		return new ValidationModule();
+	}
+
 	@Override
 	public String getModuleName() {
 		return "validation";
