@@ -19,6 +19,7 @@ import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryTest.SomeIllegal
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.QuerySpecRelationshipRepository;
+import io.katharsis.queryspec.QuerySpecResourceRepository;
 import io.katharsis.resource.annotations.JsonApiId;
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
@@ -172,7 +173,7 @@ public class ModuleTest {
 
 		ResourceInformation testInfo = informationBuilder.build(TestResource.class);
 		Assert.assertEquals("id", testInfo.getIdField().getUnderlyingName());
-		Assert.assertEquals("testId", testInfo.getIdField().getJsonName());
+		Assert.assertEquals("id", testInfo.getIdField().getJsonName());
 	}
 
 	@Test
@@ -339,15 +340,44 @@ public class ModuleTest {
 
 		@Override
 		public Class<TestResource2> getSourceResourceClass() {
-			return null;
+			return TestResource2.class;
 		}
 
 		@Override
 		public Class<TestResource2> getTargetResourceClass() {
-			return null;
+			return TestResource2.class;
 		}
 	}
 
-	class TestRepository2 extends TestRepository {
+	class TestRepository2 implements QuerySpecResourceRepository<TestResource2, Integer>  {
+
+		@Override
+		public <S extends TestResource2> S save(S entity) {
+			return null;
+		}
+
+		@Override
+		public void delete(Integer id) {
+		}
+
+		@Override
+		public Class<TestResource2> getResourceClass() {
+			return TestResource2.class;
+		}
+
+		@Override
+		public TestResource2 findOne(Integer id, QuerySpec querySpec) {
+			return null;
+		}
+
+		@Override
+		public Iterable<TestResource2> findAll(QuerySpec querySpec) {
+			return null;
+		}
+
+		@Override
+		public Iterable<TestResource2> findAll(Iterable<Integer> ids, QuerySpec querySpec) {
+			return null;
+		}
 	}
 }

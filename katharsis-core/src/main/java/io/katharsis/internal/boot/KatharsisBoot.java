@@ -33,6 +33,8 @@ import io.katharsis.repository.Repository;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.repository.annotations.JsonApiRelationshipRepository;
 import io.katharsis.repository.annotations.JsonApiResourceRepository;
+import io.katharsis.repository.information.internal.DefaultRelationshipRepositoryInformationBuilder;
+import io.katharsis.repository.information.internal.DefaultResourceRepositoryInformationBuilder;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
 import io.katharsis.resource.registry.ConstantServiceUrlProvider;
@@ -189,6 +191,8 @@ public class KatharsisBoot {
 		ServiceDiscovery serviceDiscovery = moduleRegistry.getServiceDiscovery();
 		SimpleModule module = new SimpleModule("discovery");
 
+		module.addRepositoryInformationBuilder(new DefaultResourceRepositoryInformationBuilder());
+		module.addRepositoryInformationBuilder(new DefaultRelationshipRepositoryInformationBuilder());
 		module.addResourceInformationBuilder(new AnnotationResourceInformationBuilder(resourceFieldNameTransformer));
 
 		for (JsonApiExceptionMapper<?> exceptionMapper : serviceDiscovery.getInstancesByType(JsonApiExceptionMapper.class)) {
