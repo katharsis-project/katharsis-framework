@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.katharsis.dispatcher.RequestDispatcher;
 import io.katharsis.locator.SampleJsonServiceLocator;
+import io.katharsis.module.ServiceDiscovery;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryspec.internal.QueryParamsAdapter;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
@@ -63,5 +64,10 @@ public class KatharsisBootTest {
 		Assert.assertNotNull(response);
 
 		Assert.assertNotNull(requestDispatcher);
+		
+		ServiceDiscovery serviceDiscovery = boot.getServiceDiscovery();
+		Assert.assertNotNull(serviceDiscovery);
+		
+		boot.setDefaultPageLimit(20L);
 	}
 }

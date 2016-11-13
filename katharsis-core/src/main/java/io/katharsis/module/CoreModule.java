@@ -15,11 +15,8 @@ public class CoreModule extends SimpleModule {
 	public static final String MODULE_NAME = "core";
 
 	public CoreModule(String resourceSearchPackage, ResourceFieldNameTransformer resourceFieldNameTransformer) {
-		super(MODULE_NAME);
+		this(resourceFieldNameTransformer);
 		this.addResourceLookup(new DefaultResourceLookup(resourceSearchPackage));
-		this.addResourceInformationBuilder(new AnnotationResourceInformationBuilder(resourceFieldNameTransformer));
-		this.addRepositoryInformationBuilder(new DefaultResourceRepositoryInformationBuilder());
-		this.addRepositoryInformationBuilder(new DefaultRelationshipRepositoryInformationBuilder());
 		this.addExceptionMapperLookup(new DefaultExceptionMapperLookup(resourceSearchPackage));
 	}
 	

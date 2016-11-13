@@ -75,11 +75,16 @@ public class ModuleTest {
 	public void getModules() {
 		Assert.assertEquals(2, moduleRegistry.getModules().size());
 	}
-	
+
 	@Test
 	public void testGetServiceDiscovery() {
 		Assert.assertEquals(serviceDiscovery, moduleRegistry.getServiceDiscovery());
 		Assert.assertEquals(serviceDiscovery, testModule.context.getServiceDiscovery());
+	}
+
+	@Test(expected = UnsupportedOperationException.class)
+	public void invalidRepository() {
+		moduleRegistry.getRepositoryInformationBuilder().build("no repository", null);
 	}
 
 	@Test(expected = IllegalStateException.class)
@@ -349,7 +354,7 @@ public class ModuleTest {
 		}
 	}
 
-	class TestRepository2 implements QuerySpecResourceRepository<TestResource2, Integer>  {
+	class TestRepository2 implements QuerySpecResourceRepository<TestResource2, Integer> {
 
 		@Override
 		public <S extends TestResource2> S save(S entity) {

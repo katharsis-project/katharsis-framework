@@ -1,15 +1,11 @@
 package io.katharsis.repository.information.internal;
 
-import java.util.Set;
-
 import io.katharsis.queryspec.QuerySpecRelationshipRepository;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.repository.annotations.JsonApiRelationshipRepository;
 import io.katharsis.repository.information.RepositoryInformation;
 import io.katharsis.repository.information.RepositoryInformationBuilder;
 import io.katharsis.repository.information.RepositoryInformationBuilderContext;
-import io.katharsis.resource.field.ResourceAttributesBridge;
-import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.utils.ClassUtils;
@@ -24,7 +20,7 @@ public class DefaultRelationshipRepositoryInformationBuilder implements Reposito
 		Class<? extends Object> repositoryClass = repository.getClass();
 		return RelationshipRepository.class.isAssignableFrom(repositoryClass)
 				|| QuerySpecRelationshipRepository.class.isAssignableFrom(repositoryClass)
-				|| ClassUtils.getAnnotation(repositoryClass, JsonApiRelationshipRepository.class) != null;
+				|| ClassUtils.getAnnotation(repositoryClass, JsonApiRelationshipRepository.class).isPresent();
 	}
 
 	@Override
