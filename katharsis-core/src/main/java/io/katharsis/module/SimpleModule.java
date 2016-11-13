@@ -11,6 +11,7 @@ import io.katharsis.dispatcher.filter.Filter;
 import io.katharsis.errorhandling.mapper.ExceptionMapperLookup;
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
 import io.katharsis.repository.filter.RepositoryFilter;
+import io.katharsis.repository.information.RepositoryInformationBuilder;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ResourceLookup;
 import io.katharsis.security.SecurityProvider;
@@ -22,19 +23,19 @@ public class SimpleModule implements Module {
 
 	private List<ResourceInformationBuilder> resourceInformationBuilders = new ArrayList<>();
 
+	private List<RepositoryInformationBuilder> repositoryInformationBuilders = new ArrayList<>();
+
 	private List<Filter> filters = new ArrayList<>();
 
 	private List<RepositoryFilter> repositoryFilters = new ArrayList<>();
-	
+
 	private List<SecurityProvider> securityProviders = new ArrayList<>();
 
 	private List<ResourceLookup> resourceLookups = new ArrayList<>();
 
 	private List<com.fasterxml.jackson.databind.Module> jacksonModules = new ArrayList<>();
 
-	private List<RelationshipRepositoryRegistration> relationshipRepositoryRegistrations = new ArrayList<>();
-
-	private List<ResourceRepositoryRegistration> resourceRepositoryRegistrations = new ArrayList<>();
+	private List<Object> repositories = new ArrayList<>();
 
 	private List<ExceptionMapperLookup> exceptionMapperLookups = new ArrayList<>();
 
@@ -57,6 +58,9 @@ public class SimpleModule implements Module {
 		for (ResourceInformationBuilder resourceInformationBuilder : resourceInformationBuilders) {
 			context.addResourceInformationBuilder(resourceInformationBuilder);
 		}
+		for (RepositoryInformationBuilder resourceInformationBuilder : repositoryInformationBuilders) {
+			context.addRepositoryInformationBuilder(resourceInformationBuilder);
+		}
 		for (ResourceLookup resourceLookup : resourceLookups) {
 			context.addResourceLookup(resourceLookup);
 		}
@@ -69,11 +73,8 @@ public class SimpleModule implements Module {
 		for (com.fasterxml.jackson.databind.Module jacksonModule : jacksonModules) {
 			context.addJacksonModule(jacksonModule);
 		}
-		for (ResourceRepositoryRegistration reg : resourceRepositoryRegistrations) {
-			context.addRepository(reg.resourceClass, reg.repository);
-		}
-		for (RelationshipRepositoryRegistration reg : relationshipRepositoryRegistrations) {
-			context.addRepository(reg.sourceType, reg.targetType, reg.repository);
+		for (Object repository : repositories) {
+			context.addRepository(repository);
 		}
 		for (ExceptionMapperLookup exceptionMapperLookup : exceptionMapperLookups) {
 			context.addExceptionMapperLookup(exceptionMapperLookup);
@@ -96,6 +97,16 @@ public class SimpleModule implements Module {
 		resourceInformationBuilders.add(resourceInformationBuilder);
 	}
 
+	/**
+	 * Registers a new {@link RepositoryInformationBuilder} with this module.
+	 * 
+	 * @param repositoryInformationBuilder repository information builder
+	 */
+	public void addRepositoryInformationBuilder(RepositoryInformationBuilder repositoryInformationBuilder) {
+		checkInitialized();
+		repositoryInformationBuilders.add(repositoryInformationBuilder);
+	}
+
 	public void addExceptionMapperLookup(ExceptionMapperLookup exceptionMapperLookup) {
 		checkInitialized();
 		exceptionMapperLookups.add(exceptionMapperLookup);
@@ -112,11 +123,16 @@ public class SimpleModule implements Module {
 		return Collections.unmodifiableList(resourceInformationBuilders);
 	}
 
+	protected List<RepositoryInformationBuilder> getRepositoryInformationBuilders() {
+		checkInitialized();
+		return Collections.unmodifiableList(repositoryInformationBuilders);
+	}
+
 	public void addFilter(Filter filter) {
 		checkInitialized();
 		filters.add(filter);
 	}
-	
+
 	public void addRepositoryFilter(RepositoryFilter filter) {
 		checkInitialized();
 		repositoryFilters.add(filter);
@@ -126,7 +142,7 @@ public class SimpleModule implements Module {
 		checkInitialized();
 		return Collections.unmodifiableList(filters);
 	}
-	
+
 	protected List<RepositoryFilter> getRepositoryFilters() {
 		checkInitialized();
 		return Collections.unmodifiableList(repositoryFilters);
@@ -162,70 +178,25 @@ public class SimpleModule implements Module {
 		return Collections.unmodifiableList(resourceLookups);
 	}
 
+	public void addRepository(Object repository) {
+		checkInitialized();
+		repositories.add(repository);
+	}
+
+	@Deprecated
 	public void addRepository(Class<?> resourceClass, Object repository) {
 		checkInitialized();
-		resourceRepositoryRegistrations.add(new ResourceRepositoryRegistration(resourceClass, repository));
+		repositories.add(repository);
 	}
 
+	@Deprecated
 	public void addRepository(Class<?> sourceType, Class<?> targetType, Object repository) {
 		checkInitialized();
-		relationshipRepositoryRegistrations.add(new RelationshipRepositoryRegistration(sourceType, targetType, repository));
+		repositories.add(repository);
 	}
 
-	public List<RelationshipRepositoryRegistration> getRelationshipRepositoryRegistrations() {
-		return Collections.unmodifiableList(relationshipRepositoryRegistrations);
-	}
-
-	public List<ResourceRepositoryRegistration> getResourceRepositoryRegistrations() {
-		return Collections.unmodifiableList(resourceRepositoryRegistrations);
-	}
-
-	public class RelationshipRepositoryRegistration {
-
-		private Class<?> sourceType;
-
-		private Class<?> targetType;
-
-		private Object repository;
-
-		public RelationshipRepositoryRegistration(Class<?> sourceType, Class<?> targetType, Object repository) {
-			this.sourceType = sourceType;
-			this.targetType = targetType;
-			this.repository = repository;
-		}
-
-		public Class<?> getSourceType() {
-			return sourceType;
-		}
-
-		public Class<?> getTargetType() {
-			return targetType;
-		}
-
-		public Object getRepository() {
-			return repository;
-		}
-
-	}
-
-	public static class ResourceRepositoryRegistration {
-
-		private Class<?> resourceClass;
-
-		private Object repository;
-
-		public ResourceRepositoryRegistration(Class<?> resourceClass, Object repository) {
-			this.resourceClass = resourceClass;
-			this.repository = repository;
-		}
-
-		public Class<?> getResourceClass() {
-			return resourceClass;
-		}
-
-		public Object getRepository() {
-			return repository;
-		}
+	public List<Object> getRepositories() {
+		return Collections.unmodifiableList(repositories);
 	}
 
 	public List<ExceptionMapperLookup> getExceptionMapperLookups() {

@@ -34,7 +34,9 @@ import io.katharsis.jpa.model.TestNestedEmbeddable;
 import io.katharsis.jpa.query.criteria.JpaCriteriaQueryFactory;
 import io.katharsis.jpa.util.SpringTransactionRunner;
 import io.katharsis.jpa.util.TestConfig;
+import io.katharsis.module.CoreModule;
 import io.katharsis.module.ModuleRegistry;
+import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.registry.ConstantServiceUrlProvider;
 import io.katharsis.resource.registry.ResourceRegistry;
 
@@ -68,6 +70,7 @@ public abstract class AbstractJpaTest {
 		resourceRegistry = new ResourceRegistry(moduleRegistry, new ConstantServiceUrlProvider("http://localhost:1234"));
 		module = JpaModule.newServerModule(emFactory, em, transactionRunner);
 		setupModule(module);
+		moduleRegistry.addModule(new CoreModule(new ResourceFieldNameTransformer()));
 		moduleRegistry.addModule(module);
 		moduleRegistry.init(new ObjectMapper());
 
