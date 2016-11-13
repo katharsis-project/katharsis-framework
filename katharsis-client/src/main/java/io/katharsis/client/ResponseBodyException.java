@@ -9,4 +9,8 @@ public class ResponseBodyException extends KatharsisException {
 	public ResponseBodyException(String message) {
 		super(message);
 	}
+	
+	public ResponseBodyException(String message, Exception cause) {
+		super(message, cause);
+	}
 }

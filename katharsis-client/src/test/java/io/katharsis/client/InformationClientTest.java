@@ -5,6 +5,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import io.katharsis.client.mock.models.Project;
+import io.katharsis.client.mock.models.Project.ProjectLinks;
+import io.katharsis.client.mock.models.Project.ProjectMeta;
 import io.katharsis.client.mock.models.Task;
 import io.katharsis.client.mock.repository.ProjectRepository.ProjectsLinksInformation;
 import io.katharsis.client.mock.repository.ProjectRepository.ProjectsMetaInformation;
@@ -23,6 +25,10 @@ public class InformationClientTest extends AbstractClientTest {
 
 		taskRepo = client.getQuerySpecRepository(Task.class);
 		projectRepo = client.getQuerySpecRepository(Project.class);
+
+		Project project = new Project();
+		project.setId(14L);
+		projectRepo.create(project);
 	}
 
 	@Override
@@ -36,6 +42,10 @@ public class InformationClientTest extends AbstractClientTest {
 		ResourceList<Project> list = projectRepo.findAll(querySpec);
 		ProjectsMetaInformation metaInformation = list.getMetaInformation(ProjectsMetaInformation.class);
 		Assert.assertEquals("testMeta", metaInformation.getMetaValue());
+		Project project = list.get(0);
+		ProjectMeta projectMeta = project.getMeta();
+		Assert.assertNotNull(projectMeta);
+		Assert.assertEquals("someMetaValue", projectMeta.getValue());
 	}
 
 	@Test
@@ -44,5 +54,9 @@ public class InformationClientTest extends AbstractClientTest {
 		ResourceList<Project> list = projectRepo.findAll(querySpec);
 		ProjectsLinksInformation lnksInformation = list.getLinksInformation(ProjectsLinksInformation.class);
 		Assert.assertEquals("testLink", lnksInformation.getLinkValue());
+		Project project = list.get(0);
+		ProjectLinks projectLinks = project.getLinks();
+		Assert.assertNotNull(projectLinks);
+		Assert.assertEquals("someLinkValue", projectLinks.getValue());
 	}
 }
