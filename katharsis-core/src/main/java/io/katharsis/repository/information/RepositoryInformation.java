@@ -7,7 +7,7 @@ import io.katharsis.resource.information.ResourceInformation;
  */
 public interface RepositoryInformation {
 
-	Object getRepository();
+	Class<?> getRepositoryClass();
 
 	/**
 	 * @return information about the resources hold in this repository

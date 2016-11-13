@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -34,6 +35,7 @@ import io.katharsis.errorhandling.exception.KatharsisMatchingException;
 import io.katharsis.errorhandling.mapper.KatharsisExceptionMapper;
 import io.katharsis.jackson.exception.JsonDeserializationException;
 import io.katharsis.request.dto.RequestBody;
+import io.katharsis.request.path.ActionPath;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -125,7 +127,7 @@ public class KatharsisFilter implements ContainerRequestFilter {
         ServiceUrlProvider serviceUrlProvider = resourceRegistry.getServiceUrlProvider();
         try {
             String path = buildPath(uriInfo);
-
+            
             if(serviceUrlProvider instanceof UriInfoServiceUrlProvider){
             	// TODO not a particular nice way of doing this. With Katharsis 3.0 and the serialization
             	// refacotring there should be a better way achieving this. At that point
@@ -133,16 +135,19 @@ public class KatharsisFilter implements ContainerRequestFilter {
             	((UriInfoServiceUrlProvider)serviceUrlProvider).onRequestStarted(uriInfo);
             }
 
-            JsonPath jsonPath = new PathBuilder(resourceRegistry).buildPath(path);
-
-            Map<String, Set<String>> parameters = getParameters(uriInfo);
-
-            String method = requestContext.getMethod();
-            RequestBody requestBody = inputStreamToBody(requestContext.getEntityStream());
-
-            JaxRsParameterProvider parameterProvider = new JaxRsParameterProvider(objectMapper, requestContext, parameterProviderRegistry);
-            katharsisResponse = requestDispatcher
-                .dispatchRequest(jsonPath, method, parameters, parameterProvider, requestBody);
+            Optional<JsonPath> jsonPath = new PathBuilder(resourceRegistry).build(path);
+	        if(jsonPath.isPresent() && !(jsonPath.get() instanceof ActionPath)){
+	            Map<String, Set<String>> parameters = getParameters(uriInfo);
+	
+	            String method = requestContext.getMethod();
+	            RequestBody requestBody = inputStreamToBody(requestContext.getEntityStream());
+	
+	            JaxRsParameterProvider parameterProvider = new JaxRsParameterProvider(objectMapper, requestContext, parameterProviderRegistry);
+	            katharsisResponse = requestDispatcher
+	                .dispatchRequest(jsonPath.get(), method, parameters, parameterProvider, requestBody);
+            }else{
+            	passToMethodMatcher = true;
+            }
         } catch (KatharsisMappableException e) {
             // log error in KatharsisMappableException mapper.
             katharsisResponse = new KatharsisExceptionMapper().toErrorResponse(e);

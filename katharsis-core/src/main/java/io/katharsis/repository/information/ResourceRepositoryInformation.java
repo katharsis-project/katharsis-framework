@@ -1,5 +1,7 @@
 package io.katharsis.repository.information;
 
+import java.util.Map;
+
 import io.katharsis.resource.information.ResourceInformation;
 
 /**
@@ -16,4 +18,7 @@ public interface ResourceRepositoryInformation extends RepositoryInformation {
 	 * @return path from which the repository is accessible
 	 */
 	String getPath();
+	
+
+	Map<String, RepositoryAction> getActions();
 }

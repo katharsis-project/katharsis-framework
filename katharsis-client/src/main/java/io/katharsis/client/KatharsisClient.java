@@ -1,9 +1,19 @@
 package io.katharsis.client;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
+
+import org.glassfish.jersey.client.proxy.WebResourceFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -25,11 +35,18 @@ import io.katharsis.jackson.JsonApiModuleBuilder;
 import io.katharsis.module.CoreModule;
 import io.katharsis.module.Module;
 import io.katharsis.module.ModuleRegistry;
+import io.katharsis.queryspec.QuerySpecRelationshipRepository;
+import io.katharsis.queryspec.QuerySpecResourceRepository;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.repository.RepositoryInstanceBuilder;
+import io.katharsis.repository.information.RepositoryInformationBuilder;
+import io.katharsis.repository.information.RepositoryInformationBuilderContext;
+import io.katharsis.repository.information.ResourceRepositoryInformation;
+import io.katharsis.repository.information.internal.ResourceRepositoryInformationImpl;
 import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.ResourceInformation;
+import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ConstantServiceUrlProvider;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceLookup;
@@ -43,6 +60,7 @@ import io.katharsis.resource.registry.repository.adapter.RelationshipRepositoryA
 import io.katharsis.resource.registry.repository.adapter.ResourceRepositoryAdapter;
 import io.katharsis.response.BaseResponseContext;
 import io.katharsis.utils.JsonApiUrlBuilder;
+import io.katharsis.utils.PreconditionUtil;
 import okhttp3.OkHttpClient;
 
 /**
@@ -69,6 +87,7 @@ public class KatharsisClient {
 	public KatharsisClient(String serviceUrl) {
 		this(new ConstantServiceUrlProvider(normalize(serviceUrl)));
 	}
+
 	public KatharsisClient(ServiceUrlProvider serviceUrlProvider) {
 		httpAdapter = new OkHttpAdapter();
 
@@ -97,8 +116,8 @@ public class KatharsisClient {
 		}
 
 		@Override
-		protected synchronized RegistryEntry<?> getEntry(Class<?> clazz, boolean allowNull) {
-			RegistryEntry<?> entry = super.getEntry(clazz, true);
+		protected synchronized <T> RegistryEntry<T> getEntry(Class<T> clazz, boolean allowNull) {
+			RegistryEntry<T> entry = super.getEntry(clazz, true);
 			if (entry == null) {
 				entry = allocateRepository(clazz, true);
 			}
@@ -194,6 +213,8 @@ public class KatharsisClient {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private <T, I extends Serializable> RegistryEntry<T> allocateRepository(Class<T> resourceClass, boolean allocateRelated) {
 
+		
+		
 		ResourceInformation resourceInformation = moduleRegistry.getResourceInformationBuilder().build(resourceClass);
 		final ResourceRepositoryStub<T, I> repositoryStub = new ResourceRepositoryStubImpl<>(this, resourceClass,
 				resourceInformation, urlBuilder);
@@ -206,9 +227,10 @@ public class KatharsisClient {
 				return repositoryStub;
 			}
 		};
+		ResourceRepositoryInformation repositoryInformation = new ResourceRepositoryInformationImpl(repositoryStub.getClass(), resourceInformation.getResourceType(), resourceInformation);
 		ResourceEntry<T, I> resourceEntry = new DirectResponseResourceEntry<>(repositoryInstanceBuilder);
 		List<ResponseRelationshipEntry<T, ?>> relationshipEntries = new ArrayList<>();
-		RegistryEntry<T> registryEntry = new RegistryEntry<>(resourceInformation, resourceEntry, relationshipEntries);
+		RegistryEntry<T> registryEntry = new RegistryEntry<>(repositoryInformation, resourceEntry, relationshipEntries);
 		resourceRegistry.addEntry(resourceClass, registryEntry);
 
 		allocateRepositoryRelations(registryEntry, allocateRelated, relationshipEntries);
@@ -253,6 +275,64 @@ public class KatharsisClient {
 				}
 			}
 		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public <R extends QuerySpecResourceRepository<?, ?>> R getResourceRepository(Class<R> repositoryInterfaceClass) {
+		RepositoryInformationBuilder informationBuilder = moduleRegistry.getRepositoryInformationBuilder();
+		PreconditionUtil.assertTrue("no a valid repository interface", informationBuilder.accept(repositoryInterfaceClass));
+		ResourceRepositoryInformation repositoryInformation = (ResourceRepositoryInformation) informationBuilder
+				.build(repositoryInterfaceClass, newRepositoryInformationBuilderContext());
+		Class<?> resourceClass = repositoryInformation.getResourceInformation().getResourceClass();
+		
+		String serviceUrl = resourceRegistry.getServiceUrl();
+		Client client = ClientBuilder.newClient();
+		WebTarget target = client.target(serviceUrl);
+		final Object jaxrsStub = WebResourceFactory.newResource(repositoryInterfaceClass, target);
+		
+		final QuerySpecResourceRepositoryStub<?, Serializable> repositoryStub = getQuerySpecRepository(resourceClass);
+		
+		ClassLoader classLoader = repositoryInterfaceClass.getClassLoader();
+		final Set<String> repositoryMethods = getMethodNames(QuerySpecResourceRepositoryStub.class);
+		InvocationHandler invocationHandler = new InvocationHandler() {
+
+			@Override
+			public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+				if (repositoryMethods.contains(method.getName())) {
+					// execute repository method
+					return method.invoke(repositoryStub, args);
+				}
+				else {
+					// execute action
+					return method.invoke(jaxrsStub, args);
+				}
+			}
+		};
+		return (R) Proxy.newProxyInstance(classLoader, new Class[] { repositoryInterfaceClass, QuerySpecResourceRepositoryStub.class }, invocationHandler);
+	}
+
+	private static Set<String> getMethodNames(Class<?> clazz) {
+		Set<String> repositoryMethods = new HashSet<>();
+		Method[] repositoryMethodObjects = clazz.getMethods();
+		for (Method repositoryMethodObject : repositoryMethodObjects) {
+			repositoryMethods.add(repositoryMethodObject.getName());
+		}
+		return repositoryMethods;
+	}
+
+	private RepositoryInformationBuilderContext newRepositoryInformationBuilderContext() {
+		return new RepositoryInformationBuilderContext() {
+
+			@Override
+			public ResourceInformationBuilder getResourceInformationBuilder() {
+				return moduleRegistry.getResourceInformationBuilder();
+			}
+		};
+	}
+
+	public <R extends QuerySpecRelationshipRepository<?, ?, ?, ?>> R getRelationshipRepository(
+			Class<R> repositoryInterfaceClass) {
+		return null;
 	}
 
 	/**

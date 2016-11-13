@@ -72,8 +72,8 @@ public class ResourceRegistry {
      * @return registry entry
      * @throws ResourceNotFoundInitializationException if resource is not found
      */
-    public RegistryEntry getEntry(String searchType, Class clazz) {
-        RegistryEntry entry = getEntry(searchType);
+    public <T> RegistryEntry<T> getEntry(String searchType, Class<T> clazz) {
+        RegistryEntry<T> entry = getEntry(searchType);
         if (entry == null) {
             return getEntry(clazz, false);
         }
@@ -96,7 +96,7 @@ public class ResourceRegistry {
     	return getEntry(clazz, true) != null;
     }
     
-    protected RegistryEntry<?> getEntry(Class<?> clazz, boolean allowNull) {
+    protected <T> RegistryEntry<T> getEntry(Class<T> clazz, boolean allowNull) {
         Optional<Class<?>> resourceClazz = getResourceClass(clazz);
         if (allowNull && !resourceClazz.isPresent())
             return null;
@@ -105,7 +105,7 @@ public class ResourceRegistry {
         return resources.get(resourceClazz.get());
     }
 
-    public RegistryEntry getEntry(Object targetDataObject) {
+    public <T> RegistryEntry<T> getEntry(T targetDataObject) {
         Class<?> targetDataObjClass = targetDataObject.getClass();
         RegistryEntry relationshipEntry;
         if (targetDataObjClass.getAnnotation(JsonApiResource.class) != null) {

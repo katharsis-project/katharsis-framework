@@ -1,15 +1,26 @@
 package io.katharsis.repository.information.internal;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import io.katharsis.repository.information.RepositoryAction;
 import io.katharsis.repository.information.ResourceRepositoryInformation;
 import io.katharsis.resource.information.ResourceInformation;
 
-class ResourceRepositoryInformationImpl extends RepositoryInformationImpl implements ResourceRepositoryInformation {
+public class ResourceRepositoryInformationImpl extends RepositoryInformationImpl implements ResourceRepositoryInformation {
 
 	private String path;
+	private Map<String, RepositoryAction> actions;
 
-	public ResourceRepositoryInformationImpl(Object repository, String path, ResourceInformation resourceInformation) {
-		super(repository, resourceInformation);
+	public ResourceRepositoryInformationImpl(Class<?> repositoryClass, String path, ResourceInformation resourceInformation){
+		this(repositoryClass, path, resourceInformation, new HashMap<String, RepositoryAction>());
+	}
+	
+	public ResourceRepositoryInformationImpl(Class<?> repositoryClass, String path,
+			ResourceInformation resourceInformation, Map<String, RepositoryAction> actions) {
+		super(repositoryClass, resourceInformation);
 		this.path = path;
+		this.actions = actions;
 	}
 
 	@Override
@@ -17,4 +28,8 @@ class ResourceRepositoryInformationImpl extends RepositoryInformationImpl implem
 		return path;
 	}
 
+	@Override
+	public Map<String, RepositoryAction> getActions() {
+		return actions;
+	}
 }

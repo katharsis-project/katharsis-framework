@@ -1,8 +1,12 @@
 package io.katharsis.repository.information.internal;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import io.katharsis.queryspec.QuerySpecResourceRepository;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.repository.annotations.JsonApiResourceRepository;
+import io.katharsis.repository.information.RepositoryAction;
 import io.katharsis.repository.information.RepositoryInformation;
 import io.katharsis.repository.information.RepositoryInformationBuilder;
 import io.katharsis.repository.information.RepositoryInformationBuilderContext;
@@ -18,6 +22,11 @@ public class DefaultResourceRepositoryInformationBuilder implements RepositoryIn
 	@Override
 	public boolean accept(Object repository) {
 		Class<? extends Object> repositoryClass = repository.getClass();
+		return accept(repositoryClass);
+	}
+
+	@Override
+	public boolean accept(Class<?> repositoryClass) {
 		boolean legacyRepo = ResourceRepository.class.isAssignableFrom(repositoryClass);
 		boolean interfaceRepo = QuerySpecResourceRepository.class.isAssignableFrom(repositoryClass);
 		boolean anontationRepo = ClassUtils.getAnnotation(repositoryClass, JsonApiResourceRepository.class).isPresent();
@@ -25,8 +34,18 @@ public class DefaultResourceRepositoryInformationBuilder implements RepositoryIn
 	}
 
 	@Override
+	public RepositoryInformation build(Class<?> repositoryClass, RepositoryInformationBuilderContext context) {
+		return build(null, repositoryClass, context);
+	}
+
+	@Override
 	public RepositoryInformation build(Object repository, RepositoryInformationBuilderContext context) {
-		Class<?> resourceClass = getResourceClass(repository);
+		return build(repository, repository.getClass(), context);
+	}
+
+	private RepositoryInformation build(Object repository, Class<? extends Object> repositoryClass,
+			RepositoryInformationBuilderContext context) {
+		Class<?> resourceClass = getResourceClass(repository, repositoryClass);
 
 		ResourceInformationBuilder resourceInformationBuilder = context.getResourceInformationBuilder();
 		PreconditionUtil.assertTrue("cannot get ResourceInformation for " + resourceClass,
@@ -34,15 +53,19 @@ public class DefaultResourceRepositoryInformationBuilder implements RepositoryIn
 		ResourceInformation resourceInformation = resourceInformationBuilder.build(resourceClass);
 		String path = getPath(resourceInformation, repository);
 
-		return new ResourceRepositoryInformationImpl(repository, path, resourceInformation);
+		return new ResourceRepositoryInformationImpl(repositoryClass, path, resourceInformation, buildActions(repositoryClass));
+	}
+
+	protected Map<String, RepositoryAction> buildActions(Class<? extends Object> repositoryClass) {
+		return new HashMap<>();
 	}
 
 	protected String getPath(ResourceInformation resourceInformation, Object repository) { // NOSONAR contract ok
 		return resourceInformation.getResourceType();
 	}
 
-	protected Class<?> getResourceClass(Object repository) {
-		Optional<JsonApiResourceRepository> annotation = ClassUtils.getAnnotation(repository.getClass(),
+	protected Class<?> getResourceClass(Object repository, Class<?> repositoryClass) {
+		Optional<JsonApiResourceRepository> annotation = ClassUtils.getAnnotation(repositoryClass,
 				JsonApiResourceRepository.class);
 
 		if (annotation.isPresent()) {
@@ -52,10 +75,13 @@ public class DefaultResourceRepositoryInformationBuilder implements RepositoryIn
 			Class<?>[] typeArgs = TypeResolver.resolveRawArguments(ResourceRepository.class, repository.getClass());
 			return typeArgs[0];
 		}
-		else {
+		else if (repository != null) {
 			QuerySpecResourceRepository<?, ?> querySpecRepo = (QuerySpecResourceRepository<?, ?>) repository;
 			return querySpecRepo.getResourceClass();
 		}
+		else {
+			Class<?>[] typeArgs = TypeResolver.resolveRawArguments(QuerySpecResourceRepository.class, repositoryClass);
+			return typeArgs[0];
+		}
 	}
-
 }

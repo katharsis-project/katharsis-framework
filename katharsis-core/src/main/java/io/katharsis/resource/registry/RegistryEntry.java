@@ -8,6 +8,8 @@ import java.util.Objects;
 import io.katharsis.module.ModuleRegistry;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.repository.exception.RelationshipRepositoryNotFoundException;
+import io.katharsis.repository.information.RepositoryInformation;
+import io.katharsis.repository.information.ResourceRepositoryInformation;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.repository.AnnotatedRelationshipEntryBuilder;
 import io.katharsis.resource.registry.repository.AnnotatedResourceEntry;
@@ -35,16 +37,18 @@ public class RegistryEntry<T> {
     private RegistryEntry parentRegistryEntry = null;
     
 	private ModuleRegistry moduleRegistry;
+	private ResourceRepositoryInformation repositoryInformation;
 
-    public RegistryEntry(ResourceInformation resourceInformation,
+    public RegistryEntry(ResourceRepositoryInformation repositoryInformation,
                          @SuppressWarnings("SameParameterValue") ResourceEntry<T, ?> resourceEntry) {
-        this(resourceInformation, resourceEntry, new LinkedList<ResponseRelationshipEntry<T, ?>>());
+        this(repositoryInformation, resourceEntry, new LinkedList<ResponseRelationshipEntry<T, ?>>());
     }
 
-    public RegistryEntry(ResourceInformation resourceInformation,
+    public RegistryEntry(ResourceRepositoryInformation repositoryInformation,
                          ResourceEntry<T, ?> resourceEntry,
                          List<ResponseRelationshipEntry<T, ?>> relationshipEntries) {
-        this.resourceInformation = resourceInformation;
+    	this.repositoryInformation = repositoryInformation;
+        this.resourceInformation = repositoryInformation.getResourceInformation();
         this.resourceEntry = resourceEntry;
         this.relationshipEntries = relationshipEntries;
     }
@@ -105,6 +109,10 @@ public class RegistryEntry<T> {
         return resourceInformation;
     }
 
+	public ResourceRepositoryInformation getRepositoryInformation() {
+		return repositoryInformation;
+	}
+
     public RegistryEntry getParentRegistryEntry() {
         return parentRegistryEntry;
     }
@@ -145,6 +153,7 @@ public class RegistryEntry<T> {
         }
         RegistryEntry<?> that = (RegistryEntry<?>) o;
         return Objects.equals(resourceInformation, that.resourceInformation) &&  // NOSONAR
+        		Objects.equals(repositoryInformation, that.repositoryInformation) &&
             Objects.equals(resourceEntry, that.resourceEntry) &&
             Objects.equals(moduleRegistry, that.moduleRegistry) &&
             Objects.equals(relationshipEntries, that.relationshipEntries) &&
@@ -153,6 +162,6 @@ public class RegistryEntry<T> {
 
     @Override
     public int hashCode() {
-        return Objects.hash(resourceInformation, resourceEntry, relationshipEntries, moduleRegistry, parentRegistryEntry);
+        return Objects.hash(repositoryInformation, resourceInformation, resourceEntry, relationshipEntries, moduleRegistry, parentRegistryEntry);
     }
 }

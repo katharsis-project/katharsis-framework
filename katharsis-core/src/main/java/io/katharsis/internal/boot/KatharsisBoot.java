@@ -189,8 +189,10 @@ public class KatharsisBoot {
 
 	private void setupComponents() {
 		ServiceDiscovery serviceDiscovery = moduleRegistry.getServiceDiscovery();
-		SimpleModule module = new SimpleModule("discovery");
 
+		// not that the provided default implementation here are added last and as a consequence,
+		// can be overriden by other modules, like the JaxrsResourceRepositoryInformationBuilder.
+		SimpleModule module = new SimpleModule("discovery");
 		module.addRepositoryInformationBuilder(new DefaultResourceRepositoryInformationBuilder());
 		module.addRepositoryInformationBuilder(new DefaultRelationshipRepositoryInformationBuilder());
 		module.addResourceInformationBuilder(new AnnotationResourceInformationBuilder(resourceFieldNameTransformer));

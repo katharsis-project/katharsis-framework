@@ -5,19 +5,19 @@ import io.katharsis.resource.information.ResourceInformation;
 
 abstract class RepositoryInformationImpl implements RepositoryInformation {
 
-	private Object repository;
-
 	private ResourceInformation resourceInformation;
 
-	public RepositoryInformationImpl(Object repository, ResourceInformation resourceInformation) {
+	private Class<?> repositoryClass;
+
+	public RepositoryInformationImpl(Class<?> repositoryClass, ResourceInformation resourceInformation) {
 		super();
-		this.repository = repository;
+		this.repositoryClass = repositoryClass;
 		this.resourceInformation = resourceInformation;
 	}
 
 	@Override
-	public Object getRepository() {
-		return repository;
+	public Class<?> getRepositoryClass() {
+		return repositoryClass;
 	}
 
 	@Override

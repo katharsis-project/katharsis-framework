@@ -18,6 +18,11 @@ public class DefaultRelationshipRepositoryInformationBuilder implements Reposito
 	@Override
 	public boolean accept(Object repository) {
 		Class<? extends Object> repositoryClass = repository.getClass();
+		return accept(repositoryClass);
+	}
+
+	@Override
+	public boolean accept(Class<?> repositoryClass) {
 		return RelationshipRepository.class.isAssignableFrom(repositoryClass)
 				|| QuerySpecRelationshipRepository.class.isAssignableFrom(repositoryClass)
 				|| ClassUtils.getAnnotation(repositoryClass, JsonApiRelationshipRepository.class).isPresent();
@@ -25,8 +30,18 @@ public class DefaultRelationshipRepositoryInformationBuilder implements Reposito
 
 	@Override
 	public RepositoryInformation build(Object repository, RepositoryInformationBuilderContext context) {
-		Class<?> sourceResourceClass = getSourceResourceClass(repository);
-		Class<?> targetResourceClass = getTargetResourceClass(repository);
+		return buildInformation(repository, repository.getClass(), context);
+	}
+
+	@Override
+	public RepositoryInformation build(Class<?> repositoryClass, RepositoryInformationBuilderContext context) {
+		return buildInformation(null, repositoryClass, context);
+	}
+
+	private RepositoryInformation buildInformation(Object repository, Class<? extends Object> repositoryClass,
+			RepositoryInformationBuilderContext context) {
+		Class<?> sourceResourceClass = getSourceResourceClass(repository, repository.getClass());
+		Class<?> targetResourceClass = getTargetResourceClass(repository, repository.getClass());
 
 		PreconditionUtil.assertNotNull("no sourceResourceClass", sourceResourceClass);
 		PreconditionUtil.assertNotNull("no targetResourceClass", targetResourceClass);
@@ -45,41 +60,48 @@ public class DefaultRelationshipRepositoryInformationBuilder implements Reposito
 			targetResourceInformation = new ResourceInformation(targetResourceClass, null, null, null, null);
 		}
 
-		return new RelationshipRepositoryInformationImpl(repository, sourceResourceInformation, targetResourceInformation);
+		return new RelationshipRepositoryInformationImpl(repositoryClass, sourceResourceInformation, targetResourceInformation);
 	}
 
-	protected Class<?> getSourceResourceClass(Object repository) {
-		Optional<JsonApiRelationshipRepository> annotation = ClassUtils.getAnnotation(repository.getClass(),
+	protected Class<?> getSourceResourceClass(Object repository, Class<?> repositoryClass) {
+		Optional<JsonApiRelationshipRepository> annotation = ClassUtils.getAnnotation(repositoryClass,
 				JsonApiRelationshipRepository.class);
 
 		if (annotation.isPresent()) {
 			return annotation.get().source();
 		}
-		else if (repository instanceof RelationshipRepository) {
-			Class<?>[] typeArgs = TypeResolver.resolveRawArguments(RelationshipRepository.class, repository.getClass());
+		else if (RelationshipRepository.class.isAssignableFrom(repositoryClass)) {
+			Class<?>[] typeArgs = TypeResolver.resolveRawArguments(RelationshipRepository.class, repositoryClass);
 			return typeArgs[0];
 		}
-		else {
+		else if (repository != null) {
 			QuerySpecRelationshipRepository<?, ?, ?, ?> querySpecRepo = (QuerySpecRelationshipRepository<?, ?, ?, ?>) repository;
 			return querySpecRepo.getSourceResourceClass();
 		}
+		else {
+			Class<?>[] typeArgs = TypeResolver.resolveRawArguments(QuerySpecRelationshipRepository.class, repositoryClass);
+			return typeArgs[0];
+		}
 	}
 
-	protected Class<?> getTargetResourceClass(Object repository) {
-		Optional<JsonApiRelationshipRepository> annotation = ClassUtils.getAnnotation(repository.getClass(),
+	protected Class<?> getTargetResourceClass(Object repository, Class<?> repositoryClass) {
+		Optional<JsonApiRelationshipRepository> annotation = ClassUtils.getAnnotation(repositoryClass,
 				JsonApiRelationshipRepository.class);
 
 		if (annotation.isPresent()) {
 			return annotation.get().target();
 		}
-		else if (repository instanceof RelationshipRepository) {
-			Class<?>[] typeArgs = TypeResolver.resolveRawArguments(RelationshipRepository.class, repository.getClass());
+		else if (RelationshipRepository.class.isAssignableFrom(repositoryClass)) {
+			Class<?>[] typeArgs = TypeResolver.resolveRawArguments(RelationshipRepository.class, repositoryClass);
 			return typeArgs[2];
 		}
-		else {
+		else if (repository != null) {
 			QuerySpecRelationshipRepository<?, ?, ?, ?> querySpecRepo = (QuerySpecRelationshipRepository<?, ?, ?, ?>) repository;
 			return querySpecRepo.getTargetResourceClass();
 		}
+		else {
+			Class<?>[] typeArgs = TypeResolver.resolveRawArguments(QuerySpecRelationshipRepository.class, repositoryClass);
+			return typeArgs[2];
+		}
 	}
-
 }
