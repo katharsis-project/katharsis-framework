@@ -41,9 +41,9 @@ public class PathBuilder {
      * @deprecated use {@link #build(Path)}
      */
     public JsonPath buildPath(String path) {
-    	Optional<JsonPath> optional = build(path);
-    	if(optional.isPresent()){
-    		return optional.get();
+    	JsonPath jsonPath = build(path);
+    	if(jsonPath != null){
+    		return jsonPath;
     	}else{
     		throw new ResourceNotFoundException(path);
     	}
@@ -56,7 +56,7 @@ public class PathBuilder {
      * @param path Path to be parsed
      * @return doubly-linked list which represents path given at the input
      */
-    public Optional<JsonPath> build(String path) {
+    public JsonPath build(String path) {
         String[] strings = splitPath(path);
         if (strings.length == 0 || (strings.length == 1 && "".equals(strings[0]))) {
         	throw new ResourceException("Path is empty");
@@ -110,7 +110,7 @@ public class PathBuilder {
             } else if (entry != null && !relationshipMark) {
                 currentJsonPath = new ResourcePath(elementName);
             } else {
-            	return Optional.empty();
+            	return null;
             }
 
             if (pathIds != null) {
@@ -129,7 +129,7 @@ public class PathBuilder {
             previousJsonPath = currentJsonPath;
         }
 
-        return Optional.of(currentJsonPath);
+        return currentJsonPath;
     }
 
     private JsonPath getNonResourcePath(JsonPath previousJsonPath, String elementName, boolean relationshipMark) {

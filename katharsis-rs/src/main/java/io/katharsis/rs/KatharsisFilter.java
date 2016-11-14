@@ -135,8 +135,8 @@ public class KatharsisFilter implements ContainerRequestFilter {
             	((UriInfoServiceUrlProvider)serviceUrlProvider).onRequestStarted(uriInfo);
             }
 
-            Optional<JsonPath> jsonPath = new PathBuilder(resourceRegistry).build(path);
-	        if(jsonPath.isPresent() && !(jsonPath.get() instanceof ActionPath)){
+            JsonPath jsonPath = new PathBuilder(resourceRegistry).build(path);
+	        if(jsonPath != null && !(jsonPath instanceof ActionPath)){
 	            Map<String, Set<String>> parameters = getParameters(uriInfo);
 	
 	            String method = requestContext.getMethod();
@@ -144,7 +144,7 @@ public class KatharsisFilter implements ContainerRequestFilter {
 	
 	            JaxRsParameterProvider parameterProvider = new JaxRsParameterProvider(objectMapper, requestContext, parameterProviderRegistry);
 	            katharsisResponse = requestDispatcher
-	                .dispatchRequest(jsonPath.get(), method, parameters, parameterProvider, requestBody);
+	                .dispatchRequest(jsonPath, method, parameters, parameterProvider, requestBody);
             }else{
             	passToMethodMatcher = true;
             }
