@@ -16,19 +16,28 @@
  */
 package io.katharsis.example.springboot.simple.domain.repository;
 
-import io.katharsis.example.springboot.simple.domain.model.Project;
-import io.katharsis.example.springboot.simple.domain.model.Task;
-import io.katharsis.queryParams.QueryParams;
-import io.katharsis.repository.RelationshipRepository;
-import io.katharsis.repository.annotations.*;
-import io.katharsis.utils.PropertyUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import io.katharsis.example.springboot.simple.domain.model.Project;
+import io.katharsis.example.springboot.simple.domain.model.Task;
+import io.katharsis.queryspec.QuerySpec;
+import io.katharsis.repository.annotations.JsonApiAddRelations;
+import io.katharsis.repository.annotations.JsonApiFindManyTargets;
+import io.katharsis.repository.annotations.JsonApiFindOneTarget;
+import io.katharsis.repository.annotations.JsonApiRelationshipRepository;
+import io.katharsis.repository.annotations.JsonApiRemoveRelations;
+import io.katharsis.repository.annotations.JsonApiSetRelation;
+import io.katharsis.repository.annotations.JsonApiSetRelations;
+import io.katharsis.utils.PropertyUtils;
+
+/**
+ * Manually-written, annotation-based relationship repository example.
+ */
 @JsonApiRelationshipRepository(source = Project.class, target = Task.class)
 @Component
 public class ProjectToTaskRepository {
@@ -118,7 +127,7 @@ public class ProjectToTaskRepository {
     }
 
     @JsonApiFindOneTarget
-    public Task findOneTarget(Long projectId, String fieldName, QueryParams requestParams) {
+    public Task findOneTarget(Long projectId, String fieldName, QuerySpec requestParams) {
         Project project = projectRepository.findOne(projectId, requestParams);
         try {
             return (Task) PropertyUtils.getProperty(project, fieldName);
@@ -128,7 +137,7 @@ public class ProjectToTaskRepository {
     }
 
     @JsonApiFindManyTargets
-    public Iterable<Task> findManyTargets(Long projectId, String fieldName, QueryParams requestParams) {
+    public Iterable<Task> findManyTargets(Long projectId, String fieldName, QuerySpec requestParams) {
         Project project = projectRepository.findOne(projectId, requestParams);
         try {
             return (Iterable<Task>) PropertyUtils.getProperty(project, fieldName);

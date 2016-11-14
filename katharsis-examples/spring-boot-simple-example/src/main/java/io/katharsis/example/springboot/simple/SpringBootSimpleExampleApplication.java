@@ -1,8 +1,5 @@
 package io.katharsis.example.springboot.simple;
 
-import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.spring.boot.KatharsisConfigV2;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,10 +11,13 @@ import org.springframework.context.annotation.Import;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.spring.boot.v3.KatharsisConfigV3;
+
 @Configuration
 @RestController
 @SpringBootApplication
-@Import(KatharsisConfigV2.class)
+@Import(KatharsisConfigV3.class)
 public class SpringBootSimpleExampleApplication {
 
     @Autowired

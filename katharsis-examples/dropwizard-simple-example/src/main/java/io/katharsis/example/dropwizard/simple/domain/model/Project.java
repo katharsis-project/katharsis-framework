@@ -1,4 +1,4 @@
-package io.katharsis.spring.domain.model;
+package io.katharsis.example.dropwizard.simple.domain.model;
 
 import io.katharsis.resource.annotations.JsonApiId;
 import io.katharsis.resource.annotations.JsonApiResource;
@@ -12,7 +12,6 @@ public class Project {
 	private String name;
 
 	public Project() {
-
 	}
 
 	public Project(long id, String name) {

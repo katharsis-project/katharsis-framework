@@ -7,6 +7,7 @@ public class KatharsisSpringBootProperties {
     private String resourcePackage;
     private String domainName;
     private String pathPrefix;
+	private Long defaultPageLimit;
 
     public String getResourcePackage() {
         return resourcePackage;
@@ -31,4 +32,12 @@ public class KatharsisSpringBootProperties {
     public void setPathPrefix(String pathPrefix) {
         this.pathPrefix = pathPrefix;
     }
+
+	public Long getDefaultPageLimit() {
+		return defaultPageLimit;
+	}
+
+	public void setDefaultPageLimit(Long defaultPageLimit) {
+		this.defaultPageLimit = defaultPageLimit;
+	}
 }

@@ -145,7 +145,6 @@ public class QuerySpecRepositoryTest extends AbstractQuerySpecTest {
 		taskAdapter.delete(task.getId(), queryAdapter);
 		tasks = (List<Task>) taskAdapter.findAll(queryAdapter).getEntity();
 		Assert.assertEquals(0, tasks.size());
-		Assert.assertNull(taskAdapter.findOne(2L, queryAdapter).getEntity());
 		tasks = (List<Task>) taskAdapter.findAll(Arrays.asList(2L), queryAdapter).getEntity();
 		Assert.assertEquals(0, tasks.size());
 

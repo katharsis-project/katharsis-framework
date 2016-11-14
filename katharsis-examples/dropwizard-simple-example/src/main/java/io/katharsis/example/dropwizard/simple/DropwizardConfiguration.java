@@ -1,10 +1,9 @@
-package io.katharsis.example.dropwizardSimple;
-
-import io.dropwizard.Configuration;
-import io.katharsis.example.dropwizardSimple.domain.model.Project;
+package io.katharsis.example.dropwizard.simple;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+
+import io.dropwizard.Configuration;
 
 public class DropwizardConfiguration extends Configuration {
 
@@ -16,6 +15,6 @@ public class DropwizardConfiguration extends Configuration {
 
         @Valid
         @NotNull
-        public String searchPackage = Project.class.getPackage().getName();
+        public String searchPackage = "io.katharsis.example.dropwizard.simple.domain";
     }
 }

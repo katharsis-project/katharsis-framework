@@ -41,7 +41,7 @@ public class Task {
     @JsonIgnore
     private Long projectId;
 
-    @JsonApiToOne
+    @JsonApiToOne(opposite="tasks")
     @JsonApiIncludeByDefault
     private Project project;
 

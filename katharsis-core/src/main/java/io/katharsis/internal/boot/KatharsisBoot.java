@@ -77,6 +77,10 @@ public class KatharsisBoot {
 
 	private ServiceDiscoveryFactory serviceDiscoveryFactory = new DefaultServiceDiscoveryFactory();
 
+	private ServiceDiscovery serviceDiscovery;
+
+	private ExceptionMapperRegistry exceptionMapperRegistry;
+
 	public void setObjectMapper(ObjectMapper objectMapper) {
 		PreconditionUtil.assertNull("ObjectMapper already set", this.objectMapper);
 		this.objectMapper = objectMapper;
@@ -84,6 +88,10 @@ public class KatharsisBoot {
 
 	public void setServiceDiscoveryFactory(ServiceDiscoveryFactory factory) {
 		this.serviceDiscoveryFactory = factory;
+	}
+	
+	public void setServiceDiscoveryFactory(ServiceDiscovery serviceDiscovery) {
+		this.serviceDiscovery = serviceDiscovery;
 	}
 
 	public void setQueryParamsBuilds(QueryParamsBuilder queryParamsBuilder) {
@@ -142,10 +150,13 @@ public class KatharsisBoot {
 	}
 
 	private void setupServiceDiscovery() {
-		// revert to reflection-based approach if no ServiceDiscovery is found
-		FallbackServiceDiscoveryFactory fallback = new FallbackServiceDiscoveryFactory(serviceDiscoveryFactory, serviceLocator,
-				propertiesProvider);
-		moduleRegistry.setServiceDiscovery(fallback.getInstance());
+		if(serviceDiscovery == null){
+			// revert to reflection-based approach if no ServiceDiscovery is found
+			FallbackServiceDiscoveryFactory fallback = new FallbackServiceDiscoveryFactory(serviceDiscoveryFactory, serviceLocator,
+					propertiesProvider);
+			serviceDiscovery = fallback.getInstance();
+		}
+		moduleRegistry.setServiceDiscovery(serviceDiscovery);
 	}
 
 	private void bootDiscovery() {
@@ -158,10 +169,14 @@ public class KatharsisBoot {
 		JsonApiModuleBuilder jsonApiModuleBuilder = new JsonApiModuleBuilder();
 		objectMapper.registerModule(jsonApiModuleBuilder.build(resourceRegistry, false));
 
-		ExceptionMapperRegistry exceptionMapperRegistry = buildExceptionMapperRegistry();
+		exceptionMapperRegistry = buildExceptionMapperRegistry();
 
 		requestDispatcher = createRequestDispatcher(exceptionMapperRegistry);
 
+	}
+	
+	public ExceptionMapperRegistry getExceptionMapperRegistry(){
+		return exceptionMapperRegistry;
 	}
 
 	private RequestDispatcher createRequestDispatcher(ExceptionMapperRegistry exceptionMapperRegistry) {
@@ -188,8 +203,10 @@ public class KatharsisBoot {
 	}
 
 	private void setupComponents() {
-		ServiceDiscovery serviceDiscovery = moduleRegistry.getServiceDiscovery();
-
+		if(resourceFieldNameTransformer == null){
+			resourceFieldNameTransformer = new ResourceFieldNameTransformer(objectMapper.getSerializationConfig());
+		}
+		
 		// not that the provided default implementation here are added last and as a consequence,
 		// can be overriden by other modules, like the JaxrsResourceRepositoryInformationBuilder.
 		SimpleModule module = new SimpleModule("discovery");

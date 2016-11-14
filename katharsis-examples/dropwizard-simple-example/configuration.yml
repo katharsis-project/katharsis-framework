@@ -1,5 +1,5 @@
 katharsis:
-  searchPackage: io.katharsis.example.dropwizardSimple.domain
+  searchPackage: io.katharsis.example.dropwizard.simple.domain
 
 server:
   type: simple

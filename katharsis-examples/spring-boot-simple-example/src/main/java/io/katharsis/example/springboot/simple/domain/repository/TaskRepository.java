@@ -16,16 +16,6 @@
  */
 package io.katharsis.example.springboot.simple.domain.repository;
 
-import io.katharsis.example.springboot.simple.domain.model.Task;
-import io.katharsis.queryParams.QueryParams;
-import io.katharsis.repository.annotations.JsonApiDelete;
-import io.katharsis.repository.annotations.JsonApiFindAll;
-import io.katharsis.repository.annotations.JsonApiFindAllWithIds;
-import io.katharsis.repository.annotations.JsonApiFindOne;
-import io.katharsis.repository.annotations.JsonApiResourceRepository;
-import io.katharsis.repository.annotations.JsonApiSave;
-import io.katharsis.resource.exception.ResourceNotFoundException;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +29,15 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
-import com.google.common.collect.Iterables;
+import io.katharsis.example.springboot.simple.domain.model.Task;
+import io.katharsis.queryspec.QuerySpec;
+import io.katharsis.repository.annotations.JsonApiDelete;
+import io.katharsis.repository.annotations.JsonApiFindAll;
+import io.katharsis.repository.annotations.JsonApiFindAllWithIds;
+import io.katharsis.repository.annotations.JsonApiFindOne;
+import io.katharsis.repository.annotations.JsonApiResourceRepository;
+import io.katharsis.repository.annotations.JsonApiSave;
+import io.katharsis.resource.exception.ResourceNotFoundException;
 
 @Component
 @JsonApiResourceRepository(Task.class)
@@ -74,24 +72,24 @@ public class TaskRepository {
     }
 
     @JsonApiFindOne
-    public Task findOne(Long taskId, QueryParams requestParams) {
+    public Task findOne(Long taskId, QuerySpec requestParams) {
         Task task = REPOSITORY.get(taskId);
         if (task == null) {
             throw new ResourceNotFoundException("Project not found!");
         }
         if (task.getProject() == null) {
-            task.setProject(projectRepository.findOne(task.getProjectId(), null));
+            task.setProject(projectRepository.findOne(task.getProjectId(), new QuerySpec(Task.class)));
         }
         return task;
     }
 
     @JsonApiFindAll
-    public Iterable<Task> findAll(QueryParams requestParams) {
+    public Iterable<Task> findAll(QuerySpec requestParams) {
         return REPOSITORY.values();
     }
 
     @JsonApiFindAllWithIds
-    public Iterable<Task> findAll(Iterable<Long> taskIds, QueryParams requestParams) {
+    public Iterable<Task> findAll(Iterable<Long> taskIds, QuerySpec requestParams) {
         List<Task> foundTasks = new ArrayList<>();
         for (Map.Entry<Long, Task> entry: REPOSITORY.entrySet()) {
             for (Long id: taskIds) {
