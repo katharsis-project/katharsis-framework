@@ -1,6 +1,6 @@
 package io.katharsis.module;
 
-public interface InitialzingModule extends Module {
+public interface InitializingModule extends Module {
 
 	/**
 	 * Called once Katharsis is fully initialized. From this point in time, the module is, for example,

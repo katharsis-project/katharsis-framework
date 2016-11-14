@@ -5,10 +5,10 @@ Contributing to the katharsis project, and to any open-source project for that m
 Reporting Bugs & Requesting for Features  
 =========================
 
-Before you raise a new issue you must be able to narrow it  down to a minimal test case against a clean code base that can be used for reproduction when submitting the issue. And, naturally, to make sure it's not an "undiscovered fearture" on your side :). Once you have a reproducable case in a clean code base please check the list of [project issues](https://github.com/katharsis-project/katharsis-framework/issues). There may already be a discussion in progress that you can contribute to or at least follow for a resolution. You should also ask in [gitter](https://gitter.im/katharsis-project) first. However, if you have discovered an issue then please follow these rules:  
+Before you raise a new issue you must be able to narrow it  down to a minimal test case against a clean code base that can be used for reproduction when submitting the issue. And, naturally, to make sure it's not an "undiscovered feature" on your side :). Once you have a reproducable case in a clean code base please check the list of [project issues](https://github.com/katharsis-project/katharsis-framework/issues). There may already be a discussion in progress that you can contribute to or at least follow for a resolution. You should also ask in [gitter](https://gitter.im/katharsis-project) first. However, if you have discovered an issue then please follow these rules:  
 
 1. Include **version of katharsis** you are using
-2. Use labels to tell us in which **module** problem occures
+2. Use labels to tell us in which **module** problem occurs
 3. Wait for **feedback** from our developers in response to your issue. We are volunteers so please be patient.
 4. Make a coffee and feel proud of yourself (or tea, or whatever the hot relaxing beverage in your part of the world is)!
 
@@ -17,10 +17,10 @@ Fixing Bugs & Extending the Library
 
 So you have added a feature to a library or you have created something new. Maybe you just have some bit of code that you use all the time in your projects and now you want to give that to the community and let them enjoy the same benefits you have? Great! This is how open source projects begin, grow, thrive and reach new users. Here is how to proceed with a pull request:
 
-1. [Fork katharsis-framework](https://github.com/katharsis-project/katharsis-framework/edit/develop/CONTRIBUTING.md#fork-destination-box) repository
-2. Implement your new feature or fix on branch `development`
+1. [Fork katharsis-framework](https://github.com/katharsis-project/katharsis-framework#fork-destination-box) repository
+2. Implement your new feature or fix on branch `develop`
 3. Don't forget to **update or add unit tests** and ensure they are passing
-4. Submit a pull request to be merged in the `development` of original repo. In your PR please refer to the issue number. Remember, enchancements are "issues" too. 
+4. Submit a pull request to be merged in the `develop` of original repo. In your PR please refer to the issue number. Remember, enhancements are "issues" too. 
 5. Your code will be reviewed by at least **two people** from our developers community
 6. Wait for **feedback** and in next release you may see your code working on production
 
@@ -29,7 +29,7 @@ Join the Conversation
 
 Katharsis gives you a number of ways to discuss features, express concerns or just chat about the project with other people just like you. Feel free to chat with us on [gitter](https://gitter.im/katharsis-project/katharsis-framework) or if your question is strictly involving usage of katharsis create new question on [StackOverflow](http://stackoverflow.com/questions/tagged/katharsis)
 
-Other Ways to Contibute
+Other Ways to Contribute
 ======================
 
 You don't necessarily have to write code to contribute. Telling someone in an effective way what a project is for and how to use it is just as important as providing the code for them to use. And it doesn't end there. From helping to maintain infrastructure to event planning, projects need help in many areas beyond the code.
@@ -47,7 +47,7 @@ Developer Setup
 General Guidelines
 ===========================
 * **Code style.**  Cyclomatic complexity must be kept down as well.
-this can be done in a variety of ways, but, for example, agressive pre-condition checking will eliminate branching.
+this can be done in a variety of ways, but, for example, aggressive pre-condition checking will eliminate branching.
 
 == example: ==
 

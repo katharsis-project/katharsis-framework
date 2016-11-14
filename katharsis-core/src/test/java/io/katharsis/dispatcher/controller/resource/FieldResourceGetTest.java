@@ -1,18 +1,22 @@
 package io.katharsis.dispatcher.controller.resource;
 
-import io.katharsis.dispatcher.controller.BaseControllerTest;
-import io.katharsis.queryParams.QueryParams;
-import io.katharsis.queryspec.internal.QueryParamsAdapter;
-import io.katharsis.request.path.JsonPath;
-import io.katharsis.request.path.ResourcePath;
-import io.katharsis.resource.include.IncludeLookupSetter;
-import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.response.BaseResponseContext;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+
 import org.junit.Assert;
 import org.junit.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
+import io.katharsis.dispatcher.controller.BaseControllerTest;
+import io.katharsis.queryParams.QueryParams;
+import io.katharsis.queryspec.QuerySpec;
+import io.katharsis.queryspec.internal.QueryParamsAdapter;
+import io.katharsis.queryspec.internal.QuerySpecAdapter;
+import io.katharsis.request.path.JsonPath;
+import io.katharsis.request.path.ResourcePath;
+import io.katharsis.resource.include.IncludeLookupSetter;
+import io.katharsis.resource.mock.models.Project;
+import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.response.BaseResponseContext;
 
 public class FieldResourceGetTest extends BaseControllerTest {
     private static final String REQUEST_TYPE = "GET";
@@ -84,7 +88,7 @@ public class FieldResourceGetTest extends BaseControllerTest {
         FieldResourceGet sut = new FieldResourceGet(resourceRegistry, typeParser, includeFieldSetter);
 
         // WHEN
-        BaseResponseContext response = sut.handle(jsonPath, new QueryParamsAdapter(new QueryParams()), null, null);
+        BaseResponseContext response = sut.handle(jsonPath, new QuerySpecAdapter(new QuerySpec(Project.class), resourceRegistry), null, null);
 
         // THEN
         Assert.assertNotNull(response);

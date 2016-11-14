@@ -1,5 +1,8 @@
 package io.katharsis.rs;
 
+import java.io.Serializable;
+import java.util.Collection;
+
 import javax.ws.rs.ConstrainedTo;
 import javax.ws.rs.RuntimeType;
 import javax.ws.rs.WebApplicationException;
@@ -18,9 +21,12 @@ import io.katharsis.locator.JsonServiceLocator;
 import io.katharsis.module.Module;
 import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.queryspec.QuerySpecDeserializer;
+import io.katharsis.repository.information.ResourceRepositoryInformation;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
+import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ServiceUrlProvider;
+import io.katharsis.resource.registry.repository.adapter.ResourceRepositoryAdapter;
 import io.katharsis.rs.internal.JaxrsModule;
 import io.katharsis.rs.parameterProvider.RequestContextParameterProviderRegistry;
 import io.katharsis.rs.parameterProvider.RequestContextParameterProviderRegistryBuilder;
@@ -106,8 +112,29 @@ public class KatharsisFeature implements Feature {
 			throw new WebApplicationException(e);
 		}
 		context.register(katharsisFilter);
+		
+		registerActionRepositories(context, boot);
 
 		return true;
+	}
+
+	/**
+	 * All repositories with JAX-RS action need to be registered with JAX-RS as singletons.
+	 * 
+	 * @param context of jaxrs
+	 * @param boot of katharsis
+	 */
+	private void registerActionRepositories(FeatureContext context, KatharsisBoot boot) {
+		ResourceRegistry resourceRegistry = boot.getResourceRegistry();
+		Collection<RegistryEntry<?>> registryEntries = resourceRegistry.getResources().values();
+		for(RegistryEntry<?> registryEntry : registryEntries){
+			ResourceRepositoryInformation repositoryInformation = registryEntry.getRepositoryInformation();
+			if(!repositoryInformation.getActions().isEmpty()){
+				ResourceRepositoryAdapter<?, Serializable> repositoryAdapter = registryEntry.getResourceRepository(null);
+				Object resourceRepository = repositoryAdapter.getResourceRepository();
+				context.register(resourceRepository);
+			}
+		}		
 	}
 
 	private RequestContextParameterProviderRegistry buildParameterProviderRegistry() {
@@ -121,5 +148,12 @@ public class KatharsisFeature implements Feature {
 		return new KatharsisFilter(boot.getObjectMapper(), resourceRegistry, requestDispatcher, parameterProviderRegistry,
 				webPathPrefix);
 	}
-
+	
+	public ObjectMapper getObjectMapper(){
+		return boot.getObjectMapper();
+	}
+	
+	public void setDefaultPageLimit(Long defaultPageLimit){
+		boot.setDefaultPageLimit(defaultPageLimit);
+	}
 }

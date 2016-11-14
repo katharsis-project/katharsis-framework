@@ -17,6 +17,7 @@ import io.katharsis.jackson.mock.models.ClassCWithInclusion;
 import io.katharsis.jackson.serializer.include.IncludedRelationshipExtractor;
 import io.katharsis.jackson.serializer.include.ResourceDigest;
 import io.katharsis.locator.SampleJsonServiceLocator;
+import io.katharsis.module.ModuleRegistry;
 import io.katharsis.queryParams.DefaultQueryParamsParser;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
@@ -56,7 +57,7 @@ public class IncludedRelationshipExtractorTest {
         String resourceSearchPackage = String.format("%s,%s", ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE,
                 "io.katharsis.jackson.mock");
         ResourceRegistry resourceRegistry = registryBuilder
-                .build(resourceSearchPackage, new ConstantServiceUrlProvider(ResourceRegistryTest.TEST_MODELS_URL));
+                .build(resourceSearchPackage, new ModuleRegistry(), new ConstantServiceUrlProvider(ResourceRegistryTest.TEST_MODELS_URL));
 
         sut = new IncludedRelationshipExtractor(resourceRegistry);
 

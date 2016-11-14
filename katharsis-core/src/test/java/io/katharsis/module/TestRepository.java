@@ -16,7 +16,7 @@ class TestRepository implements QuerySpecResourceRepository<TestResource, Intege
 
 	@Override
 	public Class<TestResource> getResourceClass() {
-		return null;
+		return TestResource.class;
 	}
 
 	@Override

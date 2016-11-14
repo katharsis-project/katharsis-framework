@@ -12,7 +12,9 @@ import org.junit.Before;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.katharsis.client.action.JerseyActionStubFactory;
 import io.katharsis.client.mock.repository.ProjectRepository;
+import io.katharsis.client.mock.repository.ScheduleRepositoryImpl;
 import io.katharsis.client.mock.repository.TaskRepository;
 import io.katharsis.client.mock.repository.TaskToProjectRepository;
 import io.katharsis.locator.SampleJsonServiceLocator;
@@ -32,12 +34,14 @@ public abstract class AbstractClientTest extends JerseyTest {
 
 	@Before
 	public void setup() {
-		client = new KatharsisClient(getBaseUri().toString(), "io.katharsis.client.mock");
+		client = new KatharsisClient(getBaseUri().toString());
 		client.addModule(new TestModule());
+		client.setActionStubFactory(JerseyActionStubFactory.newInstance());
 
 		TaskRepository.clear();
 		ProjectRepository.clear();
 		TaskToProjectRepository.clear();
+		ScheduleRepositoryImpl.clear();
 	}
 
 	@Override
@@ -49,8 +53,12 @@ public abstract class AbstractClientTest extends JerseyTest {
 		return testApplication;
 	}
 
+	protected void setupFeature(KatharsisTestFeature feature) {
+		// nothing to do
+	}
+	
 	@ApplicationPath("/")
-	public static class TestApplication extends ResourceConfig {
+	public class TestApplication extends ResourceConfig {
 
 		private KatharsisTestFeature feature;
 
@@ -68,9 +76,12 @@ public abstract class AbstractClientTest extends JerseyTest {
 			}
 
 			feature.addModule(new TestModule());
+			
+			setupFeature(feature);
 
 			register(feature);
 		}
+
 
 		public KatharsisFeature getFeature() {
 			return feature;

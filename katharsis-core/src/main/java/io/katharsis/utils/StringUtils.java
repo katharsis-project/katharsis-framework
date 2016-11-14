@@ -48,4 +48,11 @@ public class StringUtils {
         }
         return true;
     }
+
+	public static String emptyToNull(String value) {
+		if(value.length() == 0){
+			return null;
+		}
+		return value;
+	}
 }

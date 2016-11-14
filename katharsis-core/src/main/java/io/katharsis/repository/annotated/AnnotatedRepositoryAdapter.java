@@ -39,7 +39,7 @@ public abstract class AnnotatedRepositoryAdapter<T> {
         checkIfNotNull(annotationType, linksMethod);
 
         Object[] methodParameters = parametersFactory
-            .buildParameters(new Object[]{resources}, linksMethod, queryAdapter, annotationType);
+                .buildParameters(new Object[]{resources}, linksMethod, queryAdapter, annotationType);
 
         return invoke(linksMethod, methodParameters);
     }
@@ -61,7 +61,7 @@ public abstract class AnnotatedRepositoryAdapter<T> {
         checkIfNotNull(annotationType, metaMethod);
 
         Object[] methodParameters = parametersFactory
-            .buildParameters(new Object[]{resources}, metaMethod, queryAdapter, annotationType);
+                .buildParameters(new Object[]{resources}, metaMethod, queryAdapter, annotationType);
 
         return invoke(metaMethod, methodParameters);
     }
@@ -75,7 +75,7 @@ public abstract class AnnotatedRepositoryAdapter<T> {
     protected void checkIfNotNull(Class<? extends Annotation> annotationClass, Method foundMethod) {
         if (foundMethod == null) {
             throw new RepositoryAnnotationNotFoundException(
-                String.format("Annotation %s for class %s not found", annotationClass, implementationObject.getClass()));
+                    String.format("Annotation %s for class %s not found", annotationClass, implementationObject.getClass()));
         }
     }
 
@@ -83,7 +83,7 @@ public abstract class AnnotatedRepositoryAdapter<T> {
                                           Object[] firstParameters) {
         checkIfNotNull(annotationType, foundMethod);
         Object[] methodParameters = parametersFactory
-            .buildParameters(firstParameters, foundMethod, annotationType);
+                .buildParameters(firstParameters, foundMethod, annotationType);
         return invoke(foundMethod, methodParameters);
     }
 
@@ -91,7 +91,7 @@ public abstract class AnnotatedRepositoryAdapter<T> {
                                           Object[] firstParameters, QueryAdapter queryAdapter) {
         checkIfNotNull(annotationType, foundMethod);
         Object[] methodParameters = parametersFactory
-            .buildParameters(firstParameters, foundMethod, queryAdapter, annotationType);
+                .buildParameters(firstParameters, foundMethod, queryAdapter, annotationType);
         return invoke(foundMethod, methodParameters);
     }
 
@@ -101,7 +101,15 @@ public abstract class AnnotatedRepositoryAdapter<T> {
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
-            throw (RuntimeException) e.getCause();
+            if (e.getCause() instanceof RuntimeException) {
+                throw (RuntimeException) e.getCause();
+            } else {
+                throw new RuntimeException(e.getCause());
+            }
         }
     }
+    
+	public Object getImplementationObject() {
+		return implementationObject;
+	}
 }

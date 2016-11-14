@@ -14,6 +14,7 @@ import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryBuilder;
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
 import io.katharsis.jackson.JsonApiModuleBuilder;
 import io.katharsis.locator.JsonServiceLocator;
+import io.katharsis.locator.SampleJsonServiceLocator;
 import io.katharsis.module.Module;
 import io.katharsis.module.ModuleRegistry;
 import io.katharsis.module.ServiceDiscovery;
@@ -32,6 +33,8 @@ import io.katharsis.repository.Repository;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.repository.annotations.JsonApiRelationshipRepository;
 import io.katharsis.repository.annotations.JsonApiResourceRepository;
+import io.katharsis.repository.information.internal.DefaultRelationshipRepositoryInformationBuilder;
+import io.katharsis.repository.information.internal.DefaultResourceRepositoryInformationBuilder;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
 import io.katharsis.resource.registry.ConstantServiceUrlProvider;
@@ -60,7 +63,7 @@ public class KatharsisBoot {
 
 	private boolean configured;
 
-	private JsonServiceLocator serviceLocator;
+	private JsonServiceLocator serviceLocator = new SampleJsonServiceLocator();
 
 	private ResourceRegistry resourceRegistry;
 
@@ -148,9 +151,9 @@ public class KatharsisBoot {
 	private void bootDiscovery() {
 		addModules();
 		setupComponents();
-		resourceRegistry = new ResourceRegistry(serviceUrlProvider);
+		resourceRegistry = new ResourceRegistry(moduleRegistry, serviceUrlProvider);
 
-		moduleRegistry.init(objectMapper, resourceRegistry);
+		moduleRegistry.init(objectMapper);
 
 		JsonApiModuleBuilder jsonApiModuleBuilder = new JsonApiModuleBuilder();
 		objectMapper.registerModule(jsonApiModuleBuilder.build(resourceRegistry, false));
@@ -160,8 +163,6 @@ public class KatharsisBoot {
 		requestDispatcher = createRequestDispatcher(exceptionMapperRegistry);
 
 	}
-
-
 
 	private RequestDispatcher createRequestDispatcher(ExceptionMapperRegistry exceptionMapperRegistry) {
 		TypeParser typeParser = new TypeParser();
@@ -180,18 +181,20 @@ public class KatharsisBoot {
 		return new RequestDispatcher(moduleRegistry, controllerRegistry, exceptionMapperRegistry, queryAdapterBuilder);
 	}
 
-
 	private ExceptionMapperRegistry buildExceptionMapperRegistry() {
 		ExceptionMapperLookup exceptionMapperLookup = moduleRegistry.getExceptionMapperLookup();
 		ExceptionMapperRegistryBuilder mapperRegistryBuilder = new ExceptionMapperRegistryBuilder();
 		return mapperRegistryBuilder.build(exceptionMapperLookup);
 	}
 
-	@SuppressWarnings("rawtypes")
 	private void setupComponents() {
 		ServiceDiscovery serviceDiscovery = moduleRegistry.getServiceDiscovery();
-		SimpleModule module = new SimpleModule("discovery");
 
+		// not that the provided default implementation here are added last and as a consequence,
+		// can be overriden by other modules, like the JaxrsResourceRepositoryInformationBuilder.
+		SimpleModule module = new SimpleModule("discovery");
+		module.addRepositoryInformationBuilder(new DefaultResourceRepositoryInformationBuilder());
+		module.addRepositoryInformationBuilder(new DefaultRelationshipRepositoryInformationBuilder());
 		module.addResourceInformationBuilder(new AnnotationResourceInformationBuilder(resourceFieldNameTransformer));
 
 		for (JsonApiExceptionMapper<?> exceptionMapper : serviceDiscovery.getInstancesByType(JsonApiExceptionMapper.class)) {
@@ -307,5 +310,13 @@ public class KatharsisBoot {
 
 	public ServiceDiscovery getServiceDiscovery() {
 		return moduleRegistry.getServiceDiscovery();
+	}
+
+	public void setDefaultPageLimit(Long defaultPageLimit) {
+		((DefaultQuerySpecDeserializer) this.querySpecDeserializer).setDefaultLimit(defaultPageLimit);
+	}
+
+	public ModuleRegistry getModuleRegistry() {
+		return moduleRegistry;
 	}
 }

@@ -12,7 +12,9 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 
+import io.katharsis.client.ResponseBodyException;
 import io.katharsis.client.response.JsonLinksInformation;
 import io.katharsis.client.response.JsonMetaInformation;
 import io.katharsis.dispatcher.controller.resource.ResourceUpsert;
@@ -31,6 +33,7 @@ import io.katharsis.response.JsonApiResponse;
 import io.katharsis.response.LinksInformation;
 import io.katharsis.response.MetaInformation;
 import io.katharsis.response.ResourceResponseContext;
+import io.katharsis.utils.PropertyUtils;
 import io.katharsis.utils.parser.TypeParser;
 
 /**
@@ -108,7 +111,7 @@ public class BaseResponseDeserializer extends JsonDeserializer<BaseResponseConte
 	private LinksInformation readLinks(JsonNode node) {
 		JsonNode data = node.get(LINKS_FIELD_NAME);
 		if (data != null) {
-			return new JsonLinksInformation(data);
+			return new JsonLinksInformation(data, objectMapper);
 		}
 		else {
 			return null;
@@ -118,7 +121,7 @@ public class BaseResponseDeserializer extends JsonDeserializer<BaseResponseConte
 	private MetaInformation readMeta(JsonNode node) {
 		JsonNode data = node.get(META_FIELD_NAME);
 		if (data != null) {
-			return new JsonMetaInformation(data);
+			return new JsonMetaInformation(data, objectMapper);
 		}
 		else {
 			return null;
@@ -136,7 +139,7 @@ public class BaseResponseDeserializer extends JsonDeserializer<BaseResponseConte
 		public String getUID(DataBody body) {
 			return body.getType() + "#" + body.getId();
 		}
-		
+
 		public String getUID(RegistryEntry<?> entry, Serializable id) {
 			return entry.getResourceInformation().getResourceType() + "#" + id;
 		}
@@ -163,15 +166,17 @@ public class BaseResponseDeserializer extends JsonDeserializer<BaseResponseConte
 
 			String uid = getUID(entry, relationId);
 			Object relatedResource = resourceMap.get(uid);
-			if(relatedResource != null){
+			if (relatedResource != null) {
 				return relatedResource;
-			}else{
+			}
+			else {
 				return null; // TODO create remote proxy
 			}
 		}
 
 		public void allocateResources(ResourceBodies dataBodies) {
 			for (DataBody body : dataBodies.dataBodies) {
+				ClientDataBody clientBody = (ClientDataBody) body;
 
 				RegistryEntry<?> registryEntry = resourceRegistry.getEntry(body.getType());
 				ResourceInformation resourceInformation = registryEntry.getResourceInformation();
@@ -179,10 +184,48 @@ public class BaseResponseDeserializer extends JsonDeserializer<BaseResponseConte
 				Object resource = newResource(resourceInformation, body);
 				setId(body, resource, resourceInformation);
 				setAttributes(body, resource, resourceInformation);
+				setLinks(clientBody, resource, resourceInformation);
+				setMeta(clientBody, resource, resourceInformation);
+
 				dataBodies.resources.add(resource);
 
 				String uid = getUID(body);
 				resourceMap.put(uid, resource);
+			}
+		}
+
+		protected void setLinks(ClientDataBody dataBody, Object instance, ResourceInformation resourceInformation) {
+			String linksFieldName = resourceInformation.getLinksFieldName();
+			if (dataBody.getLinks() != null && linksFieldName != null) {
+				JsonNode linksNode = dataBody.getLinks();
+				Class<?> linksClass = PropertyUtils.getPropertyClass(resourceInformation.getResourceClass(), linksFieldName);
+				ObjectReader linksMapper = objectMapper.readerFor(linksClass);
+				try {
+					Object links = linksMapper.readValue(linksNode);
+					PropertyUtils.setProperty(instance, linksFieldName, links);
+				}
+				catch (IOException e) {
+					throw new ResponseBodyException("failed to parse links information", e);
+				}
+			}
+		}
+
+		protected void setMeta(ClientDataBody dataBody, Object instance, ResourceInformation resourceInformation) {
+			String metaFieldName = resourceInformation.getMetaFieldName();
+			if (dataBody.getMeta() != null && metaFieldName != null) {
+				JsonNode metaNode = dataBody.getMeta();
+
+				Class<?> metaClass = PropertyUtils.getPropertyClass(resourceInformation.getResourceClass(), metaFieldName);
+
+				ObjectReader metaMapper = objectMapper.readerFor(metaClass);
+				try {
+					Object meta = metaMapper.readValue(metaNode);
+					PropertyUtils.setProperty(instance, metaFieldName, meta);
+				}
+				catch (IOException e) {
+					throw new ResponseBodyException("failed to parse links information", e);
+				}
+
 			}
 		}
 

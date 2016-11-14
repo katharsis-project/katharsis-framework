@@ -1,23 +1,34 @@
 package io.katharsis.request.path;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.Arrays;
+import java.util.Collections;
+
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
+
 import io.katharsis.locator.SampleJsonServiceLocator;
+import io.katharsis.module.ModuleRegistry;
+import io.katharsis.repository.information.RepositoryAction;
+import io.katharsis.repository.information.ResourceRepositoryInformation;
 import io.katharsis.resource.exception.ResourceException;
 import io.katharsis.resource.exception.ResourceFieldNotFoundException;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
 import io.katharsis.resource.information.ResourceInformationBuilder;
-import io.katharsis.resource.registry.*;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-
-import java.util.Arrays;
-import java.util.Collections;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import io.katharsis.resource.mock.models.Task;
+import io.katharsis.resource.registry.ConstantServiceUrlProvider;
+import io.katharsis.resource.registry.RegistryEntry;
+import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.resource.registry.ResourceRegistryBuilder;
+import io.katharsis.resource.registry.ResourceRegistryBuilderTest;
+import io.katharsis.resource.registry.ResourceRegistryTest;
 
 public class PathBuilderTest {
 
@@ -33,9 +44,14 @@ public class PathBuilderTest {
         ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonServiceLocator(),
             resourceInformationBuilder);
         ResourceRegistry resourceRegistry = registryBuilder
-            .build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, new ConstantServiceUrlProvider(ResourceRegistryTest.TEST_MODELS_URL));
+            .build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, new ModuleRegistry(), new ConstantServiceUrlProvider(ResourceRegistryTest.TEST_MODELS_URL));
 
         pathBuilder = new PathBuilder(resourceRegistry);
+        
+        RegistryEntry<Task> entry = resourceRegistry.getEntry(Task.class);
+        ResourceRepositoryInformation repositoryInformation = entry.getRepositoryInformation();
+        repositoryInformation.getActions().put("someRepositoryAction", Mockito.mock(RepositoryAction.class));
+        repositoryInformation.getActions().put("someResourceAction", Mockito.mock(RepositoryAction.class));
     }
 
     @Test
@@ -75,6 +91,35 @@ public class PathBuilderTest {
         assertThat(jsonPath).isEqualTo(new ResourcePath("tasks", new PathIds("1")));
         assertThat(jsonPath.isCollection()).isFalse();
     }
+    
+    @Test
+    public void onRepositoryActionShouldActionPath() {
+        // GIVEN
+        String path = "/tasks/someRepositoryAction";
+
+        // WHEN
+        JsonPath jsonPath = pathBuilder.buildPath(path);
+
+        // THEN
+        JsonPath expectedPath = new ActionPath("someRepositoryAction");
+        expectedPath.setParentResource(new ResourcePath("tasks"));
+        assertThat(jsonPath).isEqualTo(expectedPath);
+    }
+    
+    @Test
+    public void onResourceActionShouldActionPath() {
+        // GIVEN
+        String path = "/tasks/123/someResourceAction";
+
+        // WHEN
+        JsonPath jsonPath = pathBuilder.buildPath(path);
+
+        // THEN
+        JsonPath expectedPath = new ActionPath("someResourceAction");
+        expectedPath.setParentResource(new ResourcePath("tasks", new PathIds("123")));
+        assertThat(jsonPath).isEqualTo(expectedPath);
+    }
+    
 
     @Test
     public void onNestedResourcePathShouldReturnNestedPath() {

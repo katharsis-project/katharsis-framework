@@ -1,5 +1,6 @@
 package io.katharsis.internal.boot;
 
+import java.util.List;
 import java.util.Properties;
 
 import org.junit.Assert;
@@ -9,6 +10,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.katharsis.dispatcher.RequestDispatcher;
 import io.katharsis.locator.SampleJsonServiceLocator;
+import io.katharsis.module.Module;
+import io.katharsis.module.ServiceDiscovery;
+import io.katharsis.module.SimpleModule;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryspec.internal.QueryParamsAdapter;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
@@ -16,16 +20,14 @@ import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ServiceUrlProvider;
-import io.katharsis.resource.registry.responseRepository.ResourceRepositoryAdapter;
+import io.katharsis.resource.registry.repository.adapter.ResourceRepositoryAdapter;
 import io.katharsis.response.JsonApiResponse;
 
 public class KatharsisBootTest {
 
 	@Test
 	public void test() {
-
 		KatharsisBoot boot = new KatharsisBoot();
-
 		ObjectMapper objectMapper = boot.getObjectMapper();
 		ResourceFieldNameTransformer resourceFieldNameTransformer = new ResourceFieldNameTransformer(
 				objectMapper.getSerializationConfig());
@@ -50,6 +52,7 @@ public class KatharsisBootTest {
 		});
 		boot.setPropertiesProvider(propertiesProvider);
 		boot.setResourceFieldNameTransformer(resourceFieldNameTransformer);
+		boot.addModule(new SimpleModule("test"));
 		boot.boot();
 
 		RequestDispatcher requestDispatcher = boot.getRequestDispatcher();
@@ -63,5 +66,13 @@ public class KatharsisBootTest {
 		Assert.assertNotNull(response);
 
 		Assert.assertNotNull(requestDispatcher);
+
+		ServiceDiscovery serviceDiscovery = boot.getServiceDiscovery();
+		Assert.assertNotNull(serviceDiscovery);
+		Assert.assertNotNull(boot.getModuleRegistry());
+
+		List<Module> modules = boot.getModuleRegistry().getModules();
+		Assert.assertEquals(2, modules.size());
+		boot.setDefaultPageLimit(20L);
 	}
 }

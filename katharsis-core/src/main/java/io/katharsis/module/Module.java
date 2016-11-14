@@ -3,6 +3,8 @@ package io.katharsis.module;
 import io.katharsis.dispatcher.filter.Filter;
 import io.katharsis.errorhandling.mapper.ExceptionMapper;
 import io.katharsis.errorhandling.mapper.ExceptionMapperLookup;
+import io.katharsis.repository.filter.RepositoryFilter;
+import io.katharsis.repository.information.RepositoryInformationBuilder;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ResourceLookup;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -46,6 +48,13 @@ public interface Module {
 		 * @param resourceInformationBuilder resource information builder
 		 */
 		void addResourceInformationBuilder(ResourceInformationBuilder resourceInformationBuilder);
+		
+		/**
+		 * Register the given {@link RepositoryInformationBuilder} in Katharsis.
+		 *
+		 * @param resourceInformationBuilder repository information builder
+		 */
+		void addRepositoryInformationBuilder(RepositoryInformationBuilder repositoryInformationBuilder);
 
 		/**
 		 * Register the given {@link ResourceLookup} in Katharsis.
@@ -63,9 +72,15 @@ public interface Module {
 
 		/**
 		 * Adds the given repository for the given type.
+		 */
+		void addRepository(Object repository);
+		
+		/**
+		 * Adds the given repository for the given type.
 		 *
 		 * @param resourceClass resource class
 		 * @param repository    repository
+		 * @deprecated 
 		 */
 		void addRepository(Class<?> resourceClass, Object repository);
 
@@ -75,6 +90,7 @@ public interface Module {
 		 * @param sourceResourceClass source resource class
 		 * @param targetResourceClass target resource class
 		 * @param repository          repository
+		 * @deprecated 
 		 */
 		void addRepository(Class<?> sourceResourceClass, Class<?> targetResourceClass, Object repository);
 
@@ -98,6 +114,13 @@ public interface Module {
 		 * @param filter filter
 		 */
 		void addFilter(Filter filter);
+		
+		/**
+		 * Adds a repository filter to intercept repository calls.
+		 *
+		 * @param RepositoryFilter filter
+		 */
+		void addRepositoryFilter(RepositoryFilter filter);
 
 		/**
 		 * Returns the ResourceRegistry. Note that instance is not yet available

@@ -1,10 +1,22 @@
 package io.katharsis.queryParams;
 
+import static org.junit.Assert.assertEquals;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import org.junit.Before;
+import org.junit.Test;
+
 import io.katharsis.locator.JsonServiceLocator;
 import io.katharsis.locator.SampleJsonServiceLocator;
-import io.katharsis.queryParams.DefaultQueryParamsParser;
-import io.katharsis.queryParams.QueryParams;
-import io.katharsis.queryParams.QueryParamsBuilder;
+import io.katharsis.module.ModuleRegistry;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
 import io.katharsis.resource.information.ResourceInformationBuilder;
@@ -14,15 +26,6 @@ import io.katharsis.resource.registry.DefaultResourceLookup;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryBuilder;
 import io.katharsis.utils.JsonApiUrlBuilder;
-
-import org.junit.Before;
-import org.junit.Test;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.*;
-
-import static org.junit.Assert.assertEquals;
 
 public class DefaultQueryParamsSerializerTest {
 
@@ -38,20 +41,20 @@ public class DefaultQueryParamsSerializerTest {
 				new ResourceFieldNameTransformer());
 		resourceRegistryBuilder = new ResourceRegistryBuilder(jsonServiceLocator, resourceInformationBuilder);
 		resourceLookup = new DefaultResourceLookup("io.katharsis.resource.mock");
-		ResourceRegistry resourceRegistry = resourceRegistryBuilder.build(resourceLookup, new ConstantServiceUrlProvider("http://127.0.0.1"));
+		ResourceRegistry resourceRegistry = resourceRegistryBuilder.build(resourceLookup, new ModuleRegistry(), new ConstantServiceUrlProvider("http://127.0.0.1"));
 		urlBuilder = new JsonApiUrlBuilder(resourceRegistry);
 	}
 
 	@Test
 	public void testHttpsSchema() {
-		ResourceRegistry resourceRegistry = resourceRegistryBuilder.build(resourceLookup, new ConstantServiceUrlProvider("https://127.0.0.1"));
+		ResourceRegistry resourceRegistry = resourceRegistryBuilder.build(resourceLookup, new ModuleRegistry(), new ConstantServiceUrlProvider("https://127.0.0.1"));
 		urlBuilder = new JsonApiUrlBuilder(resourceRegistry);
 		check("https://127.0.0.1/tasks/", null, new QueryParams());
 	}
 	
 	@Test
 	public void testPort() {
-		ResourceRegistry resourceRegistry = resourceRegistryBuilder.build(resourceLookup, new ConstantServiceUrlProvider("https://127.0.0.1:1234"));
+		ResourceRegistry resourceRegistry = resourceRegistryBuilder.build(resourceLookup, new ModuleRegistry(), new ConstantServiceUrlProvider("https://127.0.0.1:1234"));
 		urlBuilder = new JsonApiUrlBuilder(resourceRegistry);
 		check("https://127.0.0.1:1234/tasks/", null, new QueryParams());
 	}

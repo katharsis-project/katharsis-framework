@@ -22,8 +22,8 @@ import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.repository.MockRepositoryUtil;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.resource.registry.responseRepository.RelationshipRepositoryAdapter;
-import io.katharsis.resource.registry.responseRepository.ResourceRepositoryAdapter;
+import io.katharsis.resource.registry.repository.adapter.RelationshipRepositoryAdapter;
+import io.katharsis.resource.registry.repository.adapter.ResourceRepositoryAdapter;
 
 @RunWith(MockitoJUnitRunner.class)
 public class IncludeLookupSetterTest {
@@ -49,10 +49,10 @@ public class IncludeLookupSetterTest {
 		// setup test data
 		Project project = new Project();
 		project.setId(2L);
-		projectRepository.save(project, null);
+		projectRepository.create(project, null);
 		Task task = new Task();
 		task.setId(1L);
-		taskRepository.save(task, null);
+		taskRepository.create(task, null);
 		relRepository.setRelation(task, project.getId(), "includedProject", null);
 		relRepository.addRelations(task, Arrays.asList(project.getId()), "includedProjects", null);
 

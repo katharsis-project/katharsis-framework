@@ -23,7 +23,7 @@ import io.katharsis.queryspec.SortSpec;
 @Transactional
 public abstract class JpaEntityRepositoryTestBase extends AbstractJpaTest {
 
-	private JpaEntityRepository<TestEntity, Long> repo;
+	protected JpaEntityRepository<TestEntity, Long> repo;
 
 	@Override
 	@Before

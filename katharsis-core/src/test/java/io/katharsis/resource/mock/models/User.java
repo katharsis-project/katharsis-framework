@@ -22,6 +22,10 @@ public class User {
     @JsonApiToMany(lazy = false)
     @JsonApiIncludeByDefault
     private List<Project> assignedProjects;
+    
+    @JsonApiToMany(lazy = false)
+    @JsonApiIncludeByDefault
+    private List<Project> assignedTasks;
 
     @JsonApiMetaInformation
     private MetaInformation metaInformation;
@@ -68,4 +72,12 @@ public class User {
     public void setLinksInformation(LinksInformation linksInformation) {
         this.linksInformation = linksInformation;
     }
+	
+	public List<Project> getAssignedTasks() {
+		return assignedTasks;
+	}
+	
+	public void setAssignedTasks(List<Project> assignedTasks) {
+		this.assignedTasks = assignedTasks;
+	}
 }

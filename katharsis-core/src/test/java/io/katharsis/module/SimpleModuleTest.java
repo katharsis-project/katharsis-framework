@@ -7,6 +7,7 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import com.fasterxml.jackson.databind.Module;
 
@@ -18,10 +19,9 @@ import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryTest.IllegalStat
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
 import io.katharsis.errorhandling.mapper.KatharsisExceptionMapper;
 import io.katharsis.module.Module.ModuleContext;
-import io.katharsis.module.SimpleModule.RelationshipRepositoryRegistration;
-import io.katharsis.queryspec.QuerySpecResourceRepository;
+import io.katharsis.repository.filter.RepositoryFilter;
+import io.katharsis.repository.information.RepositoryInformationBuilder;
 import io.katharsis.resource.information.ResourceInformationBuilder;
-import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.registry.ResourceLookup;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.security.SecurityProvider;
@@ -53,8 +53,21 @@ public class SimpleModuleTest {
 		Assert.assertEquals(0, context.numResourceLookups);
 		Assert.assertEquals(0, context.numFilters);
 		Assert.assertEquals(0, context.numJacksonModules);
-		Assert.assertEquals(0, context.numResourceRepositoreis);
-		Assert.assertEquals(0, context.numRelationshipRepositories);
+		Assert.assertEquals(0, context.numRepositories);
+	}
+
+	@Test
+	public void testRepositoryInformationBuilder() {
+		module.addRepositoryInformationBuilder(Mockito.mock(RepositoryInformationBuilder.class));
+		Assert.assertEquals(1, module.getRepositoryInformationBuilders().size());
+		module.setupModule(context);
+
+		Assert.assertEquals(1, context.numRepositoryInformationBuilds);
+		Assert.assertEquals(0, context.numResourceInformationBuilds);
+		Assert.assertEquals(0, context.numResourceLookups);
+		Assert.assertEquals(0, context.numFilters);
+		Assert.assertEquals(0, context.numJacksonModules);
+		Assert.assertEquals(0, context.numRepositories);
 	}
 
 	@Test
@@ -67,8 +80,7 @@ public class SimpleModuleTest {
 		Assert.assertEquals(1, context.numResourceLookups);
 		Assert.assertEquals(0, context.numFilters);
 		Assert.assertEquals(0, context.numJacksonModules);
-		Assert.assertEquals(0, context.numResourceRepositoreis);
-		Assert.assertEquals(0, context.numRelationshipRepositories);
+		Assert.assertEquals(0, context.numRepositories);
 	}
 
 	@Test
@@ -81,8 +93,7 @@ public class SimpleModuleTest {
 		Assert.assertEquals(0, context.numResourceLookups);
 		Assert.assertEquals(1, context.numFilters);
 		Assert.assertEquals(0, context.numJacksonModules);
-		Assert.assertEquals(0, context.numResourceRepositoreis);
-		Assert.assertEquals(0, context.numRelationshipRepositories);
+		Assert.assertEquals(0, context.numRepositories);
 	}
 
 	@Test
@@ -103,33 +114,14 @@ public class SimpleModuleTest {
 		Assert.assertEquals(0, context.numResourceLookups);
 		Assert.assertEquals(0, context.numFilters);
 		Assert.assertEquals(1, context.numJacksonModules);
-		Assert.assertEquals(0, context.numResourceRepositoreis);
-		Assert.assertEquals(0, context.numRelationshipRepositories);
+		Assert.assertEquals(0, context.numRepositories);
 	}
 
 	@Test
-	public void testResourceRepository() {
-		module.addRepository(TestResource.class, new TestRepository());
-		Assert.assertEquals(1, module.getResourceRepositoryRegistrations().size());
-		module.setupModule(context);
-
-		Assert.assertEquals(0, context.numResourceInformationBuilds);
-		Assert.assertEquals(0, context.numResourceLookups);
-		Assert.assertEquals(0, context.numFilters);
-		Assert.assertEquals(0, context.numJacksonModules);
-		Assert.assertEquals(1, context.numResourceRepositoreis);
-		Assert.assertEquals(0, context.numRelationshipRepositories);
-	}
-
-	@Test
-	public void testRelationshipRepository() {
+	public void testAddRepository() {
 		TestRelationshipRepository repository = new TestRelationshipRepository();
-		module.addRepository(TestResource.class, Task.class, repository);
-		Assert.assertEquals(1, module.getRelationshipRepositoryRegistrations().size());
-		RelationshipRepositoryRegistration reg = module.getRelationshipRepositoryRegistrations().get(0);
-		Assert.assertEquals(TestResource.class, reg.getSourceType());
-		Assert.assertEquals(repository, reg.getRepository());
-		Assert.assertEquals(Task.class, reg.getTargetType());
+		module.addRepository(repository);
+		Assert.assertEquals(1, module.getRepositories().size());
 
 		module.setupModule(context);
 
@@ -137,8 +129,7 @@ public class SimpleModuleTest {
 		Assert.assertEquals(0, context.numResourceLookups);
 		Assert.assertEquals(0, context.numFilters);
 		Assert.assertEquals(0, context.numJacksonModules);
-		Assert.assertEquals(0, context.numResourceRepositoreis);
-		Assert.assertEquals(1, context.numRelationshipRepositories);
+		Assert.assertEquals(1, context.numRepositories);
 		Assert.assertEquals(0, context.numExceptionMapperLookup);
 	}
 
@@ -152,8 +143,7 @@ public class SimpleModuleTest {
 		Assert.assertEquals(0, context.numResourceLookups);
 		Assert.assertEquals(0, context.numFilters);
 		Assert.assertEquals(0, context.numJacksonModules);
-		Assert.assertEquals(0, context.numResourceRepositoreis);
-		Assert.assertEquals(0, context.numRelationshipRepositories);
+		Assert.assertEquals(0, context.numRepositories);
 		Assert.assertEquals(1, context.numExceptionMapperLookup);
 	}
 
@@ -168,8 +158,7 @@ public class SimpleModuleTest {
 		Assert.assertEquals(0, context.numResourceLookups);
 		Assert.assertEquals(0, context.numFilters);
 		Assert.assertEquals(0, context.numJacksonModules);
-		Assert.assertEquals(0, context.numResourceRepositoreis);
-		Assert.assertEquals(0, context.numRelationshipRepositories);
+		Assert.assertEquals(0, context.numRepositories);
 		Assert.assertEquals(1, context.numExceptionMapperLookup);
 	}
 
@@ -186,13 +175,13 @@ public class SimpleModuleTest {
 
 		private int numResourceInformationBuilds = 0;
 
+		private int numRepositoryInformationBuilds = 0;
+
 		private int numResourceLookups = 0;
 
 		private int numJacksonModules = 0;
 
-		private int numResourceRepositoreis = 0;
-
-		private int numRelationshipRepositories = 0;
+		private int numRepositories = 0;
 
 		private int numFilters = 0;
 
@@ -217,12 +206,12 @@ public class SimpleModuleTest {
 
 		@Override
 		public void addRepository(Class<?> resourceClass, Object repository) {
-			numResourceRepositoreis++;
+			numRepositories++;
 		}
 
 		@Override
 		public void addRepository(Class<?> sourceResourceClass, Class<?> targetResourceClass, Object repository) {
-			numRelationshipRepositories++;
+			numRepositories++;
 		}
 
 		@Override
@@ -232,7 +221,7 @@ public class SimpleModuleTest {
 
 		@Override
 		public ResourceRegistry getResourceRegistry() {
-			return new ResourceRegistry(null);
+			return new ResourceRegistry(null, null);
 		}
 
 		@Override
@@ -258,6 +247,21 @@ public class SimpleModuleTest {
 		@Override
 		public ServiceDiscovery getServiceDiscovery() {
 			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public void addRepositoryFilter(RepositoryFilter filter) {
+			numFilters++;
+		}
+
+		@Override
+		public void addRepositoryInformationBuilder(RepositoryInformationBuilder repositoryInformationBuilder) {
+			numRepositoryInformationBuilds++;
+		}
+
+		@Override
+		public void addRepository(Object repository) {
+			numRepositories++;
 		}
 	}
 }

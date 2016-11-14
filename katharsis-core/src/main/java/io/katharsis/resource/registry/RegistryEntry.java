@@ -1,7 +1,15 @@
 package io.katharsis.resource.registry;
 
+import java.io.Serializable;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
+
+import io.katharsis.module.ModuleRegistry;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.repository.exception.RelationshipRepositoryNotFoundException;
+import io.katharsis.repository.information.RepositoryInformation;
+import io.katharsis.repository.information.ResourceRepositoryInformation;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.repository.AnnotatedRelationshipEntryBuilder;
 import io.katharsis.resource.registry.repository.AnnotatedResourceEntry;
@@ -9,12 +17,8 @@ import io.katharsis.resource.registry.repository.DirectResponseRelationshipEntry
 import io.katharsis.resource.registry.repository.DirectResponseResourceEntry;
 import io.katharsis.resource.registry.repository.ResourceEntry;
 import io.katharsis.resource.registry.repository.ResponseRelationshipEntry;
-import io.katharsis.resource.registry.responseRepository.RelationshipRepositoryAdapter;
-import io.katharsis.resource.registry.responseRepository.ResourceRepositoryAdapter;
-
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
+import io.katharsis.resource.registry.repository.adapter.RelationshipRepositoryAdapter;
+import io.katharsis.resource.registry.repository.adapter.ResourceRepositoryAdapter;
 
 /**
  * Holds information about a resource of type <i>T</i> and its repositories.
@@ -32,27 +36,29 @@ public class RegistryEntry<T> {
     private final List<ResponseRelationshipEntry<T, ?>> relationshipEntries;
     private RegistryEntry parentRegistryEntry = null;
     
-	private ResourceRegistry resourceRegistry;
+	private ModuleRegistry moduleRegistry;
+	private ResourceRepositoryInformation repositoryInformation;
 
-    public RegistryEntry(ResourceInformation resourceInformation,
+    public RegistryEntry(ResourceRepositoryInformation repositoryInformation,
                          @SuppressWarnings("SameParameterValue") ResourceEntry<T, ?> resourceEntry) {
-        this(resourceInformation, resourceEntry, new LinkedList<ResponseRelationshipEntry<T, ?>>());
+        this(repositoryInformation, resourceEntry, new LinkedList<ResponseRelationshipEntry<T, ?>>());
     }
 
-    public RegistryEntry(ResourceInformation resourceInformation,
+    public RegistryEntry(ResourceRepositoryInformation repositoryInformation,
                          ResourceEntry<T, ?> resourceEntry,
                          List<ResponseRelationshipEntry<T, ?>> relationshipEntries) {
-        this.resourceInformation = resourceInformation;
+    	this.repositoryInformation = repositoryInformation;
+        this.resourceInformation = repositoryInformation.getResourceInformation();
         this.resourceEntry = resourceEntry;
         this.relationshipEntries = relationshipEntries;
     }
     
-    protected void initialize(ResourceRegistry resourceRegistry){
-    	this.resourceRegistry = resourceRegistry;
+    protected void initialize(ModuleRegistry moduleRegistry){
+    	this.moduleRegistry = moduleRegistry;
     }
 
     @SuppressWarnings("unchecked")
-    public ResourceRepositoryAdapter getResourceRepository(RepositoryMethodParameterProvider parameterProvider) {
+    public <I extends Serializable> ResourceRepositoryAdapter<T, I> getResourceRepository(RepositoryMethodParameterProvider parameterProvider) {
         Object repoInstance = null;
         if (resourceEntry instanceof DirectResponseResourceEntry) {
             repoInstance = ((DirectResponseResourceEntry<T, ?>) resourceEntry).getResourceRepository();
@@ -61,10 +67,10 @@ public class RegistryEntry<T> {
         }
         
         if(repoInstance instanceof ResourceRegistryAware){
-        	((ResourceRegistryAware)repoInstance).setResourceRegistry(resourceRegistry);
+        	((ResourceRegistryAware)repoInstance).setResourceRegistry(moduleRegistry.getResourceRegistry());
         }
 
-        return new ResourceRepositoryAdapter(resourceInformation, resourceRegistry, repoInstance);
+        return new ResourceRepositoryAdapter(resourceInformation, moduleRegistry, repoInstance);
     }
 
     public List<ResponseRelationshipEntry<T, ?>> getRelationshipEntries() {
@@ -72,7 +78,7 @@ public class RegistryEntry<T> {
     }
 
     @SuppressWarnings("unchecked")
-    public RelationshipRepositoryAdapter getRelationshipRepositoryForClass(Class clazz,
+    public <D, I extends Serializable, J extends Serializable> RelationshipRepositoryAdapter<T, I, D, J> getRelationshipRepositoryForClass(Class<D> clazz,
                                                                                      RepositoryMethodParameterProvider parameterProvider) {
         ResponseRelationshipEntry<T, ?> foundRelationshipEntry = null;
         for (ResponseRelationshipEntry<T, ?> relationshipEntry : relationshipEntries) {
@@ -93,15 +99,19 @@ public class RegistryEntry<T> {
         }
          
         if(repoInstance instanceof ResourceRegistryAware){
-        	((ResourceRegistryAware)repoInstance).setResourceRegistry(resourceRegistry);
+        	((ResourceRegistryAware)repoInstance).setResourceRegistry(moduleRegistry.getResourceRegistry());
         }
          
-        return new RelationshipRepositoryAdapter(resourceInformation, resourceRegistry, repoInstance);
+        return new RelationshipRepositoryAdapter(resourceInformation, moduleRegistry, repoInstance);
     }
 
     public ResourceInformation getResourceInformation() {
         return resourceInformation;
     }
+
+	public ResourceRepositoryInformation getRepositoryInformation() {
+		return repositoryInformation;
+	}
 
     public RegistryEntry getParentRegistryEntry() {
         return parentRegistryEntry;
@@ -138,18 +148,20 @@ public class RegistryEntry<T> {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (o == null || !(o instanceof RegistryEntry)){
             return false;
         }
         RegistryEntry<?> that = (RegistryEntry<?>) o;
-        return Objects.equals(resourceInformation, that.resourceInformation) &&
+        return Objects.equals(resourceInformation, that.resourceInformation) &&  // NOSONAR
+        		Objects.equals(repositoryInformation, that.repositoryInformation) &&
             Objects.equals(resourceEntry, that.resourceEntry) &&
+            Objects.equals(moduleRegistry, that.moduleRegistry) &&
             Objects.equals(relationshipEntries, that.relationshipEntries) &&
             Objects.equals(parentRegistryEntry, that.parentRegistryEntry);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(resourceInformation, resourceEntry, relationshipEntries, parentRegistryEntry);
+        return Objects.hash(repositoryInformation, resourceInformation, resourceEntry, relationshipEntries, moduleRegistry, parentRegistryEntry);
     }
 }

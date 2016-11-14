@@ -4,6 +4,7 @@ import io.katharsis.resource.exception.ResourceException;
 import io.katharsis.resource.exception.ResourceFieldNotFoundException;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.field.ResourceField;
+import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.utils.StringUtils;
@@ -33,21 +34,41 @@ public class PathBuilder {
      *
      * @param path Path to be parsed
      * @return doubly-linked list which represents path given at the input
+     * @deprecated use {@link #build(Path)}
      */
     public JsonPath buildPath(String path) {
+    	JsonPath jsonPath = build(path);
+    	if(jsonPath != null){
+    		return jsonPath;
+    	}else{
+    		throw new ResourceNotFoundException(path);
+    	}
+    }
+    
+    /**
+     * Parses path provided by the application. The path provided cannot contain neither hostname nor protocol. It
+     * can start or end with slash e.g. <i>/tasks/1/</i> or <i>tasks/1</i>.
+     *
+     * @param path Path to be parsed
+     * @return doubly-linked list which represents path given at the input
+     */
+    public JsonPath build(String path) {
         String[] strings = splitPath(path);
         if (strings.length == 0 || (strings.length == 1 && "".equals(strings[0]))) {
-            throw new ResourceException("Path is empty");
+        	throw new ResourceException("Path is empty");
         }
 
         JsonPath previousJsonPath = null, currentJsonPath = null;
         PathIds pathIds;
         boolean relationshipMark;
         String elementName;
+        String actionName;
 
-        for (int currentElementIdx = 0; currentElementIdx < strings.length; ) {
+        int currentElementIdx = 0;
+        while (currentElementIdx < strings.length) {
             elementName = null;
             pathIds = null;
+            actionName = null;
             relationshipMark = false;
 
             if (RELATIONSHIP_MARK.equals(strings[currentElementIdx])) {
@@ -59,12 +80,24 @@ public class PathBuilder {
                 elementName = strings[currentElementIdx];
                 currentElementIdx++;
             }
-
-            if (currentElementIdx < strings.length && !RELATIONSHIP_MARK.equals(strings[currentElementIdx])) {
+            RegistryEntry<?> entry = resourceRegistry.getEntry(elementName);
+            
+            if (currentElementIdx < strings.length && entry != null && entry.getRepositoryInformation().getActions().containsKey(strings[currentElementIdx])) {
+            	// repository action
+            	actionName = strings[currentElementIdx];
+            	currentElementIdx++;
+            }else if (currentElementIdx < strings.length && !RELATIONSHIP_MARK.equals(strings[currentElementIdx])) {
+            	// ids
                 pathIds = createPathIds(strings[currentElementIdx]);
                 currentElementIdx++;
+                
+                if(currentElementIdx < strings.length && entry != null && entry.getRepositoryInformation().getActions().containsKey(strings[currentElementIdx])) {
+                	// resource action
+                	actionName = strings[currentElementIdx];
+                	currentElementIdx++;
+                }
             }
-            RegistryEntry entry = resourceRegistry.getEntry(elementName);
+            
             if (previousJsonPath != null) {
                 currentJsonPath = getNonResourcePath(previousJsonPath, elementName, relationshipMark);
                 if (pathIds != null) {
@@ -73,11 +106,17 @@ public class PathBuilder {
             } else if (entry != null && !relationshipMark) {
                 currentJsonPath = new ResourcePath(elementName);
             } else {
-                throw new ResourceNotFoundException(path);
+            	return null;
             }
 
             if (pathIds != null) {
                 currentJsonPath.setIds(pathIds);
+            }
+            if(actionName != null){
+            	ActionPath actionPath = new ActionPath(actionName);
+            	actionPath.setParentResource(currentJsonPath);
+            	currentJsonPath.setChildResource(actionPath);
+            	currentJsonPath = actionPath;
             }
             if (previousJsonPath != null) {
                 previousJsonPath.setChildResource(currentJsonPath);
@@ -91,8 +130,11 @@ public class PathBuilder {
 
     private JsonPath getNonResourcePath(JsonPath previousJsonPath, String elementName, boolean relationshipMark) {
         String previousElementName = previousJsonPath.getElementName();
-        RegistryEntry previousEntry = resourceRegistry.getEntry(previousElementName);
-        Set<ResourceField> resourceFields = previousEntry.getResourceInformation().getRelationshipFields();
+        RegistryEntry<?> previousEntry = resourceRegistry.getEntry(previousElementName);
+        
+        ResourceInformation resourceInformation = previousEntry.getResourceInformation();
+      
+        Set<ResourceField> resourceFields = resourceInformation.getRelationshipFields();
         for (ResourceField field : resourceFields) {
             if (field.getJsonName().equals(elementName)) {
                 if (relationshipMark) {

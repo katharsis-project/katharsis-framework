@@ -2,8 +2,10 @@ package io.katharsis.module;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,12 +14,15 @@ import io.katharsis.dispatcher.filter.Filter;
 import io.katharsis.errorhandling.mapper.ExceptionMapper;
 import io.katharsis.errorhandling.mapper.ExceptionMapperLookup;
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
-import io.katharsis.module.SimpleModule.RelationshipRepositoryRegistration;
-import io.katharsis.module.SimpleModule.ResourceRepositoryRegistration;
 import io.katharsis.repository.RepositoryInstanceBuilder;
-import io.katharsis.repository.ResourceRepository;
 import io.katharsis.repository.annotations.JsonApiRelationshipRepository;
 import io.katharsis.repository.annotations.JsonApiResourceRepository;
+import io.katharsis.repository.filter.RepositoryFilter;
+import io.katharsis.repository.information.RelationshipRepositoryInformation;
+import io.katharsis.repository.information.RepositoryInformation;
+import io.katharsis.repository.information.RepositoryInformationBuilder;
+import io.katharsis.repository.information.RepositoryInformationBuilderContext;
+import io.katharsis.repository.information.ResourceRepositoryInformation;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.registry.MultiResourceLookup;
@@ -76,6 +81,12 @@ public class ModuleRegistry {
 		}
 
 		@Override
+		public void addRepositoryInformationBuilder(RepositoryInformationBuilder repositoryInformationBuilder) {
+			checkNotInitialized();
+			aggregatedModule.addRepositoryInformationBuilder(repositoryInformationBuilder);
+		}
+
+		@Override
 		public void addResourceLookup(ResourceLookup resourceLookup) {
 			checkNotInitialized();
 			aggregatedModule.addResourceLookup(resourceLookup);
@@ -118,13 +129,13 @@ public class ModuleRegistry {
 		@Override
 		public void addRepository(Class<?> type, Object repository) {
 			checkNotInitialized();
-			aggregatedModule.addRepository(type, repository);
+			aggregatedModule.addRepository(repository);
 		}
 
 		@Override
 		public void addRepository(Class<?> sourceType, Class<?> targetType, Object repository) {
 			checkNotInitialized();
-			aggregatedModule.addRepository(sourceType, targetType, repository);
+			aggregatedModule.addRepository(repository);
 		}
 
 		@Override
@@ -141,6 +152,17 @@ public class ModuleRegistry {
 		@Override
 		public ServiceDiscovery getServiceDiscovery() {
 			return ModuleRegistry.this.getServiceDiscovery();
+		}
+
+		@Override
+		public void addRepositoryFilter(RepositoryFilter filter) {
+			checkNotInitialized();
+			aggregatedModule.addRepositoryFilter(filter);
+		}
+
+		@Override
+		public void addRepository(Object repository) {
+			aggregatedModule.addRepository(repository);
 		}
 	}
 
@@ -169,6 +191,16 @@ public class ModuleRegistry {
 	 */
 	public ResourceInformationBuilder getResourceInformationBuilder() {
 		return new CombinedResourceInformationBuilder(aggregatedModule.getResourceInformationBuilders());
+	}
+
+	/**
+	 * Returns a {@link ResourceRepositoryBuilder} instance that combines all
+	 * instances registered by modules.
+	 *
+	 * @return repository information builder
+	 */
+	public RepositoryInformationBuilder getRepositoryInformationBuilder() {
+		return new CombinedRepositoryInformationBuilder(aggregatedModule.getRepositoryInformationBuilders());
 	}
 
 	/**
@@ -240,6 +272,61 @@ public class ModuleRegistry {
 	}
 
 	/**
+	 * Combines all {@link RepositoryInformationBuilder} instances provided by the registered
+	 * {@link Module}.
+	 */
+	static class CombinedRepositoryInformationBuilder implements RepositoryInformationBuilder {
+
+		private Collection<RepositoryInformationBuilder> builders;
+
+		public CombinedRepositoryInformationBuilder(List<RepositoryInformationBuilder> builders) {
+			this.builders = builders;
+		}
+
+		@Override
+		public boolean accept(Object repository) {
+			for (RepositoryInformationBuilder builder : builders) {
+				if (builder.accept(repository)) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		@Override
+		public RepositoryInformation build(Object repository, RepositoryInformationBuilderContext context) {
+			for (RepositoryInformationBuilder builder : builders) {
+				if (builder.accept(repository)) {
+					return builder.build(repository, context);
+				}
+			}
+			throw new UnsupportedOperationException(
+					"no RepositoryInformationBuilder for " + repository.getClass().getName() + " available");
+		}
+
+		@Override
+		public boolean accept(Class<?> repositoryClass) {
+			for (RepositoryInformationBuilder builder : builders) {
+				if (builder.accept(repositoryClass)) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		@Override
+		public RepositoryInformation build(Class<?> repositoryClass, RepositoryInformationBuilderContext context) {
+			for (RepositoryInformationBuilder builder : builders) {
+				if (builder.accept(repositoryClass)) {
+					return builder.build(repositoryClass, context);
+				}
+			}
+			throw new UnsupportedOperationException(
+					"no RepositoryInformationBuilder for " + repositoryClass.getName() + " available");
+		}
+	}
+
+	/**
 	 * Combines all {@link ExceptionMapperLookup} instances provided by the registered
 	 * {@link Module}.
 	 */
@@ -269,40 +356,59 @@ public class ModuleRegistry {
 	 * @param objectMapper object mapper
 	 * @param resourceRegistry resource registry
 	 */
-	public synchronized void init(ObjectMapper objectMapper, ResourceRegistry resourceRegistry) {
+	public void init(ObjectMapper objectMapper) {
 		if (!initialized) {
 			this.initialized = true;
 			this.objectMapper = objectMapper;
-			this.resourceRegistry = resourceRegistry;
 			this.objectMapper.registerModules(getJacksonModules());
 
 			applyRepositoryRegistration(resourceRegistry);
 
 			for (Module module : modules) {
-				if (module instanceof InitialzingModule) {
-					((InitialzingModule) module).init();
+				if (module instanceof InitializingModule) {
+					((InitializingModule) module).init();
 				}
 			}
 		}
 	}
 
-	public void setServiceDiscovery(ServiceDiscovery serviceDiscovery){
+	public void setServiceDiscovery(ServiceDiscovery serviceDiscovery) {
 		this.serviceDiscovery = serviceDiscovery;
 	}
-	
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void applyRepositoryRegistration(ResourceRegistry resourceRegistry) {
-		List<RelationshipRepositoryRegistration> relationshipRepositoryRegistrations = aggregatedModule
-				.getRelationshipRepositoryRegistrations();
-		List<ResourceRepositoryRegistration> resourceRepositoryRegistrations = aggregatedModule
-				.getResourceRepositoryRegistrations();
+		List<Object> repositories = aggregatedModule.getRepositories();
+
+		RepositoryInformationBuilder repositoryInformationBuilder = getRepositoryInformationBuilder();
+		RepositoryInformationBuilderContext builderContext = new RepositoryInformationBuilderContext() {
+
+			@Override
+			public ResourceInformationBuilder getResourceInformationBuilder() {
+				return ModuleRegistry.this.getResourceInformationBuilder();
+			}
+		};
+
+		Map<ResourceRepositoryInformation, Object> resourceRepositories = new HashMap<>();
+		Map<RelationshipRepositoryInformation, Object> relationshipRepositories = new HashMap<>();
 
 		// TODO this needs to be merged with ResourceRegistryBuilder
-		for (final ResourceRepositoryRegistration resourceRepositoryRegistration : resourceRepositoryRegistrations) {
-			Class<?> resourceClass = resourceRepositoryRegistration.getResourceClass();
-			final Object repository = resourceRepositoryRegistration.getRepository();
-			RepositoryInstanceBuilder<ResourceRepository<?, ?>> repositoryInstanceBuilder = new RepositoryInstanceBuilder(null,
-					null) {
+		for (final Object repository : repositories) {
+			RepositoryInformation repositoryInformation = repositoryInformationBuilder.build(repository, builderContext);
+			if (repositoryInformation instanceof ResourceRepositoryInformation) {
+				resourceRepositories.put((ResourceRepositoryInformation) repositoryInformation, repository);
+			}
+			else {
+				relationshipRepositories.put((RelationshipRepositoryInformation) repositoryInformation, repository);
+			}
+		}
+
+		for (Map.Entry<ResourceRepositoryInformation, Object>  entry: resourceRepositories.entrySet()) {
+			ResourceRepositoryInformation resourceRepositoryInfo = entry.getKey();
+			final Object repository = entry.getValue();
+			Class<?> resourceClass = resourceRepositoryInfo.getResourceInformation().getResourceClass();
+
+			RepositoryInstanceBuilder repositoryInstanceBuilder = new RepositoryInstanceBuilder(null, null) {
 
 				@Override
 				public Object buildRepository() {
@@ -318,33 +424,32 @@ public class ModuleRegistry {
 				resourceEntry = new DirectResponseResourceEntry(repositoryInstanceBuilder);
 			}
 
-			ResourceInformation resourceInformation = getResourceInformationBuilder().build(resourceClass);
 			List<ResponseRelationshipEntry> relationshipEntries = new ArrayList<>();
-			for (final RelationshipRepositoryRegistration relationshipRepositoryRegistration : relationshipRepositoryRegistrations) {
-				if (relationshipRepositoryRegistration.getSourceType() == resourceClass) {
-					setupRelationShip(relationshipEntries, relationshipRepositoryRegistration);
+			for (Map.Entry<RelationshipRepositoryInformation,Object> relEntry : relationshipRepositories.entrySet()) {
+				RelationshipRepositoryInformation relationshipRepositoryInformation = relEntry.getKey();
+				if (relationshipRepositoryInformation.getSourceResourceInformation().getResourceClass() == resourceClass) {
+					setupRelationShip(relationshipEntries, relationshipRepositoryInformation, relEntry.getValue());
 				}
 			}
 			// TODO get also relations from resource lookup
-			RegistryEntry registryEntry = new RegistryEntry(resourceInformation, resourceEntry, relationshipEntries);
+			RegistryEntry registryEntry = new RegistryEntry(resourceRepositoryInfo, resourceEntry, relationshipEntries);
 			resourceRegistry.addEntry(resourceClass, registryEntry);
 		}
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void setupRelationShip(List<ResponseRelationshipEntry> relationshipEntries,
-			final RelationshipRepositoryRegistration relationshipRepositoryRegistration) {
-		Object relRepository = relationshipRepositoryRegistration.getRepository();
+			final RelationshipRepositoryInformation relationshipRepositoryInformation, final Object relRepository) {
 		RepositoryInstanceBuilder<Object> relationshipInstanceBuilder = new RepositoryInstanceBuilder<Object>(null, null) {
 
 			@Override
 			public Object buildRepository() {
-				return relationshipRepositoryRegistration.getRepository();
+				return relRepository;
 			}
 
 			@Override
 			public Class getRepositoryClass() {
-				return relationshipRepositoryRegistration.getRepository().getClass();
+				return relationshipRepositoryInformation.getRepositoryClass();
 			}
 		};
 
@@ -356,7 +461,7 @@ public class ModuleRegistry {
 
 				@Override
 				public Class<?> getTargetAffiliation() {
-					return relationshipRepositoryRegistration.getTargetType();
+					return relationshipRepositoryInformation.getResourceInformation().getResourceClass();
 				}
 			};
 			relationshipEntries.add(relationshipEntry);
@@ -371,6 +476,13 @@ public class ModuleRegistry {
 	}
 
 	/**
+	 * @return {@link Filter} added by all modules
+	 */
+	public List<RepositoryFilter> getRepositoryFilters() {
+		return aggregatedModule.getRepositoryFilters();
+	}
+
+	/**
 	 * @return combined {@link ExceptionMapperLookup} added by all modules
 	 */
 	public ExceptionMapperLookup getExceptionMapperLookup() {
@@ -379,5 +491,9 @@ public class ModuleRegistry {
 
 	public List<Module> getModules() {
 		return modules;
+	}
+
+	public void setResourceRegistry(ResourceRegistry resourceRegistry) {
+		this.resourceRegistry = resourceRegistry;
 	}
 }

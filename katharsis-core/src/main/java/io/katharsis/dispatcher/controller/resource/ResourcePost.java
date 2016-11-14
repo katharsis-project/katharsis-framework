@@ -14,7 +14,7 @@ import io.katharsis.resource.exception.RequestBodyNotFoundException;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.resource.registry.responseRepository.ResourceRepositoryAdapter;
+import io.katharsis.resource.registry.repository.adapter.ResourceRepositoryAdapter;
 import io.katharsis.response.HttpStatus;
 import io.katharsis.response.JsonApiResponse;
 import io.katharsis.response.ResourceResponseContext;
@@ -66,7 +66,7 @@ public class ResourcePost extends ResourceUpsert {
         setAttributes(dataBody, newResource, bodyRegistryEntry.getResourceInformation());
         ResourceRepositoryAdapter resourceRepository = endpointRegistryEntry.getResourceRepository(parameterProvider);
         setRelations(newResource, bodyRegistryEntry, dataBody, queryAdapter, parameterProvider);
-        JsonApiResponse response = resourceRepository.save(newResource, queryAdapter);
+        JsonApiResponse response = resourceRepository.create(newResource, queryAdapter);
 
         return new ResourceResponseContext(response, jsonPath, queryAdapter, HttpStatus.CREATED_201);
     }

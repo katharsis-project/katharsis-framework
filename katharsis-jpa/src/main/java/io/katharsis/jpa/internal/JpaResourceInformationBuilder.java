@@ -30,6 +30,7 @@ import io.katharsis.resource.field.ResourceAttributesBridge;
 import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.field.ResourceField.LookupIncludeBehavior;
 import io.katharsis.resource.information.AnnotationResourceInformationBuilder.AnnotatedResourceField;
+import io.katharsis.utils.StringUtils;
 import io.katharsis.resource.information.DefaultResourceInstanceBuilder;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.information.ResourceInformationBuilder;
@@ -261,8 +262,9 @@ public class JpaResourceInformationBuilder implements ResourceInformationBuilder
 			throw new IllegalStateException(e);
 		}
 		List<Annotation> annotations = Arrays.asList(declaredField.getAnnotations());
-
+		
 		// use JPA annotations as default
+		String oppositeName = null;
 		boolean lazyDefault = false;
 		for (Annotation annotation : annotations) {
 			if (annotation instanceof ElementCollection) {
@@ -271,8 +273,10 @@ public class JpaResourceInformationBuilder implements ResourceInformationBuilder
 				lazyDefault = ((ManyToOne) annotation).fetch() == FetchType.LAZY;
 			} else if (annotation instanceof OneToMany) {
 				lazyDefault = ((OneToMany) annotation).fetch() == FetchType.LAZY;
+				oppositeName = StringUtils.emptyToNull(((OneToMany) annotation).mappedBy());
 			} else if (annotation instanceof ManyToMany) {
 				lazyDefault = ((ManyToMany) annotation).fetch() == FetchType.LAZY;
+				oppositeName = StringUtils.emptyToNull(((ManyToMany) annotation).mappedBy());
 			}
 		}
 
@@ -282,7 +286,7 @@ public class JpaResourceInformationBuilder implements ResourceInformationBuilder
 		
 		// related repositories should lookup, we ignore the hibernate proxies
 		LookupIncludeBehavior lookupIncludeBehavior = AnnotatedResourceField.getLookupIncludeBehavior(annotations, LookupIncludeBehavior.AUTOMATICALLY_ALWAYS);
-		return new ResourceField(jsonName, underlyingName, type, genericType, lazy, includeByDefault,
+		return new ResourceField(jsonName, underlyingName, type, genericType, oppositeName, lazy, includeByDefault,
 				lookupIncludeBehavior);
 	}
 

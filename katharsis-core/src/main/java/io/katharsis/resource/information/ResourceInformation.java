@@ -1,11 +1,15 @@
 package io.katharsis.resource.information;
 
+import io.katharsis.repository.information.RepositoryAction;
+import io.katharsis.repository.information.RepositoryInformation;
 import io.katharsis.resource.field.ResourceAttributesBridge;
 import io.katharsis.resource.field.ResourceField;
+import io.katharsis.utils.PropertyUtils;
 import io.katharsis.utils.parser.TypeParser;
 
 import java.io.Serializable;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -50,7 +54,7 @@ public class ResourceInformation {
      * Creates a new instance of the given resource.
      */
 	private ResourceInstanceBuilder<?> instanceBuilder;
-
+	
 	public ResourceInformation(Class<?> resourceClass, String resourceType, ResourceField idField, ResourceAttributesBridge attributeFields,
             Set<ResourceField> relationshipFields) {
 		this(resourceClass, resourceType, null, idField, attributeFields, relationshipFields, null, null);
@@ -188,4 +192,13 @@ public class ResourceInformation {
 		Class idType = getIdField().getType();
 		return parser.parse(id, idType);
 	}
+
+	/**
+	 * @param resource
+	 * @return id of the resource
+	 */
+	public Object getId(Object resource) {
+		return PropertyUtils.getProperty(resource, idField.getUnderlyingName());
+	}
+
 }

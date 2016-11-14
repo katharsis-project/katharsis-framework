@@ -61,7 +61,7 @@ public class FilterTest {
 				new ResourceFieldNameTransformer());
 		ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonServiceLocator(),
 				resourceInformationBuilder);
-		resourceRegistry = registryBuilder.build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE,
+		resourceRegistry = registryBuilder.build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, moduleRegistry,
 				new ConstantServiceUrlProvider(ResourceRegistryTest.TEST_MODELS_URL));
 		
 		pathBuilder = new PathBuilder(resourceRegistry);
@@ -81,7 +81,7 @@ public class FilterTest {
 		SimpleModule filterModule = new SimpleModule("filter");
 		filterModule.addFilter(filter);
 		moduleRegistry.addModule(filterModule);
-		moduleRegistry.init(new ObjectMapper(), resourceRegistry);
+		moduleRegistry.init(new ObjectMapper());
 
 		// WHEN
 		ArgumentCaptor<FilterRequestContext> captor = ArgumentCaptor.forClass(FilterRequestContext.class);

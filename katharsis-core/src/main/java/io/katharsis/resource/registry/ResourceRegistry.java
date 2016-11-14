@@ -7,6 +7,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.katharsis.module.ModuleRegistry;
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.exception.init.ResourceNotFoundInitializationException;
 import io.katharsis.resource.information.ResourceInformation;
@@ -17,16 +18,13 @@ public class ResourceRegistry {
     private final Map<Class, RegistryEntry> resources;
     private final ServiceUrlProvider serviceUrlProvider;
     private final Logger logger = LoggerFactory.getLogger(ResourceRegistry.class);
+	private ModuleRegistry moduleRegistry;
 
-    public ResourceRegistry(ServiceUrlProvider serviceUrlProvider) {
+    public ResourceRegistry(ModuleRegistry moduleRegistry, ServiceUrlProvider serviceUrlProvider) {
+    	this.moduleRegistry = moduleRegistry;
         this.serviceUrlProvider = serviceUrlProvider;
         this.resources = new HashMap<>();
-    }
-
-
-    public ResourceRegistry(Map<Class, RegistryEntry> resources, ServiceUrlProvider serviceUrlProvider) {
-        this.serviceUrlProvider = serviceUrlProvider;
-        this.resources = new HashMap<>(resources); // copying is slower but completely thread safe
+        this.moduleRegistry.setResourceRegistry(this);
     }
 
     /**
@@ -38,7 +36,7 @@ public class ResourceRegistry {
      */
     public <T> void addEntry(Class<T> resource, RegistryEntry<? extends T> registryEntry) {
         resources.put(resource, registryEntry);
-        registryEntry.initialize(this);
+        registryEntry.initialize(moduleRegistry);
         logger.debug("Added resource {} to ResourceRegistry", resource.getName());
     }
 
@@ -74,8 +72,8 @@ public class ResourceRegistry {
      * @return registry entry
      * @throws ResourceNotFoundInitializationException if resource is not found
      */
-    public RegistryEntry getEntry(String searchType, Class clazz) {
-        RegistryEntry entry = getEntry(searchType);
+    public <T> RegistryEntry<T> getEntry(String searchType, Class<T> clazz) {
+        RegistryEntry<T> entry = getEntry(searchType);
         if (entry == null) {
             return getEntry(clazz, false);
         }
@@ -90,15 +88,15 @@ public class ResourceRegistry {
      * @return registry entry
      * @throws ResourceNotFoundInitializationException if resource is not found
      */
-    public RegistryEntry getEntry(Class clazz) {
-        return getEntry(clazz, false);
+    public <T> RegistryEntry<T> getEntry(Class<T> clazz) {
+        return (RegistryEntry<T>) getEntry(clazz, false);
     }
 
     public boolean hasEntry(Class<?> clazz){
     	return getEntry(clazz, true) != null;
     }
     
-    private RegistryEntry<?> getEntry(Class<?> clazz, boolean allowNull) {
+    protected <T> RegistryEntry<T> getEntry(Class<T> clazz, boolean allowNull) {
         Optional<Class<?>> resourceClazz = getResourceClass(clazz);
         if (allowNull && !resourceClazz.isPresent())
             return null;
@@ -107,7 +105,7 @@ public class ResourceRegistry {
         return resources.get(resourceClazz.get());
     }
 
-    public RegistryEntry getEntry(Object targetDataObject) {
+    public <T> RegistryEntry<T> getEntry(T targetDataObject) {
         Class<?> targetDataObjClass = targetDataObject.getClass();
         RegistryEntry relationshipEntry;
         if (targetDataObjClass.getAnnotation(JsonApiResource.class) != null) {
@@ -171,7 +169,7 @@ public class ResourceRegistry {
      *
      * @return resources
      */
-    public Map<Class, RegistryEntry> getResources() {
-        return Collections.unmodifiableMap(resources);
+    public Map<Class<?>, RegistryEntry<?>> getResources() {
+        return (Map)Collections.unmodifiableMap(resources);
     }
 }

@@ -1,16 +1,22 @@
 package io.katharsis.resource.mock.repository;
 
-import io.katharsis.queryParams.QueryParams;
-import io.katharsis.repository.annotations.*;
-import io.katharsis.resource.mock.models.Project;
-import io.katharsis.resource.mock.models.User;
-import io.katharsis.resource.mock.repository.util.Relation;
-
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
+import io.katharsis.queryspec.QuerySpec;
+import io.katharsis.repository.annotations.JsonApiAddRelations;
+import io.katharsis.repository.annotations.JsonApiFindManyTargets;
+import io.katharsis.repository.annotations.JsonApiFindOneTarget;
+import io.katharsis.repository.annotations.JsonApiRelationshipRepository;
+import io.katharsis.repository.annotations.JsonApiRemoveRelations;
+import io.katharsis.repository.annotations.JsonApiSetRelation;
+import io.katharsis.repository.annotations.JsonApiSetRelations;
+import io.katharsis.resource.mock.models.Project;
+import io.katharsis.resource.mock.models.User;
+import io.katharsis.resource.mock.repository.util.Relation;
 
 @JsonApiRelationshipRepository(source = User.class, target = Project.class)
 public class UserToProjectRepository {
@@ -66,7 +72,7 @@ public class UserToProjectRepository {
     }
 
     @JsonApiFindOneTarget
-    public Project findOneTarget(Long sourceId, String fieldName, QueryParams queryParams) {
+    public Project findOneTarget(Long sourceId, String fieldName, QuerySpec querySpec) {
         for (Relation<User> relation : THREAD_LOCAL_REPOSITORY.keySet()) {
             if (relation.getSource().getId().equals(sourceId) &&
                 relation.getFieldName().equals(fieldName)) {
@@ -79,7 +85,7 @@ public class UserToProjectRepository {
     }
 
     @JsonApiFindManyTargets
-    public Iterable<Project> findManyTargets(Long sourceId, String fieldName, QueryParams queryParams) {
+    public Iterable<Project> findManyTargets(Long sourceId, String fieldName, QuerySpec querySpec) {
         List<Project> projects = new LinkedList<>();
         for (Relation<User> relation: THREAD_LOCAL_REPOSITORY.keySet()) {
             if (relation.getSource().getId().equals(sourceId) && relation.getFieldName().equals(fieldName)) {
@@ -90,4 +96,8 @@ public class UserToProjectRepository {
         }
         return projects;
     }
+
+	public static void clear() {
+		THREAD_LOCAL_REPOSITORY.clear();		
+	}
 }

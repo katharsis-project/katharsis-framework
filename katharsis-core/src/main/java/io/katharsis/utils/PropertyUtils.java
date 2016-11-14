@@ -5,6 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -92,9 +93,20 @@ public class PropertyUtils {
 	public static Object getProperty(Object bean, List<String> propertyPath) {
 		Object current = bean;
 		for(String propertyName : propertyPath){
-			if(bean == null)
+			if(current == null)
 				return null;
-			current = getProperty(current, propertyName);
+			if(current instanceof Iterable){
+				// follow multi-valued property
+				List<Object> result = new ArrayList<>();
+				Iterable<?> iterable = (Iterable<?>)current;
+				for(Object currentElem : iterable){
+					result.add(getProperty(currentElem, propertyName));
+				}
+				current = result;
+			}else{
+				// follow single-valued property
+				current = getProperty(current, propertyName);
+			}
 		}
 		return current;
 	}

@@ -19,6 +19,11 @@ import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryTest.SomeIllegal
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.QuerySpecRelationshipRepository;
+import io.katharsis.queryspec.QuerySpecResourceRepository;
+import io.katharsis.repository.information.RelationshipRepositoryInformation;
+import io.katharsis.repository.information.RepositoryInformationBuilder;
+import io.katharsis.repository.information.RepositoryInformationBuilderContext;
+import io.katharsis.repository.information.ResourceRepositoryInformation;
 import io.katharsis.resource.annotations.JsonApiId;
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
@@ -35,6 +40,7 @@ import io.katharsis.resource.mock.repository.DocumentRepository;
 import io.katharsis.resource.mock.repository.PojoRepository;
 import io.katharsis.resource.mock.repository.ProjectRepository;
 import io.katharsis.resource.mock.repository.ResourceWithoutRepositoryToProjectRepository;
+import io.katharsis.resource.mock.repository.TaskRepository;
 import io.katharsis.resource.mock.repository.TaskToProjectRepository;
 import io.katharsis.resource.mock.repository.TaskWithLookupRepository;
 import io.katharsis.resource.mock.repository.UserRepository;
@@ -58,14 +64,14 @@ public class ModuleTest {
 
 	@Before
 	public void setup() {
-		resourceRegistry = new ResourceRegistry(new ConstantServiceUrlProvider("http://localhost"));
+		moduleRegistry = new ModuleRegistry();
+		resourceRegistry = new ResourceRegistry(moduleRegistry, new ConstantServiceUrlProvider("http://localhost"));
 
 		testModule = new TestModule();
-		moduleRegistry = new ModuleRegistry();
 		moduleRegistry.addModule(new CoreModule("io.katharsis.module.mock", new ResourceFieldNameTransformer()));
 		moduleRegistry.addModule(testModule);
 		moduleRegistry.setServiceDiscovery(serviceDiscovery);
-		moduleRegistry.init(new ObjectMapper(), resourceRegistry);
+		moduleRegistry.init(new ObjectMapper());
 
 		Assert.assertEquals(resourceRegistry, moduleRegistry.getResourceRegistry());
 	}
@@ -74,11 +80,81 @@ public class ModuleTest {
 	public void getModules() {
 		Assert.assertEquals(2, moduleRegistry.getModules().size());
 	}
-	
+
 	@Test
 	public void testGetServiceDiscovery() {
 		Assert.assertEquals(serviceDiscovery, moduleRegistry.getServiceDiscovery());
 		Assert.assertEquals(serviceDiscovery, testModule.context.getServiceDiscovery());
+	}
+
+	@Test(expected = UnsupportedOperationException.class)
+	public void invalidRepository() {
+		moduleRegistry.getRepositoryInformationBuilder().build("no repository", null);
+	}
+
+	@Test
+	public void repositoryInformationBuilderAccept() {
+		RepositoryInformationBuilder builder = moduleRegistry.getRepositoryInformationBuilder();
+		Assert.assertFalse(builder.accept("no repository"));
+		Assert.assertTrue(builder.accept(TaskRepository.class));
+		Assert.assertTrue(builder.accept(ProjectRepository.class));
+		Assert.assertTrue(builder.accept(TaskToProjectRepository.class));
+		Assert.assertTrue(builder.accept(new TaskRepository()));
+		Assert.assertTrue(builder.accept(new TaskToProjectRepository()));
+	}
+
+	@Test
+	public void buildResourceRepositoryInformationFromClass() {
+		RepositoryInformationBuilder builder = moduleRegistry.getRepositoryInformationBuilder();
+
+		ResourceRepositoryInformation info = (ResourceRepositoryInformation) builder.build(TaskRepository.class,
+				newRepositoryInformationBuilderContext());
+		Assert.assertEquals(TaskRepository.class, info.getRepositoryClass());
+		Assert.assertEquals(Task.class, info.getResourceInformation().getResourceClass());
+		Assert.assertEquals("tasks", info.getPath());
+	}
+
+	@Test
+	public void buildResourceRepositoryInformationFromInstance() {
+		RepositoryInformationBuilder builder = moduleRegistry.getRepositoryInformationBuilder();
+
+		ResourceRepositoryInformation info = (ResourceRepositoryInformation) builder.build(new TaskRepository(),
+				newRepositoryInformationBuilderContext());
+		Assert.assertEquals(TaskRepository.class, info.getRepositoryClass());
+		Assert.assertEquals(Task.class, info.getResourceInformation().getResourceClass());
+		Assert.assertEquals("tasks", info.getPath());
+	}
+
+	@Test
+	public void buildRelationshipRepositoryInformationFromClass() {
+		RepositoryInformationBuilder builder = moduleRegistry.getRepositoryInformationBuilder();
+
+		RelationshipRepositoryInformation info = (RelationshipRepositoryInformation) builder.build(TaskToProjectRepository.class,
+				newRepositoryInformationBuilderContext());
+		Assert.assertEquals(TaskToProjectRepository.class, info.getRepositoryClass());
+		Assert.assertEquals(Project.class, info.getResourceInformation().getResourceClass());
+		Assert.assertEquals(Task.class, info.getSourceResourceInformation().getResourceClass());
+	}
+
+	@Test
+	public void buildRelationshipRepositoryInformationFromInstance() {
+		RepositoryInformationBuilder builder = moduleRegistry.getRepositoryInformationBuilder();
+
+		RelationshipRepositoryInformation info = (RelationshipRepositoryInformation) builder.build(new TaskToProjectRepository(),
+				newRepositoryInformationBuilderContext());
+		Assert.assertEquals(TaskToProjectRepository.class, info.getRepositoryClass());
+		Assert.assertEquals(Project.class, info.getResourceInformation().getResourceClass());
+		Assert.assertEquals(Task.class, info.getSourceResourceInformation().getResourceClass());
+	}
+
+	private RepositoryInformationBuilderContext newRepositoryInformationBuilderContext() {
+		return new RepositoryInformationBuilderContext() {
+
+			@Override
+			public ResourceInformationBuilder getResourceInformationBuilder() {
+				return moduleRegistry.getResourceInformationBuilder();
+			}
+		};
 	}
 
 	@Test(expected = IllegalStateException.class)
@@ -172,7 +248,7 @@ public class ModuleTest {
 
 		ResourceInformation testInfo = informationBuilder.build(TestResource.class);
 		Assert.assertEquals("id", testInfo.getIdField().getUnderlyingName());
-		Assert.assertEquals("testId", testInfo.getIdField().getJsonName());
+		Assert.assertEquals("id", testInfo.getIdField().getJsonName());
 	}
 
 	@Test
@@ -223,7 +299,7 @@ public class ModuleTest {
 		Assert.assertNotNull(responseRelationshipEntry);
 	}
 
-	class TestModule implements InitialzingModule {
+	class TestModule implements InitializingModule {
 
 		private ModuleContext context;
 
@@ -339,15 +415,44 @@ public class ModuleTest {
 
 		@Override
 		public Class<TestResource2> getSourceResourceClass() {
-			return null;
+			return TestResource2.class;
 		}
 
 		@Override
 		public Class<TestResource2> getTargetResourceClass() {
-			return null;
+			return TestResource2.class;
 		}
 	}
 
-	class TestRepository2 extends TestRepository {
+	class TestRepository2 implements QuerySpecResourceRepository<TestResource2, Integer> {
+
+		@Override
+		public <S extends TestResource2> S save(S entity) {
+			return null;
+		}
+
+		@Override
+		public void delete(Integer id) {
+		}
+
+		@Override
+		public Class<TestResource2> getResourceClass() {
+			return TestResource2.class;
+		}
+
+		@Override
+		public TestResource2 findOne(Integer id, QuerySpec querySpec) {
+			return null;
+		}
+
+		@Override
+		public Iterable<TestResource2> findAll(QuerySpec querySpec) {
+			return null;
+		}
+
+		@Override
+		public Iterable<TestResource2> findAll(Iterable<Integer> ids, QuerySpec querySpec) {
+			return null;
+		}
 	}
 }
