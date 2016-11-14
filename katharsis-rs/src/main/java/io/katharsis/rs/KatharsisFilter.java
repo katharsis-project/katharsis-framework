@@ -135,16 +135,23 @@ public class KatharsisFilter implements ContainerRequestFilter {
             }
 
             JsonPath jsonPath = new PathBuilder(resourceRegistry).build(path);
-	        if(jsonPath != null && !(jsonPath instanceof ActionPath)){
-	            Map<String, Set<String>> parameters = getParameters(uriInfo);
-	
-	            String method = requestContext.getMethod();
+            Map<String, Set<String>> parameters = getParameters(uriInfo);
+            String method = requestContext.getMethod();
+            
+            if(jsonPath instanceof ActionPath){
+            	// inital implementation, has to improve
+            	requestDispatcher.dispatchAction(jsonPath, method, parameters);
+            	
+            	// nothing further done, forward the call to JAX-RS
+            	passToMethodMatcher = true;
+            }else if(jsonPath != null){
 	            RequestBody requestBody = inputStreamToBody(requestContext.getEntityStream());
 	
 	            JaxRsParameterProvider parameterProvider = new JaxRsParameterProvider(objectMapper, requestContext, parameterProviderRegistry);
 	            katharsisResponse = requestDispatcher
 	                .dispatchRequest(jsonPath, method, parameters, parameterProvider, requestBody);
             }else{
+            	// no repositories invoked, we do nothing and forward the call to JAX-RS
             	passToMethodMatcher = true;
             }
         } catch (KatharsisMappableException e) {

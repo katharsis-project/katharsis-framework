@@ -53,8 +53,12 @@ public abstract class AbstractClientTest extends JerseyTest {
 		return testApplication;
 	}
 
+	protected void setupFeature(KatharsisTestFeature feature) {
+		// nothing to do
+	}
+	
 	@ApplicationPath("/")
-	public static class TestApplication extends ResourceConfig {
+	public class TestApplication extends ResourceConfig {
 
 		private KatharsisTestFeature feature;
 
@@ -72,9 +76,12 @@ public abstract class AbstractClientTest extends JerseyTest {
 			}
 
 			feature.addModule(new TestModule());
+			
+			setupFeature(feature);
 
 			register(feature);
 		}
+
 
 		public KatharsisFeature getFeature() {
 			return feature;
