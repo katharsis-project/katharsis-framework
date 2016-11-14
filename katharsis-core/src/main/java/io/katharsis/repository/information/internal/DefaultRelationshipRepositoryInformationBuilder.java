@@ -40,8 +40,8 @@ public class DefaultRelationshipRepositoryInformationBuilder implements Reposito
 
 	private RepositoryInformation buildInformation(Object repository, Class<? extends Object> repositoryClass,
 			RepositoryInformationBuilderContext context) {
-		Class<?> sourceResourceClass = getSourceResourceClass(repository, repository.getClass());
-		Class<?> targetResourceClass = getTargetResourceClass(repository, repository.getClass());
+		Class<?> sourceResourceClass = getSourceResourceClass(repository, repositoryClass);
+		Class<?> targetResourceClass = getTargetResourceClass(repository, repositoryClass);
 
 		PreconditionUtil.assertNotNull("no sourceResourceClass", sourceResourceClass);
 		PreconditionUtil.assertNotNull("no targetResourceClass", targetResourceClass);
