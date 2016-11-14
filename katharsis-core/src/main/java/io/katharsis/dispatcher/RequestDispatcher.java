@@ -135,6 +135,33 @@ public class RequestDispatcher {
 			}
 		}
 	}
+	
+	class ActionFilterChain implements FilterChain {
+
+		protected int filterIndex = 0;
+
+
+		@Override
+		public BaseResponseContext doFilter(FilterRequestContext context) {
+			List<Filter> filters = moduleRegistry.getFilters();
+			if (filterIndex == filters.size()) {
+				return null;
+			}
+			else {
+				Filter filter = filters.get(filterIndex);
+				filterIndex++;
+				return filter.filter(context, this);
+			}
+		}
+	}
+	
+	public void dispatchAction(JsonPath jsonPath, String method, Map<String, Set<String>> parameters) {
+		// preliminary implementation, more to come in the future
+		ActionFilterChain chain = new ActionFilterChain();
+		
+		DefaultFilterRequestContext context = new DefaultFilterRequestContext(jsonPath, null, null, null, method);
+		chain.doFilter(context);		
+	}
 
 	class DefaultFilterRequestContext implements FilterRequestContext {
 

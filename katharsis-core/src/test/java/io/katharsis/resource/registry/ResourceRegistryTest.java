@@ -9,6 +9,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import io.katharsis.module.ModuleRegistry;
+import io.katharsis.repository.information.internal.ResourceRepositoryInformationImpl;
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.exception.init.ResourceNotFoundInitializationException;
 import io.katharsis.resource.information.ResourceInformation;
@@ -17,138 +18,143 @@ import io.katharsis.utils.java.Optional;
 
 public class ResourceRegistryTest {
 
-    public static final String TEST_MODELS_URL = "https://service.local";
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-    private ResourceRegistry resourceRegistry;
+	public static final String TEST_MODELS_URL = "https://service.local";
 
-    @Before
-    public void resetResourceRegistry() {
-        resourceRegistry = new ResourceRegistry(new ModuleRegistry(), new ConstantServiceUrlProvider(TEST_MODELS_URL));
-    }
+	@Rule
+	public ExpectedException expectedException = ExpectedException.none();
 
-    @Test
-    public void onExistingTypeShouldReturnEntry() {
-        resourceRegistry.addEntry(Task.class, new RegistryEntry(new ResourceInformation(Task.class, "tasks", null, null, null), null, null));
-        RegistryEntry tasksEntry = resourceRegistry.getEntry("tasks");
-        assertThat(tasksEntry).isNotNull();
-    }
+	private ResourceRegistry resourceRegistry;
 
-    @Test
-    public void testGetSeriveUrlProvider(){
-    	assertThat(resourceRegistry.getServiceUrlProvider().getUrl()).isEqualTo(TEST_MODELS_URL);
-    }
+	@Before
+	public void resetResourceRegistry() {
+		resourceRegistry = new ResourceRegistry(new ModuleRegistry(), new ConstantServiceUrlProvider(TEST_MODELS_URL));
+	}
 
-    @Test
-    public void testGetServiceUrl() {
-        assertThat(resourceRegistry.getServiceUrl()).isEqualTo(TEST_MODELS_URL);
-    }
+	@Test
+	public void onExistingTypeShouldReturnEntry() {
+		resourceRegistry.addEntry(Task.class, newRegistryEntry(Task.class, "tasks"));
+		RegistryEntry<Task> tasksEntry = resourceRegistry.getEntry("tasks");
+		assertThat(tasksEntry).isNotNull();
+	}
 
+	private <T> RegistryEntry<T> newRegistryEntry(Class<T> repositoryClass, String path) {
+		return new RegistryEntry<>(
+				new ResourceRepositoryInformationImpl(null, path, new ResourceInformation(Task.class, path, null, null, null)),
+				null, null);
+	}
 
-    @Test
-    public void onExistingClassShouldReturnEntry() {
-        resourceRegistry.addEntry(Task.class, new RegistryEntry(new ResourceInformation(Task.class, "tasks", null, null, null), null, null));
-        RegistryEntry tasksEntry = resourceRegistry.getEntry(Task.class);
-        assertThat(tasksEntry).isNotNull();
-    }
+	@Test
+	public void testGetSeriveUrlProvider() {
+		assertThat(resourceRegistry.getServiceUrlProvider().getUrl()).isEqualTo(TEST_MODELS_URL);
+	}
 
-    @Test
-    public void onExistingTypeShouldReturnUrl() {
-        resourceRegistry.addEntry(Task.class, new RegistryEntry(new ResourceInformation(Task.class, "tasks", null, null, null), null, null));
-        String resourceUrl = resourceRegistry.getResourceUrl(Task.class);
-        assertThat(resourceUrl).isEqualTo(TEST_MODELS_URL + "/tasks");
-    }
+	@Test
+	public void testGetServiceUrl() {
+		assertThat(resourceRegistry.getServiceUrl()).isEqualTo(TEST_MODELS_URL);
+	}
 
-    @Test
-    public void onNonExistingTypeShouldReturnNull() {
-        RegistryEntry entry = resourceRegistry.getEntry("nonExistingType");
-        assertThat(entry).isNull();
-    }
+	@Test
+	public void onExistingClassShouldReturnEntry() {
+		resourceRegistry.addEntry(Task.class, newRegistryEntry(Task.class, "tasks"));
+		RegistryEntry<Task> tasksEntry = resourceRegistry.getEntry(Task.class);
+		assertThat(tasksEntry).isNotNull();
+	}
 
-    @Test
-    public void onNonExistingClassShouldThrowException() {
-        expectedException.expect(ResourceNotFoundInitializationException.class);
-        resourceRegistry.getEntry(Long.class);
-    }
+	@Test
+	public void onExistingTypeShouldReturnUrl() {
+		resourceRegistry.addEntry(Task.class, newRegistryEntry(Task.class, "tasks"));
+		String resourceUrl = resourceRegistry.getResourceUrl(Task.class);
+		assertThat(resourceUrl).isEqualTo(TEST_MODELS_URL + "/tasks");
+	}
 
-    @Test
-    public void onNonExistingClassShouldReturnNull() {
-        String result = resourceRegistry.getResourceType(Long.class);
-        assertThat(result).isNull();
-    }
+	@Test
+	public void onNonExistingTypeShouldReturnNull() {
+		RegistryEntry entry = resourceRegistry.getEntry("nonExistingType");
+		assertThat(entry).isNull();
+	}
 
-    @Test
-    public void onResourceClassReturnCorrectClass() {
-        resourceRegistry.addEntry(Task.class, new RegistryEntry(null, null, null));
+	@Test
+	public void onNonExistingClassShouldThrowException() {
+		expectedException.expect(ResourceNotFoundInitializationException.class);
+		resourceRegistry.getEntry(Long.class);
+	}
 
-        // WHEN
-        Class<?> clazz = resourceRegistry.getResourceClass(Task$Proxy.class).get();
+	@Test
+	public void onNonExistingClassShouldReturnNull() {
+		String result = resourceRegistry.getResourceType(Long.class);
+		assertThat(result).isNull();
+	}
 
-        // THEN
-        assertThat(clazz).isNotNull();
-        assertThat(clazz).hasAnnotation(JsonApiResource.class);
-        assertThat(clazz).isEqualTo(Task.class);
-    }
+	@Test
+	public void onResourceClassReturnCorrectClass() {
+		resourceRegistry.addEntry(Task.class, newRegistryEntry(Task.class, "tasks"));
 
-    @Test
-    public void onResourceClassReturnCorrectParentInstanceClass() {
-        resourceRegistry.addEntry(Task.class, new RegistryEntry(null, null, null));
-        Task$Proxy resource = new Task$Proxy();
+		// WHEN
+		Class<?> clazz = resourceRegistry.getResourceClass(Task$Proxy.class).get();
 
-        // WHEN
-        Class<?> clazz = resourceRegistry.getResourceClass(resource).get();
+		// THEN
+		assertThat(clazz).isNotNull();
+		assertThat(clazz).hasAnnotation(JsonApiResource.class);
+		assertThat(clazz).isEqualTo(Task.class);
+	}
 
-        // THEN
-        assertThat(clazz).isEqualTo(Task.class);
-    }
+	@Test
+	public void onResourceClassReturnCorrectParentInstanceClass() {
+		resourceRegistry.addEntry(Task.class, newRegistryEntry(Task.class, "tasks"));
+		Task$Proxy resource = new Task$Proxy();
 
-    @Test
-    public void onResourceClassReturnCorrectInstanceClass() {
-        resourceRegistry.addEntry(Task.class, new RegistryEntry(null, null, null));
-        Task resource = new Task();
+		// WHEN
+		Class<?> clazz = resourceRegistry.getResourceClass(resource).get();
 
-        // WHEN
-        Class<?> clazz = resourceRegistry.getResourceClass(resource).get();
+		// THEN
+		assertThat(clazz).isEqualTo(Task.class);
+	}
 
-        // THEN
-        assertThat(clazz).isEqualTo(Task.class);
-    }
+	@Test
+	public void onResourceClassReturnCorrectInstanceClass() {
+		resourceRegistry.addEntry(Task.class, newRegistryEntry(Task.class, "tasks"));
+		Task resource = new Task();
 
-    @Test
-    public void onResourceClassReturnNoInstanceClass() {
-        resourceRegistry.addEntry(Task.class, new RegistryEntry(null, null, null));
-        Object resource = new Object();
+		// WHEN
+		Class<?> clazz = resourceRegistry.getResourceClass(resource).get();
 
-        // WHEN
-        Optional<Class<?>> clazz = resourceRegistry.getResourceClass(resource);
+		// THEN
+		assertThat(clazz).isEqualTo(Task.class);
+	}
 
-        // THEN
-        assertThat(clazz.isPresent()).isFalse();
-    }
+	@Test
+	public void onResourceClassReturnNoInstanceClass() {
+		resourceRegistry.addEntry(Task.class, newRegistryEntry(Task.class, "tasks"));
+		Object resource = new Object();
 
-    @Test
-    public void onResourceGetEntryWithBackUp() {
-        String taskType = Task.class.getAnnotation(JsonApiResource.class).type();
-        resourceRegistry.addEntry(Task.class, new RegistryEntry(new ResourceInformation(Task.class, taskType, null, null, null), null, null));
+		// WHEN
+		Optional<Class<?>> clazz = resourceRegistry.getResourceClass(resource);
 
-        // WHEN
-        RegistryEntry registryEntry = resourceRegistry.getEntry(taskType, Task.class);
+		// THEN
+		assertThat(clazz.isPresent()).isFalse();
+	}
 
+	@Test
+	public void onResourceGetEntryWithBackUp() {
+		String taskType = Task.class.getAnnotation(JsonApiResource.class).type();
+		resourceRegistry.addEntry(Task.class, newRegistryEntry(Task.class, taskType));
 
-        // THEN
-        assertNotNull(registryEntry);
-        assertNotNull(registryEntry.getResourceInformation().getResourceType(), taskType);
+		// WHEN
+		RegistryEntry<Task> registryEntry = resourceRegistry.getEntry(taskType, Task.class);
 
-        // WHEN
-        registryEntry = resourceRegistry.getEntry("N/A", Task.class);
+		// THEN
+		assertNotNull(registryEntry);
+		assertNotNull(registryEntry.getResourceInformation().getResourceType(), taskType);
 
+		// WHEN
+		registryEntry = resourceRegistry.getEntry("N/A", Task.class);
 
-        // THEN
-        assertNotNull(registryEntry);
-        assertNotNull(registryEntry.getResourceInformation().getResourceType(), taskType);
-    }
+		// THEN
+		assertNotNull(registryEntry);
+		assertNotNull(registryEntry.getResourceInformation().getResourceType(), taskType);
+	}
 
-    public static class Task$Proxy extends Task {
-    }
+	public static class Task$Proxy extends Task {
+	}
 
 }

@@ -20,6 +20,10 @@ import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.QuerySpecRelationshipRepository;
 import io.katharsis.queryspec.QuerySpecResourceRepository;
+import io.katharsis.repository.information.RelationshipRepositoryInformation;
+import io.katharsis.repository.information.RepositoryInformationBuilder;
+import io.katharsis.repository.information.RepositoryInformationBuilderContext;
+import io.katharsis.repository.information.ResourceRepositoryInformation;
 import io.katharsis.resource.annotations.JsonApiId;
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
@@ -36,6 +40,7 @@ import io.katharsis.resource.mock.repository.DocumentRepository;
 import io.katharsis.resource.mock.repository.PojoRepository;
 import io.katharsis.resource.mock.repository.ProjectRepository;
 import io.katharsis.resource.mock.repository.ResourceWithoutRepositoryToProjectRepository;
+import io.katharsis.resource.mock.repository.TaskRepository;
 import io.katharsis.resource.mock.repository.TaskToProjectRepository;
 import io.katharsis.resource.mock.repository.TaskWithLookupRepository;
 import io.katharsis.resource.mock.repository.UserRepository;
@@ -85,6 +90,71 @@ public class ModuleTest {
 	@Test(expected = UnsupportedOperationException.class)
 	public void invalidRepository() {
 		moduleRegistry.getRepositoryInformationBuilder().build("no repository", null);
+	}
+
+	@Test
+	public void repositoryInformationBuilderAccept() {
+		RepositoryInformationBuilder builder = moduleRegistry.getRepositoryInformationBuilder();
+		Assert.assertFalse(builder.accept("no repository"));
+		Assert.assertTrue(builder.accept(TaskRepository.class));
+		Assert.assertTrue(builder.accept(ProjectRepository.class));
+		Assert.assertTrue(builder.accept(TaskToProjectRepository.class));
+		Assert.assertTrue(builder.accept(new TaskRepository()));
+		Assert.assertTrue(builder.accept(new TaskToProjectRepository()));
+	}
+
+	@Test
+	public void buildResourceRepositoryInformationFromClass() {
+		RepositoryInformationBuilder builder = moduleRegistry.getRepositoryInformationBuilder();
+
+		ResourceRepositoryInformation info = (ResourceRepositoryInformation) builder.build(TaskRepository.class,
+				newRepositoryInformationBuilderContext());
+		Assert.assertEquals(TaskRepository.class, info.getRepositoryClass());
+		Assert.assertEquals(Task.class, info.getResourceInformation().getResourceClass());
+		Assert.assertEquals("tasks", info.getPath());
+	}
+
+	@Test
+	public void buildResourceRepositoryInformationFromInstance() {
+		RepositoryInformationBuilder builder = moduleRegistry.getRepositoryInformationBuilder();
+
+		ResourceRepositoryInformation info = (ResourceRepositoryInformation) builder.build(new TaskRepository(),
+				newRepositoryInformationBuilderContext());
+		Assert.assertEquals(TaskRepository.class, info.getRepositoryClass());
+		Assert.assertEquals(Task.class, info.getResourceInformation().getResourceClass());
+		Assert.assertEquals("tasks", info.getPath());
+	}
+
+	@Test
+	public void buildRelationshipRepositoryInformationFromClass() {
+		RepositoryInformationBuilder builder = moduleRegistry.getRepositoryInformationBuilder();
+
+		RelationshipRepositoryInformation info = (RelationshipRepositoryInformation) builder.build(TaskToProjectRepository.class,
+				newRepositoryInformationBuilderContext());
+		Assert.assertEquals(TaskToProjectRepository.class, info.getRepositoryClass());
+		Assert.assertEquals(Project.class, info.getResourceInformation().getResourceClass());
+		Assert.assertEquals(Task.class, info.getSourceResourceInformation().getResourceClass());
+	}
+
+	@Test
+	public void buildRelationshipRepositoryInformationFromInstance() {
+		RepositoryInformationBuilder builder = moduleRegistry.getRepositoryInformationBuilder();
+
+		RelationshipRepositoryInformation info = (RelationshipRepositoryInformation) builder.build(new TaskToProjectRepository(),
+				newRepositoryInformationBuilderContext());
+		Assert.assertEquals(TaskToProjectRepository.class, info.getRepositoryClass());
+		Assert.assertEquals(Project.class, info.getResourceInformation().getResourceClass());
+		Assert.assertEquals(Task.class, info.getSourceResourceInformation().getResourceClass());
+	}
+
+	private RepositoryInformationBuilderContext newRepositoryInformationBuilderContext() {
+		return new RepositoryInformationBuilderContext() {
+
+			@Override
+			public ResourceInformationBuilder getResourceInformationBuilder() {
+				return moduleRegistry.getResourceInformationBuilder();
+			}
+		};
 	}
 
 	@Test(expected = IllegalStateException.class)

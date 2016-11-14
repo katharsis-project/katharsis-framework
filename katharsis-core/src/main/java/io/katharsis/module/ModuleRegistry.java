@@ -2,8 +2,10 @@ package io.katharsis.module;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -301,6 +303,27 @@ public class ModuleRegistry {
 			throw new UnsupportedOperationException(
 					"no RepositoryInformationBuilder for " + repository.getClass().getName() + " available");
 		}
+
+		@Override
+		public boolean accept(Class<?> repositoryClass) {
+			for (RepositoryInformationBuilder builder : builders) {
+				if (builder.accept(repositoryClass)) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		@Override
+		public RepositoryInformation build(Class<?> repositoryClass, RepositoryInformationBuilderContext context) {
+			for (RepositoryInformationBuilder builder : builders) {
+				if (builder.accept(repositoryClass)) {
+					return builder.build(repositoryClass, context);
+				}
+			}
+			throw new UnsupportedOperationException(
+					"no RepositoryInformationBuilder for " + repositoryClass.getName() + " available");
+		}
 	}
 
 	/**
@@ -366,22 +389,23 @@ public class ModuleRegistry {
 			}
 		};
 
-		List<ResourceRepositoryInformation> resourceRepositories = new ArrayList<>();
-		List<RelationshipRepositoryInformation> relationshipRepositories = new ArrayList<>();
+		Map<ResourceRepositoryInformation, Object> resourceRepositories = new HashMap<>();
+		Map<RelationshipRepositoryInformation, Object> relationshipRepositories = new HashMap<>();
 
 		// TODO this needs to be merged with ResourceRegistryBuilder
 		for (final Object repository : repositories) {
 			RepositoryInformation repositoryInformation = repositoryInformationBuilder.build(repository, builderContext);
 			if (repositoryInformation instanceof ResourceRepositoryInformation) {
-				resourceRepositories.add((ResourceRepositoryInformation) repositoryInformation);
+				resourceRepositories.put((ResourceRepositoryInformation) repositoryInformation, repository);
 			}
 			else {
-				relationshipRepositories.add((RelationshipRepositoryInformation) repositoryInformation);
+				relationshipRepositories.put((RelationshipRepositoryInformation) repositoryInformation, repository);
 			}
 		}
 
-		for (ResourceRepositoryInformation resourceRepositoryInfo : resourceRepositories) {
-			final Object repository = resourceRepositoryInfo.getRepository();
+		for (Map.Entry<ResourceRepositoryInformation, Object>  entry: resourceRepositories.entrySet()) {
+			ResourceRepositoryInformation resourceRepositoryInfo = entry.getKey();
+			final Object repository = entry.getValue();
 			Class<?> resourceClass = resourceRepositoryInfo.getResourceInformation().getResourceClass();
 
 			RepositoryInstanceBuilder repositoryInstanceBuilder = new RepositoryInstanceBuilder(null, null) {
@@ -400,33 +424,32 @@ public class ModuleRegistry {
 				resourceEntry = new DirectResponseResourceEntry(repositoryInstanceBuilder);
 			}
 
-			ResourceInformation resourceInformation = resourceRepositoryInfo.getResourceInformation();
 			List<ResponseRelationshipEntry> relationshipEntries = new ArrayList<>();
-			for (RelationshipRepositoryInformation relationshipRepositoryInformation : relationshipRepositories) {
+			for (Map.Entry<RelationshipRepositoryInformation,Object> relEntry : relationshipRepositories.entrySet()) {
+				RelationshipRepositoryInformation relationshipRepositoryInformation = relEntry.getKey();
 				if (relationshipRepositoryInformation.getSourceResourceInformation().getResourceClass() == resourceClass) {
-					setupRelationShip(relationshipEntries, relationshipRepositoryInformation);
+					setupRelationShip(relationshipEntries, relationshipRepositoryInformation, relEntry.getValue());
 				}
 			}
 			// TODO get also relations from resource lookup
-			RegistryEntry registryEntry = new RegistryEntry(resourceInformation, resourceEntry, relationshipEntries);
+			RegistryEntry registryEntry = new RegistryEntry(resourceRepositoryInfo, resourceEntry, relationshipEntries);
 			resourceRegistry.addEntry(resourceClass, registryEntry);
 		}
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void setupRelationShip(List<ResponseRelationshipEntry> relationshipEntries,
-			final RelationshipRepositoryInformation relationshipRepositoryInformation) {
-		Object relRepository = relationshipRepositoryInformation.getRepository();
+			final RelationshipRepositoryInformation relationshipRepositoryInformation, final Object relRepository) {
 		RepositoryInstanceBuilder<Object> relationshipInstanceBuilder = new RepositoryInstanceBuilder<Object>(null, null) {
 
 			@Override
 			public Object buildRepository() {
-				return relationshipRepositoryInformation.getRepository();
+				return relRepository;
 			}
 
 			@Override
 			public Class getRepositoryClass() {
-				return relationshipRepositoryInformation.getRepository().getClass();
+				return relationshipRepositoryInformation.getRepositoryClass();
 			}
 		};
 

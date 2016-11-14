@@ -10,6 +10,7 @@ import io.katharsis.queryParams.params.IncludedFieldsParams;
 import io.katharsis.queryParams.params.IncludedRelationsParams;
 import io.katharsis.queryParams.params.TypedParams;
 import io.katharsis.queryspec.internal.QuerySpecAdapter;
+import io.katharsis.repository.information.internal.ResourceRepositoryInformationImpl;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.registry.ConstantServiceUrlProvider;
@@ -22,7 +23,7 @@ public class QuerySpecAdapterTest {
 	public void test() {
 		ResourceRegistry resourceRegistry = new ResourceRegistry(new ModuleRegistry(), new ConstantServiceUrlProvider("http://localhost"));
 		resourceRegistry.addEntry(Task.class,
-				new RegistryEntry(new ResourceInformation(Task.class, "tasks", null, null, null), null, null));
+				new RegistryEntry(new ResourceRepositoryInformationImpl(Task.class, "tasks", new ResourceInformation(Task.class, "tasks", null, null, null)), null, null));
 
 		QuerySpec spec = new QuerySpec(Task.class);
 		spec.includeField(Arrays.asList("test"));

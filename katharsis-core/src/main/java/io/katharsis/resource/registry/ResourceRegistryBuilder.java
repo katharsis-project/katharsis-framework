@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 
 import io.katharsis.locator.JsonServiceLocator;
 import io.katharsis.module.ModuleRegistry;
+import io.katharsis.repository.information.ResourceRepositoryInformation;
+import io.katharsis.repository.information.internal.ResourceRepositoryInformationImpl;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.registry.repository.ResourceEntry;
@@ -64,9 +66,10 @@ public class ResourceRegistryBuilder {
             List<ResponseRelationshipEntry<?, ?>> relationshipEntries = repositoryEntryBuilder
             .buildRelationshipRepositories(resourceLookup, resourceClass);
             LOGGER.trace("{} has relationship repositories {}", resourceInformation.getResourceClass(), relationshipEntries);
-
-            registryEntries.add(new RegistryEntry(resourceInformation, resourceEntry, relationshipEntries));
-
+            
+            
+            ResourceRepositoryInformation repositoryInformation = new ResourceRepositoryInformationImpl(null, resourceInformation.getResourceType(), resourceInformation);
+            registryEntries.add(new RegistryEntry(repositoryInformation, resourceEntry, relationshipEntries));
         }
 
         ResourceRegistry resourceRegistry = new ResourceRegistry(moduleRegistry, serviceUrl);
