@@ -1,8 +1,5 @@
 package io.katharsis.request.path;
 
-import io.katharsis.repository.information.RepositoryAction;
-import io.katharsis.repository.information.RepositoryInformation;
-import io.katharsis.repository.information.ResourceRepositoryInformation;
 import io.katharsis.resource.exception.ResourceException;
 import io.katharsis.resource.exception.ResourceFieldNotFoundException;
 import io.katharsis.resource.exception.ResourceNotFoundException;
@@ -16,7 +13,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 /**

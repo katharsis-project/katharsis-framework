@@ -19,7 +19,6 @@ import io.katharsis.internal.boot.KatharsisBoot;
 import io.katharsis.internal.boot.PropertiesProvider;
 import io.katharsis.locator.JsonServiceLocator;
 import io.katharsis.module.Module;
-import io.katharsis.module.ModuleRegistry;
 import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.queryspec.QuerySpecDeserializer;
 import io.katharsis.repository.information.ResourceRepositoryInformation;
