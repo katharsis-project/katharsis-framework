@@ -27,18 +27,14 @@ public class ScheduleRepositoryImpl extends QuerySpecResourceRepositoryBase<Sche
 	}
 
 	@Override
-	@GET
-	@Path("repositoryAction")
-	public String repositoryAction(@QueryParam(value = "msg") String msg) {
+	public String repositoryAction(String msg) {
 		return "repository action: " + msg;
 	}
 
 	@Override
-	@GET
-	@Path("{id}/resourceAction")
-	public Response resourceAction(@PathParam("id") String msg) {
-		String result = "Restful example : " + msg;
-		return Response.status(200).entity(result).build();
+	public String resourceAction(long id, String msg) {
+		Schedule schedule = findOne(id, new QuerySpec(Schedule.class));
+		return "resource action: " + msg + "@" + schedule.getName();
 	}
 
 	@Override

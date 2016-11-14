@@ -12,7 +12,9 @@ import org.junit.Before;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.katharsis.client.action.JerseyActionStubFactory;
 import io.katharsis.client.mock.repository.ProjectRepository;
+import io.katharsis.client.mock.repository.ScheduleRepositoryImpl;
 import io.katharsis.client.mock.repository.TaskRepository;
 import io.katharsis.client.mock.repository.TaskToProjectRepository;
 import io.katharsis.locator.SampleJsonServiceLocator;
@@ -34,10 +36,12 @@ public abstract class AbstractClientTest extends JerseyTest {
 	public void setup() {
 		client = new KatharsisClient(getBaseUri().toString());
 		client.addModule(new TestModule());
+		client.setActionStubFactory(JerseyActionStubFactory.newInstance());
 
 		TaskRepository.clear();
 		ProjectRepository.clear();
 		TaskToProjectRepository.clear();
+		ScheduleRepositoryImpl.clear();
 	}
 
 	@Override

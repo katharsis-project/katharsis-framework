@@ -315,4 +315,8 @@ public class KatharsisBoot {
 	public void setDefaultPageLimit(Long defaultPageLimit) {
 		((DefaultQuerySpecDeserializer) this.querySpecDeserializer).setDefaultLimit(defaultPageLimit);
 	}
+
+	public ModuleRegistry getModuleRegistry() {
+		return moduleRegistry;
+	}
 }

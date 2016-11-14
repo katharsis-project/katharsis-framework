@@ -2,26 +2,21 @@ package io.katharsis.client;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.WebTarget;
-
-import org.glassfish.jersey.client.proxy.WebResourceFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
+import io.katharsis.client.action.ActionStubFactory;
+import io.katharsis.client.action.ActionStubFactoryContext;
 import io.katharsis.client.http.HttpAdapter;
 import io.katharsis.client.http.okhttp.OkHttpAdapter;
 import io.katharsis.client.internal.BaseResponseDeserializer;
+import io.katharsis.client.internal.ClientStubInvocationHandler;
 import io.katharsis.client.internal.ErrorResponseDeserializer;
 import io.katharsis.client.internal.RelationshipRepositoryStubImpl;
 import io.katharsis.client.internal.ResourceRepositoryStubImpl;
@@ -83,6 +78,8 @@ public class KatharsisClient {
 	private ExceptionMapperRegistry exceptionMapperRegistry;
 
 	private boolean pushAlways = true;
+
+	private ActionStubFactory actionStubFactory;
 
 	public KatharsisClient(String serviceUrl) {
 		this(new ConstantServiceUrlProvider(normalize(serviceUrl)));
@@ -212,9 +209,6 @@ public class KatharsisClient {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private <T, I extends Serializable> RegistryEntry<T> allocateRepository(Class<T> resourceClass, boolean allocateRelated) {
-
-		
-		
 		ResourceInformation resourceInformation = moduleRegistry.getResourceInformationBuilder().build(resourceClass);
 		final ResourceRepositoryStub<T, I> repositoryStub = new ResourceRepositoryStubImpl<>(this, resourceClass,
 				resourceInformation, urlBuilder);
@@ -227,7 +221,8 @@ public class KatharsisClient {
 				return repositoryStub;
 			}
 		};
-		ResourceRepositoryInformation repositoryInformation = new ResourceRepositoryInformationImpl(repositoryStub.getClass(), resourceInformation.getResourceType(), resourceInformation);
+		ResourceRepositoryInformation repositoryInformation = new ResourceRepositoryInformationImpl(repositoryStub.getClass(),
+				resourceInformation.getResourceType(), resourceInformation);
 		ResourceEntry<T, I> resourceEntry = new DirectResponseResourceEntry<>(repositoryInstanceBuilder);
 		List<ResponseRelationshipEntry<T, ?>> relationshipEntries = new ArrayList<>();
 		RegistryEntry<T> registryEntry = new RegistryEntry<>(repositoryInformation, resourceEntry, relationshipEntries);
@@ -284,40 +279,14 @@ public class KatharsisClient {
 		ResourceRepositoryInformation repositoryInformation = (ResourceRepositoryInformation) informationBuilder
 				.build(repositoryInterfaceClass, newRepositoryInformationBuilderContext());
 		Class<?> resourceClass = repositoryInformation.getResourceInformation().getResourceClass();
-		
-		String serviceUrl = resourceRegistry.getServiceUrl();
-		Client client = ClientBuilder.newClient();
-		WebTarget target = client.target(serviceUrl);
-		final Object jaxrsStub = WebResourceFactory.newResource(repositoryInterfaceClass, target);
-		
-		final QuerySpecResourceRepositoryStub<?, Serializable> repositoryStub = getQuerySpecRepository(resourceClass);
-		
+
+		Object actionStub = actionStubFactory != null ? actionStubFactory.createStub(repositoryInterfaceClass) : null;
+		QuerySpecResourceRepositoryStub<?, Serializable> repositoryStub = getQuerySpecRepository(resourceClass);
+
 		ClassLoader classLoader = repositoryInterfaceClass.getClassLoader();
-		final Set<String> repositoryMethods = getMethodNames(QuerySpecResourceRepositoryStub.class);
-		InvocationHandler invocationHandler = new InvocationHandler() {
-
-			@Override
-			public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-				if (repositoryMethods.contains(method.getName())) {
-					// execute repository method
-					return method.invoke(repositoryStub, args);
-				}
-				else {
-					// execute action
-					return method.invoke(jaxrsStub, args);
-				}
-			}
-		};
-		return (R) Proxy.newProxyInstance(classLoader, new Class[] { repositoryInterfaceClass, QuerySpecResourceRepositoryStub.class }, invocationHandler);
-	}
-
-	private static Set<String> getMethodNames(Class<?> clazz) {
-		Set<String> repositoryMethods = new HashSet<>();
-		Method[] repositoryMethodObjects = clazz.getMethods();
-		for (Method repositoryMethodObject : repositoryMethodObjects) {
-			repositoryMethods.add(repositoryMethodObject.getName());
-		}
-		return repositoryMethods;
+		InvocationHandler invocationHandler = new ClientStubInvocationHandler(repositoryStub, actionStub);
+		return (R) Proxy.newProxyInstance(classLoader,
+				new Class[] { repositoryInterfaceClass, QuerySpecResourceRepositoryStub.class }, invocationHandler);
 	}
 
 	private RepositoryInformationBuilderContext newRepositoryInformationBuilderContext() {
@@ -449,5 +418,32 @@ public class KatharsisClient {
 
 	public ExceptionMapperRegistry getExceptionMapperRegistry() {
 		return exceptionMapperRegistry;
+	}
+
+	public ActionStubFactory getActionStubFactory() {
+		return actionStubFactory;
+	}
+
+	/**
+	 * Sets the factory to use to create action stubs (like JAX-RS annotated repository methods).
+	 * 
+	 * @param actionStubFactory to use
+	 */
+	public void setActionStubFactory(ActionStubFactory actionStubFactory) {
+		this.actionStubFactory = actionStubFactory;
+		if (actionStubFactory != null) {
+			actionStubFactory.init(new ActionStubFactoryContext() {
+
+				@Override
+				public ServiceUrlProvider getServiceUrlProvider() {
+					return moduleRegistry.getResourceRegistry().getServiceUrlProvider();
+				}
+
+				@Override
+				public HttpAdapter getHttpAdapter() {
+					return httpAdapter;
+				}
+			});
+		}
 	}
 }

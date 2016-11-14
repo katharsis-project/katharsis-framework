@@ -4,7 +4,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Response;
 
 import io.katharsis.client.mock.models.Schedule;
 import io.katharsis.queryspec.QuerySpecResourceRepository;
@@ -18,5 +17,5 @@ public interface ScheduleRepository extends QuerySpecResourceRepository<Schedule
 
 	@GET
 	@Path("{id}/resourceAction")
-	public Response resourceAction(@PathParam("param") String msg);
+	public String resourceAction(@PathParam("id") long id, @QueryParam(value = "msg") String msg);
 }

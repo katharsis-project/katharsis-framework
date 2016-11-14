@@ -39,7 +39,7 @@ public class RegistryEntryTest {
 	@Test
 	public void onValidRelationshipClassShouldReturnRelationshipRepository() throws Exception {
 		// GIVEN
-		RegistryEntry<Task> sut = new RegistryEntry(null,
+		RegistryEntry<Task> sut = new RegistryEntry(new ResourceRepositoryInformationImpl(null, null, null),
 				new AnnotatedResourceEntry<>(new RepositoryInstanceBuilder(new SampleJsonServiceLocator(), TaskRepository.class)),
 				Collections.singletonList(new DirectResponseRelationshipEntry<>(
 						new RepositoryInstanceBuilder(new SampleJsonServiceLocator(), TaskToProjectRepository.class))));

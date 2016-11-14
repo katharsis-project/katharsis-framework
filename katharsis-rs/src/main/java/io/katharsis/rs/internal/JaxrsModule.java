@@ -50,52 +50,91 @@ public class JaxrsModule implements Module {
 		@Override
 		protected Map<String, RepositoryAction> buildActions(Class<? extends Object> repositoryClass) {
 			HashMap<String, RepositoryAction> actions = new HashMap<>();
-			for (Method method : repositoryClass.getMethods()) {
-
-				Path pathAnnotation = method.getAnnotation(Path.class);
-				boolean isGet = method.getAnnotation(GET.class) != null;
-				boolean isPost = method.getAnnotation(POST.class) != null;
-				boolean isPut = method.getAnnotation(PUT.class) != null;
-				boolean isDelete = method.getAnnotation(DELETE.class) != null;
-
-				boolean isJaxRs = isGet || isPost || isPut || isDelete;
-				isJaxRs = isJaxRs || pathAnnotation != null;
-				Annotation[][] parameterAnnotationsArray = method.getParameterAnnotations();
-
-				for (int paramIndex = 0; paramIndex < parameterAnnotationsArray.length; paramIndex++) {
-					Annotation[] parameterAnnotations = parameterAnnotationsArray[paramIndex];
-					for (Annotation parameterAnnotation : parameterAnnotations) {
-						isJaxRs = isJaxRs || parameterAnnotation instanceof PathParam
-								|| parameterAnnotation instanceof QueryParam;
-					}
-				}
-
-				if (pathAnnotation != null) {
-					String path = normPath(pathAnnotation.value());
-					String[] pathElements = path.split("\\/");
-					if (pathElements.length == 0) {
-						throw new IllegalStateException("@Path value must not be empty: " + method);
-					}
-					if (pathElements.length > 2) {
-						throw new IllegalStateException("@Path value must not contain more than to elements: " + method);
-					}
-
-					if (pathElements.length == 1 && pathElements[0].equals(ID_ACTION_PARAMETER)) {
-						throw new IllegalStateException("single element in @Path cannot be {id}, add action name: " + method);
-					}
-					if (pathElements.length == 2 && !pathElements[0].equals(ID_ACTION_PARAMETER)) {
-						throw new IllegalStateException(
-								"for two elements in @Path the first one must be {id}, the second the action name: " + method);
-					}
-					String name = pathElements[pathElements.length - 1];
-					RepositoryAction action = new JaxrsRepositoryAction(name);
-					actions.put(name, action);
-				}
-				else if (isJaxRs) {
-					throw new IllegalStateException("JAXRS actions must be annotated with @Path: " + method);
-				}
+			
+			// search for annotated methods on classes and interfaces
+			// since annotations are no inherited
+			setupClass(actions, repositoryClass);
+			for(Class<?> interfaceClass : repositoryClass.getInterfaces()){
+				setupClass(actions, interfaceClass);
 			}
 			return actions;
+		}
+
+		private void setupClass(HashMap<String, RepositoryAction> actions, Class<? extends Object> repositoryClass) {
+			for (Method method : repositoryClass.getMethods()) {
+				setupMethod(actions, method);
+			}			
+		}
+
+		private void setupMethod(HashMap<String, RepositoryAction> actions, Method method) {
+			Path pathAnnotation = method.getAnnotation(Path.class);
+			boolean isJaxRs = isJaxRsMethod(method);
+			if (pathAnnotation != null) {
+				String path = normPath(pathAnnotation.value());
+				String[] pathElements = path.split("\\/");
+				
+				checkPathElements(method, pathElements);
+				
+			
+				String name = pathElements[pathElements.length - 1];
+				RepositoryAction action = new JaxrsRepositoryAction(name);
+				actions.put(name, action);
+			}
+			else if (isJaxRs) {
+				throw new IllegalStateException("JAXRS actions must be annotated with @Path: " + method);
+			}			
+		}
+
+		/**
+		 * There are some strict roles to follow to be a valid action
+		 * @param method holding the @Path annotation
+		 * @param pathElements of this method
+		 */
+		private void checkPathElements(Method method, String[] pathElements) {
+			if (pathElements.length == 0) {
+				throw new IllegalStateException("@Path value must not be empty: " + method);
+			}
+			if (pathElements.length > 2) {
+				throw new IllegalStateException("@Path value must not contain more than to elements: " + method);
+			}
+
+			if (pathElements.length == 1 && pathElements[0].equals(ID_ACTION_PARAMETER)) {
+				throw new IllegalStateException("single element in @Path cannot be {id}, add action name: " + method);
+			}
+			if (pathElements.length == 2 && !pathElements[0].equals(ID_ACTION_PARAMETER)) {
+				throw new IllegalStateException(
+						"for two elements in @Path the first one must be {id}, the second the action name: " + method);
+			}			
+		}
+
+		private boolean isJaxRsMethod(Method method) {
+			Path pathAnnotation = method.getAnnotation(Path.class);
+			boolean isGet = method.getAnnotation(GET.class) != null;
+			boolean isPost = method.getAnnotation(POST.class) != null;
+			boolean isPut = method.getAnnotation(PUT.class) != null;
+			boolean isDelete = method.getAnnotation(DELETE.class) != null;
+
+			if(isGet || isPost || isPut || isDelete){
+				return true;
+			}
+			if(pathAnnotation != null){
+				return true;
+			}
+			return hasJaxRsMethodParameters(method);
+		}
+
+		private boolean hasJaxRsMethodParameters(Method method) {
+			Annotation[][] parameterAnnotationsArray = method.getParameterAnnotations();
+			for (int paramIndex = 0; paramIndex < parameterAnnotationsArray.length; paramIndex++) {
+				Annotation[] parameterAnnotations = parameterAnnotationsArray[paramIndex];
+				for (Annotation parameterAnnotation : parameterAnnotations) {
+					if(parameterAnnotation instanceof PathParam
+							|| parameterAnnotation instanceof QueryParam){
+						return true;
+					}
+				}
+			}
+			return false;
 		}
 
 		private String normPath(String path) {

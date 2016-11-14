@@ -110,7 +110,7 @@ public class KatharsisFilter implements ContainerRequestFilter {
         }
 
         try {
-            dispatchRequest(requestContext);
+        	dispatchRequest(requestContext);
         } catch (WebApplicationException e) {
         	LOGGER.error("failed to dispatch request", e);
             throw e;

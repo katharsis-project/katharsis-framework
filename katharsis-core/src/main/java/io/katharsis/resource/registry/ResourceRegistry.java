@@ -169,7 +169,7 @@ public class ResourceRegistry {
      *
      * @return resources
      */
-    public Map<Class, RegistryEntry> getResources() {
-        return Collections.unmodifiableMap(resources);
+    public Map<Class<?>, RegistryEntry<?>> getResources() {
+        return (Map)Collections.unmodifiableMap(resources);
     }
 }
