@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import io.katharsis.client.http.HttpAdapter;
 import io.katharsis.client.http.okhttp.OkHttpAdapter;
 import io.katharsis.client.http.okhttp.OkHttpAdapterListener;
 import io.katharsis.client.mock.models.Project;
@@ -150,14 +151,16 @@ public class QuerySpecClientTest extends AbstractClientTest {
 			}
 		};
 
-		OkHttpAdapter httpAdapter = (OkHttpAdapter) client.getHttpAdapter();
-		httpAdapter.addListener(new OkHttpAdapterListener() {
+		HttpAdapter httpAdapter = client.getHttpAdapter();
+		if (httpAdapter instanceof OkHttpAdapter) {
+			((OkHttpAdapter) httpAdapter).addListener(new OkHttpAdapterListener() {
 
-			@Override
-			public void onBuild(Builder builder) {
-				builder.addInterceptor(interceptor);
-			}
-		});
+				@Override
+				public void onBuild(Builder builder) {
+					builder.addInterceptor(interceptor);
+				}
+			});
+		}
 
 		Task task = new Task();
 		task.setId(1L);
@@ -176,24 +179,26 @@ public class QuerySpecClientTest extends AbstractClientTest {
 		Assert.assertNotNull(savedTask);
 		Assert.assertEquals("updatedName", task.getName());
 
-		// check HTTP handling
-		Assert.assertEquals(4, methods.size());
-		Assert.assertEquals(4, paths.size());
-		Assert.assertEquals("POST", methods.get(0));
-		Assert.assertEquals("GET", methods.get(1));
-		if (pushAlways) {
-			Assert.assertEquals("POST", methods.get(2));
-			Assert.assertEquals("/tasks/", paths.get(2));
-		}
-		else {
-			Assert.assertEquals("PATCH", methods.get(2));
-			Assert.assertEquals("/tasks/1/", paths.get(2));
-		}
-		Assert.assertEquals("GET", methods.get(3));
+		if (httpAdapter instanceof OkHttpAdapter) {
+			// check HTTP handling
+			Assert.assertEquals(4, methods.size());
+			Assert.assertEquals(4, paths.size());
+			Assert.assertEquals("POST", methods.get(0));
+			Assert.assertEquals("GET", methods.get(1));
+			if (pushAlways) {
+				Assert.assertEquals("POST", methods.get(2));
+				Assert.assertEquals("/tasks/", paths.get(2));
+			}
+			else {
+				Assert.assertEquals("PATCH", methods.get(2));
+				Assert.assertEquals("/tasks/1/", paths.get(2));
+			}
+			Assert.assertEquals("GET", methods.get(3));
 
-		Assert.assertEquals("/tasks/", paths.get(0));
-		Assert.assertEquals("/tasks/1/", paths.get(1));
-		Assert.assertEquals("/tasks/1/", paths.get(3));
+			Assert.assertEquals("/tasks/", paths.get(0));
+			Assert.assertEquals("/tasks/1/", paths.get(1));
+			Assert.assertEquals("/tasks/1/", paths.get(3));
+		}
 	}
 
 	@Test

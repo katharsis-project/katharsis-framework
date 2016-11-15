@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import io.katharsis.client.action.ActionStubFactory;
 import io.katharsis.client.action.ActionStubFactoryContext;
 import io.katharsis.client.http.HttpAdapter;
+import io.katharsis.client.http.apache.HttpClientAdapter;
 import io.katharsis.client.http.okhttp.OkHttpAdapter;
 import io.katharsis.client.internal.BaseResponseDeserializer;
 import io.katharsis.client.internal.ClientStubInvocationHandler;
@@ -56,14 +57,17 @@ import io.katharsis.resource.registry.repository.adapter.ResourceRepositoryAdapt
 import io.katharsis.response.BaseResponseContext;
 import io.katharsis.utils.JsonApiUrlBuilder;
 import io.katharsis.utils.PreconditionUtil;
-import okhttp3.OkHttpClient;
 
 /**
  * Client implementation giving access to JSON API repositories using stubs.
  */
 public class KatharsisClient {
 
-	private OkHttpAdapter httpAdapter;
+	private static final String APACHE_HTTP_CLIENT_DETECTION_CLASS = "org.apache.http.impl.client.CloseableHttpClient";
+
+	private static final String OK_HTTP_CLIENT_DETECTION_CLASS = "okhttp3.OkHttpClient";
+
+	private HttpAdapter httpAdapter;
 
 	private ObjectMapper objectMapper;
 
@@ -86,7 +90,7 @@ public class KatharsisClient {
 	}
 
 	public KatharsisClient(ServiceUrlProvider serviceUrlProvider) {
-		httpAdapter = new OkHttpAdapter();
+		httpAdapter = detectHttpAdapter();
 
 		moduleRegistry = new ModuleRegistry();
 
@@ -104,6 +108,26 @@ public class KatharsisClient {
 		jsonApiModule.addDeserializer(BaseResponseContext.class, new BaseResponseDeserializer(resourceRegistry, objectMapper));
 		jsonApiModule.addDeserializer(ErrorResponse.class, new ErrorResponseDeserializer());
 		objectMapper.registerModule(jsonApiModule);
+	}
+
+	private HttpAdapter detectHttpAdapter() {
+		if (existsClass(OK_HTTP_CLIENT_DETECTION_CLASS)) {
+			return OkHttpAdapter.newInstance();
+		}
+		if (existsClass(APACHE_HTTP_CLIENT_DETECTION_CLASS)) {
+			return HttpClientAdapter.newInstance();
+		}
+		throw new IllegalStateException("no httpAdapter can be initialized, add okhttp3 (com.squareup.okhttp3:okhttp) or apache http client (org.apache.httpcomponents:httpclient) to the classpath");
+	}
+
+	private static boolean existsClass(String className) {
+		try {
+			Class.forName(className);
+			return true;
+		}
+		catch (ClassNotFoundException e) {
+			return false;
+		}
 	}
 
 	class ClientResourceRegistry extends ResourceRegistry {
@@ -375,15 +399,8 @@ public class KatharsisClient {
 		return objectMapper;
 	}
 
-	/**
-	 * @return http client library in use
-	 */
-	public OkHttpClient getHttpClient() {
-		return httpAdapter.getImplementation();
-	}
-
-	public void setHttpClient(HttpAdapter httpAdapter) {
-		this.httpAdapter = (OkHttpAdapter) httpAdapter;
+	public void setHttpAdapter(HttpAdapter httpAdapter) {
+		this.httpAdapter = httpAdapter;
 
 		List<Module> modules = moduleRegistry.getModules();
 		for (Module module : modules) {
