@@ -19,7 +19,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Extracts inclusions from a resource.
@@ -184,50 +187,39 @@ public class IncludedRelationshipExtractor {
                 return;
             }
         }
-        populateIncludedResources(resource, pathList, response, includedResources);
+        populateIncludedResources(resource, pathList, response, includedResources, 0);
     }
 
-    private void populateIncludedResources(Object resource, List<String> pathList, BaseResponseContext response, Map<ResourceDigest, Container> includedResources)
+    private void populateIncludedResources(Object resource, List<String> pathList, BaseResponseContext response,
+                                           Map<ResourceDigest, Container> includedResources, int index)
             throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
-
-
-        String fieldName = getRelationshipName(pathList.get(0), resource.getClass());
+        if (index == pathList.size()) {
+            return;
+        }
+        String fieldName = getRelationshipName(pathList.get(index), resource.getClass());
         Object resourceProperty = PropertyUtils.getProperty(resource, fieldName);
-        if (resourceProperty != null) {
-            populateToResourcePropertyToIncludedResources(resourceProperty, response, ContainerType.INCLUDED, pathList.get(0), includedResources);
-            if (pathList.size() > 1) {
-                if (Iterable.class.isAssignableFrom(resourceProperty.getClass())) {
-                    if (((Iterable) resourceProperty).iterator().hasNext()) {
-                        Iterator resourceProperties = ((Iterable) resourceProperty).iterator();
-                        while (resourceProperties.hasNext()) {
-                            resourceProperty = resourceProperties.next();
-                            fieldName = getRelationshipName(pathList.get(1), resourceProperty.getClass());
-                            resourceProperty = PropertyUtils.getProperty(resourceProperty, fieldName);
-                            populateToResourcePropertyToIncludedResources(resourceProperty, response, ContainerType.INCLUDED_NESTED, pathList.get(1), includedResources);
-                        }
-                    }
-                } else {
-                    fieldName = getRelationshipName(pathList.get(1), resourceProperty.getClass());
-                    resourceProperty = PropertyUtils.getProperty(resourceProperty, fieldName);
-                    populateToResourcePropertyToIncludedResources(resourceProperty, response, ContainerType.INCLUDED_NESTED, pathList.get(1), includedResources);
-                }
-
-            }
+        if (resourceProperty == null) {
+            return;
         }
 
-    }
-
-    private void populateToResourcePropertyToIncludedResources(Object resourceProperty, BaseResponseContext response, ContainerType containerType, String includedFieldName, Map<ResourceDigest, Container> includedResources) {
-        if (resourceProperty != null) {
-            if (Iterable.class.isAssignableFrom(resourceProperty.getClass())) {
-                for (Object resourceToInclude : (Iterable) resourceProperty) {
-                    ResourceDigest digest = getResourceDigest(resourceToInclude);
-                    includedResources.put(digest, new Container(resourceToInclude, response, containerType, includedFieldName));
+        if (Iterable.class.isAssignableFrom(resourceProperty.getClass())) {
+            for (Object resourceToInclude : (Iterable) resourceProperty) {
+                ResourceDigest digest = getResourceDigest(resourceToInclude);
+                if (index == 0) {
+                    includedResources.put(digest, new Container(resourceToInclude, response, ContainerType.INCLUDED, pathList.get(index), index));
+                } else {
+                    includedResources.put(digest, new Container(resourceToInclude, response, ContainerType.INCLUDED_NESTED, pathList.get(index), index));
                 }
-            } else {
-                ResourceDigest digest = getResourceDigest(resourceProperty);
-                includedResources.put(digest, new Container(resourceProperty, response, containerType, includedFieldName));
+                populateIncludedResources(resourceToInclude, pathList, response, includedResources, index + 1);
             }
+        } else {
+            ResourceDigest digest = getResourceDigest(resourceProperty);
+            if (index == 0) {
+                includedResources.put(digest, new Container(resourceProperty, response, ContainerType.INCLUDED, pathList.get(index), index));
+            } else {
+                includedResources.put(digest, new Container(resourceProperty, response, ContainerType.INCLUDED_NESTED, pathList.get(index), index));
+            }
+            populateIncludedResources(resourceProperty, pathList, response, includedResources, index + 1);
         }
     }
 

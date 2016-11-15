@@ -6,10 +6,21 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import io.katharsis.jackson.serializer.include.IncludedRelationshipExtractor;
 import io.katharsis.jackson.serializer.include.ResourceDigest;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.response.*;
+import io.katharsis.response.BaseResponseContext;
+import io.katharsis.response.CollectionResponseContext;
+import io.katharsis.response.Container;
+import io.katharsis.response.ContainerType;
+import io.katharsis.response.JsonApiResponse;
+import io.katharsis.response.LinkageContainer;
+import io.katharsis.response.ResourceResponseContext;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Serializes top-level JSON object and provides ability to include compound documents
@@ -87,7 +98,7 @@ public class BaseResponseSerializer extends JsonSerializer<BaseResponseContext> 
     private Map<ResourceDigest, Container> serializeSingle(ResourceResponseContext responseContext, JsonGenerator gen)
             throws IOException {
         Object value = responseContext.getResponse().getEntity();
-        gen.writeObjectField(DATA_FIELD_NAME, new Container(value, responseContext, ContainerType.TOP));
+        gen.writeObjectField(DATA_FIELD_NAME, new Container(value, responseContext, ContainerType.TOP, "", 0));
 
         if (value != null) {
             return includedRelationshipExtractor.extractIncludedResources(value, responseContext);
@@ -109,7 +120,7 @@ public class BaseResponseSerializer extends JsonSerializer<BaseResponseContext> 
         for (Object value : values) {
             //noinspection unchecked
             includedFields.putAll(includedRelationshipExtractor.extractIncludedResources(value, responseContext));
-            containers.add(new Container(value, responseContext, ContainerType.TOP));
+            containers.add(new Container(value, responseContext, ContainerType.TOP, "", 0));
         }
 
         gen.writeObjectField(DATA_FIELD_NAME, containers);

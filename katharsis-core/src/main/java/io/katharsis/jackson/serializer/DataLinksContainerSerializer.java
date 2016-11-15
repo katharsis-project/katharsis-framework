@@ -12,6 +12,7 @@ import io.katharsis.response.DataLinksContainer;
 import io.katharsis.response.RelationshipContainer;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Serializes a <i>links</i> field of a resource in data field of JSON API response.
@@ -44,12 +45,14 @@ public class DataLinksContainerSerializer extends JsonSerializer<DataLinksContai
     private boolean shouldForceFieldInclusion(DataLinksContainer dataLinksContainer, ResourceField field, IncludedRelationsParams includedRelations) {
         if (includedRelations != null) {
             for (Inclusion inclusion : includedRelations.getParams()) {
-                if (field.getJsonName().equals(inclusion.getPathList().get(0))
-                        && dataLinksContainer.getContainerType().equals(ContainerType.TOP)) {
-                    return true;
-                } else if (dataLinksContainer.getContainerType().equals(ContainerType.INCLUDED)
-                        && inclusion.getPathList().size() > 1
-                        && field.getJsonName().equals(inclusion.getPathList().get(1))) {
+                List<String> pathList = inclusion.getPathList();
+                int fieldIndex = dataLinksContainer.getContainer().getIncludedIndex();
+                if (!dataLinksContainer.getContainer().getContainerType().equals(ContainerType.TOP)) {
+                    fieldIndex = fieldIndex + 1;
+                }
+
+                if (pathList.size() > fieldIndex
+                        && field.getJsonName().equals(pathList.get(fieldIndex))) {
                     return true;
                 }
             }

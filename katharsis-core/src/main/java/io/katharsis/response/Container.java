@@ -16,12 +16,14 @@ public class Container {
     private final BaseResponseContext response;
     private final ContainerType containerType;
     private final String includedFieldName;
+    private final int includedIndex;
 
     public Container() {
         data = null;
         response = null;
         containerType = null;
         includedFieldName = null;
+        includedIndex = -1;
     }
 
     public Container(Object data, BaseResponseContext response) {
@@ -29,20 +31,28 @@ public class Container {
         this.response = response;
         this.containerType = ContainerType.TOP;
         this.includedFieldName = null;
+        this.includedIndex = 0;
     }
 
     public Container(Object data, BaseResponseContext response, ContainerType containerType) {
         this.data = data;
         this.response = response;
         this.containerType = containerType;
+        if (containerType.equals(ContainerType.TOP)) {
+            this.includedIndex = 0;
+        } else {
+            this.includedIndex = -1;
+        }
         this.includedFieldName = null;
+
     }
 
-    public Container(Object data, BaseResponseContext response, ContainerType containerType, String includedFieldName) {
+    public Container(Object data, BaseResponseContext response, ContainerType containerType, String includedFieldName, int includedIndex) {
         this.data = data;
         this.response = response;
         this.includedFieldName = includedFieldName;
         this.containerType = containerType;
+        this.includedIndex = includedIndex;
     }
 
     public BaseResponseContext getResponse() {
@@ -60,6 +70,10 @@ public class Container {
 
     public String getIncludedFieldName() {
         return includedFieldName;
+    }
+
+    public int getIncludedIndex() {
+        return includedIndex;
     }
 
 

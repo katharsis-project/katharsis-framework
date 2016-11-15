@@ -43,7 +43,7 @@ public class RelationshipContainerSerializer extends JsonSerializer<Relationship
         gen.writeStartObject();
         writeLinks(relationshipContainer, gen);
         if ((!relationshipContainer.getRelationshipField().isLazy() &&
-                !relationshipContainer.getDataLinksContainer().getContainerType().equals(ContainerType.INCLUDED_NESTED)) ||
+                !relationshipContainer.getDataLinksContainer().getContainer().getContainerType().equals(ContainerType.INCLUDED_NESTED)) ||
                 relationshipContainer.isForceInclusion()) {
             writeLinkage(relationshipContainer, gen);
         }

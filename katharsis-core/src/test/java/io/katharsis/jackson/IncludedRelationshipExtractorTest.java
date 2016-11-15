@@ -1,13 +1,5 @@
 package io.katharsis.jackson;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.Collections;
-import java.util.Map;
-
-import org.junit.Before;
-import org.junit.Test;
-
 import io.katharsis.jackson.mock.models.ClassA;
 import io.katharsis.jackson.mock.models.ClassAWithInclusion;
 import io.katharsis.jackson.mock.models.ClassB;
@@ -40,6 +32,13 @@ import io.katharsis.response.ContainerType;
 import io.katharsis.response.HttpStatus;
 import io.katharsis.response.JsonApiResponse;
 import io.katharsis.response.ResourceResponseContext;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.Collections;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class IncludedRelationshipExtractorTest {
 
@@ -241,9 +240,9 @@ public class IncludedRelationshipExtractorTest {
         // THEN
         assertThat(result).hasSize(2);
         assertThat(result).containsKey(new ResourceDigest(2L, "classBs"));
-        assertThat(result).containsValue(new Container(classB, testResponse, ContainerType.INCLUDED, "classBs"));
+        assertThat(result).containsValue(new Container(classB, testResponse, ContainerType.INCLUDED, "classBs", 0));
         assertThat(result).containsKey(new ResourceDigest(1L, "classCs"));
-        assertThat(result).containsValue(new Container(classC, testResponse, ContainerType.INCLUDED_NESTED, "classC"));
+        assertThat(result).containsValue(new Container(classC, testResponse, ContainerType.INCLUDED_NESTED, "classC", 1));
     }
 
     @Test
@@ -267,9 +266,9 @@ public class IncludedRelationshipExtractorTest {
         // THEN
         assertThat(result).hasSize(2);
         assertThat(result).containsKey(new ResourceDigest(2L, "classBs"));
-        assertThat(result).containsValue(new Container(classB, testResponse, ContainerType.INCLUDED, "classBs"));
+        assertThat(result).containsValue(new Container(classB, testResponse, ContainerType.INCLUDED, "classBs", 0));
         assertThat(result).containsKey(new ResourceDigest(1L, "classAs"));
-        assertThat(result).containsValue(new Container(nestedClassA, testResponse, ContainerType.INCLUDED_NESTED, "classC"));
+        assertThat(result).containsValue(new Container(nestedClassA, testResponse, ContainerType.INCLUDED_DEFAULT));
     }
 
     private QueryParams getRequestParamsWithInclusion(String resourceType, String relationshipField) {
