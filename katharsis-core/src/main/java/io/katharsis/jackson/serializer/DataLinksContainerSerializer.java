@@ -24,7 +24,10 @@ import java.util.List;
  */
 public class DataLinksContainerSerializer extends JsonSerializer<DataLinksContainer> {
 
+    private ResourceRegistry resourceRegistry;
+
     public DataLinksContainerSerializer(ResourceRegistry resourceRegistry) {
+        this.resourceRegistry = resourceRegistry;
     }
 
     @Override
@@ -43,18 +46,27 @@ public class DataLinksContainerSerializer extends JsonSerializer<DataLinksContai
     }
 
     private boolean shouldForceFieldInclusion(DataLinksContainer dataLinksContainer, ResourceField field, IncludedRelationsParams includedRelations) {
-        if (includedRelations != null) {
+
+        if (includedRelations == null) {
+            return false;
+        }
+
+        // if this is a top level container then search all includes first index field name match else search
+        if (dataLinksContainer.getContainer().getContainerType().equals(ContainerType.TOP)) {
             for (Inclusion inclusion : includedRelations.getParams()) {
                 List<String> pathList = inclusion.getPathList();
                 int fieldIndex = dataLinksContainer.getContainer().getIncludedIndex();
-                if (!dataLinksContainer.getContainer().getContainerType().equals(ContainerType.TOP)) {
-                    fieldIndex = fieldIndex + 1;
-                }
-
                 if (pathList.size() > fieldIndex
                         && field.getJsonName().equals(pathList.get(fieldIndex))) {
                     return true;
                 }
+            }
+        } else if (dataLinksContainer.getContainer().getPathList() != null) {
+            List<String> pathList = dataLinksContainer.getContainer().getPathList();
+            int fieldIndex = dataLinksContainer.getContainer().getIncludedIndex() + 1;
+            if (pathList.size() > fieldIndex
+                    && field.getJsonName().equals(pathList.get(fieldIndex))) {
+                return true;
             }
         }
 

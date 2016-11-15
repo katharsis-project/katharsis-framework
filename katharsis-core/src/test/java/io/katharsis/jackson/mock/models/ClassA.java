@@ -11,13 +11,17 @@ import java.util.List;
 public class ClassA {
 
     @JsonApiId
-    private Long id;
+    private long id;
 
     @JsonApiToMany(lazy = false)
-    private final List<ClassB> classBs;
+    private List<ClassB> classBs;
 
     public ClassA(ClassB classBs) {
         this.classBs = Collections.singletonList(classBs);
+    }
+
+    public ClassA(long id) {
+        this.id = id;
     }
 
     public Long getId() {

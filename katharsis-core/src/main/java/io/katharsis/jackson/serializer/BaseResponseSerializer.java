@@ -98,7 +98,7 @@ public class BaseResponseSerializer extends JsonSerializer<BaseResponseContext> 
     private Map<ResourceDigest, Container> serializeSingle(ResourceResponseContext responseContext, JsonGenerator gen)
             throws IOException {
         Object value = responseContext.getResponse().getEntity();
-        gen.writeObjectField(DATA_FIELD_NAME, new Container(value, responseContext, ContainerType.TOP, "", 0));
+        gen.writeObjectField(DATA_FIELD_NAME, new Container(value, responseContext, ContainerType.TOP));
 
         if (value != null) {
             return includedRelationshipExtractor.extractIncludedResources(value, responseContext);
@@ -120,7 +120,7 @@ public class BaseResponseSerializer extends JsonSerializer<BaseResponseContext> 
         for (Object value : values) {
             //noinspection unchecked
             includedFields.putAll(includedRelationshipExtractor.extractIncludedResources(value, responseContext));
-            containers.add(new Container(value, responseContext, ContainerType.TOP, "", 0));
+            containers.add(new Container(value, responseContext, ContainerType.TOP));
         }
 
         gen.writeObjectField(DATA_FIELD_NAME, containers);

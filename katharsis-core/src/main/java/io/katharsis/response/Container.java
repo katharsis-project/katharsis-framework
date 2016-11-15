@@ -3,6 +3,7 @@ package io.katharsis.response;
 import io.katharsis.jackson.serializer.ContainerSerializer;
 import lombok.ToString;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -17,21 +18,24 @@ public class Container {
     private final ContainerType containerType;
     private final String includedFieldName;
     private final int includedIndex;
+    private final List<String> pathList;
 
     public Container() {
-        data = null;
-        response = null;
-        containerType = null;
-        includedFieldName = null;
-        includedIndex = -1;
+        this.data = null;
+        this.response = null;
+        this.containerType = null;
+        this.includedFieldName = null;
+        this.includedIndex = -1;
+        this.pathList = null;
     }
 
     public Container(Object data, BaseResponseContext response) {
         this.data = data;
         this.response = response;
         this.containerType = ContainerType.TOP;
-        this.includedFieldName = null;
         this.includedIndex = 0;
+        this.includedFieldName = null;
+        this.pathList = null;
     }
 
     public Container(Object data, BaseResponseContext response, ContainerType containerType) {
@@ -44,15 +48,17 @@ public class Container {
             this.includedIndex = -1;
         }
         this.includedFieldName = null;
+        this.pathList = null;
 
     }
 
-    public Container(Object data, BaseResponseContext response, ContainerType containerType, String includedFieldName, int includedIndex) {
+    public Container(Object data, BaseResponseContext response, ContainerType containerType, String includedFieldName, int includedIndex, List<String> pathList) {
         this.data = data;
         this.response = response;
         this.includedFieldName = includedFieldName;
         this.containerType = containerType;
         this.includedIndex = includedIndex;
+        this.pathList = pathList;
     }
 
     public BaseResponseContext getResponse() {
@@ -76,6 +82,9 @@ public class Container {
         return includedIndex;
     }
 
+    public List<String> getPathList() {
+        return pathList;
+    }
 
     @Override
     public boolean equals(Object o) {
