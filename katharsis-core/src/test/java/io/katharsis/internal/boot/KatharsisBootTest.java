@@ -5,6 +5,7 @@ import java.util.Properties;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -14,6 +15,7 @@ import io.katharsis.module.Module;
 import io.katharsis.module.ServiceDiscovery;
 import io.katharsis.module.SimpleModule;
 import io.katharsis.queryParams.QueryParams;
+import io.katharsis.queryspec.QuerySpecDeserializer;
 import io.katharsis.queryspec.internal.QueryParamsAdapter;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.mock.models.Task;
@@ -26,7 +28,31 @@ import io.katharsis.response.JsonApiResponse;
 public class KatharsisBootTest {
 
 	@Test
-	public void test() {
+	public void setObjectMapper() {
+		KatharsisBoot boot = new KatharsisBoot();
+		ObjectMapper mapper = new ObjectMapper();
+		boot.setObjectMapper(mapper);
+		Assert.assertSame(mapper, boot.getObjectMapper());
+	}
+
+	@Test
+	public void setServiceDiscovery() {
+		KatharsisBoot boot = new KatharsisBoot();
+		ServiceDiscovery serviceDiscovery = Mockito.mock(ServiceDiscovery.class);
+		boot.setServiceDiscovery(serviceDiscovery);
+		Assert.assertSame(serviceDiscovery, boot.getServiceDiscovery());
+	}
+	
+	@Test
+	public void setQuerySpecDeserializer() {
+		KatharsisBoot boot = new KatharsisBoot();
+		QuerySpecDeserializer deserializer = Mockito.mock(QuerySpecDeserializer.class);
+		boot.setQuerySpecDeserializer(deserializer);
+		Assert.assertSame(deserializer, boot.getQuerySpecDeserializer());
+	}
+
+	@Test
+	public void boot() {
 		KatharsisBoot boot = new KatharsisBoot();
 		ObjectMapper objectMapper = boot.getObjectMapper();
 		ResourceFieldNameTransformer resourceFieldNameTransformer = new ResourceFieldNameTransformer(

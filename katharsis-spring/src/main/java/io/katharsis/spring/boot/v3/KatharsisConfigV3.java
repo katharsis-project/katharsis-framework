@@ -46,7 +46,7 @@ public class KatharsisConfigV3 {
 		boot.setObjectMapper(objectMapper);
 		String baseUrl = properties.getDomainName() + properties.getPathPrefix();
 		boot.setServiceUrlProvider(new ConstantServiceUrlProvider(baseUrl));
-		boot.setServiceDiscoveryFactory(serviceDiscovery);
+		boot.setServiceDiscovery(serviceDiscovery);
 		boot.setDefaultPageLimit(properties.getDefaultPageLimit());
 		boot.boot();
 		return boot;

@@ -89,9 +89,10 @@ public class KatharsisBoot {
 	public void setServiceDiscoveryFactory(ServiceDiscoveryFactory factory) {
 		this.serviceDiscoveryFactory = factory;
 	}
-	
-	public void setServiceDiscoveryFactory(ServiceDiscovery serviceDiscovery) {
+
+	public void setServiceDiscovery(ServiceDiscovery serviceDiscovery) {
 		this.serviceDiscovery = serviceDiscovery;
+		moduleRegistry.setServiceDiscovery(serviceDiscovery);
 	}
 
 	public void setQueryParamsBuilds(QueryParamsBuilder queryParamsBuilder) {
@@ -150,13 +151,12 @@ public class KatharsisBoot {
 	}
 
 	private void setupServiceDiscovery() {
-		if(serviceDiscovery == null){
+		if (serviceDiscovery == null) {
 			// revert to reflection-based approach if no ServiceDiscovery is found
-			FallbackServiceDiscoveryFactory fallback = new FallbackServiceDiscoveryFactory(serviceDiscoveryFactory, serviceLocator,
-					propertiesProvider);
-			serviceDiscovery = fallback.getInstance();
+			FallbackServiceDiscoveryFactory fallback = new FallbackServiceDiscoveryFactory(serviceDiscoveryFactory,
+					serviceLocator, propertiesProvider);
+			setServiceDiscovery(fallback.getInstance());
 		}
-		moduleRegistry.setServiceDiscovery(serviceDiscovery);
 	}
 
 	private void bootDiscovery() {
@@ -174,8 +174,8 @@ public class KatharsisBoot {
 		requestDispatcher = createRequestDispatcher(exceptionMapperRegistry);
 
 	}
-	
-	public ExceptionMapperRegistry getExceptionMapperRegistry(){
+
+	public ExceptionMapperRegistry getExceptionMapperRegistry() {
 		return exceptionMapperRegistry;
 	}
 
@@ -203,10 +203,10 @@ public class KatharsisBoot {
 	}
 
 	private void setupComponents() {
-		if(resourceFieldNameTransformer == null){
+		if (resourceFieldNameTransformer == null) {
 			resourceFieldNameTransformer = new ResourceFieldNameTransformer(objectMapper.getSerializationConfig());
 		}
-		
+
 		// not that the provided default implementation here are added last and as a consequence,
 		// can be overriden by other modules, like the JaxrsResourceRepositoryInformationBuilder.
 		SimpleModule module = new SimpleModule("discovery");
@@ -335,5 +335,9 @@ public class KatharsisBoot {
 
 	public ModuleRegistry getModuleRegistry() {
 		return moduleRegistry;
+	}
+
+	public QuerySpecDeserializer getQuerySpecDeserializer() {
+		return querySpecDeserializer;
 	}
 }
