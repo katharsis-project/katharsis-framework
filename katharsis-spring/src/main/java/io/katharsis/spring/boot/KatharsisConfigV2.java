@@ -25,6 +25,10 @@ import io.katharsis.spring.KatharsisFilterV2;
     ModuleConfiguration.class,
     KatharsisRegistryConfiguration.class})
 @EnableConfigurationProperties(KatharsisSpringBootProperties.class)
+/**
+ * @Deprecated in favor of new version with JSON API compliance, QuerySpec and module support. 
+ */
+@Deprecated
 public class KatharsisConfigV2 {
 
     @Autowired

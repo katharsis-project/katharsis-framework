@@ -29,6 +29,7 @@ import io.katharsis.resource.registry.MultiResourceLookup;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceLookup;
 import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.resource.registry.ResourceRegistryAware;
 import io.katharsis.resource.registry.repository.AnnotatedRelationshipEntryBuilder;
 import io.katharsis.resource.registry.repository.AnnotatedResourceEntry;
 import io.katharsis.resource.registry.repository.DirectResponseRelationshipEntry;
@@ -400,6 +401,9 @@ public class ModuleRegistry {
 			}
 			else {
 				relationshipRepositories.put((RelationshipRepositoryInformation) repositoryInformation, repository);
+			}
+			if(repository instanceof ResourceRegistryAware){
+				((ResourceRegistryAware)repository).setResourceRegistry(resourceRegistry);
 			}
 		}
 

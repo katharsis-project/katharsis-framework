@@ -16,94 +16,53 @@
  */
 package io.katharsis.example.springboot.simple.domain.repository;
 
-import io.katharsis.example.springboot.simple.domain.model.Project;
-import io.katharsis.example.springboot.simple.domain.model.Task;
-import io.katharsis.queryParams.QueryParams;
-import io.katharsis.repository.annotations.JsonApiDelete;
-import io.katharsis.repository.annotations.JsonApiFindAll;
-import io.katharsis.repository.annotations.JsonApiFindAllWithIds;
-import io.katharsis.repository.annotations.JsonApiFindOne;
-import io.katharsis.repository.annotations.JsonApiResourceRepository;
-import io.katharsis.repository.annotations.JsonApiSave;
-import io.katharsis.resource.exception.ResourceNotFoundException;
-
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import com.google.common.collect.Iterables;
+import io.katharsis.example.springboot.simple.domain.model.Project;
+import io.katharsis.queryspec.QuerySpec;
+import io.katharsis.queryspec.QuerySpecResourceRepositoryBase;
 
-@JsonApiResourceRepository(Project.class)
+/**
+ * QuerySpecResourceRepositoryBase-based example with the base class providing some base functionality.
+ */
 @Component
-public class ProjectRepository {
-    private static final Map<Long, Project> REPOSITORY = new ConcurrentHashMap<>();
-    private static final AtomicLong ID_GENERATOR = new AtomicLong(124);
-    private final TaskRepository taskRepository;
+public class ProjectRepository extends QuerySpecResourceRepositoryBase<Project, Long> {
 
-    @Autowired @Lazy
-    public ProjectRepository(TaskRepository taskRepository) {
-        this.taskRepository = taskRepository;
-        Project project = new Project(123L);
-        project.setName("Great Project");
-        save(project);
-    }
+	private static final AtomicLong ID_GENERATOR = new AtomicLong(124);
 
-    @JsonApiSave
-    public <S extends Project> S save(S entity) {
-        if (entity.getId() == null) {
-            entity.setId(ID_GENERATOR.getAndIncrement());
-        }
-        REPOSITORY.put(entity.getId(), entity);
-        return entity;
-    }
+	private Map<Long, Project> projects = new HashMap<>();
 
-    @JsonApiFindOne
-    public Project findOne(Long projectId, QueryParams requestParams) {
-        if (projectId == null) {
-            return null;
-        }
-        Project project = REPOSITORY.get(projectId);
-        if (project == null) {
-            throw new ResourceNotFoundException("Project not found!");
-        }
-        if (project.getTasks().isEmpty()) {
-            Iterable<Task> tasks = taskRepository.findAll(null);
-            for (Task task: tasks) {
-                if (task.getProjectId().equals(project.getId())) {
-                    project.getTasks().add(task);
-                }
-            }
-            save(project);
-        }
-        return project;
-    }
+	public ProjectRepository() {
+		super(Project.class);
+		List<String> interests = new ArrayList<>();
+		interests.add("coding");
+		interests.add("art");
+		save(new Project(123L, "Great Project"));
+	}
 
-    @JsonApiFindAll
-    public Iterable<Project> findAll(QueryParams requestParams) {
-        return REPOSITORY.values();
-    }
+	@Override
+	public synchronized void delete(Long id) {
+		projects.remove(id);
+	}
 
-    @JsonApiFindAllWithIds
-    public Iterable<Project> findAll(Iterable<Long> projectIds, QueryParams requestParams) {
-        List<Project> foundProjects = new ArrayList<>();
-        for (Map.Entry<Long, Project> entry: REPOSITORY.entrySet()) {
-            for (Long projectId: projectIds) {
-                if (projectId.equals(entry.getKey())) {
-                    foundProjects.add(entry.getValue());
-                }
-            }
-        }
-        return foundProjects;
-    }
+	@Override
+	public synchronized <S extends Project> S save(S project) {
+		if (project.getId() == null) {
+			project.setId(ID_GENERATOR.getAndIncrement());
+		}
+		projects.put(project.getId(), project);
+		return project;
+	}
 
-    @JsonApiDelete
-    public void delete(Long projectId) {
-        REPOSITORY.remove(projectId);
-    }
+	@Override
+	public synchronized List<Project> findAll(QuerySpec querySpec) {
+		return querySpec.apply(projects.values());
+	}
+
 }

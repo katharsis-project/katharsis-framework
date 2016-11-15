@@ -1,18 +1,18 @@
-package io.katharsis.spring.domain.repository;
+package io.katharsis.example.dropwizard.simple.domain.repository;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
-import org.springframework.stereotype.Component;
-
+import io.katharsis.example.dropwizard.simple.domain.model.Project;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.QuerySpecResourceRepositoryBase;
-import io.katharsis.spring.domain.model.Project;
 
-@Component
-public class ProjectRepository extends QuerySpecResourceRepositoryBase<Project, String> {
+public class ProjectRepository extends QuerySpecResourceRepositoryBase<Project, Long> {
+
+	private static final AtomicLong ID_GENERATOR = new AtomicLong(124);
 
 	private Map<Long, Project> projects = new HashMap<>();
 
@@ -21,18 +21,19 @@ public class ProjectRepository extends QuerySpecResourceRepositoryBase<Project, 
 		List<String> interests = new ArrayList<>();
 		interests.add("coding");
 		interests.add("art");
-		save(new Project(1L, "Project A"));
-		save(new Project(2L, "Project B"));
-		save(new Project(3L, "Project C"));
+		save(new Project(123L, "Great Project"));
 	}
 
 	@Override
-	public synchronized void delete(String id) {
+	public synchronized void delete(Long id) {
 		projects.remove(id);
 	}
 
 	@Override
 	public synchronized <S extends Project> S save(S project) {
+		if (project.getId() == null) {
+			project.setId(ID_GENERATOR.getAndIncrement());
+		}
 		projects.put(project.getId(), project);
 		return project;
 	}
@@ -41,4 +42,5 @@ public class ProjectRepository extends QuerySpecResourceRepositoryBase<Project, 
 	public synchronized List<Project> findAll(QuerySpec querySpec) {
 		return querySpec.apply(projects.values());
 	}
+
 }
