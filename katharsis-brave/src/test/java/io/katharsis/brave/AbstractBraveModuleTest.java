@@ -25,19 +25,18 @@ import io.katharsis.brave.mock.models.Task;
 import io.katharsis.brave.mock.repository.TaskRepository;
 import io.katharsis.client.KatharsisClient;
 import io.katharsis.client.QuerySpecResourceRepositoryStub;
+import io.katharsis.client.http.HttpAdapter;
 import io.katharsis.client.http.okhttp.OkHttpAdapter;
-import io.katharsis.client.http.okhttp.OkHttpAdapterListenerBase;
 import io.katharsis.queryspec.FilterOperator;
 import io.katharsis.queryspec.FilterSpec;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.rs.KatharsisFeature;
 import io.katharsis.rs.KatharsisProperties;
-import okhttp3.OkHttpClient;
 import zipkin.BinaryAnnotation;
 import zipkin.Span;
 import zipkin.reporter.Reporter;
 
-public class BraveModuleTest extends JerseyTest {
+public abstract class AbstractBraveModuleTest extends JerseyTest {
 
 	protected KatharsisClient client;
 
@@ -46,6 +45,15 @@ public class BraveModuleTest extends JerseyTest {
 	private Reporter<Span> clientReporter;
 
 	private Reporter<Span> serverReporter;
+
+	private HttpAdapter httpAdapter;
+
+	private boolean isOkHttp;
+
+	public AbstractBraveModuleTest(HttpAdapter httpAdapter) {
+		this.httpAdapter = httpAdapter;
+		this.isOkHttp = httpAdapter instanceof OkHttpAdapter;
+	}
 
 	@Before
 	@SuppressWarnings("unchecked")
@@ -59,21 +67,11 @@ public class BraveModuleTest extends JerseyTest {
 		Brave clientBrave = builder.build();
 
 		client = new KatharsisClient(getBaseUri().toString());
+		client.setHttpAdapter(httpAdapter);
 		client.addModule(BraveModule.newClientModule(clientBrave));
 		taskRepo = client.getQuerySpecRepository(Task.class);
 		TaskRepository.map.clear();
-		setNetworkTimeout(client, 10000, TimeUnit.SECONDS);
-	}
-
-	public static void setNetworkTimeout(KatharsisClient client, final int timeout, final TimeUnit timeUnit) {
-		OkHttpAdapter httpAdapter = (OkHttpAdapter) client.getHttpAdapter();
-		httpAdapter.addListener(new OkHttpAdapterListenerBase() {
-
-			@Override
-			public void onBuild(OkHttpClient.Builder builder) {
-				builder.readTimeout(timeout, timeUnit);
-			}
-		});
+		httpAdapter.setReceiveTimeout(10000, TimeUnit.SECONDS);
 	}
 
 	@Test
@@ -85,15 +83,17 @@ public class BraveModuleTest extends JerseyTest {
 
 		// check client call and link span
 		ArgumentCaptor<Span> clientSpanCaptor = ArgumentCaptor.forClass(Span.class);
-		Mockito.verify(clientReporter, Mockito.times(2)).report(clientSpanCaptor.capture());
+		Mockito.verify(clientReporter, Mockito.times(isOkHttp ? 2 : 1)).report(clientSpanCaptor.capture());
 		List<Span> clientSpans = clientSpanCaptor.getAllValues();
 		Span callSpan = clientSpans.get(0);
-		Span linkSpan = clientSpans.get(1);
 		Assert.assertEquals("post", callSpan.name);
 		Assert.assertTrue(callSpan.toString().contains("\"cs\""));
 		Assert.assertTrue(callSpan.toString().contains("\"cr\""));
-		Assert.assertEquals("post", linkSpan.name);
-		Assert.assertTrue(linkSpan.toString().contains("\"lc\""));
+		if (isOkHttp) {
+			Span linkSpan = clientSpans.get(1);
+			Assert.assertEquals("post", linkSpan.name);
+			Assert.assertTrue(linkSpan.toString().contains("\"lc\""));
+		}
 
 		// check server local span
 		ArgumentCaptor<Span> serverSpanCaptor = ArgumentCaptor.forClass(Span.class);
@@ -106,7 +106,7 @@ public class BraveModuleTest extends JerseyTest {
 		assertBinaryAnnotation(repositorySpan, "lc", "katharsis");
 		assertBinaryAnnotation(repositorySpan, "katharsis.query", "?");
 	}
-	
+
 	@Test
 	public void testFindAll() {
 		Task task = new Task();
@@ -118,15 +118,17 @@ public class BraveModuleTest extends JerseyTest {
 
 		// check client call and link span
 		ArgumentCaptor<Span> clientSpanCaptor = ArgumentCaptor.forClass(Span.class);
-		Mockito.verify(clientReporter, Mockito.times(2)).report(clientSpanCaptor.capture());
+		Mockito.verify(clientReporter, Mockito.times(isOkHttp ? 2 : 1)).report(clientSpanCaptor.capture());
 		List<Span> clientSpans = clientSpanCaptor.getAllValues();
 		Span callSpan = clientSpans.get(0);
-		Span linkSpan = clientSpans.get(1);
 		Assert.assertEquals("get", callSpan.name);
 		Assert.assertTrue(callSpan.toString().contains("\"cs\""));
 		Assert.assertTrue(callSpan.toString().contains("\"cr\""));
-		Assert.assertEquals("get", linkSpan.name);
-		Assert.assertTrue(linkSpan.toString().contains("\"lc\""));
+		if (isOkHttp) {
+			Span linkSpan = clientSpans.get(1);
+			Assert.assertEquals("get", linkSpan.name);
+			Assert.assertTrue(linkSpan.toString().contains("\"lc\""));
+		}
 
 		// check server local span
 		ArgumentCaptor<Span> serverSpanCaptor = ArgumentCaptor.forClass(Span.class);

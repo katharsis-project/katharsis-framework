@@ -1,17 +1,17 @@
 package io.katharsis.brave;
 
 import com.github.kristofa.brave.Brave;
-import com.github.kristofa.brave.BraveExecutorService;
-import com.github.kristofa.brave.okhttp.BraveTracingInterceptor;
-import com.github.kristofa.brave.okhttp.BraveTracingInterceptor.Builder;
+import com.github.kristofa.brave.http.DefaultSpanNameProvider;
+import com.github.kristofa.brave.http.SpanNameProvider;
 
 import io.katharsis.brave.internal.BraveRepositoryFilter;
+import io.katharsis.brave.internal.HttpClientBraveIntegration;
+import io.katharsis.brave.internal.OkHttpBraveIntegration;
 import io.katharsis.client.http.HttpAdapter;
+import io.katharsis.client.http.apache.HttpClientAdapter;
 import io.katharsis.client.http.okhttp.OkHttpAdapter;
-import io.katharsis.client.http.okhttp.OkHttpAdapterListener;
 import io.katharsis.client.module.HttpAdapterAware;
 import io.katharsis.module.Module;
-import okhttp3.Dispatcher;
 
 /**
  * Integrates Brave into katharsis client and server:
@@ -26,15 +26,22 @@ import okhttp3.Dispatcher;
  *   </li>
  * </ul>
  */
-public class BraveModule implements Module, HttpAdapterAware, OkHttpAdapterListener {
+public class BraveModule implements Module, HttpAdapterAware {
 
 	private Brave brave;
 
 	private boolean server;
 
+	private SpanNameProvider spanNameProvider;
+
 	private BraveModule(Brave brave, boolean server) {
 		this.brave = brave;
 		this.server = server;
+		this.setSpanNameProvider(new DefaultSpanNameProvider());
+	}
+
+	public void setSpanNameProvider(SpanNameProvider spanNameProvider) {
+		this.spanNameProvider = spanNameProvider;
 	}
 
 	public static BraveModule newClientModule(Brave brave) {
@@ -61,31 +68,17 @@ public class BraveModule implements Module, HttpAdapterAware, OkHttpAdapterListe
 
 	@Override
 	public void setHttpAdapter(HttpAdapter adapter) {
-		if (!(adapter instanceof OkHttpAdapter)) {
+		if (adapter instanceof OkHttpAdapter) {
+			OkHttpAdapter okHttpAdapter = (OkHttpAdapter) adapter;
+			okHttpAdapter.addListener(new OkHttpBraveIntegration(brave));
+		}
+		else if (adapter instanceof HttpClientAdapter) {
+			HttpClientAdapter okHttpAdapter = (HttpClientAdapter) adapter;
+			okHttpAdapter.addListener(new HttpClientBraveIntegration(brave, spanNameProvider));
+		}
+		else {
 			throw new IllegalStateException(adapter.getClass() + " not supported yet");
 		}
-		OkHttpAdapter okHttpAdapter = (OkHttpAdapter) adapter;
-		okHttpAdapter.addListener(this);
-	}
-
-	@Override
-	public void onBuild(okhttp3.OkHttpClient.Builder builder) {
-		BraveTracingInterceptor interceptor = buildInterceptor();
-
-		BraveExecutorService tracePropagatingExecutor = buildExecutor(builder);
-
-		builder.addInterceptor(interceptor);
-		builder.addNetworkInterceptor(interceptor);
-		builder.dispatcher(new Dispatcher(tracePropagatingExecutor));
-	}
-
-	protected BraveExecutorService buildExecutor(okhttp3.OkHttpClient.Builder builder) {
-		return new BraveExecutorService(new Dispatcher().executorService(), brave.serverSpanThreadBinder());
-	}
-
-	protected BraveTracingInterceptor buildInterceptor() {
-		Builder tracingBuilder = BraveTracingInterceptor.builder(brave);
-		return tracingBuilder.build();
 	}
 
 	public Brave getBrave() {

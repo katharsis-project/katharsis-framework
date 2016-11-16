@@ -37,11 +37,16 @@ public abstract class AbstractClientTest extends JerseyTest {
 		client = new KatharsisClient(getBaseUri().toString());
 		client.addModule(new TestModule());
 		client.setActionStubFactory(JerseyActionStubFactory.newInstance());
+		setupClient(client);
 
 		TaskRepository.clear();
 		ProjectRepository.clear();
 		TaskToProjectRepository.clear();
 		ScheduleRepositoryImpl.clear();
+	}
+
+	protected void setupClient(KatharsisClient client) {
+
 	}
 
 	@Override
@@ -56,7 +61,7 @@ public abstract class AbstractClientTest extends JerseyTest {
 	protected void setupFeature(KatharsisTestFeature feature) {
 		// nothing to do
 	}
-	
+
 	@ApplicationPath("/")
 	public class TestApplication extends ResourceConfig {
 
@@ -76,12 +81,11 @@ public abstract class AbstractClientTest extends JerseyTest {
 			}
 
 			feature.addModule(new TestModule());
-			
+
 			setupFeature(feature);
 
 			register(feature);
 		}
-
 
 		public KatharsisFeature getFeature() {
 			return feature;

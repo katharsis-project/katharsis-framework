@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
@@ -34,11 +35,6 @@
 			<organization>Katharsis community</organization>
 		</developer>
 	</developers>
-
-	<properties>
-		<okhttp.version>3.4.1</okhttp.version>
-		<jersey.version>2.17</jersey.version>
-	</properties>
 
 	<build>
 		<plugins>
@@ -87,7 +83,14 @@
 			<artifactId>katharsis-core</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		
+
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>${httpclient.version}</version>
+			<optional>true</optional>
+		</dependency>
+
 		<dependency>
 			<groupId>org.glassfish.jersey.ext</groupId>
 			<artifactId>jersey-proxy-client</artifactId>
@@ -114,20 +117,21 @@
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>okhttp</artifactId>
 			<version>${okhttp.version}</version>
+			<optional>true</optional>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>io.katharsis</groupId>
 			<artifactId>katharsis-rs</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>
-				
+
 		<dependency>
-            <groupId>org.reflections</groupId>
-            <artifactId>reflections</artifactId>
-            <scope>test</scope>
-        </dependency>
+			<groupId>org.reflections</groupId>
+			<artifactId>reflections</artifactId>
+			<scope>test</scope>
+		</dependency>
 
 		<dependency>
 			<groupId>org.glassfish.jersey.core</groupId>
@@ -157,17 +161,17 @@
 			<version>${jersey.version}</version>
 			<scope>test</scope>
 		</dependency>
-		
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <scope>test</scope>
-        </dependency>
 
-        <dependency>
-		    <groupId>org.slf4j</groupId>
-		    <artifactId>jul-to-slf4j</artifactId>
-            <scope>test</scope>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jul-to-slf4j</artifactId>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
