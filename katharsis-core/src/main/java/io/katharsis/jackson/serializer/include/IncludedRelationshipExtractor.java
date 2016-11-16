@@ -34,6 +34,16 @@ public class IncludedRelationshipExtractor {
         this.resourceRegistry = resourceRegistry;
     }
 
+    /**
+     * Return an ordered map from the base resource that contain the fields annotated with {@link io.katharsis.resource.annotations.JsonApiIncludeByDefault} up to the first level of inclusions.
+     * <p>
+     * Additionally, return all the fields that are nested N levels deep in the include query parameters.
+     * ex. include=projects.task.project will go three levels deep trying to find populated fields.
+     *
+     * @param resource
+     * @param response
+     * @return
+     */
     public Map<ResourceDigest, Container> extractIncludedResources(Object resource, BaseResponseContext response) {
         Map<ResourceDigest, Container> includedResources = new LinkedHashMap<>();
 
@@ -65,38 +75,11 @@ public class IncludedRelationshipExtractor {
             if ((containerType.equals(ContainerType.TOP) || containerType.equals(ContainerType.INCLUDED_DEFAULT))
                     && resourceField.getIncludeByDefault()) {
                 recurrenceLevelCounter++;
-                if (targetDataObj instanceof Iterable) {
-                    for (Object objectItem : (Iterable) targetDataObj) {
-                        if (objectItem == null) {
-                            continue;
-                        }
-                        includedResources.put(getResourceDigest(objectItem), new Container(objectItem, response, containerType));
-                        populateIncludedByDefaultResourcesRecursive(objectItem, response, containerType, includedResources, recurrenceLevelCounter);
-                    }
-                } else {
-                    includedResources.put(getResourceDigest(targetDataObj), new Container(targetDataObj, response, containerType));
-                    populateIncludedByDefaultResourcesRecursive(targetDataObj, response, containerType, includedResources, recurrenceLevelCounter);
-                }
+                populateIncludedByDefaultResourcesRecursive(targetDataObj, response, containerType, includedResources, recurrenceLevelCounter, resourceField);
             } // if this is a top level container and its field matches the included parameters traverse further to find defaults
             else if (containerType.equals(ContainerType.TOP) && isFieldIncluded(response, resourceField.getUnderlyingName())) {
-                if (targetDataObj instanceof Iterable) {
-                    for (Object objectItem : (Iterable) targetDataObj) {
-                        if (objectItem == null) {
-                            continue;
-                        }
-                        populateIncludedByDefaultResourcesRecursive(objectItem,
-                                response,
-                                containerType,
-                                includedResources,
-                                recurrenceLevelCounter);
-                    }
-                } else {
-                    populateIncludedByDefaultResourcesRecursive(targetDataObj,
-                            response,
-                            containerType,
-                            includedResources,
-                            recurrenceLevelCounter);
-                }
+                recurrenceLevelCounter++;
+                populateIncludedByDefaultResourcesRecursive(targetDataObj, response, containerType, includedResources, recurrenceLevelCounter, resourceField);
             }
         }
     }
@@ -127,12 +110,32 @@ public class IncludedRelationshipExtractor {
                                                              BaseResponseContext response,
                                                              ContainerType containerType,
                                                              Map<ResourceDigest, Container> includedResourceContainers,
-                                                             int recurrenceLevelCounter) {
-        if (containerType.equals(ContainerType.TOP)) {
-            populateIncludedByDefaultResources(targetDataObj, response, ContainerType.INCLUDED_DEFAULT, includedResourceContainers, recurrenceLevelCounter);
-        } else if (containerType.equals(ContainerType.INCLUDED_DEFAULT)) {
-            populateIncludedByDefaultResources(targetDataObj, response, ContainerType.INCLUDED_DEFAULT_NESTED, includedResourceContainers, recurrenceLevelCounter);
+                                                             int recurrenceLevelCounter,
+                                                             ResourceField resourceField) {
+        if (targetDataObj instanceof Iterable) {
+            for (Object objectItem : (Iterable) targetDataObj) {
+                if (objectItem == null) {
+                    continue;
+                }
+                if (containerType.equals(ContainerType.TOP)) {
+                    includedResourceContainers.put(getResourceDigest(objectItem), new Container(objectItem, response, containerType, resourceField.getJsonName(), 0, null));
+                    populateIncludedByDefaultResources(objectItem, response, ContainerType.INCLUDED_DEFAULT, includedResourceContainers, recurrenceLevelCounter);
+                } else if (containerType.equals(ContainerType.INCLUDED_DEFAULT)) {
+                    includedResourceContainers.put(getResourceDigest(objectItem), new Container(objectItem, response, containerType, resourceField.getJsonName(), 1, null));
+                    populateIncludedByDefaultResources(objectItem, response, ContainerType.INCLUDED_DEFAULT_NESTED, includedResourceContainers, recurrenceLevelCounter);
+                }
+            }
+        } else {
+            includedResourceContainers.put(getResourceDigest(targetDataObj), new Container(targetDataObj, response, containerType));
+            if (containerType.equals(ContainerType.TOP)) {
+                includedResourceContainers.put(getResourceDigest(targetDataObj), new Container(targetDataObj, response, containerType, resourceField.getJsonName(), 0, null));
+                populateIncludedByDefaultResources(targetDataObj, response, ContainerType.INCLUDED_DEFAULT, includedResourceContainers, recurrenceLevelCounter);
+            } else if (containerType.equals(ContainerType.INCLUDED_DEFAULT)) {
+                includedResourceContainers.put(getResourceDigest(targetDataObj), new Container(targetDataObj, response, containerType, resourceField.getJsonName(), 1, null));
+                populateIncludedByDefaultResources(targetDataObj, response, ContainerType.INCLUDED_DEFAULT_NESTED, includedResourceContainers, recurrenceLevelCounter);
+            }
         }
+
     }
 
     private void populateIncludedRelationships(Object resource, BaseResponseContext response, Map<ResourceDigest, Container> includedResources) {
@@ -199,25 +202,34 @@ public class IncludedRelationshipExtractor {
         if (resourceProperty == null) {
             return;
         }
-
         if (Iterable.class.isAssignableFrom(resourceProperty.getClass())) {
             for (Object resourceToInclude : (Iterable) resourceProperty) {
-                ResourceDigest digest = getResourceDigest(resourceToInclude);
-                if (index == 0) {
-                    includedResources.put(digest, new Container(resourceToInclude, response, ContainerType.INCLUDED, pathList.get(index), index, pathList));
-                } else {
-                    includedResources.put(digest, new Container(resourceToInclude, response, ContainerType.INCLUDED_NESTED, pathList.get(index), index, pathList));
-                }
+                createOrAppendFieldName(includedResources, index, resourceToInclude, pathList, response);
                 populateIncludedResources(resourceToInclude, pathList, response, includedResources, index + 1);
             }
         } else {
-            ResourceDigest digest = getResourceDigest(resourceProperty);
-            if (index == 0) {
-                includedResources.put(digest, new Container(resourceProperty, response, ContainerType.INCLUDED, pathList.get(index), index, pathList));
-            } else {
-                includedResources.put(digest, new Container(resourceProperty, response, ContainerType.INCLUDED_NESTED, pathList.get(index), index, pathList));
-            }
+            createOrAppendFieldName(includedResources, index, resourceProperty, pathList, response);
             populateIncludedResources(resourceProperty, pathList, response, includedResources, index + 1);
+        }
+    }
+
+    private void createOrAppendFieldName(Map<ResourceDigest, Container> includedResources, int index, Object resourceToInclude, List<String> pathList, BaseResponseContext response) {
+        ResourceDigest digest = getResourceDigest(resourceToInclude);
+        if (!includedResources.containsKey(digest)) {
+            if (index == 0) {
+                includedResources.put(digest, new Container(resourceToInclude, response, ContainerType.INCLUDED, pathList.get(index), index, pathList));
+            } else {
+                includedResources.put(digest, new Container(resourceToInclude, response, ContainerType.INCLUDED_NESTED, pathList.get(index), index, pathList));
+            }
+        } else {
+            // if the object has already been added then lets confirm this field name will be serialized too
+            index = index + 1;
+            if (pathList.size() > index) {
+                Container container = includedResources.get(digest);
+                String fieldName = pathList.get(index);
+                container.appendAdditionalFields(fieldName);
+            }
+
         }
     }
 

@@ -61,6 +61,11 @@ public class DataLinksContainerSerializer extends JsonSerializer<DataLinksContai
                     return true;
                 }
             }
+
+            // check if any fields have been declared as serializable
+            if (dataLinksContainer.getContainer().getAdditionalFields() != null && dataLinksContainer.getContainer().getAdditionalFields().contains(field.getJsonName())) {
+                return true;
+            }
         } else if (dataLinksContainer.getContainer().getPathList() != null) {
             List<String> pathList = dataLinksContainer.getContainer().getPathList();
             int fieldIndex = dataLinksContainer.getContainer().getIncludedIndex() + 1;

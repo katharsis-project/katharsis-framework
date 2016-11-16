@@ -3,8 +3,10 @@ package io.katharsis.response;
 import io.katharsis.jackson.serializer.ContainerSerializer;
 import lombok.ToString;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * A class responsible for representing a single data filed within top-level JSON object returned by Katharsis. The
@@ -19,6 +21,7 @@ public class Container {
     private final String includedFieldName;
     private final int includedIndex;
     private final List<String> pathList;
+    private Set<String> additionalFields;
 
     public Container() {
         this.data = null;
@@ -101,6 +104,17 @@ public class Container {
     @Override
     public int hashCode() {
         return Objects.hash(data);
+    }
+
+    public void appendAdditionalFields(String fieldName) {
+        if (additionalFields == null) {
+            this.additionalFields = new HashSet<>();
+        }
+        this.additionalFields.add(fieldName);
+    }
+
+    public Set<String> getAdditionalFields() {
+        return additionalFields;
     }
 
 }

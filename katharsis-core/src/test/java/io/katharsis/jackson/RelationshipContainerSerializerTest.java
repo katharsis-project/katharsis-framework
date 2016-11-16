@@ -397,15 +397,15 @@ public class RelationshipContainerSerializerTest extends BaseSerializerTest {
         assertThatJson(result).node("included[1].relationships.project.data").isAbsent();
         assertThatJson(result).node("included[1].relationships.tasks.data[0].type").isStringEqualTo("tasks");
         assertThatJson(result).node("included[1].relationships.tasks.data[0].id").isStringEqualTo("8");
-        assertThatJson(result).node("included[2].type").isStringEqualTo("tasks");
-        assertThatJson(result).node("included[2].id").isStringEqualTo("8");
+        assertThatJson(result).node("included[3].type").isStringEqualTo("tasks");
+        assertThatJson(result).node("included[3].id").isStringEqualTo("8");
         // confirm no default variables are referenced in deep nested includes
-        assertThatJson(result).node("included[2].relationships.project.data").isAbsent();
-        assertThatJson(result).node("included[3].type").isStringEqualTo("projects");
-        assertThatJson(result).node("included[3].id").isStringEqualTo("7");
-        // confirm no default variables are referenced in second level nested includes
         assertThatJson(result).node("included[3].relationships.project.data").isAbsent();
-        assertThatJson(result).node("included[3].relationships.tasks.data").isArray();
+        assertThatJson(result).node("included[2].type").isStringEqualTo("projects");
+        assertThatJson(result).node("included[2].id").isStringEqualTo("7");
+        // confirm no default variables are referenced in second level nested includes
+        assertThatJson(result).node("included[2].relationships.projectEager.data").isEqualTo(null);
+        assertThatJson(result).node("included[2].relationships.tasks.data").isArray();
         assertThatJson(result).node("included[4].type").isStringEqualTo("tasks");
         assertThatJson(result).node("included[4].id").isStringEqualTo("3");
         // confirm no default variables are referenced in second level nested includes
