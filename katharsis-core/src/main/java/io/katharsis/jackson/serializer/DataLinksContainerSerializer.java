@@ -47,12 +47,9 @@ public class DataLinksContainerSerializer extends JsonSerializer<DataLinksContai
 
     private boolean shouldForceFieldInclusion(DataLinksContainer dataLinksContainer, ResourceField field, IncludedRelationsParams includedRelations) {
 
-        if (includedRelations == null) {
-            return false;
-        }
 
-        // if this is a top level container then search all includes first index field name match else search
-        if (dataLinksContainer.getContainer().getContainerType().equals(ContainerType.TOP)) {
+        // if this is a top level container then search all includes first index field name match
+        if (includedRelations != null && dataLinksContainer.getContainer().getContainerType().equals(ContainerType.TOP)) {
             for (Inclusion inclusion : includedRelations.getParams()) {
                 List<String> pathList = inclusion.getPathList();
                 int fieldIndex = dataLinksContainer.getContainer().getIncludedIndex();
@@ -62,11 +59,14 @@ public class DataLinksContainerSerializer extends JsonSerializer<DataLinksContai
                 }
             }
 
-            // check if any fields have been declared as serializable
+            // check if any fields have been declared as serializable too
             if (dataLinksContainer.getContainer().getAdditionalFields() != null && dataLinksContainer.getContainer().getAdditionalFields().contains(field.getJsonName())) {
                 return true;
             }
-        } else if (dataLinksContainer.getContainer().getPathList() != null) {
+        }
+
+        // check for container provided path list
+        if (dataLinksContainer.getContainer().getPathList() != null) {
             List<String> pathList = dataLinksContainer.getContainer().getPathList();
             int fieldIndex = dataLinksContainer.getContainer().getIncludedIndex() + 1;
             if (pathList.size() > fieldIndex
@@ -74,6 +74,8 @@ public class DataLinksContainerSerializer extends JsonSerializer<DataLinksContai
                 return true;
             }
         }
+
+
 
         return false;
     }
