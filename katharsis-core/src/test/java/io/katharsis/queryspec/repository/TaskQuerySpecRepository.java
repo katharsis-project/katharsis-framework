@@ -30,7 +30,7 @@ public class TaskQuerySpecRepository extends QuerySpecResourceRepositoryBase<Tas
 	@Override
 	public <S extends Task> S save(S entity) {
 		delete(entity.getId()); // replace current one
-		
+
 		// maintain bidirectional mapping, not perfect, should be done in the resources, but serves its purpose her.
 		Project project = entity.getProject();
 		if (project != null && !project.getTasks().contains(entity)) {

@@ -11,6 +11,8 @@ public interface LinksRepository<T> {
     /**
      * Return meta information about a resource. Can be called after find repository methods call
      *
+     * <b>Consider the use of ResourceList instead.</b>
+     *
      * @param resources a list of found resource(s)
      * @param queryParams parameters sent along with the request
      * @return meta information object

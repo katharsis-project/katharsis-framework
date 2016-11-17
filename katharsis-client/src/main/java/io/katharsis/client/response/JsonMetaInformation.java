@@ -5,9 +5,10 @@ import java.io.IOException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.katharsis.internal.utils.CastableInformation;
 import io.katharsis.response.MetaInformation;
 
-public class JsonMetaInformation implements MetaInformation {
+public class JsonMetaInformation implements MetaInformation, CastableInformation<MetaInformation> {
 
 	private JsonNode data;
 
@@ -28,6 +29,7 @@ public class JsonMetaInformation implements MetaInformation {
 	 * @param metaClass to return
 	 * @return meta information based on the provided type.
 	 */
+	@Override
 	public <M extends MetaInformation> M as(Class<M> metaClass) {
 		try {
 			return mapper.readerFor(metaClass).readValue(data);

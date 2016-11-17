@@ -3,7 +3,6 @@ package io.katharsis.queryspec;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -14,6 +13,7 @@ import io.katharsis.resource.annotations.JsonApiToMany;
 import io.katharsis.resource.annotations.JsonApiToOne;
 import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
+import io.katharsis.resource.list.DefaultResourceList;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryAware;
@@ -42,7 +42,10 @@ import io.katharsis.utils.PropertyUtils;
  * @param <I> source identity type
  * @param <D> target resource type
  * @param <J> target identity type
+ * 
+ * @Deprecated use RelationshipRepositoryBase instead
  */
+@Deprecated
 public class QuerySpecRelationshipRepositoryBase<T, I extends Serializable, D, J extends Serializable>
 		implements QuerySpecBulkRelationshipRepository<T, I, D, J>, ResourceRegistryAware {
 
@@ -70,7 +73,7 @@ public class QuerySpecRelationshipRepositoryBase<T, I extends Serializable, D, J
 	public Iterable<D> findManyTargets(I sourceId, String fieldName, QuerySpec querySpec) {
 		MultivaluedMap<I, D> map = findTargets(Arrays.asList(sourceId), fieldName, querySpec);
 		if (map.isEmpty()) {
-			return Collections.emptyList();
+			return new DefaultResourceList<>();
 		}
 		return map.getList(sourceId);
 	}
@@ -158,7 +161,13 @@ public class QuerySpecRelationshipRepositoryBase<T, I extends Serializable, D, J
 		JsonApiResponse response = targetAdapter.findAll(new QuerySpecAdapter(idQuerySpec, resourceRegistry));
 		List<D> results = (List<D>) response.getEntity();
 
-		MultivaluedMap<I, D> bulkResult = new MultivaluedMap<>();
+		MultivaluedMap<I, D> bulkResult = new MultivaluedMap<I, D>() {
+
+			@Override
+			protected List<D> newList() {
+				return new DefaultResourceList<>();
+			}
+		};
 
 		Set<I> sourceIdSet = new HashSet<>();
 		for (I sourceId : sourceIds) {

@@ -20,13 +20,13 @@ import org.springframework.stereotype.Component;
 
 import io.katharsis.example.springboot.simple.domain.model.Project;
 import io.katharsis.example.springboot.simple.domain.model.Task;
-import io.katharsis.queryspec.QuerySpecRelationshipRepositoryBase;
+import io.katharsis.repository.RelationshipRepositoryBase;
 
 /**
  * Example based on QuerySpecRelationshipRepositoryBase which by default accesses the repositories on both sides.
  */
 @Component
-public class TaskToProjectRepository extends QuerySpecRelationshipRepositoryBase<Task, Long, Project, Long> {
+public class TaskToProjectRepository extends RelationshipRepositoryBase<Task, Long, Project, Long> {
 
 	public TaskToProjectRepository() {
 		super(Task.class, Project.class);

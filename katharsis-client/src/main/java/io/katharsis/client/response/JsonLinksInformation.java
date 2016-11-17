@@ -5,9 +5,10 @@ import java.io.IOException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.katharsis.internal.utils.CastableInformation;
 import io.katharsis.response.LinksInformation;
 
-public class JsonLinksInformation implements LinksInformation {
+public class JsonLinksInformation implements LinksInformation, CastableInformation<LinksInformation> {
 
 	private JsonNode data;
 
@@ -27,6 +28,7 @@ public class JsonLinksInformation implements LinksInformation {
 	 * @param linksClass to return
 	 * @return links information based on the provided type.
 	 */
+	@Override
 	public <L extends LinksInformation> L as(Class<L> linksClass) {
 		try {
 			return mapper.readerFor(linksClass).readValue(data);

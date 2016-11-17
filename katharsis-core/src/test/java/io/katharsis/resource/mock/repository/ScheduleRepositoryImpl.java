@@ -1,29 +1,18 @@
-package io.katharsis.client.mock.repository;
+package io.katharsis.resource.mock.repository;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import io.katharsis.client.mock.models.Schedule;
 import io.katharsis.queryspec.QuerySpec;
-import io.katharsis.queryspec.QuerySpecResourceRepositoryBase;
+import io.katharsis.repository.ResourceRepositoryBase;
+import io.katharsis.resource.mock.models.Schedule;
 
-public class ScheduleRepositoryImpl extends QuerySpecResourceRepositoryBase<Schedule, Long> implements ScheduleRepository {
+public class ScheduleRepositoryImpl extends ResourceRepositoryBase<Schedule, Long> implements ScheduleRepository {
 
 	private static Map<Long, Schedule> schedules = new HashMap<>();
 
 	public ScheduleRepositoryImpl() {
 		super(Schedule.class);
-	}
-
-	@Override
-	public String repositoryAction(String msg) {
-		return "repository action: " + msg;
-	}
-
-	@Override
-	public String resourceAction(long id, String msg) {
-		Schedule schedule = findOne(id, new QuerySpec(Schedule.class));
-		return "resource action: " + msg + "@" + schedule.getName();
 	}
 
 	@Override

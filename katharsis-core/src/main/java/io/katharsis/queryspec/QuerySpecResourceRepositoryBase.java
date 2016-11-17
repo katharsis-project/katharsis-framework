@@ -17,7 +17,10 @@ import io.katharsis.utils.PreconditionUtil;
  *
  * @param <T> resource type
  * @param <I> identity type
+ * 
+ * @deprecated use ResourceRepositoryBase instead
  */
+@Deprecated
 public abstract class QuerySpecResourceRepositoryBase<T, I extends Serializable>
 		implements QuerySpecResourceRepository<T, I>, ResourceRegistryAware {
 

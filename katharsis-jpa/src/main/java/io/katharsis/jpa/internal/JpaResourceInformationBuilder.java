@@ -45,20 +45,20 @@ public class JpaResourceInformationBuilder implements ResourceInformationBuilder
 	private static final String ENTITY_NAME_SUFFIX = "Entity";
 
 	private EntityManager em;
-	private Set<Class<?>> exposedEntityClasses;
+	private Set<Class<?>> exposedResourceClasses;
 	private MetaLookup metaLookup;
 
 	public JpaResourceInformationBuilder(MetaLookup metaLookup, EntityManager em,
-			Set<Class<? extends Object>> exposedEntityClasses) {
+			Set<Class<? extends Object>> exposedResourceClasses) {
 		this.em = em;
-		this.exposedEntityClasses = exposedEntityClasses;
+		this.exposedResourceClasses = exposedResourceClasses;
 		this.metaLookup = metaLookup;
 	}
 
 	@Override
 	public boolean accept(Class<?> resourceClass) {
-		// needs to be configured for being exposed
-		if (!exposedEntityClasses.contains(resourceClass)) {
+		// needs to be configured for being exposed 
+		if (!exposedResourceClasses.contains(resourceClass)) {
 			return false;
 		}
 
@@ -69,6 +69,7 @@ public class JpaResourceInformationBuilder implements ResourceInformationBuilder
 			MetaKey primaryKey = metaEntity.getPrimaryKey();
 			return primaryKey != null && primaryKey.getElements().size() == 1;
 		} else {
+			// note that DTOs cannot be handled here
 			return false;
 		}
 	}
@@ -245,7 +246,7 @@ public class JpaResourceInformationBuilder implements ResourceInformationBuilder
 		if (type.isCollection()) {
 			type = type.asCollection().getElementType();
 		}
-		return attr.isAssociation() && !exposedEntityClasses.contains(type.getImplementationClass());
+		return attr.isAssociation() && !exposedResourceClasses.contains(type.getImplementationClass());
 	}
 
 	protected ResourceField toField(MetaAttribute attr) {

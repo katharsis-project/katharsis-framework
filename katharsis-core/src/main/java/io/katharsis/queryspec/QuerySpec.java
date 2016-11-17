@@ -1,13 +1,14 @@
 package io.katharsis.queryspec;
 
-import io.katharsis.utils.CompareUtils;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import io.katharsis.resource.list.DefaultResourceList;
+import io.katharsis.utils.CompareUtils;
 
 public class QuerySpec {
 
@@ -45,7 +46,7 @@ public class QuerySpec {
 	 * @param resources resources
 	 * @return sorted, filtered list.
 	 */
-	public <T> List<T> apply(Iterable<T> resources) {
+	public <T> DefaultResourceList<T> apply(Iterable<T> resources) {
 		InMemoryEvaluator eval = new InMemoryEvaluator();
 		return eval.eval(resources, this);
 	}

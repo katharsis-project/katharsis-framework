@@ -26,13 +26,14 @@ import org.springframework.stereotype.Component;
 
 import io.katharsis.example.springboot.simple.domain.model.Project;
 import io.katharsis.queryspec.QuerySpec;
-import io.katharsis.queryspec.QuerySpecResourceRepositoryBase;
+import io.katharsis.repository.ResourceRepositoryBase;
+import io.katharsis.resource.list.ResourceList;
 
 /**
  * QuerySpecResourceRepositoryBase-based example with the base class providing some base functionality.
  */
 @Component
-public class ProjectRepository extends QuerySpecResourceRepositoryBase<Project, Long> {
+public class ProjectRepository extends ResourceRepositoryBase<Project, Long> {
 
 	private static final AtomicLong ID_GENERATOR = new AtomicLong(124);
 
@@ -61,7 +62,7 @@ public class ProjectRepository extends QuerySpecResourceRepositoryBase<Project, 
 	}
 
 	@Override
-	public synchronized List<Project> findAll(QuerySpec querySpec) {
+	public synchronized ResourceList<Project> findAll(QuerySpec querySpec) {
 		return querySpec.apply(projects.values());
 	}
 

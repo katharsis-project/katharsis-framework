@@ -17,7 +17,6 @@ public class PagedLinksInformationQuerySpecTest extends AbstractQuerySpecTest {
 
 	private ResourceRepositoryAdapter<Task, Long> adapter;
 
-	@SuppressWarnings("unchecked")
 	@Before
 	public void setup() {
 		TestPagedResourceRepository.clear();
@@ -53,12 +52,11 @@ public class PagedLinksInformationQuerySpecTest extends AbstractQuerySpecTest {
 		Assert.assertEquals("http://127.0.0.1/tasks/?page[limit]=2", linksInformation.getPrev());
 		Assert.assertEquals("http://127.0.0.1/tasks/?page[limit]=2&page[offset]=4", linksInformation.getNext());
 	}
-	
 
 	@Test
 	public void testPagingNoContents() throws InstantiationException, IllegalAccessException {
 		TestPagedResourceRepository.clear();
-		
+
 		QuerySpecAdapter querySpec = new QuerySpecAdapter(new QuerySpec(Task.class), resourceRegistry);
 		querySpec.setOffset(0L);
 		querySpec.setLimit(2L);

@@ -2,7 +2,6 @@ package io.katharsis.client.internal;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,7 +9,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.client.KatharsisClient;
 import io.katharsis.client.QuerySpecRelationshipRepositoryStub;
 import io.katharsis.client.RelationshipRepositoryStub;
-import io.katharsis.client.response.ResourceList;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryspec.QuerySpec;
@@ -19,6 +17,7 @@ import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
+import io.katharsis.resource.list.DefaultResourceList;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.response.BaseResponseContext;
 import io.katharsis.response.CollectionResponseContext;
@@ -89,12 +88,11 @@ public class RelationshipRepositoryStubImpl<T, I extends Serializable, D, J exte
 		return (D) responseContext.getResponse().getEntity();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public List<D> findManyTargets(I sourceId, String fieldName, QueryParams queryParams) {
+	public DefaultResourceList<D> findManyTargets(I sourceId, String fieldName, QueryParams queryParams) {
 		String url = urlBuilder.buildUrl(sourceClass, sourceId, queryParams, fieldName);
 		BaseResponseContext responseContext = executeGet(url);
-		return (List<D>) responseContext.getResponse().getEntity();
+		return toList(responseContext.getResponse());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -106,7 +104,7 @@ public class RelationshipRepositoryStubImpl<T, I extends Serializable, D, J exte
 	}
 
 	@Override
-	public ResourceList<D> findManyTargets(I sourceId, String fieldName, QuerySpec querySpec) {
+	public DefaultResourceList<D> findManyTargets(I sourceId, String fieldName, QuerySpec querySpec) {
 		String url = urlBuilder.buildUrl(sourceClass, sourceId, querySpec, fieldName);
 		BaseResponseContext responseContext = executeGet(url);
 		return toList(responseContext.getResponse());

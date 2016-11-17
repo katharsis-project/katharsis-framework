@@ -308,7 +308,7 @@ public class KatharsisClient {
 		QuerySpecResourceRepositoryStub<?, Serializable> repositoryStub = getQuerySpecRepository(resourceClass);
 
 		ClassLoader classLoader = repositoryInterfaceClass.getClassLoader();
-		InvocationHandler invocationHandler = new ClientStubInvocationHandler(repositoryStub, actionStub);
+		InvocationHandler invocationHandler = new ClientStubInvocationHandler(repositoryInterfaceClass, repositoryStub, actionStub);
 		return (R) Proxy.newProxyInstance(classLoader,
 				new Class[] { repositoryInterfaceClass, QuerySpecResourceRepositoryStub.class }, invocationHandler);
 	}
