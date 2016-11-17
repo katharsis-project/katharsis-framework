@@ -9,8 +9,9 @@ import io.katharsis.utils.WrappedList;
  * to let Katharsis compute pagination links. Note that in case of the use of LinksInformation,
  * PagedLinksInformation must be implemented. Otherwise a default implementation is used.
  * 
- * It is recommended to to implement {@link PagedMetaInformation} instead with the same effect.
+ * @Deprecated It is recommended to to implement {@link PagedMetaInformation} instead and use in combination with {@link ResourceList}.
  */
+@Deprecated
 public class PagedResultList<T> extends WrappedList<T> {
 
 	private Long totalCount;
