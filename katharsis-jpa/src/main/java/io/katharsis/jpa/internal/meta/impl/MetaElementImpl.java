@@ -12,6 +12,7 @@ import io.katharsis.jpa.internal.meta.MetaType;
 public abstract class MetaElementImpl implements MetaElement {
 
 	private MetaElement parent;
+
 	private List<MetaElement> children = new ArrayList<>();
 
 	protected MetaLookup lookup;
@@ -22,6 +23,11 @@ public abstract class MetaElementImpl implements MetaElement {
 			List<MetaElement> parentsChildren = parent.getChildren();
 			parentsChildren.add(this);
 		}
+	}
+	
+	@Override
+	public MetaLookup getLookup(){
+		return lookup;
 	}
 
 	@Override

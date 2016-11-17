@@ -209,21 +209,11 @@ public class KatharsisClient {
 		initialized = true;
 
 		initModuleRegistry();
-		initRepositories();
 		initExceptionMapperRegistry();
 	}
 
 	private void initModuleRegistry() {
 		moduleRegistry.init(objectMapper);
-	}
-
-	private void initRepositories() {
-		// register all resources
-		ResourceLookup resourceLookup = moduleRegistry.getResourceLookup();
-		Set<Class<?>> resourceClasses = resourceLookup.getResourceClasses();
-		for (Class<?> resourceClass : resourceClasses) {
-			allocateRepository(resourceClass, false);
-		}
 	}
 
 	private void initExceptionMapperRegistry() {

@@ -26,4 +26,6 @@ public interface MetaElement {
 	MetaType asType();
 
 	<T extends MetaElement> List<T> getChildren();
+
+	MetaLookup getLookup();
 }

@@ -19,23 +19,31 @@ import io.katharsis.jpa.query.JpaQueryExecutor;
 public abstract class AbstractQueryExecutorImpl<T> implements JpaQueryExecutor<T> {
 
 	protected int offset = 0;
+
 	protected int limit = -1;
 
 	protected boolean cached = false;
+
 	protected EntityManager em;
+
 	protected int numAutoSelections;
 
 	protected Set<MetaAttributePath> fetchPaths = new HashSet<>();
 
 	protected MetaDataObject meta;
-	
+
 	protected Map<String, Integer> selectionBindings;
 
-	public AbstractQueryExecutorImpl(EntityManager em, MetaDataObject meta, int numAutoSelections, Map<String, Integer> selectionBindings) {
+	public AbstractQueryExecutorImpl(EntityManager em, MetaDataObject meta, int numAutoSelections,
+			Map<String, Integer> selectionBindings) {
 		this.em = em;
 		this.meta = meta;
 		this.numAutoSelections = numAutoSelections;
-		this.selectionBindings = selectionBindings; 
+		this.selectionBindings = selectionBindings;
+	}
+
+	public MetaDataObject getMeta() {
+		return meta;
 	}
 
 	@Override
@@ -87,7 +95,8 @@ public abstract class AbstractQueryExecutorImpl<T> implements JpaQueryExecutor<T
 				entityList.add((T) values[0]);
 			}
 			resultList = entityList;
-		} else {
+		}
+		else {
 			resultList = (List<T>) list;
 		}
 		return resultList;
@@ -122,7 +131,9 @@ public abstract class AbstractQueryExecutorImpl<T> implements JpaQueryExecutor<T
 	}
 
 	static class TupleElement {
+
 		private Object[] data;
+
 		private int hashCode;
 
 		TupleElement(Object[] data) {
@@ -179,7 +190,8 @@ public abstract class AbstractQueryExecutorImpl<T> implements JpaQueryExecutor<T
 			MetaAttributePath parentPath = fetchPath.subPath(0, fetchPath.length() - 1);
 			Subgraph<Object> parentGraph = applyFetchPaths(graph, parentPath);
 			return parentGraph.addSubgraph(fetchPath.toString());
-		} else {
+		}
+		else {
 			return graph.addSubgraph(fetchPath.toString());
 		}
 	}
