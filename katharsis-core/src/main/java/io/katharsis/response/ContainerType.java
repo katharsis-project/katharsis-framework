@@ -7,7 +7,5 @@ package io.katharsis.response;
 public enum ContainerType {
     TOP,
     INCLUDED,
-    INCLUDED_NESTED,
-    INCLUDED_DEFAULT,
-    INCLUDED_DEFAULT_NESTED
+    INCLUDED_NESTED
 }

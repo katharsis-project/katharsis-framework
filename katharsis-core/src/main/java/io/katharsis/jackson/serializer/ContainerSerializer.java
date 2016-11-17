@@ -22,6 +22,7 @@ import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.Container;
+import io.katharsis.response.ContainerType;
 import io.katharsis.response.DataLinksContainer;
 import io.katharsis.utils.Predicate2;
 import io.katharsis.utils.PropertyUtils;
@@ -30,7 +31,6 @@ import io.katharsis.utils.java.Optional;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -70,20 +70,17 @@ public class ContainerSerializer extends JsonSerializer<Container> {
             if (queryAdapter != null) {
                 includedFields = queryAdapter.getIncludedFields();
                 TypedParams<IncludedRelationsParams> includedRelations = queryAdapter.getIncludedRelations();
+                String resourceType;
+                if (container.getContainerType().equals(ContainerType.TOP)) {
+                    Class<?> dataClass = container.getData().getClass();
+                    resourceType = resourceRegistry.getResourceType(dataClass);
+                } else {
+                    resourceType = container.getTopResourceType();
+                }
 
-                Class<?> dataClass = container.getData().getClass();
-                String resourceType = resourceRegistry.getResourceType(dataClass);
                 if (includedRelations != null &&
                         includedRelations.getParams().containsKey(resourceType)) {
                     includedRelationsParams = includedRelations.getParams().get(resourceType);
-                } else if (includedRelations != null &&
-                        container.getContainerType() != null) {
-                    for (IncludedRelationsParams includedRelationsParamsInner : includedRelations.getParams().values()) {
-                        List<String> pathList = includedRelationsParamsInner.getParams().iterator().next().getPathList();
-                        if (container.getIncludedIndex() != -1 && container.getIncludedIndex() < pathList.size() && pathList.get(container.getIncludedIndex()).equals(container.getIncludedFieldName())) {
-                            includedRelationsParams = includedRelationsParamsInner;
-                        }
-                    }
                 }
             }
 

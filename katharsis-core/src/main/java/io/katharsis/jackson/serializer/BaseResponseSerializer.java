@@ -9,7 +9,6 @@ import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponseContext;
 import io.katharsis.response.CollectionResponseContext;
 import io.katharsis.response.Container;
-import io.katharsis.response.ContainerType;
 import io.katharsis.response.JsonApiResponse;
 import io.katharsis.response.LinkageContainer;
 import io.katharsis.response.ResourceResponseContext;
@@ -98,7 +97,7 @@ public class BaseResponseSerializer extends JsonSerializer<BaseResponseContext> 
     private Map<ResourceDigest, Container> serializeSingle(ResourceResponseContext responseContext, JsonGenerator gen)
             throws IOException {
         Object value = responseContext.getResponse().getEntity();
-        gen.writeObjectField(DATA_FIELD_NAME, new Container(value, responseContext, ContainerType.TOP));
+        gen.writeObjectField(DATA_FIELD_NAME, new Container(value, responseContext));
 
         if (value != null) {
             return includedRelationshipExtractor.extractIncludedResources(value, responseContext);
@@ -120,7 +119,7 @@ public class BaseResponseSerializer extends JsonSerializer<BaseResponseContext> 
         for (Object value : values) {
             //noinspection unchecked
             includedFields.putAll(includedRelationshipExtractor.extractIncludedResources(value, responseContext));
-            containers.add(new Container(value, responseContext, ContainerType.TOP));
+            containers.add(new Container(value, responseContext));
         }
 
         gen.writeObjectField(DATA_FIELD_NAME, containers);

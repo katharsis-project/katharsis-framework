@@ -8,7 +8,6 @@ import io.katharsis.request.path.PathBuilder;
 import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.response.ContainerType;
 import io.katharsis.response.LinkageContainer;
 import io.katharsis.response.RelationshipContainer;
 import io.katharsis.utils.PropertyUtils;
@@ -42,9 +41,7 @@ public class RelationshipContainerSerializer extends JsonSerializer<Relationship
             throws IOException {
         gen.writeStartObject();
         writeLinks(relationshipContainer, gen);
-        if ((!relationshipContainer.getRelationshipField().isLazy() &&
-                !relationshipContainer.getDataLinksContainer().getContainer().getContainerType().equals(ContainerType.INCLUDED_NESTED)) ||
-                relationshipContainer.isForceInclusion()) {
+        if (relationshipContainer.isForceInclusion()) {
             writeLinkage(relationshipContainer, gen);
         }
         gen.writeEndObject();

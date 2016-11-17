@@ -226,7 +226,8 @@ public class RelationshipContainerSerializerTest extends BaseSerializerTest {
             assertThatJson(result).node("included[1].relationships.task.data.id").isStringEqualTo("3");
         } else {
             assertThatJson(result).node("included[1].type").isStringEqualTo("tasks");
-            assertThatJson(result).node("included[1].relationships.projects.data").isAbsent();
+            // confirm default variables are referenced nested includes
+            assertThatJson(result).node("included[1].relationships.projects.data").isArray();
         }
     }
 
@@ -340,20 +341,20 @@ public class RelationshipContainerSerializerTest extends BaseSerializerTest {
         assertThatJson(result).node("included[0].relationships.projectEager.data").isEqualTo(null);
         assertThatJson(result).node("included[1].type").isStringEqualTo("tasks");
         assertThatJson(result).node("included[1].id").isStringEqualTo("3");
-        // confirm no default variables are referenced in second level nested includes
-        assertThatJson(result).node("included[1].relationships.project.data").isAbsent();
+        // confirm default variables are referenced nested includes
+        assertThatJson(result).node("included[1].relationships.project.data").isEqualTo(null);
         assertThatJson(result).node("included[1].relationships.projectsInit.data[0].type").isStringEqualTo("projects");
         assertThatJson(result).node("included[1].relationships.projectsInit.data[0].id").isStringEqualTo("4");
         assertThatJson(result).node("included[1].relationships.projectsInit.data[1].type").isStringEqualTo("projects");
         assertThatJson(result).node("included[1].relationships.projectsInit.data[1].id").isStringEqualTo("5");
         assertThatJson(result).node("included[2].type").isStringEqualTo("projects");
         assertThatJson(result).node("included[2].id").isStringEqualTo("4");
-        // confirm no default variables are referenced in deep nested includes
-        assertThatJson(result).node("included[2].relationships.projectEager.data").isAbsent();
+        // confirm default variables are referenced deep nested includes
+        assertThatJson(result).node("included[2].relationships.projectEager.data").isEqualTo(null);
         assertThatJson(result).node("included[3].type").isStringEqualTo("projects");
         assertThatJson(result).node("included[3].id").isStringEqualTo("5");
-        // confirm no default variables are referenced in deep nested includes
-        assertThatJson(result).node("included[3].relationships.projectEager.data").isAbsent();
+        // confirm default variables are referenced deep nested includes
+        assertThatJson(result).node("included[3].relationships.projectEager.data").isEqualTo(null);
     }
 
     @Test
@@ -391,36 +392,45 @@ public class RelationshipContainerSerializerTest extends BaseSerializerTest {
         assertThatJson(result).node("included[0].relationships.task.data.id").isStringEqualTo("3");
         // confirm default variables are referenced in first level includes
         assertThatJson(result).node("included[0].relationships.projectEager.data").isEqualTo(null);
-        assertThatJson(result).node("included[1].type").isStringEqualTo("projects");
-        assertThatJson(result).node("included[1].id").isStringEqualTo("6");
-        // confirm no default variables are referenced in second level nested includes
-        assertThatJson(result).node("included[1].relationships.project.data").isAbsent();
-        assertThatJson(result).node("included[1].relationships.tasks.data[0].type").isStringEqualTo("tasks");
-        assertThatJson(result).node("included[1].relationships.tasks.data[0].id").isStringEqualTo("8");
-        assertThatJson(result).node("included[3].type").isStringEqualTo("tasks");
-        assertThatJson(result).node("included[3].id").isStringEqualTo("8");
-        // confirm no default variables are referenced in deep nested includes
-        assertThatJson(result).node("included[3].relationships.project.data").isAbsent();
+
+        assertThatJson(result).node("included[1].type").isStringEqualTo("tasks");
+        assertThatJson(result).node("included[1].id").isStringEqualTo("3");
+        // confirm default variables are referenced in second level nested includes
+        assertThatJson(result).node("included[1].relationships.project.data").isEqualTo(null);
+        assertThatJson(result).node("included[1].relationships.projectsInit.data[0].type").isStringEqualTo("projects");
+        assertThatJson(result).node("included[1].relationships.projectsInit.data[0].id").isStringEqualTo("4");
+        assertThatJson(result).node("included[1].relationships.projectsInit.data[1].type").isStringEqualTo("projects");
+        assertThatJson(result).node("included[1].relationships.projectsInit.data[1].id").isStringEqualTo("5");
+
         assertThatJson(result).node("included[2].type").isStringEqualTo("projects");
-        assertThatJson(result).node("included[2].id").isStringEqualTo("7");
-        // confirm no default variables are referenced in second level nested includes
+        assertThatJson(result).node("included[2].id").isStringEqualTo("4");
+        // confirm default variables are referenced in second level nested includes
         assertThatJson(result).node("included[2].relationships.projectEager.data").isEqualTo(null);
-        assertThatJson(result).node("included[2].relationships.tasks.data").isArray();
-        assertThatJson(result).node("included[4].type").isStringEqualTo("tasks");
-        assertThatJson(result).node("included[4].id").isStringEqualTo("3");
-        // confirm no default variables are referenced in second level nested includes
+
+        assertThatJson(result).node("included[3].type").isStringEqualTo("projects");
+        assertThatJson(result).node("included[3].id").isStringEqualTo("5");
+        // confirm default variables are referenced in second level nested includes
+        assertThatJson(result).node("included[3].relationships.projectEager.data").isEqualTo(null);
+
+        assertThatJson(result).node("included[4].type").isStringEqualTo("projects");
+        assertThatJson(result).node("included[4].id").isStringEqualTo("6");
+        // confirm default variables are referenced in second level nested includes
         assertThatJson(result).node("included[4].relationships.project.data").isAbsent();
-        assertThatJson(result).node("included[4].relationships.projectsInit.data[0].type").isStringEqualTo("projects");
-        assertThatJson(result).node("included[4].relationships.projectsInit.data[0].id").isStringEqualTo("4");
-        assertThatJson(result).node("included[4].relationships.projectsInit.data[1].type").isStringEqualTo("projects");
-        assertThatJson(result).node("included[4].relationships.projectsInit.data[1].id").isStringEqualTo("5");
-        assertThatJson(result).node("included[5].type").isStringEqualTo("projects");
-        assertThatJson(result).node("included[5].id").isStringEqualTo("4");
-        // confirm no default variables are referenced in deep nested includes
-        assertThatJson(result).node("included[5].relationships.projectEager.data").isAbsent();
+        assertThatJson(result).node("included[4].relationships.tasks.data[0].type").isStringEqualTo("tasks");
+        assertThatJson(result).node("included[4].relationships.tasks.data[0].id").isStringEqualTo("8");
+
+
+        assertThatJson(result).node("included[5].type").isStringEqualTo("tasks");
+        assertThatJson(result).node("included[5].id").isStringEqualTo("8");
+        // confirm default variables are referenced in second level nested includes
+        assertThatJson(result).node("included[5].relationships.project.data").isEqualTo(null);
+
         assertThatJson(result).node("included[6].type").isStringEqualTo("projects");
-        assertThatJson(result).node("included[6].id").isStringEqualTo("5");
-        // confirm no default variables are referenced in deep nested includes
-        assertThatJson(result).node("included[6].relationships.projectEager.data").isAbsent();
+        assertThatJson(result).node("included[6].id").isStringEqualTo("7");
+        // confirm default variables are referenced in second level nested includes
+        assertThatJson(result).node("included[6].relationships.projectEager.data").isEqualTo(null);
+        assertThatJson(result).node("included[6].relationships.tasks.data").isArray();
+
+
     }
 }

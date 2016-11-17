@@ -7,12 +7,10 @@ import io.katharsis.queryParams.include.Inclusion;
 import io.katharsis.queryParams.params.IncludedRelationsParams;
 import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.response.ContainerType;
 import io.katharsis.response.DataLinksContainer;
 import io.katharsis.response.RelationshipContainer;
 
 import java.io.IOException;
-import java.util.List;
 
 /**
  * Serializes a <i>links</i> field of a resource in data field of JSON API response.
@@ -35,7 +33,7 @@ public class DataLinksContainerSerializer extends JsonSerializer<DataLinksContai
         gen.writeStartObject();
 
         for (ResourceField field : dataLinksContainer.getRelationshipFields()) {
-            boolean forceInclusion = shouldForceFieldInclusion(dataLinksContainer, field, dataLinksContainer.getIncludedRelations());
+            boolean forceInclusion = shouldForceFieldInclusion(dataLinksContainer, field);
             RelationshipContainer relationshipContainer =
                     new RelationshipContainer(dataLinksContainer, field, forceInclusion);
 
@@ -45,38 +43,22 @@ public class DataLinksContainerSerializer extends JsonSerializer<DataLinksContai
         gen.writeEndObject();
     }
 
-    private boolean shouldForceFieldInclusion(DataLinksContainer dataLinksContainer, ResourceField field, IncludedRelationsParams includedRelations) {
-
-
+    private boolean shouldForceFieldInclusion(DataLinksContainer dataLinksContainer, ResourceField field) {
         // if this is a top level container then search all includes first index field name match
-        if (includedRelations != null && dataLinksContainer.getContainer().getContainerType().equals(ContainerType.TOP)) {
-            for (Inclusion inclusion : includedRelations.getParams()) {
-                List<String> pathList = inclusion.getPathList();
-                int fieldIndex = dataLinksContainer.getContainer().getIncludedIndex();
-                if (pathList.size() > fieldIndex
-                        && field.getJsonName().equals(pathList.get(fieldIndex))) {
-                    return true;
-                }
-            }
+        return field.getIncludeByDefault() || !field.isLazy() || isFieldIncluded(dataLinksContainer.getIncludedRelations(), field.getJsonName(), dataLinksContainer.getContainer().getIncludedIndex());
+    }
 
-            // check if any fields have been declared as serializable too
-            if (dataLinksContainer.getContainer().getAdditionalFields() != null && dataLinksContainer.getContainer().getAdditionalFields().contains(field.getJsonName())) {
+    private boolean isFieldIncluded(IncludedRelationsParams includedRelationsParams, String fieldName, int index) {
+        if (includedRelationsParams == null ||
+                includedRelationsParams.getParams() == null) {
+            return false;
+        }
+
+        for (Inclusion inclusion : includedRelationsParams.getParams()) {
+            if (inclusion.getPathList().size() > index && inclusion.getPathList().get(index).equals(fieldName)) {
                 return true;
             }
         }
-
-        // check for container provided path list
-        if (dataLinksContainer.getContainer().getPathList() != null) {
-            List<String> pathList = dataLinksContainer.getContainer().getPathList();
-            int fieldIndex = dataLinksContainer.getContainer().getIncludedIndex() + 1;
-            if (pathList.size() > fieldIndex
-                    && field.getJsonName().equals(pathList.get(fieldIndex))) {
-                return true;
-            }
-        }
-
-
-
         return false;
     }
 
