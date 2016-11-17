@@ -69,10 +69,21 @@ public class IncludedRelationshipExtractor {
                         if (objectItem == null) {
                             continue;
                         }
-                        includedResourceContainers.put(getResourceDigest(objectItem), new Container(objectItem, response, containerType, index + 1, topResourceType));
+                        ResourceDigest resourceDigest = getResourceDigest(objectItem);
+                        if (!includedResourceContainers.containsKey(resourceDigest)) {
+                            includedResourceContainers.put(resourceDigest, new Container(objectItem, response, containerType, index + 1, topResourceType));
+                        } else {
+                            includedResourceContainers.get(resourceDigest).appendIncludedIndex(index + 1);
+                        }
                         populateIncludedResources(objectItem, response, ContainerType.INCLUDED_NESTED, includedResourceContainers, index + 1, topResourceType);
                     }
                 } else {
+                    ResourceDigest resourceDigest = getResourceDigest(targetDataObj);
+                    if (!includedResourceContainers.containsKey(resourceDigest)) {
+                        includedResourceContainers.put(resourceDigest, new Container(targetDataObj, response, containerType, index + 1, topResourceType));
+                    } else {
+                        includedResourceContainers.get(resourceDigest).appendIncludedIndex(index + 1);
+                    }
                     includedResourceContainers.put(getResourceDigest(targetDataObj), new Container(targetDataObj, response, containerType, index + 1, topResourceType));
                     populateIncludedResources(targetDataObj, response, ContainerType.INCLUDED_NESTED, includedResourceContainers, index + 1, topResourceType);
                 }

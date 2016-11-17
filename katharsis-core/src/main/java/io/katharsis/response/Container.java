@@ -3,7 +3,9 @@ package io.katharsis.response;
 import io.katharsis.jackson.serializer.ContainerSerializer;
 import lombok.ToString;
 
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * A class responsible for representing a single data filed within top-level JSON object returned by Katharsis. The
@@ -17,6 +19,7 @@ public class Container {
     private final ContainerType containerType;
     private final int includedIndex;
     private final String topResourceType;
+    private Set<Integer> additionalIndexes;
 
     public Container(Object data, BaseResponseContext response) {
         this.data = data;
@@ -24,6 +27,7 @@ public class Container {
         this.containerType = ContainerType.TOP;
         this.includedIndex = 0;
         topResourceType = null;
+        additionalIndexes = null;
     }
 
     public Container(Object data, BaseResponseContext response, ContainerType containerType, int level, String topResourceType) {
@@ -32,6 +36,7 @@ public class Container {
         this.containerType = containerType;
         this.includedIndex = level;
         this.topResourceType = topResourceType;
+        additionalIndexes = new HashSet<>();
     }
 
     public BaseResponseContext getResponse() {
@@ -53,6 +58,14 @@ public class Container {
 
     public String getTopResourceType() {
         return topResourceType;
+    }
+
+    public Set<Integer> getAdditionalIndexes() {
+        return additionalIndexes;
+    }
+
+    public void appendIncludedIndex(int includedIndex) {
+        additionalIndexes.add(includedIndex);
     }
 
     @Override

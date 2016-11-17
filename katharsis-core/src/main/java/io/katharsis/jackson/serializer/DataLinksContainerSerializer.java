@@ -44,21 +44,27 @@ public class DataLinksContainerSerializer extends JsonSerializer<DataLinksContai
     }
 
     private boolean shouldForceFieldInclusion(DataLinksContainer dataLinksContainer, ResourceField field) {
-        // if this is a top level container then search all includes first index field name match
-        return field.getIncludeByDefault() || !field.isLazy() || isFieldIncluded(dataLinksContainer.getIncludedRelations(), field.getJsonName(), dataLinksContainer.getContainer().getIncludedIndex());
+        return field.getIncludeByDefault() || !field.isLazy() || isFieldIncluded(dataLinksContainer.getIncludedRelations(), field.getJsonName(), dataLinksContainer);
     }
 
-    private boolean isFieldIncluded(IncludedRelationsParams includedRelationsParams, String fieldName, int index) {
+    private boolean isFieldIncluded(IncludedRelationsParams includedRelationsParams, String fieldName, DataLinksContainer dataLinksContainer) {
         if (includedRelationsParams == null ||
                 includedRelationsParams.getParams() == null) {
             return false;
         }
-
+        int index = dataLinksContainer.getContainer().getIncludedIndex();
         for (Inclusion inclusion : includedRelationsParams.getParams()) {
             if (inclusion.getPathList().size() > index && inclusion.getPathList().get(index).equals(fieldName)) {
                 return true;
+            } else if (dataLinksContainer.getContainer().getAdditionalIndexes() != null) {
+                for (int otherIndexes : dataLinksContainer.getContainer().getAdditionalIndexes()) {
+                    if (inclusion.getPathList().size() > otherIndexes && inclusion.getPathList().get(otherIndexes).equals(fieldName)) {
+                        return true;
+                    }
+                }
             }
         }
+
         return false;
     }
 
