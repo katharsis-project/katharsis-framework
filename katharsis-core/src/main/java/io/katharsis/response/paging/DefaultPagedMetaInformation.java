@@ -1,4 +1,4 @@
-package io.katharsis.jpa.internal.paging;
+package io.katharsis.response.paging;
 
 public class DefaultPagedMetaInformation implements PagedMetaInformation {
 

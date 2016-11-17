@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import io.katharsis.jpa.JpaEntityRepository;
+import io.katharsis.jpa.JpaRepositoryConfig;
 import io.katharsis.jpa.model.TestEntity;
 import io.katharsis.jpa.query.AbstractJpaTest;
 import io.katharsis.jpa.query.JpaQueryFactory;
@@ -21,7 +22,7 @@ public class QuerydslRepositoryFilterTest extends AbstractJpaTest {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void translationInterceptor() {
-		JpaEntityRepository<TestEntity, Long> repo = new JpaEntityRepository<>(module, TestEntity.class);
+		JpaEntityRepository<TestEntity, Long> repo = new JpaEntityRepository<>(module, JpaRepositoryConfig.create(TestEntity.class));
 		QuerydslRepositoryFilterBase filter = Mockito.spy(new QuerydslRepositoryFilterBase());
 		module.addFilter(filter);
 

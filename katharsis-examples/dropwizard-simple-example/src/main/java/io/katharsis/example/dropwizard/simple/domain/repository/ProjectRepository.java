@@ -8,9 +8,10 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import io.katharsis.example.dropwizard.simple.domain.model.Project;
 import io.katharsis.queryspec.QuerySpec;
-import io.katharsis.queryspec.QuerySpecResourceRepositoryBase;
+import io.katharsis.repository.ResourceRepositoryBase;
+import io.katharsis.resource.list.ResourceList;
 
-public class ProjectRepository extends QuerySpecResourceRepositoryBase<Project, Long> {
+public class ProjectRepository extends ResourceRepositoryBase<Project, Long> {
 
 	private static final AtomicLong ID_GENERATOR = new AtomicLong(124);
 
@@ -39,7 +40,7 @@ public class ProjectRepository extends QuerySpecResourceRepositoryBase<Project, 
 	}
 
 	@Override
-	public synchronized List<Project> findAll(QuerySpec querySpec) {
+	public synchronized ResourceList<Project> findAll(QuerySpec querySpec) {
 		return querySpec.apply(projects.values());
 	}
 

@@ -19,7 +19,10 @@ import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.queryspec.internal.QueryParamsAdapter;
 import io.katharsis.queryspec.internal.QuerySpecAdapter;
 import io.katharsis.resource.mock.models.Project;
+import io.katharsis.resource.mock.models.Schedule;
 import io.katharsis.resource.mock.models.Task;
+import io.katharsis.resource.mock.repository.ScheduleRepository;
+import io.katharsis.resource.mock.repository.ScheduleRepositoryImpl;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.repository.adapter.RelationshipRepositoryAdapter;
 import io.katharsis.resource.registry.repository.adapter.ResourceRepositoryAdapter;
@@ -36,20 +39,25 @@ public class QuerySpecRepositoryTest extends AbstractQuerySpecTest {
 
 	private RelationshipRepositoryAdapter<Project, Long, Task, Long> tasksRelAdapter;
 
+	private ResourceRepositoryAdapter<Schedule, Serializable> scheduleAdapter;
+
 	@Before
 	public void setup() {
 		TaskQuerySpecRepository.clear();
 		ProjectQuerySpecRepository.clear();
+		ScheduleRepositoryImpl.clear();
 
 		super.setup();
 		RegistryEntry<Task> taskEntry = resourceRegistry.getEntry(Task.class);
 		RegistryEntry<Project> projectEntry = resourceRegistry.getEntry(Project.class);
+		RegistryEntry<Schedule> scheduleEntry = resourceRegistry.getEntry(Schedule.class);
 		TaskQuerySpecRepository repo = (TaskQuerySpecRepository) taskEntry.getResourceRepository(null)
 				.getResourceRepository();
 
 		repo = Mockito.spy(repo);
 
 		
+		scheduleAdapter = scheduleEntry.getResourceRepository(null);
 		projectAdapter = projectEntry.getResourceRepository(null);
 		taskAdapter = taskEntry.getResourceRepository(null);
 		projectRelAdapter = taskEntry.getRelationshipRepositoryForClass(Project.class, null);
@@ -64,6 +72,16 @@ public class QuerySpecRepositoryTest extends AbstractQuerySpecTest {
 
 		QueryParamsAdapter queryAdapter = new QueryParamsAdapter(queryParams);
 		checkCrud(queryAdapter);
+	}
+	
+	@Test
+	public void findAllWithResourceListResult() {
+		QuerySpec querySpec = new QuerySpec(Schedule.class);
+		QueryAdapter adapter = new QuerySpecAdapter(querySpec, resourceRegistry);
+		JsonApiResponse response = scheduleAdapter.findAll(adapter);
+		Assert.assertTrue(response.getEntity() instanceof ScheduleRepository.ScheduleList);
+		Assert.assertTrue(response.getLinksInformation() instanceof ScheduleRepository.ScheduleListLinks);
+		Assert.assertTrue(response.getMetaInformation() instanceof ScheduleRepository.ScheduleListMeta);
 	}
 
 	@Test

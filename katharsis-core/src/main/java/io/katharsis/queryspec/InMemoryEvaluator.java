@@ -7,7 +7,8 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
-import io.katharsis.response.paging.PagedResultList;
+import io.katharsis.resource.list.DefaultResourceList;
+import io.katharsis.response.paging.DefaultPagedMetaInformation;
 import io.katharsis.utils.PropertyUtils;
 
 /**
@@ -16,8 +17,8 @@ import io.katharsis.utils.PropertyUtils;
  */
 public class InMemoryEvaluator {
 
-	public <T> List<T> eval(Iterable<T> resources, QuerySpec querySpec) {
-		List<T> results = new ArrayList<>();
+	public <T> DefaultResourceList<T> eval(Iterable<T> resources, QuerySpec querySpec) {
+		DefaultResourceList<T> results = new DefaultResourceList<>();
 
 		Iterator<T> iterator = resources.iterator();
 		while (iterator.hasNext()) {
@@ -30,14 +31,21 @@ public class InMemoryEvaluator {
 			applyFilter(results, filterSpec);
 		}
 		long totalCount = results.size();
-		
+
 		// sort
 		applySorting(results, querySpec.getSort());
 
 		// offset/limit
-		results = applyPaging(results, querySpec);
+		applyPaging(results, querySpec);
 
-		return new PagedResultList<>(results, totalCount);
+		// set page information
+		if (querySpec.getLimit() != null || querySpec.getOffset() != 0) {
+			DefaultPagedMetaInformation metaInfo = new DefaultPagedMetaInformation();
+			metaInfo.setTotalResourceCount(totalCount);
+			results.setMeta(metaInfo);
+		}
+
+		return results;
 	}
 
 	private <T> void applySorting(List<T> results, List<SortSpec> sortSpec) {
@@ -46,14 +54,15 @@ public class InMemoryEvaluator {
 		}
 	}
 
-	private <T> List<T> applyPaging(List<T> results, QuerySpec querySpec) {
+	private <T> void applyPaging(List<T> results, QuerySpec querySpec) {
 		int offset = (int) Math.min(querySpec.getOffset(), Integer.MAX_VALUE);
 		int limit = (int) Math.min(Integer.MAX_VALUE, querySpec.getLimit() != null ? querySpec.getLimit() : Integer.MAX_VALUE);
 		limit = Math.min(results.size() - offset, limit);
 		if (offset > 0 || limit < results.size()) {
-			return results.subList(offset, offset + limit);
+			List<T> subList = new ArrayList<>(results.subList(offset, offset + limit));
+			results.clear();
+			results.addAll(subList);
 		}
-		return results;
 	}
 
 	private <T> void applyFilter(List<T> results, FilterSpec filterSpec) {

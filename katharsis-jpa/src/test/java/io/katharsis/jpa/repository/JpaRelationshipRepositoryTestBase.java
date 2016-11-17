@@ -12,13 +12,15 @@ import org.junit.Test;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.katharsis.jpa.JpaRelationshipRepository;
-import io.katharsis.jpa.internal.paging.PagedMetaInformation;
+import io.katharsis.jpa.JpaRepositoryConfig;
 import io.katharsis.jpa.model.RelatedEntity;
 import io.katharsis.jpa.model.TestEntity;
 import io.katharsis.jpa.query.AbstractJpaTest;
 import io.katharsis.queryspec.FilterOperator;
 import io.katharsis.queryspec.FilterSpec;
 import io.katharsis.queryspec.QuerySpec;
+import io.katharsis.resource.list.ResourceList;
+import io.katharsis.response.paging.PagedMetaInformation;
 
 @Transactional
 public abstract class JpaRelationshipRepositoryTestBase extends AbstractJpaTest {
@@ -32,9 +34,9 @@ public abstract class JpaRelationshipRepositoryTestBase extends AbstractJpaTest 
 	public void setup() {
 		super.setup();
 		repo = new JpaRelationshipRepository<TestEntity, Long, RelatedEntity, Long>(module, TestEntity.class,
-				RelatedEntity.class);
+				JpaRepositoryConfig.create(RelatedEntity.class));
 		relatedRepo = new JpaRelationshipRepository<RelatedEntity, Long, TestEntity, Long>(module, RelatedEntity.class,
-				TestEntity.class);
+				JpaRepositoryConfig.create(TestEntity.class));
 	}
 
 	@Test
@@ -174,62 +176,13 @@ public abstract class JpaRelationshipRepositoryTestBase extends AbstractJpaTest 
 		querySpec.setOffset(2L);
 		querySpec.setLimit(2L);
 
-		List<RelatedEntity> list = repo.findManyTargets(test.getId(), TestEntity.ATTR_manyRelatedValues, querySpec);
+		ResourceList<RelatedEntity> list = repo.findManyTargets(test.getId(), TestEntity.ATTR_manyRelatedValues, querySpec);
 		Assert.assertEquals(2, list.size());
 		Assert.assertEquals(102, list.get(0).getId().intValue());
 		Assert.assertEquals(103, list.get(1).getId().intValue());
 
-		PagedMetaInformation metaInformation = repo.getMetaInformation(list, querySpec);
+		PagedMetaInformation metaInformation = list.getMeta(PagedMetaInformation.class);
 		Assert.assertEquals(5, metaInformation.getTotalResourceCount().longValue());
-	}
-
-	@Test(expected = UnsupportedOperationException.class)
-	public void testReadableFindOneTarget() {
-		repo.setReadable(false);
-		repo.findOneTarget(0L, "asdf", new QuerySpec(TestEntity.class));
-	}
-
-	@Test(expected = UnsupportedOperationException.class)
-	public void testReadableFindManyTarget() {
-		repo.setReadable(false);
-		repo.findManyTargets(0L, "asdf", new QuerySpec(TestEntity.class));
-	}
-
-	@Test(expected = UnsupportedOperationException.class)
-	public void testUpdateableSetRelation() {
-		repo.setUpdateable(false);
-		repo.setRelation(null, null, null);
-	}
-
-	@Test(expected = UnsupportedOperationException.class)
-	public void testUpdateableSetRelationsAdd() {
-		repo.setCreateable(false);
-
-		TestEntity test = em.find(TestEntity.class, 1L);
-		Assert.assertEquals(0, test.getManyRelatedValues().size());
-		repo.addRelations(test, Arrays.asList(101L), TestEntity.ATTR_manyRelatedValues);
-
-	}
-
-	@Test(expected = UnsupportedOperationException.class)
-	public void testUpdateableSetRelationsRemove() {
-		TestEntity test = em.find(TestEntity.class, 1L);
-		repo.addRelations(test, Arrays.asList(101L), TestEntity.ATTR_manyRelatedValues);
-
-		repo.setDeleteable(false);
-		repo.removeRelations(test, Arrays.asList(101L), TestEntity.ATTR_manyRelatedValues);
-	}
-
-	@Test(expected = UnsupportedOperationException.class)
-	public void setCreateableAddRelations() {
-		repo.setCreateable(false);
-		repo.addRelations(null, null, null);
-	}
-
-	@Test(expected = UnsupportedOperationException.class)
-	public void setDeleteableRemoveRelations() {
-		repo.setDeleteable(false);
-		repo.removeRelations(null, null, null);
 	}
 
 	private TestEntity setupManyRelation(List<Long> ids) {

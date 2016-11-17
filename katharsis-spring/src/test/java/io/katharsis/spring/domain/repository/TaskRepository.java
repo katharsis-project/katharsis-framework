@@ -1,19 +1,19 @@
 package io.katharsis.spring.domain.repository;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
 import io.katharsis.queryspec.QuerySpec;
-import io.katharsis.queryspec.QuerySpecMetaRepository;
-import io.katharsis.queryspec.QuerySpecResourceRepositoryBase;
+import io.katharsis.repository.ResourceRepositoryBase;
+import io.katharsis.resource.list.DefaultResourceList;
+import io.katharsis.resource.list.ResourceList;
 import io.katharsis.response.MetaInformation;
 import io.katharsis.spring.domain.model.Task;
 
 @Component
-public class TaskRepository extends QuerySpecResourceRepositoryBase<Task, String> implements QuerySpecMetaRepository<Task> {
+public class TaskRepository extends ResourceRepositoryBase<Task, String> {
 
 	private Map<Long, Task> tasks = new HashMap<>();
 
@@ -34,14 +34,12 @@ public class TaskRepository extends QuerySpecResourceRepositoryBase<Task, String
 	}
 
 	@Override
-	public synchronized List<Task> findAll(QuerySpec querySpec) {
-		return querySpec.apply(tasks.values());
-	}
+	public synchronized ResourceList<Task> findAll(QuerySpec querySpec) {
+		DefaultResourceList<Task> list = querySpec.apply(tasks.values());
+		list.setMeta(new MetaInformation() {
 
-	@Override
-	public MetaInformation getMetaInformation(Iterable<Task> resources, QuerySpec querySpec) {
-		return new MetaInformation() {
 			public String name = "meta information";
-		};
+		});
+		return list;
 	}
 }

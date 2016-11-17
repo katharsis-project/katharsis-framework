@@ -11,7 +11,9 @@ import io.katharsis.queryspec.QuerySpecRelationshipRepositoryBase;
 import io.katharsis.queryspec.QuerySpecResourceRepository;
 import io.katharsis.queryspec.QuerySpecResourceRepositoryBase;
 import io.katharsis.repository.RelationshipRepository;
+import io.katharsis.repository.RelationshipRepositoryBase;
 import io.katharsis.repository.ResourceRepository;
+import io.katharsis.repository.ResourceRepositoryBase;
 import io.katharsis.repository.annotations.JsonApiRelationshipRepository;
 import io.katharsis.repository.annotations.JsonApiResourceRepository;
 import io.katharsis.resource.annotations.JsonApiResource;
@@ -61,6 +63,8 @@ public class DefaultResourceLookup implements ResourceLookup {
 		result.addAll(reflections.getSubTypesOf(QuerySpecBulkRelationshipRepository.class));
 		result.addAll(reflections.getSubTypesOf(QuerySpecResourceRepositoryBase.class));
 		result.addAll(reflections.getSubTypesOf(QuerySpecRelationshipRepositoryBase.class));
+		result.addAll(reflections.getSubTypesOf(RelationshipRepositoryBase.class));
+		result.addAll(reflections.getSubTypesOf(ResourceRepositoryBase.class));
 		return result;
 	}
 }

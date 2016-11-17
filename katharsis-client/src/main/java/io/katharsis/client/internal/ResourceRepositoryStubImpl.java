@@ -9,8 +9,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.client.KatharsisClient;
 import io.katharsis.client.QuerySpecResourceRepositoryStub;
 import io.katharsis.client.ResourceRepositoryStub;
-import io.katharsis.client.http.HttpAdapter;
-import io.katharsis.client.response.ResourceList;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryspec.QuerySpec;
@@ -21,6 +19,7 @@ import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
+import io.katharsis.resource.list.DefaultResourceList;
 import io.katharsis.response.BaseResponseContext;
 import io.katharsis.response.CollectionResponseContext;
 import io.katharsis.response.JsonApiResponse;
@@ -160,18 +159,18 @@ public class ResourceRepositoryStubImpl<T, I extends Serializable> extends Abstr
 	}
 
 	@Override
-	public ResourceList<T> findAll(QuerySpec querySpec) {
+	public DefaultResourceList<T> findAll(QuerySpec querySpec) {
 		String url = urlBuilder.buildUrl(resourceClass, null, querySpec);
 		return findAll(url);
 	}
 
 	@Override
-	public ResourceList<T> findAll(Iterable<I> ids, QuerySpec queryPaquerySpecrams) {
+	public DefaultResourceList<T> findAll(Iterable<I> ids, QuerySpec queryPaquerySpecrams) {
 		String url = urlBuilder.buildUrl(resourceClass, ids, queryPaquerySpecrams);
 		return findAll(url);
 	}
 
-	private ResourceList<T> findAll(String url) {
+	private DefaultResourceList<T> findAll(String url) {
 		BaseResponseContext responseContext = executeGet(url);
 		if (responseContext instanceof CollectionResponseContext) {
 			CollectionResponseContext colResponseContext = (CollectionResponseContext) responseContext;

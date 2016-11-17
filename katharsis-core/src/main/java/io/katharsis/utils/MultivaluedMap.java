@@ -17,10 +17,14 @@ public class MultivaluedMap<K, V> {
 	public void add(K key, V value) {
 		List<V> list = map.get(key);
 		if (list == null) {
-			list = new ArrayList<>();
+			list = newList();
 			map.put(key, list);
 		}
 		list.add(value);
+	}
+
+	protected List<V> newList() {
+		return new ArrayList<>();
 	}
 
 	public void addAll(K key, Iterable<V> values) {

@@ -10,7 +10,7 @@ import org.junit.Test;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.katharsis.jpa.JpaEntityRepository;
-import io.katharsis.jpa.internal.paging.PagedMetaInformation;
+import io.katharsis.jpa.JpaRepositoryConfig;
 import io.katharsis.jpa.model.RelatedEntity;
 import io.katharsis.jpa.model.TestEntity;
 import io.katharsis.jpa.query.AbstractJpaTest;
@@ -19,6 +19,8 @@ import io.katharsis.queryspec.FilterOperator;
 import io.katharsis.queryspec.FilterSpec;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.SortSpec;
+import io.katharsis.resource.list.ResourceList;
+import io.katharsis.response.paging.PagedMetaInformation;
 
 @Transactional
 public abstract class JpaEntityRepositoryTestBase extends AbstractJpaTest {
@@ -29,7 +31,7 @@ public abstract class JpaEntityRepositoryTestBase extends AbstractJpaTest {
 	@Before
 	public void setup() {
 		super.setup();
-		repo = new JpaEntityRepository<>(module, TestEntity.class);
+		repo = new JpaEntityRepository<>(module, JpaRepositoryConfig.create(TestEntity.class));
 	}
 
 	@Test
@@ -206,12 +208,12 @@ public abstract class JpaEntityRepositoryTestBase extends AbstractJpaTest {
 		querySpec.setOffset(2L);
 		querySpec.setLimit(2L);
 
-		List<TestEntity> list = repo.findAll(querySpec);
+		ResourceList<TestEntity> list = repo.findAll(querySpec);
 		Assert.assertEquals(2, list.size());
 		Assert.assertEquals(2, list.get(0).getId().intValue());
 		Assert.assertEquals(3, list.get(1).getId().intValue());
 
-		PagedMetaInformation metaInformation = repo.getMetaInformation(list, querySpec);
+		PagedMetaInformation metaInformation = list.getMeta(PagedMetaInformation.class);
 		Assert.assertEquals(5, metaInformation.getTotalResourceCount().longValue());
 	}
 
@@ -221,13 +223,13 @@ public abstract class JpaEntityRepositoryTestBase extends AbstractJpaTest {
 		querySpec.setOffset(0L);
 		querySpec.setLimit(3L);
 
-		List<TestEntity> list = repo.findAll(querySpec);
+		ResourceList<TestEntity> list = repo.findAll(querySpec);
 		Assert.assertEquals(3, list.size());
 		Assert.assertEquals(0, list.get(0).getId().intValue());
 		Assert.assertEquals(1, list.get(1).getId().intValue());
 		Assert.assertEquals(2, list.get(2).getId().intValue());
 
-		PagedMetaInformation metaInformation = repo.getMetaInformation(list, querySpec);
+		PagedMetaInformation metaInformation = list.getMeta(PagedMetaInformation.class);
 		Assert.assertEquals(5, metaInformation.getTotalResourceCount().longValue());
 	}
 
@@ -237,11 +239,11 @@ public abstract class JpaEntityRepositoryTestBase extends AbstractJpaTest {
 		querySpec.setOffset(4L);
 		querySpec.setLimit(4L);
 
-		List<TestEntity> list = repo.findAll(querySpec);
+		ResourceList<TestEntity> list = repo.findAll(querySpec);
 		Assert.assertEquals(1, list.size());
 		Assert.assertEquals(4, list.get(0).getId().intValue());
 
-		PagedMetaInformation metaInformation = repo.getMetaInformation(list, querySpec);
+		PagedMetaInformation metaInformation = list.getMeta(PagedMetaInformation.class);
 		Assert.assertEquals(5, metaInformation.getTotalResourceCount().longValue());
 	}
 
@@ -276,44 +278,5 @@ public abstract class JpaEntityRepositoryTestBase extends AbstractJpaTest {
 		QuerySpec querySpec = new QuerySpec(TestEntity.class);
 		querySpec.addSort(new SortSpec(Arrays.asList("test"), Direction.DESC));
 		repo.findAll(querySpec);
-	}
-
-	@Test(expected = UnsupportedOperationException.class)
-	public void testReadableFindAll() {
-		repo.setReadable(false);
-		repo.findAll(new QuerySpec(TestEntity.class));
-	}
-
-	@Test(expected = UnsupportedOperationException.class)
-	public void testReadableFindOne() {
-		repo.setReadable(false);
-		repo.findOne(1L, new QuerySpec(TestEntity.class));
-	}
-
-	@Test(expected = UnsupportedOperationException.class)
-	public void testReadableFindAllByIds() {
-		repo.setReadable(false);
-		repo.findAll(Arrays.asList(1L), new QuerySpec(TestEntity.class));
-	}
-
-	@Test(expected = UnsupportedOperationException.class)
-	public void testUpdateable() {
-		List<TestEntity> list = repo.findAll(new QuerySpec(TestEntity.class));
-		TestEntity entity = list.get(0);
-
-		repo.setUpdateable(false);
-		repo.save(entity);
-	}
-
-	@Test(expected = UnsupportedOperationException.class)
-	public void testDeletable() {
-		repo.setDeleteable(false);
-		repo.delete(1L);
-	}
-
-	@Test(expected = UnsupportedOperationException.class)
-	public void testCreatable() {
-		repo.setCreateable(false);
-		repo.save(new TestEntity());
 	}
 }

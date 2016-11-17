@@ -14,7 +14,12 @@ import io.katharsis.client.http.HttpAdapter;
 import io.katharsis.client.http.okhttp.OkHttpAdapter;
 import io.katharsis.client.http.okhttp.OkHttpAdapterListener;
 import io.katharsis.client.mock.models.Project;
+import io.katharsis.client.mock.models.Schedule;
 import io.katharsis.client.mock.models.Task;
+import io.katharsis.client.mock.repository.ScheduleRepository;
+import io.katharsis.client.mock.repository.ScheduleRepository.ScheduleList;
+import io.katharsis.client.mock.repository.ScheduleRepository.ScheduleListLinks;
+import io.katharsis.client.mock.repository.ScheduleRepository.ScheduleListMeta;
 import io.katharsis.queryspec.Direction;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.SortSpec;
@@ -43,6 +48,24 @@ public class QuerySpecClientTest extends AbstractClientTest {
 	@Override
 	protected TestApplication configure() {
 		return new TestApplication(true);
+	}
+
+	@Test
+	public void testInterfaceAccess() {
+		ScheduleRepository scheduleRepository = client.getResourceRepository(ScheduleRepository.class);
+
+		Schedule schedule = new Schedule();
+		schedule.setId(13L);
+		schedule.setName("mySchedule");
+		scheduleRepository.save(schedule);
+
+		QuerySpec querySpec = new QuerySpec(Schedule.class);
+		ScheduleList list = scheduleRepository.findAll(querySpec);
+		Assert.assertEquals(1, list.size());
+		ScheduleListMeta meta = list.getMeta();
+		ScheduleListLinks links = list.getLinks();
+		Assert.assertNotNull(meta);
+		Assert.assertNotNull(links);
 	}
 
 	@Test

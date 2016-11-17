@@ -7,7 +7,10 @@ import io.katharsis.response.LinksInformation;
 /**
  * An optional interface that can be implemented along with {@link ResourceRepository} or {@link
  * RelationshipRepository} to get links information about returned resource(s).
+ * 
+ * @deprecated use ResourceList instead
  */
+@Deprecated
 public interface QuerySpecLinksRepository<T> {
 
 	/**

@@ -8,11 +8,12 @@ import java.util.Map;
 import org.springframework.stereotype.Component;
 
 import io.katharsis.queryspec.QuerySpec;
-import io.katharsis.queryspec.QuerySpecResourceRepositoryBase;
+import io.katharsis.repository.ResourceRepositoryBase;
+import io.katharsis.resource.list.ResourceList;
 import io.katharsis.spring.domain.model.Project;
 
 @Component
-public class ProjectRepository extends QuerySpecResourceRepositoryBase<Project, String> {
+public class ProjectRepository extends ResourceRepositoryBase<Project, String> {
 
 	private Map<Long, Project> projects = new HashMap<>();
 
@@ -38,7 +39,7 @@ public class ProjectRepository extends QuerySpecResourceRepositoryBase<Project, 
 	}
 
 	@Override
-	public synchronized List<Project> findAll(QuerySpec querySpec) {
+	public synchronized ResourceList<Project> findAll(QuerySpec querySpec) {
 		return querySpec.apply(projects.values());
 	}
 }

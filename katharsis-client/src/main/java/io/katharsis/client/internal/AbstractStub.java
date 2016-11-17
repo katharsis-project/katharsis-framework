@@ -11,12 +11,12 @@ import io.katharsis.client.KatharsisClient;
 import io.katharsis.client.http.HttpAdapter;
 import io.katharsis.client.http.HttpAdapterRequest;
 import io.katharsis.client.http.HttpAdapterResponse;
-import io.katharsis.client.response.ResourceList;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.errorhandling.ErrorData;
 import io.katharsis.errorhandling.ErrorResponse;
 import io.katharsis.errorhandling.mapper.ExceptionMapper;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
+import io.katharsis.resource.list.DefaultResourceList;
 import io.katharsis.response.BaseResponseContext;
 import io.katharsis.response.JsonApiResponse;
 import io.katharsis.response.LinksInformation;
@@ -46,7 +46,7 @@ public class AbstractStub {
 	}
 
 	@SuppressWarnings("unchecked")
-	protected <T> ResourceList<T> toList(JsonApiResponse response) {
+	protected <T> DefaultResourceList<T> toList(JsonApiResponse response) {
 		Object entity = response.getEntity();
 		List<T> list;
 		if (entity instanceof List) {
@@ -57,7 +57,7 @@ public class AbstractStub {
 		}
 		LinksInformation linksInformation = response.getLinksInformation();
 		MetaInformation metaInformation = response.getMetaInformation();
-		return new ResourceList<>(list, linksInformation, metaInformation);
+		return new DefaultResourceList<T>(list, metaInformation, linksInformation);
 	}
 
 	protected BaseResponseContext execute(String url, boolean getResponse, HttpMethod method, String requestBody) {
