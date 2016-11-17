@@ -29,7 +29,6 @@ import io.katharsis.utils.PropertyUtils;
 import io.katharsis.utils.java.Optional;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -106,7 +105,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         ResourceInformation resourceInformation = entry.getResourceInformation();
         try {
             writeId(gen, data, resourceInformation);
-        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+        } catch (IOException e) {
             throw new JsonSerializationException(
                     "Error writing id field: " + resourceInformation.getIdField().getUnderlyingName());
         }
@@ -147,7 +146,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
      * <a href="http://jsonapi.org/format/#document-structure-resource-ids">Resource IDs</a>.
      */
     private static void writeId(JsonGenerator gen, Object data, ResourceInformation resourceInformation)
-            throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
+            throws IOException {
 
         ResourceField idField = resourceInformation.getIdField();
         Object sourceId = PropertyUtils.getProperty(data, idField.getUnderlyingName());
