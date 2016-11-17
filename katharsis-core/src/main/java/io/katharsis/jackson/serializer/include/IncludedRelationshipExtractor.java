@@ -29,7 +29,7 @@ public class IncludedRelationshipExtractor {
     }
 
     /**
-     * Return an ordered map from the base resource that contain the fields annotated with {@link io.katharsis.resource.annotations.JsonApiIncludeByDefault} up to the first level of inclusions.
+     * Return an ordered map from the base resource that contain the fields annotated with {@link io.katharsis.resource.annotations.JsonApiIncludeByDefault} down the chain.
      * <p>
      * Additionally, return all the fields that are nested N levels deep in the include query parameters.
      * ex. include=projects.task.project will go three levels deep trying to find populated fields.

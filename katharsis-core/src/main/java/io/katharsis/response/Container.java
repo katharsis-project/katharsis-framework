@@ -18,14 +18,6 @@ public class Container {
     private final int includedIndex;
     private final String topResourceType;
 
-    public Container() {
-        this.data = null;
-        this.response = null;
-        this.containerType = null;
-        this.includedIndex = -1;
-        topResourceType = null;
-    }
-
     public Container(Object data, BaseResponseContext response) {
         this.data = data;
         this.response = response;
