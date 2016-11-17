@@ -1,6 +1,14 @@
 package io.katharsis.resource.mock.models;
 
-import io.katharsis.resource.annotations.*;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import io.katharsis.resource.annotations.JsonApiId;
+import io.katharsis.resource.annotations.JsonApiIncludeByDefault;
+import io.katharsis.resource.annotations.JsonApiLinksInformation;
+import io.katharsis.resource.annotations.JsonApiLookupIncludeAutomatically;
+import io.katharsis.resource.annotations.JsonApiMetaInformation;
+import io.katharsis.resource.annotations.JsonApiResource;
+import io.katharsis.resource.annotations.JsonApiToMany;
+import io.katharsis.resource.annotations.JsonApiToOne;
 import io.katharsis.response.LinksInformation;
 import io.katharsis.response.MetaInformation;
 
@@ -8,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @JsonApiResource(type = "tasks")
+@JsonPropertyOrder(alphabetic = true)
 public class Task {
 
     @JsonApiId
@@ -15,7 +24,7 @@ public class Task {
 
     private String name;
 
-    @JsonApiToOne(opposite="tasks")
+    @JsonApiToOne(opposite = "tasks")
     @JsonApiIncludeByDefault
     private Project project;
 

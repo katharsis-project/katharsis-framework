@@ -25,15 +25,13 @@ public class DataLinksContainer {
     private final Object data;
     private final Set<ResourceField> relationshipFields;
     private final IncludedRelationsParams includedRelations;
-    private final ContainerType containerType;
-    private final String includedFieldName;
+    private final Container container;
 
-    public DataLinksContainer(Object data, Set<ResourceField> relationshipFields, IncludedRelationsParams includedRelations, ContainerType containerType, String includedFieldName) {
+    public DataLinksContainer(Object data, Set<ResourceField> relationshipFields, IncludedRelationsParams includedRelations, Container container) {
         this.data = data;
         this.relationshipFields = relationshipFields;
         this.includedRelations = includedRelations;
-        this.containerType = containerType;
-        this.includedFieldName = includedFieldName;
+        this.container = container;
     }
 
     public Object getData() {
@@ -48,12 +46,8 @@ public class DataLinksContainer {
         return includedRelations;
     }
 
-    public ContainerType getContainerType() {
-        return containerType;
-    }
-
-    public String getIncludedFieldName() {
-        return includedFieldName;
+    public Container getContainer() {
+        return container;
     }
 
     @Override

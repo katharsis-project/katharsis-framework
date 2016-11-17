@@ -7,7 +7,6 @@ import io.katharsis.queryParams.include.Inclusion;
 import io.katharsis.queryParams.params.IncludedRelationsParams;
 import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.response.ContainerType;
 import io.katharsis.response.DataLinksContainer;
 import io.katharsis.response.RelationshipContainer;
 
@@ -23,7 +22,10 @@ import java.io.IOException;
  */
 public class DataLinksContainerSerializer extends JsonSerializer<DataLinksContainer> {
 
+    private ResourceRegistry resourceRegistry;
+
     public DataLinksContainerSerializer(ResourceRegistry resourceRegistry) {
+        this.resourceRegistry = resourceRegistry;
     }
 
     @Override
@@ -31,7 +33,7 @@ public class DataLinksContainerSerializer extends JsonSerializer<DataLinksContai
         gen.writeStartObject();
 
         for (ResourceField field : dataLinksContainer.getRelationshipFields()) {
-            boolean forceInclusion = shouldForceFieldInclusion(dataLinksContainer, field, dataLinksContainer.getIncludedRelations());
+            boolean forceInclusion = shouldForceFieldInclusion(dataLinksContainer, field);
             RelationshipContainer relationshipContainer =
                     new RelationshipContainer(dataLinksContainer, field, forceInclusion);
 
@@ -41,16 +43,24 @@ public class DataLinksContainerSerializer extends JsonSerializer<DataLinksContai
         gen.writeEndObject();
     }
 
-    private boolean shouldForceFieldInclusion(DataLinksContainer dataLinksContainer, ResourceField field, IncludedRelationsParams includedRelations) {
-        if (includedRelations != null) {
-            for (Inclusion inclusion : includedRelations.getParams()) {
-                if (field.getJsonName().equals(inclusion.getPathList().get(0))
-                        && dataLinksContainer.getContainerType().equals(ContainerType.TOP)) {
-                    return true;
-                } else if (dataLinksContainer.getContainerType().equals(ContainerType.INCLUDED)
-                        && inclusion.getPathList().size() > 1
-                        && field.getJsonName().equals(inclusion.getPathList().get(1))) {
-                    return true;
+    private boolean shouldForceFieldInclusion(DataLinksContainer dataLinksContainer, ResourceField field) {
+        return field.getIncludeByDefault() || !field.isLazy() || isFieldIncluded(dataLinksContainer.getIncludedRelations(), field.getJsonName(), dataLinksContainer);
+    }
+
+    private boolean isFieldIncluded(IncludedRelationsParams includedRelationsParams, String fieldName, DataLinksContainer dataLinksContainer) {
+        if (includedRelationsParams == null ||
+                includedRelationsParams.getParams() == null) {
+            return false;
+        }
+        int index = dataLinksContainer.getContainer().getIncludedIndex();
+        for (Inclusion inclusion : includedRelationsParams.getParams()) {
+            if (inclusion.getPathList().size() > index && inclusion.getPathList().get(index).equals(fieldName)) {
+                return true;
+            } else if (dataLinksContainer.getContainer().getAdditionalIndexes() != null) {
+                for (int otherIndexes : dataLinksContainer.getContainer().getAdditionalIndexes()) {
+                    if (inclusion.getPathList().size() > otherIndexes && inclusion.getPathList().get(otherIndexes).equals(fieldName)) {
+                        return true;
+                    }
                 }
             }
         }

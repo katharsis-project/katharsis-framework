@@ -10,12 +10,14 @@ import java.util.List;
 public class Inclusion {
 
     private String path;
+    private List<String> pathList;
 
     public Inclusion(@SuppressWarnings("SameParameterValue") String path) {
         if (path == null) {
             throw new IllegalArgumentException("path cannot be null");
         }
         this.path = path;
+        this.pathList = Arrays.asList(path.split("\\."));
     }
 
     public String getPath() {
@@ -23,7 +25,7 @@ public class Inclusion {
     }
 
     public List<String> getPathList() {
-        return Arrays.asList(path.split("\\."));
+        return pathList;
     }
 
     @Override
@@ -49,7 +51,7 @@ public class Inclusion {
     @Override
     public String toString() {
         return "Inclusion{" +
-            "path='" + path + '\'' +
-            '}';
+                "path='" + path + '\'' +
+                '}';
     }
 }
