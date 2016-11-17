@@ -361,6 +361,9 @@ public class MetaDataObjectImpl extends MetaTypeImpl implements MetaDataObject {
 
 	@Override
 	public MetaKey getPrimaryKey() {
+		if(primaryKey == null && superType != null){
+			return superType.getPrimaryKey();
+		}
 		return primaryKey;
 	}
 

@@ -109,6 +109,10 @@ public class ResourceInformation {
     public ResourceField findRelationshipFieldByName(String name) {
         return getJsonField(name, relationshipFields);
     }
+    
+    public ResourceField findAttributeFieldByName(String name) {
+        return getJsonField(name, attributeFields.getFields());
+    }
 
     private static ResourceField getJsonField(String name, Set<ResourceField> fields) {
         ResourceField foundField = null;

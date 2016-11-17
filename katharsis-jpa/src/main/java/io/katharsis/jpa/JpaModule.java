@@ -456,11 +456,17 @@ public class JpaModule implements Module {
 	 * @return ResourceInformationBuilder used to describe JPA entity classes.
 	 */
 	public ResourceInformationBuilder getResourceInformationBuilder() {
-		if (resourceInformationBuilder == null) {
-			Set<Class<?>> resourceClasses = getResourceClasses();
-			resourceInformationBuilder = new JpaResourceInformationBuilder(metaLookup, em, resourceClasses);
+		if (resourceInformationBuilder == null && isServer()) {
+			resourceInformationBuilder = new JpaResourceInformationBuilder(metaLookup, em);
+		}
+		else if (resourceInformationBuilder == null) {
+			resourceInformationBuilder = new JpaResourceInformationBuilder(metaLookup);
 		}
 		return resourceInformationBuilder;
+	}
+
+	private boolean isServer() {
+		return em != null;
 	}
 
 	/**

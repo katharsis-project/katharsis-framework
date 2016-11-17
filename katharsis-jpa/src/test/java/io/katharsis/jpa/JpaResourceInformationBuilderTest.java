@@ -11,10 +11,12 @@ import java.util.List;
 import java.util.Set;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import io.katharsis.jpa.internal.JpaResourceInformationBuilder;
 import io.katharsis.jpa.internal.meta.MetaLookup;
+import io.katharsis.jpa.merge.MergedResource;
 import io.katharsis.jpa.model.RelatedEntity;
 import io.katharsis.jpa.model.TestEmbeddable;
 import io.katharsis.jpa.model.TestEntity;
@@ -24,14 +26,15 @@ import io.katharsis.resource.information.ResourceInformation;
 
 public class JpaResourceInformationBuilderTest {
 
-	@Test
-	public void test()
-			throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
-		Set<Class<? extends Object>> entityClasses = new HashSet<Class<? extends Object>>(
-				Arrays.asList(TestEntity.class, RelatedEntity.class));
+	private JpaResourceInformationBuilder builder;
 
-		JpaResourceInformationBuilder builder = new JpaResourceInformationBuilder(new MetaLookup(), null,
-				entityClasses);
+	@Before
+	public void setup() {
+		builder = new JpaResourceInformationBuilder(new MetaLookup());
+	}
+
+	@Test
+	public void test() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
 
 		ResourceInformation info = builder.build(TestEntity.class);
 		ResourceField idField = info.getIdField();
@@ -65,4 +68,16 @@ public class JpaResourceInformationBuilderTest {
 		Assert.assertTrue(found);
 	}
 
+	@Test
+	public void mergeRelationsAnnotation() {
+		Assert.assertTrue(builder.accept(MergedResource.class));
+
+		ResourceInformation info = builder.build(MergedResource.class);
+		Assert.assertEquals("merged", info.getResourceType());
+		Assert.assertEquals(MergedResource.class, info.getResourceClass());
+		Assert.assertNull(info.findRelationshipFieldByName("oneRelatedValue"));
+		Assert.assertNull(info.findRelationshipFieldByName("manyRelatedValues"));
+		Assert.assertNotNull(info.findAttributeFieldByName("oneRelatedValue"));
+		Assert.assertNotNull(info.findAttributeFieldByName("manyRelatedValues"));
+	}
 }

@@ -1,7 +1,5 @@
 package io.katharsis.validation;
 
-import java.util.concurrent.TimeUnit;
-
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
@@ -19,7 +17,6 @@ import io.katharsis.queryParams.DefaultQueryParamsParser;
 import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.rs.KatharsisFeature;
 import io.katharsis.rs.KatharsisProperties;
-import io.katharsis.validation.ValidationModule;
 import io.katharsis.validation.mock.models.Project;
 import io.katharsis.validation.mock.models.Task;
 import io.katharsis.validation.mock.repository.TaskRepository;
@@ -38,8 +35,8 @@ public abstract class AbstractValidationTest extends JerseyTest {
 
 	@Before
 	public void setup() {
-		client = new KatharsisClient(getBaseUri().toString(), getClass().getPackage().getName());
-		client.addModule(new ValidationModule());
+		client = new KatharsisClient(getBaseUri().toString());
+		client.addModule(ValidationModule.newInstance());
 		taskRepo = client.getRepository(Task.class);
 		projectRepo = client.getRepository(Project.class);
 		relRepo = client.getRepository(Task.class, Project.class);
@@ -60,7 +57,7 @@ public abstract class AbstractValidationTest extends JerseyTest {
 
 			KatharsisFeature feature = new KatharsisFeature(new ObjectMapper(),
 					new QueryParamsBuilder(new DefaultQueryParamsParser()), new SampleJsonServiceLocator());
-			feature.addModule(new ValidationModule());
+			feature.addModule(ValidationModule.newInstance());
 			register(feature);
 
 		}

@@ -46,7 +46,7 @@ public abstract class AbstractJpaJerseyTest extends JerseyTest {
 
 	@Before
 	public void setup() {
-		client = new KatharsisClient(getBaseUri().toString(), "io.katharsis.jpa.model.dto");
+		client = new KatharsisClient(getBaseUri().toString());
 
 		JpaModule module = JpaModule.newClientModule(TestEntity.class.getPackage().getName());
 		setupModule(module, false);

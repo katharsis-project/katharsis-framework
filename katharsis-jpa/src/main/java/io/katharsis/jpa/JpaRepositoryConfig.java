@@ -1,7 +1,12 @@
 package io.katharsis.jpa;
 
+import java.lang.reflect.Method;
+
 import io.katharsis.jpa.mapping.IdentityMapper;
 import io.katharsis.jpa.mapping.JpaMapper;
+import io.katharsis.queryspec.QuerySpec;
+import io.katharsis.queryspec.QuerySpecResourceRepository;
+import io.katharsis.repository.ResourceRepository;
 import io.katharsis.resource.list.DefaultResourceList;
 import io.katharsis.resource.list.ResourceListBase;
 import io.katharsis.response.LinksInformation;
@@ -9,6 +14,7 @@ import io.katharsis.response.MetaInformation;
 import io.katharsis.response.paging.DefaultPagedLinksInformation;
 import io.katharsis.response.paging.DefaultPagedMetaInformation;
 import io.katharsis.utils.ClassUtils;
+import net.jodah.typetools.TypeResolver;
 
 /**
  * 
@@ -55,6 +61,34 @@ public class JpaRepositoryConfig<T> {
 			config.listMetaClass = listMetaClass;
 			config.listLinksClass = listLinksClass;
 			return config;
+		}
+
+		/**
+		 * Extracts information about listClass, listMetaClass, listLinkClass from the provided repository
+		 * interface.
+		 * 
+		 * @param interfaceClass of the repository
+		 * @return this builder
+		 */
+		@SuppressWarnings("unchecked")
+		public Builder<T> setInterfaceClass(Class<? extends QuerySpecResourceRepository<T, ?>> interfaceClass) {
+
+			try {
+				Method findMethod = interfaceClass.getDeclaredMethod("findAll", QuerySpec.class);
+				Class<?> returnType = findMethod.getReturnType();
+				if (!ResourceListBase.class.isAssignableFrom(returnType)) {
+					throw new IllegalStateException("findAll return type must extend " + ResourceListBase.class.getName());
+				}
+				listClass = (Class<? extends DefaultResourceList<T>>) returnType;
+
+				Class<?>[] typeArgs = TypeResolver.resolveRawArguments(ResourceListBase.class, returnType);
+				listMetaClass = (Class<? extends MetaInformation>) typeArgs[1];
+				listLinksClass = (Class<? extends LinksInformation>) typeArgs[2];
+				return this;
+			}
+			catch (NoSuchMethodException e) {
+				throw new IllegalStateException("findAll method not overriden by " + interfaceClass.getName(), e);
+			}
 		}
 
 		public Builder<T> setListClass(Class<? extends DefaultResourceList<T>> listClass) {
