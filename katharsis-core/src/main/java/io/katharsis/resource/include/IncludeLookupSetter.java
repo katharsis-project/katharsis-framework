@@ -39,7 +39,12 @@ public class IncludeLookupSetter {
     public IncludeLookupSetter(ResourceRegistry resourceRegistry, PropertiesProvider propertiesProvider) {
         this.resourceRegistry = resourceRegistry;
         this.propertiesProvider = propertiesProvider;
-        // determine system property for  include look up
+
+        if (propertiesProvider == null) {
+            this.lookupIncludeBehavior = LookupIncludeBehavior.NONE;
+            return;
+        }
+        // determine system property for include look up
         String includeAutomaticallyString = propertiesProvider.getProperty(KatharsisBootProperties.INCLUDE_AUTOMATICALLY);
         boolean includeAutomatically = Boolean.parseBoolean(includeAutomaticallyString);
         String includeAutomaticallyOverwriteString = propertiesProvider.getProperty(KatharsisBootProperties.INCLUDE_AUTOMATICALLY_OVERWRITE);
