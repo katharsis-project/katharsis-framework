@@ -1,7 +1,6 @@
 package io.katharsis.jpa;
 
 import java.util.List;
-import java.util.Set;
 
 import javax.persistence.EntityManager;
 
@@ -71,7 +70,7 @@ public class JpaPartialEntityExposureTest extends AbstractJpaJerseyTest {
 		EntityManager em = null;
 		JpaResourceInformationBuilder builder = new JpaResourceInformationBuilder(module.getMetaLookup(), em);
 		ResourceInformation info = builder.build(TestEntity.class);
-		Set<ResourceField> relationshipFields = info.getRelationshipFields();
+		List<ResourceField> relationshipFields = info.getRelationshipFields();
 		Assert.assertEquals(0, relationshipFields.size());
 	}
 

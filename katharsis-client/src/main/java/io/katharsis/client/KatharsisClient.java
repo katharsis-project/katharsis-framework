@@ -251,7 +251,7 @@ public class KatharsisClient {
 	private <T> void allocateRepositoryRelations(RegistryEntry<T> registryEntry, boolean allocateRelated,
 			List<ResponseRelationshipEntry<T, ?>> relationshipEntries) {
 		ResourceInformation resourceInformation = registryEntry.getResourceInformation();
-		Set<ResourceField> relationshipFields = resourceInformation.getRelationshipFields();
+		List<ResourceField> relationshipFields = resourceInformation.getRelationshipFields();
 		for (ResourceField relationshipField : relationshipFields) {
 			final Class<?> targetClass = relationshipField.getElementType();
 			Class<?> resourceClass = resourceInformation.getResourceClass();

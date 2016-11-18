@@ -50,7 +50,7 @@ public class ResponseContractTest {
     }
     
     private <T> ResourceRepositoryInformation newRepositoryInformation(Class<T> repositoryClass, String path) {
-		return new ResourceRepositoryInformationImpl(null, path, new ResourceInformation(Task.class, path, null, null, null));
+		return new ResourceRepositoryInformationImpl(null, path, new ResourceInformation(Task.class, path, null));
 	}
 
     @Test

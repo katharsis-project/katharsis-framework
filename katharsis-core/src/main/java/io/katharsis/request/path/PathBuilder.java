@@ -134,7 +134,7 @@ public class PathBuilder {
         
         ResourceInformation resourceInformation = previousEntry.getResourceInformation();
       
-        Set<ResourceField> resourceFields = resourceInformation.getRelationshipFields();
+        List<ResourceField> resourceFields = resourceInformation.getRelationshipFields();
         for (ResourceField field : resourceFields) {
             if (field.getJsonName().equals(elementName)) {
                 if (relationshipMark) {

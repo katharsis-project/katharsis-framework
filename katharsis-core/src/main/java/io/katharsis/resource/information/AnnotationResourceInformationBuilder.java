@@ -1,14 +1,31 @@
 package io.katharsis.resource.information;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import io.katharsis.repository.exception.RepositoryAnnotationNotFoundException;
-import io.katharsis.resource.annotations.*;
-import io.katharsis.resource.exception.init.MultipleJsonApiLinksInformationException;
-import io.katharsis.resource.exception.init.MultipleJsonApiMetaInformationException;
-import io.katharsis.resource.exception.init.ResourceDuplicateIdException;
-import io.katharsis.resource.exception.init.ResourceIdNotFoundException;
-import io.katharsis.resource.field.ResourceAttributesBridge;
+import io.katharsis.resource.annotations.JsonApiId;
+import io.katharsis.resource.annotations.JsonApiIncludeByDefault;
+import io.katharsis.resource.annotations.JsonApiLinksInformation;
+import io.katharsis.resource.annotations.JsonApiLookupIncludeAutomatically;
+import io.katharsis.resource.annotations.JsonApiMetaInformation;
+import io.katharsis.resource.annotations.JsonApiResource;
+import io.katharsis.resource.annotations.JsonApiToMany;
+import io.katharsis.resource.annotations.JsonApiToOne;
 import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.field.FieldOrderedComparator;
@@ -16,13 +33,6 @@ import io.katharsis.utils.ClassUtils;
 import io.katharsis.utils.StringUtils;
 import io.katharsis.utils.java.Optional;
 import lombok.ToString;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
-import java.util.*;
 
 /**
  * A builder which creates ResourceInformation instances of a specific class. It extracts information about a resource
@@ -46,15 +56,12 @@ public class AnnotationResourceInformationBuilder implements ResourceInformation
         List<AnnotatedResourceField> resourceFields = getResourceFields(resourceClass);
         
         String resourceType = getResourceType(resourceClass);
-        AnnotatedResourceField idField = getIdField(resourceClass, resourceFields);
 
         Optional<JsonPropertyOrder> propertyOrder = ClassUtils.getAnnotation(resourceClass, JsonPropertyOrder.class);
-        Set<AnnotatedResourceField> basicFields = getBasicFields(resourceFields, idField, propertyOrder);
-        Set<AnnotatedResourceField> relationshipFields = getRelationshipFields(resourceFields, idField, propertyOrder);
-        ResourceAttributesBridge<?> attributesBridge = new ResourceAttributesBridge(basicFields, resourceClass);
-
-        String metaFieldName = getMetaFieldName(resourceClass, resourceFields);
-        String linksFieldName = getLinksFieldName(resourceClass, resourceFields);
+        if (propertyOrder.isPresent()) {
+            JsonPropertyOrder propertyOrderAnnotation = propertyOrder.get();
+            Collections.sort(resourceFields, new FieldOrderedComparator(propertyOrderAnnotation.value(), propertyOrderAnnotation.alphabetic()));
+        } 	
 
 		DefaultResourceInstanceBuilder<?> instanceBuilder = new DefaultResourceInstanceBuilder(resourceClass);
         
@@ -62,12 +69,9 @@ public class AnnotationResourceInformationBuilder implements ResourceInformation
             resourceClass,
             resourceType,
             instanceBuilder,
-            idField,
-            attributesBridge,
-            (Set)relationshipFields,
-            metaFieldName,
-            linksFieldName);
+            (List)resourceFields);
     }
+    
     
     protected String getResourceType(Class<?> resourceClass){
         Annotation[] annotations = resourceClass.getAnnotations();
@@ -170,11 +174,11 @@ public class AnnotationResourceInformationBuilder implements ResourceInformation
         List<Annotation> annotations = new ArrayList<>(fromField.getAnnotations());
         annotations.addAll(fromMethod.getAnnotations());
 
-        return new AnnotatedResourceField(fromField.getJsonName(), fromField.getUnderlyingName(),
+        return new AnnotatedResourceField(fromField.getJsonName(), fromField.getUnderlyingName(), 
                 mergeFieldType(fromField, fromMethod), mergeGenericType(fromField, fromMethod), annotations);
     }
 
-    private static Class<?> mergeFieldType(AnnotatedResourceField fromField, AnnotatedResourceField fromMethod) {
+	private static Class<?> mergeFieldType(AnnotatedResourceField fromField, AnnotatedResourceField fromMethod) {
         if (hasKatharsisAnnotation(fromField.getAnnotations())) {
             return fromField.getType();
         } else {
@@ -203,99 +207,6 @@ public class AnnotationResourceInformationBuilder implements ResourceInformation
         return false;
     }
 
-    private <T> AnnotatedResourceField getIdField(Class<T> resourceClass, List<AnnotatedResourceField> classFields) {
-        List<AnnotatedResourceField> idFields = new ArrayList<>(1);
-        for (AnnotatedResourceField field : classFields) {
-            if (field.isAnnotationPresent(JsonApiId.class)) {
-                idFields.add(field);
-            }
-        }
-
-        if (idFields.size() == 0) {
-            throw new ResourceIdNotFoundException(resourceClass.getCanonicalName());
-        } else if (idFields.size() > 1) {
-            throw new ResourceDuplicateIdException(resourceClass.getCanonicalName());
-        }
-        return idFields.get(0);
-    }
-
-    private <T> String getMetaFieldName(Class<T> resourceClass, List<AnnotatedResourceField> classFields) {
-        List<AnnotatedResourceField> metaFields = new ArrayList<>(1);
-        for (AnnotatedResourceField field : classFields) {
-            if (field.isAnnotationPresent(JsonApiMetaInformation.class)) {
-                metaFields.add(field);
-            }
-        }
-
-        if (metaFields.size() == 0) {
-            return null;
-        } else if (metaFields.size() > 1) {
-            throw new MultipleJsonApiMetaInformationException(resourceClass.getCanonicalName());
-        }
-        return metaFields.get(0).getUnderlyingName();
-    }
-
-    private <T> String getLinksFieldName(Class<T> resourceClass, List<AnnotatedResourceField> classFields) {
-        List<AnnotatedResourceField> linksFields = new ArrayList<>(1);
-        for (AnnotatedResourceField field : classFields) {
-            if (field.isAnnotationPresent(JsonApiLinksInformation.class)) {
-                linksFields.add(field);
-            }
-        }
-
-        if (linksFields.size() == 0) {
-            return null;
-        } else if (linksFields.size() > 1) {
-            throw new MultipleJsonApiLinksInformationException(resourceClass.getCanonicalName());
-        }
-        return linksFields.get(0).getUnderlyingName();
-    }
-
-    private Set<AnnotatedResourceField> getBasicFields(List<AnnotatedResourceField> classFields, ResourceField idField,
-                                              Optional<JsonPropertyOrder> propertyOrder) {
-        Set<AnnotatedResourceField> basicFields = buildResourceFieldSet(propertyOrder);
-        for (AnnotatedResourceField field : classFields) {
-            if (isBasicField(field) && !field.equals(idField)) {
-                basicFields.add(field);
-            }
-        }
-
-        return basicFields;
-    }
-
-    private boolean isBasicField(AnnotatedResourceField field) {
-        return !isRelation(field) &&
-            !field.isAnnotationPresent(JsonApiMetaInformation.class) &&
-            !field.isAnnotationPresent(JsonApiLinksInformation.class);
-    }
-
-    private Set<AnnotatedResourceField> getRelationshipFields(List<AnnotatedResourceField> classFields, ResourceField idField,
-                                                     Optional<JsonPropertyOrder> propertyOrder) {
-        Set<AnnotatedResourceField> relationshipFields = buildResourceFieldSet(propertyOrder);
-        for (AnnotatedResourceField field : classFields) {
-            if (isRelation(field) && !field.equals(idField)) {
-                relationshipFields.add(field);
-            }
-        }
-
-        return relationshipFields;
-    }
-
-    private static Set<AnnotatedResourceField> buildResourceFieldSet(Optional<JsonPropertyOrder> propertyOrderOptional) {
-        Set<AnnotatedResourceField> basicFields;
-        if (propertyOrderOptional.isPresent()) {
-            JsonPropertyOrder propertyOrder = propertyOrderOptional.get();
-            basicFields = new TreeSet<>(new FieldOrderedComparator(propertyOrder.value(), propertyOrder.alphabetic()));
-        } else {
-            basicFields = new HashSet<>();
-        }
-        return basicFields;
-    }
-
-    private boolean isRelation(AnnotatedResourceField field) {
-        return field.isAnnotationPresent(JsonApiToMany.class) || field.isAnnotationPresent(JsonApiToOne.class);
-    }
-    
     public static class ResourceFieldWrapper {
         private AnnotatedResourceField resourceField;
         private boolean discarded;
@@ -319,13 +230,8 @@ public class AnnotationResourceInformationBuilder implements ResourceInformation
 
     	private List<Annotation> annotations;
 
-    	public AnnotatedResourceField(@SuppressWarnings("SameParameterValue") String jsonName,
-                @SuppressWarnings("SameParameterValue") String underlyingName, Class<?> type, Type genericType) {
-        	this(jsonName, underlyingName, type, genericType, Collections.<Annotation>emptyList());
-        }
-
     	public AnnotatedResourceField(String jsonName, String underlyingName, Class<?> type, Type genericType, List<Annotation> annotations) {
-    		super(jsonName, underlyingName, type, genericType, getOppositeName(annotations), isLazy(annotations), getIncludeByDefault(annotations), getLookupIncludeBehavior(annotations));
+    		super(jsonName, underlyingName,  getResourceFieldType(annotations), type, genericType, getOppositeName(annotations), isLazy(annotations), getIncludeByDefault(annotations), getLookupIncludeBehavior(annotations));
     		this.annotations = annotations;
     	}
 
@@ -402,6 +308,21 @@ public class AnnotationResourceInformationBuilder implements ResourceInformation
 	        }
 	        return defaultValue;
 	    }
+    	
+    	public static ResourceFieldType getResourceFieldType(List<Annotation> annotations) {
+			for(Annotation annotation : annotations){
+				if(annotation instanceof JsonApiId){
+					 return ResourceFieldType.ID;
+				}else if(annotation instanceof JsonApiToOne || annotation instanceof JsonApiToMany){
+					return ResourceFieldType.RELATIONSHIP;
+				}else if(annotation instanceof JsonApiMetaInformation){
+					return ResourceFieldType.META_INFORMATION;
+				}else if(annotation instanceof JsonApiLinksInformation){
+					return ResourceFieldType.LINKS_INFORMATION;
+				}
+			}
+			return ResourceFieldType.ATTRIBUTE;
+		}
 
     	public List<Annotation> getAnnotations() {
     		return annotations;

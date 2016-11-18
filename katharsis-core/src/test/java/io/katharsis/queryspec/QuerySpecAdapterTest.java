@@ -23,7 +23,7 @@ public class QuerySpecAdapterTest {
 	public void test() {
 		ResourceRegistry resourceRegistry = new ResourceRegistry(new ModuleRegistry(), new ConstantServiceUrlProvider("http://localhost"));
 		resourceRegistry.addEntry(Task.class,
-				new RegistryEntry(new ResourceRepositoryInformationImpl(Task.class, "tasks", new ResourceInformation(Task.class, "tasks", null, null, null)), null, null));
+				new RegistryEntry(new ResourceRepositoryInformationImpl(Task.class, "tasks", new ResourceInformation(Task.class, "tasks", null)), null, null));
 
 		QuerySpec spec = new QuerySpec(Task.class);
 		spec.includeField(Arrays.asList("test"));
