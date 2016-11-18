@@ -18,8 +18,6 @@ public class ResourceRegistry {
     private final ServiceUrlProvider serviceUrlProvider;
     private final Logger logger = LoggerFactory.getLogger(ResourceRegistry.class);
     private ModuleRegistry moduleRegistry;
-    private boolean jsonApiLookupIncludeAutomatically = false;
-    private boolean jsonApiLookupIncludeAutomaticallyOverwrite = false;
 
     public ResourceRegistry(ModuleRegistry moduleRegistry, ServiceUrlProvider serviceUrlProvider) {
         this.moduleRegistry = moduleRegistry;

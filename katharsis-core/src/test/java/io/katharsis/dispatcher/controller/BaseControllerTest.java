@@ -11,6 +11,9 @@ import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.include.IncludeLookupSetter;
 import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
 import io.katharsis.resource.information.ResourceInformationBuilder;
+import io.katharsis.resource.mock.repository.ProjectToTaskRepository;
+import io.katharsis.resource.mock.repository.TaskToProjectRepository;
+import io.katharsis.resource.mock.repository.UserToProjectRepository;
 import io.katharsis.resource.registry.ConstantServiceUrlProvider;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryBuilder;
@@ -46,5 +49,8 @@ public abstract class BaseControllerTest {
         includeFieldSetter = new IncludeLookupSetter(resourceRegistry, new EmptyPropertiesProvider());
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JsonApiModuleBuilder().build(resourceRegistry, false));
+        UserToProjectRepository.clear();
+        TaskToProjectRepository.clear();
+        ProjectToTaskRepository.clear();
     }
 }
