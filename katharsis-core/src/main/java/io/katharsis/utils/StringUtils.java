@@ -6,6 +6,8 @@ import java.util.List;
 
 public class StringUtils {
 
+    public static final String EMPTY = "";
+
     public static String join(String delimiter, Iterable<String> stringsIterable) {
         List<String> strings = new LinkedList<>();
         Iterator<String> iterator = stringsIterable.iterator();
@@ -49,10 +51,10 @@ public class StringUtils {
         return true;
     }
 
-	public static String emptyToNull(String value) {
-		if(value.length() == 0){
-			return null;
-		}
-		return value;
-	}
+    public static String emptyToNull(String value) {
+        if (value.length() == 0) {
+            return null;
+        }
+        return value;
+    }
 }

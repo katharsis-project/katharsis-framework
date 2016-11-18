@@ -3,6 +3,7 @@ package io.katharsis.dispatcher.registry;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.errorhandling.mapper.DefaultExceptionMapperLookup;
+import io.katharsis.internal.boot.PropertiesProvider;
 import io.katharsis.resource.include.IncludeLookupSetter;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.utils.parser.TypeParser;
@@ -20,13 +21,15 @@ public class ControllerRegistryBuilder {
     private final TypeParser typeParser;
     private final ObjectMapper objectMapper;
     private final IncludeLookupSetter includeFieldSetter;
+    private final PropertiesProvider propertiesProvider;
 
     public ControllerRegistryBuilder(@SuppressWarnings("SameParameterValue") ResourceRegistry resourceRegistry, @SuppressWarnings("SameParameterValue") TypeParser typeParser,
-                                     @SuppressWarnings("SameParameterValue") ObjectMapper objectMapper) {
+                                     @SuppressWarnings("SameParameterValue") ObjectMapper objectMapper, PropertiesProvider propertiesProvider) {
         this.resourceRegistry = resourceRegistry;
         this.typeParser = typeParser;
         this.objectMapper = objectMapper;
-        this.includeFieldSetter = new IncludeLookupSetter(resourceRegistry);
+        this.propertiesProvider = propertiesProvider;
+        this.includeFieldSetter = new IncludeLookupSetter(resourceRegistry, propertiesProvider);
     }
 
     /**

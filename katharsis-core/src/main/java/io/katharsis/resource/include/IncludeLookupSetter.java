@@ -1,18 +1,7 @@
 package io.katharsis.resource.include;
 
-import java.io.Serializable;
-import java.lang.reflect.ParameterizedType;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import io.katharsis.internal.boot.KatharsisBootProperties;
+import io.katharsis.internal.boot.PropertiesProvider;
 import io.katharsis.queryParams.include.Inclusion;
 import io.katharsis.queryParams.params.IncludedRelationsParams;
 import io.katharsis.queryParams.params.TypedParams;
@@ -26,192 +15,217 @@ import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.repository.adapter.RelationshipRepositoryAdapter;
 import io.katharsis.response.JsonApiResponse;
 import io.katharsis.utils.PropertyUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.Serializable;
+import java.lang.reflect.ParameterizedType;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class IncludeLookupSetter {
 
-	private static final Logger logger = LoggerFactory.getLogger(IncludeLookupSetter.class);
+    private static final Logger logger = LoggerFactory.getLogger(IncludeLookupSetter.class);
 
-	private final ResourceRegistry resourceRegistry;
+    private final ResourceRegistry resourceRegistry;
+    private final PropertiesProvider propertiesProvider;
+    private final LookupIncludeBehavior lookupIncludeBehavior;
 
-	public IncludeLookupSetter(ResourceRegistry resourceRegistry) {
-		this.resourceRegistry = resourceRegistry;
-	}
+    public IncludeLookupSetter(ResourceRegistry resourceRegistry, PropertiesProvider propertiesProvider) {
+        this.resourceRegistry = resourceRegistry;
+        this.propertiesProvider = propertiesProvider;
+        // determine system property for  include look up
+        String includeAutomaticallyString = propertiesProvider.getProperty(KatharsisBootProperties.INCLUDE_AUTOMATICALLY);
+        boolean includeAutomatically = Boolean.parseBoolean(includeAutomaticallyString);
+        String includeAutomaticallyOverwriteString = propertiesProvider.getProperty(KatharsisBootProperties.INCLUDE_AUTOMATICALLY_OVERWRITE);
+        boolean includeAutomaticallyOverwrite = Boolean.parseBoolean(includeAutomaticallyOverwriteString);
+        if (includeAutomatically) {
+            if (includeAutomaticallyOverwrite)
+                lookupIncludeBehavior = LookupIncludeBehavior.AUTOMATICALLY_ALWAYS;
+            else
+                lookupIncludeBehavior = LookupIncludeBehavior.AUTOMATICALLY_WHEN_NULL;
+        } else {
+            lookupIncludeBehavior = LookupIncludeBehavior.NONE;
+        }
 
-	@SuppressWarnings("rawtypes")
-	public void setIncludedElements(String resourceName, Object repositoryResource, QueryAdapter queryAdapter,
-			RepositoryMethodParameterProvider parameterProvider) {
-		Object resource;
-		if (repositoryResource instanceof JsonApiResponse) {
-			resource = ((JsonApiResponse) repositoryResource).getEntity();
-		}
-		else {
-			resource = repositoryResource;
-		}
-		if (resource != null && queryAdapter != null && queryAdapter.hasIncludedRelations()) {
-			Iterable resources = resource instanceof Iterable ? (Iterable<?>) resource : Arrays.asList(resource);
+    }
 
-			IncludedRelationsParams includedRelationsParams = findInclusions(queryAdapter.getIncludedRelations(), resourceName);
-			if (includedRelationsParams != null) {
-				for (Inclusion inclusion : includedRelationsParams.getParams()) {
-					List<String> pathList = inclusion.getPathList();
-					if (!pathList.isEmpty()) {
-						RegistryEntry entry = resourceRegistry.getEntry(resourceName);
-						ResourceInformation resourceInformation = entry.getResourceInformation();
-						setIncludedElements(resourceInformation, resources, pathList, queryAdapter, parameterProvider);
-					}
-				}
-			}
-		}
-	}
+    @SuppressWarnings("rawtypes")
+    public void setIncludedElements(String resourceName, Object repositoryResource, QueryAdapter queryAdapter,
+                                    RepositoryMethodParameterProvider parameterProvider) {
+        Object resource;
+        if (repositoryResource instanceof JsonApiResponse) {
+            resource = ((JsonApiResponse) repositoryResource).getEntity();
+        } else {
+            resource = repositoryResource;
+        }
+        if (resource != null && queryAdapter != null && queryAdapter.hasIncludedRelations()) {
+            Iterable resources = resource instanceof Iterable ? (Iterable<?>) resource : Collections.singletonList(resource);
 
-	private static IncludedRelationsParams findInclusions(TypedParams<IncludedRelationsParams> queryParams, String resourceName) {
-		IncludedRelationsParams includedRelationsParams = null;
-		for (Map.Entry<String, IncludedRelationsParams> entry : queryParams.getParams().entrySet()) {
-			if (resourceName.equals(entry.getKey())) {
-				includedRelationsParams = entry.getValue();
-			}
-		}
-		return includedRelationsParams;
-	}
+            IncludedRelationsParams includedRelationsParams = findInclusions(queryAdapter.getIncludedRelations(), resourceName);
+            if (includedRelationsParams != null) {
+                for (Inclusion inclusion : includedRelationsParams.getParams()) {
+                    List<String> pathList = inclusion.getPathList();
+                    if (!pathList.isEmpty()) {
+                        RegistryEntry entry = resourceRegistry.getEntry(resourceName);
+                        ResourceInformation resourceInformation = entry.getResourceInformation();
+                        setIncludedElements(resourceInformation, resources, pathList, queryAdapter, parameterProvider);
+                    }
+                }
+            }
+        }
+    }
 
-	@SuppressWarnings("rawtypes")
-	private void setIncludedElements(ResourceInformation resourceInformation, Iterable resources, List<String> pathList,
-			QueryAdapter queryAdapter, RepositoryMethodParameterProvider parameterProvider) {
-		if (!pathList.isEmpty()) {
-			ResourceField field = resourceInformation.findRelationshipFieldByName(pathList.get(0));
-			if (field == null) {
-				logger.warn("Error loading relationship, couldn't find field " + pathList.get(0));
-				return;
-			}
+    private static IncludedRelationsParams findInclusions(TypedParams<IncludedRelationsParams> queryParams, String resourceName) {
+        IncludedRelationsParams includedRelationsParams = null;
+        for (Map.Entry<String, IncludedRelationsParams> entry : queryParams.getParams().entrySet()) {
+            if (resourceName.equals(entry.getKey())) {
+                includedRelationsParams = entry.getValue();
+            }
+        }
+        return includedRelationsParams;
+    }
 
-			List pendingResources = filterResourcesForLookup(resources, field);
-			if (!pendingResources.isEmpty()) {
-				Set properties = loadRelationships(resourceInformation, pendingResources, field, queryAdapter, parameterProvider);
+    @SuppressWarnings("rawtypes")
+    private void setIncludedElements(ResourceInformation resourceInformation, Iterable resources, List<String> pathList,
+                                     QueryAdapter queryAdapter, RepositoryMethodParameterProvider parameterProvider) {
+        if (!pathList.isEmpty()) {
+            ResourceField field = resourceInformation.findRelationshipFieldByName(pathList.get(0));
+            if (field == null) {
+                logger.warn("Error loading relationship, couldn't find field " + pathList.get(0));
+                return;
+            }
 
-				if (!properties.isEmpty() && pathList.size() > 1) {
-					List<String> subPathList = pathList.subList(1, pathList.size());
+            List pendingResources = filterResourcesForLookup(resources, field);
+            if (!pendingResources.isEmpty()) {
+                Set properties = loadRelationships(resourceInformation, pendingResources, field, queryAdapter, parameterProvider);
 
-					Class<?> propertyReousrceType = field.getElementType();
-					RegistryEntry propertyResourceEntry = resourceRegistry.getEntry(propertyReousrceType);
-					ResourceInformation propertyResourceInformation = propertyResourceEntry.getResourceInformation();
+                if (!properties.isEmpty() && pathList.size() > 1) {
+                    List<String> subPathList = pathList.subList(1, pathList.size());
 
-					setIncludedElements(propertyResourceInformation, (Iterable) properties, subPathList, queryAdapter,
-							parameterProvider);
-				}
-			}
-		}
-	}
+                    Class<?> propertyReousrceType = field.getElementType();
+                    RegistryEntry propertyResourceEntry = resourceRegistry.getEntry(propertyReousrceType);
+                    ResourceInformation propertyResourceInformation = propertyResourceEntry.getResourceInformation();
 
-	/**
-	 * Filter by resources that need lookup based on incusion behavior.
-	 * 
-	 * @param resources
-	 * @param field
-	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private List filterResourcesForLookup(Iterable resources, ResourceField field) {
-		List results = new ArrayList();
-		Iterator iterator = resources.iterator();
-		while (iterator.hasNext()) {
-			Object resource = iterator.next();
+                    setIncludedElements(propertyResourceInformation, properties, subPathList, queryAdapter,
+                            parameterProvider);
+                }
+            }
+        }
+    }
 
-			Object property = PropertyUtils.getProperty(resource, field.getUnderlyingName());
-			LookupIncludeBehavior lookupIncludeBehavior = field.getLookupIncludeAutomatically();
-			//attempt to load relationship if it's null or JsonApiLookupIncludeAutomatically.overwrite() == true
-			if (lookupIncludeBehavior == LookupIncludeBehavior.AUTOMATICALLY_ALWAYS
-					|| (property == null && lookupIncludeBehavior == LookupIncludeBehavior.AUTOMATICALLY_WHEN_NULL)) {
-				results.add(resource);
-			}
-		}
-		return results;
-	}
+    /**
+     * Filter by resources that need lookup based on incusion behavior.
+     *
+     * @param resources
+     * @param field
+     */
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private List filterResourcesForLookup(Iterable resources, ResourceField field) {
+        List results = new ArrayList();
+        for (Object resource : resources) {
+            if (resource == null) {
+                continue;
+            }
+            Object property = PropertyUtils.getProperty(resource, field.getUnderlyingName());
+            LookupIncludeBehavior lookupIncludeBehavior = field.getLookupIncludeAutomatically();
+            //attempt to load relationship if it's null or JsonApiLookupIncludeAutomatically.overwrite() == true
+            if ((lookupIncludeBehavior == LookupIncludeBehavior.AUTOMATICALLY_ALWAYS || this.lookupIncludeBehavior == LookupIncludeBehavior.AUTOMATICALLY_ALWAYS)
+                    || (property == null && ((lookupIncludeBehavior == LookupIncludeBehavior.AUTOMATICALLY_WHEN_NULL) || this.lookupIncludeBehavior == LookupIncludeBehavior.AUTOMATICALLY_WHEN_NULL))) {
+                results.add(resource);
+            }
+        }
+        return results;
+    }
 
-	/**
-	 * Loads all related resources for the given resources and relationship field.
-	 * 
-	 * @param resources
-	 * @param relationshipField
-	 * @param queryAdapter
-	 * @param parameterProvider
-	 * @return list of all loaded properties. Collections are flattened into a single collection.
-	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private Set loadRelationships(ResourceInformation resourceInformation, List resources, ResourceField relationshipField,
-			QueryAdapter queryAdapter, RepositoryMethodParameterProvider parameterProvider) {
-		RegistryEntry rootEntry = resourceRegistry.getEntry(resourceInformation.getResourceType());
+    /**
+     * Loads all related resources for the given resources and relationship field.
+     *
+     * @param resources
+     * @param relationshipField
+     * @param queryAdapter
+     * @param parameterProvider
+     * @return list of all loaded properties. Collections are flattened into a single collection.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private Set loadRelationships(ResourceInformation resourceInformation, List resources, ResourceField relationshipField,
+                                  QueryAdapter queryAdapter, RepositoryMethodParameterProvider parameterProvider) {
+        RegistryEntry rootEntry = resourceRegistry.getEntry(resourceInformation.getResourceType());
 
-		List<Serializable> resourceIds = getIds(resources, resourceInformation);
+        List<Serializable> resourceIds = getIds(resources, resourceInformation);
 
-		boolean isMany = Iterable.class.isAssignableFrom(relationshipField.getType());
-		Class<?> relationshipFieldClass = relationshipField.getElementType();
+        boolean isMany = Iterable.class.isAssignableFrom(relationshipField.getType());
+        Class<?> relationshipFieldClass = relationshipField.getElementType();
 
-		Set loadedEntities = new HashSet();
+        Set loadedEntities = new HashSet();
 
-		RelationshipRepositoryAdapter relationshipRepository = rootEntry.getRelationshipRepositoryForClass(relationshipFieldClass,
-				parameterProvider);
-		if (relationshipRepository != null) {
-			Map<Object, JsonApiResponse> responseMap;
-			if (isMany) {
-				responseMap = relationshipRepository.findBulkManyTargets(resourceIds, relationshipField.getUnderlyingName(),
-						queryAdapter);
-			}
-			else {
-				responseMap = relationshipRepository.findBulkOneTargets(resourceIds, relationshipField.getUnderlyingName(),
-						queryAdapter);
-			}
+        RelationshipRepositoryAdapter relationshipRepository = rootEntry.getRelationshipRepositoryForClass(relationshipFieldClass,
+                parameterProvider);
+        if (relationshipRepository != null) {
+            Map<Object, JsonApiResponse> responseMap;
+            if (isMany) {
+                responseMap = relationshipRepository.findBulkManyTargets(resourceIds, relationshipField.getUnderlyingName(),
+                        queryAdapter);
+            } else {
+                responseMap = relationshipRepository.findBulkOneTargets(resourceIds, relationshipField.getUnderlyingName(),
+                        queryAdapter);
+            }
 
-			for (Object resource : resources) {
-				ResourceField rootIdField = resourceInformation.getIdField();
-				Serializable id = (Serializable) PropertyUtils.getProperty(resource, rootIdField.getUnderlyingName());
-				JsonApiResponse response = responseMap.get(id);
-				if (response != null) {
-					// set the relation
-					Object entity = response.getEntity();
-					PropertyUtils.setProperty(resource, relationshipField.getUnderlyingName(), entity);
+            for (Object resource : resources) {
+                ResourceField rootIdField = resourceInformation.getIdField();
+                Serializable id = (Serializable) PropertyUtils.getProperty(resource, rootIdField.getUnderlyingName());
+                JsonApiResponse response = responseMap.get(id);
+                if (response != null) {
+                    // set the relation
+                    Object entity = response.getEntity();
+                    PropertyUtils.setProperty(resource, relationshipField.getUnderlyingName(), entity);
 
-					addAll(loadedEntities, entity);
-				}else{
-					// null the relation
-					PropertyUtils.setProperty(resource, relationshipField.getUnderlyingName(), null);
-				}
-			}
-		}
+                    addAll(loadedEntities, entity);
+                } else {
+                    // null the relation
+                    PropertyUtils.setProperty(resource, relationshipField.getUnderlyingName(), null);
+                }
+            }
+        }
 
-		return loadedEntities;
-	}
+        return loadedEntities;
+    }
 
-	private void addAll(Set<Object> set, Object entity) {
-		if (entity instanceof Iterable) {
-			Iterator<?> iterator = ((Iterable<?>) entity).iterator();
-			while (iterator.hasNext()) {
-				set.add(iterator.next());
-			}
-		}
-		else {
-			set.add(entity);
-		}
-	}
+    private void addAll(Set<Object> set, Object entity) {
+        if (entity instanceof Iterable) {
+            Iterator<?> iterator = ((Iterable<?>) entity).iterator();
+            while (iterator.hasNext()) {
+                set.add(iterator.next());
+            }
+        } else {
+            set.add(entity);
+        }
+    }
 
-	@SuppressWarnings("rawtypes")
-	private List<Serializable> getIds(List resources, ResourceInformation resourceInformation) {
-		ResourceField rootIdField = resourceInformation.getIdField();
-		List<Serializable> ids = new ArrayList<>();
-		for (Object resource : resources) {
-			Serializable id = (Serializable) PropertyUtils.getProperty(resource, rootIdField.getUnderlyingName());
-			ids.add(id);
-		}
-		return ids;
-	}
+    @SuppressWarnings("rawtypes")
+    private List<Serializable> getIds(List resources, ResourceInformation resourceInformation) {
+        ResourceField rootIdField = resourceInformation.getIdField();
+        List<Serializable> ids = new ArrayList<>();
+        for (Object resource : resources) {
+            Serializable id = (Serializable) PropertyUtils.getProperty(resource, rootIdField.getUnderlyingName());
+            ids.add(id);
+        }
+        return ids;
+    }
 
-	private Class<?> getClassFromField(ResourceField relationshipField) {
-		Class<?> resourceClass;
-		if (Iterable.class.isAssignableFrom(relationshipField.getType())) {
-			ParameterizedType stringListType = (ParameterizedType) relationshipField.getGenericType();
-			resourceClass = (Class<?>) stringListType.getActualTypeArguments()[0];
-		}
-		else {
-			resourceClass = relationshipField.getType();
-		}
-		return resourceClass;
-	}
+    private Class<?> getClassFromField(ResourceField relationshipField) {
+        Class<?> resourceClass;
+        if (Iterable.class.isAssignableFrom(relationshipField.getType())) {
+            ParameterizedType stringListType = (ParameterizedType) relationshipField.getGenericType();
+            resourceClass = (Class<?>) stringListType.getActualTypeArguments()[0];
+        } else {
+            resourceClass = relationshipField.getType();
+        }
+        return resourceClass;
+    }
 }
