@@ -148,7 +148,7 @@ public class QueryParamsClientTest extends AbstractClientTest {
 
 	@Test
 	public void testLazyRelation() {
-		relRepoLazy.findOneTarget(1L, "id", new QueryParams());
+		relRepoLazy.findOneTarget(1L, "lazyProject", new QueryParams());
 	}
 
 	@Test
