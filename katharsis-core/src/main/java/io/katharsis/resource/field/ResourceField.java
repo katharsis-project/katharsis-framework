@@ -37,10 +37,6 @@ public class ResourceField {
 			return ResourceFieldType.ATTRIBUTE;
 		}
 
-		public boolean isRelation() {
-			return this == RELATIONSHIP;
-		}
-
 		public List<ResourceField> filter(List<ResourceField> fields) {
 			ArrayList<ResourceField> results = new ArrayList<>();
 			for (ResourceField field : fields) {
