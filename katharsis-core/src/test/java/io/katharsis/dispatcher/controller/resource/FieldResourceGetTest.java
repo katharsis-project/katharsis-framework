@@ -144,7 +144,7 @@ public class FieldResourceGetTest extends BaseControllerTest {
         Assert.assertNotNull(response.getResponse().getEntity());
         Assert.assertEquals(LinkedList.class, response.getResponse().getEntity().getClass());
         LinkedList entityList = ((LinkedList) response.getResponse().getEntity());
-        Assert.assertTrue(entityList.size() > 0);
+        Assert.assertEquals(true, entityList.size() > 0);
         Assert.assertEquals(Project.class, entityList.get(0).getClass());
         Project returnedProject = (Project) entityList.get(0);
         Assert.assertEquals(project.getId(), returnedProject.getId());
