@@ -42,7 +42,7 @@ public abstract class BaseControllerTest {
     protected QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
 
     @Rule
-    protected ExpectedException expectedException = ExpectedException.none();
+    public ExpectedException expectedException = ExpectedException.none();
 
     @Before
     public void prepare() {
