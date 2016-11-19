@@ -1,6 +1,7 @@
 package io.katharsis.queryspec;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -105,7 +106,7 @@ public class QuerySpecRelationshipRepositoryBase<T, I extends Serializable, D, J
 		ResourceRepositoryAdapter<T, I> sourceAdapter = getSourceAdapter();
 		Iterable<D> targets = getTargets(targetIds);
 		@SuppressWarnings("unchecked")
-		Collection<D> currentTargets = (Collection<D>) PropertyUtils.getProperty(source, fieldName);
+		Collection<D> currentTargets = getOrCreateCollection(source, fieldName);
 		for (D target : targets) {
 			currentTargets.add(target);
 		}
@@ -117,11 +118,23 @@ public class QuerySpecRelationshipRepositoryBase<T, I extends Serializable, D, J
 		ResourceRepositoryAdapter<T, I> sourceAdapter = getSourceAdapter();
 		Iterable<D> targets = getTargets(targetIds);
 		@SuppressWarnings("unchecked")
-		Collection<D> currentTargets = (Collection<D>) PropertyUtils.getProperty(source, fieldName);
+		Collection<D> currentTargets = getOrCreateCollection(source, fieldName);
 		for (D target : targets) {
 			currentTargets.remove(target);
 		}
 		sourceAdapter.update(source, getSaveQueryAdapter(fieldName));
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private Collection<D> getOrCreateCollection(Object source, String fieldName) {
+		 Object property = PropertyUtils.getProperty(source, fieldName);
+		 if(property == null){
+			 Class<?> propertyClass = PropertyUtils.getPropertyClass(source.getClass(), fieldName);
+			 boolean isList = List.class.isAssignableFrom(propertyClass);
+			 property = isList ? new ArrayList() : new HashSet();
+			 PropertyUtils.setProperty(source, fieldName, property);
+		 }
+		return (Collection<D>) property;
 	}
 
 	@SuppressWarnings("unchecked")

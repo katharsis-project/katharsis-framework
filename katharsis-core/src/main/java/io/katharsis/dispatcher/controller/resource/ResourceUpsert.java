@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.katharsis.dispatcher.controller.BaseController;
@@ -192,14 +193,22 @@ public abstract class ResourceUpsert extends BaseController {
             Map<String, Object> additionalProperties = dataBody.getRelationships()
                     .getAdditionalProperties();
             for (Map.Entry<String, Object> property : additionalProperties.entrySet()) {
-                if (property.getValue() != null && Iterable.class.isAssignableFrom(property.getValue()
-                        .getClass())) {
+            	String propertyName = property.getKey();
+            	
+            	JsonNode links = dataBody.getRelationships().getLinks().get(propertyName);
+            	
+            	ResourceInformation resourceInformation = registryEntry.getResourceInformation();
+				ResourceField field = resourceInformation.findRelationshipFieldByName(propertyName);
+				if(field == null){
+					 throw new ResourceException(String.format("Invalid relationship name: %s", property.getKey()));
+				}
+            	if (Iterable.class.isAssignableFrom(field.getType())){
                     //noinspection unchecked
                     setRelationsField(newResource,
                             registryEntry,
                             (Map.Entry) property,
                             queryAdapter,
-                            parameterProvider);
+                            parameterProvider, links);
                 } else {
                     //noinspection unchecked
                     setRelationField(newResource, registryEntry, (Map.Entry) property, queryAdapter, parameterProvider);
@@ -209,33 +218,36 @@ public abstract class ResourceUpsert extends BaseController {
         }
     }
 
-    private void setRelationsField(Object newResource, RegistryEntry registryEntry,
+    protected void setRelationsField(Object newResource, RegistryEntry registryEntry,
                                    Map.Entry<String, Iterable<LinkageData>> property, QueryAdapter queryAdapter,
-                                   RepositoryMethodParameterProvider parameterProvider) {
-        String propertyName = property.getKey();
-        ResourceField relationshipField = registryEntry.getResourceInformation()
-                .findRelationshipFieldByName(propertyName);
-        Class<?> relationshipFieldClass = Generics.getResourceClass(relationshipField.getGenericType(),
-                relationshipField.getType());
-        RegistryEntry entry = null;
-        Class idFieldType = null;
-        List relationships = new LinkedList<>();
-        boolean first = true;
-        for (LinkageData linkageData : property.getValue()) {
-            if (first) {
-                entry = resourceRegistry.getEntry(linkageData.getType(), relationshipFieldClass);
-                idFieldType = entry.getResourceInformation()
-                        .getIdField()
-                        .getType();
-                first = false;
-            }
-            Serializable castedRelationshipId = typeParser.parse(linkageData.getId(), idFieldType);
-            
-            Object relationObject = fetchRelatedObject(entry, castedRelationshipId, parameterProvider, queryAdapter);
-            
-            relationships.add(relationObject);
-        }
-        PropertyUtils.setProperty(newResource, relationshipField.getUnderlyingName(), relationships);
+                                   RepositoryMethodParameterProvider parameterProvider, JsonNode links) {
+    	if(property.getValue() != null){
+	        String propertyName = property.getKey();
+	        ResourceField relationshipField = registryEntry.getResourceInformation()
+	                .findRelationshipFieldByName(propertyName);
+	        Class<?> relationshipFieldClass = Generics.getResourceClass(relationshipField.getGenericType(),
+	                relationshipField.getType());
+	        RegistryEntry entry = null;
+	        Class idFieldType = null;
+	        List relationships = new LinkedList<>();
+	        boolean first = true;
+	        
+	        for (LinkageData linkageData : property.getValue()) {
+	            if (first) {
+	                entry = resourceRegistry.getEntry(linkageData.getType(), relationshipFieldClass);
+	                idFieldType = entry.getResourceInformation()
+	                        .getIdField()
+	                        .getType();
+	                first = false;
+	            }
+	            Serializable castedRelationshipId = typeParser.parse(linkageData.getId(), idFieldType);
+	            
+	            Object relationObject = fetchRelatedObject(entry, castedRelationshipId, parameterProvider, queryAdapter);
+	            
+	            relationships.add(relationObject);
+	        }
+	        PropertyUtils.setProperty(newResource, relationshipField.getUnderlyingName(), relationships);
+    	}
     }
 
     protected void setRelationField(Object newResource, RegistryEntry registryEntry,

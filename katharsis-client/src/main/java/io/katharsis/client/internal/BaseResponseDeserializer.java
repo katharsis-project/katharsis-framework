@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -15,6 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 
 import io.katharsis.client.ResponseBodyException;
+import io.katharsis.client.internal.proxy.ClientProxyFactory;
 import io.katharsis.client.response.JsonLinksInformation;
 import io.katharsis.client.response.JsonMetaInformation;
 import io.katharsis.dispatcher.controller.resource.ResourceUpsert;
@@ -22,8 +24,10 @@ import io.katharsis.jackson.exception.JsonDeserializationException;
 import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.dto.DataBody;
+import io.katharsis.request.dto.LinkageData;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
+import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -56,6 +60,8 @@ public class BaseResponseDeserializer extends JsonDeserializer<BaseResponseConte
 	private ObjectMapper objectMapper;
 
 	private TypeParser typeParser = new TypeParser();
+
+	private ClientProxyFactory proxyFactory;
 
 	public BaseResponseDeserializer(ResourceRegistry resourceRegistry, ObjectMapper objectMapper) {
 		this.resourceRegistry = resourceRegistry;
@@ -170,7 +176,10 @@ public class BaseResponseDeserializer extends JsonDeserializer<BaseResponseConte
 				return relatedResource;
 			}
 			else {
-				return null; // TODO create remote proxy
+				ResourceInformation resourceInformation = entry.getResourceInformation();
+				Class<?> resourceClass = resourceInformation.getResourceClass();
+				String url = null;
+				return proxyFactory.createResourceProxy(resourceClass, relationId, url);
 			}
 		}
 
@@ -246,7 +255,8 @@ public class BaseResponseDeserializer extends JsonDeserializer<BaseResponseConte
 				if (node.isArray()) {
 					Iterator<JsonNode> nodeIterator = node.iterator();
 					while (nodeIterator.hasNext()) {
-						DataBody newLinkage = jp.getCodec().treeToValue(nodeIterator.next(), ClientDataBody.class);
+						JsonNode next = nodeIterator.next();
+						DataBody newLinkage = jp.getCodec().treeToValue(next, ClientDataBody.class);
 						bodies.dataBodies.add(newLinkage);
 					}
 					bodies.isCollection = true;
@@ -260,7 +270,36 @@ public class BaseResponseDeserializer extends JsonDeserializer<BaseResponseConte
 			}
 			return bodies;
 		}
-	};
+
+		@Override
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		protected void setRelationsField(Object newResource, RegistryEntry registryEntry,
+				Map.Entry<String, Iterable<LinkageData>> property, QueryAdapter queryAdapter,
+				RepositoryMethodParameterProvider parameterProvider, JsonNode links) {
+			if (property.getValue() == null) {
+				if (links != null) {
+					// create proxy to lazy load relations
+					String fieldName = property.getKey();
+					ResourceInformation resourceInformation = registryEntry.getResourceInformation();
+					ResourceField field = resourceInformation.findRelationshipFieldByName(fieldName);
+					Class elementType = field.getElementType();
+					Class collectionClass = field.getType();
+
+					JsonNode relatedNode = links.get("related");
+					if (relatedNode != null) {
+						String url = relatedNode.asText().trim();
+						Object proxy = proxyFactory.createCollectionProxy(elementType, collectionClass, url);
+						PropertyUtils.setProperty(newResource, fieldName, proxy);
+					}
+				}
+			}
+			else {
+				// set elements
+				super.setRelationsField(newResource, registryEntry, property, queryAdapter, parameterProvider, links);
+			}
+		}
+
+	}
 
 	public static class ClientDataBody extends DataBody {
 
@@ -293,6 +332,10 @@ public class BaseResponseDeserializer extends JsonDeserializer<BaseResponseConte
 		ArrayList<DataBody> dataBodies = new ArrayList<>();
 
 		boolean isCollection = false;
+	}
+
+	public void setProxyFactory(ClientProxyFactory proxyFactory) {
+		this.proxyFactory = proxyFactory;
 	}
 
 }

@@ -34,15 +34,24 @@ public class QuerySpecClientTest extends AbstractClientTest {
 
 	protected QuerySpecResourceRepositoryStub<Project, Long> projectRepo;
 
+	protected QuerySpecResourceRepositoryStub<Schedule, Long> scheduleRepo;
+
 	protected QuerySpecRelationshipRepositoryStub<Task, Long, Project, Long> relRepo;
+
+	protected QuerySpecRelationshipRepositoryStub<Schedule, Long, Task, Long> scheduleTaskRepo;
+
+	protected QuerySpecRelationshipRepositoryStub<Task, Long, Schedule, Long> taskScheduleRepo;
 
 	@Before
 	public void setup() {
 		super.setup();
 
+		scheduleRepo = client.getQuerySpecRepository(Schedule.class);
 		taskRepo = client.getQuerySpecRepository(Task.class);
 		projectRepo = client.getQuerySpecRepository(Project.class);
 		relRepo = client.getQuerySpecRepository(Task.class, Project.class);
+		scheduleTaskRepo = client.getQuerySpecRepository(Schedule.class, Task.class);
+		taskScheduleRepo = client.getQuerySpecRepository(Task.class, Schedule.class);
 	}
 
 	@Override
@@ -247,23 +256,117 @@ public class QuerySpecClientTest extends AbstractClientTest {
 	}
 
 	@Test
-	@Ignore // get rid of queryparams
 	public void testSetRelation() {
-		Project project = new Project();
-		project.setId(1L);
-		project.setName("project");
-		projectRepo.create(project);
+		Schedule schedule = new Schedule();
+		schedule.setId(1L);
+		schedule.setName("schedule");
+		scheduleRepo.create(schedule);
 
 		Task task = new Task();
 		task.setId(2L);
 		task.setName("test");
 		taskRepo.create(task);
 
-		relRepo.setRelation(task, project.getId(), "project");
+		relRepo.setRelation(task, schedule.getId(), "schedule");
 
-		Project relProject = relRepo.findOneTarget(task.getId(), "project", new QuerySpec(Task.class));
-		Assert.assertNotNull(relProject);
-		Assert.assertEquals(project.getId(), relProject.getId());
+		Schedule relSchedule = taskScheduleRepo.findOneTarget(task.getId(), "schedule", new QuerySpec(Schedule.class));
+		Assert.assertNotNull(relSchedule);
+		Assert.assertEquals(schedule.getId(), relSchedule.getId());
+	}
+
+	@Test
+	public void testSaveRelationWithCreate() {
+		Schedule schedule = new Schedule();
+		schedule.setId(1L);
+		schedule.setName("schedule");
+		scheduleRepo.create(schedule);
+
+		Task task = new Task();
+		task.setId(2L);
+		task.setName("test");
+		task.setSchedule(schedule);
+		taskRepo.create(task);
+
+		// check relationship available
+		Task savedTask = taskRepo.findOne(task.getId(), new QuerySpec(Task.class));
+		Assert.assertNotNull(savedTask.getSchedule());
+	}
+
+	@Test
+	public void testNullNonLazyRelationWithSave() {
+		Schedule schedule = new Schedule();
+		schedule.setId(1L);
+		schedule.setName("schedule");
+		scheduleRepo.create(schedule);
+
+		Task task = new Task();
+		task.setId(2L);
+		task.setName("test");
+		task.setSchedule(schedule);
+		taskRepo.create(task);
+
+		Task savedTask = taskRepo.findOne(task.getId(), new QuerySpec(Task.class));
+		Assert.assertNotNull(savedTask.getSchedule());
+
+		// null
+		savedTask.setSchedule(null);
+		taskRepo.save(savedTask);
+
+		// relation must be null
+		Task updatedTask = taskRepo.findOne(task.getId(), new QuerySpec(Task.class));
+		Assert.assertNull(updatedTask.getSchedule());
+	}
+
+	@Test
+	public void testCannotNullLazyRelationWithSave() {
+		Task task = new Task();
+		task.setId(2L);
+		task.setName("test");
+		taskRepo.create(task);
+
+		Schedule schedule = new Schedule();
+		schedule.setId(1L);
+		schedule.setName("schedule");
+		schedule.setLazyTask(task);
+		scheduleRepo.create(schedule);
+
+		// since lazy, will not be sent to client if not requested
+		QuerySpec querySpec = new QuerySpec(Schedule.class);
+		Schedule savedSchedule = scheduleRepo.findOne(schedule.getId(), querySpec);
+		Assert.assertNull(savedSchedule.getLazyTask());
+		
+		querySpec.includeRelation(Arrays.asList("lazyTask"));
+		savedSchedule = scheduleRepo.findOne(schedule.getId(), querySpec);
+		Assert.assertNotNull(savedSchedule.getLazyTask());
+
+		// null
+		savedSchedule.setLazyTask(task);
+		scheduleRepo.save(savedSchedule);
+
+		// still not null because cannot differantiate between not loaded and nulled
+		Schedule updatedSchedule = scheduleRepo.findOne(schedule.getId(), querySpec);
+		Assert.assertNotNull(updatedSchedule.getLazyTask());
+	}
+
+	@Test
+	public void testSaveRelationWithSave() {
+		Schedule schedule = new Schedule();
+		schedule.setId(1L);
+		schedule.setName("schedule");
+		scheduleRepo.create(schedule);
+
+		Task task = new Task();
+		task.setId(2L);
+		task.setName("test");
+		taskRepo.create(task);
+
+		Task createdTask = taskRepo.findOne(task.getId(), new QuerySpec(Task.class));
+		Assert.assertNull(createdTask.getSchedule());
+		createdTask.setSchedule(schedule);
+		taskRepo.save(createdTask);
+
+		Task updatedTask = taskRepo.findOne(task.getId(), new QuerySpec(Task.class));
+		Assert.assertNotNull(updatedTask.getSchedule());
 	}
 
 	@Test

@@ -20,40 +20,52 @@ import java.util.Map;
  * @see LinkageData
  */
 public class ResourceRelationshipsDeserializer extends JsonDeserializer<ResourceRelationships> {
-    private static final String DATA_FIELD_NAME = "data";
 
-    @Override
-    public ResourceRelationships deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
-        JsonNode node = jp.readValueAsTree();
-        if (node == null) {
-            return null;
-        }
-        ResourceRelationships resourceRelationships = new ResourceRelationships();
+	private static final String DATA_FIELD_NAME = "data";
+	
+	private static final String LINKS_FIELD_NAME = "links";
 
-        Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
-        while (fields.hasNext()) {
-            Map.Entry<String, JsonNode> field = fields.next();
-            Object value;
-            if (field.getValue() == null) {
-                throw new ParametersDeserializationException("Attribute field cannot be null for: " + field.getKey());
-            } else if (field.getValue().get(DATA_FIELD_NAME) == null) {
-                value = null;
-            } else if (field.getValue().get(DATA_FIELD_NAME).isArray()) {
-                JsonNode fieldData = field.getValue().get(DATA_FIELD_NAME);
-                Iterator<JsonNode> nodeIterator = fieldData.iterator();
-                List<LinkageData> linkageDatas = new LinkedList<>();
+	@Override
+	public ResourceRelationships deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
+		JsonNode node = jp.readValueAsTree();
+		if (node == null) {
+			return null;
+		}
+		ResourceRelationships resourceRelationships = new ResourceRelationships();
 
-                while (nodeIterator.hasNext()) {
-                    LinkageData newLinkageData = jp.getCodec().treeToValue(nodeIterator.next(), LinkageData.class);
-                    linkageDatas.add(newLinkageData);
-                }
-                value = linkageDatas;
-            } else {
-                value = jp.getCodec().treeToValue(field.getValue().get(DATA_FIELD_NAME), LinkageData.class);
-            }
-            resourceRelationships.setAdditionalProperty(field.getKey(), value);
-        }
+		Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
+		while (fields.hasNext()) {
+			Map.Entry<String, JsonNode> field = fields.next();
+			Object value;
+			if (field.getValue() == null) {
+				throw new ParametersDeserializationException("Attribute field cannot be null for: " + field.getKey());
+			}
 
-        return resourceRelationships;
-    }
+			JsonNode linksNode = field.getValue().get(LINKS_FIELD_NAME);
+			if(linksNode != null){
+				resourceRelationships.setLinks(field.getKey(), linksNode);
+			}
+			JsonNode dataNode = field.getValue().get(DATA_FIELD_NAME);
+			if (dataNode == null) {
+				value = null;
+			}
+			else if (dataNode.isArray()) {
+				Iterator<JsonNode> nodeIterator = dataNode.iterator();
+				List<LinkageData> linkageDatas = new LinkedList<>();
+
+				while (nodeIterator.hasNext()) {
+					LinkageData newLinkageData = jp.getCodec().treeToValue(nodeIterator.next(), LinkageData.class);
+					linkageDatas.add(newLinkageData);
+				}
+				value = linkageDatas;
+			}
+			else {
+				value = jp.getCodec().treeToValue(dataNode, LinkageData.class);
+			}
+
+			resourceRelationships.setAdditionalProperty(field.getKey(), value);
+		}
+
+		return resourceRelationships;
+	}
 }

@@ -259,4 +259,8 @@ public class ResourceInformation {
 		return PropertyUtils.getProperty(resource, idField.getUnderlyingName());
 	}
 
+	public void setId(Object resource, Object id) {
+		PropertyUtils.setProperty(resource, idField.getUnderlyingName(), id);		
+	}
+
 }
