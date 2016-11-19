@@ -20,7 +20,6 @@ import io.katharsis.utils.PreconditionUtil;
  * 
  * @deprecated use ResourceRepositoryBase instead
  */
-@Deprecated
 public abstract class QuerySpecResourceRepositoryBase<T, I extends Serializable>
 		implements QuerySpecResourceRepository<T, I>, ResourceRegistryAware {
 

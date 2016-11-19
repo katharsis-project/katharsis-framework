@@ -4,10 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.katharsis.client.mock.models.Schedule;
+import io.katharsis.client.mock.models.Task;
 import io.katharsis.queryspec.QuerySpec;
-import io.katharsis.queryspec.QuerySpecResourceRepositoryBase;
+import io.katharsis.repository.ResourceRepositoryBase;
 
-public class ScheduleRepositoryImpl extends QuerySpecResourceRepositoryBase<Schedule, Long> implements ScheduleRepository {
+public class ScheduleRepositoryImpl extends ResourceRepositoryBase<Schedule, Long> implements ScheduleRepository {
 
 	private static Map<Long, Schedule> schedules = new HashMap<>();
 
@@ -38,6 +39,13 @@ public class ScheduleRepositoryImpl extends QuerySpecResourceRepositoryBase<Sche
 	@Override
 	public <S extends Schedule> S save(S entity) {
 		schedules.put(entity.getId(), entity);
+		
+		if(entity.getTasks() != null){
+			for(Task task : entity.getTasks()){
+				task.setSchedule(entity);
+			}
+		}
+		
 		return null;
 	}
 

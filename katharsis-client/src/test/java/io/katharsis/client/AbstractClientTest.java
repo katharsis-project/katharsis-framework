@@ -1,6 +1,7 @@
 package io.katharsis.client;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.MultivaluedMap;
@@ -37,6 +38,7 @@ public abstract class AbstractClientTest extends JerseyTest {
 		client = new KatharsisClient(getBaseUri().toString());
 		client.addModule(new TestModule());
 		client.setActionStubFactory(JerseyActionStubFactory.newInstance());
+		client.getHttpAdapter().setReceiveTimeout(10000000, TimeUnit.MILLISECONDS);
 		setupClient(client);
 
 		TaskRepository.clear();
@@ -69,7 +71,6 @@ public abstract class AbstractClientTest extends JerseyTest {
 
 		public TestApplication(boolean querySpec) {
 			property(KatharsisProperties.RESOURCE_SEARCH_PACKAGE, "io.katharsis.client.mock");
-			property(KatharsisProperties.RESOURCE_DEFAULT_DOMAIN, "http://test.local");
 
 			if (!querySpec) {
 				feature = new KatharsisTestFeature(new ObjectMapper(), new QueryParamsBuilder(new DefaultQueryParamsParser()),

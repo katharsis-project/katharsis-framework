@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.katharsis.client.ClientException;
@@ -25,6 +28,8 @@ import io.katharsis.utils.JsonApiUrlBuilder;
 import io.katharsis.utils.java.Optional;
 
 public class AbstractStub {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractStub.class);
 
 	public static final String CONTENT_TYPE = "application/vnd.api+json";
 
@@ -63,8 +68,14 @@ public class AbstractStub {
 	protected BaseResponseContext execute(String url, boolean getResponse, HttpMethod method, String requestBody) {
 		try {
 
+
 			HttpAdapter httpAdapter = katharsis.getHttpAdapter();
 			HttpAdapterRequest request = httpAdapter.newRequest(url, method, requestBody);
+			
+			LOGGER.debug("requesting {} {}", method, url);
+			if(requestBody != null){
+				LOGGER.debug("request body: {}", requestBody);
+			}
 
 			request.header("Content-Type", CONTENT_TYPE);
 			request.header("Accept", CONTENT_TYPE);
@@ -75,6 +86,7 @@ public class AbstractStub {
 			}
 
 			String body = response.body();
+			LOGGER.debug("response body: {}", body);
 			ObjectMapper objectMapper = katharsis.getObjectMapper();
 			if (getResponse) {
 				return objectMapper.readValue(body, BaseResponseContext.class);

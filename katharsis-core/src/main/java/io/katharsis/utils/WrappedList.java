@@ -143,4 +143,8 @@ public class WrappedList<T> implements List<T> {
 	public int hashCode() {
 		return list.hashCode();
 	}
+
+	public void setWrappedList(List<T> list) {
+		this.list = list;
+	}
 }

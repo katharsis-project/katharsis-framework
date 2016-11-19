@@ -170,7 +170,7 @@ public class ResourceRepositoryStubImpl<T, I extends Serializable> extends Abstr
 		return findAll(url);
 	}
 
-	private DefaultResourceList<T> findAll(String url) {
+	public DefaultResourceList<T> findAll(String url) {
 		BaseResponseContext responseContext = executeGet(url);
 		if (responseContext instanceof CollectionResponseContext) {
 			CollectionResponseContext colResponseContext = (CollectionResponseContext) responseContext;

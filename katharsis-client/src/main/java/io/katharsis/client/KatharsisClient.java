@@ -5,7 +5,6 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -17,17 +16,20 @@ import io.katharsis.client.http.HttpAdapter;
 import io.katharsis.client.http.apache.HttpClientAdapter;
 import io.katharsis.client.http.okhttp.OkHttpAdapter;
 import io.katharsis.client.internal.BaseResponseDeserializer;
+import io.katharsis.client.internal.ClientJsonApiModuleBuilder;
 import io.katharsis.client.internal.ClientStubInvocationHandler;
 import io.katharsis.client.internal.ErrorResponseDeserializer;
 import io.katharsis.client.internal.RelationshipRepositoryStubImpl;
 import io.katharsis.client.internal.ResourceRepositoryStubImpl;
+import io.katharsis.client.internal.proxy.BasicProxyFactory;
+import io.katharsis.client.internal.proxy.ClientProxyFactory;
+import io.katharsis.client.internal.proxy.ClientProxyFactoryContext;
 import io.katharsis.client.module.ClientModule;
 import io.katharsis.client.module.HttpAdapterAware;
 import io.katharsis.errorhandling.ErrorResponse;
 import io.katharsis.errorhandling.mapper.ExceptionMapperLookup;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryBuilder;
-import io.katharsis.jackson.JsonApiModuleBuilder;
 import io.katharsis.module.CoreModule;
 import io.katharsis.module.Module;
 import io.katharsis.module.ModuleRegistry;
@@ -43,9 +45,9 @@ import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.information.ResourceInformationBuilder;
+import io.katharsis.resource.list.DefaultResourceList;
 import io.katharsis.resource.registry.ConstantServiceUrlProvider;
 import io.katharsis.resource.registry.RegistryEntry;
-import io.katharsis.resource.registry.ResourceLookup;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ServiceUrlProvider;
 import io.katharsis.resource.registry.repository.DirectResponseRelationshipEntry;
@@ -85,6 +87,8 @@ public class KatharsisClient {
 
 	private ActionStubFactory actionStubFactory;
 
+	private BaseResponseDeserializer deserializer;
+
 	public KatharsisClient(String serviceUrl) {
 		this(new ConstantServiceUrlProvider(normalize(serviceUrl)));
 	}
@@ -103,11 +107,36 @@ public class KatharsisClient {
 		objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
 
 		// consider use of katharsis module in the future
-		JsonApiModuleBuilder moduleBuilder = new JsonApiModuleBuilder();
+		ClientJsonApiModuleBuilder moduleBuilder = new ClientJsonApiModuleBuilder();
 		SimpleModule jsonApiModule = moduleBuilder.build(resourceRegistry, true);
-		jsonApiModule.addDeserializer(BaseResponseContext.class, new BaseResponseDeserializer(resourceRegistry, objectMapper));
+		deserializer = new BaseResponseDeserializer(resourceRegistry, objectMapper);
+
+		jsonApiModule.addDeserializer(BaseResponseContext.class, deserializer);
 		jsonApiModule.addDeserializer(ErrorResponse.class, new ErrorResponseDeserializer());
 		objectMapper.registerModule(jsonApiModule);
+
+		setProxyFactory(new BasicProxyFactory());
+	}
+
+	public void setProxyFactory(ClientProxyFactory proxyFactory) {
+		proxyFactory.init(new ClientProxyFactoryContext() {
+
+			@Override
+			public ModuleRegistry getModuleRegistry() {
+				return moduleRegistry;
+			}
+
+			@Override
+			public <T> DefaultResourceList<T> getCollection(Class<T> resourceClass, String url) {
+				RegistryEntry<T> entry = resourceRegistry.getEntry(resourceClass);
+				ResourceInformation resourceInformation = entry.getResourceInformation();
+				final ResourceRepositoryStubImpl<T, ?> repositoryStub = new ResourceRepositoryStubImpl<>(KatharsisClient.this,
+						resourceClass, resourceInformation, urlBuilder);
+				return repositoryStub.findAll(url);
+
+			}
+		});
+		deserializer.setProxyFactory(proxyFactory);
 	}
 
 	private HttpAdapter detectHttpAdapter() {
@@ -117,7 +146,8 @@ public class KatharsisClient {
 		if (existsClass(APACHE_HTTP_CLIENT_DETECTION_CLASS)) {
 			return HttpClientAdapter.newInstance();
 		}
-		throw new IllegalStateException("no httpAdapter can be initialized, add okhttp3 (com.squareup.okhttp3:okhttp) or apache http client (org.apache.httpcomponents:httpclient) to the classpath");
+		throw new IllegalStateException(
+				"no httpAdapter can be initialized, add okhttp3 (com.squareup.okhttp3:okhttp) or apache http client (org.apache.httpcomponents:httpclient) to the classpath");
 	}
 
 	private static boolean existsClass(String className) {
@@ -170,11 +200,14 @@ public class KatharsisClient {
 		objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
 
 		// consider use of katharsis module in the future
-		JsonApiModuleBuilder moduleBuilder = new JsonApiModuleBuilder();
+		ClientJsonApiModuleBuilder moduleBuilder = new ClientJsonApiModuleBuilder();
 		SimpleModule jsonApiModule = moduleBuilder.build(resourceRegistry, true);
-		jsonApiModule.addDeserializer(BaseResponseContext.class, new BaseResponseDeserializer(resourceRegistry, objectMapper));
+		deserializer = new BaseResponseDeserializer(resourceRegistry, objectMapper);
+		jsonApiModule.addDeserializer(BaseResponseContext.class, deserializer);
 		jsonApiModule.addDeserializer(ErrorResponse.class, new ErrorResponseDeserializer());
 		objectMapper.registerModule(jsonApiModule);
+
+		setProxyFactory(new BasicProxyFactory());
 	}
 
 	/**
@@ -298,7 +331,8 @@ public class KatharsisClient {
 		QuerySpecResourceRepositoryStub<?, Serializable> repositoryStub = getQuerySpecRepository(resourceClass);
 
 		ClassLoader classLoader = repositoryInterfaceClass.getClassLoader();
-		InvocationHandler invocationHandler = new ClientStubInvocationHandler(repositoryInterfaceClass, repositoryStub, actionStub);
+		InvocationHandler invocationHandler = new ClientStubInvocationHandler(repositoryInterfaceClass, repositoryStub,
+				actionStub);
 		return (R) Proxy.newProxyInstance(classLoader,
 				new Class[] { repositoryInterfaceClass, QuerySpecResourceRepositoryStub.class }, invocationHandler);
 	}
@@ -452,5 +486,9 @@ public class KatharsisClient {
 				}
 			});
 		}
+	}
+
+	public ModuleRegistry getModuleRegistry() {
+		return moduleRegistry;
 	}
 }

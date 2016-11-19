@@ -1,6 +1,8 @@
 package io.katharsis.client.mock.models;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import io.katharsis.resource.annotations.JsonApiId;
 import io.katharsis.resource.annotations.JsonApiIncludeByDefault;
@@ -24,6 +26,9 @@ public class Task {
 	@JsonApiToOne
 	@JsonApiIncludeByDefault
 	private Project project;
+
+	@JsonApiToOne(opposite = "tasks")
+	private Schedule schedule;
 
 	@JsonApiToMany(lazy = false)
 	private List<Project> projects;
@@ -51,6 +56,27 @@ public class Task {
 	public Task setOtherTasks(List<Task> otherTasks) {
 		this.otherTasks = otherTasks;
 		return this;
+	}
+
+	public Schedule getSchedule() {
+		return schedule;
+	}
+
+	public void setSchedule(Schedule schedule) {
+		if (this.schedule != schedule) {
+			if (this.schedule != null) {
+				this.schedule.getTasks().remove(this);
+			}
+			if (schedule != null) {
+				Set<Task> tasks = schedule.getTasks();
+				if (tasks == null) {
+					tasks = new HashSet<>();
+					schedule.setTasks(tasks);
+				}
+				tasks.add(this);
+			}
+			this.schedule = schedule;
+		}
 	}
 
 	public Long getId() {
