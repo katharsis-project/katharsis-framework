@@ -5,7 +5,9 @@ import io.katharsis.internal.boot.EmptyPropertiesProvider;
 import io.katharsis.jackson.JsonApiModuleBuilder;
 import io.katharsis.locator.SampleJsonServiceLocator;
 import io.katharsis.module.ModuleRegistry;
+import io.katharsis.queryParams.DefaultQueryParamsParser;
 import io.katharsis.queryParams.QueryParams;
+import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.request.path.PathBuilder;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.include.IncludeLookupSetter;
@@ -24,6 +26,11 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.ExpectedException;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 public abstract class BaseControllerTest {
     protected static final QueryParams REQUEST_PARAMS = new QueryParams();
 
@@ -32,9 +39,10 @@ public abstract class BaseControllerTest {
     protected ResourceRegistry resourceRegistry;
     protected TypeParser typeParser;
     protected IncludeLookupSetter includeFieldSetter;
+    protected QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
 
     @Rule
-    public ExpectedException expectedException = ExpectedException.none();
+    protected ExpectedException expectedException = ExpectedException.none();
 
     @Before
     public void prepare() {
@@ -52,5 +60,9 @@ public abstract class BaseControllerTest {
         UserToProjectRepository.clear();
         TaskToProjectRepository.clear();
         ProjectToTaskRepository.clear();
+    }
+
+    protected void addParams(Map<String, Set<String>> params, String key, String value) {
+        params.put(key, new HashSet<>(Arrays.asList(value)));
     }
 }
