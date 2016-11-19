@@ -14,6 +14,7 @@ import io.katharsis.jackson.exception.ParametersDeserializationException;
 import io.katharsis.resource.RestrictedQueryParamsMembers;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.utils.PropertyException;
 import io.katharsis.utils.PropertyUtils;
 import io.katharsis.utils.parser.TypeParser;
 
@@ -40,6 +41,8 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 
 	private ResourceRegistry resourceRegistry;
 
+	private boolean allowUnknownAttributes = false;
+
 	public DefaultQuerySpecDeserializer() {
 		supportedOperators.add(FilterOperator.LIKE);
 		supportedOperators.add(FilterOperator.EQ);
@@ -48,6 +51,14 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 		supportedOperators.add(FilterOperator.GE);
 		supportedOperators.add(FilterOperator.LT);
 		supportedOperators.add(FilterOperator.LE);
+	}
+
+	public boolean getAllowUnknownAttributes() {
+		return allowUnknownAttributes;
+	}
+
+	public void setAllowUnknownAttributes(boolean allowUnknownAttributes) {
+		this.allowUnknownAttributes = allowUnknownAttributes;
 	}
 
 	public long getDefaultOffset() {
@@ -203,7 +214,7 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 			filterOp = defaultOperator;
 		}
 
-		Class<?> attributeType = PropertyUtils.getPropertyClass(querySpec.getResourceClass(), attributePath);
+		Class<?> attributeType = getAttributeType(querySpec, attributePath);
 		Set<Object> typedValues = new HashSet<>();
 		for (String stringValue : parameter.values) {
 			@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -213,6 +224,20 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 		Object value = typedValues.size() == 1 ? typedValues.iterator().next() : typedValues;
 
 		querySpec.addFilter(new FilterSpec(attributePath, filterOp, value));
+	}
+
+	private Class<?> getAttributeType(QuerySpec querySpec, List<String> attributePath) {
+		try {
+			return PropertyUtils.getPropertyClass(querySpec.getResourceClass(), attributePath);
+		}
+		catch (PropertyException e) {
+			if (allowUnknownAttributes) {
+				return String.class;
+			}
+			else {
+				throw e;
+			}
+		}
 	}
 
 	private void deserializeSort(QuerySpec querySpec, Parameter parameter) {

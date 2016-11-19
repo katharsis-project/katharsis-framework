@@ -156,4 +156,8 @@ public class KatharsisFeature implements Feature {
 	public void setDefaultPageLimit(Long defaultPageLimit){
 		boot.setDefaultPageLimit(defaultPageLimit);
 	}
+
+	public QuerySpecDeserializer getQuerySpecDeserializer() {
+		return boot.getQuerySpecDeserializer();
+	}
 }
