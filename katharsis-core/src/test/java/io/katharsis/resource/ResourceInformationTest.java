@@ -1,14 +1,16 @@
 package io.katharsis.resource;
 
-import io.katharsis.resource.field.ResourceField;
-import io.katharsis.resource.information.ResourceInformation;
-import io.katharsis.resource.mock.models.Task;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.reflect.Field;
-import java.util.Collections;
+import java.util.Arrays;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.Test;
+
+import io.katharsis.resource.field.ResourceField;
+import io.katharsis.resource.field.ResourceField.ResourceFieldType;
+import io.katharsis.resource.information.ResourceInformation;
+import io.katharsis.resource.mock.models.Task;
 
 public class ResourceInformationTest {
 
@@ -16,8 +18,9 @@ public class ResourceInformationTest {
     public void onRelationshipFieldSearchShouldReturnExistingField() throws NoSuchFieldException {
         // GIVEN
         Field field = String.class.getDeclaredField("value");
-        ResourceField resourceField = new ResourceField("value", "value", field.getType(), field.getGenericType());
-        ResourceInformation sut = new ResourceInformation(Task.class, "tasks", null, null, Collections.singleton(resourceField));
+        ResourceField idField = new ResourceField("id", "id", ResourceFieldType.ID, field.getType(), field.getGenericType());
+        ResourceField resourceField = new ResourceField("value", "value", ResourceFieldType.RELATIONSHIP, field.getType(), field.getGenericType());
+		ResourceInformation sut = new ResourceInformation(Task.class, "tasks", Arrays.asList(idField, resourceField));
 
         // WHEN
         ResourceField result = sut.findRelationshipFieldByName("value");

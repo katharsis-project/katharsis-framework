@@ -1,195 +1,249 @@
 package io.katharsis.resource.information;
 
-import io.katharsis.repository.information.RepositoryAction;
-import io.katharsis.repository.information.RepositoryInformation;
-import io.katharsis.resource.field.ResourceAttributesBridge;
-import io.katharsis.resource.field.ResourceField;
-import io.katharsis.utils.PropertyUtils;
-import io.katharsis.utils.parser.TypeParser;
-
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
-import java.util.Map;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+
+import io.katharsis.resource.annotations.JsonApiResource;
+import io.katharsis.resource.exception.init.MultipleJsonApiLinksInformationException;
+import io.katharsis.resource.exception.init.MultipleJsonApiMetaInformationException;
+import io.katharsis.resource.exception.init.ResourceDuplicateIdException;
+import io.katharsis.resource.exception.init.ResourceIdNotFoundException;
+import io.katharsis.resource.field.ResourceAttributesBridge;
+import io.katharsis.resource.field.ResourceField;
+import io.katharsis.resource.field.ResourceField.ResourceFieldType;
+import io.katharsis.utils.PropertyUtils;
+import io.katharsis.utils.parser.TypeParser;
 
 /**
  * Holds information about the type of the resource.
  */
 public class ResourceInformation {
-    private final Class<?> resourceClass;
-    
-    /**
-     * Type name of the resource. Corresponds to {@link JsonApiResource.type} for annotated resources.
-     */
-    private String resourceType;
 
-    /**
-     * Found field of the id. Each resource has to contain a field marked by JsonApiId annotation.
-     */
-    private final ResourceField idField;
+	private final Class<?> resourceClass;
 
-    /**
-     * A set of resource's attribute fields.
-     */
-    private final ResourceAttributesBridge attributeFields;
+	/**
+	 * Type name of the resource. Corresponds to {@link JsonApiResource.type} for annotated resources.
+	 */
+	private String resourceType;
 
-    /**
-     * A set of fields that contains non-standard Java types (List, Set, custom classes, ...).
-     */
-    private final Set<ResourceField> relationshipFields;
+	/**
+	 * Found field of the id. Each resource has to contain a field marked by JsonApiId annotation.
+	 */
+	private final ResourceField idField;
 
+	/**
+	 * A set of resource's attribute fields.
+	 */
+	private final ResourceAttributesBridge attributeFields;
 
-    /**
-     * An underlying field's name which contains meta information about for a resource
-     */
-    private final String metaFieldName;
+	/**
+	 * A set of fields that contains non-standard Java types (List, Set, custom classes, ...).
+	 */
+	private final List<ResourceField> relationshipFields;
 
-    /**
-     * An underlying field's name which contain links information about for a resource
-     */
-    private final String linksFieldName;
-    
-    /**
-     * Creates a new instance of the given resource.
-     */
+	/**
+	 * An underlying field's name which contains meta information about for a resource
+	 */
+	private final String metaFieldName;
+
+	/**
+	 * An underlying field's name which contain links information about for a resource
+	 */
+	private final String linksFieldName;
+
+	/**
+	 * Creates a new instance of the given resource.
+	 */
 	private ResourceInstanceBuilder<?> instanceBuilder;
-	
-	public ResourceInformation(Class<?> resourceClass, String resourceType, ResourceField idField, ResourceAttributesBridge attributeFields,
-            Set<ResourceField> relationshipFields) {
-		this(resourceClass, resourceType, null, idField, attributeFields, relationshipFields, null, null);
+
+	public ResourceInformation(Class<?> resourceClass, String resourceType, List<ResourceField> fields) {
+		this(resourceClass, resourceType, null, fields);
 	}
-	
-	public ResourceInformation(Class<?> resourceClass, String resourceType, ResourceInstanceBuilder<?> instanceBuilder, ResourceField idField, ResourceAttributesBridge attributeFields,
-	                           Set<ResourceField> relationshipFields) {
-	    this(resourceClass, resourceType, instanceBuilder, idField, attributeFields, relationshipFields, null, null);
-	}
-	
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public ResourceInformation(Class<?> resourceClass, String resourceType, ResourceInstanceBuilder<?> instanceBuilder, ResourceField idField, ResourceAttributesBridge attributeFields,
-	                           Set<ResourceField> relationshipFields, String metaFieldName, String linksFieldName) {
-	    this.resourceClass = resourceClass;
-	    this.resourceType = resourceType;
-	    this.instanceBuilder = instanceBuilder;
-	    this.idField = idField;
-	    this.attributeFields = attributeFields;
-	    this.relationshipFields = relationshipFields;
-	    this.metaFieldName = metaFieldName;
-	    this.linksFieldName = linksFieldName;
-	    
-	    if(instanceBuilder == null){
-	    	instanceBuilder = new DefaultResourceInstanceBuilder(resourceClass);
-	    }
+	public ResourceInformation(Class<?> resourceClass, String resourceType, ResourceInstanceBuilder<?> instanceBuilder,
+			List<ResourceField> fields) {
+		this.resourceClass = resourceClass;
+		this.resourceType = resourceType;
+		this.instanceBuilder = instanceBuilder;
+
+		if (fields != null) {
+			List<ResourceField> idFields = ResourceFieldType.ID.filter(fields);
+			if (idFields.isEmpty()) {
+				throw new ResourceIdNotFoundException(resourceClass.getCanonicalName());
+			}
+			if (idFields.size() > 1) {
+				throw new ResourceDuplicateIdException(resourceClass.getCanonicalName());
+			}
+
+			this.idField = idFields.get(0);
+
+			this.attributeFields = new ResourceAttributesBridge(ResourceFieldType.ATTRIBUTE.filter(fields), resourceClass);
+			this.relationshipFields = ResourceFieldType.RELATIONSHIP.filter(fields);
+
+			this.metaFieldName = getMetaFieldName(resourceClass, fields);
+			this.linksFieldName = getLinksFieldName(resourceClass, fields);
+		}
+		else {
+			this.relationshipFields = Collections.emptyList();
+			this.attributeFields = new ResourceAttributesBridge(Collections.emptyList(), resourceClass);
+			this.metaFieldName = null;
+			this.linksFieldName = null;
+			this.idField = null;
+		}
+		if (this.instanceBuilder == null) {
+			this.instanceBuilder = new DefaultResourceInstanceBuilder(resourceClass);
+		}
 	}
-	
+
+	private static <T> String getMetaFieldName(Class<T> resourceClass, Collection<ResourceField> classFields) {
+		List<ResourceField> metaFields = new ArrayList<>(1);
+		for (ResourceField field : classFields) {
+			if (field.getResourceFieldType() == ResourceFieldType.META_INFORMATION) {
+				metaFields.add(field);
+			}
+		}
+
+		if (metaFields.isEmpty()) {
+			return null;
+		}
+		else if (metaFields.size() > 1) {
+			throw new MultipleJsonApiMetaInformationException(resourceClass.getCanonicalName());
+		}
+		return metaFields.get(0).getUnderlyingName();
+	}
+
+	private static <T> String getLinksFieldName(Class<T> resourceClass, Collection<ResourceField> classFields) {
+		List<ResourceField> linksFields = new ArrayList<>(1);
+		for (ResourceField field : classFields) {
+			if (field.getResourceFieldType() == ResourceFieldType.LINKS_INFORMATION) {
+				linksFields.add(field);
+			}
+		}
+
+		if (linksFields.isEmpty()) {
+			return null;
+		}
+		else if (linksFields.size() > 1) {
+			throw new MultipleJsonApiLinksInformationException(resourceClass.getCanonicalName());
+		}
+		return linksFields.get(0).getUnderlyingName();
+	}
+
 	public String getResourceType() {
 		return resourceType;
 	}
 
-	public ResourceInstanceBuilder<?> getInstanceBuilder(){
-    	return instanceBuilder;
-    }
-	
-    public Class<?> getResourceClass() {
-        return resourceClass;
-    }
+	public ResourceInstanceBuilder<?> getInstanceBuilder() {
+		return instanceBuilder;
+	}
 
-    public ResourceField getIdField() {
-        return idField;
-    }
+	public Class<?> getResourceClass() {
+		return resourceClass;
+	}
 
-    public ResourceAttributesBridge getAttributeFields() {
-        return attributeFields;
-    }
+	public ResourceField getIdField() {
+		return idField;
+	}
 
-    public Set<ResourceField> getRelationshipFields() {
-        return relationshipFields;
-    }
+	public ResourceAttributesBridge getAttributeFields() {
+		return attributeFields;
+	}
 
-    public ResourceField findRelationshipFieldByName(String name) {
-        return getJsonField(name, relationshipFields);
-    }
-    
-    public ResourceField findAttributeFieldByName(String name) {
-        return getJsonField(name, attributeFields.getFields());
-    }
+	public List<ResourceField> getRelationshipFields() {
+		return relationshipFields;
+	}
 
-    private static ResourceField getJsonField(String name, Set<ResourceField> fields) {
-        ResourceField foundField = null;
-        for (ResourceField field : fields) {
-            if (field.getJsonName().equals(name)) {
-                foundField = field;
-                break;
-            }
-        }
-        return foundField;
-    }
+	public ResourceField findRelationshipFieldByName(String name) {
+		return getJsonField(name, relationshipFields);
+	}
 
-    public String getMetaFieldName() {
-        return metaFieldName;
-    }
+	public ResourceField findAttributeFieldByName(String name) {
+		return getJsonField(name, attributeFields.getFields());
+	}
 
-    public String getLinksFieldName() {
-        return linksFieldName;
-    }
+	private static ResourceField getJsonField(String name, List<ResourceField> fields) {
+		ResourceField foundField = null;
+		for (ResourceField field : fields) {
+			if (field.getJsonName().equals(name)) {
+				foundField = field;
+				break;
+			}
+		}
+		return foundField;
+	}
 
-    /**
-     * Returns a set of field names which are not basic fields (resource attributes)
-     *
-     * @return not basic attribute names
-     */
-    public Set<String> getNotAttributeFields() {
-        Set<String> notAttributeFields = new HashSet<>();
-        for (ResourceField relationshipField : relationshipFields) {
-            notAttributeFields.add(relationshipField.getJsonName());
-        }
-        notAttributeFields.add(idField.getJsonName());
-        if (metaFieldName != null) {
-            notAttributeFields.add(metaFieldName);
-        }
-        if (linksFieldName != null) {
-            notAttributeFields.add(linksFieldName);
-        }
-        return notAttributeFields;
-    }
+	public String getMetaFieldName() {
+		return metaFieldName;
+	}
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ResourceInformation that = (ResourceInformation) o;
-        return Objects.equals(resourceClass, that.resourceClass) &&
-        	Objects.equals(resourceType, that.resourceType) &&
-            Objects.equals(idField, that.idField) &&
-            Objects.equals(attributeFields, that.attributeFields) &&
-            Objects.equals(relationshipFields, that.relationshipFields) &&
-            Objects.equals(metaFieldName, that.metaFieldName) &&
-            Objects.equals(linksFieldName, that.linksFieldName);
-    }
+	public String getLinksFieldName() {
+		return linksFieldName;
+	}
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(resourceClass, resourceType, idField, attributeFields, relationshipFields, metaFieldName, linksFieldName);
-    }
+	/**
+	 * Returns a set of field names which are not basic fields (resource attributes)
+	 *
+	 * @return not basic attribute names
+	 */
+	public Set<String> getNotAttributeFields() {
+		Set<String> notAttributeFields = new HashSet<>();
+		for (ResourceField relationshipField : relationshipFields) {
+			notAttributeFields.add(relationshipField.getJsonName());
+		}
+		notAttributeFields.add(idField.getJsonName());
+		if (metaFieldName != null) {
+			notAttributeFields.add(metaFieldName);
+		}
+		if (linksFieldName != null) {
+			notAttributeFields.add(linksFieldName);
+		}
+		return notAttributeFields;
+	}
 
-    /**
-     * Converts the given id to a string.
-     *
-     * @param id id
-     * @return stringified id
-     */
-	public String toIdString(Object id){
-		if(id == null)
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		ResourceInformation that = (ResourceInformation) o;
+		return Objects.equals(resourceClass, that.resourceClass) && Objects.equals(resourceType, that.resourceType)
+				&& Objects.equals(idField, that.idField) && Objects.equals(attributeFields, that.attributeFields)
+				&& Objects.equals(relationshipFields, that.relationshipFields)
+				&& Objects.equals(metaFieldName, that.metaFieldName) && Objects.equals(linksFieldName, that.linksFieldName);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(resourceClass, resourceType, idField, attributeFields, relationshipFields, metaFieldName,
+				linksFieldName);
+	}
+
+	/**
+	 * Converts the given id to a string.
+	 *
+	 * @param id id
+	 * @return stringified id
+	 */
+	public String toIdString(Object id) {
+		if (id == null)
 			return null;
 		return id.toString();
 	}
 
-    /**
-     * Converts the given id string into its object representation.
-     *
-     * @param id stringified id
-     * @return id
-     */
+	/**
+	 * Converts the given id string into its object representation.
+	 *
+	 * @param id stringified id
+	 * @return id
+	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Serializable parseIdString(String id) {
 		TypeParser parser = new TypeParser();

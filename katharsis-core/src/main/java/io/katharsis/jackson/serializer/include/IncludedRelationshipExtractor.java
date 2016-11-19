@@ -1,5 +1,13 @@
 package io.katharsis.jackson.serializer.include;
 
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.katharsis.queryParams.include.Inclusion;
 import io.katharsis.queryParams.params.IncludedRelationsParams;
 import io.katharsis.resource.field.ResourceField;
@@ -10,12 +18,6 @@ import io.katharsis.response.BaseResponseContext;
 import io.katharsis.response.Container;
 import io.katharsis.response.ContainerType;
 import io.katharsis.utils.PropertyUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Extracts inclusions from a resource.
@@ -57,7 +59,7 @@ public class IncludedRelationshipExtractor {
             return;
         }
 
-        Set<ResourceField> relationshipFields = getRelationshipFields(resource);
+        List<ResourceField> relationshipFields = getRelationshipFields(resource);
         for (ResourceField resourceField : relationshipFields) {
             if (resourceField.getIncludeByDefault() || isFieldIncluded(response, resourceField.getJsonName(), index)) {
                 Object targetDataObj = PropertyUtils.getProperty(resource, resourceField.getJsonName());
@@ -113,7 +115,7 @@ public class IncludedRelationshipExtractor {
 
     }
 
-    private Set<ResourceField> getRelationshipFields(Object resource) {
+    private List<ResourceField> getRelationshipFields(Object resource) {
         Class<?> dataClass = resource.getClass();
         RegistryEntry entry = resourceRegistry.getEntry(dataClass);
         ResourceInformation resourceInformation = entry.getResourceInformation();

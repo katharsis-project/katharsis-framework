@@ -1,19 +1,30 @@
 package io.katharsis.resource.field;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import io.katharsis.resource.annotations.JsonApiIncludeByDefault;
-import io.katharsis.resource.annotations.JsonApiToMany;
-import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
-
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.Test;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import io.katharsis.resource.annotations.JsonApiIncludeByDefault;
+import io.katharsis.resource.annotations.JsonApiToMany;
+import io.katharsis.resource.field.ResourceField.ResourceFieldType;
+import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
 
 public class ResourceFieldTest {
+	
+	@Test
+	public void getResourceFieldType(){
+		assertThat(ResourceFieldType.get(true, false, false, false)).isEqualByComparingTo(ResourceFieldType.ID);
+		assertThat(ResourceFieldType.get(false, true, false, false)).isEqualByComparingTo(ResourceFieldType.LINKS_INFORMATION);
+		assertThat(ResourceFieldType.get(false, false, true, false)).isEqualByComparingTo(ResourceFieldType.META_INFORMATION);
+		assertThat(ResourceFieldType.get(false, false, false, true)).isEqualByComparingTo(ResourceFieldType.RELATIONSHIP);
+		assertThat(ResourceFieldType.get(false, false, false, false)).isEqualByComparingTo(ResourceFieldType.ATTRIBUTE);
+	}
 
     @Test
     public void onWithLazyFieldClassShouldReturnTrue() throws Exception {

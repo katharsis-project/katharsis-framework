@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -27,11 +28,12 @@ import io.katharsis.jpa.internal.meta.MetaElement;
 import io.katharsis.jpa.internal.meta.MetaEntity;
 import io.katharsis.jpa.internal.meta.MetaKey;
 import io.katharsis.jpa.internal.meta.MetaLookup;
-import io.katharsis.jpa.internal.meta.MetaType;
 import io.katharsis.request.dto.DataBody;
-import io.katharsis.resource.field.ResourceAttributesBridge;
+import io.katharsis.resource.annotations.JsonApiLinksInformation;
+import io.katharsis.resource.annotations.JsonApiMetaInformation;
 import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.field.ResourceField.LookupIncludeBehavior;
+import io.katharsis.resource.field.ResourceField.ResourceFieldType;
 import io.katharsis.resource.information.AnnotationResourceInformationBuilder.AnnotatedResourceField;
 import io.katharsis.resource.information.DefaultResourceInstanceBuilder;
 import io.katharsis.resource.information.ResourceInformation;
@@ -87,9 +89,7 @@ public class JpaResourceInformationBuilder implements ResourceInformationBuilder
 
 		MetaDataObject meta = metaLookup.getMeta(resourceClass).asDataObject();
 
-		ResourceField idField = getIdField(meta);
-		Set<ResourceField> attributeFields = getAttributeFields(meta, false);
-		Set<ResourceField> relationshipFields = getAttributeFields(meta, true);
+		List<ResourceField> fields = getFields(meta);
 		Set<String> ignoredFields = getIgnoredFields(meta);
 
 		DefaultResourceInstanceBuilder instanceBuilder;
@@ -102,9 +102,7 @@ public class JpaResourceInformationBuilder implements ResourceInformationBuilder
 			instanceBuilder = new DefaultResourceInstanceBuilder(resourceClass);
 		}
 
-		ResourceAttributesBridge attrBridge = new ResourceAttributesBridge(attributeFields, resourceClass);
-		return new JpaResourceInformation(meta, resourceClass, resourceType, instanceBuilder, idField, attrBridge,
-				relationshipFields, ignoredFields);
+		return new JpaResourceInformation(meta, resourceClass, resourceType, instanceBuilder, fields, ignoredFields);
 	}
 
 	class JpaResourceInstanceBuilder<T> extends DefaultResourceInstanceBuilder<T> {
@@ -165,24 +163,9 @@ public class JpaResourceInformationBuilder implements ResourceInformationBuilder
 
 		private Set<String> ignoredFields;
 
-		public JpaResourceInformation(MetaDataObject meta, Class<?> resourceClass, String resourceType, ResourceField idField,
-				ResourceAttributesBridge<?> attributeFields, Set<ResourceField> relationshipFields, Set<String> ignoredFields) {
-			this(meta, resourceClass, resourceType, null, idField, attributeFields, relationshipFields, ignoredFields, null,
-					null);
-		}
-
 		public JpaResourceInformation(MetaDataObject meta, Class<?> resourceClass, String resourceType, // NOSONAR
-				ResourceInstanceBuilder<?> instanceBuilder, ResourceField idField, ResourceAttributesBridge<?> attributeFields,
-				Set<ResourceField> relationshipFields, Set<String> ignoredFields) {
-			this(meta, resourceClass, resourceType, instanceBuilder, idField, attributeFields, relationshipFields, ignoredFields,
-					null, null);
-		}
-
-		public JpaResourceInformation(MetaDataObject meta, Class<?> resourceClass, String resourceType, // NOSONAR
-				ResourceInstanceBuilder<?> instanceBuilder, ResourceField idField, ResourceAttributesBridge<?> attributeFields,
-				Set<ResourceField> relationshipFields, Set<String> ignoredFields, String metaFieldName, String linksFieldName) {
-			super(resourceClass, resourceType, instanceBuilder, idField, attributeFields, relationshipFields, metaFieldName,
-					linksFieldName);
+				ResourceInstanceBuilder<?> instanceBuilder, List<ResourceField> fields, Set<String> ignoredFields) {
+			super(resourceClass, resourceType, instanceBuilder, fields);
 			this.meta = meta;
 			this.ignoredFields = ignoredFields;
 		}
@@ -236,16 +219,13 @@ public class JpaResourceInformationBuilder implements ResourceInformationBuilder
 		return Character.toLowerCase(name.charAt(0)) + name.substring(1);
 	}
 
-	protected Set<ResourceField> getAttributeFields(MetaDataObject meta, boolean relations) {
-		Set<ResourceField> fields = new HashSet<>();
+	protected List<ResourceField> getFields(MetaDataObject meta) {
+		List<ResourceField> fields = new ArrayList<>();
 
-		MetaAttribute primaryKeyAttr = JpaRepositoryUtils.getPrimaryKeyAttr(meta);
 		for (MetaAttribute attr : meta.getAttributes()) {
-
-			if (attr.equals(primaryKeyAttr) || isAssociation(meta, attr) != relations || isIgnored(attr))
-				continue;
-
-			fields.add(toField(attr));
+			if (!isIgnored(attr)) {
+				fields.add(toField(meta, attr));
+			}
 		}
 
 		return fields;
@@ -280,7 +260,7 @@ public class JpaResourceInformationBuilder implements ResourceInformationBuilder
 		return false;
 	}
 
-	protected ResourceField toField(MetaAttribute attr) {
+	protected ResourceField toField(MetaDataObject meta, MetaAttribute attr) {
 		String jsonName = attr.getName();
 		String underlyingName = attr.getName();
 		Class<?> type = attr.getType().getImplementationClass();
@@ -320,16 +300,17 @@ public class JpaResourceInformationBuilder implements ResourceInformationBuilder
 		boolean lazy = AnnotatedResourceField.isLazy(annotations, lazyDefault);
 		boolean includeByDefault = AnnotatedResourceField.getIncludeByDefault(annotations);
 
+		MetaKey primaryKey = meta.getPrimaryKey();
+		boolean id = primaryKey.getElements().contains(attr);
+		boolean linksInfo = declaredField.getAnnotation(JsonApiLinksInformation.class) != null;
+		boolean metaInfo = declaredField.getAnnotation(JsonApiMetaInformation.class) != null;
+		boolean association = isAssociation(meta, attr);
+		ResourceFieldType resourceFieldType = ResourceFieldType.get(id, linksInfo, metaInfo, association);
+
 		// related repositories should lookup, we ignore the hibernate proxies
 		LookupIncludeBehavior lookupIncludeBehavior = AnnotatedResourceField.getLookupIncludeBehavior(annotations,
 				LookupIncludeBehavior.AUTOMATICALLY_ALWAYS);
-		return new ResourceField(jsonName, underlyingName, type, genericType, oppositeName, lazy, includeByDefault,
-				lookupIncludeBehavior);
+		return new ResourceField(jsonName, underlyingName, resourceFieldType, type, genericType, oppositeName, lazy,
+				includeByDefault, lookupIncludeBehavior);
 	}
-
-	protected ResourceField getIdField(MetaDataObject meta) {
-		MetaAttribute attr = JpaRepositoryUtils.getPrimaryKeyAttr(meta);
-		return toField(attr);
-	}
-
 }

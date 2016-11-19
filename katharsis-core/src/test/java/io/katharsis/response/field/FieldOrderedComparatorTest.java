@@ -1,6 +1,7 @@
 package io.katharsis.response.field;
 
 import io.katharsis.resource.field.ResourceField;
+import io.katharsis.resource.field.ResourceField.ResourceFieldType;
 import io.katharsis.resource.information.field.FieldOrderedComparator;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,8 +18,8 @@ public class FieldOrderedComparatorTest {
 
     @Before
     public void setUp() throws Exception {
-        fieldA = new ResourceField("a", "a", String.class, String.class);
-        fieldB = new ResourceField("b", "b", String.class, String.class);
+        fieldA = new ResourceField("a", "a", ResourceFieldType.ATTRIBUTE, String.class, String.class);
+        fieldB = new ResourceField("b", "b", ResourceFieldType.ATTRIBUTE, String.class, String.class);
     }
 
     @Test

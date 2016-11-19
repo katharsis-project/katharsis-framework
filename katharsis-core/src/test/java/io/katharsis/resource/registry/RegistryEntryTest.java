@@ -68,7 +68,7 @@ public class RegistryEntryTest {
 	}
 
 	private <T> ResourceRepositoryInformation newRepositoryInformation(Class<T> repositoryClass, String path) {
-		return new ResourceRepositoryInformationImpl(null, path, new ResourceInformation(Task.class, path, null, null, null));
+		return new ResourceRepositoryInformationImpl(null, path, new ResourceInformation(Task.class, path, null));
 	}
 
 	@Test
@@ -107,8 +107,8 @@ public class RegistryEntryTest {
 		RegistryEntry blue = new RegistryEntry(newRepositoryInformation(String.class, "strings"), null);
 		RegistryEntry red = new RegistryEntry(newRepositoryInformation(Long.class, "longs"), null);
 		EqualsVerifier.forClass(RegistryEntry.class).withPrefabValues(RegistryEntry.class, blue, red)
-				.withPrefabValues(ResourceInformation.class, new ResourceInformation(String.class, null, null, null, null),
-						new ResourceInformation(Long.class, null, null, null, null))
+				.withPrefabValues(ResourceInformation.class, new ResourceInformation(String.class, null, null),
+						new ResourceInformation(Long.class, null, null))
 				.withPrefabValues(Field.class, String.class.getDeclaredField("value"), String.class.getDeclaredField("hash"))
 				.withPrefabValues(ModuleRegistry.class, new ModuleRegistry(), new ModuleRegistry())
 				.suppress(Warning.NONFINAL_FIELDS).suppress(Warning.STRICT_INHERITANCE).verify();

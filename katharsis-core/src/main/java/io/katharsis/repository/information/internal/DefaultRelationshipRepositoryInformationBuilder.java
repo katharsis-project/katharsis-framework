@@ -57,7 +57,7 @@ public class DefaultRelationshipRepositoryInformationBuilder implements Reposito
 		}
 		else {
 			// support for polymorphism like relations to java.lang.Object
-			targetResourceInformation = new ResourceInformation(targetResourceClass, null, null, null, null);
+			targetResourceInformation = new ResourceInformation(targetResourceClass, null, null, null);
 		}
 
 		return new RelationshipRepositoryInformationImpl(repositoryClass, sourceResourceInformation, targetResourceInformation);

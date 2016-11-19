@@ -39,7 +39,7 @@ public class ResourceRegistryTest {
 
 	private <T> RegistryEntry<T> newRegistryEntry(Class<T> repositoryClass, String path) {
 		return new RegistryEntry<>(
-				new ResourceRepositoryInformationImpl(null, path, new ResourceInformation(Task.class, path, null, null, null)),
+				new ResourceRepositoryInformationImpl(null, path, new ResourceInformation(Task.class, path, null)),
 				null, null);
 	}
 

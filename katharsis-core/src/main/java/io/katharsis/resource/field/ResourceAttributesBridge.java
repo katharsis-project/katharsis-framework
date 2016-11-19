@@ -1,33 +1,34 @@
 package io.katharsis.resource.field;
 
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.katharsis.resource.exception.ResourceException;
 import io.katharsis.resource.exception.init.InvalidResourceException;
 import io.katharsis.utils.ClassUtils;
 import io.katharsis.utils.PropertyUtils;
 import io.katharsis.utils.java.Optional;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-
 /**
  * Classes which implement those interface are able to provide a set of resource attributes
  */
 public class ResourceAttributesBridge<T> {
 
-    private final Set<ResourceField> staticFields;
+    private final List<ResourceField> staticFields;
     private final Class<T> resourceClass;
     private Method jsonAnyGetter;
     private Method jsonAnySetter;
 
-    public ResourceAttributesBridge(Set<ResourceField> staticFields, Class<T> resourceClass) {
+    public ResourceAttributesBridge(List<ResourceField> staticFields, Class<T> resourceClass) {
         this.staticFields = staticFields;
         this.resourceClass = resourceClass;
 
@@ -130,7 +131,7 @@ public class ResourceAttributesBridge<T> {
         return Optional.empty();
     }
 
-	public Set<ResourceField> getFields() {
+	public List<ResourceField> getFields() {
 		return staticFields;
 	}
 }
