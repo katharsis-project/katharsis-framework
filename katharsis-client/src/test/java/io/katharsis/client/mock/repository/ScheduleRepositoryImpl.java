@@ -2,6 +2,7 @@ package io.katharsis.client.mock.repository;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 import io.katharsis.client.mock.models.Schedule;
 import io.katharsis.client.mock.models.Task;
@@ -11,6 +12,8 @@ import io.katharsis.repository.ResourceRepositoryBase;
 public class ScheduleRepositoryImpl extends ResourceRepositoryBase<Schedule, Long> implements ScheduleRepository {
 
 	private static Map<Long, Schedule> schedules = new HashMap<>();
+
+	private AtomicLong nextId = new AtomicLong(1000);
 
 	public ScheduleRepositoryImpl() {
 		super(Schedule.class);
@@ -37,15 +40,23 @@ public class ScheduleRepositoryImpl extends ResourceRepositoryBase<Schedule, Lon
 	}
 
 	@Override
+	public <S extends Schedule> S create(S entity) {
+		if (entity.getId() == null) {
+			entity.setId(nextId.incrementAndGet());
+		}
+		return save(entity);
+	}
+
+	@Override
 	public <S extends Schedule> S save(S entity) {
 		schedules.put(entity.getId(), entity);
-		
-		if(entity.getTasks() != null){
-			for(Task task : entity.getTasks()){
+
+		if (entity.getTasks() != null) {
+			for (Task task : entity.getTasks()) {
 				task.setSchedule(entity);
 			}
 		}
-		
+
 		return null;
 	}
 

@@ -78,6 +78,25 @@ public class QuerySpecClientTest extends AbstractClientTest {
 	}
 
 	@Test
+	public void testCreate() {
+		ScheduleRepository scheduleRepository = client.getResourceRepository(ScheduleRepository.class);
+
+		Schedule schedule = new Schedule();
+		schedule.setName("mySchedule");
+		scheduleRepository.create(schedule);
+
+		QuerySpec querySpec = new QuerySpec(Schedule.class);
+		ScheduleList list = scheduleRepository.findAll(querySpec);
+		Assert.assertEquals(1, list.size());
+		schedule = list.get(0);
+		Assert.assertNotNull(schedule.getId());
+		ScheduleListMeta meta = list.getMeta();
+		ScheduleListLinks links = list.getLinks();
+		Assert.assertNotNull(meta);
+		Assert.assertNotNull(links);
+	}
+
+	@Test
 	public void testSortAsc() {
 		for (int i = 0; i < 5; i++) {
 			Task task = new Task();
@@ -334,7 +353,7 @@ public class QuerySpecClientTest extends AbstractClientTest {
 		QuerySpec querySpec = new QuerySpec(Schedule.class);
 		Schedule savedSchedule = scheduleRepo.findOne(schedule.getId(), querySpec);
 		Assert.assertNull(savedSchedule.getLazyTask());
-		
+
 		querySpec.includeRelation(Arrays.asList("lazyTask"));
 		savedSchedule = scheduleRepo.findOne(schedule.getId(), querySpec);
 		Assert.assertNotNull(savedSchedule.getLazyTask());

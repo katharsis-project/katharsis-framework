@@ -13,8 +13,7 @@ import io.katharsis.utils.WrappedList;
  *
  * @param <T> resource type
  */
-public class DefaultResourceList<T> extends WrappedList<T>
-		implements ResourceList<T>, io.katharsis.client.response.ResourceList<T> {
+public class DefaultResourceList<T> extends WrappedList<T> implements ResourceList<T> {
 
 	protected LinksInformation links;
 
@@ -87,7 +86,6 @@ public class DefaultResourceList<T> extends WrappedList<T>
 	/**
 	 * @Deprecated Make use of getLinks.
 	 */
-	@Override
 	@Deprecated
 	public LinksInformation getLinksInformation() {
 		return getLinks();
@@ -96,7 +94,6 @@ public class DefaultResourceList<T> extends WrappedList<T>
 	/**
 	 * @Deprecated Make use of getMeta.
 	 */
-	@Override
 	@Deprecated
 	public MetaInformation getMetaInformation() {
 		return getMeta();
@@ -105,7 +102,6 @@ public class DefaultResourceList<T> extends WrappedList<T>
 	/**
 	 * @Deprecated Make use of getLinks.
 	 */
-	@Override
 	@Deprecated
 	public <L extends LinksInformation> L getLinksInformation(Class<L> linksClass) {
 		return getLinks(linksClass);
@@ -114,7 +110,6 @@ public class DefaultResourceList<T> extends WrappedList<T>
 	/**
 	 * @Deprecated Make use of getMeta.
 	 */
-	@Override
 	@Deprecated
 	public <M extends MetaInformation> M getMetaInformation(Class<M> metaClass) {
 		return getMeta(metaClass);
