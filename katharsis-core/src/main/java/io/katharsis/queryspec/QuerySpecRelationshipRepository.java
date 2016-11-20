@@ -28,11 +28,13 @@ import io.katharsis.repository.Repository;
  * changed concurrently by another request.
  *
  * @param <T> source class type
- * @param <T_ID> T class id type
+ * @param <I> T class id type
  * @param <D> target class type
- * @param <D_ID> D class id type
+ * @param <J> D class id type
+ * 
+ * @Deprecated This interface is deprecated, use RelationshipRepositoryV2.
  */
-public interface QuerySpecRelationshipRepository<T, T_ID extends Serializable, D, D_ID extends Serializable> extends Repository{
+public interface QuerySpecRelationshipRepository<T, I extends Serializable, D, J extends Serializable> extends Repository{
 	
 	/**
 	 * @return the class that specifies the relation.
@@ -52,7 +54,7 @@ public interface QuerySpecRelationshipRepository<T, T_ID extends Serializable, D
      * @param targetId id of a target resource
      * @param fieldName name of target's filed
      */
-    void setRelation(T source, D_ID targetId, String fieldName);
+    void setRelation(T source, J targetId, String fieldName);
 
     /**
      * Set a relation defined by a field. TargetIds parameter can be either in a form of an object or null value,
@@ -62,7 +64,7 @@ public interface QuerySpecRelationshipRepository<T, T_ID extends Serializable, D
      * @param targetIds ids of a target resource
      * @param fieldName name of target's filed
      */
-    void setRelations(T source, Iterable<D_ID> targetIds, String fieldName);
+    void setRelations(T source, Iterable<J> targetIds, String fieldName);
 
     /**
      * Add a relation to a field. It is used only for To-Many relationship, that is if this method is called, a new
@@ -72,7 +74,7 @@ public interface QuerySpecRelationshipRepository<T, T_ID extends Serializable, D
      * @param targetIds  ids of the target resource
      * @param fieldName name of target's field
      */
-    void addRelations(T source, Iterable<D_ID> targetIds, String fieldName);
+    void addRelations(T source, Iterable<J> targetIds, String fieldName);
 
     /**
      * Removes a relationship from a set of relationships. It is used only for To-Many relationship.
@@ -81,7 +83,7 @@ public interface QuerySpecRelationshipRepository<T, T_ID extends Serializable, D
      * @param targetIds  ids of the target resource
      * @param fieldName name of target's field
      */
-    void removeRelations(T source, Iterable<D_ID> targetIds, String fieldName);
+    void removeRelations(T source, Iterable<J> targetIds, String fieldName);
 
     /**
      * Find a relation's target identifier. It is used only for To-One relationship.
@@ -91,7 +93,7 @@ public interface QuerySpecRelationshipRepository<T, T_ID extends Serializable, D
      * @param querySpec querySpec sent along with the request as parameters
      * @return an identifier of a target of a relation
      */
-    D findOneTarget(T_ID sourceId, String fieldName, QuerySpec querySpec);
+    D findOneTarget(I sourceId, String fieldName, QuerySpec querySpec);
 
     /**
      * Find a relation's target identifiers. It is used only for To-Many relationship.
@@ -101,6 +103,6 @@ public interface QuerySpecRelationshipRepository<T, T_ID extends Serializable, D
      * @param querySpec querySpec sent along with the request as parameters
      * @return identifiers of targets of a relation
      */
-    Iterable<D> findManyTargets(T_ID sourceId, String fieldName, QuerySpec querySpec);
+    Iterable<D> findManyTargets(I sourceId, String fieldName, QuerySpec querySpec);
 
 }

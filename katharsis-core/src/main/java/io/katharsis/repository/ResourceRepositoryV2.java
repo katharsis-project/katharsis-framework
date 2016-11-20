@@ -1,25 +1,27 @@
-package io.katharsis.queryspec;
+package io.katharsis.repository;
 
 import java.io.Serializable;
 
 import io.katharsis.queryParams.QueryParams;
-import io.katharsis.repository.Repository;
+import io.katharsis.queryspec.QuerySpec;
+import io.katharsis.queryspec.QuerySpecResourceRepository;
 import io.katharsis.resource.exception.ResourceNotFoundException;
+import io.katharsis.resource.list.ResourceList;
 
 /**
  * Base repository which is used to operate on the resources. Each resource should have a corresponding repository
  * implementation.
  *
- * @param <T>  Type of an entity
+ * @param <T> Type of an entity
  * @param <I> Type of Identifier of an entity
- * 
- * @Deprecated This interface is deprecated, use ResourceRepositoryV2.
+ * @param <L> List type
  */
-public interface QuerySpecResourceRepository<T, I extends Serializable> extends Repository {
+public interface ResourceRepositoryV2<T, I extends Serializable> extends Repository, QuerySpecResourceRepository<T, I> {
 
 	/**
 	 * @return the class returned by this repository
 	 */
+	@Override
 	Class<T> getResourceClass();
 
 	/**
@@ -30,6 +32,7 @@ public interface QuerySpecResourceRepository<T, I extends Serializable> extends 
 	* @param querySpec querySpec sent along with the request as parameters
 	* @return an instance of the resource
 	*/
+	@Override
 	T findOne(I id, QuerySpec querySpec);
 
 	/**
@@ -39,7 +42,8 @@ public interface QuerySpecResourceRepository<T, I extends Serializable> extends 
 	 * @param querySpec querySpec sent along with the request as parameters
 	 * @return a list of found resources
 	 */
-	Iterable<T> findAll(QuerySpec querySpec);
+	@Override
+	ResourceList<T> findAll(QuerySpec querySpec);
 
 	/**
 	 * Search for resources constrained by a list of identifiers. An instance of {@link QueryParams} can be used if
@@ -49,7 +53,8 @@ public interface QuerySpecResourceRepository<T, I extends Serializable> extends 
 	 * @param querySpec querySpec sent along with the request as parameters
 	 * @return a list of found resources
 	 */
-	Iterable<T> findAll(Iterable<I> ids, QuerySpec querySpec);
+	@Override
+	ResourceList<T> findAll(Iterable<I> ids, QuerySpec querySpec);
 
 	/**
 	 * Saves a resource. A Returning resource must include assigned identifier created for the instance of resource.
@@ -58,13 +63,24 @@ public interface QuerySpecResourceRepository<T, I extends Serializable> extends 
 	 * @param <S> type of the resource
 	 * @return saved resource. Must include set identifier.
 	 */
+	@Override
 	<S extends T> S save(S entity);
+	
+	/**
+	 * Creates a resource. A Returning resource must include assigned identifier created for the instance of resource.
+	 *
+	 * @param entity resource to be saved
+	 * @param <S> type of the resource
+	 * @return saved resource. Must include set identifier.
+	 */
+	<S extends T> S create(S entity);
 
 	/**
 	 * Removes a resource identified by id parameter.
 	 *
 	 * @param id identified of the resource to be removed
 	 */
+	@Override
 	void delete(I id);
 
 }

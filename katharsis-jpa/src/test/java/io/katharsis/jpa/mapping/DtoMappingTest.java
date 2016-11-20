@@ -16,7 +16,6 @@ import com.querydsl.jpa.impl.JPAQuery;
 
 import io.katharsis.client.QuerySpecRelationshipRepositoryStub;
 import io.katharsis.client.QuerySpecResourceRepositoryStub;
-import io.katharsis.client.response.ResourceList;
 import io.katharsis.jpa.AbstractJpaJerseyTest;
 import io.katharsis.jpa.JpaModule;
 import io.katharsis.jpa.JpaRepositoryFilterBase;
@@ -31,6 +30,7 @@ import io.katharsis.jpa.query.querydsl.QuerydslQueryFactory;
 import io.katharsis.queryspec.FilterOperator;
 import io.katharsis.queryspec.FilterSpec;
 import io.katharsis.queryspec.QuerySpec;
+import io.katharsis.resource.list.ResourceList;
 
 /**
  * Example of how to do DTO mapping and computed attributes.

@@ -10,8 +10,8 @@ import io.katharsis.client.mock.models.Project.ProjectMeta;
 import io.katharsis.client.mock.models.Task;
 import io.katharsis.client.mock.repository.ProjectRepository.ProjectsLinksInformation;
 import io.katharsis.client.mock.repository.ProjectRepository.ProjectsMetaInformation;
-import io.katharsis.client.response.ResourceList;
 import io.katharsis.queryspec.QuerySpec;
+import io.katharsis.resource.list.ResourceList;
 
 public class InformationClientTest extends AbstractClientTest {
 
@@ -40,7 +40,7 @@ public class InformationClientTest extends AbstractClientTest {
 	public void testMeta() {
 		QuerySpec querySpec = new QuerySpec(Project.class);
 		ResourceList<Project> list = projectRepo.findAll(querySpec);
-		ProjectsMetaInformation metaInformation = list.getMetaInformation(ProjectsMetaInformation.class);
+		ProjectsMetaInformation metaInformation = list.getMeta(ProjectsMetaInformation.class);
 		Assert.assertEquals("testMeta", metaInformation.getMetaValue());
 		Project project = list.get(0);
 		ProjectMeta projectMeta = project.getMeta();
@@ -52,7 +52,7 @@ public class InformationClientTest extends AbstractClientTest {
 	public void testLinks() {
 		QuerySpec querySpec = new QuerySpec(Project.class);
 		ResourceList<Project> list = projectRepo.findAll(querySpec);
-		ProjectsLinksInformation lnksInformation = list.getLinksInformation(ProjectsLinksInformation.class);
+		ProjectsLinksInformation lnksInformation = list.getLinks(ProjectsLinksInformation.class);
 		Assert.assertEquals("testLink", lnksInformation.getLinkValue());
 		Project project = list.get(0);
 		ProjectLinks projectLinks = project.getLinks();

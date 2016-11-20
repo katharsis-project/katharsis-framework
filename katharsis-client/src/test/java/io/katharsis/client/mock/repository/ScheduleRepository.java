@@ -7,14 +7,14 @@ import javax.ws.rs.QueryParam;
 
 import io.katharsis.client.mock.models.Schedule;
 import io.katharsis.queryspec.QuerySpec;
-import io.katharsis.queryspec.QuerySpecResourceRepository;
+import io.katharsis.repository.ResourceRepositoryV2;
 import io.katharsis.resource.list.ResourceListBase;
 import io.katharsis.response.LinksInformation;
 import io.katharsis.response.MetaInformation;
 import io.katharsis.response.paging.DefaultPagedLinksInformation;
 
 @Path("schedules")
-public interface ScheduleRepository extends QuerySpecResourceRepository<Schedule, Long> {
+public interface ScheduleRepository extends ResourceRepositoryV2<Schedule, Long> {
 
 	@GET
 	@Path("repositoryAction")
