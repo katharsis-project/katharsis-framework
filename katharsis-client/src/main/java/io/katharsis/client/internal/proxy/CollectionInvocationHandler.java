@@ -1,6 +1,7 @@
 package io.katharsis.client.internal.proxy;
 
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashSet;
@@ -41,7 +42,12 @@ public class CollectionInvocationHandler implements InvocationHandler, ObjectPro
 				}
 			}
 		}
-		return method.invoke(collection, args);
+		try {
+			return method.invoke(collection, args);
+		}
+		catch (InvocationTargetException e) { // NO SONAR ok this way
+			throw e.getCause();
+		}
 	}
 
 	@Override

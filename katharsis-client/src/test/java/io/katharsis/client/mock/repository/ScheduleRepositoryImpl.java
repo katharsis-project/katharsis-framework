@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import io.katharsis.client.mock.models.Schedule;
 import io.katharsis.client.mock.models.Task;
+import io.katharsis.client.module.TestException;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.repository.ResourceRepositoryBase;
 
@@ -41,6 +42,10 @@ public class ScheduleRepositoryImpl extends ResourceRepositoryBase<Schedule, Lon
 
 	@Override
 	public <S extends Schedule> S create(S entity) {
+		if (entity.getId() != null && entity.getId() == 10000) {
+			throw new TestException("msg");
+		}
+
 		if (entity.getId() == null) {
 			entity.setId(nextId.incrementAndGet());
 		}

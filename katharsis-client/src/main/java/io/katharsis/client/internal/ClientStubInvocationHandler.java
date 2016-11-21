@@ -32,20 +32,25 @@ public class ClientStubInvocationHandler implements InvocationHandler {
 
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-		if (method.getDeclaringClass().isAssignableFrom(QuerySpecResourceRepositoryStub.class)) {
-			// execute repository method
-			return method.invoke(repositoryStub, args);
+		try {
+			if (method.getDeclaringClass().isAssignableFrom(QuerySpecResourceRepositoryStub.class)) {
+				// execute repository method
+				return method.invoke(repositoryStub, args);
+			}
+			else if (interfaceStubMethodMap.containsKey(method)) {
+				return invokeInterfaceMethod(proxy, method, args);
+			}
+			else if (actionStub != null) {
+				// execute action
+				return method.invoke(actionStub, args);
+			}
+			else {
+				throw new IllegalStateException("cannot execute actions, no " + ActionStubFactory.class.getSimpleName()
+						+ " set with " + KatharsisClient.class.getName());
+			}
 		}
-		else if (interfaceStubMethodMap.containsKey(method)) {
-			return invokeInterfaceMethod(proxy, method, args);
-		}
-		else if (actionStub != null) {
-			// execute action
-			return method.invoke(actionStub, args);
-		}
-		else {
-			throw new IllegalStateException("cannot execute actions, no " + ActionStubFactory.class.getSimpleName() + " set with "
-					+ KatharsisClient.class.getName());
+		catch (InvocationTargetException e) { // NOSONAR ok this way
+			throw e.getCause();
 		}
 	}
 
