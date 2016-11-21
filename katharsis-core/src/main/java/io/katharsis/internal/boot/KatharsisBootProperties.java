@@ -50,7 +50,7 @@ public class KatharsisBootProperties {
      * Set a boolean whether katharsis will always try to look up a relationship field that has been included in the request.
      * Refer to {@link io.katharsis.resource.annotations.JsonApiLookupIncludeAutomatically} for only adding it to a specific field.
      *
-     * @since 0.9.0
+     * @since 2.8.2
      */
     public static final String INCLUDE_AUTOMATICALLY = "katharsis.config.include.automatically";
 
@@ -59,7 +59,7 @@ public class KatharsisBootProperties {
      * to a relationship field that has been included in the request.
      * Refer to {@link io.katharsis.resource.annotations.JsonApiLookupIncludeAutomatically}.overwrite for only adding it to a specific field.
      *
-     * @since 0.9.0
+     * @since 2.8.2
      */
     public static final String INCLUDE_AUTOMATICALLY_OVERWRITE = "katharsis.config.include.automatically.overwrite";
 }
