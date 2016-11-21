@@ -1,13 +1,13 @@
 package io.katharsis.dispatcher.controller.resource;
 
 import io.katharsis.dispatcher.controller.HttpMethod;
-import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.FieldPath;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathIds;
+import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.exception.ResourceFieldNotFoundException;
 import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.include.IncludeLookupSetter;
@@ -26,7 +26,7 @@ import java.io.Serializable;
 public class FieldResourceGet extends ResourceIncludeField {
 
     public FieldResourceGet(ResourceRegistry resourceRegistry, TypeParser typeParser, IncludeLookupSetter fieldSetter) {
-        super(resourceRegistry,typeParser,fieldSetter);
+        super(resourceRegistry, typeParser, fieldSetter);
     }
 
     @Override
@@ -38,7 +38,7 @@ public class FieldResourceGet extends ResourceIncludeField {
 
     @Override
     public BaseResponseContext handle(JsonPath jsonPath, QueryAdapter queryAdapter, RepositoryMethodParameterProvider
-        parameterProvider, RequestBody requestBody) {
+            parameterProvider, RequestBody requestBody) {
         String resourceName = jsonPath.getResourceName();
         PathIds resourceIds = jsonPath.getIds();
 
@@ -54,19 +54,21 @@ public class FieldResourceGet extends ResourceIncludeField {
         Class<?> relationshipFieldClass = Generics.getResourceClass(relationshipField.getGenericType(), baseRelationshipFieldClass);
 
         RelationshipRepositoryAdapter relationshipRepositoryForClass = registryEntry
-            .getRelationshipRepositoryForClass(relationshipFieldClass, parameterProvider);
+                .getRelationshipRepositoryForClass(relationshipFieldClass, parameterProvider);
         BaseResponseContext target;
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
             @SuppressWarnings("unchecked")
             JsonApiResponse response = relationshipRepositoryForClass
-                .findManyTargets(castedResourceId, elementName, queryAdapter);
-            includeFieldSetter.setIncludedElements(resourceName, response, queryAdapter, parameterProvider);
+                    .findManyTargets(castedResourceId, elementName, queryAdapter);
+            includeFieldSetter.setIncludedElements(registryEntry.getResourceInformation().findRelationshipFieldByName(elementName).getElementType().getAnnotation(JsonApiResource.class).type(), response, queryAdapter, parameterProvider);
             target = new CollectionResponseContext(response, jsonPath, queryAdapter);
-        } else {
+        } else
+
+        {
             @SuppressWarnings("unchecked")
             JsonApiResponse response = relationshipRepositoryForClass
-                .findOneTarget(castedResourceId, elementName, queryAdapter);
-            includeFieldSetter.setIncludedElements(resourceName, response, queryAdapter, parameterProvider);
+                    .findOneTarget(castedResourceId, elementName, queryAdapter);
+            includeFieldSetter.setIncludedElements(registryEntry.getResourceInformation().findRelationshipFieldByName(elementName).getElementType().getAnnotation(JsonApiResource.class).type(), response, queryAdapter, parameterProvider);
             target = new ResourceResponseContext(response, jsonPath, queryAdapter);
         }
 

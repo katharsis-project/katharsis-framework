@@ -7,6 +7,7 @@ import io.katharsis.dispatcher.registry.ControllerRegistry;
 import io.katharsis.dispatcher.registry.ControllerRegistryBuilder;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryBuilder;
+import io.katharsis.internal.boot.EmptyPropertiesProvider;
 import io.katharsis.jackson.JsonApiModuleBuilder;
 import io.katharsis.locator.SampleJsonServiceLocator;
 import io.katharsis.module.CoreModule;
@@ -69,14 +70,14 @@ public class KatharsisHandlerFactory {
                                                              @NonNull ResourceRegistry resourceRegistry) {
         TypeParser typeParser = new TypeParser();
         ControllerRegistryBuilder controllerRegistryBuilder =
-                new ControllerRegistryBuilder(resourceRegistry, typeParser, objectMapper);
+                new ControllerRegistryBuilder(resourceRegistry, typeParser, objectMapper, new EmptyPropertiesProvider());
 
         ControllerRegistry controllerRegistry = controllerRegistryBuilder.build();
 
         // TODO QuerySpec processing support
         QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
         QueryAdapterBuilder queryAdapterBuilder = new QueryParamsAdapterBuilder(queryParamsBuilder, resourceRegistry);
-        
+
         return new RequestDispatcher(moduleRegistry, controllerRegistry, exceptionMapperRegistry, queryAdapterBuilder);
     }
 

@@ -23,6 +23,7 @@ import io.katharsis.dispatcher.registry.ControllerRegistry;
 import io.katharsis.dispatcher.registry.ControllerRegistryBuilder;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryBuilder;
+import io.katharsis.internal.boot.PropertiesProvider;
 import io.katharsis.jackson.JsonApiModuleBuilder;
 import io.katharsis.locator.JsonServiceLocator;
 import io.katharsis.module.CoreModule;
@@ -44,8 +45,8 @@ import io.katharsis.utils.parser.TypeParser;
  */
 public class KatharsisInvokerBuilder {
 
-	private ModuleRegistry moduleRegistry = new ModuleRegistry();
-	
+    private ModuleRegistry moduleRegistry = new ModuleRegistry();
+
     private ObjectMapper objectMapper;
     private QueryParamsBuilder queryParamsBuilder;
     private QuerySpecDeserializer querySpecDeserializer;
@@ -53,14 +54,15 @@ public class KatharsisInvokerBuilder {
     private RequestDispatcher requestDispatcher;
     private JsonServiceLocator jsonServiceLocator;
     private ExceptionMapperRegistry exceptionMapperRegistry;
+    private PropertiesProvider propertiesProvider;
 
     private String resourceSearchPackage;
     private String resourceDefaultDomain;
 
-    
-    public KatharsisInvokerBuilder module(io.katharsis.module.Module module){
-    	moduleRegistry.addModule(module);
-    	return this;
+
+    public KatharsisInvokerBuilder module(io.katharsis.module.Module module) {
+        moduleRegistry.addModule(module);
+        return this;
     }
 
     public KatharsisInvokerBuilder objectMapper(ObjectMapper objectMapper) {
@@ -68,11 +70,16 @@ public class KatharsisInvokerBuilder {
         return this;
     }
 
+    public KatharsisInvokerBuilder propertiesProvider(PropertiesProvider propertiesProvider) {
+        this.propertiesProvider = propertiesProvider;
+        return this;
+    }
+
     public KatharsisInvokerBuilder queryParamsBuilder(QueryParamsBuilder queryParamsBuilder) {
         this.queryParamsBuilder = queryParamsBuilder;
         return this;
     }
-    
+
     public KatharsisInvokerBuilder querySpecDeserializer(QuerySpecDeserializer querySpecDeserializer) {
         this.querySpecDeserializer = querySpecDeserializer;
         return this;
@@ -118,9 +125,9 @@ public class KatharsisInvokerBuilder {
                 throw new IllegalArgumentException("Resource Default Domain should not be null.");
             }
         }
-        
+
         ResourceFieldNameTransformer buildResourceFieldNameTransformer = buildResourceFieldNameTransformer();
-    	moduleRegistry.addModule(new CoreModule(resourceSearchPackage, buildResourceFieldNameTransformer));
+        moduleRegistry.addModule(new CoreModule(resourceSearchPackage, buildResourceFieldNameTransformer));
 
         if (resourceRegistry == null) {
             if (jsonServiceLocator == null) {
@@ -133,7 +140,7 @@ public class KatharsisInvokerBuilder {
         if (objectMapper == null) {
             objectMapper = createObjectMapper(resourceRegistry);
         }
-        
+
         moduleRegistry.init(objectMapper);
 
         if (requestDispatcher == null) {
@@ -144,11 +151,11 @@ public class KatharsisInvokerBuilder {
             requestDispatcher = createRequestDispatcher(resourceRegistry, objectMapper, exceptionMapperRegistry);
         }
 
-        return new KatharsisInvoker(objectMapper, resourceRegistry, requestDispatcher);
+        return new KatharsisInvoker(objectMapper, resourceRegistry, requestDispatcher, propertiesProvider);
     }
 
-    protected ResourceFieldNameTransformer buildResourceFieldNameTransformer(){
-   	 ResourceFieldNameTransformer resourceFieldNameTransformer;
+    protected ResourceFieldNameTransformer buildResourceFieldNameTransformer() {
+        ResourceFieldNameTransformer resourceFieldNameTransformer;
         if (objectMapper != null) {
             resourceFieldNameTransformer =
                     new ResourceFieldNameTransformer(objectMapper.getSerializationConfig());
@@ -158,8 +165,8 @@ public class KatharsisInvokerBuilder {
                     new ResourceFieldNameTransformer((new ObjectMapper()).getSerializationConfig());
         }
         return resourceFieldNameTransformer;
-   }
-    
+    }
+
     protected ExceptionMapperRegistry buildExceptionMapperRegistry(String resourceSearchPackage) throws Exception {
         ExceptionMapperRegistryBuilder mapperRegistryBuilder = new ExceptionMapperRegistryBuilder();
         return mapperRegistryBuilder.build(resourceSearchPackage);
@@ -169,7 +176,7 @@ public class KatharsisInvokerBuilder {
     protected ResourceRegistry buildResourceRegistry(JsonServiceLocator jsonServiceLocator, String resourceSearchPackage, String resourceDefaultDomain) {
         ResourceRegistryBuilder registryBuilder =
                 new ResourceRegistryBuilder(jsonServiceLocator, moduleRegistry.getResourceInformationBuilder());
-        
+
         return registryBuilder.build(resourceSearchPackage, moduleRegistry, new ConstantServiceUrlProvider(resourceDefaultDomain));
     }
 
@@ -178,17 +185,17 @@ public class KatharsisInvokerBuilder {
                                                         ExceptionMapperRegistry exceptionMapperRegistry) throws Exception {
 
         TypeParser typeParser = new TypeParser();
-        ControllerRegistryBuilder controllerRegistryBuilder = new ControllerRegistryBuilder(resourceRegistry, typeParser, objectMapper);
+        ControllerRegistryBuilder controllerRegistryBuilder = new ControllerRegistryBuilder(resourceRegistry, typeParser, objectMapper, propertiesProvider);
         ControllerRegistry controllerRegistry = controllerRegistryBuilder.build();
-        
+
         QueryAdapterBuilder queryAdapterBuilder;
-        if(querySpecDeserializer != null){
-        	queryAdapterBuilder = new QuerySpecAdapterBuilder(querySpecDeserializer, resourceRegistry);
-        }else{
-			if (queryParamsBuilder == null) {
-				queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
-			}
-        	queryAdapterBuilder = new QueryParamsAdapterBuilder(queryParamsBuilder, resourceRegistry);
+        if (querySpecDeserializer != null) {
+            queryAdapterBuilder = new QuerySpecAdapterBuilder(querySpecDeserializer, resourceRegistry);
+        } else {
+            if (queryParamsBuilder == null) {
+                queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
+            }
+            queryAdapterBuilder = new QueryParamsAdapterBuilder(queryParamsBuilder, resourceRegistry);
         }
 
         return new RequestDispatcher(moduleRegistry, controllerRegistry, exceptionMapperRegistry, queryAdapterBuilder);

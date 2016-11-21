@@ -12,15 +12,17 @@ public abstract class AbstractRelationShipRepository<T> {
     abstract ConcurrentMap<Relation<T>, Integer> getRepo();
 
     public void setRelation(T source, Long targetId, String fieldName) {
-        removeRelations(fieldName);
+        removeRelations(targetId, fieldName);
         if (targetId != null) {
             getRepo().put(new Relation<>(source, targetId, fieldName), 0);
         }
     }
 
     public void setRelations(T source, Iterable<Long> targetIds, String fieldName) {
-        removeRelations(fieldName);
         if (targetIds != null) {
+            for (Long targetId : targetIds) {
+                removeRelations(targetId, fieldName);
+            }
             for (Long targetId : targetIds) {
                 getRepo().put(new Relation<>(source, targetId, fieldName), 0);
             }
@@ -50,6 +52,16 @@ public abstract class AbstractRelationShipRepository<T> {
         while (iterator.hasNext()) {
             Relation<T> next = iterator.next();
             if (next.getFieldName().equals(fieldName)) {
+                iterator.remove();
+            }
+        }
+    }
+
+    public void removeRelations(Long targetId, String fieldName) {
+        Iterator<Relation<T>> iterator = getRepo().keySet().iterator();
+        while (iterator.hasNext()) {
+            Relation<T> next = iterator.next();
+            if (next.getFieldName().equals(fieldName) && next.getTargetId().equals(targetId)) {
                 iterator.remove();
             }
         }

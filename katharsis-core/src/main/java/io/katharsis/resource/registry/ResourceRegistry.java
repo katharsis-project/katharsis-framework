@@ -1,27 +1,26 @@
 package io.katharsis.resource.registry;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.katharsis.module.ModuleRegistry;
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.exception.init.ResourceNotFoundInitializationException;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.utils.java.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class ResourceRegistry {
     private final Map<Class, RegistryEntry> resources;
     private final ServiceUrlProvider serviceUrlProvider;
     private final Logger logger = LoggerFactory.getLogger(ResourceRegistry.class);
-	private ModuleRegistry moduleRegistry;
+    private ModuleRegistry moduleRegistry;
 
     public ResourceRegistry(ModuleRegistry moduleRegistry, ServiceUrlProvider serviceUrlProvider) {
-    	this.moduleRegistry = moduleRegistry;
+        this.moduleRegistry = moduleRegistry;
         this.serviceUrlProvider = serviceUrlProvider;
         this.resources = new HashMap<>();
         this.moduleRegistry.setResourceRegistry(this);
@@ -92,10 +91,10 @@ public class ResourceRegistry {
         return (RegistryEntry<T>) getEntry(clazz, false);
     }
 
-    public boolean hasEntry(Class<?> clazz){
-    	return getEntry(clazz, true) != null;
+    public boolean hasEntry(Class<?> clazz) {
+        return getEntry(clazz, true) != null;
     }
-    
+
     protected <T> RegistryEntry<T> getEntry(Class<T> clazz, boolean allowNull) {
         Optional<Class<?>> resourceClazz = getResourceClass(clazz);
         if (allowNull && !resourceClazz.isPresent())
@@ -160,16 +159,16 @@ public class ResourceRegistry {
         return serviceUrlProvider.getUrl();
     }
 
-    public ServiceUrlProvider getServiceUrlProvider(){
-    	return serviceUrlProvider;
+    public ServiceUrlProvider getServiceUrlProvider() {
+        return serviceUrlProvider;
     }
-    
+
     /**
      * Get a list of all registered resources by Katharsis.
      *
      * @return resources
      */
     public Map<Class<?>, RegistryEntry<?>> getResources() {
-        return (Map)Collections.unmodifiableMap(resources);
+        return (Map) Collections.unmodifiableMap(resources);
     }
 }

@@ -1,14 +1,6 @@
 package io.katharsis.dispatcher.controller.resource;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-
-import java.util.Collections;
-
-import org.junit.Test;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import io.katharsis.dispatcher.controller.BaseControllerTest;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.QueryParams;
@@ -28,6 +20,12 @@ import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponseContext;
 import io.katharsis.response.HttpStatus;
 import io.katharsis.response.ResourceResponseContext;
+import org.junit.Test;
+
+import java.util.Collections;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class RelationshipsResourceDeleteTest extends BaseControllerTest {
 
@@ -134,6 +132,7 @@ public class RelationshipsResourceDeleteTest extends BaseControllerTest {
         // WHEN -- removing a relation between task and project
         BaseResponseContext result = sut.handle(savedTaskPath, new QueryParamsAdapter(new QueryParams()), null, newTaskToProjectBody);
         assertThat(result).isNotNull();
+        taskToProjectRepository.removeRelations("project");
 
         // THEN
         assertThat(result.getHttpStatus()).isEqualTo(HttpStatus.NO_CONTENT_204);
