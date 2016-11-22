@@ -10,9 +10,6 @@ import io.katharsis.response.paging.DefaultPagedLinksInformation;
 
 public interface ScheduleRepository extends QuerySpecResourceRepository<Schedule, Long> {
 
-	@Override
-	public ScheduleList findAll(QuerySpec querySpec);
-
 	class ScheduleList extends ResourceListBase<Schedule, ScheduleListMeta, ScheduleListLinks> {
 
 	}
@@ -27,4 +24,7 @@ public interface ScheduleRepository extends QuerySpecResourceRepository<Schedule
 		public String name = "value";
 
 	}
+
+	@Override
+	public ScheduleList findAll(QuerySpec querySpec);
 }

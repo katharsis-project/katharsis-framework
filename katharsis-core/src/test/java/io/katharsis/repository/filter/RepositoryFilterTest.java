@@ -112,9 +112,12 @@ public class RepositoryFilterTest {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
 	public void findAllWithResourceListResult() throws Exception {
+
+		RegistryEntry<Schedule> scheduleRegistry = resourceRegistry.getEntry(Schedule.class);
+		ResourceRepositoryAdapter<Schedule, Serializable> scheduleResourceAdapter = scheduleRegistry.getResourceRepository(null);
 		
-		RegistryEntry<Schedule> userEntry = resourceRegistry.getEntry(Schedule.class);
-		ResourceRepositoryAdapter<Schedule, Serializable> scheduleResourceAdapter = userEntry.getResourceRepository(null);
+		querySpec = new QuerySpec(Schedule.class);
+		queryAdapter = new QuerySpecAdapter(querySpec, resourceRegistry);
 		scheduleResourceAdapter.findAll(queryAdapter);
 
 		ArgumentCaptor<Iterable> linksResources = ArgumentCaptor.forClass(Iterable.class);
@@ -140,7 +143,7 @@ public class RepositoryFilterTest {
 		Assert.assertNull(requestSpec.getIds());
 		Assert.assertSame(querySpec, requestSpec.getQuerySpec(Schedule.class));
 	}
-	
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
 	public void findAllWithResourceList() throws Exception {
