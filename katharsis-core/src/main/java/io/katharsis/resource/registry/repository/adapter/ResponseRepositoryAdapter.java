@@ -96,15 +96,16 @@ public abstract class ResponseRepositoryAdapter {
 	}
 
 	private MetaInformation getMetaInformation(Object repository, Iterable<?> resources, RepositoryRequestSpec requestSpec) {
-		if (resources instanceof ResourceList) {
-			return ((ResourceList<?>) resources).getMeta();
-		}
 		RepositoryMetaFilterChainImpl chain = new RepositoryMetaFilterChainImpl(repository);
 		return chain.doFilter(newRepositoryFilterContext(requestSpec), resources);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private MetaInformation doGetMetaInformation(Object repository, Iterable<?> resources, RepositoryRequestSpec requestSpec) {
+		if (resources instanceof ResourceList) {
+			ResourceList<?> resourceList = (ResourceList<?>) resources;
+			return resourceList.getMeta();
+		}
 		QueryAdapter queryAdapter = requestSpec.getQueryAdapter();
 		if (repository instanceof AnnotatedRepositoryAdapter) {
 			if (((AnnotatedRepositoryAdapter) repository).metaRepositoryAvailable()) {
@@ -122,19 +123,8 @@ public abstract class ResponseRepositoryAdapter {
 	}
 
 	private LinksInformation getLinksInformation(Object repository, Iterable<?> resources, RepositoryRequestSpec requestSpec) {
-		if (resources instanceof ResourceList) {
-			ResourceList<?> resourceList = (ResourceList<?>) resources;
-			boolean createLinksInformation = resourceList instanceof DefaultResourceList;
-			LinksInformation newLinksInfo = enrichLinksInformation(resourceList.getLinks(), resources, requestSpec, createLinksInformation);
-			if(createLinksInformation){
-				((DefaultResourceList)resources).setLinks(newLinksInfo);
-			}
-			return resourceList.getLinks();
-		}
-		else {
-			RepositoryLinksFilterChainImpl chain = new RepositoryLinksFilterChainImpl(repository);
-			return chain.doFilter(newRepositoryFilterContext(requestSpec), resources);
-		}
+		RepositoryLinksFilterChainImpl chain = new RepositoryLinksFilterChainImpl(repository);
+		return chain.doFilter(newRepositoryFilterContext(requestSpec), resources);
 	}
 
 	class RepositoryMetaFilterChainImpl implements RepositoryMetaFilterChain {
@@ -261,6 +251,17 @@ public abstract class ResponseRepositoryAdapter {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private LinksInformation doGetLinksInformation(Object repository, Iterable<?> resources, RepositoryRequestSpec requestSpec) {
+		if (resources instanceof ResourceList) {
+			ResourceList<?> resourceList = (ResourceList<?>) resources;
+			boolean createLinksInformation = resourceList instanceof DefaultResourceList;
+			LinksInformation newLinksInfo = enrichLinksInformation(resourceList.getLinks(), resources, requestSpec,
+					createLinksInformation);
+			if (createLinksInformation) {
+				((DefaultResourceList) resources).setLinks(newLinksInfo);
+			}
+			return resourceList.getLinks();
+		}
+
 		LinksInformation linksInformation = null;
 		if (repository instanceof AnnotatedRepositoryAdapter) {
 			if (((AnnotatedRepositoryAdapter) repository).linksRepositoryAvailable()) {
@@ -285,7 +286,8 @@ public abstract class ResponseRepositoryAdapter {
 		QueryAdapter queryAdapter = requestSpec.getQueryAdapter();
 		LinksInformation enrichedLinksInformation = linksInformation;
 		if (queryAdapter instanceof QuerySpecAdapter && (queryAdapter.getOffset() != 0 || queryAdapter.getLimit() != null)) {
-			enrichedLinksInformation = enrichPageLinksInformation(enrichedLinksInformation, resources, queryAdapter, requestSpec, true);
+			enrichedLinksInformation = enrichPageLinksInformation(enrichedLinksInformation, resources, queryAdapter, requestSpec,
+					true);
 		}
 		return enrichedLinksInformation;
 	}
@@ -332,8 +334,8 @@ public abstract class ResponseRepositoryAdapter {
 				|| pagedLinksInformation.getPrev() != null || pagedLinksInformation.getNext() != null;
 	}
 
-	private void doEnrichPageLinksInformation(PagedLinksInformation pagedLinksInformation, long total,
-			QueryAdapter queryAdapter, RepositoryRequestSpec requestSpec) {
+	private void doEnrichPageLinksInformation(PagedLinksInformation pagedLinksInformation, long total, QueryAdapter queryAdapter,
+			RepositoryRequestSpec requestSpec) {
 		long pageSize = queryAdapter.getLimit().longValue();
 		long offset = queryAdapter.getOffset();
 
@@ -360,7 +362,7 @@ public abstract class ResponseRepositoryAdapter {
 
 			if (currentPage < totalPages - 1) {
 				pageSpec.setOffset((currentPage + 1) * pageSize);
-				pagedLinksInformation.setNext(toUrl(pageSpec,  requestSpec));
+				pagedLinksInformation.setNext(toUrl(pageSpec, requestSpec));
 			}
 		}
 	}

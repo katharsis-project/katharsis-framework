@@ -6,8 +6,11 @@ import java.util.Map;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.repository.ResourceRepositoryBase;
 import io.katharsis.resource.mock.models.Schedule;
+import io.katharsis.resource.mock.repository.ScheduleRepository.ScheduleList;
+import io.katharsis.resource.mock.repository.ScheduleRepository.ScheduleListLinks;
+import io.katharsis.resource.mock.repository.ScheduleRepository.ScheduleListMeta;
 
-public class ScheduleRepositoryImpl extends ResourceRepositoryBase<Schedule, Long> implements ScheduleRepository {
+public class ScheduleRepositoryImpl extends ResourceRepositoryBase<Schedule, Long> {
 
 	private static Map<Long, Schedule> schedules = new HashMap<>();
 
