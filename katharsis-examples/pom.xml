@@ -22,11 +22,27 @@
         <dropwizard.version>1.0.0</dropwizard.version>
         <javaVersion>1.7</javaVersion>
         <reflections.version>0.9.9</reflections.version>
+        <jacoco-maven-plugin.version>0.7.7.201606060606</jacoco-maven-plugin.version>
     </properties>
 
     <build>
+    	<plugins>
+	    	<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+	    	</plugin>
+    	</plugins>
+    
         <pluginManagement>
-            <plugins>
+	            <plugins>
+	            	<plugin>
+					<groupId>org.jacoco</groupId>
+					<artifactId>jacoco-maven-plugin</artifactId>
+					<version>${jacoco-maven-plugin.version}</version>
+					<configuration>
+						<skip>true</skip>
+					</configuration>
+		    	</plugin>
                 <plugin>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.2</version>

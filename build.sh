@@ -1,8 +1,7 @@
 #!/bin/bash
 set -ev
 
-mvn clean install -DskipTests=true -Dmaven.javadoc.skip=true -B
-mvn -q -pl ':katharsis-core' test jacoco:report coveralls:report
+mvn clean install jacoco:report coveralls:report -Dmaven.javadoc.skip=true -B
 if [ "${TRAVIS_PULL_REQUEST}" != "true" ] && [ "$(git status | head -1)" != "HEAD detached at FETCH_HEAD" ] ; then
 
     if [[ $TRAVIS_BRANCH == 'master' ]]; then
