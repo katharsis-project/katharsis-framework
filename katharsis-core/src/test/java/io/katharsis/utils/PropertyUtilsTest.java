@@ -197,7 +197,6 @@ public class PropertyUtilsTest {
         PropertyUtils.setProperty(bean, "setProperty", Arrays.asList("4", "1", "3", "2"));
 
         // THEN
-        assertThat(bean.getSetProperty().size()).isEqualTo(4);
         // confirm the order has been preserved
         assertEquals(bean.getSetProperty(), new LinkedHashSet(Arrays.asList("4", "1", "3", "2")));
     }
