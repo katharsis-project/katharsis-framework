@@ -6,6 +6,8 @@ import io.katharsis.queryParams.DefaultQueryParamsParser;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.queryspec.internal.QueryParamsAdapter;
+import io.katharsis.request.path.PathIds;
+import io.katharsis.request.path.RelationshipsPath;
 import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.mock.models.FancyProject;
 import io.katharsis.resource.mock.models.LazyTask;
@@ -379,7 +381,6 @@ public class RelationshipContainerSerializerTest extends BaseSerializerTest {
         task.setProject(includedProject);
         ResourceResponseContext response = new ResourceResponseContext(new JsonApiResponse().setEntity(task),
                 new ResourcePath("tasks"), new QueryParamsAdapter(queryParams));
-
         // WHEN
         String result = sut.writeValueAsString(response);
 
@@ -430,7 +431,40 @@ public class RelationshipContainerSerializerTest extends BaseSerializerTest {
         // confirm default variables are referenced in second level nested includes
         assertThatJson(result).node("included[6].relationships.projectEager.data").isEqualTo(null);
         assertThatJson(result).node("included[6].relationships.tasks.data").isArray();
+    }
 
+    @Test
+    public void onRelationshipLookUpWithNestedIncludes() throws Exception {
+        QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
+        Map<String, Set<String>> queryParamsMap = new HashMap<>();
+        queryParamsMap.put("include[projects]", new HashSet<>(Collections.singletonList("task.projectsInit")));
+        QueryParams queryParams = queryParamsBuilder.buildQueryParams(queryParamsMap);
 
+        Project includedProject = new Project().setId(2L);
+        Task nestedTask = new Task().setId(3L);
+        Project deepNestedProject4L = new Project().setId(4L);
+        Project deepNestedProject5L = new Project().setId(5L);
+        nestedTask.setProjectsInit(Arrays.asList(deepNestedProject4L, deepNestedProject5L));
+        includedProject.setTask(nestedTask);
+        io.katharsis.request.path.JsonPath expectedPath = new RelationshipsPath("project");
+        expectedPath.setParentResource(new ResourcePath("tasks", new PathIds("1")));
+
+        ResourceResponseContext response = new ResourceResponseContext(new JsonApiResponse().setEntity(includedProject),
+                expectedPath, new QueryParamsAdapter(queryParams));
+
+        String result = sut.writeValueAsString(response);
+        assertThatJson(result).node("data.type").isStringEqualTo("projects");
+        assertThatJson(result).node("data.id").isStringEqualTo("2");
+        assertThatJson(result).node("data.relationships.task.data.id").isStringEqualTo("3");
+        assertThatJson(result).node("included[0].type").isStringEqualTo("tasks");
+        assertThatJson(result).node("included[0].id").isStringEqualTo("3");
+        assertThatJson(result).node("included[0].relationships.projectsInit.data[0].type").isStringEqualTo("projects");
+        assertThatJson(result).node("included[0].relationships.projectsInit.data[0].id").isStringEqualTo("4");
+        assertThatJson(result).node("included[0].relationships.projectsInit.data[1].type").isStringEqualTo("projects");
+        assertThatJson(result).node("included[0].relationships.projectsInit.data[1].id").isStringEqualTo("5");
+        assertThatJson(result).node("included[1].type").isStringEqualTo("projects");
+        assertThatJson(result).node("included[1].id").isStringEqualTo("4");
+        assertThatJson(result).node("included[2].type").isStringEqualTo("projects");
+        assertThatJson(result).node("included[2].id").isStringEqualTo("5");
     }
 }

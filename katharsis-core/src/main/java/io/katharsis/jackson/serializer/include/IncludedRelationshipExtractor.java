@@ -1,13 +1,5 @@
 package io.katharsis.jackson.serializer.include;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.katharsis.queryParams.include.Inclusion;
 import io.katharsis.queryParams.params.IncludedRelationsParams;
 import io.katharsis.resource.field.ResourceField;
@@ -18,6 +10,12 @@ import io.katharsis.response.BaseResponseContext;
 import io.katharsis.response.Container;
 import io.katharsis.response.ContainerType;
 import io.katharsis.utils.PropertyUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Extracts inclusions from a resource.
@@ -61,7 +59,7 @@ public class IncludedRelationshipExtractor {
 
         List<ResourceField> relationshipFields = getRelationshipFields(resource);
         for (ResourceField resourceField : relationshipFields) {
-            if (resourceField.getIncludeByDefault() || isFieldIncluded(response, resourceField.getJsonName(), index)) {
+            if (resourceField.getIncludeByDefault() || isFieldIncluded(response, resourceField.getJsonName(), index, topResourceType)) {
                 Object targetDataObj = PropertyUtils.getProperty(resource, resourceField.getJsonName());
                 if (targetDataObj == null) {
                     continue;
@@ -93,13 +91,13 @@ public class IncludedRelationshipExtractor {
         }
     }
 
-    private boolean isFieldIncluded(BaseResponseContext response, String fieldName, int index) {
+    private boolean isFieldIncluded(BaseResponseContext response, String fieldName, int index, String topResourceType) {
         if (response.getQueryAdapter() == null ||
                 response.getQueryAdapter().getIncludedRelations() == null ||
                 response.getQueryAdapter().getIncludedRelations().getParams() == null) {
             return false;
         }
-        IncludedRelationsParams includedRelationsParams = response.getQueryAdapter().getIncludedRelations().getParams().get(response.getJsonPath().getElementName());
+        IncludedRelationsParams includedRelationsParams = response.getQueryAdapter().getIncludedRelations().getParams().get(topResourceType);
         if (includedRelationsParams == null ||
                 includedRelationsParams.getParams() == null) {
             return false;
@@ -114,6 +112,7 @@ public class IncludedRelationshipExtractor {
         return false;
 
     }
+
 
     private List<ResourceField> getRelationshipFields(Object resource) {
         Class<?> dataClass = resource.getClass();

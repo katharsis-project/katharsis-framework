@@ -19,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
-import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -157,47 +156,50 @@ public class IncludeLookupSetter {
      * @param parameterProvider
      * @return list of all loaded properties. Collections are flattened into a single collection.
      */
-    @SuppressWarnings({"unchecked", "rawtypes"})
+
     private Set loadRelationships(ResourceInformation resourceInformation, List resources, ResourceField relationshipField,
                                   QueryAdapter queryAdapter, RepositoryMethodParameterProvider parameterProvider) {
         RegistryEntry rootEntry = resourceRegistry.getEntry(resourceInformation.getResourceType());
-
-        List<Serializable> resourceIds = getIds(resources, resourceInformation);
-
-        boolean isMany = Iterable.class.isAssignableFrom(relationshipField.getType());
         Class<?> relationshipFieldClass = relationshipField.getElementType();
-
-        Set loadedEntities = new HashSet();
-
         RelationshipRepositoryAdapter relationshipRepository = rootEntry.getRelationshipRepositoryForClass(relationshipFieldClass,
                 parameterProvider);
-        if (relationshipRepository != null) {
-            Map<Object, JsonApiResponse> responseMap;
-            if (isMany) {
-                responseMap = relationshipRepository.findBulkManyTargets(resourceIds, relationshipField.getUnderlyingName(),
-                        queryAdapter);
-            } else {
-                responseMap = relationshipRepository.findBulkOneTargets(resourceIds, relationshipField.getUnderlyingName(),
-                        queryAdapter);
-            }
+        if (relationshipRepository == null) {
+            return Collections.EMPTY_SET;
+        }
+        return findLoadedEntities(resourceInformation, resources, relationshipField, relationshipRepository, queryAdapter);
+    }
 
-            for (Object resource : resources) {
-                ResourceField rootIdField = resourceInformation.getIdField();
-                Serializable id = (Serializable) PropertyUtils.getProperty(resource, rootIdField.getUnderlyingName());
-                JsonApiResponse response = responseMap.get(id);
-                if (response != null) {
-                    // set the relation
-                    Object entity = response.getEntity();
-                    PropertyUtils.setProperty(resource, relationshipField.getUnderlyingName(), entity);
-
-                    addAll(loadedEntities, entity);
-                } else {
-                    // null the relation
-                    PropertyUtils.setProperty(resource, relationshipField.getUnderlyingName(), null);
-                }
-            }
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private Set findLoadedEntities(ResourceInformation resourceInformation,
+                                   List resources,
+                                   ResourceField relationshipField,
+                                   RelationshipRepositoryAdapter relationshipRepository,
+                                   QueryAdapter queryAdapter) {
+        Set loadedEntities = new HashSet();
+        List<Serializable> resourceIds = getIds(resources, resourceInformation);
+        Map<Object, JsonApiResponse> responseMap;
+        if (Iterable.class.isAssignableFrom(relationshipField.getType())) {
+            responseMap = relationshipRepository.findBulkManyTargets(resourceIds, relationshipField.getUnderlyingName(),
+                    queryAdapter);
+        } else {
+            responseMap = relationshipRepository.findBulkOneTargets(resourceIds, relationshipField.getUnderlyingName(),
+                    queryAdapter);
         }
 
+        for (Object resource : resources) {
+            ResourceField rootIdField = resourceInformation.getIdField();
+            Serializable id = (Serializable) PropertyUtils.getProperty(resource, rootIdField.getUnderlyingName());
+            JsonApiResponse response = responseMap.get(id);
+            if (response != null) {
+                // set the relation
+                Object entity = response.getEntity();
+                PropertyUtils.setProperty(resource, relationshipField.getUnderlyingName(), entity);
+                addAll(loadedEntities, entity);
+            } else {
+                // null the relation
+                PropertyUtils.setProperty(resource, relationshipField.getUnderlyingName(), null);
+            }
+        }
         return loadedEntities;
     }
 
@@ -221,16 +223,5 @@ public class IncludeLookupSetter {
             ids.add(id);
         }
         return ids;
-    }
-
-    private Class<?> getClassFromField(ResourceField relationshipField) {
-        Class<?> resourceClass;
-        if (Iterable.class.isAssignableFrom(relationshipField.getType())) {
-            ParameterizedType stringListType = (ParameterizedType) relationshipField.getGenericType();
-            resourceClass = (Class<?>) stringListType.getActualTypeArguments()[0];
-        } else {
-            resourceClass = relationshipField.getType();
-        }
-        return resourceClass;
     }
 }
