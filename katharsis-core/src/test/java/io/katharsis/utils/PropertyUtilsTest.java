@@ -186,7 +186,6 @@ public class PropertyUtilsTest {
         // THEN
         assertThat(result).isEqualTo("valueProperty");
     }
-    
 
     @Test
     public void onListValueForSetPropertyShouldGetConverted() throws Exception {
@@ -200,7 +199,6 @@ public class PropertyUtilsTest {
         // confirm the order has been preserved
         assertEquals(bean.getSetProperty(), new LinkedHashSet(Arrays.asList("4", "1", "3", "2")));
     }
-
 
     @Test
     public void onNullBeanSetShouldThrowException() throws Exception {
