@@ -310,10 +310,9 @@ public class PropertyUtils {
     @SuppressWarnings("unchecked")
     private Object prepareValue(Object value, Class<?> fieldClass) {
         if (Set.class.isAssignableFrom(fieldClass) && value instanceof List) {
-            List listValue = (List) value;
-            return new LinkedHashSet<>(listValue);
+            return new LinkedHashSet<>((List) value);
         } else if (List.class.isAssignableFrom(fieldClass) && value instanceof Set) {
-            return new LinkedList<>((Set)value);
+            return new LinkedList<>((Set) value);
         }
         return value;
     }

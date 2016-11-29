@@ -7,7 +7,7 @@ import org.junit.rules.ExpectedException;
 import java.lang.reflect.ParameterizedType;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -198,28 +198,10 @@ public class PropertyUtilsTest {
 
         // THEN
         assertThat(bean.getSetProperty().size()).isEqualTo(4);
-
-        // confirm the order has been persevered
-        Iterator<String> setPropertyIterator = bean.getSetProperty().iterator();
-        for (int i = 0; i < bean.getSetProperty().size(); i++) {
-            String property = setPropertyIterator.next();
-            switch (i) {
-                case 0:
-                    assertEquals("4", property);
-                    break;
-                case 1:
-                    assertEquals("1", property);
-                    break;
-                case 2:
-                    assertEquals("3", property);
-                    break;
-                case 3:
-                    assertEquals("2", property);
-                    break;
-                default:
-            }
-        }
+        // confirm the order has been preserved
+        assertEquals(bean.getSetProperty(), new LinkedHashSet(Arrays.asList("4", "1", "3", "2")));
     }
+
 
     @Test
     public void onNullBeanSetShouldThrowException() throws Exception {
