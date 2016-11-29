@@ -45,6 +45,11 @@ import io.katharsis.module.Module;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.QuerySpecRelationshipRepository;
 import io.katharsis.queryspec.QuerySpecResourceRepository;
+import io.katharsis.repository.RelationshipRepositoryV2;
+import io.katharsis.repository.ResourceRepositoryV2;
+import io.katharsis.repository.decorate.RelationshipRepositoryDecorator;
+import io.katharsis.repository.decorate.RepositoryDecoratorFactory;
+import io.katharsis.repository.decorate.ResourceRepositoryDecorator;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ResourceLookup;
 import io.katharsis.response.BaseResponseContext;
@@ -307,6 +312,7 @@ public class JpaModule implements Module {
 
 		context.addResourceInformationBuilder(getResourceInformationBuilder());
 		context.addExceptionMapper(new OptimisticLockExceptionMapper());
+		context.addRepositoryDecoratorFactory(new JpaRepositoryDecoratorFactory());
 
 		if (resourceSearchPackage != null) {
 			setupClientResourceLookup();
@@ -314,6 +320,29 @@ public class JpaModule implements Module {
 		else {
 			setupServerRepositories();
 			setupTransactionMgmt();
+		}
+	}
+
+	class JpaRepositoryDecoratorFactory implements RepositoryDecoratorFactory {
+
+		@Override
+		public <T, I extends Serializable> ResourceRepositoryDecorator<T, I> decorateRepository(
+				ResourceRepositoryV2<T, I> repository) {
+			JpaRepositoryConfig<T> config = getRepositoryConfig(repository.getResourceClass());
+			if (config != null) {
+				return config.getRepositoryDecorator();
+			}
+			return null;
+		}
+
+		@Override
+		public <T, I extends Serializable, D, J extends Serializable> RelationshipRepositoryDecorator<T, I, D, J> decorateRepository(
+				RelationshipRepositoryV2<T, I, D, J> repository) {
+			JpaRepositoryConfig<T> config = getRepositoryConfig(repository.getSourceResourceClass());
+			if (config != null) {
+				return config.getRepositoryDecorator(repository.getTargetResourceClass());
+			}
+			return null;
 		}
 	}
 

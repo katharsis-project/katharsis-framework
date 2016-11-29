@@ -14,15 +14,21 @@ import io.katharsis.dispatcher.filter.Filter;
 import io.katharsis.errorhandling.mapper.ExceptionMapper;
 import io.katharsis.errorhandling.mapper.ExceptionMapperLookup;
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
+import io.katharsis.repository.RelationshipRepositoryV2;
 import io.katharsis.repository.RepositoryInstanceBuilder;
+import io.katharsis.repository.ResourceRepositoryV2;
 import io.katharsis.repository.annotations.JsonApiRelationshipRepository;
 import io.katharsis.repository.annotations.JsonApiResourceRepository;
+import io.katharsis.repository.decorate.RelationshipRepositoryDecorator;
+import io.katharsis.repository.decorate.RepositoryDecoratorFactory;
+import io.katharsis.repository.decorate.ResourceRepositoryDecorator;
 import io.katharsis.repository.filter.RepositoryFilter;
 import io.katharsis.repository.information.RelationshipRepositoryInformation;
 import io.katharsis.repository.information.RepositoryInformation;
 import io.katharsis.repository.information.RepositoryInformationBuilder;
 import io.katharsis.repository.information.RepositoryInformationBuilderContext;
 import io.katharsis.repository.information.ResourceRepositoryInformation;
+import io.katharsis.repository.information.internal.ResourceRepositoryInformationImpl;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.registry.MultiResourceLookup;
@@ -38,6 +44,7 @@ import io.katharsis.resource.registry.repository.ResourceEntry;
 import io.katharsis.resource.registry.repository.ResponseRelationshipEntry;
 import io.katharsis.security.SecurityProvider;
 import io.katharsis.utils.ClassUtils;
+import io.katharsis.utils.MultivaluedMap;
 import io.katharsis.utils.PreconditionUtil;
 
 /**
@@ -159,6 +166,12 @@ public class ModuleRegistry {
 		public void addRepositoryFilter(RepositoryFilter filter) {
 			checkNotInitialized();
 			aggregatedModule.addRepositoryFilter(filter);
+		}
+
+		@Override
+		public void addRepositoryDecoratorFactory(RepositoryDecoratorFactory decoratorFactory) {
+			checkNotInitialized();
+			aggregatedModule.addRepositoryDecoratorFactory(decoratorFactory);
 		}
 
 		@Override
@@ -390,65 +403,122 @@ public class ModuleRegistry {
 			}
 		};
 
-		Map<ResourceRepositoryInformation, Object> resourceRepositories = new HashMap<>();
-		Map<RelationshipRepositoryInformation, Object> relationshipRepositories = new HashMap<>();
+		MultivaluedMap<Class<?>, RepositoryInformation> repositoryMap = new MultivaluedMap<>();
+		Map<RepositoryInformation, Object> repositoryImplementations = new HashMap<>();
 
-		// TODO this needs to be merged with ResourceRegistryBuilder
-		for (final Object repository : repositories) {
-			RepositoryInformation repositoryInformation = repositoryInformationBuilder.build(repository, builderContext);
-			if (repositoryInformation instanceof ResourceRepositoryInformation) {
-				resourceRepositories.put((ResourceRepositoryInformation) repositoryInformation, repository);
-			}
-			else {
-				relationshipRepositories.put((RelationshipRepositoryInformation) repositoryInformation, repository);
-			}
-			if(repository instanceof ResourceRegistryAware){
-				((ResourceRegistryAware)repository).setResourceRegistry(resourceRegistry);
+		for (Object repository : repositories) {
+			if (!(repository instanceof ResourceRepositoryDecorator)
+					&& !(repository instanceof RelationshipRepositoryDecorator)) {
+				RepositoryInformation repositoryInformation = repositoryInformationBuilder.build(repository, builderContext);
+				if (repositoryInformation instanceof ResourceRepositoryInformation) {
+					ResourceRepositoryInformation info = (ResourceRepositoryInformation) repositoryInformation;
+					repositoryImplementations.put(info, repository);
+					repositoryMap.add(info.getResourceInformation().getResourceClass(), repositoryInformation);
+				}
+				else {
+					RelationshipRepositoryInformation info = (RelationshipRepositoryInformation) repositoryInformation;
+					repositoryImplementations.put(info, repository);
+					repositoryMap.add(info.getSourceResourceInformation().getResourceClass(), repositoryInformation);
+				}
 			}
 		}
 
-		for (Map.Entry<ResourceRepositoryInformation, Object>  entry: resourceRepositories.entrySet()) {
-			ResourceRepositoryInformation resourceRepositoryInfo = entry.getKey();
-			final Object repository = entry.getValue();
-			Class<?> resourceClass = resourceRepositoryInfo.getResourceInformation().getResourceClass();
-
-			RepositoryInstanceBuilder repositoryInstanceBuilder = new RepositoryInstanceBuilder(null, null) {
-
-				@Override
-				public Object buildRepository() {
-					return repository;
-				}
-			};
-
-			ResourceEntry resourceEntry;
-			if (ClassUtils.getAnnotation(repository.getClass(), JsonApiResourceRepository.class).isPresent()) {
-				resourceEntry = new AnnotatedResourceEntry(repositoryInstanceBuilder);
-			}
-			else {
-				resourceEntry = new DirectResponseResourceEntry(repositoryInstanceBuilder);
-			}
-
+		for (Class<?> resourceClass : repositoryMap.keySet()) {
+			ResourceRepositoryInformation resourceRepositoryInformation = null;
 			List<ResponseRelationshipEntry> relationshipEntries = new ArrayList<>();
-			for (Map.Entry<RelationshipRepositoryInformation,Object> relEntry : relationshipRepositories.entrySet()) {
-				RelationshipRepositoryInformation relationshipRepositoryInformation = relEntry.getKey();
-				if (relationshipRepositoryInformation.getSourceResourceInformation().getResourceClass() == resourceClass) {
-					setupRelationShip(relationshipEntries, relationshipRepositoryInformation, relEntry.getValue());
+			ResourceEntry resourceEntry = null;
+			List<RepositoryInformation> repositoryInformations = repositoryMap.getList(resourceClass);
+			for (RepositoryInformation repositoryInformation : repositoryInformations) {
+				if (repositoryInformation instanceof ResourceRepositoryInformation) {
+					resourceRepositoryInformation = (ResourceRepositoryInformation) repositoryInformation;
+					Object repository = repositoryImplementations.get(resourceRepositoryInformation);
+					resourceEntry = setupResourceRepository(resourceRepositoryInformation, repository);
+				}
+				else {
+					RelationshipRepositoryInformation relationshipRepositoryInformation = (RelationshipRepositoryInformation) repositoryInformation;
+					Object repository = repositoryImplementations.get(repositoryInformation);
+					setupRelationship(relationshipEntries, relationshipRepositoryInformation, repository);
 				}
 			}
-			// TODO get also relations from resource lookup
-			RegistryEntry registryEntry = new RegistryEntry(resourceRepositoryInfo, resourceEntry, relationshipEntries);
+
+			if (resourceRepositoryInformation == null) {
+				ResourceInformation resourceInformation = getResourceInformationBuilder().build(resourceClass);
+				resourceRepositoryInformation = new ResourceRepositoryInformationImpl(resourceClass,
+						resourceInformation.getResourceType(), resourceInformation);
+			}
+
+			RegistryEntry registryEntry = new RegistryEntry(resourceRepositoryInformation, resourceEntry, relationshipEntries);
 			resourceRegistry.addEntry(resourceClass, registryEntry);
 		}
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private void setupRelationShip(List<ResponseRelationshipEntry> relationshipEntries,
+	private ResourceEntry setupResourceRepository(ResourceRepositoryInformation resourceRepositoryInformation,
+			Object repository) {
+		final Object decoratedRepository = decorateRepository(repository);
+		RepositoryInstanceBuilder repositoryInstanceBuilder = new RepositoryInstanceBuilder(null, null) {
+
+			@Override
+			public Object buildRepository() {
+				return decoratedRepository;
+			}
+		};
+
+		if (ClassUtils.getAnnotation(decoratedRepository.getClass(), JsonApiResourceRepository.class).isPresent()) {
+			return new AnnotatedResourceEntry(repositoryInstanceBuilder);
+		}
+		else {
+			return new DirectResponseResourceEntry(repositoryInstanceBuilder);
+		}
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private Object decorateRepository(Object repository) {
+		Object resultRepo;
+		if (repository instanceof RelationshipRepositoryV2) {
+			RelationshipRepositoryV2 result = (RelationshipRepositoryV2) repository;
+			List<RepositoryDecoratorFactory> repositoryDecorators = getRepositoryDecoratorFactories();
+			for (RepositoryDecoratorFactory repositoryDecorator : repositoryDecorators) {
+				RelationshipRepositoryDecorator decorateRepository = repositoryDecorator.decorateRepository(result);
+				if (decorateRepository != null) {
+					decorateRepository.setDecoratedObject(result);
+					result = decorateRepository;
+				}
+			}
+			resultRepo = result;
+		}
+		else if (repository instanceof ResourceRepositoryV2) {
+			ResourceRepositoryV2 result = (ResourceRepositoryV2) repository;
+			List<RepositoryDecoratorFactory> repositoryDecorators = getRepositoryDecoratorFactories();
+			for (RepositoryDecoratorFactory repositoryDecorator : repositoryDecorators) {
+				ResourceRepositoryDecorator decorateRepository = repositoryDecorator.decorateRepository(result);
+				if (decorateRepository != null) {
+					decorateRepository.setDecoratedObject(result);
+					result = decorateRepository;
+				}
+			}
+			resultRepo = result;
+		}
+		else {
+			resultRepo = repository;
+		}
+
+		if (resultRepo instanceof ResourceRegistryAware) {
+			((ResourceRegistryAware) resultRepo).setResourceRegistry(resourceRegistry);
+		}
+		return resultRepo;
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private void setupRelationship(List<ResponseRelationshipEntry> relationshipEntries,
 			final RelationshipRepositoryInformation relationshipRepositoryInformation, final Object relRepository) {
+
+		final Object decoratedRepository = decorateRepository(relRepository);
 		RepositoryInstanceBuilder<Object> relationshipInstanceBuilder = new RepositoryInstanceBuilder<Object>(null, null) {
 
 			@Override
 			public Object buildRepository() {
-				return relRepository;
+				return decoratedRepository;
 			}
 
 			@Override
@@ -480,10 +550,17 @@ public class ModuleRegistry {
 	}
 
 	/**
-	 * @return {@link Filter} added by all modules
+	 * @return {@link RepositoryFilter} added by all modules
 	 */
 	public List<RepositoryFilter> getRepositoryFilters() {
 		return aggregatedModule.getRepositoryFilters();
+	}
+
+	/**
+	 * @return {@link RepositoryDecoratorFactory} added by all modules
+	 */
+	public List<RepositoryDecoratorFactory> getRepositoryDecoratorFactories() {
+		return aggregatedModule.getRepositoryDecoratorFactories();
 	}
 
 	/**

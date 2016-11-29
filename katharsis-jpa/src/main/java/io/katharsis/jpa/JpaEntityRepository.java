@@ -21,19 +21,17 @@ import io.katharsis.jpa.query.Tuple;
 import io.katharsis.queryspec.FilterOperator;
 import io.katharsis.queryspec.FilterSpec;
 import io.katharsis.queryspec.QuerySpec;
-import io.katharsis.queryspec.QuerySpecResourceRepository;
-import io.katharsis.resource.list.DefaultResourceList;
+import io.katharsis.repository.ResourceRepositoryV2;
 import io.katharsis.resource.list.ResourceList;
 import io.katharsis.response.MetaInformation;
 import io.katharsis.response.paging.PagedMetaInformation;
-import io.katharsis.response.paging.PagedResultList;
 import io.katharsis.utils.PropertyUtils;
 
 /**
  * Exposes a JPA entity as ResourceRepository.
  */
 public class JpaEntityRepository<T, I extends Serializable> extends JpaRepositoryBase<T>
-		implements QuerySpecResourceRepository<T, I> {
+		implements ResourceRepositoryV2<T, I> {
 
 	private MetaEntity meta;
 
@@ -93,6 +91,11 @@ public class JpaEntityRepository<T, I extends Serializable> extends JpaRepositor
 		}
 		
 		return resources;
+	}
+	
+	@Override
+	public <S extends T> S create(S resource) {
+		return save(resource);
 	}
 
 	@SuppressWarnings("unchecked")

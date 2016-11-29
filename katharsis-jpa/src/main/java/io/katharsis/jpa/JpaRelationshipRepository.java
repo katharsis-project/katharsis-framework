@@ -25,6 +25,7 @@ import io.katharsis.jpa.query.JpaQueryFactory;
 import io.katharsis.jpa.query.Tuple;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.QuerySpecBulkRelationshipRepository;
+import io.katharsis.repository.RelationshipRepositoryV2;
 import io.katharsis.resource.list.DefaultResourceList;
 import io.katharsis.resource.list.ResourceList;
 import io.katharsis.response.MetaInformation;
@@ -32,7 +33,7 @@ import io.katharsis.response.paging.PagedMetaInformation;
 import io.katharsis.utils.MultivaluedMap;
 
 public class JpaRelationshipRepository<S, I extends Serializable, T, J extends Serializable> extends JpaRepositoryBase<T>
-		implements QuerySpecBulkRelationshipRepository<S, I, T, J> {
+		implements RelationshipRepositoryV2<S,I,T,J>, QuerySpecBulkRelationshipRepository<S, I, T, J> {
 
 	private Class<S> sourceResourceClass;
 
