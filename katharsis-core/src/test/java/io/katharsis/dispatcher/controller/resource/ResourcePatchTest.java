@@ -1,9 +1,13 @@
 package io.katharsis.dispatcher.controller.resource;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import static org.assertj.core.api.Assertions.*;
+
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.junit.Assert;
+import org.junit.Test;
+
 import io.katharsis.dispatcher.controller.BaseControllerTest;
-import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryspec.internal.QueryParamsAdapter;
 import io.katharsis.request.dto.DataBody;
 import io.katharsis.request.dto.RequestBody;
@@ -11,15 +15,13 @@ import io.katharsis.request.dto.ResourceRelationships;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.exception.RequestBodyException;
+import io.katharsis.resource.mock.models.ComplexPojo;
 import io.katharsis.resource.mock.models.Memorandum;
 import io.katharsis.resource.mock.models.Task;
-import io.katharsis.resource.mock.models.ComplexPojo;
+import io.katharsis.resource.registry.repository.adapter.ResourceRepositoryAdapter;
 import io.katharsis.response.BaseResponseContext;
+import io.katharsis.response.JsonApiResponse;
 import io.katharsis.response.ResourceResponseContext;
-import org.junit.Assert;
-import org.junit.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class ResourcePatchTest extends BaseControllerTest {
 
@@ -274,6 +276,40 @@ public class ResourcePatchTest extends BaseControllerTest {
         assertThat(((ComplexPojo) (response.getResponse().getEntity())).getContainedPojo().getUpdateableProperty1()).isEqualTo("updated value");
         assertThat(((ComplexPojo) (response.getResponse().getEntity())).getContainedPojo().getUpdateableProperty2()).isEqualTo("value from repository mock");
         assertThat(((ComplexPojo) (response.getResponse().getEntity())).getUpdateableProperty()).isEqualTo("wasNullBefore");
+    }
+
+    /*
+      see github #122
+     */
+    @Test
+    public void omittedFieldsSettersAreNotCalled() throws Exception {
+        // GIVEN
+        ResourceRepositoryAdapter taskRepo = resourceRegistry.getEntry(Task.class).getResourceRepository(null);
+        Task task = new Task();
+        task.setName("Mary Joe");
+        JsonApiResponse jsonApiResponse = taskRepo.create(task, null);
+        task = (Task) (jsonApiResponse.getEntity());
+
+        // GIVEN
+        RequestBody taskPatch = new RequestBody();
+        DataBody data = new DataBody();
+        taskPatch.setData(data);
+        data.setType("tasks");
+        data.setAttributes(objectMapper.createObjectNode()
+                .put("name", "Mary Jane"));
+        JsonPath jsonPath = pathBuilder.buildPath("/tasks/" + task.getId());
+        ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser, objectMapper);
+
+        // WHEN
+        BaseResponseContext response = sut.handle(jsonPath, new QueryParamsAdapter(REQUEST_PARAMS), null, taskPatch);
+
+        // THEN
+        Assert.assertNotNull(response);
+        assertThat(response.getResponse().getEntity()).isExactlyInstanceOf(Task.class);
+        Task updatedTask= (Task) response.getResponse().getEntity();
+        assertThat(updatedTask.getName()).isEqualTo("Mary Jane");
+        assertThat(updatedTask.getId()).isEqualTo(task.getId());
+        assertThat(updatedTask.getCategory()).isNull();
     }
 
 }

@@ -2,6 +2,7 @@ package io.katharsis.dispatcher.controller.resource;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -77,12 +78,21 @@ public class ResourcePatch extends ResourceUpsert {
 
         String attributesFromFindOne = null;
         try {
-            // extract attributes from find one without any manipulation by query params (such as sparse fieldsets)
+            // extract current attributes from findOne without any manipulation by query params (such as sparse fieldsets)
             attributesFromFindOne = this.extractAttributesFromResourceAsJson(resource, jsonPath, new QueryParamsAdapter(new QueryParams()));
             Map<String,Object> attributesToUpdate = objectMapper.readValue(attributesFromFindOne, Map.class);
-            // get the JSON form the request and deserialize into a map
+            // deserialize the request JSON's attributes object into a map
             String attributesAsJson = objectMapper.writeValueAsString(dataBody.getAttributes());
             Map<String,Object> attributesFromRequest = objectMapper.readValue(attributesAsJson, Map.class);;
+
+            // remove attributes that were omitted in the request
+            Iterator<String> it = attributesToUpdate.keySet().iterator();
+            while(it.hasNext()) {
+                String key = it.next();
+                if(!attributesFromRequest.containsKey(key))
+                    it.remove();
+            }
+
             // walk the source map and apply target values from request
             updateValues(attributesToUpdate, attributesFromRequest);
             JsonNode upsertedAttributes = objectMapper.valueToTree(attributesToUpdate);
