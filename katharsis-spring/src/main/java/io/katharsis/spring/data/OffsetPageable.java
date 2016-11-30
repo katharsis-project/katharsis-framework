@@ -40,13 +40,13 @@ class OffsetPageable implements Pageable {
         if (limit == null) {
             return 0;
         } else {
-            return Math.toIntExact(limit);
+            return limit.intValue();
         }
     }
 
     @Override
     public int getOffset() {
-        return Math.toIntExact(offset);
+        return (new Long(offset)).intValue();
     }
 
     @Override
