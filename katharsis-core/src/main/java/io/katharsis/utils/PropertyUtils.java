@@ -1,17 +1,17 @@
 package io.katharsis.utils;
 
+import io.katharsis.repository.exception.RepositoryMethodException;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-
-import io.katharsis.repository.exception.RepositoryMethodException;
 
 /**
  * <p>
@@ -310,12 +310,9 @@ public class PropertyUtils {
     @SuppressWarnings("unchecked")
     private Object prepareValue(Object value, Class<?> fieldClass) {
         if (Set.class.isAssignableFrom(fieldClass) && value instanceof List) {
-            List listValue = (List) value;
-            Set setValue = new HashSet<>(listValue.size());
-            setValue.addAll(listValue);
-            return setValue;
+            return new LinkedHashSet<>((List) value);
         } else if (List.class.isAssignableFrom(fieldClass) && value instanceof Set) {
-            return new LinkedList<>((Set)value);
+            return new LinkedList<>((Set) value);
         }
         return value;
     }
