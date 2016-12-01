@@ -8,7 +8,7 @@ import io.katharsis.repository.ResourceRepositoryV2;
 /**
  * Base class for {@links RepositoryDecorator} implementations doing nothing.
  */
-public class RepositoryDecoratorFactoryBase implements RepositoryDecoratorFactory {
+public abstract class RepositoryDecoratorFactoryBase implements RepositoryDecoratorFactory {
 
 	@Override
 	public <T, I extends Serializable> ResourceRepositoryDecorator<T, I> decorateRepository(

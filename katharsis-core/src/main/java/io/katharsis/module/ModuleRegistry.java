@@ -44,6 +44,7 @@ import io.katharsis.resource.registry.repository.ResourceEntry;
 import io.katharsis.resource.registry.repository.ResponseRelationshipEntry;
 import io.katharsis.security.SecurityProvider;
 import io.katharsis.utils.ClassUtils;
+import io.katharsis.utils.Decorator;
 import io.katharsis.utils.MultivaluedMap;
 import io.katharsis.utils.PreconditionUtil;
 
@@ -474,39 +475,25 @@ public class ModuleRegistry {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private Object decorateRepository(Object repository) {
-		Object resultRepo;
-		if (repository instanceof RelationshipRepositoryV2) {
-			RelationshipRepositoryV2 result = (RelationshipRepositoryV2) repository;
-			List<RepositoryDecoratorFactory> repositoryDecorators = getRepositoryDecoratorFactories();
-			for (RepositoryDecoratorFactory repositoryDecorator : repositoryDecorators) {
-				RelationshipRepositoryDecorator decorateRepository = repositoryDecorator.decorateRepository(result);
-				if (decorateRepository != null) {
-					decorateRepository.setDecoratedObject(result);
-					result = decorateRepository;
-				}
+		Object decoratedRepository = repository;
+		List<RepositoryDecoratorFactory> repositoryDecorators = getRepositoryDecoratorFactories();
+		for (RepositoryDecoratorFactory repositoryDecorator : repositoryDecorators) {
+			Decorator decorator = null;
+			if (decoratedRepository instanceof RelationshipRepositoryV2) {
+				decorator = repositoryDecorator.decorateRepository((RelationshipRepositoryV2)decoratedRepository);
 			}
-			resultRepo = result;
-		}
-		else if (repository instanceof ResourceRepositoryV2) {
-			ResourceRepositoryV2 result = (ResourceRepositoryV2) repository;
-			List<RepositoryDecoratorFactory> repositoryDecorators = getRepositoryDecoratorFactories();
-			for (RepositoryDecoratorFactory repositoryDecorator : repositoryDecorators) {
-				ResourceRepositoryDecorator decorateRepository = repositoryDecorator.decorateRepository(result);
-				if (decorateRepository != null) {
-					decorateRepository.setDecoratedObject(result);
-					result = decorateRepository;
-				}
+			else if (decoratedRepository instanceof ResourceRepositoryV2) {
+				decorator = repositoryDecorator.decorateRepository((ResourceRepositoryV2)decoratedRepository);
 			}
-			resultRepo = result;
+			if(decorator != null){
+				decorator.setDecoratedObject(decoratedRepository);
+				decoratedRepository = decorator;
+			}
 		}
-		else {
-			resultRepo = repository;
+		if (decoratedRepository instanceof ResourceRegistryAware) {
+			((ResourceRegistryAware) decoratedRepository).setResourceRegistry(resourceRegistry);
 		}
-
-		if (resultRepo instanceof ResourceRegistryAware) {
-			((ResourceRegistryAware) resultRepo).setResourceRegistry(resourceRegistry);
-		}
-		return resultRepo;
+		return decoratedRepository;
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
