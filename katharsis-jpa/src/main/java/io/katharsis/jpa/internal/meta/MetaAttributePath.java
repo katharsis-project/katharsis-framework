@@ -9,7 +9,9 @@ import java.util.List;
 public class MetaAttributePath implements Iterable<MetaAttribute> {
 
 	public static final char PATH_SEPARATOR_CHAR = '.';
+
 	public static final String PATH_SEPARATOR = ".";
+
 	public static final MetaAttributePath EMPTY_PATH = new MetaAttributePath();
 
 	private MetaAttribute[] pathElements;
@@ -43,27 +45,12 @@ public class MetaAttributePath implements Iterable<MetaAttribute> {
 		return new MetaAttributePath(pathElements);
 	}
 
-	public boolean hasTail() {
-		return pathElements.length > 1;
-	}
-
-	public MetaAttribute getHead() {
-		return pathElements[0];
-	}
-
 	public int length() {
 		return pathElements.length;
 	}
 
 	public MetaAttribute getElement(int index) {
 		return pathElements[index];
-	}
-
-	public MetaAttributePath getTail() {
-		int tailLength = pathElements.length - 1;
-		MetaAttribute[] tail = newArray(tailLength);
-		System.arraycopy(pathElements, 1, tail, 0, tailLength);
-		return to(tail);
 	}
 
 	public MetaAttribute getLast() {
@@ -73,29 +60,6 @@ public class MetaAttributePath implements Iterable<MetaAttribute> {
 		return null;
 	}
 
-	public MetaAttributePath concat(MetaAttributePath path2) {
-		ArrayList<MetaAttribute> list = new ArrayList<>();
-		list.addAll(Arrays.asList(this.pathElements));
-		list.addAll(Arrays.asList(path2.pathElements));
-		return to(list.toArray(newArray(0)));
-	}
-
-	public MetaAttributePath concat(String... pathElements) {
-		if (pathElements.length == 0)
-			throw new IllegalStateException("cannot concat paths for empty path");
-		MetaDataObject currentType = getLast().getType().asDataObject();
-		MetaAttribute[] attrs = new MetaAttribute[pathElements.length];
-		for (int i = 0; i < attrs.length; i++) {
-			if (currentType == null)
-				throw new IllegalArgumentException("cannot concat " + this + " with " + Arrays.toString(pathElements));
-			attrs[i] = currentType.getAttribute(pathElements[i]);
-			if (i < attrs.length - 1) {
-				currentType = attrs[i].getType().asDataObject();
-			}
-		}
-		return concat(attrs);
-	}
-
 	public MetaAttributePath concat(MetaAttribute... pathElements) {
 		ArrayList<MetaAttribute> list = new ArrayList<>();
 		list.addAll(Arrays.asList(this.pathElements));
@@ -103,27 +67,14 @@ public class MetaAttributePath implements Iterable<MetaAttribute> {
 		return to(list.toArray(newArray(0)));
 	}
 
-	public boolean isSubPath(MetaAttributePath path) {
-		if (path.pathElements.length > pathElements.length) {
-			return false;
-		}
-
-		int counter = 0;
-		for (MetaAttribute element : path.pathElements) {
-			if (!element.equals(pathElements[counter])) {
-				return false;
-			}
-			counter++;
-		}
-		return true;
-	}
-
 	public String render(String delimiter) {
 		if (pathElements.length == 0) {
 			return "";
-		} else if (pathElements.length == 1) {
+		}
+		else if (pathElements.length == 1) {
 			return pathElements[0].getName();
-		} else {
+		}
+		else {
 			StringBuilder builder = new StringBuilder(pathElements[0].getName());
 			for (int i = 1; i < pathElements.length; i++) {
 				builder.append(delimiter);
@@ -148,16 +99,11 @@ public class MetaAttributePath implements Iterable<MetaAttribute> {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		MetaAttributePath other = (MetaAttributePath) obj;
-		if (!Arrays.equals(pathElements, other.pathElements))
-			return false;
-		return true;
+		if (obj instanceof MetaAttributePath) {
+			MetaAttributePath other = (MetaAttributePath) obj;
+			return Arrays.equals(pathElements, other.pathElements);
+		}
+		return false;
 	}
 
 	@Override
