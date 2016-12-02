@@ -40,6 +40,8 @@ public class BraveRepositoryFilter extends RepositoryFilterBase {
 
 	private static final String COMPONENT_NAME = "katharsis";
 
+	private static final Object COMPONENT_NAME_SEPARATOR = ":";
+
 	private Brave brave;
 
 	private ModuleContext moduleContext;
@@ -56,10 +58,10 @@ public class BraveRepositoryFilter extends RepositoryFilterBase {
 		LocalTracer localTracer = brave.localTracer();
 		RepositoryRequestSpec request = context.getRequest();
 
-		String path = getPath(request);
+		String componentName = getComponentName(request);
 		String query = getQuery(request);
 
-		localTracer.startNewSpan(COMPONENT_NAME, path);
+		localTracer.startNewSpan(COMPONENT_NAME, componentName);
 
 		JsonApiResponse result = null;
 		Exception exception = null;
@@ -118,12 +120,16 @@ public class BraveRepositoryFilter extends RepositoryFilterBase {
 		return null;
 	}
 
-	private String getPath(RepositoryRequestSpec request) {
+	private String getComponentName(RepositoryRequestSpec request) {
 		String relationshipField = request.getRelationshipField();
 		StringBuilder pathBuilder = new StringBuilder();
 		String resourceType = getResourceType(request);
 		String method = request.getMethod().toString();
-		pathBuilder.append(method + " /" + resourceType + "/");
+		pathBuilder.append(COMPONENT_NAME);
+		pathBuilder.append(COMPONENT_NAME_SEPARATOR);
+		pathBuilder.append(method);
+		pathBuilder.append(COMPONENT_NAME_SEPARATOR);
+		pathBuilder.append("/" + resourceType + "/");
 		if (relationshipField != null) {
 			pathBuilder.append("relationships/");
 			pathBuilder.append(relationshipField);

@@ -1,4 +1,4 @@
-package io.katharsis.example.springboot.simple.domain.mapper;
+package io.katharsis.example.springboot.simple.domain.exception;
 
 import java.util.Arrays;
 import java.util.List;

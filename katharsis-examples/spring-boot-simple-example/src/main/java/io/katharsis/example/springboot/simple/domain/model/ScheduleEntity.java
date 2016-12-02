@@ -1,4 +1,4 @@
-package io.katharsis.example.springboot.simple.domain.jpa;
+package io.katharsis.example.springboot.simple.domain.model;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;

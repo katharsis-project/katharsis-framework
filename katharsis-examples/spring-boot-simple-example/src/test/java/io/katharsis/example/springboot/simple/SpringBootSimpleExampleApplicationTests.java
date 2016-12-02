@@ -16,8 +16,9 @@ import com.google.common.collect.ImmutableMap;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.response.ValidatableResponse;
 
-import io.katharsis.example.springboot.simple.domain.jpa.ScheduleEntity;
 import io.katharsis.example.springboot.simple.domain.model.Project;
+import io.katharsis.example.springboot.simple.domain.model.ScheduleDto;
+import io.katharsis.example.springboot.simple.domain.model.ScheduleEntity;
 import io.katharsis.example.springboot.simple.domain.repository.ProjectRepository;
 import io.katharsis.example.springboot.simple.domain.repository.ProjectRepository.ProjectList;
 import io.katharsis.example.springboot.simple.domain.repository.ProjectRepository.ProjectListLinks;
@@ -69,6 +70,31 @@ public class SpringBootSimpleExampleApplicationTests extends BaseTest {
 
 		list = entityRepo.findAll(querySpec);
 		Assert.assertEquals(1, list.size());
+	}
+
+	@Test
+	public void testDtoMapping() {
+		ResourceRepositoryV2<ScheduleDto, Serializable> entityRepo = client.getQuerySpecRepository(ScheduleDto.class);
+
+		QuerySpec querySpec = new QuerySpec(ScheduleDto.class);
+		ResourceList<ScheduleDto> list = entityRepo.findAll(querySpec);
+		for (ScheduleDto schedule : list) {
+			entityRepo.delete(schedule.getId());
+		}
+
+		ScheduleDto schedule = new ScheduleDto();
+		schedule.setId(13L);
+		schedule.setName("My Schedule");
+		entityRepo.create(schedule);
+
+		list = entityRepo.findAll(querySpec);
+		Assert.assertEquals(1, list.size());
+		schedule = list.get(0);
+		Assert.assertEquals(13L, schedule.getId().longValue());
+		Assert.assertEquals("My Schedule", schedule.getName());
+
+		// a computed attribute!
+		Assert.assertEquals("MY SCHEDULE", schedule.getUpperName());
 	}
 
 	@Test

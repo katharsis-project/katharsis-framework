@@ -16,7 +16,7 @@ import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import io.katharsis.example.springboot.simple.domain.jpa.ScheduleEntity;
+import io.katharsis.example.springboot.simple.domain.model.ScheduleEntity;
 import io.katharsis.spring.jpa.SpringTransactionRunner;
 
 @Configuration
