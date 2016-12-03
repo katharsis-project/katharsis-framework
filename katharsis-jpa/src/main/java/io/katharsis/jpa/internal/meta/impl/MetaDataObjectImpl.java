@@ -3,11 +3,8 @@ package io.katharsis.jpa.internal.meta.impl;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -25,360 +22,276 @@ import io.katharsis.jpa.internal.meta.MetaDataObject;
 import io.katharsis.jpa.internal.meta.MetaKey;
 import io.katharsis.jpa.internal.meta.MetaMapAttribute;
 import io.katharsis.jpa.internal.meta.MetaMapType;
-import io.katharsis.jpa.internal.meta.MetaProjection;
 import io.katharsis.jpa.internal.meta.MetaType;
 import io.katharsis.utils.PreconditionUtil;
 
 public class MetaDataObjectImpl extends MetaTypeImpl implements MetaDataObject {
 
-	private static final MetaAttributeFinder DEFAULT_ATTRIBUTE_FINDER = new MetaAttributeFinder() {
-		@Override
-		public MetaAttribute getAttribute(MetaDataObject meta, String name) {
-			return meta.getAttribute(name);
-		}
-	};
+  private static final MetaAttributeFinder DEFAULT_ATTRIBUTE_FINDER = new MetaAttributeFinder() {
 
-	private static final MetaAttributeFinder SUBTYPE_ATTRIBUTE_FINDER = new MetaAttributeFinder() {
-		@Override
-		public MetaAttribute getAttribute(MetaDataObject meta, String name) {
-			return meta.findAttribute(name, true);
-		}
-	};
+    @Override
+    public MetaAttribute getAttribute(MetaDataObject meta, String name) {
+      return meta.getAttribute(name);
+    }
+  };
 
-	private ArrayList<MetaDataObject> subTypes = new ArrayList<>();
-	private MetaDataObject superType;
+  private static final MetaAttributeFinder SUBTYPE_ATTRIBUTE_FINDER = new MetaAttributeFinder() {
 
-	private HashMap<String, MetaAttributeImpl> attrMap = new HashMap<>();
-	private List<MetaAttribute> attrs = new ArrayList<>();
-	private List<MetaAttribute> declaredAttrs = new ArrayList<>();
+    @Override
+    public MetaAttribute getAttribute(MetaDataObject meta, String name) {
+      return meta.findAttribute(name, true);
+    }
+  };
 
-	@SuppressWarnings("unchecked")
-	private List<MetaDataObject>[] subTypesCache = new List[4];
-	private HashMap<String, MetaDataObject> subTypesMapCache;
+  private ArrayList<MetaDataObject> subTypes = new ArrayList<>();
 
-	private MetaKey primaryKey;
-	private Set<MetaKey> keys = new HashSet<>();
+  private MetaDataObject superType;
 
-	public MetaDataObjectImpl(Class<?> implClass, Type implType, MetaDataObjectImpl superType) {
-		super(null, implClass, implType);
-		this.superType = superType;
-		if (superType != null) {
-			attrs.addAll(superType.getAttributes());
-			attrMap.putAll(superType.attrMap);
+  private HashMap<String, MetaAttributeImpl> attrMap = new HashMap<>();
 
-			superType.addSubType(this);
-		}
+  private List<MetaAttribute> attrs = new ArrayList<>();
 
-		initAttributes();
-	}
+  private List<MetaAttribute> declaredAttrs = new ArrayList<>();
 
-	protected void initAttributes() {
-		Class<?> implClass = this.getImplementationClass();
-		PropertyUtilsBean utils = BeanUtilsBean.getInstance().getPropertyUtils();
-		PropertyDescriptor[] descriptors = utils.getPropertyDescriptors(implClass);
-		for (PropertyDescriptor desc : descriptors) {
-			if (desc.getReadMethod().getDeclaringClass() != implClass)
-				continue; // contained in super type
-			if (attrMap.containsKey(desc.getName()))
-				throw new IllegalStateException(desc.toString());
+  @SuppressWarnings("unchecked")
+  private List<MetaDataObject>[] subTypesCache = new List[4];
 
-			MetaAttributeImpl attr = newAttributeAttribute(this, desc);
-			addAttribute(attr);
-		}
-	}
+  private HashMap<String, MetaDataObject> subTypesMapCache;
 
-	protected void addAttribute(MetaAttributeImpl attr) {
-		if (attrMap.containsKey(attr.getName()))
-			throw new IllegalStateException(attr.toString());
+  private MetaKey primaryKey;
 
-		attrMap.put(attr.getName(), attr);
-		attrs.add(attr);
-		declaredAttrs.add(attr);
-	}
+  private Set<MetaKey> keys = new HashSet<>();
 
-	@Override
-	public MetaAttribute getVersionAttribute() {
-		for (MetaAttribute attr : getAttributes()) {
-			if (attr.isVersion())
-				return attr;
-		}
-		return null;
-	}
+  public MetaDataObjectImpl(Class<?> implClass, Type implType, MetaDataObjectImpl superType) {
+    super(null, implClass, implType);
+    this.superType = superType;
+    if (superType != null) {
+      attrs.addAll(superType.getAttributes());
+      attrMap.putAll(superType.attrMap);
 
-	private void addSubType(MetaDataObjectImpl subType) {
-		this.subTypes.add(subType);
-		this.clearCache();
-	}
+      superType.addSubType(this);
+    }
 
-	@SuppressWarnings("unchecked")
-	private void clearCache() {
-		subTypesMapCache = null;
-		subTypesCache = new List[4];
-	}
+    initAttributes();
+  }
 
-	@Override
-	public List<MetaAttribute> getAttributes() {
-		return attrs;
-	}
+  protected void initAttributes() {
+    Class<?> implClass = this.getImplementationClass();
+    PropertyUtilsBean utils = BeanUtilsBean.getInstance().getPropertyUtils();
+    PropertyDescriptor[] descriptors = utils.getPropertyDescriptors(implClass);
+    for (PropertyDescriptor desc : descriptors) {
+      if (desc.getReadMethod().getDeclaringClass() != implClass)
+        continue; // contained in super type
+      if (attrMap.containsKey(desc.getName()))
+        throw new IllegalStateException(desc.toString());
 
-	@Override
-	public List<MetaAttribute> getDeclaredAttributes() {
-		return declaredAttrs;
-	}
+      MetaAttributeImpl attr = newAttributeAttribute(this, desc);
+      addAttribute(attr);
+    }
+  }
 
-	@Override
-	public MetaAttribute getAttribute(String name) {
-		MetaAttributeImpl attr = attrMap.get(name);
-		PreconditionUtil.assertNotNull(getName() + "." + name, attr);
-		return attr;
-	}
+  protected void addAttribute(MetaAttributeImpl attr) {
+    if (attrMap.containsKey(attr.getName()))
+      throw new IllegalStateException(attr.toString());
 
-	@Override
-	public String toString(Object entity) {
-		boolean notFirst = false;
-		StringBuilder b = new StringBuilder(entity.getClass().getSimpleName());
-		b.append('[');
+    attrMap.put(attr.getName(), attr);
+    attrs.add(attr);
+    declaredAttrs.add(attr);
+  }
 
-		for (MetaAttribute attr : getAttributes()) {
-			if (attr.isAssociation()) {
-				continue;
-			}
+  @Override
+  public MetaAttribute getVersionAttribute() {
+    for (MetaAttribute attr : getAttributes()) {
+      if (attr.isVersion())
+        return attr;
+    }
+    return null;
+  }
 
-			Object value = attr.getValue(entity);
+  private void addSubType(MetaDataObjectImpl subType) {
+    this.subTypes.add(subType);
+    this.clearCache();
+  }
 
-			if (notFirst) {
-				b.append(',');
-			} else {
-				notFirst = true;
-			}
-			b.append(attr.getName());
-			b.append("=");
-			b.append(formatValue(value));
-		}
-		b.append(']');
-		return b.toString();
-	}
+  @SuppressWarnings("unchecked")
+  private void clearCache() {
+    subTypesMapCache = null;
+    subTypesCache = new List[4];
+  }
 
-	private Object formatValue(Object value) {
-		if (value == null) {
-			return "null";
-		} else if (value instanceof Calendar) {
-			Calendar cal = (Calendar) value;
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss Z");
-			return sdf.format(cal.getTime());
-		} else if (value instanceof Date) {
-			Date cal = (Date) value;
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss Z");
-			return sdf.format(cal.getTime());
-		} else {
-			return value.toString();
-		}
-	}
+  @Override
+  public List<MetaAttribute> getAttributes() {
+    return attrs;
+  }
 
-	protected MetaAttributeImpl newAttributeAttribute(MetaDataObjectImpl metaDataObject, PropertyDescriptor desc) {
-		return new MetaAttributeImpl(metaDataObject, desc);
-	}
+  @Override
+  public List<MetaAttribute> getDeclaredAttributes() {
+    return declaredAttrs;
+  }
 
-	@Override
-	public MetaAttributePath resolvePath(List<String> attrPath, boolean includeSubTypes) {
-		MetaAttributeFinder finder = includeSubTypes ? SUBTYPE_ATTRIBUTE_FINDER : DEFAULT_ATTRIBUTE_FINDER;
-		return resolvePath(attrPath, finder);
-	}
+  @Override
+  public MetaAttribute getAttribute(String name) {
+    MetaAttributeImpl attr = attrMap.get(name);
+    PreconditionUtil.assertNotNull(getName() + "." + name, attr);
+    return attr;
+  }
 
-	@Override
-	public MetaAttributePath resolvePath(List<String> attrPath) {
-		return resolvePath(attrPath, true);
-	}
+  protected MetaAttributeImpl newAttributeAttribute(MetaDataObjectImpl metaDataObject, PropertyDescriptor desc) {
+    return new MetaAttributeImpl(metaDataObject, desc);
+  }
 
-	@Override
-	public MetaAttributePath resolvePath(List<String> attrPath, MetaAttributeFinder finder) {
-		if (attrPath == null || attrPath.isEmpty())
-			throw new IllegalArgumentException("invalid attribute path '" + attrPath + "'");
-		LinkedList<MetaAttribute> list = new LinkedList<>();
+  @Override
+  public MetaAttributePath resolvePath(List<String> attrPath, boolean includeSubTypes) {
+    MetaAttributeFinder finder = includeSubTypes ? SUBTYPE_ATTRIBUTE_FINDER : DEFAULT_ATTRIBUTE_FINDER;
+    return resolvePath(attrPath, finder);
+  }
 
-		MetaDataObject currentMdo = this;
-		int i = 0;
-		while (i < attrPath.size()) {
-			String pathElementName = attrPath.get(i);
-			MetaAttribute pathElement = finder.getAttribute(currentMdo, pathElementName);
-			if (i < attrPath.size() - 1 && pathElement.getType() instanceof MetaMapType) {
-				MetaMapType mapType = (MetaMapType) pathElement.getType();
+  @Override
+  public MetaAttributePath resolvePath(List<String> attrPath) {
+    return resolvePath(attrPath, true);
+  }
 
-				// next "attribute" is the key within the map
-				String keyString = attrPath.get(i + 1);
+  @Override
+  public MetaAttributePath resolvePath(List<String> attrPath, MetaAttributeFinder finder) {
+    if (attrPath == null || attrPath.isEmpty())
+      throw new IllegalArgumentException("invalid attribute path '" + attrPath + "'");
+    LinkedList<MetaAttribute> list = new LinkedList<>();
 
-				MetaMapAttribute keyAttr;
-				if (pathElement instanceof MetaAttributeProjection) {
-					keyAttr = new MetaMapAttributeProjectionImpl(mapType, pathElement, keyString, true);
-				} else {
-					keyAttr = new MetaMapAttributeImpl(mapType, pathElement, keyString, true);
-				}
-				list.add(keyAttr);
-				i++;
-				MetaType valueType = mapType.getValueType();
-				currentMdo = nextPathElement(valueType, i, attrPath);
-			} else {
-				list.add(pathElement);
-				currentMdo = nextPathElement(pathElement.getType(), i, attrPath);
-			}
-			i++;
-		}
+    MetaDataObject currentMdo = this;
+    int i = 0;
+    while (i < attrPath.size()) {
+      String pathElementName = attrPath.get(i);
+      MetaAttribute pathElement = finder.getAttribute(currentMdo, pathElementName);
+      if (i < attrPath.size() - 1 && pathElement.getType() instanceof MetaMapType) {
+        MetaMapType mapType = (MetaMapType) pathElement.getType();
 
-		return new MetaAttributePath(list);
-	}
+        // next "attribute" is the key within the map
+        String keyString = attrPath.get(i + 1);
 
-	private MetaDataObject nextPathElement(MetaType pathElementType, int i, List<String> pathElements) {
-		if (i == pathElements.size() - 1) {
-			return null;
-		} else {
-			if (!(pathElementType instanceof MetaDataObject)) {
-				throw new IllegalArgumentException("failed to resolve path " + pathElements);
-			}
-			return pathElementType.asDataObject();
-		}
-	}
+        MetaMapAttribute keyAttr;
+        if (pathElement instanceof MetaAttributeProjection) {
+          keyAttr = new MetaMapAttributeProjectionImpl(mapType, pathElement, keyString, true);
+        }
+        else {
+          keyAttr = new MetaMapAttributeImpl(mapType, pathElement, keyString, true);
+        }
+        list.add(keyAttr);
+        i++;
+        MetaType valueType = mapType.getValueType();
+        currentMdo = nextPathElement(valueType, i, attrPath);
+      }
+      else {
+        list.add(pathElement);
+        currentMdo = nextPathElement(pathElement.getType(), i, attrPath);
+      }
+      i++;
+    }
 
-	@Override
-	public MetaAttribute findAttribute(String name, boolean includeSubTypes) {
-		if (hasAttribute(name)) {
-			return getAttribute(name);
-		}
+    return new MetaAttributePath(list);
+  }
 
-		if (includeSubTypes) {
-			List<? extends MetaDataObject> transitiveSubTypes = getSubTypes(true, true);
-			for (MetaDataObject subType : transitiveSubTypes) {
-				if (subType.hasAttribute(name)) {
-					return subType.getAttribute(name);
-				}
-			}
-		}
+  private MetaDataObject nextPathElement(MetaType pathElementType, int i, List<String> pathElements) {
+    if (i == pathElements.size() - 1) {
+      return null;
+    }
+    else {
+      if (!(pathElementType instanceof MetaDataObject)) {
+        throw new IllegalArgumentException("failed to resolve path " + pathElements);
+      }
+      return pathElementType.asDataObject();
+    }
+  }
 
-		throw new IllegalStateException("attribute " + name + " not found in " + getName());
-	}
+  @Override
+  public MetaAttribute findAttribute(String name, boolean includeSubTypes) {
+    if (hasAttribute(name)) {
+      return getAttribute(name);
+    }
 
-	@Override
-	public boolean hasAttribute(String name) {
-		return attrMap.containsKey(name);
-	}
+    if (includeSubTypes) {
+      List<? extends MetaDataObject> transitiveSubTypes = getSubTypes(true, true);
+      for (MetaDataObject subType : transitiveSubTypes) {
+        if (subType.hasAttribute(name)) {
+          return subType.getAttribute(name);
+        }
+      }
+    }
 
-	@Override
-	public MetaDataObject getSuperType() {
-		return superType;
-	}
+    throw new IllegalStateException("attribute " + name + " not found in " + getName());
+  }
 
-	@Override
-	public MetaDataObject getRootType() {
-		if (getSuperType() != null) // ensure proxy resolve
-			return superType.getRootType();
-		else
-			return this;
-	}
+  @Override
+  public boolean hasAttribute(String name) {
+    return attrMap.containsKey(name);
+  }
 
-	@Override
-	public List<MetaDataObject> getSubTypes(boolean transitive, boolean self) {
-		int cacheIndex = (transitive ? 2 : 0) | (self ? 1 : 0);
+  @Override
+  public MetaDataObject getSuperType() {
+    return superType;
+  }
 
-		List<MetaDataObject> cached = subTypesCache[cacheIndex];
-		if (cached != null) {
-			return cached;
-		} else {
-			ArrayList<MetaDataObject> types = computeSubTypes(transitive, self);
-			List<MetaDataObject> unmodifiableList = Collections.unmodifiableList(types);
-			subTypesCache[cacheIndex] = unmodifiableList;
-			return unmodifiableList;
-		}
-	}
+  @Override
+  public List<MetaDataObject> getSubTypes(boolean transitive, boolean self) {
+    int cacheIndex = (transitive ? 2 : 0) | (self ? 1 : 0);
 
-	private ArrayList<MetaDataObject> computeSubTypes(boolean transitive, boolean self) {
-		ArrayList<MetaDataObject> types = new ArrayList<>();
+    List<MetaDataObject> cached = subTypesCache[cacheIndex];
+    if (cached != null) {
+      return cached;
+    }
+    else {
+      ArrayList<MetaDataObject> types = computeSubTypes(transitive, self);
+      List<MetaDataObject> unmodifiableList = Collections.unmodifiableList(types);
+      subTypesCache[cacheIndex] = unmodifiableList;
+      return unmodifiableList;
+    }
+  }
 
-		if (self && (!isAbstract() || !subTypes.isEmpty()))
-			types.add(this);
+  private ArrayList<MetaDataObject> computeSubTypes(boolean transitive, boolean self) {
+    ArrayList<MetaDataObject> types = new ArrayList<>();
 
-		for (MetaDataObject subType : subTypes) {
-			if (!subType.isAbstract() || !subType.getSubTypes().isEmpty())
-				types.add(subType);
-			if (transitive) {
-				types.addAll(subType.getSubTypes(true, false));
-			}
-		}
-		return types;
-	}
+    if (self && (!isAbstract() || !subTypes.isEmpty()))
+      types.add(this);
 
-	@Override
-	public boolean isAbstract() {
-		return Modifier.isAbstract(getImplementationClass().getModifiers());
-	}
+    for (MetaDataObject subType : subTypes) {
+      if (!subType.isAbstract() || !subType.getSubTypes().isEmpty())
+        types.add(subType);
+      if (transitive) {
+        types.addAll(subType.getSubTypes(true, false));
+      }
+    }
+    return types;
+  }
 
-	@Override
-	public List<MetaDataObject> getSubTypes() {
-		return subTypes;
-	}
+  @Override
+  public boolean isAbstract() {
+    return Modifier.isAbstract(getImplementationClass().getModifiers());
+  }
 
-	private boolean isSuperTypeOf(MetaDataObject sub) {
-		return this == sub || (sub != null && isSuperTypeOf(sub.getSuperType()));
-	}
+  @Override
+  public List<MetaDataObject> getSubTypes() {
+    return subTypes;
+  }
 
-	@Override
-	public MetaDataObject findSubTypeOrSelf(Class<?> implClass) {
-		if (implClass == null)
-			throw new NullPointerException("class is null");
-		Class<?> localImplClass = getImplementationClass();
-		if (implClass == localImplClass)
-			return this;
-		MetaDataObject subType = lookup.getMeta(implClass).asDataObject();
-		if (isSuperTypeOf(subType))
-			return subType;
-		return null;
-	}
+  @Override
+  public MetaKey getPrimaryKey() {
+    if (primaryKey == null && superType != null) {
+      return superType.getPrimaryKey();
+    }
+    return primaryKey;
+  }
 
-	/**
-	 * Gets the subtype with the given name (simple or qualitified).
-	 * 
-	 * @param name of the type
-	 * @return meta object
-	 */
-	public MetaDataObject findSubTypeOrSelf(String name) {
-		HashMap<String, MetaDataObject> cache = subTypesMapCache;
-		if (cache == null) {
-			cache = new HashMap<>();
-			List<? extends MetaDataObject> transitiveSubTypes = getSubTypes(true, true);
-			for (MetaDataObject subType : transitiveSubTypes) {
-				cache.put(subType.getName(), subType);
-				cache.put(subType.getId(), subType);
-			}
-			subTypesMapCache = cache;
-		}
-		return subTypesMapCache.get(name);
-	}
+  @Override
+  public Set<MetaKey> getKeys() {
+    return keys;
+  }
 
-	@Override
-	public MetaProjection asProjection() {
-		if (this instanceof MetaProjection)
-			return (MetaProjection) this;
-		throw new IllegalStateException("not a projection");
-	}
+  public void setPrimaryKey(MetaKey key) {
+    this.primaryKey = key;
+    addKey(key);
+  }
 
-	@Override
-	public MetaKey getPrimaryKey() {
-		if(primaryKey == null && superType != null){
-			return superType.getPrimaryKey();
-		}
-		return primaryKey;
-	}
-
-	@Override
-	public Set<MetaKey> getKeys() {
-		return keys;
-	}
-
-	public void setPrimaryKey(MetaKey key) {
-		this.primaryKey = key;
-		addKey(key);
-	}
-
-	public void addKey(MetaKey key) {
-		keys.add(key);
-	}
+  public void addKey(MetaKey key) {
+    keys.add(key);
+  }
 
 }
