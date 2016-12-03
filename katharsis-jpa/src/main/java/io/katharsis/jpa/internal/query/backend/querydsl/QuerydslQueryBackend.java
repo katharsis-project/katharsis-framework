@@ -373,16 +373,6 @@ public class QuerydslQueryBackend<T>
 	}
 
 	@Override
-	public Expression<?> joinMapValues(Expression<?> currentCriteriaPath, MetaAttribute pathElement) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public Expression<?> joinMapKey(Expression<?> currentCriteriaPath, MetaAttribute pathElement) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
 	public Class<?> getJavaElementType(Expression<?> expression) {
 		if (expression instanceof CollectionExpressionBase) {
 			return ((CollectionExpressionBase) expression).getElementType();
