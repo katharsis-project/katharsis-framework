@@ -126,7 +126,7 @@ public class JpaModule implements Module {
 				Class<?> managedJavaType = managedType.getJavaType();
 				MetaElement meta = metaLookup.getMeta(managedJavaType);
 				if (meta instanceof MetaEntity) {
-					addEntityClass(managedJavaType);
+					addRepository(JpaRepositoryConfig.builder(managedJavaType).build());
 				}
 			}
 		}
@@ -486,78 +486,4 @@ public class JpaModule implements Module {
 	public <T> JpaRepositoryConfig<T> getRepositoryConfig(Class<T> resourceClass) {
 		return (JpaRepositoryConfig<T>) repositoryConfigurationMap.get(resourceClass);
 	}
-
-	/**
-	 * @return set of entity classes made available as repository.
-	 * @Deprecated use getResourceClasses
-	 */
-	@Deprecated
-	public Set<Class<?>> getEntityClasses() {
-		return getResourceClasses();
-	}
-
-	/**
-	 * Adds the given entity class to expose the entity as repository.
-	 * 
-	 * @param entityClass to expose as repository
-	 * @Deprecated use addRepository
-	 */
-	@Deprecated
-	public void addEntityClass(Class<?> entityClass) {
-		checkNotInitialized();
-		addRepository(JpaRepositoryConfig.builder(entityClass).build());
-	}
-
-	/**
-	 * Adds the given entity class which is mapped to a DTO with the provided mapper.
-	 * 
-	 * @param <E> entity class
-	 * @param <D> dto class
-	 * @param entityClass to add as repository
-	 * @param dtoClass to map the entity to
-	 * @param mapper to use to map the entity to the dto
-	 * @Deprecated use addRepository
-	 */
-	@Deprecated
-	public <E, D> void addMappedEntityClass(Class<E> entityClass, Class<D> dtoClass, JpaMapper<E, D> mapper) {
-		checkNotInitialized();
-		addRepository(JpaRepositoryConfig.builder(entityClass, dtoClass, mapper).build());
-	}
-
-	/**
-	 * Adds the given entity class which is mapped to a DTO with the provided mapper.
-	 * 
-	 * @param <D> dto type
-	 * @param resourceClass to remove
-	 * @deprecated use removeRepository
-	 */
-	@Deprecated
-	public <D> void removeMappedEntityClass(Class<D> resourceClass) {
-		checkNotInitialized();
-		repositoryConfigurationMap.remove(resourceClass);
-	}
-
-	/**
-	 * Removes the given entity class to not expose the entity as repository.
-	 * 
-	 * @param entityClass to remove
-	 * @deprecated use removeRepository
-	 */
-	@Deprecated
-	public void removeEntityClass(Class<?> entityClass) {
-		checkNotInitialized();
-		repositoryConfigurationMap.remove(entityClass);
-	}
-
-	/**
-	 * Removes all entity classes registered by default. Use {@link #addEntityClass(Class)} or
-	 * {@link #addMappedEntityClass(Class, Class, JpaMapper)} to register classes manually.
-	 * @deprecated use removeRepositories
-	 */
-	@Deprecated
-	public void removeAllEntityClasses() {
-		checkNotInitialized();
-		repositoryConfigurationMap.clear();
-	}
-
 }
