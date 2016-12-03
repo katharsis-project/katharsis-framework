@@ -167,7 +167,7 @@ public class MetaDataObjectImpl extends MetaTypeImpl implements MetaDataObject {
 				// next "attribute" is the key within the map
 				String keyString = attrPath.get(i + 1);
 
-				MetaMapAttribute keyAttr = new MetaMapAttributeImpl(mapType, pathElement, keyString, true);
+				MetaMapAttribute keyAttr = new MetaMapAttributeImpl(mapType, pathElement, keyString);
 				list.add(keyAttr);
 				i++;
 				MetaType valueType = mapType.getValueType();

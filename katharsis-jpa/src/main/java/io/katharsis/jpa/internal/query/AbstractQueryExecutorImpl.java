@@ -104,8 +104,6 @@ public abstract class AbstractQueryExecutorImpl<T> implements JpaQueryExecutor<T
 
 	protected abstract boolean isCompoundSelection();
 
-	protected abstract List<?> executeQuery(); // NOSONAR
-
 	@Override
 	public T getUniqueResult(boolean nullable) {
 		List<T> list = getResultList();
@@ -195,9 +193,10 @@ public abstract class AbstractQueryExecutorImpl<T> implements JpaQueryExecutor<T
 			return graph.addSubgraph(fetchPath.toString());
 		}
 	}
+	
+	public abstract Query getTypedQuery();
 
-	@SuppressWarnings("rawtypes")
-	protected List executeQuery(Query typedQuery) {
+	protected Query setupQuery(Query typedQuery) {
 		// apply graph control
 		applyFetchPaths(typedQuery);
 
@@ -210,6 +209,14 @@ public abstract class AbstractQueryExecutorImpl<T> implements JpaQueryExecutor<T
 			typedQuery.setMaxResults(limit);
 		}
 		typedQuery.setFirstResult(offset);
+		return typedQuery;
+	}
+
+	@SuppressWarnings("rawtypes")
+	public List<T> executeQuery() {
+		Query typedQuery = getTypedQuery();
+		
+		setupQuery(typedQuery);
 
 		// query execution
 		List resultList = typedQuery.getResultList();

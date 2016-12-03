@@ -13,6 +13,7 @@ import io.katharsis.jpa.query.querydsl.QuerydslTuple;
 public class ObjectArrayTupleImpl implements QuerydslTuple, JpaCriteriaTuple {
 
 	private Object[] data;
+
 	private int numEntriesToIgnore;
 
 	public ObjectArrayTupleImpl(Object entity) {
@@ -42,9 +43,10 @@ public class ObjectArrayTupleImpl implements QuerydslTuple, JpaCriteriaTuple {
 
 	@Override
 	public Object[] toArray() {
-		if(numEntriesToIgnore > 0){
-			return Arrays.copyOfRange(data, numEntriesToIgnore, data.length - numEntriesToIgnore);
-		}else{
+		if (numEntriesToIgnore > 0) {
+			return Arrays.copyOfRange(data, numEntriesToIgnore, data.length);
+		}
+		else {
 			return data;
 		}
 	}
