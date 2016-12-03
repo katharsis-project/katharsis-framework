@@ -311,7 +311,12 @@ public class QuerydslQueryBackend<T>
 			return predicates.get(0);
 		}
 		else {
-			return new BooleanPredicateOperation(Ops.AND, (ImmutableList) ImmutableList.copyOf(predicates));
+			// only two elements for each operation supported, needs querydsl fix?
+			Predicate result = predicates.get(0);
+			for (int i = 1; i < predicates.size(); i++) {
+				result = new BooleanPredicateOperation(Ops.AND, (ImmutableList) ImmutableList.of(result, predicates.get(i)));
+			}
+			return result;
 		}
 	}
 
@@ -326,7 +331,12 @@ public class QuerydslQueryBackend<T>
 			return predicates.get(0);
 		}
 		else {
-			return new BooleanPredicateOperation(Ops.OR, (ImmutableList) ImmutableList.copyOf(predicates));
+			// only two elements for each operation supported, needs querydsl fix?
+			Predicate result = predicates.get(0);
+			for (int i = 1; i < predicates.size(); i++) {
+				result = new BooleanPredicateOperation(Ops.OR, (ImmutableList) ImmutableList.of(result, predicates.get(i)));
+			}
+			return result;
 		}
 	}
 

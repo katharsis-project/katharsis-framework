@@ -484,8 +484,9 @@ public abstract class BasicQueryTestBase extends AbstractJpaTest {
 		}
 		largeList.add(0L);
 
-		assertEquals(4,
-				builder().addFilter(TestEntity.ATTR_id, FilterOperator.EQ, largeList).buildExecutor().getResultList().size());
+		JpaQuery<TestEntity> query = builder().addFilter(TestEntity.ATTR_id, FilterOperator.EQ, largeList);
+		JpaQueryExecutor<TestEntity> executor = query.buildExecutor();
+		assertEquals(4, executor.getResultList().size());
 
 	}
 
