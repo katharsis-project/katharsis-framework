@@ -9,7 +9,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import com.querydsl.core.Tuple;
-import com.querydsl.core.types.Expression;
 
 import io.katharsis.jpa.internal.query.backend.querydsl.QuerydslTupleImpl;
 
@@ -26,11 +25,6 @@ public class QueryDslTupleImplTest {
 		Mockito.when(tuple.get(1, String.class)).thenReturn("1");
 		Map<String, Integer> selectionBindings = new HashMap<>();
 		impl = new QuerydslTupleImpl(tuple, selectionBindings);
-	}
-
-	@Test(expected = UnsupportedOperationException.class)
-	public void testGetByExpressionNotSupported() {
-		impl.get((Expression<?>) null);
 	}
 
 	@Test
