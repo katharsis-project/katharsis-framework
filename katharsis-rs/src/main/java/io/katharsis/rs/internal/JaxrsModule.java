@@ -98,7 +98,7 @@ public class JaxrsModule implements Module {
 				throw new IllegalStateException("@Path value must not be empty: " + method);
 			}
 			if (pathElements.length > 2) {
-				throw new IllegalStateException("@Path value must not contain more than to elements: " + method);
+				throw new IllegalStateException("@Path value must not contain more than two elements: " + method);
 			}
 
 			if (pathElements.length == 1 && pathElements[0].equals(ID_ACTION_PARAMETER)) {

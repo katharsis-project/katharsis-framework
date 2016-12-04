@@ -9,10 +9,12 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.SecurityContext;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import io.katharsis.repository.ResourceRepositoryV2;
 import io.katharsis.repository.information.RepositoryAction;
@@ -22,6 +24,7 @@ import io.katharsis.repository.information.ResourceRepositoryInformation;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
 import io.katharsis.resource.information.ResourceInformationBuilder;
+import io.katharsis.rs.internal.JaxrsModule;
 import io.katharsis.rs.internal.JaxrsModule.JaxrsResourceRepositoryInformationBuilder;
 import io.katharsis.rs.resource.model.Task;
 
@@ -43,6 +46,13 @@ public class JaxRsModuleTest {
 				return resourceInformationBuilder;
 			}
 		};
+	}
+
+	@Test
+	public void testGetter() {
+		SecurityContext securityContext = Mockito.mock(SecurityContext.class);
+		JaxrsModule module = new JaxrsModule(securityContext);
+		Assert.assertEquals("jaxrs", module.getModuleName());
 	}
 
 	@Test
@@ -77,6 +87,21 @@ public class JaxRsModuleTest {
 		builder.build(InvalidIdPathRepository2.class, context);
 	}
 
+	@Test(expected = IllegalStateException.class)
+	public void testPathToLongRepository() {
+		builder.build(PathToLongRepository.class, context);
+	}
+
+	@Test(expected = IllegalStateException.class)
+	public void testMissingPathRepository1() {
+		builder.build(MissingPathRepository1.class, context);
+	}
+
+	@Test(expected = IllegalStateException.class)
+	public void testMissingPathRepository2() {
+		builder.build(MissingPathRepository2.class, context);
+	}
+
 	@Path("schedules")
 	public interface ScheduleRepository extends ResourceRepositoryV2<Task, Long> {
 
@@ -93,7 +118,7 @@ public class JaxRsModuleTest {
 		public String repositoryDeleteAction();
 
 		@PUT
-		@Path("repositoryPutAction")
+		@Path("/repositoryPutAction/")
 		public String repositoryPutAction();
 
 		@GET
@@ -107,6 +132,30 @@ public class JaxRsModuleTest {
 
 		@GET
 		@Path("")
+		public String resourceAction();
+
+	}
+
+	@Path("schedules")
+	public interface MissingPathRepository1 extends ResourceRepositoryV2<Task, Long> {
+
+		@GET
+		public String resourceAction();
+
+	}
+
+	@Path("schedules")
+	public interface MissingPathRepository2 extends ResourceRepositoryV2<Task, Long> {
+
+		public String resourceAction(@PathParam("id") long id);
+
+	}
+
+	@Path("schedules")
+	public interface PathToLongRepository extends ResourceRepositoryV2<Task, Long> {
+
+		@GET
+		@Path("a/b/c")
 		public String resourceAction();
 
 	}

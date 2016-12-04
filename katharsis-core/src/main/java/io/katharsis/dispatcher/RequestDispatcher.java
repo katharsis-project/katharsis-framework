@@ -214,4 +214,8 @@ public class RequestDispatcher {
 			return method;
 		}
 	}
+
+	public QueryAdapterBuilder getQueryAdapterBuilder() {
+		return queryAdapterBuilder;
+	}
 }

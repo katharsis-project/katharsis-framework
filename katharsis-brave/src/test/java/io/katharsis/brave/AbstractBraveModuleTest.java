@@ -1,5 +1,6 @@
 package io.katharsis.brave;
 
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.List;
@@ -21,9 +22,12 @@ import com.github.kristofa.brave.Brave.Builder;
 import com.github.kristofa.brave.InheritableServerClientAndLocalSpanState;
 import com.twitter.zipkin.gen.Endpoint;
 
+import io.katharsis.brave.mock.models.Project;
 import io.katharsis.brave.mock.models.Task;
+import io.katharsis.brave.mock.repository.ProjectRepository;
 import io.katharsis.brave.mock.repository.TaskRepository;
 import io.katharsis.client.KatharsisClient;
+import io.katharsis.client.QuerySpecRelationshipRepositoryStub;
 import io.katharsis.client.QuerySpecResourceRepositoryStub;
 import io.katharsis.client.http.HttpAdapter;
 import io.katharsis.client.http.okhttp.OkHttpAdapter;
@@ -50,6 +54,8 @@ public abstract class AbstractBraveModuleTest extends JerseyTest {
 
 	private boolean isOkHttp;
 
+	private QuerySpecResourceRepositoryStub<Project, Serializable> projectRepo;
+
 	public AbstractBraveModuleTest(HttpAdapter httpAdapter) {
 		this.httpAdapter = httpAdapter;
 		this.isOkHttp = httpAdapter instanceof OkHttpAdapter;
@@ -70,7 +76,9 @@ public abstract class AbstractBraveModuleTest extends JerseyTest {
 		client.setHttpAdapter(httpAdapter);
 		client.addModule(BraveModule.newClientModule(clientBrave));
 		taskRepo = client.getQuerySpecRepository(Task.class);
-		TaskRepository.map.clear();
+		projectRepo = client.getQuerySpecRepository(Project.class);
+		TaskRepository.clear();
+		ProjectRepository.clear();
 		httpAdapter.setReceiveTimeout(10000, TimeUnit.SECONDS);
 	}
 
@@ -108,6 +116,45 @@ public abstract class AbstractBraveModuleTest extends JerseyTest {
 	}
 
 	@Test
+	public void testError() {
+		Task task = new Task();
+		task.setId(13L);
+		try {
+			taskRepo.create(task);
+		}
+		catch (Exception e) {
+			// ok
+		}
+
+		// check client call and link span
+		ArgumentCaptor<Span> clientSpanCaptor = ArgumentCaptor.forClass(Span.class);
+		Mockito.verify(clientReporter, Mockito.times(isOkHttp ? 2 : 1)).report(clientSpanCaptor.capture());
+		List<Span> clientSpans = clientSpanCaptor.getAllValues();
+		Span callSpan = clientSpans.get(0);
+		Assert.assertEquals("post", callSpan.name);
+		Assert.assertTrue(callSpan.toString().contains("\"cs\""));
+		Assert.assertTrue(callSpan.toString().contains("\"cr\""));
+		assertBinaryAnnotation(callSpan, "http.status_code", "500");
+		if (isOkHttp) {
+			Span linkSpan = clientSpans.get(1);
+			Assert.assertEquals("post", linkSpan.name);
+			Assert.assertTrue(linkSpan.toString().contains("\"lc\""));
+		}
+
+		// check server local span
+		ArgumentCaptor<Span> serverSpanCaptor = ArgumentCaptor.forClass(Span.class);
+		Mockito.verify(serverReporter, Mockito.times(1)).report(serverSpanCaptor.capture());
+		List<Span> serverSpans = serverSpanCaptor.getAllValues();
+		Span repositorySpan = serverSpans.get(0);
+		Assert.assertEquals("post /tasks/13/", repositorySpan.name);
+		Assert.assertTrue(repositorySpan.toString().contains("\"lc\""));
+
+		assertBinaryAnnotation(repositorySpan, "lc", "katharsis");
+		assertBinaryAnnotation(repositorySpan, "katharsis.query", "?");
+		assertBinaryAnnotation(repositorySpan, "katharsis.status", "EXCEPTION");
+	}
+
+	@Test
 	public void testFindAll() {
 		Task task = new Task();
 		task.setId(13L);
@@ -142,6 +189,50 @@ public abstract class AbstractBraveModuleTest extends JerseyTest {
 		assertBinaryAnnotation(repositorySpan, "katharsis.query", "?filter[tasks][name][EQ]=doe");
 		assertBinaryAnnotation(repositorySpan, "katharsis.results", "0");
 		assertBinaryAnnotation(repositorySpan, "katharsis.status", "OK");
+	}
+
+	@Test
+	public void testFindTargets() {
+		QuerySpecRelationshipRepositoryStub<Project, Serializable, Task, Serializable> relRepo = client
+				.getQuerySpecRepository(Project.class, Task.class);
+		relRepo.findManyTargets(123L, "tasks", new QuerySpec(Task.class));
+
+		// check client call and link span
+		ArgumentCaptor<Span> clientSpanCaptor = ArgumentCaptor.forClass(Span.class);
+		Mockito.verify(clientReporter, Mockito.times(isOkHttp ? 2 : 1)).report(clientSpanCaptor.capture());
+		List<Span> clientSpans = clientSpanCaptor.getAllValues();
+		Span callSpan = clientSpans.get(0);
+		Assert.assertEquals("get", callSpan.name);
+		Assert.assertTrue(callSpan.toString().contains("\"cs\""));
+		Assert.assertTrue(callSpan.toString().contains("\"cr\""));
+		if (isOkHttp) {
+			Span linkSpan = clientSpans.get(1);
+			Assert.assertEquals("get", linkSpan.name);
+			Assert.assertTrue(linkSpan.toString().contains("\"lc\""));
+		}
+
+		// check server local span
+		ArgumentCaptor<Span> serverSpanCaptor = ArgumentCaptor.forClass(Span.class);
+		Mockito.verify(serverReporter, Mockito.times(2)).report(serverSpanCaptor.capture());
+		List<Span> serverSpans = serverSpanCaptor.getAllValues();
+
+		Span repositorySpan0 = serverSpans.get(0);
+		Assert.assertEquals("get /tasks/", repositorySpan0.name);
+		Assert.assertTrue(repositorySpan0.toString().contains("\"lc\""));
+
+		assertBinaryAnnotation(repositorySpan0, "lc", "katharsis");
+		assertBinaryAnnotation(repositorySpan0, "katharsis.query", "?include[tasks]=project&filter[tasks][project][id][EQ]=123");
+		assertBinaryAnnotation(repositorySpan0, "katharsis.results", "0");
+		assertBinaryAnnotation(repositorySpan0, "katharsis.status", "OK");
+
+		Span repositorySpan1 = serverSpans.get(1);
+		Assert.assertEquals("get /projects/123/tasks/", repositorySpan1.name);
+		Assert.assertTrue(repositorySpan1.toString().contains("\"lc\""));
+
+		assertBinaryAnnotation(repositorySpan1, "lc", "katharsis");
+		assertBinaryAnnotation(repositorySpan1, "katharsis.query", "?");
+		assertBinaryAnnotation(repositorySpan1, "katharsis.results", "0");
+		assertBinaryAnnotation(repositorySpan1, "katharsis.status", "OK");
 	}
 
 	private void assertBinaryAnnotation(Span span, String name, String value) {

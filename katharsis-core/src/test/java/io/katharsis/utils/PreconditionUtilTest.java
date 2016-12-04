@@ -39,6 +39,11 @@ public class PreconditionUtilTest {
 	}
 
 	@Test(expected = IllegalStateException.class)
+	public void testEqualsNotSatisfied2() {
+		PreconditionUtil.assertEquals(null, "a", "b");
+	}
+
+	@Test(expected = IllegalStateException.class)
 	public void testTrueNotSatisfied() {
 		PreconditionUtil.assertTrue(null, false);
 	}

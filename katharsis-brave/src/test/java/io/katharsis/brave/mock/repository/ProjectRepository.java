@@ -4,19 +4,20 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
-import io.katharsis.brave.mock.models.Task;
+import io.katharsis.brave.mock.models.Project;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.repository.ResourceRepositoryBase;
 import io.katharsis.resource.list.ResourceList;
 
-public class TaskRepository extends ResourceRepositoryBase<Task, Long> {
+public class ProjectRepository extends ResourceRepositoryBase<Project, Long> {
 
 	private static final AtomicLong ID_GENERATOR = new AtomicLong(124);
 
-	private static Map<Long, Task> resources = new HashMap<>();
+	private static Map<Long, Project> resources = new HashMap<>();
 
-	public TaskRepository() {
-		super(Task.class);
+	public ProjectRepository() {
+		super(Project.class);
+		save(new Project(123L, "Great Project"));
 	}
 
 	@Override
@@ -25,19 +26,16 @@ public class TaskRepository extends ResourceRepositoryBase<Task, Long> {
 	}
 
 	@Override
-	public synchronized <S extends Task> S save(S task) {
-		if (task.getName() == null) {
-			throw new IllegalStateException("no name available");
+	public synchronized <S extends Project> S save(S project) {
+		if (project.getId() == null) {
+			project.setId(ID_GENERATOR.getAndIncrement());
 		}
-		if (task.getId() == null) {
-			task.setId(ID_GENERATOR.getAndIncrement());
-		}
-		resources.put(task.getId(), task);
-		return task;
+		resources.put(project.getId(), project);
+		return project;
 	}
 
 	@Override
-	public synchronized ResourceList<Task> findAll(QuerySpec querySpec) {
+	public synchronized ResourceList<Project> findAll(QuerySpec querySpec) {
 		return querySpec.apply(resources.values());
 	}
 

@@ -184,7 +184,7 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 		if (onSave) {
 			test.setManyRelatedValues(Arrays.asList(related1, related2));
 		}
-		testRepo.save(test, includeManyRelatedValueParams());
+		testRepo.save(test);
 
 		// query relation
 		QuerySpecRelationshipRepositoryStub<TestEntity, Long, RelatedEntity, Long> relRepo = client
@@ -466,7 +466,7 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 		test.setId(2L);
 		test.setStringValue("test");
 		test.setOneRelatedValue(related);
-		testRepo.save(test, includeOneRelatedValueParams());
+		testRepo.save(test);
 		return test;
 	}
 

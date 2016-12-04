@@ -161,14 +161,11 @@ public abstract class FilterOperator {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		FilterOperator other = (FilterOperator) obj;
-		return id.equals(other.id);
+		if (obj instanceof FilterOperator) {
+			FilterOperator other = (FilterOperator) obj;
+			return id.equals(other.id);
+		}
+		return false;
 	}
 
 	@Override
