@@ -200,7 +200,7 @@ public abstract class ResourceUpsert extends BaseController {
             	ResourceInformation resourceInformation = registryEntry.getResourceInformation();
 				ResourceField field = resourceInformation.findRelationshipFieldByName(propertyName);
 				if(field == null){
-					 throw new ResourceException(String.format("Invalid relationship name: %s", property.getKey()));
+					 throw new ResourceException(String.format("Invalid relationship name: %s for %s", property.getKey(), resourceInformation.getResourceType()));
 				}
             	if (Iterable.class.isAssignableFrom(field.getType())){
                     //noinspection unchecked

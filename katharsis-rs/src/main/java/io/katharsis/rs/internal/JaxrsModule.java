@@ -16,6 +16,7 @@ import javax.ws.rs.core.SecurityContext;
 
 import io.katharsis.module.Module;
 import io.katharsis.repository.information.RepositoryAction;
+import io.katharsis.repository.information.RepositoryAction.RepositoryActionType;
 import io.katharsis.repository.information.internal.DefaultResourceRepositoryInformationBuilder;
 
 public class JaxrsModule implements Module {
@@ -45,16 +46,16 @@ public class JaxrsModule implements Module {
 		return "jaxrs";
 	}
 
-	class JaxrsResourceRepositoryInformationBuilder extends DefaultResourceRepositoryInformationBuilder {
+	public static class JaxrsResourceRepositoryInformationBuilder extends DefaultResourceRepositoryInformationBuilder {
 
 		@Override
 		protected Map<String, RepositoryAction> buildActions(Class<? extends Object> repositoryClass) {
 			HashMap<String, RepositoryAction> actions = new HashMap<>();
-			
+
 			// search for annotated methods on classes and interfaces
 			// since annotations are no inherited
 			setupClass(actions, repositoryClass);
-			for(Class<?> interfaceClass : repositoryClass.getInterfaces()){
+			for (Class<?> interfaceClass : repositoryClass.getInterfaces()) {
 				setupClass(actions, interfaceClass);
 			}
 			return actions;
@@ -63,7 +64,7 @@ public class JaxrsModule implements Module {
 		private void setupClass(HashMap<String, RepositoryAction> actions, Class<? extends Object> repositoryClass) {
 			for (Method method : repositoryClass.getMethods()) {
 				setupMethod(actions, method);
-			}			
+			}
 		}
 
 		private void setupMethod(HashMap<String, RepositoryAction> actions, Method method) {
@@ -72,17 +73,19 @@ public class JaxrsModule implements Module {
 			if (pathAnnotation != null) {
 				String path = normPath(pathAnnotation.value());
 				String[] pathElements = path.split("\\/");
-				
+
 				checkPathElements(method, pathElements);
-				
-			
+
+				RepositoryActionType actionType = pathElements[0].equals(ID_ACTION_PARAMETER) ? RepositoryActionType.RESOURCE
+						: RepositoryActionType.REPOSITORY;
+
 				String name = pathElements[pathElements.length - 1];
-				RepositoryAction action = new JaxrsRepositoryAction(name);
+				RepositoryAction action = new JaxrsRepositoryAction(name, actionType);
 				actions.put(name, action);
 			}
 			else if (isJaxRs) {
 				throw new IllegalStateException("JAXRS actions must be annotated with @Path: " + method);
-			}			
+			}
 		}
 
 		/**
@@ -91,11 +94,11 @@ public class JaxrsModule implements Module {
 		 * @param pathElements of this method
 		 */
 		private void checkPathElements(Method method, String[] pathElements) {
-			if (pathElements.length == 0) {
+			if (pathElements.length == 0 || pathElements.length == 1 && pathElements[0].isEmpty()) {
 				throw new IllegalStateException("@Path value must not be empty: " + method);
 			}
 			if (pathElements.length > 2) {
-				throw new IllegalStateException("@Path value must not contain more than to elements: " + method);
+				throw new IllegalStateException("@Path value must not contain more than two elements: " + method);
 			}
 
 			if (pathElements.length == 1 && pathElements[0].equals(ID_ACTION_PARAMETER)) {
@@ -104,7 +107,7 @@ public class JaxrsModule implements Module {
 			if (pathElements.length == 2 && !pathElements[0].equals(ID_ACTION_PARAMETER)) {
 				throw new IllegalStateException(
 						"for two elements in @Path the first one must be {id}, the second the action name: " + method);
-			}			
+			}
 		}
 
 		private boolean isJaxRsMethod(Method method) {
@@ -114,10 +117,10 @@ public class JaxrsModule implements Module {
 			boolean isPut = method.getAnnotation(PUT.class) != null;
 			boolean isDelete = method.getAnnotation(DELETE.class) != null;
 
-			if(isGet || isPost || isPut || isDelete){
+			if (isGet || isPost || isPut || isDelete) {
 				return true;
 			}
-			if(pathAnnotation != null){
+			if (pathAnnotation != null) {
 				return true;
 			}
 			return hasJaxRsMethodParameters(method);
@@ -128,8 +131,7 @@ public class JaxrsModule implements Module {
 			for (int paramIndex = 0; paramIndex < parameterAnnotationsArray.length; paramIndex++) {
 				Annotation[] parameterAnnotations = parameterAnnotationsArray[paramIndex];
 				for (Annotation parameterAnnotation : parameterAnnotations) {
-					if(parameterAnnotation instanceof PathParam
-							|| parameterAnnotation instanceof QueryParam){
+					if (parameterAnnotation instanceof PathParam || parameterAnnotation instanceof QueryParam) {
 						return true;
 					}
 				}
@@ -149,17 +151,25 @@ public class JaxrsModule implements Module {
 		}
 	}
 
-	class JaxrsRepositoryAction implements RepositoryAction {
+	public static class JaxrsRepositoryAction implements RepositoryAction {
 
 		private String name;
 
-		public JaxrsRepositoryAction(String name) {
+		private RepositoryActionType actionType;
+
+		public JaxrsRepositoryAction(String name, RepositoryActionType actionType) {
 			this.name = name;
+			this.actionType = actionType;
 		}
 
 		@Override
 		public String getName() {
 			return name;
+		}
+
+		@Override
+		public RepositoryActionType getActionType() {
+			return actionType;
 		}
 	}
 }

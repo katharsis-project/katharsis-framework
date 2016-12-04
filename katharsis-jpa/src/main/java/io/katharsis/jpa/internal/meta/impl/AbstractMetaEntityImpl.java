@@ -60,7 +60,7 @@ public class AbstractMetaEntityImpl extends MetaDataObjectImpl {
 					throw new IllegalStateException("not supported");
 				}
 
-				primaryKey = new MetaKeyImpl(this, PK_NAME, pkElements, true, true, type);
+				primaryKey = new MetaKeyImpl(this, PK_NAME, pkElements, true, type);
 			}
 
 			// TODO parse key annotations

@@ -115,7 +115,7 @@ public class QueryParamsClientTest extends AbstractClientTest {
 		addParams(params, "include[projects]", "tasks");
 		QueryParams queryParams = queryParamsBuilder.buildQueryParams(params);
 
-		projectRepo.save(project, queryParams);
+		projectRepo.save(project);
 
 		Task savedTask = taskRepo.findOne(2L, queryParams);
 		Assert.assertEquals(task.getId(), savedTask.getId());

@@ -16,7 +16,9 @@ import io.katharsis.jpa.internal.meta.MetaType;
 public class MetaAttributeImpl extends MetaElementImpl implements MetaAttribute {
 
 	private String name;
+
 	private Type type;
+
 	private boolean association;
 
 	public MetaAttributeImpl(MetaElement parent, String name, Type type) {
@@ -47,9 +49,6 @@ public class MetaAttributeImpl extends MetaElementImpl implements MetaAttribute 
 
 	@Override
 	public MetaType getType() {
-		if(lookup == null){
-			throw new IllegalStateException();
-		}
 		MetaElement meta = lookup.getMeta(type);
 		return meta.asType();
 	}
@@ -59,9 +58,9 @@ public class MetaAttributeImpl extends MetaElementImpl implements MetaAttribute 
 		PropertyUtilsBean utils = BeanUtilsBean.getInstance().getPropertyUtils();
 		try {
 			return utils.getNestedProperty(dataObject, getName());
-		} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-			throw new IllegalStateException(
-					"cannot access field " + getName() + " for " + dataObject.getClass().getName(), e);
+		}
+		catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+			throw new IllegalStateException("cannot access field " + getName() + " for " + dataObject.getClass().getName(), e);
 		}
 	}
 
@@ -70,9 +69,9 @@ public class MetaAttributeImpl extends MetaElementImpl implements MetaAttribute 
 		PropertyUtilsBean utils = BeanUtilsBean.getInstance().getPropertyUtils();
 		try {
 			utils.setNestedProperty(dataObject, getName(), value);
-		} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-			throw new IllegalStateException(
-					"cannot access field " + getName() + " for " + dataObject.getClass().getName(), e);
+		}
+		catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+			throw new IllegalStateException("cannot access field " + getName() + " for " + dataObject.getClass().getName(), e);
 		}
 	}
 

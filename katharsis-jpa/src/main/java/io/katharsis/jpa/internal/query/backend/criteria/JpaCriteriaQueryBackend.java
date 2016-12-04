@@ -29,6 +29,7 @@ import io.katharsis.jpa.internal.query.backend.JpaQueryBackend;
 import io.katharsis.jpa.query.criteria.JpaCriteriaExpressionFactory;
 import io.katharsis.queryspec.Direction;
 import io.katharsis.queryspec.FilterOperator;
+import io.katharsis.utils.PreconditionUtil;
 
 public class JpaCriteriaQueryBackend<T> implements JpaQueryBackend<From<?, ?>, Order, Predicate, Expression<?>> {
 
@@ -57,11 +58,12 @@ public class JpaCriteriaQueryBackend<T> implements JpaQueryBackend<From<?, ?>, O
 			root = parentFrom.join(parentAttr.getName());
 			joinHelper = new JoinRegistry<>(this, query);
 			joinHelper.putJoin(new MetaAttributePath(), root);
-			
-			if(parentIdSelection){
+
+			if (parentIdSelection) {
 				Expression<?> parentIdExpr = getParentIdExpression(parentAttr);
-				criteriaQuery.multiselect((List)Arrays.asList(parentIdExpr, root));
-			}else{
+				criteriaQuery.multiselect((List) Arrays.asList(parentIdExpr, root));
+			}
+			else {
 				criteriaQuery.select(root);
 			}
 		}
@@ -73,17 +75,15 @@ public class JpaCriteriaQueryBackend<T> implements JpaQueryBackend<From<?, ?>, O
 		}
 	}
 
-	private Expression<?> getParentIdExpression(MetaAttribute parentAttr){
+	private Expression<?> getParentIdExpression(MetaAttribute parentAttr) {
 		MetaEntity parentEntity = parentAttr.getParent().asEntity();
 		MetaKey primaryKey = parentEntity.getPrimaryKey();
 		List<MetaAttribute> elements = primaryKey.getElements();
-		if (elements.size() != 1) {
-			throw new UnsupportedOperationException("composite primary keys not supported yet");
-		}
+		PreconditionUtil.assertFalse("composite primary keys not supported yet", elements.size() != 1);
 		MetaAttribute primaryKeyAttr = elements.get(0);
 		return parentFrom.get(primaryKeyAttr.getName());
 	}
-	
+
 	@Override
 	public Expression<?> getAttribute(MetaAttributePath attrPath) {
 		return joinHelper.getEntityAttribute(attrPath);
@@ -123,10 +123,6 @@ public class JpaCriteriaQueryBackend<T> implements JpaQueryBackend<From<?, ?>, O
 		else {
 			return cb.desc(expr);
 		}
-	}
-
-	public CriteriaBuilder getCriteriaBuilder() {
-		return cb;
 	}
 
 	@Override
@@ -199,22 +195,8 @@ public class JpaCriteriaQueryBackend<T> implements JpaQueryBackend<From<?, ?>, O
 
 		expression = handleConversions(expression, operator);
 
-		if (expression instanceof Predicate && expression.getJavaType() == Boolean.class && operator == FilterOperator.EQ) {
-			return handleBoolean(expression, value);
-		}
-
 		return handle(expression, operator, value);
 
-	}
-
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private Predicate handleBoolean(Expression expression, Object value) {
-		if (value.equals(Boolean.TRUE)) {
-			return (Predicate) expression;
-		}
-		else {
-			return cb.not(expression);
-		}
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -296,20 +278,6 @@ public class JpaCriteriaQueryBackend<T> implements JpaQueryBackend<From<?, ?>, O
 		Predicate nullCondition = cb.isNull(mapJoin.key());
 		addPredicate(cb.or(mapJoinCondition, nullCondition));
 		return mapJoin;
-	}
-
-	@Override
-	public Expression<?> joinMapValues(Expression<?> currentCriteriaPath, MetaAttribute mapPathElement) {
-		MapJoin<Object, Object, Object> mapJoin = ((From<?, ?>) currentCriteriaPath).joinMap(mapPathElement.getName(),
-				JoinType.LEFT);
-		return mapJoin.value();
-	}
-
-	@Override
-	public Expression<?> joinMapKey(Expression<?> currentCriteriaPath, MetaAttribute mapPathElement) {
-		MapJoin<Object, Object, Object> mapJoin = ((From<?, ?>) currentCriteriaPath).joinMap(mapPathElement.getName(),
-				JoinType.LEFT);
-		return mapJoin.key();
 	}
 
 	@Override
