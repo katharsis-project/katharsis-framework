@@ -221,7 +221,6 @@ public abstract class AbstractBraveModuleTest extends JerseyTest {
 		Assert.assertTrue(repositorySpan0.toString().contains("\"lc\""));
 
 		assertBinaryAnnotation(repositorySpan0, "lc", "katharsis");
-		assertBinaryAnnotation(repositorySpan0, "katharsis.query", "?include[tasks]=project&filter[tasks][project][id][EQ]=123");
 		assertBinaryAnnotation(repositorySpan0, "katharsis.results", "0");
 		assertBinaryAnnotation(repositorySpan0, "katharsis.status", "OK");
 
