@@ -37,6 +37,7 @@ public class MetaLookup {
 	private ConcurrentHashMap<Type, MetaElement> cache = new ConcurrentHashMap<>();
 
 	private Set<Class<?>> primitiveTypes = Collections.newSetFromMap(new ConcurrentHashMap<Class<?>, Boolean>());
+
 	private List<AnnotationMetaElementFactory> factories = new CopyOnWriteArrayList<>();
 
 	public MetaLookup() {
@@ -69,9 +70,8 @@ public class MetaLookup {
 	}
 
 	public MetaElement getMeta(Type type) {
-		if (type == null) {
-			throw new IllegalArgumentException("type must not be null");
-		}
+		PreconditionUtil.assertNotNull("type must not be null", type);
+
 		MetaElement meta = cache.get(type);
 		if (meta == null) {
 			synchronized (this) {
@@ -95,10 +95,12 @@ public class MetaLookup {
 
 		if (type instanceof Class) {
 			return allocateMetaFromClass(type);
-		} else if (type instanceof ParameterizedType) {
+		}
+		else if (type instanceof ParameterizedType) {
 			ParameterizedType paramType = (ParameterizedType) type;
 			return allocateMetaFromParamerizedType(paramType);
-		} else {
+		}
+		else {
 			throw new UnsupportedOperationException("unknown type " + type);
 		}
 	}
@@ -107,12 +109,14 @@ public class MetaLookup {
 		Class<?> clazz = (Class<?>) type;
 		if (isPrimitiveType(clazz)) {
 			return new MetaPrimitiveType(clazz, type);
-		} else if (clazz.isArray()) {
+		}
+		else if (clazz.isArray()) {
 			Class<?> elementClass = ((Class<?>) type).getComponentType();
 
 			MetaType elementType = getMeta(elementClass).asType();
 			return new MetaArrayTypeImpl(null, (Class<?>) type, type, elementType);
-		} else {
+		}
+		else {
 			Class<?> superClazz = clazz.getSuperclass();
 			MetaElement superMeta = null;
 			if (superClazz != Object.class && superClazz != null) {
@@ -140,10 +144,12 @@ public class MetaLookup {
 			MetaType keyType = getMeta(paramType.getActualTypeArguments()[0]).asType();
 			MetaType valueType = getMeta(paramType.getActualTypeArguments()[1]).asType();
 			return new MetaMapTypeImpl(null, (Class<?>) paramType.getRawType(), paramType, keyType, valueType);
-		} else if (paramType.getRawType() instanceof Class
+		}
+		else if (paramType.getRawType() instanceof Class
 				&& Collection.class.isAssignableFrom((Class<?>) paramType.getRawType())) {
 			return allocateMetaFromCollectionType(paramType);
-		} else {
+		}
+		else {
 			throw new UnsupportedOperationException("unknown type " + paramType);
 		}
 	}
@@ -156,9 +162,11 @@ public class MetaLookup {
 		boolean isList = List.class.isAssignableFrom((Class<?>) paramType.getRawType());
 		if (isSet) {
 			return new MetaSetTypeImpl(null, (Class<?>) paramType.getRawType(), paramType, elementType);
-		} else if (isList) {
+		}
+		else if (isList) {
 			return new MetaListTypeImpl(null, (Class<?>) paramType.getRawType(), paramType, elementType);
-		} else {
+		}
+		else {
 			throw new IllegalStateException("expected list or set type: " + paramType.toString());
 		}
 	}
@@ -254,10 +262,12 @@ public class MetaLookup {
 	public static Class<?> getRawType(Type type) {
 		if (type instanceof Class) {
 			return (Class<?>) type;
-		} else if (type instanceof ParameterizedType) {
+		}
+		else if (type instanceof ParameterizedType) {
 			ParameterizedType paramType = (ParameterizedType) type;
 			return getRawType(paramType.getRawType());
-		} else {
+		}
+		else {
 			throw new IllegalArgumentException("unable to obtain raw type for " + type);
 		}
 	}

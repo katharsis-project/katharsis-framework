@@ -52,6 +52,15 @@ public class JpaListenerTest extends AbstractJpaTest {
 				Mockito.any(JpaQuery.class));
 	}
 
+	@Test
+	public void testaAddRemove() throws InstantiationException, IllegalAccessException {
+		JpaRepositoryFilterBase filter = Mockito.spy(new JpaRepositoryFilterBase());
+		module.addFilter(filter);
+		Assert.assertEquals(1, module.getFilters().size());
+		module.removeFilter(filter);
+		Assert.assertEquals(0, module.getFilters().size());
+	}
+
 	@Override
 	protected JpaQueryFactory createQueryFactory(EntityManager em) {
 		return QuerydslQueryFactory.newInstance();

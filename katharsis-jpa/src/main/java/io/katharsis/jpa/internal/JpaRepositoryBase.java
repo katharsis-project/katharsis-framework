@@ -1,9 +1,6 @@
 package io.katharsis.jpa.internal;
 
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import javax.persistence.EntityManager;
 
@@ -60,24 +57,6 @@ public abstract class JpaRepositoryBase<T> {
 		else {
 			throw new IllegalStateException("unique result expected");
 		}
-	}
-
-	protected static <D, I> Map<I, D> getUniqueOrNull(Map<I, Iterable<D>> map) {
-		Map<I, D> oneMap = new HashMap<>();
-		for (Map.Entry<I, Iterable<D>> entry : map.entrySet()) {
-			I id = entry.getKey();
-			Iterable<D> values = entry.getValue();
-
-			Iterator<D> iterator = values.iterator();
-			if (iterator.hasNext()) {
-				D value = iterator.next();
-				if (iterator.hasNext()) {
-					throw new IllegalStateException("expected unique result for " + id);
-				}
-				oneMap.put(id, value);
-			}
-		}
-		return oneMap;
 	}
 
 	protected QuerySpec filterQuerySpec(QuerySpec querySpec) {

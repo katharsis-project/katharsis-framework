@@ -46,6 +46,7 @@ import io.katharsis.jpa.query.querydsl.QuerydslExpressionFactory;
 import io.katharsis.jpa.query.querydsl.QuerydslTranslationContext;
 import io.katharsis.queryspec.Direction;
 import io.katharsis.queryspec.FilterOperator;
+import io.katharsis.utils.PreconditionUtil;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class QuerydslQueryBackend<T>
@@ -107,9 +108,7 @@ public class QuerydslQueryBackend<T>
 		MetaEntity parentEntity = parentAttr.getParent().asEntity();
 		MetaKey primaryKey = parentEntity.getPrimaryKey();
 		List<MetaAttribute> elements = primaryKey.getElements();
-		if (elements.size() != 1) {
-			throw new UnsupportedOperationException("composite primary keys not supported yet");
-		}
+		PreconditionUtil.assertEquals("composite primary keys not supported yet", 1, elements.size());
 		MetaAttribute primaryKeyAttr = elements.get(0);
 		return QuerydslUtils.get(parentFrom, primaryKeyAttr.getName());
 	}
@@ -145,11 +144,6 @@ public class QuerydslQueryBackend<T>
 	@Override
 	public List<OrderSpecifier<?>> getOrderList() {
 		return orderList;
-	}
-
-	@Override
-	public <E extends Comparable<E>> OrderSpecifier<E> addOrder(Expression<E> expr, Direction dir) {
-		return (OrderSpecifier) newSort(expr, dir);
 	}
 
 	@Override
@@ -317,7 +311,12 @@ public class QuerydslQueryBackend<T>
 			return predicates.get(0);
 		}
 		else {
-			return new BooleanPredicateOperation(Ops.AND, (ImmutableList) ImmutableList.copyOf(predicates));
+			// only two elements for each operation supported, needs querydsl fix?
+			Predicate result = predicates.get(0);
+			for (int i = 1; i < predicates.size(); i++) {
+				result = new BooleanPredicateOperation(Ops.AND, (ImmutableList) ImmutableList.of(result, predicates.get(i)));
+			}
+			return result;
 		}
 	}
 
@@ -332,7 +331,12 @@ public class QuerydslQueryBackend<T>
 			return predicates.get(0);
 		}
 		else {
-			return new BooleanPredicateOperation(Ops.OR, (ImmutableList) ImmutableList.copyOf(predicates));
+			// only two elements for each operation supported, needs querydsl fix?
+			Predicate result = predicates.get(0);
+			for (int i = 1; i < predicates.size(); i++) {
+				result = new BooleanPredicateOperation(Ops.OR, (ImmutableList) ImmutableList.of(result, predicates.get(i)));
+			}
+			return result;
 		}
 	}
 
@@ -370,16 +374,6 @@ public class QuerydslQueryBackend<T>
 	public Expression<?> joinMapValue(Expression<?> currentCriteriaPath, MetaAttribute pathElement, Object key) {
 		MapPath mapPath = (MapPath) QuerydslUtils.get(currentCriteriaPath, pathElement.getName());
 		return mapPath.get(key);
-	}
-
-	@Override
-	public Expression<?> joinMapValues(Expression<?> currentCriteriaPath, MetaAttribute pathElement) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public Expression<?> joinMapKey(Expression<?> currentCriteriaPath, MetaAttribute pathElement) {
-		throw new UnsupportedOperationException();
 	}
 
 	@Override

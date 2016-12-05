@@ -1,8 +1,6 @@
 package io.katharsis.jpa.internal.meta.impl;
 
 import java.lang.reflect.Type;
-import java.util.HashSet;
-import java.util.Set;
 
 import io.katharsis.jpa.internal.meta.MetaCollectionType;
 import io.katharsis.jpa.internal.meta.MetaMapType;
@@ -11,6 +9,7 @@ import io.katharsis.jpa.internal.meta.MetaType;
 public class MetaTypeImpl extends MetaElementImpl implements MetaType {
 
 	private Class<?> implClass;
+
 	private Type implType;
 
 	public MetaTypeImpl(MetaElementImpl parent, Class<?> implClass, Type implType) {
@@ -45,15 +44,6 @@ public class MetaTypeImpl extends MetaElementImpl implements MetaType {
 	}
 
 	@Override
-	public Set<Object> fromString(Set<String> values) {
-		Set<Object> result = new HashSet<>();
-		for (String value : values) {
-			result.add(fromString(value));
-		}
-		return result;
-	}
-
-	@Override
 	public boolean isCollection() {
 		return this instanceof MetaCollectionType;
 	}
@@ -77,9 +67,11 @@ public class MetaTypeImpl extends MetaElementImpl implements MetaType {
 	public MetaType getElementType() {
 		if (isCollection()) {
 			return asCollection().getElementType();
-		} else if (isMap()) {
+		}
+		else if (isMap()) {
 			return asMap().getValueType();
-		} else {
+		}
+		else {
 			return this;
 		}
 	}

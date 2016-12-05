@@ -181,36 +181,6 @@ public class KatharsisClient {
 	}
 
 	/**
-	 * @param serviceUrl service url
-	 * @param resourceSearchPackage search package
-	 */
-	@Deprecated
-	public KatharsisClient(String serviceUrl, String resourceSearchPackage) {
-		httpAdapter = new OkHttpAdapter();
-
-		moduleRegistry = new ModuleRegistry();
-		moduleRegistry.addModule(new CoreModule(resourceSearchPackage, new ResourceFieldNameTransformer()));
-
-		resourceRegistry = new ResourceRegistry(moduleRegistry, new ConstantServiceUrlProvider(normalize(serviceUrl))) {
-
-		};
-		urlBuilder = new JsonApiUrlBuilder(resourceRegistry);
-
-		objectMapper = new ObjectMapper();
-		objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-
-		// consider use of katharsis module in the future
-		ClientJsonApiModuleBuilder moduleBuilder = new ClientJsonApiModuleBuilder();
-		SimpleModule jsonApiModule = moduleBuilder.build(resourceRegistry, true);
-		deserializer = new BaseResponseDeserializer(resourceRegistry, objectMapper);
-		jsonApiModule.addDeserializer(BaseResponseContext.class, deserializer);
-		jsonApiModule.addDeserializer(ErrorResponse.class, new ErrorResponseDeserializer());
-		objectMapper.registerModule(jsonApiModule);
-
-		setProxyFactory(new BasicProxyFactory());
-	}
-
-	/**
 	 * Older KatharsisClient implementation only supported a save() operation that POSTs the resource to the server. No difference is made
 	 * between insert and update. The server-implementation still does not make a difference. 
 	 * 

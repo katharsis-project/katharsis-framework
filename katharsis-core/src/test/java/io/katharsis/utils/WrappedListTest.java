@@ -11,13 +11,17 @@ public class WrappedListTest {
 	@Test
 	public void test() {
 		WrappedList<String> list = new WrappedList<>(new ArrayList<String>());
+		list.setWrappedList(new ArrayList<String>());
 		Assert.assertEquals(0, list.size());
+		Assert.assertEquals(list, list);
+		Assert.assertEquals(list.hashCode(), list.hashCode());
 		Assert.assertTrue(list.isEmpty());
 		Assert.assertFalse(list.contains("something"));
 		Assert.assertFalse(list.iterator().hasNext());
 		Assert.assertEquals(0, list.toArray().length);
 		Assert.assertEquals(0, list.toArray(new String[0]).length);
 		Assert.assertTrue(list.add("1"));
+		Assert.assertEquals("[1]", list.toString());
 		Assert.assertTrue(list.remove("1"));
 		Assert.assertFalse(list.containsAll(Arrays.asList("1")));
 		Assert.assertTrue(list.addAll(Arrays.asList("1", "2")));
@@ -38,5 +42,8 @@ public class WrappedListTest {
 		Assert.assertTrue(list.listIterator().hasNext());
 		Assert.assertFalse(list.listIterator(1).hasNext());
 		Assert.assertEquals(1, list.subList(0, 1).size());
+		list.add(0, "2");
+		list.addAll(0, Arrays.asList("4", "3"));
+		Assert.assertEquals("[4, 3, 2, 1]", list.toString());
 	}
 }

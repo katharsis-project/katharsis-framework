@@ -14,6 +14,6 @@ public interface QuerySpecRelationshipRepositoryStub<T, TID extends Serializable
 		extends QuerySpecRelationshipRepository<T, TID, D, DID> {
 
 	@Override
-	public DefaultResourceList<D> findManyTargets(TID sourceId, String fieldName, QuerySpec queryParams);
+	public DefaultResourceList<D> findManyTargets(TID sourceId, String fieldName, QuerySpec querySpec);
 
 }
