@@ -15,7 +15,7 @@ public class DecoratorTest {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
-	public void decoratedResourceRepositoryBase() {
+	public void testDecoratedResourceRepositoryBase() {
 		ScheduleRepository repository = Mockito.mock(ScheduleRepository.class);
 		ResourceRepositoryDecoratorBase<Schedule, Long> decorator = new ResourceRepositoryDecoratorBase() {
 		};
@@ -39,7 +39,7 @@ public class DecoratorTest {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
-	public void decoratedRelationshipRepositoryBase() {
+	public void testDecoratedRelationshipRepositoryBase() {
 		RelationshipRepositoryV2<Schedule, Long, Task, Long> repository = Mockito.mock(RelationshipRepositoryV2.class);
 		RelationshipRepositoryDecoratorBase<Schedule, Long, Task, Long> decorator = new RelationshipRepositoryDecoratorBase() {
 		};
