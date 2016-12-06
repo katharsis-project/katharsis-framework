@@ -59,7 +59,7 @@ public class HttpClientAdapter implements HttpAdapter {
 		return new HttpClientRequest(impl, url, method, requestBody);
 	}
 
-	public static HttpAdapter newInstance() {
+	public static HttpClientAdapter newInstance() {
 		return new HttpClientAdapter();
 	}
 

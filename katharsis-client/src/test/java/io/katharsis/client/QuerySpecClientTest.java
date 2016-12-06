@@ -54,6 +54,13 @@ public class QuerySpecClientTest extends AbstractClientTest {
 		taskScheduleRepo = client.getQuerySpecRepository(Task.class, Schedule.class);
 	}
 
+	@Test
+	public void testGetters() {
+		Assert.assertEquals(Task.class, taskRepo.getResourceClass());
+		Assert.assertEquals(Task.class, relRepo.getSourceResourceClass());
+		Assert.assertEquals(Project.class, relRepo.getTargetResourceClass());
+	}
+
 	@Override
 	protected TestApplication configure() {
 		return new TestApplication(true);

@@ -38,10 +38,11 @@ public class QuerydslTupleImpl implements QuerydslTuple {
 
 	@Override
 	public Object[] toArray() {
-		Object[] data = toArray();
-		if(numEntriesToIgnore > 0){
-			return Arrays.copyOfRange(data, numEntriesToIgnore, data.length - numEntriesToIgnore);
-		}else{
+		Object[] data = tuple.toArray();
+		if (numEntriesToIgnore > 0) {
+			return Arrays.copyOfRange(data, numEntriesToIgnore, data.length);
+		}
+		else {
 			return data;
 		}
 	}

@@ -225,7 +225,7 @@ public class JpaQueryParamsEndToEndTest extends AbstractJpaJerseyTest {
 		test.setId(2L);
 		test.setStringValue("test");
 		test.setOneRelatedValue(related);
-		testRepo.save(test, includeOneRelatedValueParams());
+		testRepo.save(test);
 		return test;
 	}
 

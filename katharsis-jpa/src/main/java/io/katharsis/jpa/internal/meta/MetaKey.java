@@ -8,8 +8,6 @@ public interface MetaKey extends MetaTypedElement {
 
 	boolean isUnique();
 
-	boolean isPrimaryKey();
-
 	MetaAttribute getUniqueElement();
 
 	/**

@@ -9,12 +9,10 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import javax.persistence.Entity;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.metamodel.ManagedType;
 
-import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +49,6 @@ import io.katharsis.repository.decorate.RelationshipRepositoryDecorator;
 import io.katharsis.repository.decorate.RepositoryDecoratorFactory;
 import io.katharsis.repository.decorate.ResourceRepositoryDecorator;
 import io.katharsis.resource.information.ResourceInformationBuilder;
-import io.katharsis.resource.registry.ResourceLookup;
 import io.katharsis.response.BaseResponseContext;
 import io.katharsis.utils.PreconditionUtil;
 
@@ -89,8 +86,6 @@ public class JpaModule implements Module {
 
 	private static final String MODULE_NAME = "jpa";
 
-	private String resourceSearchPackage;
-
 	private EntityManagerFactory emFactory;
 
 	private EntityManager em;
@@ -117,24 +112,8 @@ public class JpaModule implements Module {
 	/**
 	 * Constructor used on client side.
 	 */
-	private JpaModule(String resourceSearchPackage) {
-		this.resourceSearchPackage = resourceSearchPackage;
-
-		Reflections reflections;
-		if (resourceSearchPackage != null) {
-			String[] packageNames = resourceSearchPackage.split(",");
-			Object[] objPackageNames = new Object[packageNames.length];
-			System.arraycopy(packageNames, 0, objPackageNames, 0, packageNames.length);
-			reflections = new Reflections(objPackageNames);
-		}
-		else {
-			reflections = new Reflections(resourceSearchPackage);
-		}
-
-		Set<Class<?>> entityClasses = reflections.getTypesAnnotatedWith(Entity.class);
-		for (Class<?> entityClass : entityClasses) {
-			addEntityClass(entityClass);
-		}
+	private JpaModule() {
+		// nothing to do
 	}
 
 	/**
@@ -152,7 +131,7 @@ public class JpaModule implements Module {
 				Class<?> managedJavaType = managedType.getJavaType();
 				MetaElement meta = metaLookup.getMeta(managedJavaType);
 				if (meta instanceof MetaEntity) {
-					addEntityClass(managedJavaType);
+					addRepository(JpaRepositoryConfig.builder(managedJavaType).build());
 				}
 			}
 		}
@@ -162,11 +141,21 @@ public class JpaModule implements Module {
 	/**
 	 * Creates a new JpaModule for a Katharsis client. 
 	 * 
-	 * @param resourceSearchPackage where to find the entity classes.
 	 * @return module
 	 */
+	public static JpaModule newClientModule() {
+		return new JpaModule();
+	}
+
+	/**
+	 * Creates a new JpaModule for a Katharsis client. 
+	 * 
+	 * @param resourceSearchPackage where to find the entity classes. Has no impact anymore.
+	 * @return module
+	 */
+	@Deprecated
 	public static JpaModule newClientModule(String resourceSearchPackage) {
-		return new JpaModule(resourceSearchPackage);
+		return newClientModule();
 	}
 
 	/**
@@ -314,10 +303,7 @@ public class JpaModule implements Module {
 		context.addExceptionMapper(new OptimisticLockExceptionMapper());
 		context.addRepositoryDecoratorFactory(new JpaRepositoryDecoratorFactory());
 
-		if (resourceSearchPackage != null) {
-			setupClientResourceLookup();
-		}
-		else {
+		if (em != null) {
 			setupServerRepositories();
 			setupTransactionMgmt();
 		}
@@ -360,26 +346,6 @@ public class JpaModule implements Module {
 				});
 			}
 		});
-	}
-
-	private void setupClientResourceLookup() {
-		context.addResourceLookup(new JpaEntityResourceLookup(resourceSearchPackage));
-	}
-
-	public class JpaEntityResourceLookup implements ResourceLookup {
-
-		public JpaEntityResourceLookup(String packageName) {
-		}
-
-		@Override
-		public Set<Class<?>> getResourceClasses() {
-			return JpaModule.this.getResourceClasses();
-		}
-
-		@Override
-		public Set<Class<?>> getResourceRepositoryClasses() {
-			return Collections.emptySet();
-		}
 	}
 
 	private void setupServerRepositories() {
@@ -549,78 +515,4 @@ public class JpaModule implements Module {
 	public <T> JpaRepositoryConfig<T> getRepositoryConfig(Class<T> resourceClass) {
 		return (JpaRepositoryConfig<T>) repositoryConfigurationMap.get(resourceClass);
 	}
-
-	/**
-	 * @return set of entity classes made available as repository.
-	 * @Deprecated use getResourceClasses
-	 */
-	@Deprecated
-	public Set<Class<?>> getEntityClasses() {
-		return getResourceClasses();
-	}
-
-	/**
-	 * Adds the given entity class to expose the entity as repository.
-	 * 
-	 * @param entityClass to expose as repository
-	 * @Deprecated use addRepository
-	 */
-	@Deprecated
-	public void addEntityClass(Class<?> entityClass) {
-		checkNotInitialized();
-		addRepository(JpaRepositoryConfig.builder(entityClass).build());
-	}
-
-	/**
-	 * Adds the given entity class which is mapped to a DTO with the provided mapper.
-	 * 
-	 * @param <E> entity class
-	 * @param <D> dto class
-	 * @param entityClass to add as repository
-	 * @param dtoClass to map the entity to
-	 * @param mapper to use to map the entity to the dto
-	 * @Deprecated use addRepository
-	 */
-	@Deprecated
-	public <E, D> void addMappedEntityClass(Class<E> entityClass, Class<D> dtoClass, JpaMapper<E, D> mapper) {
-		checkNotInitialized();
-		addRepository(JpaRepositoryConfig.builder(entityClass, dtoClass, mapper).build());
-	}
-
-	/**
-	 * Adds the given entity class which is mapped to a DTO with the provided mapper.
-	 * 
-	 * @param <D> dto type
-	 * @param resourceClass to remove
-	 * @deprecated use removeRepository
-	 */
-	@Deprecated
-	public <D> void removeMappedEntityClass(Class<D> resourceClass) {
-		checkNotInitialized();
-		repositoryConfigurationMap.remove(resourceClass);
-	}
-
-	/**
-	 * Removes the given entity class to not expose the entity as repository.
-	 * 
-	 * @param entityClass to remove
-	 * @deprecated use removeRepository
-	 */
-	@Deprecated
-	public void removeEntityClass(Class<?> entityClass) {
-		checkNotInitialized();
-		repositoryConfigurationMap.remove(entityClass);
-	}
-
-	/**
-	 * Removes all entity classes registered by default. Use {@link #addEntityClass(Class)} or
-	 * {@link #addMappedEntityClass(Class, Class, JpaMapper)} to register classes manually.
-	 * @deprecated use removeRepositories
-	 */
-	@Deprecated
-	public void removeAllEntityClasses() {
-		checkNotInitialized();
-		repositoryConfigurationMap.clear();
-	}
-
 }

@@ -23,70 +23,22 @@ public class AnyUtils {
 			for (MetaAttribute attr : meta.getAttributes()) {
 				attr.setValue(dataObject, null);
 			}
-		} else {
+		}
+		else {
+			boolean found = false;
 			for (MetaAttribute attr : meta.getAttributes()) {
 				if (attr.getType().getImplementationClass().isAssignableFrom(value.getClass())) {
 					attr.setValue(dataObject, value);
-					return;
+					found = true;
+				}
+				else {
+					attr.setValue(dataObject, null);
 				}
 			}
-			throw new IllegalArgumentException("cannot assign " + value);
+			if (!found) {
+				throw new IllegalStateException("cannot assign " + value + " to " + dataObject);
+			}
 		}
-	}
-
-	/**
-	 * Gets the meta attribute for a dataobject.
-	 * 
-	 * @param metaLookup to use to retrieve information
-	 * @param dataObject
-	 *            the data object
-	 * @param attributeName
-	 *            the attribute name
-	 * @return the meta attribute or <code>null</code> if attributeName is
-	 *         <code>null</code>.
-	 */
-	private static MetaAttribute getMetaAttribute(MetaLookup metaLookup, AnyTypeObject dataObject,
-			String attributeName) {
-		if (attributeName == null)
-			return null;
-		MetaDataObject meta = metaLookup.getMeta(dataObject.getClass()).asDataObject();
-		return meta.getAttribute(attributeName);
-	}
-
-	/**
-	 * Gets the java type name for the given attribute.
-	 * 
-	 * @param metaLookup to use to retrieve information
-	 * @param dataObject
-	 *            the data object
-	 * @param attributeName
-	 *            the attribute name
-	 * @return the java type name of the attribute or <code>null</code> if
-	 *         attributeName is <code>null</code>.
-	 */
-	public static String getType(MetaLookup metaLookup, AnyTypeObject dataObject, String attributeName) {
-		MetaAttribute attr = getMetaAttribute(metaLookup, dataObject, attributeName);
-		if (attr == null)
-			return null;
-		return attr.getType().getImplementationClass().getName();
-	}
-
-	/**
-	 * Gets the value of the given attribute.
-	 * 
-	 * @param metaLookup to use to retrieve information
-	 * @param dataObject
-	 *            the data object
-	 * @param attributeName
-	 *            the attribute name
-	 * @return the value of the attribute or <code>null</code> if attributeName
-	 *         is <code>null</code>.
-	 */
-	public static Object getValue(MetaLookup metaLookup, AnyTypeObject dataObject, String attributeName) {
-		MetaAttribute attr = getMetaAttribute(metaLookup, dataObject, attributeName);
-		if (attr == null)
-			return null;
-		return attr.getValue(dataObject);
 	}
 
 	/**

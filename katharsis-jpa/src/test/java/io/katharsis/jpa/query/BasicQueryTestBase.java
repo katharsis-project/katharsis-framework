@@ -5,7 +5,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 import javax.persistence.criteria.JoinType;
@@ -467,4 +469,25 @@ public abstract class BasicQueryTestBase extends AbstractJpaTest {
 		assertEquals(2, list.get(3).getEmbValue().getAnyValue().getValue());
 		assertEquals(1, list.get(4).getEmbValue().getAnyValue().getValue());
 	}
+
+	@Test
+	public void testEqualsFilterWithCollection() {
+		assertEquals(3, builder().addFilter(TestEntity.ATTR_id, FilterOperator.EQ, Arrays.asList(0L, 1L, 2L)).buildExecutor()
+				.getResultList().size());
+
+		assertEquals(3, builder().addFilter(TestEntity.ATTR_id, FilterOperator.EQ, new HashSet<>(Arrays.asList(0L, 1L, 2L)))
+				.buildExecutor().getResultList().size());
+
+		List<Long> largeList = new ArrayList<>();
+		for (long i = 2; i < 2500; i++) {
+			largeList.add(i);
+		}
+		largeList.add(0L);
+
+		JpaQuery<TestEntity> query = builder().addFilter(TestEntity.ATTR_id, FilterOperator.EQ, largeList);
+		JpaQueryExecutor<TestEntity> executor = query.buildExecutor();
+		assertEquals(4, executor.getResultList().size());
+
+	}
+
 }

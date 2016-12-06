@@ -93,11 +93,11 @@ public class JpaRepositoryConfig<T> {
 				if (!ResourceListBase.class.isAssignableFrom(returnType)) {
 					throw new IllegalStateException("findAll return type must extend " + ResourceListBase.class.getName());
 				}
-				listClass = (Class<? extends DefaultResourceList<T>>) returnType;
+        setListClass((Class<? extends DefaultResourceList<T>>) returnType);
 
 				Class<?>[] typeArgs = TypeResolver.resolveRawArguments(ResourceListBase.class, returnType);
-				listMetaClass = (Class<? extends MetaInformation>) typeArgs[1];
-				listLinksClass = (Class<? extends LinksInformation>) typeArgs[2];
+        setListMetaClass((Class<? extends MetaInformation>) typeArgs[1]);
+        setListLinksClass((Class<? extends LinksInformation>) typeArgs[2]);
 				return this;
 			}
 			catch (NoSuchMethodException e) {

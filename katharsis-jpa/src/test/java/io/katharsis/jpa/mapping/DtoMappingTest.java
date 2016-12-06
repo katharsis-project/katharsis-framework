@@ -18,6 +18,7 @@ import io.katharsis.client.QuerySpecRelationshipRepositoryStub;
 import io.katharsis.client.QuerySpecResourceRepositoryStub;
 import io.katharsis.jpa.AbstractJpaJerseyTest;
 import io.katharsis.jpa.JpaModule;
+import io.katharsis.jpa.JpaRepositoryConfig;
 import io.katharsis.jpa.JpaRepositoryFilterBase;
 import io.katharsis.jpa.model.QTestEntity;
 import io.katharsis.jpa.model.RelatedEntity;
@@ -74,8 +75,10 @@ public class DtoMappingTest extends AbstractJpaJerseyTest {
 					basicComputedValueFactory);
 			queryFactory.registerComputedAttribute(TestEntity.class, TestDTO.ATTR_COMPUTED_NUMBER_OF_SMALLER_IDS, Long.class,
 					complexComputedValueFactory);
-			module.addMappedEntityClass(TestEntity.class, TestDTO.class, new TestDTOMapper(entityManager));
-			module.addMappedEntityClass(RelatedEntity.class, RelatedDTO.class, new RelatedDTOMapper(entityManager));
+			module.addRepository(
+					JpaRepositoryConfig.builder(TestEntity.class, TestDTO.class, new TestDTOMapper(entityManager)).build());
+			module.addRepository(JpaRepositoryConfig
+					.builder(RelatedEntity.class, RelatedDTO.class, new RelatedDTOMapper(entityManager)).build());
 
 			module.addFilter(new JpaRepositoryFilterBase() {
 
