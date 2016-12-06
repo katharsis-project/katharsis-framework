@@ -127,7 +127,7 @@ public class AbstractMetaEntityAttributeImpl extends MetaAttributeImpl {
 
 	@Override
 	public String getId() {
-		return getParent() + "." + getName();
+		return getParent().getId() + "." + getName();
 	}
 
 	@Override

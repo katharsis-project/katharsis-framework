@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.QTuple;
@@ -31,16 +31,16 @@ public class QuerydslExecutorImpl<T> extends AbstractQueryExecutorImpl<T> implem
 	public JPAQuery<T> getQuery() {
 		return query;
 	}
-	
+
 	@Override
-	public void setQuery(JPAQuery<T> query){
+	public void setQuery(JPAQuery<T> query) {
 		this.query = query;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	protected List<?> executeQuery() {
-		Query jpaQuery = query.createQuery();
-		return executeQuery(jpaQuery);
+	public TypedQuery<T> getTypedQuery() {
+		return (TypedQuery<T>) setupQuery(query.createQuery());
 	}
 
 	@Override

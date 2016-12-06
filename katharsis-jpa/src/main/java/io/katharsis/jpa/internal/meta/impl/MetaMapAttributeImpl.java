@@ -8,17 +8,17 @@ import io.katharsis.jpa.internal.meta.MetaType;
 
 public class MetaMapAttributeImpl extends MetaElementImpl implements MetaMapAttribute {
 
-	private boolean valueAccess;
 	private MetaMapType mapType;
+
 	private String keyString;
+
 	private MetaAttribute mapAttr;
 
-	public MetaMapAttributeImpl(MetaMapType mapType, MetaAttribute mapAttr, String keyString, boolean valueAccess) {
+	public MetaMapAttributeImpl(MetaMapType mapType, MetaAttribute mapAttr, String keyString) {
 		// we dont 'want to attach to meta model since
 		super(null);
 
 		this.keyString = keyString;
-		this.valueAccess = valueAccess;
 		this.mapType = mapType;
 		this.mapAttr = mapAttr;
 	}
@@ -62,11 +62,6 @@ public class MetaMapAttributeImpl extends MetaElementImpl implements MetaMapAttr
 	@Override
 	public String getName() {
 		return mapAttr.getName();
-	}
-
-	@Override
-	public boolean isKeyAccess() {
-		return !valueAccess;
 	}
 
 	@Override

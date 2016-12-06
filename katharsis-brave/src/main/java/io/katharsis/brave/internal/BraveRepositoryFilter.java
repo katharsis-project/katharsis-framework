@@ -69,7 +69,7 @@ public class BraveRepositoryFilter extends RepositoryFilterBase {
 			result = chain.doFilter(context);
 			return result;
 		}
-		catch (Exception e) {
+		catch (RuntimeException e) {
 			exception = e;
 			throw e;
 		}
@@ -109,7 +109,7 @@ public class BraveRepositoryFilter extends RepositoryFilterBase {
 			Map<String, Set<String>> parameters = serializer.serialize(querySpec);
 			for (Map.Entry<String, Set<String>> entry : parameters.entrySet()) {
 				if (builder.length() > 1) {
-					builder.append("?");
+					builder.append("&");
 				}
 				builder.append(entry.getKey());
 				builder.append("=");
@@ -123,18 +123,22 @@ public class BraveRepositoryFilter extends RepositoryFilterBase {
 	private String getComponentName(RepositoryRequestSpec request) {
 		String relationshipField = request.getRelationshipField();
 		StringBuilder pathBuilder = new StringBuilder();
-		String resourceType = getResourceType(request);
 		String method = request.getMethod().toString();
 		pathBuilder.append(COMPONENT_NAME);
 		pathBuilder.append(COMPONENT_NAME_SEPARATOR);
 		pathBuilder.append(method);
 		pathBuilder.append(COMPONENT_NAME_SEPARATOR);
-		pathBuilder.append("/" + resourceType + "/");
-		if (relationshipField != null) {
-			pathBuilder.append("relationships/");
-			pathBuilder.append(relationshipField);
-			pathBuilder.append("/");
+		pathBuilder.append("/");
+		
+		Class<?> relationshipSourceClass = request.getRelationshipSourceClass();
+		if (relationshipSourceClass == null) {
+			pathBuilder.append(getResourceType(request.getQueryAdapter().getResourceClass()));
 		}
+		else {
+			pathBuilder.append(getResourceType(relationshipSourceClass));
+		}
+		pathBuilder.append("/");
+		
 		Iterable<Object> ids = request.getIds();
 		if (ids != null) {
 			Iterator<Object> iterator = ids.iterator();
@@ -145,11 +149,14 @@ public class BraveRepositoryFilter extends RepositoryFilterBase {
 			}
 			pathBuilder.append("/");
 		}
+		if (relationshipField != null) {
+			pathBuilder.append(relationshipField);
+			pathBuilder.append("/");
+		}
 		return pathBuilder.toString();
 	}
 
-	private String getResourceType(RepositoryRequestSpec request) {
-		Class<?> resourceClass = request.getQueryAdapter().getResourceClass();
+	private String getResourceType(Class<?> resourceClass) {
 		RegistryEntry<?> resourceEntry = moduleContext.getResourceRegistry().getEntry(resourceClass);
 		return resourceEntry.getResourceInformation().getResourceType();
 	}

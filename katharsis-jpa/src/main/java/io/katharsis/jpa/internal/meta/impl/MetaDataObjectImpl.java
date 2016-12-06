@@ -3,11 +3,8 @@ package io.katharsis.jpa.internal.meta.impl;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -20,18 +17,17 @@ import org.apache.commons.beanutils.PropertyUtilsBean;
 import io.katharsis.jpa.internal.meta.MetaAttribute;
 import io.katharsis.jpa.internal.meta.MetaAttributeFinder;
 import io.katharsis.jpa.internal.meta.MetaAttributePath;
-import io.katharsis.jpa.internal.meta.MetaAttributeProjection;
 import io.katharsis.jpa.internal.meta.MetaDataObject;
 import io.katharsis.jpa.internal.meta.MetaKey;
 import io.katharsis.jpa.internal.meta.MetaMapAttribute;
 import io.katharsis.jpa.internal.meta.MetaMapType;
-import io.katharsis.jpa.internal.meta.MetaProjection;
 import io.katharsis.jpa.internal.meta.MetaType;
 import io.katharsis.utils.PreconditionUtil;
 
 public class MetaDataObjectImpl extends MetaTypeImpl implements MetaDataObject {
 
 	private static final MetaAttributeFinder DEFAULT_ATTRIBUTE_FINDER = new MetaAttributeFinder() {
+
 		@Override
 		public MetaAttribute getAttribute(MetaDataObject meta, String name) {
 			return meta.getAttribute(name);
@@ -39,6 +35,7 @@ public class MetaDataObjectImpl extends MetaTypeImpl implements MetaDataObject {
 	};
 
 	private static final MetaAttributeFinder SUBTYPE_ATTRIBUTE_FINDER = new MetaAttributeFinder() {
+
 		@Override
 		public MetaAttribute getAttribute(MetaDataObject meta, String name) {
 			return meta.findAttribute(name, true);
@@ -46,17 +43,22 @@ public class MetaDataObjectImpl extends MetaTypeImpl implements MetaDataObject {
 	};
 
 	private ArrayList<MetaDataObject> subTypes = new ArrayList<>();
+
 	private MetaDataObject superType;
 
 	private HashMap<String, MetaAttributeImpl> attrMap = new HashMap<>();
+
 	private List<MetaAttribute> attrs = new ArrayList<>();
+
 	private List<MetaAttribute> declaredAttrs = new ArrayList<>();
 
 	@SuppressWarnings("unchecked")
 	private List<MetaDataObject>[] subTypesCache = new List[4];
+
 	private HashMap<String, MetaDataObject> subTypesMapCache;
 
 	private MetaKey primaryKey;
+
 	private Set<MetaKey> keys = new HashSet<>();
 
 	public MetaDataObjectImpl(Class<?> implClass, Type implType, MetaDataObjectImpl superType) {
@@ -133,48 +135,6 @@ public class MetaDataObjectImpl extends MetaTypeImpl implements MetaDataObject {
 		return attr;
 	}
 
-	@Override
-	public String toString(Object entity) {
-		boolean notFirst = false;
-		StringBuilder b = new StringBuilder(entity.getClass().getSimpleName());
-		b.append('[');
-
-		for (MetaAttribute attr : getAttributes()) {
-			if (attr.isAssociation()) {
-				continue;
-			}
-
-			Object value = attr.getValue(entity);
-
-			if (notFirst) {
-				b.append(',');
-			} else {
-				notFirst = true;
-			}
-			b.append(attr.getName());
-			b.append("=");
-			b.append(formatValue(value));
-		}
-		b.append(']');
-		return b.toString();
-	}
-
-	private Object formatValue(Object value) {
-		if (value == null) {
-			return "null";
-		} else if (value instanceof Calendar) {
-			Calendar cal = (Calendar) value;
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss Z");
-			return sdf.format(cal.getTime());
-		} else if (value instanceof Date) {
-			Date cal = (Date) value;
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss Z");
-			return sdf.format(cal.getTime());
-		} else {
-			return value.toString();
-		}
-	}
-
 	protected MetaAttributeImpl newAttributeAttribute(MetaDataObjectImpl metaDataObject, PropertyDescriptor desc) {
 		return new MetaAttributeImpl(metaDataObject, desc);
 	}
@@ -207,17 +167,13 @@ public class MetaDataObjectImpl extends MetaTypeImpl implements MetaDataObject {
 				// next "attribute" is the key within the map
 				String keyString = attrPath.get(i + 1);
 
-				MetaMapAttribute keyAttr;
-				if (pathElement instanceof MetaAttributeProjection) {
-					keyAttr = new MetaMapAttributeProjectionImpl(mapType, pathElement, keyString, true);
-				} else {
-					keyAttr = new MetaMapAttributeImpl(mapType, pathElement, keyString, true);
-				}
+				MetaMapAttribute keyAttr = new MetaMapAttributeImpl(mapType, pathElement, keyString);
 				list.add(keyAttr);
 				i++;
 				MetaType valueType = mapType.getValueType();
 				currentMdo = nextPathElement(valueType, i, attrPath);
-			} else {
+			}
+			else {
 				list.add(pathElement);
 				currentMdo = nextPathElement(pathElement.getType(), i, attrPath);
 			}
@@ -230,7 +186,8 @@ public class MetaDataObjectImpl extends MetaTypeImpl implements MetaDataObject {
 	private MetaDataObject nextPathElement(MetaType pathElementType, int i, List<String> pathElements) {
 		if (i == pathElements.size() - 1) {
 			return null;
-		} else {
+		}
+		else {
 			if (!(pathElementType instanceof MetaDataObject)) {
 				throw new IllegalArgumentException("failed to resolve path " + pathElements);
 			}
@@ -267,21 +224,14 @@ public class MetaDataObjectImpl extends MetaTypeImpl implements MetaDataObject {
 	}
 
 	@Override
-	public MetaDataObject getRootType() {
-		if (getSuperType() != null) // ensure proxy resolve
-			return superType.getRootType();
-		else
-			return this;
-	}
-
-	@Override
 	public List<MetaDataObject> getSubTypes(boolean transitive, boolean self) {
 		int cacheIndex = (transitive ? 2 : 0) | (self ? 1 : 0);
 
 		List<MetaDataObject> cached = subTypesCache[cacheIndex];
 		if (cached != null) {
 			return cached;
-		} else {
+		}
+		else {
 			ArrayList<MetaDataObject> types = computeSubTypes(transitive, self);
 			List<MetaDataObject> unmodifiableList = Collections.unmodifiableList(types);
 			subTypesCache[cacheIndex] = unmodifiableList;
@@ -315,53 +265,9 @@ public class MetaDataObjectImpl extends MetaTypeImpl implements MetaDataObject {
 		return subTypes;
 	}
 
-	private boolean isSuperTypeOf(MetaDataObject sub) {
-		return this == sub || (sub != null && isSuperTypeOf(sub.getSuperType()));
-	}
-
-	@Override
-	public MetaDataObject findSubTypeOrSelf(Class<?> implClass) {
-		if (implClass == null)
-			throw new NullPointerException("class is null");
-		Class<?> localImplClass = getImplementationClass();
-		if (implClass == localImplClass)
-			return this;
-		MetaDataObject subType = lookup.getMeta(implClass).asDataObject();
-		if (isSuperTypeOf(subType))
-			return subType;
-		return null;
-	}
-
-	/**
-	 * Gets the subtype with the given name (simple or qualitified).
-	 * 
-	 * @param name of the type
-	 * @return meta object
-	 */
-	public MetaDataObject findSubTypeOrSelf(String name) {
-		HashMap<String, MetaDataObject> cache = subTypesMapCache;
-		if (cache == null) {
-			cache = new HashMap<>();
-			List<? extends MetaDataObject> transitiveSubTypes = getSubTypes(true, true);
-			for (MetaDataObject subType : transitiveSubTypes) {
-				cache.put(subType.getName(), subType);
-				cache.put(subType.getId(), subType);
-			}
-			subTypesMapCache = cache;
-		}
-		return subTypesMapCache.get(name);
-	}
-
-	@Override
-	public MetaProjection asProjection() {
-		if (this instanceof MetaProjection)
-			return (MetaProjection) this;
-		throw new IllegalStateException("not a projection");
-	}
-
 	@Override
 	public MetaKey getPrimaryKey() {
-		if(primaryKey == null && superType != null){
+		if (primaryKey == null && superType != null) {
 			return superType.getPrimaryKey();
 		}
 		return primaryKey;

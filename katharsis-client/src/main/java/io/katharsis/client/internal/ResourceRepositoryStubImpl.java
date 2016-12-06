@@ -12,9 +12,6 @@ import io.katharsis.client.ResourceRepositoryStub;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryspec.QuerySpec;
-import io.katharsis.queryspec.internal.QueryAdapter;
-import io.katharsis.queryspec.internal.QueryParamsAdapter;
-import io.katharsis.queryspec.internal.QuerySpecAdapter;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.field.ResourceField;
@@ -41,12 +38,12 @@ public class ResourceRepositoryStubImpl<T, I extends Serializable> extends Abstr
 		this.resourceInformation = resourceInformation;
 	}
 
-	private BaseResponseContext executeUpdate(String requestUrl, T resource, QueryAdapter queryAdapter, boolean create) {
+	private BaseResponseContext executeUpdate(String requestUrl, T resource, boolean create) {
 		JsonApiResponse response = new JsonApiResponse();
 		response.setEntity(resource);
 
 		JsonPath jsonPath = new ResourcePath(resourceInformation.getResourceType());
-		ResourceResponseContext context = new ResourceResponseContext(response, jsonPath, queryAdapter);
+		ResourceResponseContext context = new ResourceResponseContext(response, jsonPath, null);
 
 		ObjectMapper objectMapper = katharsis.getObjectMapper();
 		String requestBodyValue;
@@ -82,49 +79,20 @@ public class ResourceRepositoryStubImpl<T, I extends Serializable> extends Abstr
 
 	@Override
 	public <S extends T> S save(S entity) {
-		return save(entity, new QuerySpec(resourceClass));
-	}
-
-	@Override
-	public <S extends T> S save(S entity, QueryParams queryParams) {
-		return modify(entity, queryParams, false);
+		return modify(entity, false);
 	}
 
 	@SuppressWarnings("unchecked")
-	private <S extends T> S modify(S entity, QueryParams queryParams, boolean create) {
+	private <S extends T> S modify(S entity, boolean create) {
 		String strId = getStringId(entity, create);
 		String url = urlBuilder.buildUrl(resourceClass, strId, (QuerySpec) null);
-		BaseResponseContext context = executeUpdate(url, entity, new QueryParamsAdapter(queryParams), create);
+		BaseResponseContext context = executeUpdate(url, entity, create);
 		return (S) context.getResponse().getEntity();
-	}
-
-	@Override
-	public <S extends T> S save(S entity, QuerySpec querySpec) {
-		return modify(entity, querySpec, false);
 	}
 
 	@Override
 	public <S extends T> S create(S entity) {
-		return modify(entity, new QuerySpec(resourceClass), true);
-	}
-
-	@Override
-	public <S extends T> S create(S entity, QuerySpec querySpec) {
-		return modify(entity, querySpec, true);
-	}
-
-	@Override
-	public <S extends T> S create(S entity, QueryParams queryParams) {
-		return modify(entity, queryParams, true);
-	}
-
-	@SuppressWarnings("unchecked")
-	private <S extends T> S modify(S entity, QuerySpec querySpec, boolean create) {
-		String idString = getStringId(entity, create);
-		String url = urlBuilder.buildUrl(resourceClass, idString, (QuerySpec) null);
-		BaseResponseContext context = executeUpdate(url, entity, new QuerySpecAdapter(querySpec, katharsis.getRegistry()),
-				create);
-		return (S) context.getResponse().getEntity();
+		return modify(entity, true);
 	}
 
 	private <S extends T> String getStringId(S entity, boolean create) {
