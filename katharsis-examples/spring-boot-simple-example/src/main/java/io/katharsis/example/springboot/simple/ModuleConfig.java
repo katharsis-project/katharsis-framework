@@ -1,7 +1,6 @@
 package io.katharsis.example.springboot.simple;
 
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
@@ -33,7 +32,7 @@ import zipkin.reporter.Reporter;
 @Configuration
 public class ModuleConfig {
 
-	@PersistenceContext(unitName = "TEST_SPRING")
+	@Autowired
 	private EntityManager em;
 
 	@Autowired
