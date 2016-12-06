@@ -37,6 +37,7 @@ public class DecoratorTest {
 		Mockito.verify(repository, Mockito.times(1)).findOne(Mockito.anyLong(), Mockito.any(QuerySpec.class));
 	}
 
+	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
 	public void testDecoratedRelationshipRepositoryBase() {
