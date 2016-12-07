@@ -2,19 +2,14 @@ package io.katharsis.client.internal;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import okhttp3.HttpUrl;
-import okhttp3.Request;
-import okhttp3.Request.Builder;
-import okhttp3.RequestBody;
 
 import io.katharsis.client.KatharsisClient;
 import io.katharsis.client.QuerySpecRelationshipRepositoryStub;
 import io.katharsis.client.RelationshipRepositoryStub;
-import io.katharsis.client.response.ResourceList;
+import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.internal.QueryAdapter;
@@ -22,14 +17,15 @@ import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
+import io.katharsis.resource.list.DefaultResourceList;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.response.BaseResponseContext;
 import io.katharsis.response.CollectionResponseContext;
 import io.katharsis.response.JsonApiResponse;
 import io.katharsis.response.LinkageContainer;
 import io.katharsis.response.ResourceResponseContext;
-import io.katharsis.utils.PropertyUtils;
 import io.katharsis.utils.JsonApiUrlBuilder;
+import io.katharsis.utils.PropertyUtils;
 
 public class RelationshipRepositoryStubImpl<T, I extends Serializable, D, J extends Serializable> extends AbstractStub
 		implements RelationshipRepositoryStub<T, I, D, J>, QuerySpecRelationshipRepositoryStub<T, I, D, J> {
@@ -54,29 +50,29 @@ public class RelationshipRepositoryStubImpl<T, I extends Serializable, D, J exte
 	@Override
 	public void setRelation(T source, J targetId, String fieldName) {
 		Serializable sourceId = getSourceId(source);
-		HttpUrl url = HttpUrl.parse(urlBuilder.buildUrl(sourceClass, sourceId, (QuerySpec) null, fieldName));
-		execute(url, "PATCH", targetId);
+		String url = urlBuilder.buildUrl(sourceClass, sourceId, (QuerySpec) null, fieldName);
+		execute(url, HttpMethod.PATCH, targetId);
 	}
 
 	@Override
 	public void setRelations(T source, Iterable<J> targetIds, String fieldName) {
 		Serializable sourceId = getSourceId(source);
-		HttpUrl url = HttpUrl.parse(urlBuilder.buildUrl(sourceClass, sourceId, (QuerySpec) null, fieldName));
-		execute(url, "PATCH", targetIds);
+		String url = urlBuilder.buildUrl(sourceClass, sourceId, (QuerySpec) null, fieldName);
+		execute(url, HttpMethod.PATCH, targetIds);
 	}
 
 	@Override
 	public void addRelations(T source, Iterable<J> targetIds, String fieldName) {
 		Serializable sourceId = getSourceId(source);
-		HttpUrl url = HttpUrl.parse(urlBuilder.buildUrl(sourceClass, sourceId, (QuerySpec) null, fieldName));
-		execute(url, "POST", targetIds);
+		String url = urlBuilder.buildUrl(sourceClass, sourceId, (QuerySpec) null, fieldName);
+		execute(url, HttpMethod.POST, targetIds);
 	}
 
 	@Override
 	public void removeRelations(T source, Iterable<J> targetIds, String fieldName) {
 		Serializable sourceId = getSourceId(source);
-		HttpUrl url = HttpUrl.parse(urlBuilder.buildUrl(sourceClass, sourceId, (QuerySpec) null, fieldName));
-		execute(url, "DELETE", targetIds);
+		String url = urlBuilder.buildUrl(sourceClass, sourceId, (QuerySpec) null, fieldName);
+		execute(url, HttpMethod.DELETE, targetIds);
 	}
 
 	private Serializable getSourceId(T source) {
@@ -87,35 +83,34 @@ public class RelationshipRepositoryStubImpl<T, I extends Serializable, D, J exte
 	@SuppressWarnings("unchecked")
 	@Override
 	public D findOneTarget(I sourceId, String fieldName, QueryParams queryParams) {
-		HttpUrl url = HttpUrl.parse(urlBuilder.buildUrl(sourceClass, sourceId, queryParams, fieldName));
+		String url = urlBuilder.buildUrl(sourceClass, sourceId, queryParams, fieldName);
 		BaseResponseContext responseContext = executeGet(url);
 		return (D) responseContext.getResponse().getEntity();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public List<D> findManyTargets(I sourceId, String fieldName, QueryParams queryParams) {
-		HttpUrl url = HttpUrl.parse(urlBuilder.buildUrl(sourceClass, sourceId, queryParams, fieldName));
+	public DefaultResourceList<D> findManyTargets(I sourceId, String fieldName, QueryParams queryParams) {
+		String url = urlBuilder.buildUrl(sourceClass, sourceId, queryParams, fieldName);
 		BaseResponseContext responseContext = executeGet(url);
-		return (List<D>) responseContext.getResponse().getEntity();
+		return toList(responseContext.getResponse());
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public D findOneTarget(I sourceId, String fieldName, QuerySpec querySpec) {
-		HttpUrl url = HttpUrl.parse(urlBuilder.buildUrl(sourceClass, sourceId, querySpec, fieldName));
+		String url = urlBuilder.buildUrl(sourceClass, sourceId, querySpec, fieldName);
 		BaseResponseContext responseContext = executeGet(url);
 		return (D) responseContext.getResponse().getEntity();
 	}
 
 	@Override
-	public ResourceList<D> findManyTargets(I sourceId, String fieldName, QuerySpec querySpec) {
-		HttpUrl url = HttpUrl.parse(urlBuilder.buildUrl(sourceClass, sourceId, querySpec, fieldName));
+	public DefaultResourceList<D> findManyTargets(I sourceId, String fieldName, QuerySpec querySpec) {
+		String url = urlBuilder.buildUrl(sourceClass, sourceId, querySpec, fieldName);
 		BaseResponseContext responseContext = executeGet(url);
 		return toList(responseContext.getResponse());
 	}
 
-	private void execute(HttpUrl requestUrl, String method, Object targetIds) {
+	private void execute(String requestUrl, HttpMethod method, Object targetIds) {
 		JsonPath fieldPath = new ResourcePath(resourceInformation.getResourceType());
 
 		JsonApiResponse response = new JsonApiResponse();
@@ -143,9 +138,7 @@ public class RelationshipRepositoryStubImpl<T, I extends Serializable, D, J exte
 			throw new IllegalStateException(e);
 		}
 
-		Builder builder = new Request.Builder().url(requestUrl);
-		builder = builder.method(method, RequestBody.create(null, requestBodyValue));
-		execute(builder, false);
+		execute(requestUrl, false, method, requestBodyValue);
 	}
 
 	@Override

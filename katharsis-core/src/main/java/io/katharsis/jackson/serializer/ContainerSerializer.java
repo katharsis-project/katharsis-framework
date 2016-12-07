@@ -15,6 +15,7 @@ import io.katharsis.jackson.exception.JsonSerializationException;
 import io.katharsis.queryParams.params.IncludedFieldsParams;
 import io.katharsis.queryParams.params.IncludedRelationsParams;
 import io.katharsis.queryParams.params.TypedParams;
+import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.request.dto.Attributes;
 import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
@@ -23,14 +24,11 @@ import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.Container;
 import io.katharsis.response.ContainerType;
 import io.katharsis.response.DataLinksContainer;
-import io.katharsis.response.LinkageContainer;
-import io.katharsis.utils.BeanUtils;
 import io.katharsis.utils.Predicate2;
 import io.katharsis.utils.PropertyUtils;
 import io.katharsis.utils.java.Optional;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -52,7 +50,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
     private static final String JACKSON_ATTRIBUTE_FILTER_NAME = "katharsisFilter";
 
     private final ResourceRegistry resourceRegistry;
-	private boolean isClient;
+    private boolean isClient;
 
     public ContainerSerializer(ResourceRegistry resourceRegistry, boolean isClient) {
         this.resourceRegistry = resourceRegistry;
@@ -66,27 +64,22 @@ public class ContainerSerializer extends JsonSerializer<Container> {
 
             TypedParams<IncludedFieldsParams> includedFields = null;
             IncludedRelationsParams includedRelationsParams = null;
-            if (container.getResponse().getQueryAdapter() != null) {
-                includedFields = container.getResponse()
-                        .getQueryAdapter()
-                        .getIncludedFields();
-                TypedParams<IncludedRelationsParams> includedRelations = container.getResponse()
-                        .getQueryAdapter()
-                        .getIncludedRelations();
 
-                Class<?> dataClass = container.getData().getClass();
-                String resourceType = resourceRegistry.getResourceType(dataClass);
+            QueryAdapter queryAdapter = container.getResponse().getQueryAdapter();
+            if (queryAdapter != null) {
+                includedFields = queryAdapter.getIncludedFields();
+                TypedParams<IncludedRelationsParams> includedRelations = queryAdapter.getIncludedRelations();
+                String resourceType;
+                if (container.getContainerType().equals(ContainerType.TOP)) {
+                    Class<?> dataClass = container.getData().getClass();
+                    resourceType = resourceRegistry.getResourceType(dataClass);
+                } else {
+                    resourceType = container.getTopResourceType();
+                }
+
                 if (includedRelations != null &&
                         includedRelations.getParams().containsKey(resourceType)) {
                     includedRelationsParams = includedRelations.getParams().get(resourceType);
-                } else if (includedRelations != null &&
-                        container.getContainerType() != null &&
-                        container.getContainerType().equals(ContainerType.INCLUDED)) {
-                    for (IncludedRelationsParams includedRelationsParamsInner : includedRelations.getParams().values()) {
-                        if (includedRelationsParamsInner.getParams().iterator().next().getPathList().get(0).equals(container.getIncludedFieldName())) {
-                            includedRelationsParams = includedRelationsParamsInner;
-                        }
-                    }
                 }
             }
 
@@ -112,7 +105,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         ResourceInformation resourceInformation = entry.getResourceInformation();
         try {
             writeId(gen, data, resourceInformation);
-        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+        } catch (IOException e) {
             throw new JsonSerializationException(
                     "Error writing id field: " + resourceInformation.getIdField().getUnderlyingName());
         }
@@ -125,9 +118,9 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         if (!relationshipFields.isEmpty()) {
             writeRelationshipFields(container, gen, data, relationshipFields, includedRelations);
         }
-        if(!isClient){
-        	writeMetaField(gen, data, entry);
-        	writeLinksField(gen, data, entry);
+        if (!isClient) {
+            writeMetaField(gen, data, entry);
+            writeLinksField(gen, data, entry);
         }
     }
 
@@ -153,15 +146,15 @@ public class ContainerSerializer extends JsonSerializer<Container> {
      * <a href="http://jsonapi.org/format/#document-structure-resource-ids">Resource IDs</a>.
      */
     private static void writeId(JsonGenerator gen, Object data, ResourceInformation resourceInformation)
-            throws IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
-        
+            throws IOException {
+
         ResourceField idField = resourceInformation.getIdField();
         Object sourceId = PropertyUtils.getProperty(data, idField.getUnderlyingName());
-    	String strSourceId = resourceInformation.toIdString(sourceId);
-        
+        String strSourceId = resourceInformation.toIdString(sourceId);
+
         gen.writeObjectField(ID_FIELD_NAME, strSourceId);
     }
-    
+
     /**
      * Writes resource attributes object taking into account <i>fields</i> query params. It doesn't allow writing
      * <i>null</i> resource attributes.
@@ -265,7 +258,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
     private static void writeRelationshipFields(Container container, JsonGenerator gen, Object data, Set<ResourceField> relationshipFields,
                                                 IncludedRelationsParams includedRelations)
             throws IOException {
-        DataLinksContainer dataLinksContainer = new DataLinksContainer(data, relationshipFields, includedRelations, container.getContainerType(), container.getIncludedFieldName());
+        DataLinksContainer dataLinksContainer = new DataLinksContainer(data, relationshipFields, includedRelations, container);
         gen.writeObjectField(RELATIONSHIPS_FIELD_NAME, dataLinksContainer);
     }
 
@@ -284,7 +277,7 @@ public class ContainerSerializer extends JsonSerializer<Container> {
         Class<?> sourceClass = data.getClass();
         String resourceUrl = resourceRegistry.getResourceUrl(sourceClass);
         RegistryEntry<?> entry = resourceRegistry.getEntry(sourceClass);
-        
+
         ResourceInformation resourceInformation = entry.getResourceInformation();
         ResourceField idField = resourceInformation.getIdField();
         Object sourceId = PropertyUtils.getProperty(data, idField.getUnderlyingName());
@@ -295,10 +288,10 @@ public class ContainerSerializer extends JsonSerializer<Container> {
 
     private void writeMetaField(JsonGenerator gen, Object data, RegistryEntry entry) throws IOException {
         if (entry.getResourceInformation().getMetaFieldName() != null) {
-        	Object meta = PropertyUtils.getProperty(data, entry.getResourceInformation().getMetaFieldName());
-        	if(meta != null){
-        		gen.writeFieldName(META_FIELD_NAME);
-            	gen.writeObject(meta);
+            Object meta = PropertyUtils.getProperty(data, entry.getResourceInformation().getMetaFieldName());
+            if (meta != null) {
+                gen.writeFieldName(META_FIELD_NAME);
+                gen.writeObject(meta);
             }
         }
     }

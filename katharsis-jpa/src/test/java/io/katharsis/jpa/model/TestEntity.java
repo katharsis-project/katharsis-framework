@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -25,17 +26,24 @@ public class TestEntity extends TestMappedSuperclass {
 	public static final String ATTR_longValue = "longValue";
 
 	public static final String ATTR_mapValue = "mapValue";
+
 	public static final String ATTR_oneRelatedValue = "oneRelatedValue";
+
 	public static final String ATTR_eagerRelatedValue = "eagerOneRelatedValue";
+
 	public static final String ATTR_manyRelatedValues = "manyRelatedValues";
 
 	public static final String ATTR_embValue = "embValue";
+
 	public static final List<String> ATTR_embValue_intValue = Arrays.asList(TestEntity.ATTR_embValue,
 			TestEmbeddable.ATTR_embIntValue);
+
 	public static final List<String> ATTR_embValue_stringValue = Arrays.asList(TestEntity.ATTR_embValue,
 			TestEmbeddable.ATTR_embStringValue);
+
 	public static final List<String> ATTR_embValue_anyValue = Arrays.asList(TestEntity.ATTR_embValue,
 			TestEmbeddable.ATTR_anyValue);
+
 	public static final List<String> ATTR_embValue_nestedValue_boolValue = Arrays.asList(TestEntity.ATTR_embValue,
 			TestEmbeddable.ATTR_nestedValue, TestNestedEmbeddable.ATTR_embBoolValue);
 
@@ -54,7 +62,7 @@ public class TestEntity extends TestMappedSuperclass {
 	@ElementCollection(fetch = FetchType.EAGER)
 	private Map<String, String> mapValue;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
 	@JoinColumn
 	private RelatedEntity oneRelatedValue;
 
@@ -62,7 +70,7 @@ public class TestEntity extends TestMappedSuperclass {
 	@JoinColumn
 	private RelatedEntity eagerRelatedValue;
 
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "testEntity")
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "testEntity", cascade = CascadeType.PERSIST)
 	private List<RelatedEntity> manyRelatedValues;
 
 	public TestEntity() {

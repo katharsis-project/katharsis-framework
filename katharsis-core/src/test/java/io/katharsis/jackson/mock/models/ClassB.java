@@ -1,6 +1,10 @@
 package io.katharsis.jackson.mock.models;
 
-import io.katharsis.resource.annotations.*;
+import io.katharsis.resource.annotations.JsonApiId;
+import io.katharsis.resource.annotations.JsonApiIncludeByDefault;
+import io.katharsis.resource.annotations.JsonApiResource;
+import io.katharsis.resource.annotations.JsonApiToMany;
+import io.katharsis.resource.annotations.JsonApiToOne;
 
 import java.util.Collections;
 import java.util.List;
@@ -37,6 +41,12 @@ public class ClassB {
         this.classA = classA;
         this.classC = null;
         this.classCs = null;
+    }
+
+    public ClassB(ClassC classCs, ClassC classC, ClassA classA) {
+        this.classCs = Collections.singletonList(classCs);
+        this.classC = classC;
+        this.classA = classA;
     }
 
     public Long getId() {

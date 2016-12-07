@@ -1,11 +1,17 @@
 package io.katharsis.jpa.internal;
 
+import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Deque;
 import java.util.Set;
 
+import io.katharsis.jpa.annotations.JpaMergeRelations;
 import io.katharsis.jpa.internal.meta.MetaAttribute;
-import io.katharsis.jpa.internal.meta.MetaEntity;
+import io.katharsis.jpa.internal.meta.MetaDataObject;
 import io.katharsis.jpa.internal.meta.MetaKey;
+import io.katharsis.jpa.internal.meta.MetaLookup;
+import io.katharsis.jpa.internal.query.AbstractQueryExecutorImpl;
 import io.katharsis.jpa.query.JpaQuery;
 import io.katharsis.jpa.query.JpaQueryExecutor;
 import io.katharsis.queryspec.FilterSpec;
@@ -24,7 +30,7 @@ public class JpaRepositoryUtils {
 	 * @return Gets the primary key attribute of the given entity. Assumes a primary key
 	 * is available and no compound primary keys are supported.
 	 */
-	public static MetaAttribute getPrimaryKeyAttr(MetaEntity meta) {
+	public static MetaAttribute getPrimaryKeyAttr(MetaDataObject meta) {
 		MetaKey primaryKey = meta.getPrimaryKey();
 		PreconditionUtil.assertNotNull("no primary key", primaryKey);
 		PreconditionUtil.assertEquals("non-compound primary key expected", 1, primaryKey.getElements().size());
@@ -46,6 +52,7 @@ public class JpaRepositoryUtils {
 		if (!querySpec.getIncludedFields().isEmpty()) {
 			throw new UnsupportedOperationException("includeFields not yet supported");
 		}
+
 	}
 
 	public static void prepareExecutor(JpaQueryExecutor<?> executor, QuerySpec querySpec, boolean includeRelations) {
@@ -64,5 +71,43 @@ public class JpaRepositoryUtils {
 			}
 			executor.setLimit((int) querySpec.getLimit().longValue());
 		}
+
+		addMergeInclusions(executor, querySpec);
+
 	}
+
+	/**
+	 * related attribute that are merged into a resource should be loaded by graph control 
+	 * to avoid lazy-loading or potential lack of session in serialization.
+	 */
+	private static void addMergeInclusions(JpaQueryExecutor<?> executor, QuerySpec querySpec) {
+		ArrayDeque<String> attributePath = new ArrayDeque<>();
+		Class<?> resourceClass = querySpec.getResourceClass();
+		
+		MetaDataObject entityMeta = ((AbstractQueryExecutorImpl<?>) executor).getMeta();
+		MetaLookup lookup = entityMeta.getLookup();
+		MetaDataObject resourceMeta = lookup.getMeta(resourceClass).asDataObject();
+		
+		addMergeInclusions(attributePath, executor, resourceMeta);
+	}
+
+	private static void addMergeInclusions(Deque<String> attributePath, JpaQueryExecutor<?> executor, MetaDataObject meta) {
+		Class<?> resourceClass = meta.getImplementationClass();
+
+		JpaMergeRelations annotation = resourceClass.getAnnotation(JpaMergeRelations.class);
+		if (annotation != null) {
+			for (String attrName : annotation.attributes()) {
+				attributePath.push(attrName);
+				executor.fetch(new ArrayList<>(attributePath));
+
+				// recurse
+				MetaAttribute attr = meta.getAttribute(attrName);
+				MetaDataObject attrType = attr.getType().getElementType().asDataObject();
+				addMergeInclusions(attributePath, executor, attrType);
+
+				attributePath.pop();
+			}
+		}
+	}
+
 }

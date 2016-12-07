@@ -1,10 +1,10 @@
 package io.katharsis.module;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Arrays;
+import java.util.List;
 
-import io.katharsis.resource.field.ResourceAttributesBridge;
 import io.katharsis.resource.field.ResourceField;
+import io.katharsis.resource.field.ResourceField.ResourceFieldType;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 
@@ -17,11 +17,9 @@ public class TestResourceInformationBuilder implements ResourceInformationBuilde
 
 	@Override
 	public ResourceInformation build(Class<?> resourceClass) {
-		ResourceField idField = new ResourceField("testId", "id", Integer.class, null);
-		ResourceAttributesBridge<?> attributeFields = null;
-		Set<ResourceField> relationshipFields = new HashSet<>();
-		ResourceInformation info = new ResourceInformation(resourceClass, resourceClass.getSimpleName(), idField,
-				attributeFields, relationshipFields);
+		ResourceField idField = new ResourceField("testId", "id", ResourceFieldType.ID, Integer.class, null);
+		List<ResourceField> fields = Arrays.asList(idField);
+		ResourceInformation info = new ResourceInformation(resourceClass, resourceClass.getSimpleName(), fields);
 		return info;
 	}
 

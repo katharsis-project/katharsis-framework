@@ -16,7 +16,6 @@ import io.katharsis.client.QuerySpecResourceRepositoryStub;
 import io.katharsis.client.ResourceRepositoryStub;
 import io.katharsis.client.response.JsonLinksInformation;
 import io.katharsis.client.response.JsonMetaInformation;
-import io.katharsis.client.response.ResourceList;
 import io.katharsis.jpa.model.OtherRelatedEntity;
 import io.katharsis.jpa.model.RelatedEntity;
 import io.katharsis.jpa.model.TestEmbeddedIdEntity;
@@ -26,6 +25,7 @@ import io.katharsis.jpa.model.VersionedEntity;
 import io.katharsis.queryspec.FilterOperator;
 import io.katharsis.queryspec.FilterSpec;
 import io.katharsis.queryspec.QuerySpec;
+import io.katharsis.resource.list.ResourceList;
 
 public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 
@@ -51,7 +51,7 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 			Assert.assertNotNull(test.getOneRelatedValue());
 		}
 	}
-	
+
 	@Test
 	public void testIncludeEmptyRelations() throws InstantiationException, IllegalAccessException {
 		addTest();
@@ -184,7 +184,7 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 		if (onSave) {
 			test.setManyRelatedValues(Arrays.asList(related1, related2));
 		}
-		testRepo.save(test, includeManyRelatedValueParams());
+		testRepo.save(test);
 
 		// query relation
 		QuerySpecRelationshipRepositoryStub<TestEntity, Long, RelatedEntity, Long> relRepo = client
@@ -273,8 +273,8 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 		Assert.assertEquals(2, list.get(0).getId().intValue());
 		Assert.assertEquals(3, list.get(1).getId().intValue());
 
-		JsonMetaInformation meta = list.getMetaInformation(JsonMetaInformation.class);
-		JsonLinksInformation links = list.getLinksInformation(JsonLinksInformation.class);
+		JsonMetaInformation meta = list.getMeta(JsonMetaInformation.class);
+		JsonLinksInformation links = list.getLinks(JsonLinksInformation.class);
 		Assert.assertNotNull(meta);
 		Assert.assertNotNull(links);
 
@@ -313,8 +313,8 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 		Assert.assertEquals(2, list.get(0).getId().intValue());
 		Assert.assertEquals(3, list.get(1).getId().intValue());
 
-		JsonMetaInformation meta = list.getMetaInformation(JsonMetaInformation.class);
-		JsonLinksInformation links = list.getLinksInformation(JsonLinksInformation.class);
+		JsonMetaInformation meta = list.getMeta(JsonMetaInformation.class);
+		JsonLinksInformation links = list.getLinks(JsonLinksInformation.class);
 		Assert.assertNotNull(meta);
 		Assert.assertNotNull(links);
 
@@ -466,10 +466,10 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 		test.setId(2L);
 		test.setStringValue("test");
 		test.setOneRelatedValue(related);
-		testRepo.save(test, includeOneRelatedValueParams());
+		testRepo.save(test);
 		return test;
 	}
-	
+
 	private TestEntity addTest() {
 		TestEntity test = new TestEntity();
 		test.setId(2L);

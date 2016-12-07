@@ -25,6 +25,7 @@ import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.mock.models.Project;
+import io.katharsis.resource.mock.models.Schedule;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.models.User;
 import io.katharsis.resource.mock.repository.UserRepository;
@@ -110,7 +111,42 @@ public class RepositoryFilterTest {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
-	public void findAll() throws Exception {
+	public void findAllWithResourceListResult() throws Exception {
+
+		RegistryEntry<Schedule> scheduleRegistry = resourceRegistry.getEntry(Schedule.class);
+		ResourceRepositoryAdapter<Schedule, Serializable> scheduleResourceAdapter = scheduleRegistry.getResourceRepository(null);
+		
+		querySpec = new QuerySpec(Schedule.class);
+		queryAdapter = new QuerySpecAdapter(querySpec, resourceRegistry);
+		scheduleResourceAdapter.findAll(queryAdapter);
+
+		ArgumentCaptor<Iterable> linksResources = ArgumentCaptor.forClass(Iterable.class);
+		ArgumentCaptor<Iterable> metaResources = ArgumentCaptor.forClass(Iterable.class);
+		ArgumentCaptor<RepositoryFilterContext> contexts = ArgumentCaptor.forClass(RepositoryFilterContext.class);
+
+		Mockito.verify(filter, Mockito.times(1)).filterRequest(contexts.capture(),
+				Mockito.any(RepositoryRequestFilterChain.class));
+		Mockito.verify(filter, Mockito.times(1)).filterResult(Mockito.any(RepositoryFilterContext.class),
+				Mockito.any(RepositoryResultFilterChain.class));
+		Mockito.verify(filter, Mockito.times(1)).filterLinks(Mockito.any(RepositoryFilterContext.class), linksResources.capture(),
+				Mockito.any(RepositoryLinksFilterChain.class));
+		Mockito.verify(filter, Mockito.times(1)).filterMeta(Mockito.any(RepositoryFilterContext.class), metaResources.capture(),
+				Mockito.any(RepositoryMetaFilterChain.class));
+
+		Assert.assertEquals(1, linksResources.getAllValues().size());
+		Assert.assertEquals(1, metaResources.getAllValues().size());
+		Assert.assertEquals(1, contexts.getAllValues().size());
+		RepositoryFilterContext context = contexts.getAllValues().iterator().next();
+		RepositoryRequestSpec requestSpec = context.getRequest();
+		Assert.assertEquals(queryAdapter, requestSpec.getQueryAdapter());
+		Assert.assertNull(requestSpec.getId());
+		Assert.assertNull(requestSpec.getIds());
+		Assert.assertSame(querySpec, requestSpec.getQuerySpec(Schedule.class));
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Test
+	public void findAllWithResourceList() throws Exception {
 		resourceAdapter.findAll(queryAdapter);
 
 		ArgumentCaptor<Iterable> linksResources = ArgumentCaptor.forClass(Iterable.class);

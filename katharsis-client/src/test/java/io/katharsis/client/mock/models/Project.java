@@ -4,73 +4,124 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.katharsis.resource.annotations.JsonApiId;
+import io.katharsis.resource.annotations.JsonApiLinksInformation;
+import io.katharsis.resource.annotations.JsonApiMetaInformation;
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.annotations.JsonApiToMany;
+import io.katharsis.response.MetaInformation;
 
 @JsonApiResource(type = "projects")
 public class Project {
 
-    @JsonApiId
-    private Long id;
+	@JsonApiId
+	private Long id;
 
-    private String name;
+	private String name;
 
-    private String description;
+	private String description;
 
-    private ProjectData data;
+	private ProjectData data;
 
-    @JsonApiToMany
-    private List<Task> tasks = new ArrayList<>();
+	@JsonApiToMany
+	private List<Task> tasks = new ArrayList<>();
 
-    @JsonApiToMany
-    private Task task;
+	@JsonApiToMany
+	private Task task;
 
-    public Long getId() {
-        return id;
-    }
+	@JsonApiLinksInformation
+	private ProjectLinks links;
 
-    public Project setId(Long id) {
-        this.id = id;
-        return this;
-    }
+	@JsonApiMetaInformation
+	private ProjectMeta meta;
 
-    public String getName() {
-        return name;
-    }
+	public static class ProjectLinks implements MetaInformation {
 
-    public void setName(String name) {
-        this.name = name;
-    }
+		private String value;
 
-    public String getDescription() {
-        return description;
-    }
+		public String getValue() {
+			return value;
+		}
 
-    public void setDescription(@SuppressWarnings("SameParameterValue") String description) {
-        this.description = description;
-    }
+		public void setValue(String value) {
+			this.value = value;
+		}
+	}
 
-    public ProjectData getData() {
-        return data;
-    }
+	public static class ProjectMeta implements MetaInformation {
 
-    public void setData(ProjectData data) {
-        this.data = data;
-    }
+		private String value;
 
-    public List<Task> getTasks() {
-        return tasks;
-    }
+		public String getValue() {
+			return value;
+		}
 
-    public void setTasks(List<Task> tasks) {
-        this.tasks = tasks;
-    }
+		public void setValue(String value) {
+			this.value = value;
+		}
+	}
 
-    public Task getTask() {
-        return task;
-    }
+	public Long getId() {
+		return id;
+	}
 
-    public void setTask(Task task) {
-        this.task = task;
-    }
+	public Project setId(Long id) {
+		this.id = id;
+		return this;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(@SuppressWarnings("SameParameterValue") String description) {
+		this.description = description;
+	}
+
+	public ProjectData getData() {
+		return data;
+	}
+
+	public void setData(ProjectData data) {
+		this.data = data;
+	}
+
+	public List<Task> getTasks() {
+		return tasks;
+	}
+
+	public void setTasks(List<Task> tasks) {
+		this.tasks = tasks;
+	}
+
+	public Task getTask() {
+		return task;
+	}
+
+	public void setTask(Task task) {
+		this.task = task;
+	}
+
+	public ProjectLinks getLinks() {
+		return links;
+	}
+
+	public void setLinks(ProjectLinks links) {
+		this.links = links;
+	}
+
+	public ProjectMeta getMeta() {
+		return meta;
+	}
+
+	public void setMeta(ProjectMeta meta) {
+		this.meta = meta;
+	}
 }

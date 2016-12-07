@@ -1,6 +1,9 @@
 package io.katharsis.resource.mock.models;
 
-import io.katharsis.resource.annotations.*;
+import io.katharsis.resource.annotations.JsonApiId;
+import io.katharsis.resource.annotations.JsonApiResource;
+import io.katharsis.resource.annotations.JsonApiToMany;
+import io.katharsis.resource.annotations.JsonApiToOne;
 
 import java.util.List;
 
@@ -41,5 +44,13 @@ public class LazyTask {
 
     public void setProject(Project project) {
         this.project = project;
+    }
+
+    public Project getLazyProject() {
+        return lazyProject;
+    }
+
+    public void setLazyProject(Project lazyProject) {
+        this.lazyProject = lazyProject;
     }
 }

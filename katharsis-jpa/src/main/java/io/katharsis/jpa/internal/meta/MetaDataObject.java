@@ -5,42 +5,34 @@ import java.util.Set;
 
 public interface MetaDataObject extends MetaType {
 
-	MetaAttribute getAttribute(String name);
+  MetaAttribute getAttribute(String name);
 
-	MetaAttribute findAttribute(String name, boolean includeSubTypes);
+  MetaAttribute findAttribute(String name, boolean includeSubTypes);
 
-	String toString(Object dataObject);
+  <T extends MetaAttribute> List<T> getAttributes();
 
-	<T extends MetaAttribute> List<T> getAttributes();
+  <T extends MetaAttribute> List<T> getDeclaredAttributes();
 
-	<T extends MetaAttribute> List<T> getDeclaredAttributes();
+  MetaAttributePath resolvePath(List<String> attrPath, boolean searchSubTypes);
 
-	MetaAttributePath resolvePath(List<String> attrPath, boolean searchSubTypes);
+  MetaDataObject getSuperType();
 
-	MetaDataObject getSuperType();
+  <T extends MetaDataObject> List<T> getSubTypes(boolean transitive, boolean self);
 
-	MetaDataObject getRootType();
+  <T extends MetaDataObject> List<T> getSubTypes();
 
-	<T extends MetaDataObject> List<T> getSubTypes(boolean transitive, boolean self);
+  MetaAttributePath resolvePath(List<String> attrPath);
 
-	<T extends MetaDataObject> List<T> getSubTypes();
+  MetaKey getPrimaryKey();
 
-	MetaDataObject findSubTypeOrSelf(Class<?> implClass);
+  Set<MetaKey> getKeys();
 
-	MetaAttributePath resolvePath(List<String> attrPath);
+  boolean hasAttribute(String name);
 
-	MetaKey getPrimaryKey();
+  MetaAttribute getVersionAttribute();
 
-	Set<MetaKey> getKeys();
+  MetaAttributePath resolvePath(List<String> attrPath, MetaAttributeFinder finder);
 
-	MetaProjection asProjection();
-
-	boolean hasAttribute(String name);
-
-	MetaAttribute getVersionAttribute();
-
-	MetaAttributePath resolvePath(List<String> attrPath, MetaAttributeFinder finder);
-
-	boolean isAbstract();
+  boolean isAbstract();
 
 }

@@ -51,9 +51,5 @@ public interface JpaQueryBackend<F, O, P, E> {
 
 	public E joinMapValue(E currentCriteriaPath, MetaAttribute pathElement, Object key);
 
-	public E joinMapValues(E currentCriteriaPath, MetaAttribute pathElement);
-
-	public E joinMapKey(E currentCriteriaPath, MetaAttribute pathElement);
-
 	public F doJoin(MetaAttribute targetAttr, JoinType joinType, F parent);
 }

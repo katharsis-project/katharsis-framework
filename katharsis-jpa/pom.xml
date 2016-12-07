@@ -43,7 +43,7 @@
 				<artifactId>maven-bundle-plugin</artifactId>
 				<configuration>
 					<instructions>
-						<Export-Package>io.katharsis.jpa.*,io.katharsis.jpa.query.*,io.katharsis.jpa.querydsl.*,io.katharsis.jpa.criteria.*</Export-Package>
+						<Export-Package>io.katharsis.jpa.*,io.katharsis.jpa.mapping.*,io.katharsis.jpa.query.*,io.katharsis.jpa.query.querydsl.*,io.katharsis.jpa.query.criteria.*</Export-Package>
 					</instructions>
 				</configuration>
 			</plugin>
@@ -136,6 +136,13 @@
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>
+		
+		<dependency>
+			<groupId>com.squareup.okhttp3</groupId>
+			<artifactId>okhttp</artifactId>
+			<version>${okhttp.version}</version>
+			<scope>test</scope>
+		</dependency>
 
 		<dependency>
 			<groupId>javax.ws.rs</groupId>
@@ -212,6 +219,18 @@
 			<artifactId>jersey-test-framework-core</artifactId>
 			<version>${jersey.version}</version>
 			<scope>test</scope>
+		</dependency>
+		
+		<dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+		    <groupId>org.slf4j</groupId>
+		    <artifactId>jul-to-slf4j</artifactId>
+            <scope>test</scope>
 		</dependency>
 	</dependencies>
 

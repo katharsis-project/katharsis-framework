@@ -8,9 +8,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import io.katharsis.resource.list.ResourceList;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
-import io.katharsis.response.paging.PagedResultList;
+import io.katharsis.response.paging.PagedMetaInformation;
 
 public class InMemoryEvaluatorTest {
 
@@ -111,10 +112,12 @@ public class InMemoryEvaluatorTest {
 	@Test
 	public void testFilterEquals() {
 		QuerySpec spec = new QuerySpec(Task.class);
+		spec.setLimit(10000L);
 		spec.addFilter(new FilterSpec(Arrays.asList("name"), FilterOperator.EQ, "test1"));
-		PagedResultList<Task> results = (PagedResultList<Task>) spec.apply(tasks);
+		ResourceList<Task> results = spec.apply(tasks);
 		Assert.assertEquals(1, results.size());
-		Assert.assertEquals(1L, results.getTotalCount().longValue());
+		PagedMetaInformation meta = results.getMeta(PagedMetaInformation.class);
+		Assert.assertEquals(1L, meta.getTotalResourceCount().longValue());
 		Assert.assertEquals("test1", results.get(0).getName());
 	}
 
@@ -122,23 +125,23 @@ public class InMemoryEvaluatorTest {
 	public void testFilterByMultiValuedAttribute1() {
 		QuerySpec spec = new QuerySpec(Task.class);
 		spec.addFilter(new FilterSpec(Arrays.asList("projects", "id"), FilterOperator.EQ, 13L));
-		PagedResultList<Task> results = (PagedResultList<Task>) spec.apply(tasks);
+		ResourceList<Task> results = spec.apply(tasks);
 		Assert.assertEquals(1, results.size());
 	}
-	
+
 	@Test
 	public void testFilterByMultiValuedAttribute2() {
 		QuerySpec spec = new QuerySpec(Task.class);
 		spec.addFilter(new FilterSpec(Arrays.asList("projects", "id"), FilterOperator.EQ, 14L));
-		PagedResultList<Task> results = (PagedResultList<Task>) spec.apply(tasks);
+		ResourceList<Task> results = spec.apply(tasks);
 		Assert.assertEquals(2, results.size());
 	}
-	
+
 	@Test
 	public void testFilterByMultiValuedAttributeNoMatch() {
 		QuerySpec spec = new QuerySpec(Task.class);
 		spec.addFilter(new FilterSpec(Arrays.asList("projects", "id"), FilterOperator.EQ, 15L));
-		PagedResultList<Task> results = (PagedResultList<Task>) spec.apply(tasks);
+		ResourceList<Task> results = spec.apply(tasks);
 		Assert.assertEquals(0, results.size());
 	}
 

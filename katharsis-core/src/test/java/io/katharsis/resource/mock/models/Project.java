@@ -1,6 +1,11 @@
 package io.katharsis.resource.mock.models;
 
-import io.katharsis.resource.annotations.*;
+import io.katharsis.resource.annotations.JsonApiId;
+import io.katharsis.resource.annotations.JsonApiIncludeByDefault;
+import io.katharsis.resource.annotations.JsonApiLookupIncludeAutomatically;
+import io.katharsis.resource.annotations.JsonApiResource;
+import io.katharsis.resource.annotations.JsonApiToMany;
+import io.katharsis.resource.annotations.JsonApiToOne;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,19 +22,23 @@ public class Project {
 
     private ProjectData data;
 
-    @JsonApiToMany(opposite="project")
+    @JsonApiToMany(opposite = "project")
     private List<Task> tasks = new ArrayList<>();
 
     @JsonApiToOne
     private Task task;
 
     @JsonApiToOne
-	@JsonApiIncludeByDefault
+    @JsonApiIncludeByDefault
     private ProjectEager projectEager;
 
     @JsonApiToMany
     @JsonApiIncludeByDefault
     private List<ProjectEager> projectEagerList = new ArrayList<>();
+
+    @JsonApiToOne
+    @JsonApiLookupIncludeAutomatically
+    private Task includedTask;
 
     public Long getId() {
         return id;
@@ -94,5 +103,13 @@ public class Project {
 
     public void setProjectEagerList(List<ProjectEager> projectEagerList) {
         this.projectEagerList = projectEagerList;
+    }
+
+    public Task getIncludedTask() {
+        return includedTask;
+    }
+
+    public void setIncludedTask(Task includedTask) {
+        this.includedTask = includedTask;
     }
 }

@@ -22,6 +22,7 @@ import io.katharsis.dispatcher.RequestDispatcher;
 import io.katharsis.errorhandling.exception.KatharsisMappableException;
 import io.katharsis.errorhandling.exception.KatharsisMatchingException;
 import io.katharsis.errorhandling.mapper.KatharsisExceptionMapper;
+import io.katharsis.internal.boot.PropertiesProvider;
 import io.katharsis.jackson.exception.JsonDeserializationException;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.dto.RequestBody;
@@ -32,7 +33,11 @@ import io.katharsis.response.BaseResponseContext;
 import io.katharsis.servlet.util.QueryStringUtils;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
@@ -47,12 +52,16 @@ public class KatharsisInvoker {
     private ObjectMapper objectMapper;
     private ResourceRegistry resourceRegistry;
     private RequestDispatcher requestDispatcher;
+    private PropertiesProvider propertiesProvider;
 
     public KatharsisInvoker(ObjectMapper objectMapper,
-                            ResourceRegistry resourceRegistry, RequestDispatcher requestDispatcher) {
+                            ResourceRegistry resourceRegistry,
+                            RequestDispatcher requestDispatcher,
+                            PropertiesProvider propertiesProvider) {
         this.objectMapper = objectMapper;
         this.resourceRegistry = resourceRegistry;
         this.requestDispatcher = requestDispatcher;
+        this.propertiesProvider = propertiesProvider;
     }
 
     public void invoke(KatharsisInvokerContext invokerContext) throws KatharsisInvokerException {

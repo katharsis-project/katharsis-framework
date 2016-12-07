@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Iterator;
 
+import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryAware;
@@ -16,6 +17,8 @@ import io.katharsis.utils.PreconditionUtil;
  *
  * @param <T> resource type
  * @param <I> identity type
+ * 
+ * @deprecated use ResourceRepositoryBase instead
  */
 public abstract class QuerySpecResourceRepositoryBase<T, I extends Serializable>
 		implements QuerySpecResourceRepository<T, I>, ResourceRegistryAware {
@@ -55,7 +58,7 @@ public abstract class QuerySpecResourceRepositoryBase<T, I extends Serializable>
 			return resource;
 		}
 		else {
-			return null;
+			throw new ResourceNotFoundException("resource not found");
 		}
 	}
 

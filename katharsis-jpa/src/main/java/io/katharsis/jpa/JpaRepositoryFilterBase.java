@@ -7,6 +7,7 @@ import io.katharsis.jpa.query.JpaQuery;
 import io.katharsis.jpa.query.JpaQueryExecutor;
 import io.katharsis.jpa.query.Tuple;
 import io.katharsis.queryspec.QuerySpec;
+import io.katharsis.resource.list.ResourceList;
 
 /**
  * Empty default implementation for {@link JpaRepositoryFilter}.
@@ -39,7 +40,7 @@ public class JpaRepositoryFilterBase implements JpaRepositoryFilter {
 	}
 
 	@Override
-	public <T> List<T> filterResults(Object repository, QuerySpec querySpec, List<T> resources) {
+	public <T> ResourceList<T> filterResults(Object repository, QuerySpec querySpec, ResourceList<T> resources) {
 		return resources;
 	}
 

@@ -33,14 +33,19 @@ public class Project {
     @JsonProperty
     private String name;
 
-    @JsonApiToMany
+    @JsonApiToMany(opposite="project")
     private List<Task> tasks = new ArrayList<>();
 
     public Project(Long id) {
         this.id = id;
     }
 
-    public Long getId() {
+    public Project(Long id, String name) {
+    	this.id = id;
+    	this.name = name;
+	}
+
+	public Long getId() {
         return id;
     }
 

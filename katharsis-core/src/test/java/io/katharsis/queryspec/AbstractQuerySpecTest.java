@@ -16,6 +16,7 @@ import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.mock.models.Task;
+import io.katharsis.resource.mock.repository.ScheduleRepositoryImpl;
 import io.katharsis.resource.registry.ConstantServiceUrlProvider;
 import io.katharsis.resource.registry.DefaultResourceLookup;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -37,12 +38,22 @@ public abstract class AbstractQuerySpecTest {
 		ResourceRegistryBuilder resourceRegistryBuilder = new ResourceRegistryBuilder(jsonServiceLocator,
 				resourceInformationBuilder);
 		DefaultResourceLookup resourceLookup = newResourceLookup();
-		resourceRegistry = resourceRegistryBuilder.build(resourceLookup, new ModuleRegistry(), new ConstantServiceUrlProvider("http://127.0.0.1"));
+		resourceRegistry = resourceRegistryBuilder.build(resourceLookup, new ModuleRegistry(),
+				new ConstantServiceUrlProvider("http://127.0.0.1"));
 		parser = new DefaultQuerySpecConverter(resourceRegistry);
 	}
 
 	protected DefaultResourceLookup newResourceLookup() {
-		return new DefaultResourceLookup(Task.class.getPackage().getName() + "," + getClass().getPackage().getName());
+		return new DefaultResourceLookup(Task.class.getPackage().getName() + "," + getClass().getPackage().getName()) {
+
+			@Override
+			public Set<Class<?>> getResourceRepositoryClasses() {
+				Set<Class<?>> set = new HashSet<>();
+				set.addAll(super.getResourceRepositoryClasses());
+				set.add(ScheduleRepositoryImpl.class); // not yet recognized by reflections for some reason
+				return set;
+			}
+		};
 	}
 
 	protected static void addParams(Map<String, Set<String>> params, String key, String value) {

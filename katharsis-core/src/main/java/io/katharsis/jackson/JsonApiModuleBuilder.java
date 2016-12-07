@@ -29,7 +29,7 @@ public class JsonApiModuleBuilder {
                 new Version(1, 0, 0, null, null, null));
 
         simpleModule.addSerializer(new ContainerSerializer(resourceRegistry, isClient))
-                .addSerializer(new DataLinksContainerSerializer(resourceRegistry))
+                .addSerializer(new DataLinksContainerSerializer())
                 .addSerializer(new RelationshipContainerSerializer(resourceRegistry, isClient))
                 .addSerializer(new LinkageContainerSerializer())
                 .addSerializer(new BaseResponseSerializer(resourceRegistry))

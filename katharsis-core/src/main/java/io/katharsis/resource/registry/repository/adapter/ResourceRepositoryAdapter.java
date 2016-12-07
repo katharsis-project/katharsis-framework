@@ -4,9 +4,11 @@ import java.io.Serializable;
 
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.module.ModuleRegistry;
+import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.QuerySpecResourceRepository;
 import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.repository.ResourceRepository;
+import io.katharsis.repository.ResourceRepositoryV2;
 import io.katharsis.repository.annotated.AnnotatedResourceRepositoryAdapter;
 import io.katharsis.repository.filter.RepositoryFilterContext;
 import io.katharsis.request.repository.RepositoryRequestSpec;
@@ -72,8 +74,9 @@ public class ResourceRepositoryAdapter<T, I extends Serializable> extends Respon
 					resources = ((AnnotatedResourceRepositoryAdapter) resourceRepository).findAll(queryAdapter);
 				}
 				else if (resourceRepository instanceof QuerySpecResourceRepository) {
+					QuerySpec querySpec = request.getQuerySpec(resourceInformation.getResourceClass());
 					resources = ((QuerySpecResourceRepository) resourceRepository)
-							.findAll(request.getQuerySpec(resourceInformation.getResourceClass()));
+							.findAll(querySpec);
 				}
 				else {
 					resources = ((ResourceRepository) resourceRepository).findAll(request.getQueryParams());
@@ -136,6 +139,9 @@ public class ResourceRepositoryAdapter<T, I extends Serializable> extends Respon
 				Object resource;
 				if (isAnnotated) {
 					resource = ((AnnotatedResourceRepositoryAdapter) resourceRepository).save(entity);
+				}
+				else if (resourceRepository instanceof ResourceRepositoryV2) {
+					resource = ((ResourceRepositoryV2) resourceRepository).create(entity);
 				}
 				else if (resourceRepository instanceof QuerySpecResourceRepository) {
 					resource = ((QuerySpecResourceRepository) resourceRepository).save(entity);

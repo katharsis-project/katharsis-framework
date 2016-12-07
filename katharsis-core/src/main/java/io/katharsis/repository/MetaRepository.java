@@ -6,6 +6,8 @@ import io.katharsis.response.MetaInformation;
 /**
  * An optional interface that can be implemented along with {@link ResourceRepository} or {@link
  * RelationshipRepository} to get meta information about returned resource(s).
+ * 
+ * <b>Consider the use of ResourceList instead.</b>
  */
 public interface MetaRepository<T> {
 

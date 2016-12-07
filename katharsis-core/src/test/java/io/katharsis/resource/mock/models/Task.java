@@ -1,13 +1,16 @@
 package io.katharsis.resource.mock.models;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import io.katharsis.resource.annotations.*;
 import io.katharsis.response.LinksInformation;
 import io.katharsis.response.MetaInformation;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @JsonApiResource(type = "tasks")
+@JsonPropertyOrder(alphabetic = true)
 public class Task {
 
     @JsonApiId
@@ -15,7 +18,9 @@ public class Task {
 
     private String name;
 
-    @JsonApiToOne(opposite="tasks")
+    private String category;
+
+    @JsonApiToOne(opposite = "tasks")
     @JsonApiIncludeByDefault
     private Project project;
 
@@ -66,6 +71,15 @@ public class Task {
 
     public void setName(@SuppressWarnings("SameParameterValue") String name) {
         this.name = name;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+    	if(category == null) throw new IllegalArgumentException("Category cannot be set to null!");
+        this.category = category;
     }
 
     public Project getProject() {

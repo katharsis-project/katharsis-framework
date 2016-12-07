@@ -56,6 +56,8 @@ public abstract class AbstractJpaQueryImpl<T, B extends JpaQueryBackend<?, ?, ?,
 	protected boolean parentIdSelection;
 
 	private ComputedAttributeRegistryImpl computedAttrs;
+	
+	private Object privateData;
 
 	protected AbstractJpaQueryImpl(MetaLookup metaLookup, EntityManager em, Class<T> clazz,
 			ComputedAttributeRegistryImpl computedAttrs) {
@@ -63,6 +65,14 @@ public abstract class AbstractJpaQueryImpl<T, B extends JpaQueryBackend<?, ?, ?,
 		this.clazz = clazz;
 		this.meta = metaLookup.getMeta(clazz).asDataObject();
 		this.computedAttrs = computedAttrs;
+	}
+	
+	public Object getPrivateData(){
+		return privateData;
+	}
+	
+	public void setPrivateData(Object privateData){
+		this.privateData = privateData;
 	}
 
 	@SuppressWarnings("unchecked")

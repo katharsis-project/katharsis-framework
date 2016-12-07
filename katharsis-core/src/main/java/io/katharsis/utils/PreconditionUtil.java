@@ -3,9 +3,9 @@ package io.katharsis.utils;
 public class PreconditionUtil {
 
 	/**
-	 * Protect constructor since it is a static only class
+	 * private constructor since it is a static only class
 	 */
-	protected PreconditionUtil() {
+	private PreconditionUtil() {
 	}
 
 	/**

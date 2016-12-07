@@ -10,6 +10,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import io.katharsis.jackson.exception.ParametersDeserializationException;
 import io.katharsis.queryspec.AbstractQuerySpecTest;
 import io.katharsis.queryspec.DefaultQuerySpecDeserializer;
 import io.katharsis.queryspec.Direction;
@@ -21,6 +22,7 @@ import io.katharsis.queryspec.SortSpec;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.utils.PropertyException;
 
 public class DefaultQuerySpecDeserializerTest extends AbstractQuerySpecTest {
 
@@ -41,6 +43,11 @@ public class DefaultQuerySpecDeserializerTest extends AbstractQuerySpecTest {
 
 	@Test
 	public void operations() {
+		Assert.assertFalse(deserializer.getAllowUnknownAttributes());
+		deserializer.setAllowUnknownAttributes(true);
+		Assert.assertTrue(deserializer.getAllowUnknownAttributes());
+		Assert.assertEquals(0, deserializer.getDefaultOffset());
+		Assert.assertNull(deserializer.getDefaultLimit());
 		deserializer.getSupportedOperators().clear();
 		deserializer.setDefaultOperator(FilterOperator.LIKE);
 		deserializer.addSupportedOperator(FilterOperator.LIKE);
@@ -118,6 +125,45 @@ public class DefaultQuerySpecDeserializerTest extends AbstractQuerySpecTest {
 	}
 
 	@Test
+	public void testFilterWithDefaultOp() throws InstantiationException, IllegalAccessException {
+		QuerySpec expectedSpec = new QuerySpec(Task.class);
+		expectedSpec.addFilter(new FilterSpec(Arrays.asList("name"), FilterOperator.EQ, "value"));
+
+		Map<String, Set<String>> params = new HashMap<>();
+		add(params, "filter[tasks][name]", "value");
+
+		QuerySpec actualSpec = deserializer.deserialize(Task.class, params);
+		Assert.assertEquals(expectedSpec, actualSpec);
+	}
+
+	@Test
+	public void testUnknownPropertyAllowed() throws InstantiationException, IllegalAccessException {
+		QuerySpec expectedSpec = new QuerySpec(Task.class);
+		expectedSpec.addFilter(new FilterSpec(Arrays.asList("doesNotExists"), FilterOperator.EQ, "value"));
+
+		deserializer.setAllowUnknownAttributes(true);
+
+		Map<String, Set<String>> params = new HashMap<>();
+		add(params, "filter[tasks][doesNotExists]", "value");
+
+		QuerySpec actualSpec = deserializer.deserialize(Task.class, params);
+		Assert.assertEquals(expectedSpec, actualSpec);
+	}
+
+	@Test(expected = PropertyException.class)
+	public void testUnknownPropertyNotAllowed() throws InstantiationException, IllegalAccessException {
+		QuerySpec expectedSpec = new QuerySpec(Task.class);
+		expectedSpec.addFilter(new FilterSpec(Arrays.asList("doesNotExists"), FilterOperator.EQ, "value"));
+
+		deserializer.setAllowUnknownAttributes(false);
+
+		Map<String, Set<String>> params = new HashMap<>();
+		add(params, "filter[tasks][doesNotExists]", "value");
+
+		deserializer.deserialize(Task.class, params);
+	}
+
+	@Test
 	public void testFilterByOne() throws InstantiationException, IllegalAccessException {
 		QuerySpec expectedSpec = new QuerySpec(Task.class);
 		expectedSpec.addFilter(new FilterSpec(Arrays.asList("name"), FilterOperator.EQ, "value"));
@@ -178,7 +224,6 @@ public class DefaultQuerySpecDeserializerTest extends AbstractQuerySpecTest {
 		Assert.assertEquals(expectedSpec, actualSpec);
 	}
 
-	//
 	@Test
 	public void testPaging() throws InstantiationException, IllegalAccessException {
 		QuerySpec expectedSpec = new QuerySpec(Task.class);
@@ -191,6 +236,19 @@ public class DefaultQuerySpecDeserializerTest extends AbstractQuerySpecTest {
 
 		QuerySpec actualSpec = deserializer.deserialize(Task.class, params);
 		Assert.assertEquals(expectedSpec, actualSpec);
+	}
+
+	@Test(expected = ParametersDeserializationException.class)
+	public void testPagingError() throws InstantiationException, IllegalAccessException {
+		QuerySpec expectedSpec = new QuerySpec(Task.class);
+		expectedSpec.setLimit(2L);
+		expectedSpec.setOffset(1L);
+
+		Map<String, Set<String>> params = new HashMap<>();
+		add(params, "page[offset]", "notANumber");
+		add(params, "page[limit]", "2");
+
+		deserializer.deserialize(Task.class, params);
 	}
 
 	@Test

@@ -36,10 +36,10 @@ public class JpaCriteriaQueryExecutorImpl<T> extends AbstractQueryExecutorImpl<T
 		return query;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	protected List<?> executeQuery() {
-		TypedQuery<T> typedQuery = em.createQuery(query);
-		return executeQuery(typedQuery);
+	public TypedQuery<T> getTypedQuery() {
+		return (TypedQuery<T>) setupQuery(em.createQuery(query));
 	}
 
 	@Override

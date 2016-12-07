@@ -1,10 +1,6 @@
 package io.katharsis.example.springboot.simple.domain.mapper;
 
 import static io.katharsis.response.HttpStatus.CONFLICT_409;
-import io.katharsis.errorhandling.ErrorData;
-import io.katharsis.errorhandling.ErrorResponse;
-import io.katharsis.errorhandling.mapper.ExceptionMapperProvider;
-import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -14,7 +10,13 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Path.Node;
 
-@ExceptionMapperProvider
+import org.springframework.stereotype.Component;
+
+import io.katharsis.errorhandling.ErrorData;
+import io.katharsis.errorhandling.ErrorResponse;
+import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
+
+@Component
 public class ConstraintViolationExceptionMapper implements JsonApiExceptionMapper<ConstraintViolationException> {
 
 	@Override

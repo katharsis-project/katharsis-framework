@@ -12,6 +12,8 @@ import io.katharsis.resource.exception.ResourceNotFoundException;
  *
  * @param <T>  Type of an entity
  * @param <I> Type of Identifier of an entity
+ * 
+ * @Deprecated This interface is deprecated, use ResourceRepositoryV2.
  */
 public interface QuerySpecResourceRepository<T, I extends Serializable> extends Repository {
 

@@ -15,10 +15,11 @@ public interface JpaRepositoryFactory {
 	 * @param <T> resource type
 	 * @param <I> identifier type
 	 * @param module managing the repository
-	 * @param resourceClass to create the jpa. Might either be the entity or a mapped dto.
+	 * @param config for this repository
 	 * @return created repository
 	 */
-	public <T, I extends Serializable> JpaEntityRepository<T, I> createEntityRepository(JpaModule module, Class<T> resourceClass);
+	public <T, I extends Serializable> JpaEntityRepository<T, I> createEntityRepository(JpaModule module,
+			JpaRepositoryConfig<T> config);
 
 	/**
 	 *  Creates a relationship repository that maps an entity relationship to a JSON API endpoint. The provided resource classes do not necessarily have to be
@@ -30,12 +31,10 @@ public interface JpaRepositoryFactory {
 	 * @param <J> target identifier type
 	 * @param module managing the repository
 	 * @param sourceResourceClass representing the source of the relation (entity or mapped dto)
-	 * @param targetResourceClass representing the target of the relation (entity or mapped dto)
+	 * @param config for this repository
 	 * @return created repository
 	 */
 	public <S, I extends Serializable, T, J extends Serializable> JpaRelationshipRepository<S, I, T, J> createRelationshipRepository(
-			JpaModule module, Class<S> sourceResourceClass, Class<T> targetResourceClass);
-
-		
+			JpaModule module, Class<S> sourceResourceClass, JpaRepositoryConfig<T> config);
 
 }

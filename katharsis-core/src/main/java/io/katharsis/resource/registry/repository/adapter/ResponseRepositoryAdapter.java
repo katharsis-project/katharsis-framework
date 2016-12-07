@@ -6,13 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 import io.katharsis.module.ModuleRegistry;
-import io.katharsis.queryParams.QueryParams;
-import io.katharsis.queryspec.DefaultQuerySpecConverter;
-import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.QuerySpecLinksRepository;
 import io.katharsis.queryspec.QuerySpecMetaRepository;
 import io.katharsis.queryspec.internal.QueryAdapter;
-import io.katharsis.queryspec.internal.QueryParamsAdapter;
 import io.katharsis.queryspec.internal.QuerySpecAdapter;
 import io.katharsis.repository.LinksRepository;
 import io.katharsis.repository.MetaRepository;
@@ -26,11 +22,14 @@ import io.katharsis.repository.filter.RepositoryRequestFilterChain;
 import io.katharsis.repository.filter.RepositoryResultFilterChain;
 import io.katharsis.request.repository.RepositoryRequestSpec;
 import io.katharsis.resource.information.ResourceInformation;
+import io.katharsis.resource.list.DefaultResourceList;
+import io.katharsis.resource.list.ResourceList;
 import io.katharsis.response.JsonApiResponse;
 import io.katharsis.response.LinksInformation;
 import io.katharsis.response.MetaInformation;
 import io.katharsis.response.paging.DefaultPagedLinksInformation;
 import io.katharsis.response.paging.PagedLinksInformation;
+import io.katharsis.response.paging.PagedMetaInformation;
 import io.katharsis.response.paging.PagedResultList;
 import io.katharsis.utils.JsonApiUrlBuilder;
 import io.katharsis.utils.PreconditionUtil;
@@ -47,85 +46,94 @@ public abstract class ResponseRepositoryAdapter {
 
 	protected ResourceInformation resourceInformation;
 
-    protected ModuleRegistry moduleRegistry;
+	protected ModuleRegistry moduleRegistry;
 
-    public ResponseRepositoryAdapter(ResourceInformation resourceInformation, ModuleRegistry moduleRegistry) {
-        this.moduleRegistry = moduleRegistry;
-        this.resourceInformation = resourceInformation;
-    }
+	public ResponseRepositoryAdapter(ResourceInformation resourceInformation, ModuleRegistry moduleRegistry) {
+		this.moduleRegistry = moduleRegistry;
+		this.resourceInformation = resourceInformation;
+	}
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	protected <T> Iterable<T> filterResult(Iterable<?> resources, RepositoryRequestSpec requestSpec) {
-    	RepositoryResultFilterChainImpl<T> chain = new RepositoryResultFilterChainImpl<>((Iterable)resources);
-    	return chain.doFilter(newRepositoryFilterContext(requestSpec));
-    }
-    
+		RepositoryResultFilterChainImpl<T> chain = new RepositoryResultFilterChainImpl<>((Iterable) resources);
+		return chain.doFilter(newRepositoryFilterContext(requestSpec));
+	}
+
 	protected JsonApiResponse getResponse(Object repository, Object result, RepositoryRequestSpec requestSpec) {
-        if (result instanceof JsonApiResponse) {
-            return (JsonApiResponse) result;
-        }
+		if (result instanceof JsonApiResponse) {
+			return (JsonApiResponse) result;
+		}
 
-        Iterable<?> resources;
-        boolean isCollection = result instanceof Iterable;
-        if (isCollection) {
-            resources = (Iterable<?>) result;
-        } else {
-            resources = Collections.singletonList(result);
-        }
-        Iterable<?> filteredResult = filterResult(resources, requestSpec);
-        MetaInformation metaInformation = getMetaInformation(repository, resources, requestSpec);
-        LinksInformation linksInformation = getLinksInformation(repository, resources, requestSpec);
+		Iterable<?> resources;
+		boolean isCollection = result instanceof Iterable;
+		if (isCollection) {
+			resources = (Iterable<?>) result;
+		}
+		else {
+			resources = Collections.singletonList(result);
+		}
+		Iterable<?> filteredResult = filterResult(resources, requestSpec);
+		MetaInformation metaInformation = getMetaInformation(repository, resources, requestSpec);
+		LinksInformation linksInformation = getLinksInformation(repository, resources, requestSpec);
 
-        Object resultEntity;
-        if(isCollection){
-        	resultEntity = filteredResult;
-        }else {
-        	Iterator<?> iterator = filteredResult.iterator();
-        	if(iterator.hasNext()){
-        		resultEntity = iterator.next();
-        		PreconditionUtil.assertFalse("expected unique result", iterator.hasNext());
-        	}else{
-        		resultEntity = null;
-        	}
-        }
-        
-        return new JsonApiResponse().setEntity(resultEntity).setLinksInformation(linksInformation)
-                .setMetaInformation(metaInformation);
-    }
+		Object resultEntity;
+		if (isCollection) {
+			resultEntity = filteredResult;
+		}
+		else {
+			Iterator<?> iterator = filteredResult.iterator();
+			if (iterator.hasNext()) {
+				resultEntity = iterator.next();
+				PreconditionUtil.assertFalse("expected unique result", iterator.hasNext());
+			}
+			else {
+				resultEntity = null;
+			}
+		}
 
-    private MetaInformation getMetaInformation(Object repository, Iterable<?> resources, RepositoryRequestSpec requestSpec) {
-    	RepositoryMetaFilterChainImpl chain = new RepositoryMetaFilterChainImpl(repository);
-    	return chain.doFilter(newRepositoryFilterContext(requestSpec), resources);
-    }
-    
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    private MetaInformation doGetMetaInformation(Object repository, Iterable<?> resources, RepositoryRequestSpec requestSpec) {
-    	QueryAdapter queryAdapter = requestSpec.getQueryAdapter();
-        if (repository instanceof AnnotatedRepositoryAdapter) {
-            if (((AnnotatedRepositoryAdapter) repository).metaRepositoryAvailable()) {
-                return ((AnnotatedRepositoryAdapter) repository).getMetaInformation(resources, queryAdapter);
-            }
-        } else if (repository instanceof QuerySpecMetaRepository) {
-            return ((QuerySpecMetaRepository) repository).getMetaInformation(resources, requestSpec.getQuerySpec(getResourceClass(repository)));
-        } else if (repository instanceof MetaRepository) {
-            return ((MetaRepository) repository).getMetaInformation(resources, requestSpec.getQueryParams());
-        }
-        return null;
-    }
+		return new JsonApiResponse().setEntity(resultEntity).setLinksInformation(linksInformation)
+				.setMetaInformation(metaInformation);
+	}
 
-    private LinksInformation getLinksInformation(Object repository, Iterable<?> resources, RepositoryRequestSpec requestSpec) {
-    	RepositoryLinksFilterChainImpl chain = new RepositoryLinksFilterChainImpl(repository);
-    	return chain.doFilter(newRepositoryFilterContext(requestSpec), resources);
-    }
-    
-    
-    class RepositoryMetaFilterChainImpl implements RepositoryMetaFilterChain {
+	private MetaInformation getMetaInformation(Object repository, Iterable<?> resources, RepositoryRequestSpec requestSpec) {
+		RepositoryMetaFilterChainImpl chain = new RepositoryMetaFilterChainImpl(repository);
+		return chain.doFilter(newRepositoryFilterContext(requestSpec), resources);
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private MetaInformation doGetMetaInformation(Object repository, Iterable<?> resources, RepositoryRequestSpec requestSpec) {
+		if (resources instanceof ResourceList) {
+			ResourceList<?> resourceList = (ResourceList<?>) resources;
+			return resourceList.getMeta();
+		}
+		QueryAdapter queryAdapter = requestSpec.getQueryAdapter();
+		if (repository instanceof AnnotatedRepositoryAdapter) {
+			if (((AnnotatedRepositoryAdapter) repository).metaRepositoryAvailable()) {
+				return ((AnnotatedRepositoryAdapter) repository).getMetaInformation(resources, queryAdapter);
+			}
+		}
+		else if (repository instanceof QuerySpecMetaRepository) {
+			return ((QuerySpecMetaRepository) repository).getMetaInformation(resources,
+					requestSpec.getQuerySpec(getResourceClass(repository)));
+		}
+		else if (repository instanceof MetaRepository) {
+			return ((MetaRepository) repository).getMetaInformation(resources, requestSpec.getQueryParams());
+		}
+		return null;
+	}
+
+	private LinksInformation getLinksInformation(Object repository, Iterable<?> resources, RepositoryRequestSpec requestSpec) {
+		RepositoryLinksFilterChainImpl chain = new RepositoryLinksFilterChainImpl(repository);
+		return chain.doFilter(newRepositoryFilterContext(requestSpec), resources);
+	}
+
+	class RepositoryMetaFilterChainImpl implements RepositoryMetaFilterChain {
 
 		protected int filterIndex = 0;
-		
+
 		private Object repository;
-		
-		public RepositoryMetaFilterChainImpl(Object repository){
+
+		public RepositoryMetaFilterChainImpl(Object repository) {
 			this.repository = repository;
 		}
 
@@ -142,14 +150,14 @@ public abstract class ResponseRepositoryAdapter {
 			}
 		}
 	}
-    
-    class RepositoryLinksFilterChainImpl implements RepositoryLinksFilterChain {
+
+	class RepositoryLinksFilterChainImpl implements RepositoryLinksFilterChain {
 
 		protected int filterIndex = 0;
-		
+
 		private Object repository;
-		
-		public RepositoryLinksFilterChainImpl(Object repository){
+
+		public RepositoryLinksFilterChainImpl(Object repository) {
 			this.repository = repository;
 		}
 
@@ -166,14 +174,14 @@ public abstract class ResponseRepositoryAdapter {
 			}
 		}
 	}
-    
-    class RepositoryResultFilterChainImpl<T> implements RepositoryResultFilterChain<T> {
+
+	class RepositoryResultFilterChainImpl<T> implements RepositoryResultFilterChain<T> {
 
 		protected int filterIndex = 0;
-		
+
 		private Iterable<T> result;
-		
-		public RepositoryResultFilterChainImpl(Iterable<T> result){
+
+		public RepositoryResultFilterChainImpl(Iterable<T> result) {
 			this.result = result;
 		}
 
@@ -190,8 +198,8 @@ public abstract class ResponseRepositoryAdapter {
 			}
 		}
 	}
-    
-    protected abstract class RepositoryRequestFilterChainImpl implements RepositoryRequestFilterChain {
+
+	protected abstract class RepositoryRequestFilterChainImpl implements RepositoryRequestFilterChain {
 
 		protected int filterIndex = 0;
 
@@ -210,8 +218,8 @@ public abstract class ResponseRepositoryAdapter {
 
 		protected abstract JsonApiResponse invoke(RepositoryFilterContext context);
 	}
-    
-    protected abstract class RepositoryBulkRequestFilterChainImpl<K> implements RepositoryBulkRequestFilterChain<K> {
+
+	protected abstract class RepositoryBulkRequestFilterChainImpl<K> implements RepositoryBulkRequestFilterChain<K> {
 
 		protected int filterIndex = 0;
 
@@ -231,8 +239,8 @@ public abstract class ResponseRepositoryAdapter {
 		protected abstract Map<K, JsonApiResponse> invoke(RepositoryFilterContext context);
 	}
 
-    protected RepositoryFilterContext newRepositoryFilterContext(final RepositoryRequestSpec requestSpec) {
-		return new RepositoryFilterContext(){
+	protected RepositoryFilterContext newRepositoryFilterContext(final RepositoryRequestSpec requestSpec) {
+		return new RepositoryFilterContext() {
 
 			@Override
 			public RepositoryRequestSpec getRequest() {
@@ -240,63 +248,94 @@ public abstract class ResponseRepositoryAdapter {
 			}
 		};
 	}
-   
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    private LinksInformation doGetLinksInformation(Object repository, Iterable<?> resources, RepositoryRequestSpec requestSpec) {
-    	LinksInformation linksInformation = null;
-        if (repository instanceof AnnotatedRepositoryAdapter) {
-            if (((AnnotatedRepositoryAdapter) repository).linksRepositoryAvailable()) {
-            	linksInformation = ((LinksRepository) repository).getLinksInformation(resources, requestSpec.getQueryParams());
-            }
-        } else if (repository instanceof QuerySpecLinksRepository) {
-        	linksInformation = ((QuerySpecLinksRepository) repository).getLinksInformation(resources, requestSpec.getQuerySpec(getResourceClass(repository)));
-        } else if (repository instanceof LinksRepository) {
-        	linksInformation = ((LinksRepository) repository).getLinksInformation(resources, requestSpec.getQueryParams());
-        }
-        return enrichLinksInformation(linksInformation, resources, requestSpec);
-    }
 
-    private LinksInformation enrichLinksInformation(LinksInformation linksInformation, Iterable<?> resources, RepositoryRequestSpec requestSpec) {
-    	// TOOD QueryParamsAdapter currently not supported
-    	// QueryParamsAdapter.duplicate and the other paging mechanism next to offset/limit need to be implemented
-    	QueryAdapter queryAdapter = requestSpec.getQueryAdapter();
-    	LinksInformation enrichedLinksInformation = linksInformation;
-    	if(queryAdapter instanceof QuerySpecAdapter){
-    		enrichedLinksInformation = enrichPageLinksInformation(enrichedLinksInformation, resources, queryAdapter, requestSpec);
-    	}
-   		return enrichedLinksInformation;
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private LinksInformation doGetLinksInformation(Object repository, Iterable<?> resources, RepositoryRequestSpec requestSpec) {
+		if (resources instanceof ResourceList) {
+			ResourceList<?> resourceList = (ResourceList<?>) resources;
+			boolean createLinksInformation = resourceList instanceof DefaultResourceList;
+			LinksInformation newLinksInfo = enrichLinksInformation(resourceList.getLinks(), resources, requestSpec,
+					createLinksInformation);
+			if (createLinksInformation) {
+				((DefaultResourceList) resources).setLinks(newLinksInfo);
+			}
+			return resourceList.getLinks();
+		}
+
+		LinksInformation linksInformation = null;
+		if (repository instanceof AnnotatedRepositoryAdapter) {
+			if (((AnnotatedRepositoryAdapter) repository).linksRepositoryAvailable()) {
+				linksInformation = ((LinksRepository) repository).getLinksInformation(resources, requestSpec.getQueryParams());
+			}
+		}
+		else if (repository instanceof QuerySpecLinksRepository) {
+			linksInformation = ((QuerySpecLinksRepository) repository).getLinksInformation(resources,
+					requestSpec.getQuerySpec(getResourceClass(repository)));
+		}
+		else if (repository instanceof LinksRepository) {
+			linksInformation = ((LinksRepository) repository).getLinksInformation(resources, requestSpec.getQueryParams());
+		}
+		boolean createLinksInformation = true; // backward compatibility, everything deprecated anyway
+		return enrichLinksInformation(linksInformation, resources, requestSpec, createLinksInformation);
 	}
 
-    private LinksInformation enrichPageLinksInformation(LinksInformation linksInformation, Iterable<?> resources,
-			QueryAdapter queryAdapter, RepositoryRequestSpec requestSpec) {
-    	if(!(resources instanceof PagedResultList) || queryAdapter.getLimit() == null){
-    		return linksInformation;
-    	}
-    
-		if(linksInformation != null && !(linksInformation instanceof PagedLinksInformation)){
-			throw new IllegalStateException(linksInformation + " must implement " + PagedLinksInformation.class.getName() + " to support pagination link computation with " + PagedResultList.class);
+	private LinksInformation enrichLinksInformation(LinksInformation linksInformation, Iterable<?> resources,
+			RepositoryRequestSpec requestSpec, boolean createLinksInformation) {
+		// TOOD QueryParamsAdapter currently not supported
+		// QueryParamsAdapter.duplicate and the other paging mechanism next to offset/limit need to be implemented
+		QueryAdapter queryAdapter = requestSpec.getQueryAdapter();
+		LinksInformation enrichedLinksInformation = linksInformation;
+		if (queryAdapter instanceof QuerySpecAdapter && (queryAdapter.getOffset() != 0 || queryAdapter.getLimit() != null)) {
+			enrichedLinksInformation = enrichPageLinksInformation(enrichedLinksInformation, resources, queryAdapter, requestSpec,
+					true);
 		}
-		
-		// only enrich if not already set
-		PagedLinksInformation pagedLinksInformation = (PagedLinksInformation) linksInformation;
-		if(pagedLinksInformation == null){
-			// use default implementation if no link information provided by repository
-			pagedLinksInformation = new DefaultPagedLinksInformation();
+		return enrichedLinksInformation;
+	}
+
+	private LinksInformation enrichPageLinksInformation(LinksInformation linksInformation, Iterable<?> resources,
+			QueryAdapter queryAdapter, RepositoryRequestSpec requestSpec, boolean createLinksInformation) {
+
+		if (linksInformation == null && createLinksInformation || linksInformation instanceof PagedLinksInformation) {
+			Long totalCount = getTotalCount(resources);
+			if (totalCount != null) {
+				PagedLinksInformation pagedLinksInformation = (PagedLinksInformation) linksInformation;
+
+				if (pagedLinksInformation == null) {
+					// use default implementation if no link information provided by repository
+					pagedLinksInformation = new DefaultPagedLinksInformation();
+				}
+
+				// only enrich if not already set
+				if (!hasPageLinks(pagedLinksInformation)) {
+					doEnrichPageLinksInformation(pagedLinksInformation, totalCount, queryAdapter, requestSpec);
+				}
+				return pagedLinksInformation;
+			}
 		}
-		if(!hasPageLinks(pagedLinksInformation)){
-			PagedResultList<?> pageResultList = (PagedResultList<?>) resources;
-			doEnrichPageLinksInformation(pagedLinksInformation, pageResultList, queryAdapter, requestSpec);
+		return linksInformation;
+	}
+
+	private Long getTotalCount(Iterable<?> resources) {
+		if (resources instanceof PagedResultList) {
+			return ((PagedResultList<?>) resources).getTotalCount();
 		}
-		return pagedLinksInformation;
+		else if (resources instanceof ResourceList) {
+			ResourceList<?> list = (ResourceList<?>) resources;
+			PagedMetaInformation pagedMeta = list.getMeta(PagedMetaInformation.class);
+			if (pagedMeta != null) {
+				return pagedMeta.getTotalResourceCount();
+			}
+		}
+		return null;
 	}
 
 	private boolean hasPageLinks(PagedLinksInformation pagedLinksInformation) {
-		return pagedLinksInformation.getFirst() != null || pagedLinksInformation.getLast() != null || pagedLinksInformation.getPrev() != null || pagedLinksInformation.getNext() != null;
+		return pagedLinksInformation.getFirst() != null || pagedLinksInformation.getLast() != null
+				|| pagedLinksInformation.getPrev() != null || pagedLinksInformation.getNext() != null;
 	}
 
-	private void doEnrichPageLinksInformation(PagedLinksInformation pagedLinksInformation, PagedResultList<?> pageResultList,
-			QueryAdapter queryAdapter, RepositoryRequestSpec requestSpec) {
-    	long total = pageResultList.getTotalCount();
+	private void doEnrichPageLinksInformation(PagedLinksInformation pagedLinksInformation, long total, QueryAdapter queryAdapter,
+			RepositoryRequestSpec requestSpec) {
 		long pageSize = queryAdapter.getLimit().longValue();
 		long offset = queryAdapter.getOffset();
 
@@ -309,26 +348,26 @@ public abstract class ResponseRepositoryAdapter {
 		QueryAdapter pageSpec = queryAdapter.duplicate();
 		pageSpec.setLimit(pageSize);
 
-		if(totalPages > 0){
+		if (totalPages > 0) {
 			pageSpec.setOffset(0);
-			pagedLinksInformation.setFirst(toUrl(pageSpec, pageResultList, requestSpec));
-	
+			pagedLinksInformation.setFirst(toUrl(pageSpec, requestSpec));
+
 			pageSpec.setOffset((totalPages - 1) * pageSize);
-			pagedLinksInformation.setLast(toUrl(pageSpec, pageResultList, requestSpec));
-	
+			pagedLinksInformation.setLast(toUrl(pageSpec, requestSpec));
+
 			if (currentPage > 0) {
 				pageSpec.setOffset((currentPage - 1) * pageSize);
-				pagedLinksInformation.setPrev(toUrl(pageSpec, pageResultList, requestSpec));
+				pagedLinksInformation.setPrev(toUrl(pageSpec, requestSpec));
 			}
-	
+
 			if (currentPage < totalPages - 1) {
 				pageSpec.setOffset((currentPage + 1) * pageSize);
-				pagedLinksInformation.setNext(toUrl(pageSpec, pageResultList, requestSpec));
-			}		
+				pagedLinksInformation.setNext(toUrl(pageSpec, requestSpec));
+			}
 		}
 	}
-	
-	private <T> String toUrl(QueryAdapter queryAdapter, PagedResultList<T> pagedResultList, RepositoryRequestSpec requestSpec) {
+
+	private <T> String toUrl(QueryAdapter queryAdapter, RepositoryRequestSpec requestSpec) {
 		JsonApiUrlBuilder urlBuilder = new JsonApiUrlBuilder(moduleRegistry.getResourceRegistry());
 		Object relationshipSourceId = requestSpec.getId();
 		String relationshipField = requestSpec.getRelationshipField();
@@ -341,8 +380,7 @@ public abstract class ResponseRepositoryAdapter {
 		}
 		return urlBuilder.buildUrl(rootClass, relationshipSourceId, queryAdapter, relationshipField);
 	}
-    
+
 	protected abstract Class<?> getResourceClass(Object repository);
 
-    
 }

@@ -11,20 +11,25 @@ import io.katharsis.jpa.internal.meta.MetaLookup;
 import io.katharsis.jpa.internal.query.AbstractJpaQueryImpl;
 import io.katharsis.jpa.internal.query.ComputedAttributeRegistryImpl;
 import io.katharsis.jpa.query.querydsl.QuerydslQuery;
+import io.katharsis.jpa.query.querydsl.QuerydslTranslationInterceptor;
 
 public class QuerydslQueryImpl<T> extends AbstractJpaQueryImpl<T, QuerydslQueryBackend<T>> implements QuerydslQuery<T> {
 
 	private JPAQueryFactory queryFactory;
 
-	public QuerydslQueryImpl(MetaLookup metaLookup, EntityManager em, Class<T> clazz,
-			ComputedAttributeRegistryImpl computedAttrs) {
+	private List<QuerydslTranslationInterceptor> translationInterceptors;
+
+	public QuerydslQueryImpl(MetaLookup metaLookup, EntityManager em, Class<T> clazz, ComputedAttributeRegistryImpl computedAttrs,
+			List<QuerydslTranslationInterceptor> translationInterceptors) {
 		super(metaLookup, em, clazz, computedAttrs);
+		this.translationInterceptors = translationInterceptors;
 		queryFactory = new JPAQueryFactory(em);
 	}
 
-	public QuerydslQueryImpl(MetaLookup metaLookup, EntityManager em, Class<?> clazz,
-			ComputedAttributeRegistryImpl virtualAttrs, String attrName, List<?> entityIds) {
+	public QuerydslQueryImpl(MetaLookup metaLookup, EntityManager em, Class<?> clazz, ComputedAttributeRegistryImpl virtualAttrs,
+			List<QuerydslTranslationInterceptor> translationInterceptors, String attrName, List<?> entityIds) {
 		super(metaLookup, em, clazz, virtualAttrs, attrName, entityIds);
+		this.translationInterceptors = translationInterceptors;
 		queryFactory = new JPAQueryFactory(em);
 	}
 
@@ -43,7 +48,13 @@ public class QuerydslQueryImpl<T> extends AbstractJpaQueryImpl<T, QuerydslQueryB
 	}
 
 	@Override
-	protected QuerydslExecutorImpl<T> newExecutor(QuerydslQueryBackend<T> ctx, int numAutoSelections, Map<String, Integer> selectionBindings) {
+	protected QuerydslExecutorImpl<T> newExecutor(QuerydslQueryBackend<T> ctx, int numAutoSelections,
+			Map<String, Integer> selectionBindings) {
+
+		for (QuerydslTranslationInterceptor translationInterceptor : translationInterceptors) {
+			translationInterceptor.intercept(this, ctx);
+		}
+
 		return new QuerydslExecutorImpl<>(em, meta, ctx.getQuery(), numAutoSelections, selectionBindings);
 	}
 }

@@ -1,16 +1,18 @@
 package io.katharsis.utils;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 
 public class PropertyUtilsTest {
 
@@ -184,7 +186,6 @@ public class PropertyUtilsTest {
         // THEN
         assertThat(result).isEqualTo("valueProperty");
     }
-    
 
     @Test
     public void onListValueForSetPropertyShouldGetConverted() throws Exception {
@@ -192,10 +193,11 @@ public class PropertyUtilsTest {
     	Bean bean = new Bean();
 
         // WHEN
-    	PropertyUtils.setProperty(bean, "setProperty", Arrays.asList("1", "2"));
+        PropertyUtils.setProperty(bean, "setProperty", Arrays.asList("4", "1", "3", "2"));
 
         // THEN
-        assertThat(bean.getSetProperty().size()).isEqualTo(2);
+        // confirm the order has been preserved
+        assertEquals(bean.getSetProperty(), new LinkedHashSet(Arrays.asList("4", "1", "3", "2")));
     }
 
     @Test

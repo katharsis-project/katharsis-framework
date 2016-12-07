@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.resource.exception.ResourceException;
 import io.katharsis.resource.exception.init.InvalidResourceException;
+import io.katharsis.resource.field.ResourceField.ResourceFieldType;
 import io.katharsis.resource.mock.models.OtherPojo;
 import io.katharsis.resource.mock.models.Pojo;
 import io.katharsis.resource.mock.models.Task;
@@ -25,27 +26,27 @@ public class ResourceAttributesBridgeTest {
     @Test
     public void onValidClassShouldInitializeResourceAttributesBridge() throws Exception {
         // WHEN
-        new ResourceAttributesBridge<>(Collections.<ResourceField>emptySet(), DynamicResource.class);
+        new ResourceAttributesBridge<>(Collections.<ResourceField>emptyList(), DynamicResource.class);
     }
 
     @Test(expected = InvalidResourceException.class)
     public void onClassWithoutAnyGetterShouldThrowException() throws Exception {
         // WHEN
-        new ResourceAttributesBridge<>(Collections.<ResourceField>emptySet(), ClassWithoutAnyGetter.class);
+        new ResourceAttributesBridge<>(Collections.<ResourceField>emptyList(), ClassWithoutAnyGetter.class);
     }
 
     @Test(expected = InvalidResourceException.class)
     public void onClassWithoutAnySetterShouldThrowException() throws Exception {
         // WHEN
-        new ResourceAttributesBridge<>(Collections.<ResourceField>emptySet(), ClassWithoutAnySetter.class);
+        new ResourceAttributesBridge<>(Collections.<ResourceField>emptyList(), ClassWithoutAnySetter.class);
     }
 
     @Test
     public void onSimpleAttributesShouldPutInstanceValues() throws Exception {
         // GIVEN
-        ResourceField field = new ResourceField("name", "name", String.class, String.class);
+        ResourceField field = new ResourceField("name", "name", ResourceFieldType.ATTRIBUTE, String.class, String.class);
         ResourceAttributesBridge<Task> sut =
-            new ResourceAttributesBridge<>(Collections.singleton(field), Task.class);
+            new ResourceAttributesBridge<>(Collections.singletonList(field), Task.class);
         JsonNode attributes = objectMapper.createObjectNode()
             .put("name", "value");
         Task task = new Task();
@@ -61,7 +62,7 @@ public class ResourceAttributesBridgeTest {
     public void onDynamicAttributesShouldPutInstanceValues() throws Exception {
         // GIVEN
         ResourceAttributesBridge<DynamicResource> sut =
-            new ResourceAttributesBridge<>(Collections.<ResourceField>emptySet(), DynamicResource.class);
+            new ResourceAttributesBridge<>(Collections.<ResourceField>emptyList(), DynamicResource.class);
         JsonNode attributes = objectMapper.createObjectNode()
             .put("name", "value");
         DynamicResource resource = new DynamicResource();
@@ -78,7 +79,7 @@ public class ResourceAttributesBridgeTest {
     public void onDynamicAttributesReadingShouldThrowException() throws Exception {
         // GIVEN
         ResourceAttributesBridge<DynamicResourceWithSetterException> sut =
-            new ResourceAttributesBridge<>(Collections.<ResourceField>emptySet(), DynamicResourceWithSetterException.class);
+            new ResourceAttributesBridge<>(Collections.<ResourceField>emptyList(), DynamicResourceWithSetterException.class);
         JsonNode attributes = objectMapper.createObjectNode()
             .put("name", "value");
 
@@ -90,7 +91,7 @@ public class ResourceAttributesBridgeTest {
     public void onDynamicAttributesWritingShouldThrowException() throws Exception {
         // GIVEN
         ResourceAttributesBridge<DynamicResourceWithGetterException> sut =
-            new ResourceAttributesBridge<>(Collections.<ResourceField>emptySet(), DynamicResourceWithGetterException.class);
+            new ResourceAttributesBridge<>(Collections.<ResourceField>emptyList(), DynamicResourceWithGetterException.class);
         JsonNode attributes = objectMapper.createObjectNode()
             .put("name", "value");
 

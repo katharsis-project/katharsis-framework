@@ -3,7 +3,6 @@ package io.katharsis.jpa.internal.meta.impl;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 import io.katharsis.jpa.internal.meta.MetaKey;
 import io.katharsis.jpa.internal.meta.MetaLookup;
@@ -26,7 +25,7 @@ public class MetaResourceImpl extends MetaDataObjectImpl {
 	public void init(MetaLookup lookup) {
 		super.init(lookup);
 
-		MetaKey key = new MetaKeyImpl(this, idAttr.getName(), (List) Arrays.asList(idAttr), true, true, idAttr.getType());
+		MetaKey key = new MetaKeyImpl(this, idAttr.getName(), (List) Arrays.asList(idAttr), true, idAttr.getType());
 		setPrimaryKey(key);
 	}
 
@@ -44,7 +43,7 @@ public class MetaResourceImpl extends MetaDataObjectImpl {
 
 		super.init(lookup);
 
-		Set<ResourceField> attrFields = resourceInformation.getAttributeFields().getFields();
+		List<ResourceField> attrFields = resourceInformation.getAttributeFields().getFields();
 		for (ResourceField field : attrFields) {
 			MetaAttributeImpl attr = new MetaAttributeImpl(this, field.getUnderlyingName(), field.getGenericType());
 			addAttribute(attr);

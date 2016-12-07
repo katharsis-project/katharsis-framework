@@ -3,6 +3,7 @@ package io.katharsis.internal.boot;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 import io.katharsis.dispatcher.RequestDispatcher;
 import io.katharsis.dispatcher.filter.Filter;
@@ -33,6 +34,8 @@ import io.katharsis.repository.Repository;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.repository.annotations.JsonApiRelationshipRepository;
 import io.katharsis.repository.annotations.JsonApiResourceRepository;
+import io.katharsis.repository.information.internal.DefaultRelationshipRepositoryInformationBuilder;
+import io.katharsis.repository.information.internal.DefaultResourceRepositoryInformationBuilder;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
 import io.katharsis.resource.registry.ConstantServiceUrlProvider;
@@ -75,6 +78,10 @@ public class KatharsisBoot {
 
 	private ServiceDiscoveryFactory serviceDiscoveryFactory = new DefaultServiceDiscoveryFactory();
 
+	private ServiceDiscovery serviceDiscovery;
+
+	private ExceptionMapperRegistry exceptionMapperRegistry;
+
 	public void setObjectMapper(ObjectMapper objectMapper) {
 		PreconditionUtil.assertNull("ObjectMapper already set", this.objectMapper);
 		this.objectMapper = objectMapper;
@@ -82,6 +89,11 @@ public class KatharsisBoot {
 
 	public void setServiceDiscoveryFactory(ServiceDiscoveryFactory factory) {
 		this.serviceDiscoveryFactory = factory;
+	}
+
+	public void setServiceDiscovery(ServiceDiscovery serviceDiscovery) {
+		this.serviceDiscovery = serviceDiscovery;
+		moduleRegistry.setServiceDiscovery(serviceDiscovery);
 	}
 
 	public void setQueryParamsBuilds(QueryParamsBuilder queryParamsBuilder) {
@@ -96,7 +108,7 @@ public class KatharsisBoot {
 
 	/**
 	 * Sets a JsonServiceLocator.  No longer necessary if a ServiceDiscovery implementation is in place.
-	 * 
+	 *
 	 * @param serviceLocator Ask Remmo
 	 */
 	public void setServiceLocator(JsonServiceLocator serviceLocator) {
@@ -105,7 +117,7 @@ public class KatharsisBoot {
 
 	/**
 	 * Adds a module. No longer necessary if a ServiceDiscovery implementation is in place.
-	 * 
+	 *
 	 * @param module Ask Remmo
 	 */
 	public void addModule(Module module) {
@@ -113,10 +125,10 @@ public class KatharsisBoot {
 	}
 
 	/**
-	* Sets a ServiceUrlProvider.  No longer necessary if a ServiceDiscovery implementation is in place.
-	* 
-	* @param serviceUrlProvider Ask Remmo
-	*/
+	 * Sets a ServiceUrlProvider.  No longer necessary if a ServiceDiscovery implementation is in place.
+	 *
+	 * @param serviceUrlProvider Ask Remmo
+	 */
 	public void setServiceUrlProvider(ServiceUrlProvider serviceUrlProvider) {
 		checkNotConfiguredYet();
 		this.serviceUrlProvider = serviceUrlProvider;
@@ -140,13 +152,16 @@ public class KatharsisBoot {
 	}
 
 	private void setupServiceDiscovery() {
-		// revert to reflection-based approach if no ServiceDiscovery is found
-		FallbackServiceDiscoveryFactory fallback = new FallbackServiceDiscoveryFactory(serviceDiscoveryFactory, serviceLocator,
-				propertiesProvider);
-		moduleRegistry.setServiceDiscovery(fallback.getInstance());
+		if (serviceDiscovery == null) {
+			// revert to reflection-based approach if no ServiceDiscovery is found
+			FallbackServiceDiscoveryFactory fallback = new FallbackServiceDiscoveryFactory(serviceDiscoveryFactory,
+					serviceLocator, propertiesProvider);
+			setServiceDiscovery(fallback.getInstance());
+		}
 	}
 
 	private void bootDiscovery() {
+		setupObjectMapper();
 		addModules();
 		setupComponents();
 		resourceRegistry = new ResourceRegistry(moduleRegistry, serviceUrlProvider);
@@ -156,16 +171,28 @@ public class KatharsisBoot {
 		JsonApiModuleBuilder jsonApiModuleBuilder = new JsonApiModuleBuilder();
 		objectMapper.registerModule(jsonApiModuleBuilder.build(resourceRegistry, false));
 
-		ExceptionMapperRegistry exceptionMapperRegistry = buildExceptionMapperRegistry();
+		exceptionMapperRegistry = buildExceptionMapperRegistry();
 
 		requestDispatcher = createRequestDispatcher(exceptionMapperRegistry);
 
 	}
 
+	private void setupObjectMapper() {
+		if (objectMapper == null) {
+			objectMapper = new ObjectMapper();
+			objectMapper.findAndRegisterModules();
+			objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+		}
+	}
+
+	public ExceptionMapperRegistry getExceptionMapperRegistry() {
+		return exceptionMapperRegistry;
+	}
+
 	private RequestDispatcher createRequestDispatcher(ExceptionMapperRegistry exceptionMapperRegistry) {
 		TypeParser typeParser = new TypeParser();
 		ControllerRegistryBuilder controllerRegistryBuilder = new ControllerRegistryBuilder(resourceRegistry, typeParser,
-				objectMapper);
+				objectMapper, propertiesProvider);
 		ControllerRegistry controllerRegistry = controllerRegistryBuilder.build();
 
 		QueryAdapterBuilder queryAdapterBuilder;
@@ -186,9 +213,15 @@ public class KatharsisBoot {
 	}
 
 	private void setupComponents() {
-		ServiceDiscovery serviceDiscovery = moduleRegistry.getServiceDiscovery();
-		SimpleModule module = new SimpleModule("discovery");
+		if (resourceFieldNameTransformer == null) {
+			resourceFieldNameTransformer = new ResourceFieldNameTransformer(objectMapper.getSerializationConfig());
+		}
 
+		// not that the provided default implementation here are added last and as a consequence,
+		// can be overriden by other modules, like the JaxrsResourceRepositoryInformationBuilder.
+		SimpleModule module = new SimpleModule("discovery");
+		module.addRepositoryInformationBuilder(new DefaultResourceRepositoryInformationBuilder());
+		module.addRepositoryInformationBuilder(new DefaultRelationshipRepositoryInformationBuilder());
 		module.addResourceInformationBuilder(new AnnotationResourceInformationBuilder(resourceFieldNameTransformer));
 
 		for (JsonApiExceptionMapper<?> exceptionMapper : serviceDiscovery.getInstancesByType(JsonApiExceptionMapper.class)) {
@@ -252,7 +285,7 @@ public class KatharsisBoot {
 
 	private void setupServiceUrlProvider() {
 		if (serviceUrlProvider == null) {
-			String resourceDefaultDomain = propertiesProvider.getProperty(KatharsisBootProperties.RESOURCE_DEFAULT_DOMAIN);
+			String resourceDefaultDomain = getProperty(KatharsisBootProperties.RESOURCE_DEFAULT_DOMAIN);
 			String webPathPrefix = getWebPathPrefix();
 			if (resourceDefaultDomain != null) {
 				String serviceUrl = buildServiceUrl(resourceDefaultDomain, webPathPrefix);
@@ -264,6 +297,12 @@ public class KatharsisBoot {
 			}
 		}
 		PreconditionUtil.assertNotNull("expected serviceUrlProvider", serviceUrlProvider);
+	}
+
+	private String getProperty(String key) {
+		if (propertiesProvider != null)
+			return propertiesProvider.getProperty(key);
+		return null;
 	}
 
 	private static String buildServiceUrl(String resourceDefaultDomain, String webPathPrefix) {
@@ -299,7 +338,7 @@ public class KatharsisBoot {
 	}
 
 	public String getWebPathPrefix() {
-		return propertiesProvider.getProperty(KatharsisBootProperties.WEB_PATH_PREFIX);
+		return getProperty(KatharsisBootProperties.WEB_PATH_PREFIX);
 	}
 
 	public ServiceDiscovery getServiceDiscovery() {
@@ -308,5 +347,13 @@ public class KatharsisBoot {
 
 	public void setDefaultPageLimit(Long defaultPageLimit) {
 		((DefaultQuerySpecDeserializer) this.querySpecDeserializer).setDefaultLimit(defaultPageLimit);
+	}
+
+	public ModuleRegistry getModuleRegistry() {
+		return moduleRegistry;
+	}
+
+	public QuerySpecDeserializer getQuerySpecDeserializer() {
+		return querySpecDeserializer;
 	}
 }

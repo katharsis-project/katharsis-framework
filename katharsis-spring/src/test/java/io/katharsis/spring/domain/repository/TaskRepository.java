@@ -1,24 +1,45 @@
 package io.katharsis.spring.domain.repository;
 
-import io.katharsis.repository.annotations.JsonApiFindAll;
-import io.katharsis.repository.annotations.JsonApiResourceRepository;
-import io.katharsis.response.JsonApiResponse;
-import io.katharsis.response.MetaInformation;
-import io.katharsis.spring.domain.model.Task;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
+import io.katharsis.queryspec.QuerySpec;
+import io.katharsis.repository.ResourceRepositoryBase;
+import io.katharsis.resource.list.DefaultResourceList;
+import io.katharsis.resource.list.ResourceList;
+import io.katharsis.response.MetaInformation;
+import io.katharsis.spring.domain.model.Task;
 
 @Component
-@JsonApiResourceRepository(Task.class)
-public class TaskRepository {
+public class TaskRepository extends ResourceRepositoryBase<Task, String> {
 
-    @JsonApiFindAll
-    public JsonApiResponse findAll() {
-        return new JsonApiResponse()
-            .setEntity(Collections.singletonList(new Task(1L, "John")))
-            .setMetaInformation(new MetaInformation() {
-                public String name = "meta information";
-            });
-    }
+	private Map<Long, Task> tasks = new HashMap<>();
+
+	public TaskRepository() {
+		super(Task.class);
+		save(new Task(1L, "John"));
+	}
+
+	@Override
+	public synchronized void delete(String id) {
+		tasks.remove(id);
+	}
+
+	@Override
+	public synchronized <S extends Task> S save(S task) {
+		tasks.put(task.getId(), task);
+		return task;
+	}
+
+	@Override
+	public synchronized ResourceList<Task> findAll(QuerySpec querySpec) {
+		DefaultResourceList<Task> list = querySpec.apply(tasks.values());
+		list.setMeta(new MetaInformation() {
+
+			public String name = "meta information";
+		});
+		return list;
+	}
 }

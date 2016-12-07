@@ -3,7 +3,9 @@ package io.katharsis.response;
 import io.katharsis.jackson.serializer.ContainerSerializer;
 import lombok.ToString;
 
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * A class responsible for representing a single data filed within top-level JSON object returned by Katharsis. The
@@ -15,34 +17,26 @@ public class Container {
     private final Object data;
     private final BaseResponseContext response;
     private final ContainerType containerType;
-    private final String includedFieldName;
-
-    public Container() {
-        data = null;
-        response = null;
-        containerType = null;
-        includedFieldName = null;
-    }
+    private final int includedIndex;
+    private final String topResourceType;
+    private Set<Integer> additionalIndexes;
 
     public Container(Object data, BaseResponseContext response) {
         this.data = data;
         this.response = response;
         this.containerType = ContainerType.TOP;
-        this.includedFieldName = null;
+        this.includedIndex = 0;
+        topResourceType = null;
+        additionalIndexes = null;
     }
 
-    public Container(Object data, BaseResponseContext response, ContainerType containerType) {
+    public Container(Object data, BaseResponseContext response, ContainerType containerType, int level, String topResourceType) {
         this.data = data;
         this.response = response;
         this.containerType = containerType;
-        this.includedFieldName = null;
-    }
-
-    public Container(Object data, BaseResponseContext response, ContainerType containerType, String includedFieldName) {
-        this.data = data;
-        this.response = response;
-        this.includedFieldName = includedFieldName;
-        this.containerType = containerType;
+        this.includedIndex = level;
+        this.topResourceType = topResourceType;
+        additionalIndexes = new HashSet<>();
     }
 
     public BaseResponseContext getResponse() {
@@ -58,10 +52,21 @@ public class Container {
         return containerType;
     }
 
-    public String getIncludedFieldName() {
-        return includedFieldName;
+    public int getIncludedIndex() {
+        return includedIndex;
     }
 
+    public String getTopResourceType() {
+        return topResourceType;
+    }
+
+    public Set<Integer> getAdditionalIndexes() {
+        return additionalIndexes;
+    }
+
+    public void appendIncludedIndex(int includedIndex) {
+        additionalIndexes.add(includedIndex);
+    }
 
     @Override
     public boolean equals(Object o) {
