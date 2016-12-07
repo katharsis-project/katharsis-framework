@@ -10,6 +10,7 @@ import java.util.Set;
 import io.katharsis.dispatcher.filter.Filter;
 import io.katharsis.errorhandling.mapper.ExceptionMapperLookup;
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
+import io.katharsis.repository.decorate.RepositoryDecoratorFactory;
 import io.katharsis.repository.filter.RepositoryFilter;
 import io.katharsis.repository.information.RepositoryInformationBuilder;
 import io.katharsis.resource.information.ResourceInformationBuilder;
@@ -28,6 +29,8 @@ public class SimpleModule implements Module {
 	private List<Filter> filters = new ArrayList<>();
 
 	private List<RepositoryFilter> repositoryFilters = new ArrayList<>();
+
+	private List<RepositoryDecoratorFactory> repositoryDecoratorFactories = new ArrayList<>();
 
 	private List<SecurityProvider> securityProviders = new ArrayList<>();
 
@@ -69,6 +72,9 @@ public class SimpleModule implements Module {
 		}
 		for (RepositoryFilter filter : repositoryFilters) {
 			context.addRepositoryFilter(filter);
+		}
+		for (RepositoryDecoratorFactory decorator : repositoryDecoratorFactories) {
+			context.addRepositoryDecoratorFactory(decorator);
 		}
 		for (com.fasterxml.jackson.databind.Module jacksonModule : jacksonModules) {
 			context.addJacksonModule(jacksonModule);
@@ -138,6 +144,11 @@ public class SimpleModule implements Module {
 		repositoryFilters.add(filter);
 	}
 
+	public void addRepositoryDecoratorFactory(RepositoryDecoratorFactory decorator) {
+		checkInitialized();
+		repositoryDecoratorFactories.add(decorator);
+	}
+
 	protected List<Filter> getFilters() {
 		checkInitialized();
 		return Collections.unmodifiableList(filters);
@@ -146,6 +157,11 @@ public class SimpleModule implements Module {
 	protected List<RepositoryFilter> getRepositoryFilters() {
 		checkInitialized();
 		return Collections.unmodifiableList(repositoryFilters);
+	}
+
+	protected List<RepositoryDecoratorFactory> getRepositoryDecoratorFactories() {
+		checkInitialized();
+		return Collections.unmodifiableList(repositoryDecoratorFactories);
 	}
 
 	public void addSecurityProvider(SecurityProvider securityProvider) {

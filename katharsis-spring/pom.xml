@@ -111,5 +111,13 @@
             <version>${json-unit-fluent.version}</version>
             <scope>test</scope>
         </dependency>
+        
+        <!-- only used to compile and test, application has to specify dependency if it makes use of JPA features -->
+        <dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-orm</artifactId>
+			<optional>true</optional>
+			<version>${spring.version}</version>
+		</dependency>
     </dependencies>
 </project>
