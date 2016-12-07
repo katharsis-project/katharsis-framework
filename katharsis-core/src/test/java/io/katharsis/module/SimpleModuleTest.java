@@ -13,12 +13,14 @@ import com.fasterxml.jackson.databind.Module;
 
 import io.katharsis.dispatcher.filter.Filter;
 import io.katharsis.dispatcher.filter.TestFilter;
+import io.katharsis.dispatcher.filter.TestRepositoryDecorator;
 import io.katharsis.errorhandling.mapper.ExceptionMapper;
 import io.katharsis.errorhandling.mapper.ExceptionMapperLookup;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryTest.IllegalStateExceptionMapper;
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
 import io.katharsis.errorhandling.mapper.KatharsisExceptionMapper;
 import io.katharsis.module.Module.ModuleContext;
+import io.katharsis.repository.decorate.RepositoryDecoratorFactory;
 import io.katharsis.repository.filter.RepositoryFilter;
 import io.katharsis.repository.information.RepositoryInformationBuilder;
 import io.katharsis.resource.information.ResourceInformationBuilder;
@@ -92,6 +94,19 @@ public class SimpleModuleTest {
 		Assert.assertEquals(0, context.numResourceInformationBuilds);
 		Assert.assertEquals(0, context.numResourceLookups);
 		Assert.assertEquals(1, context.numFilters);
+		Assert.assertEquals(0, context.numJacksonModules);
+		Assert.assertEquals(0, context.numRepositories);
+	}
+
+	@Test
+	public void testRepositoryDecorator() {
+		module.addRepositoryDecoratorFactory(new TestRepositoryDecorator());
+		Assert.assertEquals(1, module.getRepositoryDecoratorFactories().size());
+		module.setupModule(context);
+
+		Assert.assertEquals(0, context.numResourceInformationBuilds);
+		Assert.assertEquals(0, context.numResourceLookups);
+		Assert.assertEquals(1, context.numDecorators);
 		Assert.assertEquals(0, context.numJacksonModules);
 		Assert.assertEquals(0, context.numRepositories);
 	}
@@ -189,6 +204,8 @@ public class SimpleModuleTest {
 
 		private int numSecurityProviders = 0;
 
+		private int numDecorators = 0;
+
 		@Override
 		public void addResourceInformationBuilder(ResourceInformationBuilder resourceInformationBuilder) {
 			numResourceInformationBuilds++;
@@ -262,6 +279,11 @@ public class SimpleModuleTest {
 		@Override
 		public void addRepository(Object repository) {
 			numRepositories++;
+		}
+
+		@Override
+		public void addRepositoryDecoratorFactory(RepositoryDecoratorFactory decorator) {
+			numDecorators++;
 		}
 	}
 }

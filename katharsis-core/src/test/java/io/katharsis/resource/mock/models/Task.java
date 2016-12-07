@@ -1,19 +1,13 @@
 package io.katharsis.resource.mock.models;
 
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import io.katharsis.resource.annotations.JsonApiId;
-import io.katharsis.resource.annotations.JsonApiIncludeByDefault;
-import io.katharsis.resource.annotations.JsonApiLinksInformation;
-import io.katharsis.resource.annotations.JsonApiLookupIncludeAutomatically;
-import io.katharsis.resource.annotations.JsonApiMetaInformation;
-import io.katharsis.resource.annotations.JsonApiResource;
-import io.katharsis.resource.annotations.JsonApiToMany;
-import io.katharsis.resource.annotations.JsonApiToOne;
-import io.katharsis.response.LinksInformation;
-import io.katharsis.response.MetaInformation;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
+import io.katharsis.resource.annotations.*;
+import io.katharsis.response.LinksInformation;
+import io.katharsis.response.MetaInformation;
 
 @JsonApiResource(type = "tasks")
 @JsonPropertyOrder(alphabetic = true)
@@ -23,6 +17,8 @@ public class Task {
     private Long id;
 
     private String name;
+
+    private String category;
 
     @JsonApiToOne(opposite = "tasks")
     @JsonApiIncludeByDefault
@@ -75,6 +71,15 @@ public class Task {
 
     public void setName(@SuppressWarnings("SameParameterValue") String name) {
         this.name = name;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+    	if(category == null) throw new IllegalArgumentException("Category cannot be set to null!");
+        this.category = category;
     }
 
     public Project getProject() {

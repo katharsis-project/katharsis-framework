@@ -25,7 +25,7 @@ public class MetaResourceImpl extends MetaDataObjectImpl {
 	public void init(MetaLookup lookup) {
 		super.init(lookup);
 
-		MetaKey key = new MetaKeyImpl(this, idAttr.getName(), (List) Arrays.asList(idAttr), true, true, idAttr.getType());
+		MetaKey key = new MetaKeyImpl(this, idAttr.getName(), (List) Arrays.asList(idAttr), true, idAttr.getType());
 		setPrimaryKey(key);
 	}
 

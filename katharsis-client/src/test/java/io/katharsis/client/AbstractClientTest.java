@@ -45,6 +45,9 @@ public abstract class AbstractClientTest extends JerseyTest {
 		ProjectRepository.clear();
 		TaskToProjectRepository.clear();
 		ScheduleRepositoryImpl.clear();
+
+		Assert.assertNotNull(client.getActionStubFactory());
+		Assert.assertNotNull(client.getModuleRegistry());
 	}
 
 	protected void setupClient(KatharsisClient client) {

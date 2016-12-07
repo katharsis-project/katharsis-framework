@@ -43,7 +43,8 @@ public class JoinRegistry<F, E> {
 				if (criteriaPath != null)
 					throw new IllegalStateException("Cannot join to map");
 				criteriaPath = joinMap(currentCriteriaPath, pathElement);
-			} else {
+			}
+			else {
 				// we may need to downcast if attribute is defined on a subtype
 				Class<?> pathType = pathElement.getParent().asDataObject().getImplementationClass();
 				Class<?> currentType = backend.getJavaElementType(currentCriteriaPath);
@@ -60,13 +61,7 @@ public class JoinRegistry<F, E> {
 
 	private E joinMap(E currentCriteriaPath, MetaAttribute pathElement) {
 		MetaMapAttribute mapPathElement = (MetaMapAttribute) pathElement;
-		if (mapPathElement.isKeyAccess()) {
-			return backend.joinMapKey(currentCriteriaPath, pathElement);
-		} else if (mapPathElement.getKey() == null) {
-			return backend.joinMapValues(currentCriteriaPath, pathElement);
-		} else {
-			return backend.joinMapValue(currentCriteriaPath, pathElement, mapPathElement.getKey());
-		}
+		return backend.joinMapValue(currentCriteriaPath, pathElement, mapPathElement.getKey());
 	}
 
 	protected static MetaAttributePath extractAssociationPath(MetaAttributePath path) {

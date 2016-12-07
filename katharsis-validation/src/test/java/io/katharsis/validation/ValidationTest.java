@@ -222,7 +222,7 @@ public class ValidationTest extends AbstractValidationTest {
 		project.getTasks().add(task);
 
 		try {
-			projectRepo.save(project, buildIncludes("projects", "tasks"));
+			projectRepo.save(project);
 			Assert.fail();
 		}
 		catch (ConstraintViolationException e) {
@@ -247,7 +247,7 @@ public class ValidationTest extends AbstractValidationTest {
 		project.setTask(task);
 
 		try {
-			projectRepo.save(project, buildIncludes("projects", "task"));
+			projectRepo.save(project);
 			Assert.fail();
 		}
 		catch (ConstraintViolationException e) {

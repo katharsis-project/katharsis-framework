@@ -1,12 +1,16 @@
 package io.katharsis.jpa;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 import io.katharsis.jpa.mapping.IdentityMapper;
 import io.katharsis.jpa.mapping.JpaMapper;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.QuerySpecResourceRepository;
-import io.katharsis.repository.ResourceRepository;
+import io.katharsis.repository.decorate.RelationshipRepositoryDecorator;
+import io.katharsis.repository.decorate.ResourceRepositoryDecorator;
 import io.katharsis.resource.list.DefaultResourceList;
 import io.katharsis.resource.list.ResourceListBase;
 import io.katharsis.response.LinksInformation;
@@ -34,6 +38,10 @@ public class JpaRepositoryConfig<T> {
 
 	private Class<? extends LinksInformation> listLinksClass;
 
+	private ResourceRepositoryDecorator<T, ?> resourceRepositoryDecorator;
+
+	private Map<Class<?>, RelationshipRepositoryDecorator<T, ?, ?, ?>> relationshipRepositoriesDecorators;
+
 	private JpaRepositoryConfig() {
 	}
 
@@ -52,6 +60,10 @@ public class JpaRepositoryConfig<T> {
 
 		private Class<? extends LinksInformation> listLinksClass = DefaultPagedLinksInformation.class;
 
+		private ResourceRepositoryDecorator<T, ?> resourceRepositoryDecorator;
+
+		private Map<Class<?>, RelationshipRepositoryDecorator<T, ?, ?, ?>> relationshipRepositoryDecorators = new HashMap<>();
+
 		public JpaRepositoryConfig<T> build() {
 			JpaRepositoryConfig<T> config = new JpaRepositoryConfig<>();
 			config.entityClass = entityClass;
@@ -60,6 +72,8 @@ public class JpaRepositoryConfig<T> {
 			config.listClass = listClass;
 			config.listMetaClass = listMetaClass;
 			config.listLinksClass = listLinksClass;
+			config.resourceRepositoryDecorator = resourceRepositoryDecorator;
+			config.relationshipRepositoriesDecorators = relationshipRepositoryDecorators;
 			return config;
 		}
 
@@ -79,11 +93,11 @@ public class JpaRepositoryConfig<T> {
 				if (!ResourceListBase.class.isAssignableFrom(returnType)) {
 					throw new IllegalStateException("findAll return type must extend " + ResourceListBase.class.getName());
 				}
-				listClass = (Class<? extends DefaultResourceList<T>>) returnType;
+        setListClass((Class<? extends DefaultResourceList<T>>) returnType);
 
 				Class<?>[] typeArgs = TypeResolver.resolveRawArguments(ResourceListBase.class, returnType);
-				listMetaClass = (Class<? extends MetaInformation>) typeArgs[1];
-				listLinksClass = (Class<? extends LinksInformation>) typeArgs[2];
+        setListMetaClass((Class<? extends MetaInformation>) typeArgs[1]);
+        setListLinksClass((Class<? extends LinksInformation>) typeArgs[2]);
 				return this;
 			}
 			catch (NoSuchMethodException e) {
@@ -91,18 +105,54 @@ public class JpaRepositoryConfig<T> {
 			}
 		}
 
+		/**
+		 * @param listClass to be used to return list of resources
+		 * @return this builder
+		 */
 		public Builder<T> setListClass(Class<? extends DefaultResourceList<T>> listClass) {
 			this.listClass = listClass;
 			return this;
 		}
 
+		/**
+		 * @param listMetaClass holding the meta information
+		 * @return this builder
+		 */
 		public Builder<T> setListMetaClass(Class<? extends MetaInformation> listMetaClass) {
 			this.listMetaClass = listMetaClass;
 			return this;
 		}
 
+		/**
+		 * @param listLinksClass holding the links information
+		 * @return this builder
+		 */
 		public Builder<T> setListLinksClass(Class<? extends LinksInformation> listLinksClass) {
 			this.listLinksClass = listLinksClass;
+			return this;
+		}
+
+		/**
+		 * Sets a decorator that allows to intercept all requests to the actual repository.
+		 * 
+		 * @param decoratorResourceRepository that decorates the jpa repository.
+		 * @return this builder
+		 */
+		public Builder<T> setRepositoryDecorator(ResourceRepositoryDecorator<T, ?> decoratorResourceRepository) {
+			this.resourceRepositoryDecorator = decoratorResourceRepository;
+			return this;
+		}
+
+		/**
+		 * Sets a decorator that allows to intercept all requests to the actual repository.
+		 * 
+		 * @param targetClass
+		 * @param decoratorRelationshipRepository
+		 * @return this builder
+		 */
+		public <D> Builder<T> putRepositoryDecorator(Class<D> targetClass,
+				RelationshipRepositoryDecorator<T, ?, D, ?> decoratorRelationshipRepository) {
+			this.relationshipRepositoryDecorators.put(targetClass, decoratorRelationshipRepository);
 			return this;
 		}
 	}
@@ -191,5 +241,16 @@ public class JpaRepositoryConfig<T> {
 		else {
 			return null;
 		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public <I extends Serializable> ResourceRepositoryDecorator<T, I> getRepositoryDecorator() {
+		return (ResourceRepositoryDecorator<T, I>) resourceRepositoryDecorator;
+	}
+
+	@SuppressWarnings("unchecked")
+	public <D, I extends Serializable, J extends Serializable> RelationshipRepositoryDecorator<T, I, D, J> getRepositoryDecorator(
+			Class<D> targetResourceType) {
+		return (RelationshipRepositoryDecorator<T, I, D, J>) relationshipRepositoriesDecorators.get(targetResourceType);
 	}
 }
