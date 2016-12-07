@@ -1,69 +1,86 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- * 
- *      http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package io.katharsis.example.springboot.simple.domain.repository;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
-
-import org.springframework.stereotype.Component;
 
 import io.katharsis.example.springboot.simple.domain.model.Project;
 import io.katharsis.queryspec.QuerySpec;
-import io.katharsis.repository.ResourceRepositoryBase;
-import io.katharsis.resource.list.ResourceList;
+import io.katharsis.repository.ResourceRepositoryV2;
+import io.katharsis.resource.list.ResourceListBase;
+import io.katharsis.response.paging.PagedLinksInformation;
+import io.katharsis.response.paging.PagedMetaInformation;
 
-/**
- * QuerySpecResourceRepositoryBase-based example with the base class providing some base functionality.
- */
-@Component
-public class ProjectRepository extends ResourceRepositoryBase<Project, Long> {
+public interface ProjectRepository extends ResourceRepositoryV2<Project, Long> {
 
-	private static final AtomicLong ID_GENERATOR = new AtomicLong(124);
+	public class ProjectListMeta implements PagedMetaInformation {
 
-	private Map<Long, Project> projects = new HashMap<>();
+		private Long totalResourceCount;
 
-	public ProjectRepository() {
-		super(Project.class);
-		List<String> interests = new ArrayList<>();
-		interests.add("coding");
-		interests.add("art");
-		save(new Project(123L, "Great Project"));
-	}
-
-	@Override
-	public synchronized void delete(Long id) {
-		projects.remove(id);
-	}
-
-	@Override
-	public synchronized <S extends Project> S save(S project) {
-		if (project.getId() == null) {
-			project.setId(ID_GENERATOR.getAndIncrement());
+		@Override
+		public Long getTotalResourceCount() {
+			return totalResourceCount;
 		}
-		projects.put(project.getId(), project);
-		return project;
+
+		@Override
+		public void setTotalResourceCount(Long totalResourceCount) {
+			this.totalResourceCount = totalResourceCount;
+		}
+
+	}
+
+	public class ProjectListLinks implements PagedLinksInformation {
+
+		private String first;
+
+		private String last;
+
+		private String next;
+
+		private String prev;
+
+		@Override
+		public String getFirst() {
+			return first;
+		}
+
+		@Override
+		public void setFirst(String first) {
+			this.first = first;
+		}
+
+		@Override
+		public String getLast() {
+			return last;
+		}
+
+		@Override
+		public void setLast(String last) {
+			this.last = last;
+		}
+
+		@Override
+		public String getNext() {
+			return next;
+		}
+
+		@Override
+		public void setNext(String next) {
+			this.next = next;
+		}
+
+		@Override
+		public String getPrev() {
+			return prev;
+		}
+
+		@Override
+		public void setPrev(String prev) {
+			this.prev = prev;
+		}
+
+	}
+
+	public class ProjectList extends ResourceListBase<Project, ProjectListMeta, ProjectListLinks> {
+
 	}
 
 	@Override
-	public synchronized ResourceList<Project> findAll(QuerySpec querySpec) {
-		return querySpec.apply(projects.values());
-	}
-
+	public ProjectList findAll(QuerySpec querySpec);
 }

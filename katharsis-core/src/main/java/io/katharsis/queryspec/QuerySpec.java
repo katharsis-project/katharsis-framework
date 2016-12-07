@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import io.katharsis.resource.list.DefaultResourceList;
+import io.katharsis.resource.list.ResourceList;
+import io.katharsis.response.paging.DefaultPagedMetaInformation;
 import io.katharsis.utils.CompareUtils;
 
 public class QuerySpec {
@@ -47,8 +49,27 @@ public class QuerySpec {
 	 * @return sorted, filtered list.
 	 */
 	public <T> DefaultResourceList<T> apply(Iterable<T> resources) {
+		DefaultResourceList<T> resultList = new DefaultResourceList<>();
+		resultList.setMeta(new DefaultPagedMetaInformation());
+		apply(resources, resultList);
+		return resultList;
+	}
+
+	/**
+	 * Evaluates this querySpec against the provided list in memory. It supports
+	 * sorting, filter and paging. Make sure that the resultList carries meta and
+	 * links information of type PagedMetaInformation resp. PagedLinksInformation
+	 * to let Katharsis compute pagination links.
+	 * <p>
+	 * TODO currently ignores relations and inclusions
+	 *
+	 * @param <T> resource type
+	 * @param resources to apply the querySpec to
+	 * @param resultList used to return the result (including paging meta information)
+	 */
+	public <T> void apply(Iterable<T> resources, ResourceList<T> resultList) {
 		InMemoryEvaluator eval = new InMemoryEvaluator();
-		return eval.eval(resources, this);
+		eval.eval(resources, this, resultList);
 	}
 
 	@Override
