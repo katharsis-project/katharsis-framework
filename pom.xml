@@ -125,10 +125,14 @@
 								<goal>prepare-agent</goal>
 							</goals>
 						</execution>
+						<execution>
+							<id>report</id>
+							<phase>test</phase>
+							<goals>
+								<goal>report</goal>
+							</goals>
+						</execution>
 					</executions>
-					<configuration>
-						<destFile>${project.basedir}/../target/jacoco.exec</destFile>
-					</configuration>
 				</plugin>
 				<plugin>
 					<groupId>org.eluder.coveralls</groupId>
@@ -230,23 +234,6 @@
 					<mavenExecutorId>forked-path</mavenExecutorId>
 					<useReleaseProfile>false</useReleaseProfile>
 					<arguments>-Dgpg.passphrase=${gpg.passphrase} -Psonatype-oss-release</arguments>
-				</configuration>
-			</plugin>
-
-			<plugin>
-				<groupId>org.jacoco</groupId>
-				<artifactId>jacoco-maven-plugin</artifactId>
-				<configuration>
-					<destFile>${project.build.directory}/jacoco.exec</destFile>
-				
-					<fileSets>
-					  <fileSet implementation="org.apache.maven.shared.model.fileset.FileSet">
-					    <directory>${project.basedir}</directory>
-					    <includes>
-					      <include>**/*.exec</include>
-					    </includes>
-					  </fileSet>
-					</fileSets>
 				</configuration>
 			</plugin>
 		</plugins>
