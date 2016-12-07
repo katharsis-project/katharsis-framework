@@ -3,6 +3,7 @@ package io.katharsis.module;
 import io.katharsis.dispatcher.filter.Filter;
 import io.katharsis.errorhandling.mapper.ExceptionMapper;
 import io.katharsis.errorhandling.mapper.ExceptionMapperLookup;
+import io.katharsis.repository.decorate.RepositoryDecoratorFactory;
 import io.katharsis.repository.filter.RepositoryFilter;
 import io.katharsis.repository.information.RepositoryInformationBuilder;
 import io.katharsis.resource.information.ResourceInformationBuilder;
@@ -48,7 +49,7 @@ public interface Module {
 		 * @param resourceInformationBuilder resource information builder
 		 */
 		void addResourceInformationBuilder(ResourceInformationBuilder resourceInformationBuilder);
-		
+
 		/**
 		 * Register the given {@link RepositoryInformationBuilder} in Katharsis.
 		 *
@@ -74,7 +75,7 @@ public interface Module {
 		 * Adds the given repository for the given type.
 		 */
 		void addRepository(Object repository);
-		
+
 		/**
 		 * Adds the given repository for the given type.
 		 *
@@ -114,13 +115,20 @@ public interface Module {
 		 * @param filter filter
 		 */
 		void addFilter(Filter filter);
-		
+
 		/**
 		 * Adds a repository filter to intercept repository calls.
 		 *
 		 * @param RepositoryFilter filter
 		 */
 		void addRepositoryFilter(RepositoryFilter filter);
+
+		/**
+		 * Adds a repository decorator to intercept repository calls.
+		 *
+		 * @param RepositoryDecoratorFactory decorator
+		 */
+		void addRepositoryDecoratorFactory(RepositoryDecoratorFactory decorator);
 
 		/**
 		 * Returns the ResourceRegistry. Note that instance is not yet available
