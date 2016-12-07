@@ -154,6 +154,7 @@ public class KatharsisFilter implements ContainerRequestFilter {
             	// no repositories invoked, we do nothing and forward the call to JAX-RS
             	passToMethodMatcher = true;
             }
+       
         } catch (KatharsisMappableException e) {
             // log error in KatharsisMappableException mapper.
             katharsisResponse = new KatharsisExceptionMapper().toErrorResponse(e);

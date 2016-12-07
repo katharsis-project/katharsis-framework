@@ -37,7 +37,7 @@ import io.katharsis.utils.MultivaluedMap;
 public class RelationshipRepositoryBase<T, I extends Serializable, D, J extends Serializable>
 		extends QuerySpecRelationshipRepositoryBase<T, I, D, J> implements RelationshipRepositoryV2<T, I, D, J> {
 
-	protected RelationshipRepositoryBase(Class<T> sourceResourceClass, Class<D> targetResourceClass) {
+	public RelationshipRepositoryBase(Class<T> sourceResourceClass, Class<D> targetResourceClass) {
 		super(sourceResourceClass, targetResourceClass);
 	}
 

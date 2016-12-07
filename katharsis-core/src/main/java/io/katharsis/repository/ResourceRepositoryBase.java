@@ -21,7 +21,7 @@ import io.katharsis.resource.registry.ResourceRegistry;
 public abstract class ResourceRepositoryBase<T, I extends Serializable> extends QuerySpecResourceRepositoryBase<T, I>
 		implements ResourceRepositoryV2<T, I> {
 
-	protected ResourceRepositoryBase(Class<T> resourceClass) {
+	public ResourceRepositoryBase(Class<T> resourceClass) {
 		super(resourceClass);
 	}
 

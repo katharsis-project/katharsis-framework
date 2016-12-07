@@ -13,6 +13,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.katharsis.dispatcher.filter.Filter;
 import io.katharsis.dispatcher.filter.TestFilter;
+import io.katharsis.dispatcher.filter.TestRepositoryDecorator;
+import io.katharsis.dispatcher.filter.TestRepositoryDecorator.DecoratedScheduleRepository;
 import io.katharsis.errorhandling.mapper.ExceptionMapperLookup;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryTest.IllegalStateExceptionMapper;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryTest.SomeIllegalStateExceptionMapper;
@@ -20,6 +22,7 @@ import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.QuerySpecRelationshipRepository;
 import io.katharsis.queryspec.QuerySpecResourceRepository;
+import io.katharsis.repository.decorate.RepositoryDecoratorFactory;
 import io.katharsis.repository.information.RelationshipRepositoryInformation;
 import io.katharsis.repository.information.RepositoryInformationBuilder;
 import io.katharsis.repository.information.RepositoryInformationBuilderContext;
@@ -33,6 +36,7 @@ import io.katharsis.resource.mock.models.ComplexPojo;
 import io.katharsis.resource.mock.models.Document;
 import io.katharsis.resource.mock.models.FancyProject;
 import io.katharsis.resource.mock.models.Project;
+import io.katharsis.resource.mock.models.Schedule;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.models.Thing;
 import io.katharsis.resource.mock.models.User;
@@ -40,6 +44,8 @@ import io.katharsis.resource.mock.repository.DocumentRepository;
 import io.katharsis.resource.mock.repository.PojoRepository;
 import io.katharsis.resource.mock.repository.ProjectRepository;
 import io.katharsis.resource.mock.repository.ResourceWithoutRepositoryToProjectRepository;
+import io.katharsis.resource.mock.repository.ScheduleRepository;
+import io.katharsis.resource.mock.repository.ScheduleRepositoryImpl;
 import io.katharsis.resource.mock.repository.TaskRepository;
 import io.katharsis.resource.mock.repository.TaskToProjectRepository;
 import io.katharsis.resource.mock.repository.TaskWithLookupRepository;
@@ -279,6 +285,18 @@ public class ModuleTest {
 	}
 
 	@Test
+	public void testDecorators() throws Exception {
+		List<RepositoryDecoratorFactory> decorators = moduleRegistry.getRepositoryDecoratorFactories();
+		Assert.assertEquals(1, decorators.size());
+
+		RegistryEntry<Schedule> entry = this.resourceRegistry.getEntry(Schedule.class);
+		Object resourceRepository = entry.getResourceRepository(null).getResourceRepository();
+		Assert.assertNotNull(resourceRepository);
+		Assert.assertTrue(resourceRepository instanceof ScheduleRepository);
+		Assert.assertTrue(resourceRepository instanceof DecoratedScheduleRepository);
+	}
+
+	@Test
 	public void testSecurityProvider() throws Exception {
 		Assert.assertTrue(moduleRegistry.getSecurityProvider().isUserInRole("testRole"));
 		Assert.assertFalse(moduleRegistry.getSecurityProvider().isUserInRole("nonExistingRole"));
@@ -338,7 +356,9 @@ public class ModuleTest {
 				}
 			});
 
+			context.addRepositoryDecoratorFactory(new TestRepositoryDecorator());
 			context.addFilter(new TestFilter());
+			context.addRepository(new ScheduleRepositoryImpl());
 			context.addRepository(TestResource2.class, new TestRepository2());
 			context.addRepository(TestResource2.class, TestResource2.class, new TestRelationshipRepository2());
 
