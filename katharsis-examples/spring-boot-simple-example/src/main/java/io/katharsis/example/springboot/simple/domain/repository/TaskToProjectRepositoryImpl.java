@@ -26,9 +26,9 @@ import io.katharsis.repository.RelationshipRepositoryBase;
  * Example based on QuerySpecRelationshipRepositoryBase which by default accesses the repositories on both sides.
  */
 @Component
-public class TaskToProjectRepository extends RelationshipRepositoryBase<Task, Long, Project, Long> {
+public class TaskToProjectRepositoryImpl extends RelationshipRepositoryBase<Task, Long, Project, Long> {
 
-	public TaskToProjectRepository() {
+	public TaskToProjectRepositoryImpl() {
 		super(Task.class, Project.class);
 	}
 }
