@@ -1,4 +1,4 @@
-# Katharsis build POM v2.8.2-SNAPSHOT git changelog
+# Katharsis build POM v2.8.2 git changelog
 
 2016-12-06    #122 Don't call setters on omitted fields during PATCH (#245) (GitHub)  
 2016-12-04    #142 test coverage improvements (#250) (Christian Bongiorno)  
