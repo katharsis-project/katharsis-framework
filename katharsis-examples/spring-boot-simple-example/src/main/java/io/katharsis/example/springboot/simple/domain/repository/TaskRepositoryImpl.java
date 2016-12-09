@@ -42,14 +42,14 @@ import io.katharsis.resource.exception.ResourceNotFoundException;
 @Component
 @JsonApiResourceRepository(Task.class)
 @Validated
-public class TaskRepository {
+public class TaskRepositoryImpl {
     private static final Map<Long, Task> REPOSITORY = new ConcurrentHashMap<>();
     private static final AtomicLong ID_GENERATOR = new AtomicLong(4);
 
-    private final ProjectRepository projectRepository;
+    private final ProjectRepositoryImpl projectRepository;
 
     @Autowired @Lazy
-    public TaskRepository(ProjectRepository projectRepository) {
+    public TaskRepositoryImpl(ProjectRepositoryImpl projectRepository) {
         this.projectRepository = projectRepository;
         Task task = new Task(1L, "Create tasks");
         task.setProjectId(123L);

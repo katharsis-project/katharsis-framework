@@ -30,7 +30,7 @@ import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.utils.PropertyUtils;
 
 public class ConstraintViolationExceptionMapper implements ExceptionMapper<ConstraintViolationException> {
-	
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(ConstraintViolationExceptionMapper.class);
 
 	private static final String HIBERNATE_PROPERTY_NODE_IMPL = "org.hibernate.validator.path.PropertyNode";
@@ -60,7 +60,7 @@ public class ConstraintViolationExceptionMapper implements ExceptionMapper<Const
 	@Override
 	public ErrorResponse toErrorResponse(ConstraintViolationException cve) {
 		LOGGER.warn("a ConstraintViolationException occured", cve);
-		
+
 		List<ErrorData> errors = new ArrayList<>();
 		for (ConstraintViolation<?> violation : cve.getConstraintViolations()) {
 
@@ -150,7 +150,6 @@ public class ConstraintViolationExceptionMapper implements ExceptionMapper<Const
 	 */
 	private ResourceRef resolvePath(ConstraintViolation<?> violation) {
 		Object resource = violation.getRootBean();
-		assertResource(resource);
 
 		Object nodeObject = resource;
 		ResourceRef ref = new ResourceRef(resource);
@@ -158,6 +157,18 @@ public class ConstraintViolationExceptionMapper implements ExceptionMapper<Const
 		Iterator<Node> iterator = violation.getPropertyPath().iterator();
 		while (iterator.hasNext()) {
 			Node node = iterator.next();
+
+			// ignore methods/parameters
+			if (node.getKind() == ElementKind.METHOD) {
+				continue;
+			}
+			if (node.getKind() == ElementKind.PARAMETER) {
+				resource = getParameterValue(node);
+				nodeObject = resource;
+				ref = new ResourceRef(resource);
+				assertResource(resource);
+				continue;
+			}
 
 			// visit list, set, map references
 			nodeObject = ref.getNodeReference(nodeObject, node);
@@ -194,6 +205,28 @@ public class ConstraintViolationExceptionMapper implements ExceptionMapper<Const
 				else {
 					return valueMethod.invoke(propertyNode);
 				}
+			}
+			catch (Exception e) {
+				throw new UnsupportedOperationException(e);
+			}
+		}
+		else {
+			throw new UnsupportedOperationException(
+					"cannot convert violations for java.util.Set elements, consider using Hibernate validator");
+		}
+	}
+	
+	private static Object getParameterValue(Node propertyNode) {
+		// bean validation not sufficient for sets
+		// not possible to access elements, reverting to
+		// Hibernate implementation
+		// TODO investigate other implementation next to
+		// hibernate, JSR 303 v1.1 not sufficient
+		if (propertyNode.getClass().getName().equals(HIBERNATE_PROPERTY_NODE_IMPL)
+				|| propertyNode.getClass().getName().equals(HIBERNATE_PROPERTY_NODE_ENGINE_IMPL)) { // NOSONAR
+			try {
+				Method valueMethod = propertyNode.getClass().getMethod("getValue");
+				return valueMethod.invoke(propertyNode);
 			}
 			catch (Exception e) {
 				throw new UnsupportedOperationException(e);
