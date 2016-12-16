@@ -1,5 +1,7 @@
 package io.katharsis.dispatcher.controller.resource;
 
+import java.io.Serializable;
+
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
@@ -7,7 +9,6 @@ import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.FieldPath;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathIds;
-import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.exception.ResourceFieldNotFoundException;
 import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.include.IncludeLookupSetter;
@@ -20,8 +21,6 @@ import io.katharsis.response.JsonApiResponse;
 import io.katharsis.response.ResourceResponseContext;
 import io.katharsis.utils.Generics;
 import io.katharsis.utils.parser.TypeParser;
-
-import java.io.Serializable;
 
 public class FieldResourceGet extends ResourceIncludeField {
 
@@ -52,15 +51,17 @@ public class FieldResourceGet extends ResourceIncludeField {
 
         Class<?> baseRelationshipFieldClass = relationshipField.getType();
         Class<?> relationshipFieldClass = Generics.getResourceClass(relationshipField.getGenericType(), baseRelationshipFieldClass);
+        String relationshipResourceType = resourceRegistry.getResourceType(relationshipFieldClass);
 
         RelationshipRepositoryAdapter relationshipRepositoryForClass = registryEntry
                 .getRelationshipRepositoryForClass(relationshipFieldClass, parameterProvider);
         BaseResponseContext target;
+
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
             @SuppressWarnings("unchecked")
             JsonApiResponse response = relationshipRepositoryForClass
                     .findManyTargets(castedResourceId, elementName, queryAdapter);
-            includeFieldSetter.setIncludedElements(registryEntry.getResourceInformation().findRelationshipFieldByName(elementName).getElementType().getAnnotation(JsonApiResource.class).type(), response, queryAdapter, parameterProvider);
+            includeFieldSetter.setIncludedElements(relationshipResourceType, response, queryAdapter, parameterProvider);
             target = new CollectionResponseContext(response, jsonPath, queryAdapter);
         } else
 
@@ -68,7 +69,7 @@ public class FieldResourceGet extends ResourceIncludeField {
             @SuppressWarnings("unchecked")
             JsonApiResponse response = relationshipRepositoryForClass
                     .findOneTarget(castedResourceId, elementName, queryAdapter);
-            includeFieldSetter.setIncludedElements(registryEntry.getResourceInformation().findRelationshipFieldByName(elementName).getElementType().getAnnotation(JsonApiResource.class).type(), response, queryAdapter, parameterProvider);
+            includeFieldSetter.setIncludedElements(relationshipResourceType, response, queryAdapter, parameterProvider);
             target = new ResourceResponseContext(response, jsonPath, queryAdapter);
         }
 
