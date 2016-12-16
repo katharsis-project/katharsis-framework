@@ -40,13 +40,13 @@ import io.katharsis.utils.PropertyUtils;
  */
 @JsonApiRelationshipRepository(source = Project.class, target = Task.class)
 @Component
-public class ProjectToTaskRepository {
+public class ProjectToTaskRepositoryImpl {
 
-    private final ProjectRepository projectRepository;
-    private final TaskRepository taskRepository;
+    private final ProjectRepositoryImpl projectRepository;
+    private final TaskRepositoryImpl taskRepository;
 
     @Autowired
-    public ProjectToTaskRepository(ProjectRepository projectRepository, TaskRepository taskRepository) {
+    public ProjectToTaskRepositoryImpl(ProjectRepositoryImpl projectRepository, TaskRepositoryImpl taskRepository) {
         this.projectRepository = projectRepository;
         this.taskRepository = taskRepository;
     }

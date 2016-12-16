@@ -14,6 +14,7 @@ import org.junit.Test;
 import io.katharsis.client.QuerySpecRelationshipRepositoryStub;
 import io.katharsis.client.QuerySpecResourceRepositoryStub;
 import io.katharsis.client.ResourceRepositoryStub;
+import io.katharsis.client.internal.proxy.ObjectProxy;
 import io.katharsis.client.response.JsonLinksInformation;
 import io.katharsis.client.response.JsonMetaInformation;
 import io.katharsis.jpa.model.OtherRelatedEntity;
@@ -85,6 +86,28 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 
 		for (RelatedEntity relatedEntity : manyRelatedValues) {
 			Assert.assertNotNull(relatedEntity.getOtherEntity());
+		}
+	}
+	
+	@Test
+	public void testLazyManyRelation() throws InstantiationException, IllegalAccessException {
+		addTestWithManyRelations();
+
+		QuerySpec querySpec = new QuerySpec(TestEntity.class);
+		List<TestEntity> list = testRepo.findAll(querySpec);
+
+		Assert.assertEquals(1, list.size());
+		TestEntity testEntity = list.get(0);
+
+		List<RelatedEntity> manyRelatedValues = testEntity.getManyRelatedValues();
+		Assert.assertNotNull(manyRelatedValues);
+		
+		ObjectProxy proxy = (ObjectProxy) manyRelatedValues;
+		Assert.assertFalse(proxy.isLoaded());
+		Assert.assertEquals(3, manyRelatedValues.size());
+
+		for (RelatedEntity relatedEntity : manyRelatedValues) {
+			Assert.assertNotNull(relatedEntity.getStringValue());
 		}
 	}
 
