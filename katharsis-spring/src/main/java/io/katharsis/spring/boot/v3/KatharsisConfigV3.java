@@ -48,6 +48,7 @@ public class KatharsisConfigV3 {
 		boot.setServiceUrlProvider(new ConstantServiceUrlProvider(baseUrl));
 		boot.setServiceDiscovery(serviceDiscovery);
 		boot.setDefaultPageLimit(properties.getDefaultPageLimit());
+		boot.setMaxPageLimit(properties.getMaxPageLimit());
 		boot.boot();
 		return boot;
 	}
