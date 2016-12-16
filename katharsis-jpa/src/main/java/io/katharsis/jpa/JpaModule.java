@@ -64,7 +64,7 @@ import io.katharsis.utils.PreconditionUtil;
  * <li>Paging</li>
  * <li>Mapping to DTOs</li>
  * <li>Criteria API and QueryDSL support</li>
- * <li>Computated attributes that map JPA Criteria/QueryDSL expressions to DTO attributes</li>
+ * <li>Computed attributes that map JPA Criteria/QueryDSL expressions to DTO attributes</li>
  * <li>JpaRepositoryFilter to customize the repositories</li>
  * <li>Client and server support</li>
  * <li>No need for katharsis annotations by default. Reads the entity annotations.</li>
