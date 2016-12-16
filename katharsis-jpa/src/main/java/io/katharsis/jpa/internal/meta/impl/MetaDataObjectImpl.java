@@ -55,8 +55,6 @@ public class MetaDataObjectImpl extends MetaTypeImpl implements MetaDataObject {
 	@SuppressWarnings("unchecked")
 	private List<MetaDataObject>[] subTypesCache = new List[4];
 
-	private HashMap<String, MetaDataObject> subTypesMapCache;
-
 	private MetaKey primaryKey;
 
 	private Set<MetaKey> keys = new HashSet<>();
@@ -114,7 +112,6 @@ public class MetaDataObjectImpl extends MetaTypeImpl implements MetaDataObject {
 
 	@SuppressWarnings("unchecked")
 	private void clearCache() {
-		subTypesMapCache = null;
 		subTypesCache = new List[4];
 	}
 
