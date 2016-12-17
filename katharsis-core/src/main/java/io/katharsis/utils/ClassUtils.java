@@ -97,7 +97,12 @@ public class ClassUtils {
 		    return beanClass.getMethod("get" + upperCaseName);
 		} catch (NoSuchMethodException e) {
 			try {
-				return beanClass.getMethod("is" + upperCaseName);
+				Method method = beanClass.getMethod("is" + upperCaseName);
+				Class<?> returnType = method.getReturnType();
+				if(returnType == Boolean.class || returnType == boolean.class){
+					return method;
+				}
+				return null;
 			} catch (NoSuchMethodException e1) {
 				return null;
 			}
