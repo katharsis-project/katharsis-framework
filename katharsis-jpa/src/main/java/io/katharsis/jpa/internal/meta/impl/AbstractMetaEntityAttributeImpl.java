@@ -1,8 +1,11 @@
 package io.katharsis.jpa.internal.meta.impl;
 
 import java.beans.PropertyDescriptor;
-import java.lang.reflect.Field;
+import java.lang.annotation.Annotation;
+import java.util.Arrays;
+import java.util.List;
 
+import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.EmbeddedId;
 import javax.persistence.FetchType;
@@ -20,8 +23,6 @@ import io.katharsis.jpa.internal.meta.MetaType;
 
 public class AbstractMetaEntityAttributeImpl extends MetaAttributeImpl {
 
-	protected Field field;
-
 	private boolean derived;
 
 	private boolean lazy = false;
@@ -37,33 +38,30 @@ public class AbstractMetaEntityAttributeImpl extends MetaAttributeImpl {
 	public AbstractMetaEntityAttributeImpl(MetaDataObjectImpl parent, PropertyDescriptor desc) {
 		super(parent, desc);
 
-		field = getField(parent, desc);
-		if (field != null) {
-			readAnnotations(field);
-		}
-		else {
-			derived = true;
+		derived = !hasJpaAnnotations();
+		if (!derived) {
+			readJpaAnnotations();
 		}
 	}
 
-	private static Field getField(MetaDataObjectImpl parent, PropertyDescriptor desc) {
-		try {
-			Field field = parent.getImplementationClass().getDeclaredField(desc.getName());
-			field.setAccessible(true);
-			return field;
+	private boolean hasJpaAnnotations() {
+		List<Class<? extends Annotation>> annotationClasses = Arrays.asList(Id.class, EmbeddedId.class, Column.class,
+				ManyToMany.class, ManyToOne.class, OneToMany.class, OneToOne.class, Version.class, ElementCollection.class);
+		for (Class<? extends Annotation> annotationClass : annotationClasses) {
+			if (getAnnotation(annotationClass) != null) {
+				return true;
+			}
 		}
-		catch (NoSuchFieldException e) { // NOSONAR
-			return null;
-		}
+		return false;
 	}
 
-	private void readAnnotations(Field field) { // NOSONAR
-		ManyToMany manyManyAnnotation = field.getAnnotation(ManyToMany.class);
-		ManyToOne manyOneAnnotation = field.getAnnotation(ManyToOne.class);
-		OneToMany oneManyAnnotation = field.getAnnotation(OneToMany.class);
-		OneToOne oneOneAnnotation = field.getAnnotation(OneToOne.class);
-		Version versionAnnotation = field.getAnnotation(Version.class);
-		ElementCollection elemCollectionAnnotation = field.getAnnotation(ElementCollection.class);
+	private void readJpaAnnotations() { // NOSONAR
+		ManyToMany manyManyAnnotation = getAnnotation(ManyToMany.class);
+		ManyToOne manyOneAnnotation = getAnnotation(ManyToOne.class);
+		OneToMany oneManyAnnotation = getAnnotation(OneToMany.class);
+		OneToOne oneOneAnnotation = getAnnotation(OneToOne.class);
+		Version versionAnnotation = getAnnotation(Version.class);
+		ElementCollection elemCollectionAnnotation = getAnnotation(ElementCollection.class);
 
 		version = versionAnnotation != null;
 
@@ -93,7 +91,7 @@ public class AbstractMetaEntityAttributeImpl extends MetaAttributeImpl {
 
 		lazy = lazyCollection || lazyAssociation;
 
-		idField = field.getAnnotation(EmbeddedId.class) != null || field.getAnnotation(Id.class) != null;
+		idField = getAnnotation(EmbeddedId.class) != null || getAnnotation(Id.class) != null;
 	}
 
 	@Override

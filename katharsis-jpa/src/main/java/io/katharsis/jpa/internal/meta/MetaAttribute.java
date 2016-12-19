@@ -1,5 +1,8 @@
 package io.katharsis.jpa.internal.meta;
 
+import java.lang.annotation.Annotation;
+import java.util.Collection;
+
 public interface MetaAttribute extends MetaTypedElement {
 
 	public MetaAttribute getOppositeAttribute();
@@ -27,5 +30,9 @@ public interface MetaAttribute extends MetaTypedElement {
 	public boolean isVersion();
 
 	public boolean isId();
+
+	public Collection<Annotation> getAnnotations();
+
+	public <T extends Annotation> T getAnnotation(Class<T> clazz);
 
 }

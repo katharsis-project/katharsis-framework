@@ -1,8 +1,13 @@
 package io.katharsis.jpa.internal.meta.impl;
 
 import java.beans.PropertyDescriptor;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
@@ -12,6 +17,7 @@ import io.katharsis.jpa.internal.meta.MetaAttribute;
 import io.katharsis.jpa.internal.meta.MetaDataObject;
 import io.katharsis.jpa.internal.meta.MetaElement;
 import io.katharsis.jpa.internal.meta.MetaType;
+import io.katharsis.utils.ClassUtils;
 
 public class MetaAttributeImpl extends MetaElementImpl implements MetaAttribute {
 
@@ -21,16 +27,33 @@ public class MetaAttributeImpl extends MetaElementImpl implements MetaAttribute 
 
 	private boolean association;
 
+	private Method readMethod;
+
+	private Method writeMethod;
+
+	private Field field;
+
 	public MetaAttributeImpl(MetaElement parent, String name, Type type) {
 		super(parent);
 		this.name = name;
 		this.type = type;
+
+		if (parent != null) {
+			Class<?> beanClass = parent.asDataObject().getImplementationClass();
+			this.readMethod = ClassUtils.findGetter(beanClass, name);
+			this.writeMethod = ClassUtils.findSetter(beanClass, name, ClassUtils.getRawType(type));
+			this.field = ClassUtils.findClassField(beanClass, name);
+		}
 	}
 
 	public MetaAttributeImpl(MetaElement parent, PropertyDescriptor desc) {
 		super(parent);
 		this.name = desc.getName();
 		this.type = desc.getReadMethod().getGenericReturnType();
+
+		this.readMethod = desc.getReadMethod();
+		this.writeMethod = desc.getWriteMethod();
+		this.field = ClassUtils.findClassField(parent.asDataObject().getImplementationClass(), desc.getName());
 	}
 
 	@Override
@@ -122,5 +145,35 @@ public class MetaAttributeImpl extends MetaElementImpl implements MetaAttribute 
 	@Override
 	public boolean isId() {
 		return false;
+	}
+
+	@Override
+	public <T extends Annotation> T getAnnotation(Class<T> clazz) {
+		T annotation = null;
+		if (field != null) {
+			annotation = field.getAnnotation(clazz);
+		}
+		if (annotation == null && readMethod != null) {
+			annotation = readMethod.getAnnotation(clazz);
+		}
+		if (annotation == null && writeMethod != null) {
+			annotation = writeMethod.getAnnotation(clazz);
+		}
+		return annotation;
+	}
+
+	@Override
+	public Collection<Annotation> getAnnotations() {
+		Collection<Annotation> annotations = new ArrayList<>();
+		if (field != null) {
+			annotations.addAll(Arrays.asList(field.getAnnotations()));
+		}
+		if (readMethod != null) {
+			annotations.addAll(Arrays.asList(readMethod.getAnnotations()));
+		}
+		if (writeMethod != null) {
+			annotations.addAll(Arrays.asList(writeMethod.getAnnotations()));
+		}
+		return annotations;
 	}
 }
