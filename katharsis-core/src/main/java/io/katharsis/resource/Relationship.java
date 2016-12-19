@@ -16,6 +16,14 @@ public class Relationship {
 	public Relationship() {
 	}
 
+	public Relationship(ResourceId resourceId) {
+		this.data = resourceId;
+	}
+	
+	public Relationship(List<ResourceId> resourceIds) {
+		this.data = resourceIds;
+	}
+
 	public JsonNode getLinks() {
 		return links;
 	}

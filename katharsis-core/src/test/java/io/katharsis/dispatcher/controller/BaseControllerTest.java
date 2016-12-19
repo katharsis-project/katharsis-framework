@@ -1,6 +1,16 @@
 package io.katharsis.dispatcher.controller;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.rules.ExpectedException;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.katharsis.internal.boot.EmptyPropertiesProvider;
 import io.katharsis.jackson.JsonApiModuleBuilder;
 import io.katharsis.locator.SampleJsonServiceLocator;
@@ -26,14 +36,6 @@ import io.katharsis.resource.registry.ResourceRegistryBuilder;
 import io.katharsis.resource.registry.ResourceRegistryBuilderTest;
 import io.katharsis.resource.registry.ResourceRegistryTest;
 import io.katharsis.utils.parser.TypeParser;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.ExpectedException;
-
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 public abstract class BaseControllerTest {
 

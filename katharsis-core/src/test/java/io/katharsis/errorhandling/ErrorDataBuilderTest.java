@@ -1,9 +1,9 @@
 package io.katharsis.errorhandling;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.assertj.core.data.MapEntry;
 import org.junit.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class ErrorDataBuilderTest {
 

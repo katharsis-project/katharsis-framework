@@ -20,9 +20,7 @@ import org.junit.rules.ExpectedException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.katharsis.client.internal.core.BaseResponseContext;
-import io.katharsis.client.internal.core.ErrorResponse;
-import io.katharsis.client.internal.core.RequestBody;
+import io.katharsis.dispatcher.controller.Response;
 import io.katharsis.dispatcher.controller.collection.CollectionGet;
 import io.katharsis.dispatcher.registry.ControllerRegistry;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryTest;
@@ -34,6 +32,7 @@ import io.katharsis.queryspec.internal.QuerySpecAdapterBuilder;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathBuilder;
+import io.katharsis.resource.Document;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
 import io.katharsis.resource.information.ResourceInformationBuilder;
@@ -46,82 +45,83 @@ import io.katharsis.response.HttpStatus;
 
 public class RequestDispatcherTest {
 
-    private ResourceRegistry resourceRegistry;
+	private ResourceRegistry resourceRegistry;
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
+	@Rule
+	public ExpectedException expectedException = ExpectedException.none();
 
 	private ModuleRegistry moduleRegistry;
 
-    @Before
-    public void prepare() {
-        ResourceInformationBuilder resourceInformationBuilder = new AnnotationResourceInformationBuilder(
-            new ResourceFieldNameTransformer());
-        ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonServiceLocator(),
-            resourceInformationBuilder);
-        moduleRegistry = new ModuleRegistry();
-        resourceRegistry = registryBuilder
-            .build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, moduleRegistry, new ConstantServiceUrlProvider(ResourceRegistryTest.TEST_MODELS_URL));
-        
-        moduleRegistry.init(new ObjectMapper());
-    }
-    
-    @Test
-    public void onGivenPathAndRequestTypeControllerShouldHandleRequest() throws Exception {
-        // GIVEN
-        String path = "/tasks/";
-        String requestType = "GET";
+	@Before
+	public void prepare() {
+		ResourceInformationBuilder resourceInformationBuilder = new AnnotationResourceInformationBuilder(
+				new ResourceFieldNameTransformer());
+		ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonServiceLocator(),
+				resourceInformationBuilder);
+		moduleRegistry = new ModuleRegistry();
+		resourceRegistry = registryBuilder.build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, moduleRegistry,
+				new ConstantServiceUrlProvider(ResourceRegistryTest.TEST_MODELS_URL));
 
-        PathBuilder pathBuilder = new PathBuilder(resourceRegistry);
-        ControllerRegistry controllerRegistry = new ControllerRegistry(null);
-        CollectionGet collectionGet = mock(CollectionGet.class);
-        controllerRegistry.addController(collectionGet);
-        QuerySpecAdapterBuilder queryAdapterBuilder = new QuerySpecAdapterBuilder(new DefaultQuerySpecDeserializer(), resourceRegistry);
-        RequestDispatcher sut = new RequestDispatcher(moduleRegistry, controllerRegistry, null, queryAdapterBuilder);
+		moduleRegistry.init(new ObjectMapper());
+	}
 
-        // WHEN
-        when(collectionGet.isAcceptable(any(JsonPath.class), eq(requestType))).thenCallRealMethod();
-        JsonPath jsonPath = pathBuilder.buildPath(path);
-        Map<String, Set<String>> parameters = new HashMap<>();
+	@Test
+	public void onGivenPathAndRequestTypeControllerShouldHandleRequest() throws Exception {
+		// GIVEN
+		String path = "/tasks/";
+		String requestType = "GET";
+
+		PathBuilder pathBuilder = new PathBuilder(resourceRegistry);
+		ControllerRegistry controllerRegistry = new ControllerRegistry(null);
+		CollectionGet collectionGet = mock(CollectionGet.class);
+		controllerRegistry.addController(collectionGet);
+		QuerySpecAdapterBuilder queryAdapterBuilder = new QuerySpecAdapterBuilder(new DefaultQuerySpecDeserializer(),
+				resourceRegistry);
+		RequestDispatcher sut = new RequestDispatcher(moduleRegistry, controllerRegistry, null, queryAdapterBuilder);
+
+		// WHEN
+		when(collectionGet.isAcceptable(any(JsonPath.class), eq(requestType))).thenCallRealMethod();
+		JsonPath jsonPath = pathBuilder.buildPath(path);
+		Map<String, Set<String>> parameters = new HashMap<>();
 		sut.dispatchRequest(jsonPath, requestType, parameters, null, null);
 
-        // THEN
-        verify(collectionGet, times(1)).handle(any(JsonPath.class), any(QueryAdapter.class), any(RepositoryMethodParameterProvider.class), any(RequestBody.class));
-    }
+		// THEN
+		verify(collectionGet, times(1)).handle(any(JsonPath.class), any(QueryAdapter.class),
+				any(RepositoryMethodParameterProvider.class), any(Document.class));
+	}
 
-    @Test
-    public void shouldMapExceptionToErrorResponseIfMapperIsAvailable() throws Exception {
+	@Test
+	public void shouldMapExceptionToErrorResponseIfMapperIsAvailable() throws Exception {
 
-        ControllerRegistry controllerRegistry = mock(ControllerRegistry.class);
-        //noinspection unchecked
-        when(controllerRegistry.getController(any(JsonPath.class), anyString())).thenThrow(IllegalStateException.class);
+		ControllerRegistry controllerRegistry = mock(ControllerRegistry.class);
+		//noinspection unchecked
+		when(controllerRegistry.getController(any(JsonPath.class), anyString())).thenThrow(IllegalStateException.class);
 
-        QuerySpecAdapterBuilder queryAdapterBuilder = new QuerySpecAdapterBuilder(new DefaultQuerySpecDeserializer(), resourceRegistry);
-        RequestDispatcher requestDispatcher = new RequestDispatcher(moduleRegistry, controllerRegistry,
-            ExceptionMapperRegistryTest.exceptionMapperRegistry, queryAdapterBuilder);
+		QuerySpecAdapterBuilder queryAdapterBuilder = new QuerySpecAdapterBuilder(new DefaultQuerySpecDeserializer(),
+				resourceRegistry);
+		RequestDispatcher requestDispatcher = new RequestDispatcher(moduleRegistry, controllerRegistry,
+				ExceptionMapperRegistryTest.exceptionMapperRegistry, queryAdapterBuilder);
 
-        BaseResponseContext response = requestDispatcher.dispatchRequest(null, null, null, null, null);
-        assertThat(response)
-            .isNotNull()
-            .isExactlyInstanceOf(ErrorResponse.class);
+		Response response = requestDispatcher.dispatchRequest(null, null, null, null, null);
+		assertThat(response).isNotNull();
 
-        ErrorResponse errorResponse = (ErrorResponse) response;
-        assertThat(errorResponse.getHttpStatus()).isEqualTo(HttpStatus.BAD_REQUEST_400);
+		assertThat(response.getHttpStatus()).isEqualTo(HttpStatus.BAD_REQUEST_400);
 
-    }
+	}
 
-    @Test
-    public void shouldThrowExceptionAsIsIfMapperIsNotAvailable() throws Exception {
-        ControllerRegistry controllerRegistry = mock(ControllerRegistry.class);
-        //noinspection unchecked
-        when(controllerRegistry.getController(any(JsonPath.class), anyString())).thenThrow(ArithmeticException.class);
+	@Test
+	public void shouldThrowExceptionAsIsIfMapperIsNotAvailable() throws Exception {
+		ControllerRegistry controllerRegistry = mock(ControllerRegistry.class);
+		//noinspection unchecked
+		when(controllerRegistry.getController(any(JsonPath.class), anyString())).thenThrow(ArithmeticException.class);
 
-        QuerySpecAdapterBuilder queryAdapterBuilder = new QuerySpecAdapterBuilder(new DefaultQuerySpecDeserializer(), resourceRegistry);
-        RequestDispatcher requestDispatcher = new RequestDispatcher(moduleRegistry, controllerRegistry,
-            ExceptionMapperRegistryTest.exceptionMapperRegistry, queryAdapterBuilder);
+		QuerySpecAdapterBuilder queryAdapterBuilder = new QuerySpecAdapterBuilder(new DefaultQuerySpecDeserializer(),
+				resourceRegistry);
+		RequestDispatcher requestDispatcher = new RequestDispatcher(moduleRegistry, controllerRegistry,
+				ExceptionMapperRegistryTest.exceptionMapperRegistry, queryAdapterBuilder);
 
-        expectedException.expect(ArithmeticException.class);
+		expectedException.expect(ArithmeticException.class);
 
-        BaseResponseContext response = requestDispatcher.dispatchRequest(null, null, null, null, null);
-    }
+		Response response = requestDispatcher.dispatchRequest(null, null, null, null, null);
+	}
 }

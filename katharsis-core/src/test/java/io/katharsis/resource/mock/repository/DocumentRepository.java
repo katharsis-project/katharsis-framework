@@ -1,11 +1,11 @@
 package io.katharsis.resource.mock.repository;
 
+import java.util.concurrent.ConcurrentHashMap;
+
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.mock.models.Document;
-
-import java.util.concurrent.ConcurrentHashMap;
 
 public class DocumentRepository implements ResourceRepository<Document, Long> {
 

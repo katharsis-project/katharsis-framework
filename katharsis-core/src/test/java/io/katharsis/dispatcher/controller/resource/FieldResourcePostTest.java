@@ -77,8 +77,8 @@ public class FieldResourcePostTest extends BaseControllerTest {
         Response taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(new QueryParams()), null, newTaskDocument);
 
         // THEN
-        assertThat(taskResponse.getResponse().getEntity()).isExactlyInstanceOf(Task.class);
-        Long taskId = ((Task) (taskResponse.getResponse().getEntity())).getId();
+        assertThat(taskResponse.getDocument().getSingleData().getType()).isEqualTo("tasks");
+        Long taskId = Long.parseLong(taskResponse.getDocument().getSingleData().getId());
         assertThat(taskId).isNotNull();
 
         /* ------- */
@@ -95,10 +95,10 @@ public class FieldResourcePostTest extends BaseControllerTest {
 
         // THEN
         assertThat(projectResponse.getHttpStatus()).isEqualTo(HttpStatus.CREATED_201);
-        assertThat(projectResponse.getResponse().getEntity()).isExactlyInstanceOf(Project.class);
-        assertThat(((Project) (projectResponse.getResponse().getEntity())).getId()).isNotNull();
-        assertThat(((Project) (projectResponse.getResponse().getEntity())).getName()).isEqualTo("sample project");
-        Long projectId = ((Project) (projectResponse.getResponse().getEntity())).getId();
+        assertThat(projectResponse.getDocument().getSingleData().getType()).isEqualTo("projects");
+        assertThat(projectResponse.getDocument().getSingleData().getId()).isNotNull();
+        assertThat(projectResponse.getDocument().getSingleData().getAttributes().get("name").asText()).isEqualTo("sample project");
+        Long projectId = Long.parseLong(projectResponse.getDocument().getSingleData().getId());
         assertThat(projectId).isNotNull();
 
         TaskToProjectRepository taskToProjectRepository = new TaskToProjectRepository();
@@ -119,8 +119,8 @@ public class FieldResourcePostTest extends BaseControllerTest {
         Response taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(new QueryParams()), null, newTaskDocument);
 
         // THEN
-        assertThat(taskResponse.getResponse().getEntity()).isExactlyInstanceOf(Task.class);
-        Long taskId = ((Task) (taskResponse.getResponse().getEntity())).getId();
+        assertThat(taskResponse.getDocument().getSingleData().getType()).isEqualTo("tasks");
+        Long taskId = Long.parseLong(taskResponse.getDocument().getSingleData().getId());
         assertThat(taskId).isNotNull();
 
         /* ------- */
@@ -137,10 +137,10 @@ public class FieldResourcePostTest extends BaseControllerTest {
 
         // THEN
         assertThat(projectResponse.getHttpStatus()).isEqualTo(HttpStatus.CREATED_201);
-        assertThat(projectResponse.getResponse().getEntity()).isExactlyInstanceOf(Project.class);
-        assertThat(((Project) (projectResponse.getResponse().getEntity())).getId()).isNotNull();
-        assertThat(((Project) (projectResponse.getResponse().getEntity())).getName()).isEqualTo("sample project");
-        Long projectId = ((Project) (projectResponse.getResponse().getEntity())).getId();
+        assertThat(projectResponse.getDocument().getSingleData().getType()).isEqualTo("projects");
+        assertThat(projectResponse.getDocument().getSingleData().getId()).isNotNull();
+        assertThat(projectResponse.getDocument().getSingleData().getAttributes().get("name").asText()).isEqualTo("sample project");
+        Long projectId = Long.parseLong(projectResponse.getDocument().getSingleData().getId());
         assertThat(projectId).isNotNull();
 
         TaskToProjectRepository taskToProjectRepository = new TaskToProjectRepository();

@@ -1,23 +1,23 @@
 package io.katharsis.resource.field;
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.katharsis.resource.exception.ResourceException;
-import io.katharsis.resource.exception.init.InvalidResourceException;
-import io.katharsis.resource.field.ResourceField.ResourceFieldType;
-import io.katharsis.resource.mock.models.OtherPojo;
-import io.katharsis.resource.mock.models.Pojo;
-import io.katharsis.resource.mock.models.Task;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.MapEntry.entry;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.data.MapEntry.entry;
+import org.junit.Test;
+
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.katharsis.resource.exception.ResourceException;
+import io.katharsis.resource.exception.init.InvalidResourceException;
+import io.katharsis.resource.field.ResourceField.ResourceFieldType;
+import io.katharsis.resource.mock.models.Task;
 
 public class ResourceAttributesBridgeTest {
 

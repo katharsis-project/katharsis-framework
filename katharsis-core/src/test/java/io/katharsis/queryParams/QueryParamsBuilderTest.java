@@ -1,9 +1,6 @@
 package io.katharsis.queryParams;
 
-import io.katharsis.jackson.exception.ParametersDeserializationException;
-import io.katharsis.queryParams.include.Inclusion;
-import org.junit.Before;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -12,7 +9,11 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.Before;
+import org.junit.Test;
+
+import io.katharsis.jackson.exception.ParametersDeserializationException;
+import io.katharsis.queryParams.include.Inclusion;
 
 public class QueryParamsBuilderTest {
 
