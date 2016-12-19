@@ -1,5 +1,8 @@
 package io.katharsis.jpa.internal.meta.impl;
 
+import java.lang.annotation.Annotation;
+import java.util.Collection;
+
 import io.katharsis.jpa.internal.meta.MetaAttribute;
 import io.katharsis.jpa.internal.meta.MetaDataObject;
 import io.katharsis.jpa.internal.meta.MetaMapAttribute;
@@ -101,6 +104,16 @@ public class MetaMapAttributeImpl extends MetaElementImpl implements MetaMapAttr
 
 	@Override
 	public boolean isId() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Collection<Annotation> getAnnotations() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public <T extends Annotation> T getAnnotation(Class<T> clazz) {
 		throw new UnsupportedOperationException();
 	}
 }

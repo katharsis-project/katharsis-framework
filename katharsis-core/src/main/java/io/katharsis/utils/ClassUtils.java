@@ -1,8 +1,5 @@
 package io.katharsis.utils;
 
-import io.katharsis.resource.exception.ResourceException;
-import io.katharsis.utils.java.Optional;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -12,6 +9,9 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
+import io.katharsis.resource.exception.ResourceException;
+import io.katharsis.utils.java.Optional;
 
 /**
  * Provides reflection methods for parsing information about a class.
@@ -90,6 +90,34 @@ public class ClassUtils {
 
 		return null;
 	}
+
+	public static Method findGetter(Class<?> beanClass, String fieldName) {
+		String upperCaseName = fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
+		try {
+		    return beanClass.getMethod("get" + upperCaseName);
+		} catch (NoSuchMethodException e) {
+			try {
+				Method method = beanClass.getMethod("is" + upperCaseName);
+				Class<?> returnType = method.getReturnType();
+				if(returnType == Boolean.class || returnType == boolean.class){
+					return method;
+				}
+				return null;
+			} catch (NoSuchMethodException e1) {
+				return null;
+			}
+		}
+	}
+	
+	public static Method findSetter(Class<?> beanClass, String fieldName, Class<?> fieldType) {
+        String upperCaseName = fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
+
+        try{
+        	return beanClass.getMethod("set" + upperCaseName, fieldType);
+        } catch (NoSuchMethodException e1) {
+			return null;
+		}
+    }
 
 	/**
 	 * <p>
