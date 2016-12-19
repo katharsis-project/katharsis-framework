@@ -16,6 +16,7 @@ import io.katharsis.request.path.PathBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.BaseResponseContext;
 import io.katharsis.servlet.util.BufferedRequestWrapper;
+import io.katharsis.spring.boot.KatharsisSpringBootProperties;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -51,18 +52,21 @@ public class KatharsisFilterV2 implements Filter, BeanFactoryAware {
     private ObjectMapper objectMapper;
     private ResourceRegistry resourceRegistry;
     private RequestDispatcher requestDispatcher;
-    private String webPathPrefix;
+    private KatharsisSpringBootProperties properties;
 
     private ConfigurableBeanFactory beanFactory;
 
 
     public KatharsisFilterV2(ObjectMapper objectMapper,
                              ResourceRegistry resourceRegistry,
-                             RequestDispatcher requestDispatcher, String webPathPrefix) {
+                             RequestDispatcher requestDispatcher, KatharsisSpringBootProperties properties) {
         this.objectMapper = objectMapper;
         this.resourceRegistry = resourceRegistry;
         this.requestDispatcher = requestDispatcher;
-        this.webPathPrefix = webPathPrefix != null ? webPathPrefix : "";
+        this.properties = properties;
+
+
+
     }
 
     @Override
@@ -140,6 +144,8 @@ public class KatharsisFilterV2 implements Filter, BeanFactoryAware {
                     response.setStatus(katharsisResponse.getHttpStatus());
                     response.setContentType(JsonApiMediaType.APPLICATION_JSON_API);
 
+                    addCORSHeaders(response);
+
                     ByteArrayOutputStream baos = null;
                     OutputStream out = null;
 
@@ -163,12 +169,38 @@ public class KatharsisFilterV2 implements Filter, BeanFactoryAware {
         return passToFilters;
     }
 
+    private void addCORSHeaders(HttpServletResponse response) {
+        if (properties != null) {
+            if (properties.getAllowOrigin() != null) {
+                response.addHeader("Access-Control-Allow-Origin", properties.getAllowOrigin());
+            }
+            if (properties.getAllowMethods() != null) {
+                response.addHeader("Access-Control-Allow-Methods", properties.getAllowMethods());
+            }
+            if (properties.getAllowHeaders() != null) {
+                response.addHeader("Access-Control-Allow-Headers", properties.getAllowHeaders());
+            }
+            if (properties.getMaxAge() != null) {
+                response.addHeader("Access-Control-Max-Age", properties.getMaxAge().toString());
+            }
+        }
+    }
+
+    private String getPathPrefix() {
+        if (properties != null) {
+            return properties.getPathPrefix() != null ? properties.getPathPrefix() : "";
+        } else {
+            return "";
+        }
+    }
+
     private boolean isAcceptablePath(HttpServletRequest request) {
         String contextPath = request.getContextPath();
+
         if (contextPath.startsWith("/") && contextPath.length() == 1) {
             contextPath = "";
         }
-        return request.getRequestURI().startsWith(contextPath + webPathPrefix);
+        return request.getRequestURI().startsWith(contextPath + getPathPrefix());
     }
 
     private String getRequestPath(HttpServletRequest request) {
@@ -177,7 +209,7 @@ public class KatharsisFilterV2 implements Filter, BeanFactoryAware {
         // Serving with Filter, pathInfo can be null.
         if (path == null) {
             path = request.getRequestURI()
-                    .substring(request.getContextPath().length() + webPathPrefix.length());
+                    .substring(request.getContextPath().length() + getPathPrefix().length());
         }
 
         return path;

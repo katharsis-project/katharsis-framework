@@ -7,7 +7,11 @@ public class KatharsisSpringBootProperties {
     private String resourcePackage;
     private String domainName;
     private String pathPrefix;
-	private Long defaultPageLimit;
+    private Long defaultPageLimit;
+    private String allowOrigin;
+    private String allowMethods;
+    private String allowHeaders;
+    private Long maxAge;
 
     public String getResourcePackage() {
         return resourcePackage;
@@ -33,11 +37,45 @@ public class KatharsisSpringBootProperties {
         this.pathPrefix = pathPrefix;
     }
 
-	public Long getDefaultPageLimit() {
-		return defaultPageLimit;
-	}
+    public Long getDefaultPageLimit() {
+        return defaultPageLimit;
+    }
 
-	public void setDefaultPageLimit(Long defaultPageLimit) {
-		this.defaultPageLimit = defaultPageLimit;
-	}
+    public void setDefaultPageLimit(Long defaultPageLimit) {
+        this.defaultPageLimit = defaultPageLimit;
+    }
+
+    public String getAllowOrigin() {
+        return allowOrigin;
+    }
+
+    public void setAllowOrigin(String allowOrigin) {
+        this.allowOrigin = allowOrigin;
+    }
+
+    public String getAllowMethods() {
+        return allowMethods;
+    }
+
+    public void setAllowMethods(String allowMethods) {
+        this.allowMethods = allowMethods;
+    }
+
+    public String getAllowHeaders() {
+        return allowHeaders;
+    }
+
+    public void setAllowHeaders(String allowHeaders) {
+        this.allowHeaders = allowHeaders;
+    }
+
+    public Long getMaxAge() {
+        return maxAge;
+    }
+
+    public void setMaxAge(Long maxAge) {
+        this.maxAge = maxAge;
+    }
 }
+
+

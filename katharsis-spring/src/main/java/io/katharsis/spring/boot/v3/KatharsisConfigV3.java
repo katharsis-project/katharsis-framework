@@ -60,7 +60,7 @@ public class KatharsisConfigV3 {
 		objectMapper.registerModule(parameterNamesModule);
 		ResourceRegistry resourceRegistry = boot.getResourceRegistry();
 		RequestDispatcher requestDispatcher = boot.getRequestDispatcher();
-		return new KatharsisFilterV2(objectMapper, resourceRegistry, requestDispatcher, properties.getPathPrefix());
+		return new KatharsisFilterV2(objectMapper, resourceRegistry, requestDispatcher, properties);
 	}
 
 	@Bean

@@ -53,7 +53,7 @@ public class KatharsisConfigV2 {
     public Filter springBootSampleKatharsisFilter() {
         objectMapper.registerModule(parameterNamesModule);
         return new KatharsisFilterV2(objectMapper, resourceRegistry, requestDispatcher,
-                properties.getPathPrefix());
+                properties);
     }
 
     @Bean
