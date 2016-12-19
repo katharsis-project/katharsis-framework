@@ -83,11 +83,28 @@ public abstract class BaseControllerTest {
 		}
 		return data;
 	}
+	
+	public Resource createUser() {
+		Resource data = new Resource();
+		data.setType("users");
+		data.setId("3");
+
+		try {
+			data.setAttribute("name", objectMapper.readTree("\"sample user\""));
+		} catch (Exception e) {
+			throw new IllegalStateException(e);
+		}
+		return data;
+	}
 
 	public Resource createProject() {
+		return createProject(Long.toString(PROJECT_ID));
+	}
+	
+	public Resource createProject(String id) {
 		Resource data = new Resource();
 		data.setType("projects");
-		data.setId("2");
+		data.setId(id);
 
 		try {
 			data.setAttribute("name", objectMapper.readTree("\"sample project\""));

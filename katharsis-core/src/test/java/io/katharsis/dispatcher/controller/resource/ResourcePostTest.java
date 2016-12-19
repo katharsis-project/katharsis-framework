@@ -125,12 +125,12 @@ public class ResourcePostTest extends BaseControllerTest {
 
         // THEN
         assertThat(projectResponse.getHttpStatus()).isEqualTo(HttpStatus.CREATED_201);
-        assertThat(projectResponse.getResponse().getEntity()).isExactlyInstanceOf(Project.class);
-        Project persistedProject = (Project) (projectResponse.getResponse().getEntity());
+        assertThat(projectResponse.getDocument().getEntity()).isExactlyInstanceOf(Project.class);
+        Project persistedProject = (Project) (projectResponse.getDocument().getEntity());
         assertThat(persistedProject.getId()).isNotNull();
         assertThat(persistedProject.getName()).isEqualTo("sample project");
         assertThat(persistedProject.getData()).isEqualToComparingFieldByField(new ProjectData().setData("asd"));
-        Long projectId = ((Project) (projectResponse.getResponse().getEntity())).getId();
+        Long projectId = ((Project) (projectResponse.getDocument().getEntity())).getId();
 
         /* ------- */
 
@@ -146,7 +146,7 @@ public class ResourcePostTest extends BaseControllerTest {
         JsonPath taskPath = pathBuilder.build("/tasks");
 
         // WHEN
-        ResourceResponseContext taskResponse = sut.handle(taskPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newTaskBody);
+        Response taskResponse = sut.handle(taskPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newTaskBody);
 
         // THEN
         assertThat(taskResponse.getHttpStatus()).isEqualTo(HttpStatus.CREATED_201);
@@ -173,7 +173,7 @@ public class ResourcePostTest extends BaseControllerTest {
         ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper);
 
         // WHEN
-        ResourceResponseContext projectResponse = sut.handle(projectPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newProjectBody);
+        Response projectResponse = sut.handle(projectPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newProjectBody);
 
         // THEN
         assertThat(projectResponse.getResponse().getEntity()).isExactlyInstanceOf(Project.class);
@@ -196,7 +196,7 @@ public class ResourcePostTest extends BaseControllerTest {
         JsonPath taskPath = pathBuilder.build("/users");
 
         // WHEN
-        ResourceResponseContext taskResponse = sut.handle(taskPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newUserBody);
+        Response taskResponse = sut.handle(taskPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newUserBody);
 
         // THEN
         assertThat(taskResponse.getResponse().getEntity()).isExactlyInstanceOf(User.class);
@@ -224,7 +224,7 @@ public class ResourcePostTest extends BaseControllerTest {
         ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper);
 
         // WHEN
-        ResourceResponseContext memorandumResponse = sut.handle(projectPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newMemorandumBody);
+        Response memorandumResponse = sut.handle(projectPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newMemorandumBody);
 
         // THEN
         assertThat(memorandumResponse.getResponse().getEntity()).isExactlyInstanceOf(Memorandum.class);
@@ -247,7 +247,7 @@ public class ResourcePostTest extends BaseControllerTest {
         ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper);
 
         // WHEN
-        ResourceResponseContext projectResponse = sut.handle(projectPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newProjectBody);
+        Response projectResponse = sut.handle(projectPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newProjectBody);
 
         // THEN
         assertThat(projectResponse.getResponse().getEntity()).isExactlyInstanceOf(Project.class);
@@ -274,7 +274,7 @@ public class ResourcePostTest extends BaseControllerTest {
         JsonPath pojoPath = pathBuilder.build("/pojo");
 
         // WHEN
-        ResourceResponseContext pojoResponse = sut.handle(pojoPath, new QueryParamsAdapter(REQUEST_PARAMS), null, pojoBody);
+        Response pojoResponse = sut.handle(pojoPath, new QueryParamsAdapter(REQUEST_PARAMS), null, pojoBody);
 
         // THEN
         assertThat(pojoResponse.getResponse().getEntity()).isExactlyInstanceOf(Pojo.class);
@@ -300,7 +300,7 @@ public class ResourcePostTest extends BaseControllerTest {
         ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper);
 
         // WHEN
-        ResourceResponseContext projectResponse = sut.handle(projectPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newProjectBody);
+        Response projectResponse = sut.handle(projectPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newProjectBody);
 
         // THEN
         assertThat(projectResponse.getResponse().getEntity()).isExactlyInstanceOf(Project.class);
