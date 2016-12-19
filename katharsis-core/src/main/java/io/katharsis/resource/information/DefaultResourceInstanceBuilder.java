@@ -1,6 +1,6 @@
 package io.katharsis.resource.information;
 
-import io.katharsis.request.dto.DataBody;
+import io.katharsis.resource.Resource;
 import io.katharsis.utils.ClassUtils;
 
 /**
@@ -16,7 +16,7 @@ public class DefaultResourceInstanceBuilder<T> implements ResourceInstanceBuilde
 	}
 
 	@Override
-	public T buildResource(DataBody body) {
+	public T buildResource(Resource body) {
 		return (T) ClassUtils.newInstance(resourceClass);
 	}
 

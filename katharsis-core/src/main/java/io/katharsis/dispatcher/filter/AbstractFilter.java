@@ -1,6 +1,6 @@
 package io.katharsis.dispatcher.filter;
 
-import io.katharsis.response.BaseResponseContext;
+import io.katharsis.dispatcher.controller.Response;
 
 /**
  * Empty {@link Filter} implementation useful as a starting point to write new filters.
@@ -8,7 +8,7 @@ import io.katharsis.response.BaseResponseContext;
 public class AbstractFilter implements Filter {
 
 	@Override
-	public BaseResponseContext filter(FilterRequestContext context, FilterChain chain) {
+	public Response filter(FilterRequestContext context, FilterChain chain) {
 		return chain.doFilter(context);
 	}
 }

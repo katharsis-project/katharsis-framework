@@ -16,6 +16,8 @@ import javax.persistence.metamodel.ManagedType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.katharsis.client.internal.core.BaseResponseContext;
+import io.katharsis.dispatcher.controller.Response;
 import io.katharsis.dispatcher.filter.AbstractFilter;
 import io.katharsis.dispatcher.filter.FilterChain;
 import io.katharsis.dispatcher.filter.FilterRequestContext;
@@ -49,7 +51,6 @@ import io.katharsis.repository.decorate.RelationshipRepositoryDecorator;
 import io.katharsis.repository.decorate.RepositoryDecoratorFactory;
 import io.katharsis.repository.decorate.ResourceRepositoryDecorator;
 import io.katharsis.resource.information.ResourceInformationBuilder;
-import io.katharsis.response.BaseResponseContext;
 import io.katharsis.utils.PreconditionUtil;
 
 /**
@@ -336,11 +337,11 @@ public class JpaModule implements Module {
 		context.addFilter(new AbstractFilter() {
 
 			@Override
-			public BaseResponseContext filter(final FilterRequestContext context, final FilterChain chain) {
-				return transactionRunner.doInTransaction(new Callable<BaseResponseContext>() {
+			public Response filter(final FilterRequestContext context, final FilterChain chain) {
+				return transactionRunner.doInTransaction(new Callable<Response>() {
 
 					@Override
-					public BaseResponseContext call() throws Exception {
+					public Response call() throws Exception {
 						return chain.doFilter(context);
 					}
 				});

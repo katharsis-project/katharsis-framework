@@ -2,6 +2,8 @@ package io.katharsis.dispatcher.controller.resource;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jayway.jsonpath.ReadContext;
+
+import io.katharsis.client.internal.core.BaseResponseContext;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
 import io.katharsis.queryspec.internal.QueryParamsAdapter;
 import io.katharsis.request.path.JsonPath;
@@ -12,7 +14,6 @@ import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.repository.ProjectPolymorphicToObjectRepository;
 import io.katharsis.resource.mock.repository.TaskToProjectRepository;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.response.BaseResponseContext;
 import io.katharsis.utils.ClassUtils;
 import org.junit.Assert;
 import org.junit.Before;

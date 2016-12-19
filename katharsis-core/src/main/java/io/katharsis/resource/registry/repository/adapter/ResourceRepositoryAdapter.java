@@ -127,7 +127,7 @@ public class ResourceRepositoryAdapter<T, I extends Serializable> extends Respon
 		return save(entity, queryAdapter, HttpMethod.POST);
 	}
 
-	private <S extends T> JsonApiResponse save(S entity, QueryAdapter queryAdapter, HttpMethod method) {
+	private <S extends T> JsonApiResponse save(S entity, QueryAdapter queryAdapter, final HttpMethod method) {
 		RepositoryRequestFilterChainImpl chain = new RepositoryRequestFilterChainImpl() {
 
 			@SuppressWarnings("rawtypes")
@@ -141,7 +141,11 @@ public class ResourceRepositoryAdapter<T, I extends Serializable> extends Respon
 					resource = ((AnnotatedResourceRepositoryAdapter) resourceRepository).save(entity);
 				}
 				else if (resourceRepository instanceof ResourceRepositoryV2) {
-					resource = ((ResourceRepositoryV2) resourceRepository).create(entity);
+					if(method == HttpMethod.POST){
+						resource = ((ResourceRepositoryV2) resourceRepository).create(entity);
+					}else{
+						resource = ((ResourceRepositoryV2) resourceRepository).save(entity);
+					}
 				}
 				else if (resourceRepository instanceof QuerySpecResourceRepository) {
 					resource = ((QuerySpecResourceRepository) resourceRepository).save(entity);

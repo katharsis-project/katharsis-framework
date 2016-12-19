@@ -1,9 +1,9 @@
 package io.katharsis.client.internal;
 
+import io.katharsis.client.internal.core.DataLinksContainer;
+import io.katharsis.client.internal.core.DataLinksContainerSerializer;
 import io.katharsis.client.internal.proxy.ObjectProxy;
-import io.katharsis.jackson.serializer.DataLinksContainerSerializer;
 import io.katharsis.resource.field.ResourceField;
-import io.katharsis.response.DataLinksContainer;
 import io.katharsis.utils.PropertyUtils;
 
 public class ClientDataLinksContainerSerializer extends DataLinksContainerSerializer {

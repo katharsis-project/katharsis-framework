@@ -1,23 +1,5 @@
 package io.katharsis.resource.include;
 
-import io.katharsis.internal.boot.KatharsisBootProperties;
-import io.katharsis.internal.boot.PropertiesProvider;
-import io.katharsis.queryParams.include.Inclusion;
-import io.katharsis.queryParams.params.IncludedRelationsParams;
-import io.katharsis.queryParams.params.TypedParams;
-import io.katharsis.queryspec.internal.QueryAdapter;
-import io.katharsis.repository.RepositoryMethodParameterProvider;
-import io.katharsis.resource.field.ResourceField;
-import io.katharsis.resource.field.ResourceField.LookupIncludeBehavior;
-import io.katharsis.resource.information.ResourceInformation;
-import io.katharsis.resource.registry.RegistryEntry;
-import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.resource.registry.repository.adapter.RelationshipRepositoryAdapter;
-import io.katharsis.response.JsonApiResponse;
-import io.katharsis.utils.PropertyUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
@@ -27,6 +9,29 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.katharsis.internal.boot.KatharsisBootProperties;
+import io.katharsis.internal.boot.PropertiesProvider;
+import io.katharsis.queryParams.include.Inclusion;
+import io.katharsis.queryParams.params.IncludedRelationsParams;
+import io.katharsis.queryParams.params.TypedParams;
+import io.katharsis.queryspec.internal.QueryAdapter;
+import io.katharsis.repository.RepositoryMethodParameterProvider;
+import io.katharsis.resource.Document;
+import io.katharsis.resource.Relationship;
+import io.katharsis.resource.Resource;
+import io.katharsis.resource.ResourceId;
+import io.katharsis.resource.field.ResourceField;
+import io.katharsis.resource.field.ResourceField.LookupIncludeBehavior;
+import io.katharsis.resource.information.ResourceInformation;
+import io.katharsis.resource.registry.RegistryEntry;
+import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.resource.registry.repository.adapter.RelationshipRepositoryAdapter;
+import io.katharsis.response.JsonApiResponse;
+import io.katharsis.utils.PropertyUtils;
 
 public class IncludeLookupSetter {
 
@@ -61,16 +66,12 @@ public class IncludeLookupSetter {
     }
 
     @SuppressWarnings("rawtypes")
-    public void setIncludedElements(String resourceName, Object repositoryResource, QueryAdapter queryAdapter,
+    public void setIncludedElements(String resourceName, Document document, QueryAdapter queryAdapter,
                                     RepositoryMethodParameterProvider parameterProvider) {
-        Object resource;
-        if (repositoryResource instanceof JsonApiResponse) {
-            resource = ((JsonApiResponse) repositoryResource).getEntity();
-        } else {
-            resource = repositoryResource;
-        }
-        if (resource != null && queryAdapter != null && queryAdapter.hasIncludedRelations()) {
-            Iterable resources = resource instanceof Iterable ? (Iterable<?>) resource : Collections.singletonList(resource);
+        Object data = document.getData();
+        if (data != null && queryAdapter != null && queryAdapter.hasIncludedRelations()) {
+            @SuppressWarnings("unchecked")
+			Iterable<Resource> resources = (Iterable<Resource>) (data instanceof Iterable ?  data : Collections.singletonList(data));
 
             IncludedRelationsParams includedRelationsParams = findInclusions(queryAdapter.getIncludedRelations(), resourceName);
             if (includedRelationsParams != null) {
@@ -97,7 +98,7 @@ public class IncludeLookupSetter {
     }
 
     @SuppressWarnings("rawtypes")
-    private void setIncludedElements(ResourceInformation resourceInformation, Iterable resources, List<String> pathList,
+    private void setIncludedElements(ResourceInformation resourceInformation, Iterable<Resource> resources, List<String> pathList,
                                      QueryAdapter queryAdapter, RepositoryMethodParameterProvider parameterProvider) {
         if (!pathList.isEmpty()) {
             ResourceField field = resourceInformation.findRelationshipFieldByName(pathList.get(0));
@@ -157,8 +158,7 @@ public class IncludeLookupSetter {
      * @param parameterProvider
      * @return list of all loaded properties. Collections are flattened into a single collection.
      */
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    private Set loadRelationships(ResourceInformation resourceInformation, List resources, ResourceField relationshipField,
+    private Set<Resource> loadRelationships(ResourceInformation resourceInformation, List<Resource> resources, ResourceField relationshipField,
                                   QueryAdapter queryAdapter, RepositoryMethodParameterProvider parameterProvider) {
         RegistryEntry rootEntry = resourceRegistry.getEntry(resourceInformation.getResourceType());
 
@@ -167,7 +167,7 @@ public class IncludeLookupSetter {
         boolean isMany = Iterable.class.isAssignableFrom(relationshipField.getType());
         Class<?> relationshipFieldClass = relationshipField.getElementType();
 
-        Set loadedEntities = new HashSet();
+        Set<Resource> loadedEntities = new HashSet<>();
 
         RelationshipRepositoryAdapter relationshipRepository = rootEntry.getRelationshipRepositoryForClass(relationshipFieldClass,
                 parameterProvider);
@@ -181,19 +181,23 @@ public class IncludeLookupSetter {
                         queryAdapter);
             }
 
-            for (Object resource : resources) {
-                ResourceField rootIdField = resourceInformation.getIdField();
-                Serializable id = (Serializable) PropertyUtils.getProperty(resource, rootIdField.getUnderlyingName());
-                JsonApiResponse response = responseMap.get(id);
+            for (Resource resource : resources) {
+                Serializable id = resourceInformation.parseIdString(resource.getId());
+                Document response = responseMap.get(id);
                 if (response != null) {
                     // set the relation
-                    Object entity = response.getEntity();
-                    PropertyUtils.setProperty(resource, relationshipField.getUnderlyingName(), entity);
 
-                    addAll(loadedEntities, entity);
-                } else {
-                    // null the relation
-                    PropertyUtils.setProperty(resource, relationshipField.getUnderlyingName(), null);
+                	String relationshipName = relationshipField.getJsonName();
+                	Map<String, Relationship> relationships = resource.getRelationships();
+                	Relationship relationship = relationships.get(relationshipName);
+                	if(relationship == null){
+                		relationship = new Relationship();
+                		relationships.put(relationshipName, relationship);
+                	}
+                	
+                	relationship.setData(ResourceId.fromData(response.getData()));
+
+                    addAll(loadedEntities, response.getData());
                 }
             }
         }
@@ -201,23 +205,21 @@ public class IncludeLookupSetter {
         return loadedEntities;
     }
 
-    private void addAll(Set<Object> set, Object entity) {
+    private void addAll(Set<Resource> set, Object entity) {
         if (entity instanceof Iterable) {
             Iterator<?> iterator = ((Iterable<?>) entity).iterator();
             while (iterator.hasNext()) {
-                set.add(iterator.next());
+                set.add((Resource)iterator.next());
             }
         } else {
-            set.add(entity);
+            set.add((Resource)entity);
         }
     }
 
-    @SuppressWarnings("rawtypes")
-    private List<Serializable> getIds(List resources, ResourceInformation resourceInformation) {
-        ResourceField rootIdField = resourceInformation.getIdField();
+    private List<Serializable> getIds(List<Resource> resources, ResourceInformation resourceInformation) {
         List<Serializable> ids = new ArrayList<>();
-        for (Object resource : resources) {
-            Serializable id = (Serializable) PropertyUtils.getProperty(resource, rootIdField.getUnderlyingName());
+        for (Resource resource : resources) {
+            Serializable id = (Serializable) resourceInformation.parseIdString(resource.getId());
             ids.add(id);
         }
         return ids;

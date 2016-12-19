@@ -36,17 +36,6 @@ public abstract class JpaRepositoryBase<T> {
 		return false;
 	}
 
-	/**
-	 * For read we always use a clean entity manager and return detached entities.
-	 * For example, Jackson cannot handle proxies. And Katharsis is modifying the entities
-	 * for subgraph loading.
-	 */
-	protected void resetEntityManager() {
-		EntityManager em = module.getEntityManager();
-		em.flush();
-		em.clear();
-	}
-
 	protected static <D> D getUniqueOrNull(List<D> list) {
 		if (list.isEmpty()) {
 			return null;

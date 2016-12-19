@@ -1,6 +1,8 @@
 package io.katharsis.dispatcher.controller.resource;
 
+import java.io.IOException;
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -9,23 +11,21 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.katharsis.dispatcher.controller.HttpMethod;
-import io.katharsis.queryParams.QueryParams;
+import io.katharsis.dispatcher.controller.Response;
 import io.katharsis.queryspec.internal.QueryAdapter;
-import io.katharsis.queryspec.internal.QueryParamsAdapter;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
-import io.katharsis.request.dto.DataBody;
-import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
+import io.katharsis.resource.Document;
+import io.katharsis.resource.Resource;
 import io.katharsis.resource.exception.RequestBodyException;
 import io.katharsis.resource.exception.RequestBodyNotFoundException;
+import io.katharsis.resource.exception.ResourceException;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.repository.adapter.ResourceRepositoryAdapter;
-import io.katharsis.response.BaseResponseContext;
 import io.katharsis.response.JsonApiResponse;
-import io.katharsis.response.ResourceResponseContext;
 import io.katharsis.utils.parser.TypeParser;
 
 public class ResourcePatch extends ResourceUpsert {
@@ -42,28 +42,28 @@ public class ResourcePatch extends ResourceUpsert {
     }
 
     @Override
-    public BaseResponseContext handle(JsonPath jsonPath, QueryAdapter queryAdapter,
-                                         RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody) {
+    public Response handle(JsonPath jsonPath, QueryAdapter queryAdapter,
+                                         RepositoryMethodParameterProvider parameterProvider, Document requestDocument) {
 
         String resourceEndpointName = jsonPath.getResourceName();
         RegistryEntry endpointRegistryEntry = resourceRegistry.getEntry(resourceEndpointName);
         if (endpointRegistryEntry == null) {
             throw new ResourceNotFoundException(resourceEndpointName);
         }
-        if (requestBody == null) {
+        if (requestDocument == null) {
             throw new RequestBodyNotFoundException(HttpMethod.PATCH, resourceEndpointName);
         }
-        if (requestBody.isMultiple()) {
+        if (requestDocument.getData() instanceof Collection) {
             throw new RequestBodyException(HttpMethod.PATCH, resourceEndpointName, "Multiple data in body");
         }
 
         String idString = jsonPath.getIds().getIds().get(0);
 
-        DataBody dataBody = requestBody.getSingleData();
-        if (dataBody == null) {
+        Resource resourceBody = (Resource) requestDocument.getData();
+        if (resourceBody == null) {
             throw new RequestBodyException(HttpMethod.POST, resourceEndpointName, "No data field in the body.");
         }
-        RegistryEntry bodyRegistryEntry = resourceRegistry.getEntry(dataBody.getType());
+        RegistryEntry bodyRegistryEntry = resourceRegistry.getEntry(resourceBody.getType());
         verifyTypes(HttpMethod.PATCH, resourceEndpointName, endpointRegistryEntry, bodyRegistryEntry);
 
         Class<?> type = bodyRegistryEntry
@@ -73,48 +73,55 @@ public class ResourcePatch extends ResourceUpsert {
         Serializable resourceId = typeParser.parse(idString, (Class<? extends Serializable>) type);
 
         ResourceRepositoryAdapter resourceRepository = endpointRegistryEntry.getResourceRepository(parameterProvider);
-        @SuppressWarnings("unchecked")
-        Object resource = extractResource(resourceRepository.findOne(resourceId, queryAdapter));
+        JsonApiResponse resourceFindResponse = resourceRepository.findOne(resourceId, queryAdapter);
+        Object resource = extractResource(resourceFindResponse);
+        Resource resourceFindData = (Resource) toDocument(resourceFindResponse).getData();
 
         String attributesFromFindOne = null;
-        try {
-            // extract current attributes from findOne without any manipulation by query params (such as sparse fieldsets)
-            attributesFromFindOne = this.extractAttributesFromResourceAsJson(resource, jsonPath, new QueryParamsAdapter(new QueryParams()));
-            Map<String,Object> attributesToUpdate = objectMapper.readValue(attributesFromFindOne, Map.class);
-            // deserialize the request JSON's attributes object into a map
-            String attributesAsJson = objectMapper.writeValueAsString(dataBody.getAttributes());
-            Map<String,Object> attributesFromRequest = objectMapper.readValue(attributesAsJson, Map.class);;
 
-            // remove attributes that were omitted in the request
-            Iterator<String> it = attributesToUpdate.keySet().iterator();
-            while(it.hasNext()) {
-                String key = it.next();
-                if(!attributesFromRequest.containsKey(key))
-                    it.remove();
-            }
-
-            // walk the source map and apply target values from request
-            updateValues(attributesToUpdate, attributesFromRequest);
-            JsonNode upsertedAttributes = objectMapper.valueToTree(attributesToUpdate);
-            dataBody.setAttributes(upsertedAttributes);
-        } catch (Exception e) {
-            attributesFromFindOne = "";
+        // extract current attributes from findOne without any manipulation by query params (such as sparse fieldsets)
+        try{
+	        attributesFromFindOne = extractAttributesFromResourceAsJson(resourceFindData);
+	        Map<String,Object> attributesToUpdate = objectMapper.readValue(attributesFromFindOne, Map.class);
+	        // deserialize the request JSON's attributes object into a map
+	        String attributesAsJson = objectMapper.writeValueAsString(resourceBody.getAttributes());
+	        Map<String,Object> attributesFromRequest = objectMapper.readValue(attributesAsJson, Map.class);
+   
+	        // remove attributes that were omitted in the request
+	        Iterator<String> it = attributesToUpdate.keySet().iterator();
+	        while(it.hasNext()) {
+	            String key = it.next();
+	            if(!attributesFromRequest.containsKey(key)){
+	                it.remove();
+	            }
+	        }
+	
+	        // walk the source map and apply target values from request
+	        updateValues(attributesToUpdate, attributesFromRequest);
+	        Map<String,JsonNode> upsertedAttributes = new HashMap<>();
+	        for(Map.Entry<String, Object> entry : attributesToUpdate.entrySet()){
+	        	 JsonNode value = objectMapper.valueToTree(entry.getValue());
+	        	 upsertedAttributes.put(entry.getKey(), value);
+	        }   
+	        
+	        resourceBody.setAttributes(upsertedAttributes);
+        }catch(IOException e){
+        	throw new ResourceException("failed to merge patched attributes", e);
         }
 
-        setAttributes(dataBody, resource, bodyRegistryEntry.getResourceInformation());
-        setRelations(resource, bodyRegistryEntry, dataBody, queryAdapter, parameterProvider);
-        JsonApiResponse response = resourceRepository.update(resource, queryAdapter);
+        setAttributes(resourceBody, resource, bodyRegistryEntry.getResourceInformation());
+        setRelations(resource, bodyRegistryEntry, resourceBody, queryAdapter, parameterProvider);
+        Document responseDocument = toDocument(resourceRepository.update(resource, queryAdapter));
 
-        return new ResourceResponseContext(response, jsonPath, queryAdapter);
+        return new Response(responseDocument, 200);
     }
 
-    private String extractAttributesFromResourceAsJson(Object resource, JsonPath jsonPath, QueryAdapter queryAdapter) throws Exception {
+    private String extractAttributesFromResourceAsJson(Resource resource) throws IOException{
 
         JsonApiResponse response = new JsonApiResponse();
         response.setEntity(resource);
-        ResourceResponseContext katharsisResponse = new ResourceResponseContext(response, jsonPath, queryAdapter);
         // deserialize using the objectMapper so it becomes json-api
-        String newRequestBody = objectMapper.writeValueAsString(katharsisResponse);
+        String newRequestBody = objectMapper.writeValueAsString(resource);
         JsonNode node = objectMapper.readTree(newRequestBody);
         JsonNode attributes = node.findValue("attributes");
         return objectMapper.writeValueAsString(attributes);

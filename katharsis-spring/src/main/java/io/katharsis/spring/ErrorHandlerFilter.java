@@ -1,23 +1,26 @@
 package io.katharsis.spring;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.katharsis.errorhandling.ErrorResponse;
-import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
-import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
-import io.katharsis.invoker.KatharsisInvokerException;
-import io.katharsis.utils.java.Optional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.web.filter.OncePerRequestFilter;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 
 import javax.annotation.Priority;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.katharsis.errorhandling.ErrorResponse;
+import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
+import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
+import io.katharsis.invoker.KatharsisInvokerException;
+import io.katharsis.utils.java.Optional;
 
 @Priority(10)
 public class ErrorHandlerFilter extends OncePerRequestFilter {
@@ -41,10 +44,11 @@ public class ErrorHandlerFilter extends OncePerRequestFilter {
             if (!mapper.isPresent()) {
                 throw e;
             }
+            
             ErrorResponse errorResponse = mapper.get().toErrorResponse(e.getCause());
             response.setStatus(errorResponse.getHttpStatus());
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            objectMapper.writeValue(baos, errorResponse);
+            objectMapper.writeValue(baos, errorResponse.toResponse());
 
             try (OutputStream out = response.getOutputStream()) {
                 out.write(baos.toByteArray());

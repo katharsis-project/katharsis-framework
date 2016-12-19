@@ -196,8 +196,6 @@ public class JpaRelationshipRepository<S, I extends Serializable, T, J extends S
 
 	@Override
 	public MultivaluedMap<I, T> findTargets(Iterable<I> sourceIds, String fieldName, QuerySpec querySpec) {
-		resetEntityManager();
-
 		List<I> sourceIdLists = new ArrayList<>();
 		for (I sourceId : sourceIds) {
 			sourceIdLists.add(sourceId);
@@ -245,7 +243,6 @@ public class JpaRelationshipRepository<S, I extends Serializable, T, J extends S
 			}
 		}
 
-		resetEntityManager();
 		return map;
 	}
 

@@ -1,11 +1,11 @@
 package io.katharsis.dispatcher.filter;
 
-import io.katharsis.response.BaseResponseContext;
+import io.katharsis.dispatcher.controller.Response;
 
 public class TestFilter implements Filter {
 
 	@Override
-	public BaseResponseContext filter(FilterRequestContext filterRequestContext, FilterChain chain) {
+	public Response filter(FilterRequestContext filterRequestContext, FilterChain chain) {
 		return chain.doFilter(filterRequestContext);
 	}
 }

@@ -7,11 +7,13 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.Assert;
 import org.junit.Test;
 
+import io.katharsis.client.internal.core.BaseResponseContext;
+import io.katharsis.client.internal.core.DataBody;
+import io.katharsis.client.internal.core.RequestBody;
+import io.katharsis.client.internal.core.ResourceRelationships;
+import io.katharsis.client.internal.core.ResourceResponseContext;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
 import io.katharsis.queryspec.internal.QueryParamsAdapter;
-import io.katharsis.request.dto.DataBody;
-import io.katharsis.request.dto.RequestBody;
-import io.katharsis.request.dto.ResourceRelationships;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.exception.RequestBodyException;
@@ -19,9 +21,7 @@ import io.katharsis.resource.mock.models.ComplexPojo;
 import io.katharsis.resource.mock.models.Memorandum;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.registry.repository.adapter.ResourceRepositoryAdapter;
-import io.katharsis.response.BaseResponseContext;
 import io.katharsis.response.JsonApiResponse;
-import io.katharsis.response.ResourceResponseContext;
 
 public class ResourcePatchTest extends BaseControllerTest {
 

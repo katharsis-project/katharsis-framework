@@ -12,9 +12,9 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import io.katharsis.client.ResponseBodyException;
+import io.katharsis.client.internal.core.ErrorResponseSerializer;
 import io.katharsis.errorhandling.ErrorData;
 import io.katharsis.errorhandling.ErrorResponse;
-import io.katharsis.jackson.serializer.ErrorResponseSerializer;
 
 /**
  * Serializes top-level Errors object.

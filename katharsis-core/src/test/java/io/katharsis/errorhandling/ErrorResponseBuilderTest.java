@@ -1,8 +1,8 @@
 package io.katharsis.errorhandling;
 
-import org.junit.Test;
-
 import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.Test;
 
 public class ErrorResponseBuilderTest {
 

@@ -1,15 +1,19 @@
 package io.katharsis.dispatcher.controller.resource;
 
+import java.io.Serializable;
+import java.util.Collections;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.katharsis.dispatcher.controller.HttpMethod;
-import io.katharsis.queryParams.QueryParams;
+import io.katharsis.dispatcher.controller.Response;
 import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
-import io.katharsis.request.dto.DataBody;
-import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.FieldPath;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathIds;
+import io.katharsis.resource.Document;
+import io.katharsis.resource.Resource;
 import io.katharsis.resource.exception.RequestBodyException;
 import io.katharsis.resource.exception.RequestBodyNotFoundException;
 import io.katharsis.resource.exception.ResourceFieldNotFoundException;
@@ -21,13 +25,9 @@ import io.katharsis.resource.registry.repository.adapter.RelationshipRepositoryA
 import io.katharsis.resource.registry.repository.adapter.ResourceRepositoryAdapter;
 import io.katharsis.response.HttpStatus;
 import io.katharsis.response.JsonApiResponse;
-import io.katharsis.response.ResourceResponseContext;
 import io.katharsis.utils.Generics;
 import io.katharsis.utils.PropertyUtils;
 import io.katharsis.utils.parser.TypeParser;
-
-import java.io.Serializable;
-import java.util.Collections;
 
 /**
  * Creates a new post in a similar manner as in {@link ResourcePost}, but additionally adds a relation to a field.
@@ -48,8 +48,8 @@ public class FieldResourcePost extends ResourceUpsert {
     }
 
     @Override
-    public ResourceResponseContext handle(JsonPath jsonPath, QueryAdapter queryAdapter,
-                                          RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody) {
+    public Response handle(JsonPath jsonPath, QueryAdapter queryAdapter,
+                                          RepositoryMethodParameterProvider parameterProvider, Document requestBody) {
         String resourceEndpointName = jsonPath.getResourceName();
         PathIds resourceIds = jsonPath.getIds();
         RegistryEntry endpointRegistryEntry = resourceRegistry.getEntry(resourceEndpointName);
@@ -78,11 +78,11 @@ public class FieldResourcePost extends ResourceUpsert {
         RegistryEntry relationshipRegistryEntry = resourceRegistry.getEntry(relationshipFieldClass);
         String relationshipResourceType = resourceRegistry.getResourceType(relationshipFieldClass);
 
-        DataBody dataBody = requestBody.getSingleData();
+        Resource dataBody = (Resource) requestBody.getData();
         Object resource = buildNewResource(relationshipRegistryEntry, dataBody, relationshipResourceType);
         setAttributes(dataBody, resource, relationshipRegistryEntry.getResourceInformation());
         ResourceRepositoryAdapter resourceRepository = relationshipRegistryEntry.getResourceRepository(parameterProvider);
-        JsonApiResponse savedResourceResponse = resourceRepository.create(resource, queryAdapter);
+        Document savedResourceResponse = toDocument(resourceRepository.create(resource, queryAdapter));
         saveRelations(queryAdapter, extractResource(savedResourceResponse), relationshipRegistryEntry, dataBody, parameterProvider);
 
         Serializable resourceId = (Serializable) PropertyUtils
@@ -104,7 +104,7 @@ public class FieldResourcePost extends ResourceUpsert {
             //noinspection unchecked
             relationshipRepositoryForClass.setRelation(parent.getEntity(), resourceId, jsonPath.getElementName(), queryAdapter);
         }
-        return new ResourceResponseContext(savedResourceResponse, jsonPath, queryAdapter, HttpStatus.CREATED_201);
+        return new Response(savedResourceResponse, HttpStatus.CREATED_201);
     }
 
     private Serializable getResourceId(PathIds resourceIds, RegistryEntry<?> registryEntry) {

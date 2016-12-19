@@ -1,25 +1,23 @@
 package io.katharsis.dispatcher.controller.resource;
 
+import java.io.Serializable;
+
 import io.katharsis.dispatcher.controller.HttpMethod;
+import io.katharsis.dispatcher.controller.Response;
 import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
-import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathIds;
 import io.katharsis.request.path.RelationshipsPath;
+import io.katharsis.resource.Document;
 import io.katharsis.resource.exception.ResourceFieldNotFoundException;
 import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.include.IncludeLookupSetter;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.repository.adapter.RelationshipRepositoryAdapter;
-import io.katharsis.response.*;
 import io.katharsis.utils.Generics;
 import io.katharsis.utils.parser.TypeParser;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 public class RelationshipsResourceGet extends ResourceIncludeField {
 
@@ -35,8 +33,8 @@ public class RelationshipsResourceGet extends ResourceIncludeField {
     }
 
     @Override
-    public BaseResponseContext handle(JsonPath jsonPath, QueryAdapter queryAdapter,
-                                      RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody) {
+    public Response handle(JsonPath jsonPath, QueryAdapter queryAdapter,
+                                      RepositoryMethodParameterProvider parameterProvider, Document requestBody) {
         String resourceName = jsonPath.getResourceName();
         PathIds resourceIds = jsonPath.getIds();
         RegistryEntry<?> registryEntry = resourceRegistry.getEntry(resourceName);
@@ -55,54 +53,20 @@ public class RelationshipsResourceGet extends ResourceIncludeField {
 
         RelationshipRepositoryAdapter relationshipRepositoryForClass = registryEntry
                 .getRelationshipRepositoryForClass(relationshipFieldClass, parameterProvider);
-        BaseResponseContext target;
+        Document responseDocument;
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
-            @SuppressWarnings("unchecked")
-            JsonApiResponse response = relationshipRepositoryForClass
-                    .findManyTargets(castedResourceId, elementName, queryAdapter);
-            includeFieldSetter.setIncludedElements(resourceName, response, queryAdapter, parameterProvider);
-
-            List<LinkageContainer> dataList = getLinkages(relationshipFieldClass, response);
-            response.setEntity(dataList);
-            target = new CollectionResponseContext(response, jsonPath, queryAdapter);
+            responseDocument = toDocument(relationshipRepositoryForClass
+                    .findManyTargets(castedResourceId, elementName, queryAdapter));
+            includeFieldSetter.setIncludedElements(resourceName, responseDocument, queryAdapter, parameterProvider);
         } else {
-            @SuppressWarnings("unchecked")
-            JsonApiResponse response = relationshipRepositoryForClass
-                    .findOneTarget(castedResourceId, elementName, queryAdapter);
-            includeFieldSetter.setIncludedElements(resourceName, response, queryAdapter, parameterProvider);
-
-            if (response.getEntity() != null) {
-                LinkageContainer linkageContainer = getLinkage(relationshipFieldClass, response);
-                response.setEntity(linkageContainer);
-                target = new ResourceResponseContext(response, jsonPath, queryAdapter);
-            } else {
-                target = new ResourceResponseContext(response, jsonPath, queryAdapter);
-            }
+            responseDocument = toDocument(relationshipRepositoryForClass
+                    .findOneTarget(castedResourceId, elementName, queryAdapter));
+            includeFieldSetter.setIncludedElements(resourceName, responseDocument, queryAdapter, parameterProvider);
         }
+        
+        // FIXME related vs self
 
-        return target;
-    }
-
-    private LinkageContainer getLinkage(Class<?> relationshipFieldClass, Object targetObject) {
-        if (targetObject instanceof JsonApiResponse) {
-            return new LinkageContainer(((JsonApiResponse) targetObject).getEntity(), relationshipFieldClass, resourceRegistry.getEntry(((JsonApiResponse) targetObject).getEntity()));
-        } else {
-            return new LinkageContainer(targetObject, relationshipFieldClass, resourceRegistry.getEntry(targetObject));
-        }
-    }
-
-    private List<LinkageContainer> getLinkages(Class<?> relationshipFieldClass,
-                                               JsonApiResponse targetObjects) {
-        List<LinkageContainer> dataList = new ArrayList<>();
-        if (targetObjects == null) {
-            return dataList;
-        }
-        Iterable resources = (Iterable) targetObjects.getEntity();
-
-        for (Object resource : resources) {
-            dataList.add(new LinkageContainer(resource, relationshipFieldClass, resourceRegistry.getEntry(resource)));
-        }
-        return dataList;
+        return new Response(responseDocument, 200);
     }
 
     private Serializable getResourceId(PathIds resourceIds, RegistryEntry<?> registryEntry) {

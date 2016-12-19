@@ -1,16 +1,27 @@
 package io.katharsis.dispatcher.controller.resource;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.Collections;
+
+import org.junit.Assert;
+import org.junit.Test;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import io.katharsis.client.internal.core.DataBody;
+import io.katharsis.client.internal.core.LinkageData;
+import io.katharsis.client.internal.core.RequestBody;
+import io.katharsis.client.internal.core.ResourceRelationships;
+import io.katharsis.client.internal.core.ResourceResponseContext;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
-import io.katharsis.queryParams.QueryParams;
+import io.katharsis.dispatcher.controller.Response;
 import io.katharsis.queryspec.internal.QueryParamsAdapter;
-import io.katharsis.request.dto.DataBody;
-import io.katharsis.request.dto.LinkageData;
-import io.katharsis.request.dto.RequestBody;
-import io.katharsis.request.dto.ResourceRelationships;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
+import io.katharsis.resource.Document;
+import io.katharsis.resource.Resource;
 import io.katharsis.resource.exception.ResourceException;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.mock.models.Memorandum;
@@ -22,13 +33,6 @@ import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.models.User;
 import io.katharsis.resource.mock.repository.TaskRepository;
 import io.katharsis.response.HttpStatus;
-import io.katharsis.response.ResourceResponseContext;
-import org.junit.Assert;
-import org.junit.Test;
-
-import java.util.Collections;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class ResourcePostTest extends BaseControllerTest {
 
@@ -37,7 +41,7 @@ public class ResourcePostTest extends BaseControllerTest {
     @Test
     public void onGivenRequestCollectionGetShouldDenyIt() {
         // GIVEN
-        JsonPath jsonPath = pathBuilder.buildPath("/tasks/1");
+        JsonPath jsonPath = pathBuilder.build("/tasks/1");
         ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper);
 
         // WHEN
@@ -50,7 +54,7 @@ public class ResourcePostTest extends BaseControllerTest {
     @Test
     public void onGivenRequestResourceGetShouldAcceptIt() {
         // GIVEN
-        JsonPath jsonPath = pathBuilder.buildPath("/tasks/");
+        JsonPath jsonPath = pathBuilder.build("/tasks/");
         ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper);
 
         // WHEN
@@ -63,13 +67,11 @@ public class ResourcePostTest extends BaseControllerTest {
     @Test
     public void onInconsistentResourceTypesShouldThrowException() throws Exception {
         // GIVEN
-        RequestBody newProjectBody = new RequestBody();
-        DataBody data = new DataBody();
+        Document newProjectBody = new Document();
+        Resource data = createProject();
         newProjectBody.setData(data);
-        data.setType("projects");
-        data.setAttributes(objectMapper.createObjectNode().put("name", "sample task"));
 
-        JsonPath projectPath = pathBuilder.buildPath("/tasks");
+        JsonPath projectPath = pathBuilder.build("/tasks");
         ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper);
 
         // THEN
@@ -82,10 +84,10 @@ public class ResourcePostTest extends BaseControllerTest {
     @Test
     public void onNonExistentResourceShouldThrowException() throws Exception {
         // GIVEN
-        RequestBody newProjectBody = new RequestBody();
-        DataBody data = new DataBody();
-        newProjectBody.setData(data);
-        data.setType("fridges");
+    	 Document newProjectBody = new Document();
+         Resource data = createProject();
+         data.setType("fridges");
+         newProjectBody.setData(data);
 
         ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper);
 
@@ -111,21 +113,15 @@ public class ResourcePostTest extends BaseControllerTest {
     @Test
     public void onNewResourcesAndRelationshipShouldPersistThoseData() throws Exception {
         // GIVEN
-        RequestBody newProjectBody = new RequestBody();
-        DataBody data = new DataBody();
+    	Document newProjectBody = new Document();
+        Resource data = createProject();
         newProjectBody.setData(data);
-        data.setType("projects");
-        ObjectNode attributes = objectMapper.createObjectNode()
-            .put("name", "sample project");
-        attributes.putObject("data")
-            .put("data", "asd");
-        data.setAttributes(attributes);
 
-        JsonPath projectPath = pathBuilder.buildPath("/projects");
+        JsonPath projectPath = pathBuilder.build("/projects");
         ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper);
 
         // WHEN
-        ResourceResponseContext projectResponse = sut.handle(projectPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newProjectBody);
+        Response projectResponse = sut.handle(projectPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newProjectBody);
 
         // THEN
         assertThat(projectResponse.getHttpStatus()).isEqualTo(HttpStatus.CREATED_201);
@@ -147,7 +143,7 @@ public class ResourcePostTest extends BaseControllerTest {
         data.setRelationships(new ResourceRelationships());
         data.getRelationships().setAdditionalProperty("project", new LinkageData("projects", projectId.toString()));
 
-        JsonPath taskPath = pathBuilder.buildPath("/tasks");
+        JsonPath taskPath = pathBuilder.build("/tasks");
 
         // WHEN
         ResourceResponseContext taskResponse = sut.handle(taskPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newTaskBody);
@@ -173,7 +169,7 @@ public class ResourcePostTest extends BaseControllerTest {
         data.setType("projects");
         data.setAttributes(objectMapper.createObjectNode().put("name", "sample project"));
 
-        JsonPath projectPath = pathBuilder.buildPath("/projects");
+        JsonPath projectPath = pathBuilder.build("/projects");
         ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper);
 
         // WHEN
@@ -197,7 +193,7 @@ public class ResourcePostTest extends BaseControllerTest {
         data.getRelationships().setAdditionalProperty("assignedProjects", Collections.singletonList(new LinkageData("projects",
             projectId.toString())));
 
-        JsonPath taskPath = pathBuilder.buildPath("/users");
+        JsonPath taskPath = pathBuilder.build("/users");
 
         // WHEN
         ResourceResponseContext taskResponse = sut.handle(taskPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newUserBody);
@@ -224,7 +220,7 @@ public class ResourcePostTest extends BaseControllerTest {
             .put("body", "sample body");
         data.setAttributes(attributes);
 
-        JsonPath projectPath = pathBuilder.buildPath("/documents");
+        JsonPath projectPath = pathBuilder.build("/documents");
         ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper);
 
         // WHEN
@@ -247,7 +243,7 @@ public class ResourcePostTest extends BaseControllerTest {
         data.setType("projects");
         data.setAttributes(objectMapper.createObjectNode().put("name", "sample project"));
 
-        JsonPath projectPath = pathBuilder.buildPath("/projects");
+        JsonPath projectPath = pathBuilder.build("/projects");
         ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper);
 
         // WHEN
@@ -275,7 +271,7 @@ public class ResourcePostTest extends BaseControllerTest {
         relationships.setAdditionalProperty("some-projects", Collections.singletonList(new LinkageData("projects", Long.toString(projectId))));
         pojoData.setRelationships(relationships);
 
-        JsonPath pojoPath = pathBuilder.buildPath("/pojo");
+        JsonPath pojoPath = pathBuilder.build("/pojo");
 
         // WHEN
         ResourceResponseContext pojoResponse = sut.handle(pojoPath, new QueryParamsAdapter(REQUEST_PARAMS), null, pojoBody);
@@ -300,7 +296,7 @@ public class ResourcePostTest extends BaseControllerTest {
         data.setType("projects");
         data.setAttributes(objectMapper.createObjectNode().put("name", "sample project"));
 
-        JsonPath projectPath = pathBuilder.buildPath("/projects");
+        JsonPath projectPath = pathBuilder.build("/projects");
         ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper);
 
         // WHEN
@@ -328,7 +324,7 @@ public class ResourcePostTest extends BaseControllerTest {
         relationships.setAdditionalProperty(invalidRelationshipName, new LinkageData("projects", Long.toString(projectId)));
         pojoData.setRelationships(relationships);
 
-        JsonPath pojoPath = pathBuilder.buildPath("/pojo");
+        JsonPath pojoPath = pathBuilder.build("/pojo");
 
         // THEN
         expectedException.expect(ResourceException.class);

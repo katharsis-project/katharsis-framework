@@ -27,7 +27,7 @@ import io.katharsis.jpa.internal.meta.MetaElement;
 import io.katharsis.jpa.internal.meta.MetaEntity;
 import io.katharsis.jpa.internal.meta.MetaKey;
 import io.katharsis.jpa.internal.meta.MetaLookup;
-import io.katharsis.request.dto.DataBody;
+import io.katharsis.resource.Resource;
 import io.katharsis.resource.annotations.JsonApiLinksInformation;
 import io.katharsis.resource.annotations.JsonApiMetaInformation;
 import io.katharsis.resource.field.ResourceField;
@@ -115,8 +115,8 @@ public class JpaResourceInformationBuilder implements ResourceInformationBuilder
 
 		@SuppressWarnings("unchecked")
 		@Override
-		public T buildResource(DataBody body) {
-			String strId = body.getId();
+		public T buildResource(Resource resource) {
+			String strId = resource.getId();
 
 			// use managed entities on the server-side
 			if (strId != null && em != null) {
@@ -124,23 +124,23 @@ public class JpaResourceInformationBuilder implements ResourceInformationBuilder
 				Object entity = em.find(meta.getImplementationClass(), id);
 				if (entity != null) {
 					// version check
-					checkOptimisticLocking(entity, body);
+					checkOptimisticLocking(entity, resource);
 					return (T) entity;
 				}
 			}
-			return super.buildResource(body);
+			return super.buildResource(resource);
 		}
 
-		private void checkOptimisticLocking(Object entity, DataBody body) {
+		private void checkOptimisticLocking(Object entity, Resource resource) {
 			MetaAttribute versionAttr = meta.getVersionAttribute();
 			if (versionAttr != null) {
-				JsonNode versionNode = body.getAttributes().get(versionAttr.getName());
+				JsonNode versionNode = resource.getAttributes().get(versionAttr.getName());
 				if (versionNode != null) {
 					Object requestVersion = versionAttr.getType().fromString(versionNode.asText());
 					Object currentVersion = versionAttr.getValue(entity);
 					if (!currentVersion.equals(requestVersion))
 						throw new OptimisticLockException(
-								body.getId() + " changed from version " + requestVersion + " to " + currentVersion);
+								resource.getId() + " changed from version " + requestVersion + " to " + currentVersion);
 				}
 			}
 		}

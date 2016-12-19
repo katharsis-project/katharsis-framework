@@ -18,4 +18,12 @@ public class ResourceException extends InternalServerErrorException {  // NOSONA
                 .setStatus(String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR_500))
                 .build());
     }
+    
+    public ResourceException(String message, Exception cause) {
+        super(HttpStatus.INTERNAL_SERVER_ERROR_500, ErrorData.builder()
+                .setTitle(TITLE)
+                .setDetail(message)
+                .setStatus(String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR_500))
+                .build(), cause);
+    }
 }

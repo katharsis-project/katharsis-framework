@@ -33,13 +33,12 @@ import io.katharsis.errorhandling.exception.KatharsisMappableException;
 import io.katharsis.errorhandling.exception.KatharsisMatchingException;
 import io.katharsis.errorhandling.mapper.KatharsisExceptionMapper;
 import io.katharsis.jackson.exception.JsonDeserializationException;
-import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.ActionPath;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathBuilder;
+import io.katharsis.resource.Document;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ServiceUrlProvider;
-import io.katharsis.response.BaseResponseContext;
 import io.katharsis.rs.parameterProvider.JaxRsParameterProvider;
 import io.katharsis.rs.parameterProvider.RequestContextParameterProviderRegistry;
 import io.katharsis.rs.resource.registry.UriInfoServiceUrlProvider;
@@ -121,7 +120,7 @@ public class KatharsisFilter implements ContainerRequestFilter {
 
     private void dispatchRequest(ContainerRequestContext requestContext) throws Exception {
         UriInfo uriInfo = requestContext.getUriInfo();
-        BaseResponseContext katharsisResponse = null;
+        io.katharsis.dispatcher.controller.Response katharsisResponse = null;
         boolean passToMethodMatcher = false;
         ServiceUrlProvider serviceUrlProvider = resourceRegistry.getServiceUrlProvider();
         try {
@@ -145,7 +144,7 @@ public class KatharsisFilter implements ContainerRequestFilter {
             	// nothing further done, forward the call to JAX-RS
             	passToMethodMatcher = true;
             }else if(jsonPath != null){
-	            RequestBody requestBody = inputStreamToBody(requestContext.getEntityStream());
+	            Document requestBody = inputStreamToBody(requestContext.getEntityStream());
 	
 	            JaxRsParameterProvider parameterProvider = new JaxRsParameterProvider(objectMapper, requestContext, parameterProviderRegistry);
 	            katharsisResponse = requestDispatcher
@@ -157,7 +156,7 @@ public class KatharsisFilter implements ContainerRequestFilter {
        
         } catch (KatharsisMappableException e) {
             // log error in KatharsisMappableException mapper.
-            katharsisResponse = new KatharsisExceptionMapper().toErrorResponse(e);
+            katharsisResponse = new KatharsisExceptionMapper().toErrorResponse(e).toResponse();
         } catch (KatharsisMatchingException e) {
         	LOGGER.warn("failed to process request", e);
             passToMethodMatcher = true;
@@ -191,7 +190,7 @@ public class KatharsisFilter implements ContainerRequestFilter {
         }
     }
 
-    private void abortWithResponse(ContainerRequestContext requestContext, BaseResponseContext katharsisResponse)
+    private void abortWithResponse(ContainerRequestContext requestContext, io.katharsis.dispatcher.controller.Response katharsisResponse)
         throws IOException {
         Response response;
         if (katharsisResponse != null) {
@@ -210,7 +209,7 @@ public class KatharsisFilter implements ContainerRequestFilter {
 
 
 
-    public RequestBody inputStreamToBody(InputStream is) throws IOException {
+    public Document inputStreamToBody(InputStream is) throws IOException {
         if (is == null) {
             return null;
         }
@@ -220,7 +219,7 @@ public class KatharsisFilter implements ContainerRequestFilter {
             return null;
         }
         try {
-            return objectMapper.readValue(requestBody, RequestBody.class);
+            return objectMapper.readValue(requestBody, Document.class);
         } catch (IOException e) {
             throw new JsonDeserializationException(e.getMessage());
         }

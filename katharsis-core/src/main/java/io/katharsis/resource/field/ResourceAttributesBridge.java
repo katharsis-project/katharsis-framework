@@ -3,6 +3,7 @@ package io.katharsis.resource.field;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 
 import io.katharsis.resource.exception.ResourceException;
 import io.katharsis.resource.exception.init.InvalidResourceException;
@@ -64,6 +66,7 @@ public class ResourceAttributesBridge<T> {
      * @param instance     instance to fill in attributes
      * @param attributes   set od attributes
      */
+    @Deprecated
     public void setProperties(ObjectMapper objectMapper, T instance, JsonNode attributes) {
         T instanceWithNewFields;
         try {
@@ -79,7 +82,51 @@ public class ResourceAttributesBridge<T> {
 
         setAnyProperties(instance, instanceWithNewFields);
     }
+    
+    public void setProperties(ObjectMapper objectMapper, T instance, Map<String, JsonNode> attributes) {
+        for(Map.Entry<String, JsonNode>  entry : attributes.entrySet()){
+        	setProperty1(objectMapper, instance, entry.getValue(), entry.getKey());
+        }
 
+       // FIXME setAnyProperties1(instance, instanceWithNewFields);
+    }
+    
+//    private void setAnyProperties1(T instance, T instanceWithNewFields) {
+//        if (jsonAnySetter != null) {
+//            @SuppressWarnings("unchecked")
+//            Map<String, Object> additionalAttributes;
+//            try {
+//                additionalAttributes = (Map<String, Object>) jsonAnyGetter.invoke(instanceWithNewFields);
+//                for (Map.Entry<String, Object> property : additionalAttributes.entrySet()) {
+//                    jsonAnySetter.invoke(instance, property.getKey(), property.getValue());
+//                }
+//            } catch (IllegalAccessException | InvocationTargetException e) {
+//                throw new ResourceException(
+//                    String.format("Exception while setting %s: %s", instance.getClass(), e.getMessage()));
+//            }
+//        }
+//    }
+
+    private void setProperty1(ObjectMapper objectMapper, T instance, JsonNode valueNode, String propertyName) {
+        Optional<ResourceField> staticField = findStaticField(propertyName);
+        if (staticField.isPresent()) {
+            String underlyingName = staticField.get().getUnderlyingName();
+            Class valueType = staticField.get().getType();
+            
+            ObjectReader reader = objectMapper.reader().forType(valueType);
+            try{
+	            Object value = reader.readValue(valueNode);
+	            PropertyUtils.setProperty(instance, underlyingName, value);
+            }  catch (IOException e) {
+	            throw new ResourceException(
+	                    String.format("Exception while reading %s: %s", instance.getClass(), e.getMessage()), e);
+            }
+        } else {
+            // Needed for JsonIgnore and dynamic attributes
+        }
+    }
+
+    
     /**
      * Jackson {@link ObjectMapper#readerForUpdating(Object)} cannot be used here, because there might be a case where
      * <i>instance</i> parameter a proxied object e.g. by Hibernate.

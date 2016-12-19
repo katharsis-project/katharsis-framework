@@ -2,11 +2,10 @@ package io.katharsis.dispatcher.controller;
 
 import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
-import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
+import io.katharsis.resource.Document;
 import io.katharsis.resource.exception.RequestBodyException;
 import io.katharsis.resource.registry.RegistryEntry;
-import io.katharsis.response.BaseResponseContext;
 import io.katharsis.response.JsonApiResponse;
 
 /**
@@ -35,8 +34,8 @@ public abstract class BaseController {
      * @param requestBody       Top-level JSON object from method's body of the request passed as {@link RequestBody}
      * @return BaseResponseContext object
      */
-    public abstract BaseResponseContext handle(JsonPath jsonPath, QueryAdapter queryAdapter, RepositoryMethodParameterProvider
-            parameterProvider, RequestBody requestBody);
+    public abstract Response handle(JsonPath jsonPath, QueryAdapter queryAdapter, RepositoryMethodParameterProvider
+            parameterProvider, Document document);
 
 
     protected void verifyTypes(HttpMethod methodType, String resourceEndpointName, RegistryEntry endpointRegistryEntry,
@@ -58,4 +57,9 @@ public abstract class BaseController {
             return responseOrResource;
         }
     }
+    
+    // FIXME
+	protected Document toDocument(JsonApiResponse response) {
+		return null;
+	}
 }

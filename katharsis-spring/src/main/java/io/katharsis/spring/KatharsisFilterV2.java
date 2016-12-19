@@ -1,36 +1,5 @@
 package io.katharsis.spring;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.net.MediaType;
-import io.katharsis.dispatcher.RequestDispatcher;
-import io.katharsis.errorhandling.exception.KatharsisMappableException;
-import io.katharsis.errorhandling.exception.KatharsisMatchingException;
-import io.katharsis.errorhandling.mapper.KatharsisExceptionMapper;
-import io.katharsis.invoker.JsonApiMediaType;
-import io.katharsis.invoker.KatharsisInvokerException;
-import io.katharsis.jackson.exception.JsonDeserializationException;
-import io.katharsis.repository.RepositoryMethodParameterProvider;
-import io.katharsis.request.dto.RequestBody;
-import io.katharsis.request.path.JsonPath;
-import io.katharsis.request.path.PathBuilder;
-import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.response.BaseResponseContext;
-import io.katharsis.servlet.util.BufferedRequestWrapper;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.http.HttpHeaders;
-
-import javax.annotation.Priority;
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
@@ -42,6 +11,40 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
+
+import javax.annotation.Priority;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.http.HttpHeaders;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.net.MediaType;
+
+import io.katharsis.dispatcher.RequestDispatcher;
+import io.katharsis.dispatcher.controller.Response;
+import io.katharsis.errorhandling.exception.KatharsisMappableException;
+import io.katharsis.errorhandling.exception.KatharsisMatchingException;
+import io.katharsis.errorhandling.mapper.KatharsisExceptionMapper;
+import io.katharsis.invoker.JsonApiMediaType;
+import io.katharsis.invoker.KatharsisInvokerException;
+import io.katharsis.jackson.exception.JsonDeserializationException;
+import io.katharsis.repository.RepositoryMethodParameterProvider;
+import io.katharsis.request.path.JsonPath;
+import io.katharsis.request.path.PathBuilder;
+import io.katharsis.resource.Document;
+import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.servlet.util.BufferedRequestWrapper;
 
 @Priority(20)
 public class KatharsisFilterV2 implements Filter, BeanFactoryAware {
@@ -109,7 +112,7 @@ public class KatharsisFilterV2 implements Filter, BeanFactoryAware {
     }
 
     private boolean dispatchRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        BaseResponseContext katharsisResponse = null;
+        Response katharsisResponse = null;
 
         boolean passToFilters = false;
 
@@ -121,7 +124,7 @@ public class KatharsisFilterV2 implements Filter, BeanFactoryAware {
             Map<String, Set<String>> parameters = getParameters(request);
 
             in = request.getInputStream();
-            RequestBody requestBody = inputStreamToBody(in);
+            Document requestBody = inputStreamToBody(in);
 
             String method = request.getMethod();
             RepositoryMethodParameterProvider parameterProvider = new SpringParameterProvider(beanFactory, request);
@@ -129,7 +132,7 @@ public class KatharsisFilterV2 implements Filter, BeanFactoryAware {
                     requestBody);
         } catch (KatharsisMappableException e) {
             // log error in KatharsisMappableException mapper.
-            katharsisResponse = new KatharsisExceptionMapper().toErrorResponse(e);
+            katharsisResponse = new KatharsisExceptionMapper().toErrorResponse(e).toResponse();
         } catch (KatharsisMatchingException e) {
             passToFilters = true;
         } finally {
@@ -224,7 +227,7 @@ public class KatharsisFilterV2 implements Filter, BeanFactoryAware {
         return queryParameters;
     }
 
-    private RequestBody inputStreamToBody(InputStream is) {
+    private Document inputStreamToBody(InputStream is) {
         if (is == null) {
             return null;
         }
@@ -237,7 +240,7 @@ public class KatharsisFilterV2 implements Filter, BeanFactoryAware {
         }
 
         try {
-            return objectMapper.readValue(requestBody, RequestBody.class);
+            return objectMapper.readValue(requestBody, Document.class);
         } catch (IOException e) {
             throw new JsonDeserializationException(e.getMessage());
         }
