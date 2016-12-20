@@ -4,7 +4,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 
-public final class ErrorData {
+public class ErrorData {
 
     /**
      * A unique identifier for this particular occurrence of the problem.

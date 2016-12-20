@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class ResourceId {
+public class ResourceId implements Comparable<ResourceId> {
 
 	private String id;
 
@@ -49,8 +49,7 @@ public class ResourceId {
 				result.add(id.clone());
 			}
 			return result;
-		}
-		else {
+		} else {
 			ResourceId id = (ResourceId) data;
 			return id.clone();
 		}
@@ -67,5 +66,14 @@ public class ResourceId {
 			return false;
 		ResourceId other = (ResourceId) obj;
 		return Objects.equals(id, other.id) && Objects.equals(type, other.type);
+	}
+
+	@Override
+	public int compareTo(ResourceId o) {
+		int d = type.compareTo(o.type);
+		if (d != 0) {
+			return d;
+		}
+		return id.compareTo(o.id);
 	}
 }

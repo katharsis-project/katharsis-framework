@@ -2,14 +2,20 @@ package io.katharsis.resource.internal;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import io.katharsis.queryParams.include.Inclusion;
 import io.katharsis.queryParams.params.IncludedFieldsParams;
+import io.katharsis.queryParams.params.IncludedRelationsParams;
 import io.katharsis.queryParams.params.TypedParams;
+import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.request.path.PathBuilder;
 import io.katharsis.resource.LinksContainer;
 import io.katharsis.resource.MetaContainer;
@@ -38,7 +44,7 @@ public class DocumentMapperUtil {
 	public String getRelationshipLink(ResourceInformation resourceInformation, Object entity, ResourceField field, boolean related) {
 		String resourceUrl = resourceRegistry.getResourceUrl(resourceInformation.getResourceClass());
 		String resourceId = getIdString(entity, resourceInformation);
-		return resourceUrl + "/" + resourceId + (related ? "/" + PathBuilder.RELATIONSHIP_MARK + "/" : "/") + field.getJsonName();
+		return resourceUrl + "/" + resourceId + (!related ? "/" + PathBuilder.RELATIONSHIP_MARK + "/" : "/") + field.getJsonName();
 	}
 
 	public ResourceId toResourceId(Object entity) {
@@ -57,13 +63,26 @@ public class DocumentMapperUtil {
 		return resourceInformation.toIdString(sourceId);
 	}
 
-	protected static List<ResourceField> getRequestedFields(ResourceInformation resourceInformation, TypedParams<IncludedFieldsParams> includedFieldsSet, List<ResourceField> fields) {
-		IncludedFieldsParams includedFields = includedFieldsSet.getParams().get(resourceInformation.getResourceType());
+	protected static List<ResourceField> getRequestedFields(ResourceInformation resourceInformation, QueryAdapter queryAdapter, List<ResourceField> fields, boolean relation) {
+		TypedParams<IncludedFieldsParams> includedFieldsSet = queryAdapter.getIncludedFields();
+		IncludedFieldsParams includedFields = includedFieldsSet != null ? includedFieldsSet.getParams().get(resourceInformation.getResourceType()) : null;
 
 		if (noResourceIncludedFieldsSpecified(includedFields)) {
 			return fields;
 		} else {
 			Set<String> includedFieldNames = includedFields.getParams();
+
+			if (relation) {
+				// for relations consider both "include" and "fields"
+				TypedParams<IncludedRelationsParams> includedRelationsSet = queryAdapter.getIncludedRelations();
+				IncludedRelationsParams includedRelations = includedRelationsSet != null ? includedRelationsSet.getParams().get(resourceInformation.getResourceType()) : null;
+				if (includedRelations != null) {
+					includedFieldNames = new HashSet<>(includedFieldNames);
+					for (Inclusion include : includedRelations.getParams()) {
+						includedFieldNames.add(include.getPath());
+					}
+				}
+			}
 
 			List<ResourceField> results = new ArrayList<>();
 			for (ResourceField field : fields) {
@@ -91,9 +110,13 @@ public class DocumentMapperUtil {
 		return typeIncludedFields == null || typeIncludedFields.getParams().isEmpty();
 	}
 
+	@JsonInclude(Include.NON_EMPTY)
 	protected static class DefaultSelfRelatedLinksInformation implements SelfLinksInformation, RelatedLinksInformation {
 
+		@JsonInclude(Include.NON_EMPTY)
 		private String related;
+
+		@JsonInclude(Include.NON_EMPTY)
 		private String self;
 
 		@Override
@@ -120,6 +143,9 @@ public class DocumentMapperUtil {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static <T> List<T> toList(Object entity) {
+		if (entity == null) {
+			return null;
+		}
 		if (entity instanceof List) {
 			return (List) entity;
 		} else if (entity instanceof Iterable) {

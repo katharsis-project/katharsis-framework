@@ -7,8 +7,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import io.katharsis.queryParams.params.IncludedFieldsParams;
-import io.katharsis.queryParams.params.TypedParams;
+import io.katharsis.queryParams.include.Inclusion;
+import io.katharsis.queryParams.params.IncludedRelationsParams;
 import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.resource.Relationship;
 import io.katharsis.resource.Resource;
@@ -83,22 +83,19 @@ public class ResourceMapper {
 	}
 
 	private void setAttributes(Resource resource, Object entity, ResourceInformation resourceInformation, QueryAdapter queryAdapter) {
-		TypedParams<IncludedFieldsParams> queryIncludedFields = queryAdapter.getIncludedFields();
-
 		// fields parameter may further limit the number of fields
-		List<ResourceField> fields = DocumentMapperUtil.getRequestedFields(resourceInformation, queryIncludedFields, resourceInformation.getAttributeFields().getFields());
+		List<ResourceField> fields = DocumentMapperUtil.getRequestedFields(resourceInformation, queryAdapter, resourceInformation.getAttributeFields().getFields(), false);
 
 		// serialize the individual attributes
 		for (ResourceField field : fields) {
-			Object value = PropertyUtils.getProperty(resource, field.getUnderlyingName());
+			Object value = PropertyUtils.getProperty(entity, field.getUnderlyingName());
 			JsonNode valueNode = objectMapper.valueToTree(value);
 			resource.getAttributes().put(field.getJsonName(), valueNode);
 		}
 	}
 
 	private void setRelationships(Resource resource, Object entity, ResourceInformation resourceInformation, QueryAdapter queryAdapter) {
-		TypedParams<IncludedFieldsParams> queryIncludedFields = queryAdapter.getIncludedFields();
-		List<ResourceField> fields = DocumentMapperUtil.getRequestedFields(resourceInformation, queryIncludedFields, resourceInformation.getAttributeFields().getFields());
+		List<ResourceField> fields = DocumentMapperUtil.getRequestedFields(resourceInformation, queryAdapter, resourceInformation.getRelationshipFields(), true);
 		for (ResourceField field : fields) {
 			ObjectNode relationshipLinks = objectMapper.createObjectNode();
 			relationshipLinks.put(SELF_FIELD_NAME, util.getRelationshipLink(resourceInformation, entity, field, false));
@@ -108,15 +105,27 @@ public class ResourceMapper {
 			relationship.setLinks(relationshipLinks);
 			resource.getRelationships().put(field.getUnderlyingName(), relationship);
 
-			boolean includeData = getIncludeRelationshipData(field);
+			boolean includeData = getIncludeRelationshipData(resourceInformation, field, queryAdapter);
 			if (includeData) {
 				relationship.setData(getRelationshipData(entity, resourceInformation, field));
 			}
 		}
 	}
 
-	protected boolean getIncludeRelationshipData(ResourceField field) {
-		return field.getIncludeByDefault() || !field.isLazy();
+	protected boolean getIncludeRelationshipData(ResourceInformation resourceInformation, ResourceField field, QueryAdapter queryAdapter) {
+		if (field.getIncludeByDefault() || !field.isLazy()) {
+			return true;
+		}
+		String resourceType = resourceInformation.getResourceType();
+		IncludedRelationsParams includedRelationsParams = queryAdapter.getIncludedRelations() != null ? queryAdapter.getIncludedRelations().getParams().get(resourceType) : null;
+		if (includedRelationsParams != null) {
+			for (Inclusion inclusion : includedRelationsParams.getParams()) {
+				if (inclusion.getPath().equals(field.getJsonName())) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	private Object getRelationshipData(Object entity, ResourceInformation resourceInformation, ResourceField field) {

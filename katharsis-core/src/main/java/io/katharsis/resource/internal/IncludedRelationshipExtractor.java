@@ -1,6 +1,7 @@
 package io.katharsis.resource.internal;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,6 +72,7 @@ public class IncludedRelationshipExtractor {
 		}
 
 		ArrayList<Resource> included = new ArrayList<>(resourceMap.values());
+		Collections.sort((List<? extends ResourceId>)included);
 		LOGGER.debug("Extracted included resources {}", included.toString());
 		return included;
 	}

@@ -82,5 +82,7 @@ public class TaskRepository {
     }
 
     public static class MetaData implements MetaInformation {
+    	
+    	public String someValue;
     }
 }

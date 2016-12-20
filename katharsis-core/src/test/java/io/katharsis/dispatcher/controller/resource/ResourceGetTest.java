@@ -137,7 +137,7 @@ public class ResourceGetTest extends BaseControllerTest {
 
 		// GIVEN
 		Document newProjectBody = new Document();
-		newTaskBody.setData(createProject());
+		newProjectBody.setData(createProject());
 
 		JsonPath projectPath = pathBuilder.buildPath("/projects");
 
@@ -145,7 +145,7 @@ public class ResourceGetTest extends BaseControllerTest {
 		Response projectResponse = resourcePost.handle(projectPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newProjectBody);
 
 		// THEN
-		assertThat(projectResponse.getDocument().getSingleData()).isExactlyInstanceOf(Project.class);
+		assertThat(projectResponse.getDocument().getSingleData()).isExactlyInstanceOf(Resource.class);
 		assertThat(projectResponse.getDocument().getSingleData().getType()).isEqualTo("projects");
 		assertThat(projectResponse.getDocument().getSingleData().getId()).isNotNull();
 		assertThat(projectResponse.getDocument().getSingleData().getAttributes().get("name").asText()).isEqualTo("sample project");
@@ -185,7 +185,6 @@ public class ResourceGetTest extends BaseControllerTest {
 		Assert.assertNotNull(response);
 		assertThat(response.getDocument().getSingleData().getType()).isEqualTo("tasks");
 		assertThat(taskResponse.getDocument().getSingleData().getRelationships().get("project")).isNull();
-		;
 	}
 
 }

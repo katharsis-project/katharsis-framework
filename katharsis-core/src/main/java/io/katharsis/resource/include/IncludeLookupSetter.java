@@ -101,7 +101,6 @@ public class IncludeLookupSetter {
         return includedRelationsParams;
     }
 
-    @SuppressWarnings("rawtypes")
     private void setIncludedElements(ResourceInformation resourceInformation, Iterable<Resource> resources, List<String> pathList,
                                      QueryAdapter queryAdapter, RepositoryMethodParameterProvider parameterProvider) {
         if (!pathList.isEmpty()) {
@@ -135,18 +134,20 @@ public class IncludeLookupSetter {
      * @param resources
      * @param field
      */
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    private List filterResourcesForLookup(Iterable resources, ResourceField field) {
-        List results = new ArrayList();
-        for (Object resource : resources) {
+    private List<Resource> filterResourcesForLookup(Iterable<Resource> resources, ResourceField field) {
+        List<Resource> results = new ArrayList<>();
+        for (Resource resource : resources) {
             if (resource == null) {
                 continue;
             }
-            Object property = PropertyUtils.getProperty(resource, field.getUnderlyingName());
+            
+            Relationship relationship = resource.getRelationships().get(field.getUnderlyingName());
+            Object relationshipData = relationship != null ? relationship.getData() : null;
+            
             LookupIncludeBehavior lookupIncludeBehavior = field.getLookupIncludeAutomatically();
             //attempt to load relationship if it's null or JsonApiLookupIncludeAutomatically.overwrite() == true
             if ((lookupIncludeBehavior == LookupIncludeBehavior.AUTOMATICALLY_ALWAYS || this.lookupIncludeBehavior == LookupIncludeBehavior.AUTOMATICALLY_ALWAYS)
-                    || (property == null && ((lookupIncludeBehavior == LookupIncludeBehavior.AUTOMATICALLY_WHEN_NULL) || this.lookupIncludeBehavior == LookupIncludeBehavior.AUTOMATICALLY_WHEN_NULL))) {
+                    || (relationshipData == null && ((lookupIncludeBehavior == LookupIncludeBehavior.AUTOMATICALLY_WHEN_NULL) || this.lookupIncludeBehavior == LookupIncludeBehavior.AUTOMATICALLY_WHEN_NULL))) {
                 results.add(resource);
             }
         }
@@ -164,7 +165,7 @@ public class IncludeLookupSetter {
      */
     private Set<Resource> loadRelationships(ResourceInformation resourceInformation, List<Resource> resources, ResourceField relationshipField,
                                   QueryAdapter queryAdapter, RepositoryMethodParameterProvider parameterProvider) {
-        RegistryEntry rootEntry = resourceRegistry.getEntry(resourceInformation.getResourceType());
+        RegistryEntry<?> rootEntry = resourceRegistry.getEntry(resourceInformation.getResourceType());
 
         List<Serializable> resourceIds = getIds(resources, resourceInformation);
 
