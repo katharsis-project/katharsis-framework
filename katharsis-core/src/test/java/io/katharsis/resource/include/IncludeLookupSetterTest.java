@@ -162,7 +162,7 @@ public class IncludeLookupSetterTest {
 		List<ResourceId> relationshipData = relationship.getCollectionData();
 		Assert.assertNotNull(relationshipData.get(0).getId());
 
-		List<Resource> includes = doc.getIncludes();
+		List<Resource> includes = doc.getIncluded();
 		Assert.assertEquals(1, includes);
 		Resource includedResource = includes.get(0);
 		Assert.assertEquals("project", includedResource.getType());
@@ -189,7 +189,7 @@ public class IncludeLookupSetterTest {
 		List<ResourceId> relationshipData = relationship.getCollectionData();
 		Assert.assertNotNull(relationshipData.get(0).getId());
 
-		List<Resource> includes = doc.getIncludes();
+		List<Resource> includes = doc.getIncluded();
 		Assert.assertEquals(2, includes);
 
 		// FIXME more checks

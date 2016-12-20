@@ -47,13 +47,13 @@ public class CollectionGet extends ResourceIncludeField {
         Document responseDocument;
         ResourceRepositoryAdapter resourceRepository = registryEntry.getResourceRepository(parameterProvider);
         if (jsonPath.getIds() == null || jsonPath.getIds().getIds().isEmpty()) {
-            responseDocument = documentMapper.toDocument(resourceRepository.findAll(queryAdapter));
+            responseDocument = documentMapper.toDocument(resourceRepository.findAll(queryAdapter), queryAdapter);
         } else {
             Class<? extends Serializable> idType = (Class<? extends Serializable>)registryEntry
                 .getResourceInformation().getIdField().getType();
             Iterable<? extends Serializable> parsedIds = typeParser.parse((Iterable<String>) jsonPath.getIds().getIds(),
                 idType);
-            responseDocument = documentMapper.toDocument(resourceRepository.findAll(parsedIds, queryAdapter));
+            responseDocument = documentMapper.toDocument(resourceRepository.findAll(parsedIds, queryAdapter), queryAdapter);
         }
         includeFieldSetter.setIncludedElements(resourceName, responseDocument, queryAdapter, parameterProvider);
 

@@ -4,19 +4,19 @@ import java.util.List;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import io.katharsis.resource.internal.RelationshipDataDeserializer;
 
-public class Relationship {
+public class Relationship implements MetaContainer, LinksContainer {
 
 	@JsonDeserialize(using = RelationshipDataDeserializer.class)
 	private Object data;
 
-	private JsonNode links;
+	private ObjectNode links;
 
-	private JsonNode meta;
+	private ObjectNode meta;
 
 	public Relationship() {
 	}
@@ -29,19 +29,23 @@ public class Relationship {
 		this.data = resourceIds;
 	}
 
-	public JsonNode getLinks() {
+	@Override
+	public ObjectNode getLinks() {
 		return links;
 	}
 
-	public void setLinks(JsonNode links) {
+	@Override
+	public void setLinks(ObjectNode links) {
 		this.links = links;
 	}
 
-	public JsonNode getMeta() {
+	@Override
+	public ObjectNode getMeta() {
 		return meta;
 	}
 
-	public void setMeta(JsonNode meta) {
+	@Override
+	public void setMeta(ObjectNode meta) {
 		this.meta = meta;
 	}
 

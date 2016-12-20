@@ -190,7 +190,7 @@ public class IncludeLookupSetter {
                 JsonApiResponse response = responseMap.get(id);
                 if (response != null) {
                     // set the relation
-                	Document document = documentMapper.toDocument(response);
+                	Document document = documentMapper.toDocument(response, queryAdapter);
 
                 	String relationshipName = relationshipField.getJsonName();
                 	Map<String, Relationship> relationships = resource.getRelationships();

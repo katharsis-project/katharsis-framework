@@ -7,13 +7,14 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * “Resource objects” appear in a JSON API document to represent resources.
  * <p/>
  * http://jsonapi.org/format/#document-resource-objects
  */
-public class Resource extends ResourceId {
+public class Resource extends ResourceId implements MetaContainer, LinksContainer {
 
 	@JsonInclude(Include.NON_EMPTY)
 	private Map<String, JsonNode> attributes = new HashMap<>();
@@ -22,24 +23,28 @@ public class Resource extends ResourceId {
 	private Map<String, Relationship> relationships = new HashMap<>();
 
 	@JsonInclude(Include.NON_EMPTY)
-	private Map<String, JsonNode> links = new HashMap<>();
+	private ObjectNode links;
 
 	@JsonInclude(Include.NON_EMPTY)
-	private Map<String, JsonNode> meta = new HashMap<>();
+	private ObjectNode meta;
 
-	public Map<String, JsonNode> getLinks() {
+	@Override
+	public ObjectNode getLinks() {
 		return links;
 	}
 
-	public void setLinks(Map<String, JsonNode> links) {
+	@Override
+	public void setLinks(ObjectNode links) {
 		this.links = links;
 	}
 
-	public Map<String, JsonNode> getMeta() {
+	@Override
+	public ObjectNode getMeta() {
 		return meta;
 	}
 
-	public void setMeta(Map<String, JsonNode> meta) {
+	@Override
+	public void setMeta(ObjectNode meta) {
 		this.meta = meta;
 	}
 
@@ -73,8 +78,11 @@ public class Resource extends ResourceId {
 		if (!(obj instanceof Resource))
 			return false;
 		Resource other = (Resource) obj;
-		return Objects.equals(attributes, other.attributes) && Objects.equals(relationships, other.relationships)
-				&& Objects.equals(meta, other.meta) && Objects.equals(links, other.links);
+		return Objects.equals(attributes, other.attributes) && Objects.equals(relationships, other.relationships) && Objects.equals(meta, other.meta) && Objects.equals(links, other.links);
+	}
+
+	public ResourceId toIdentifier() {
+		return new ResourceId(getId(), getType());
 	}
 
 }

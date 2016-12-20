@@ -82,7 +82,7 @@ public class FieldResourcePost extends ResourceUpsert {
         Object resource = buildNewResource(relationshipRegistryEntry, dataBody, relationshipResourceType);
         setAttributes(dataBody, resource, relationshipRegistryEntry.getResourceInformation());
         ResourceRepositoryAdapter resourceRepository = relationshipRegistryEntry.getResourceRepository(parameterProvider);
-        Document savedResourceResponse = documentMapper.toDocument(resourceRepository.create(resource, queryAdapter));
+        Document savedResourceResponse = documentMapper.toDocument(resourceRepository.create(resource, queryAdapter), queryAdapter);
         saveRelations(queryAdapter, extractResource(savedResourceResponse), relationshipRegistryEntry, dataBody, parameterProvider);
 
         Serializable resourceId = (Serializable) PropertyUtils

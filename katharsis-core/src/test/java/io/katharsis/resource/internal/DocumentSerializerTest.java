@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import io.katharsis.errorhandling.ErrorData;
 import io.katharsis.jackson.JsonApiModuleBuilder;
@@ -42,12 +43,9 @@ public class DocumentSerializerTest {
 
 	@Before
 	public void setup() {
-		ResourceInformationBuilder resourceInformationBuilder = new AnnotationResourceInformationBuilder(
-				new ResourceFieldNameTransformer());
-		ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonServiceLocator(),
-				resourceInformationBuilder);
-		ResourceRegistry resourceRegistry = registryBuilder.build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE,
-				new ModuleRegistry(), new ConstantServiceUrlProvider(ResourceRegistryTest.TEST_MODELS_URL));
+		ResourceInformationBuilder resourceInformationBuilder = new AnnotationResourceInformationBuilder(new ResourceFieldNameTransformer());
+		ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonServiceLocator(), resourceInformationBuilder);
+		ResourceRegistry resourceRegistry = registryBuilder.build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, new ModuleRegistry(), new ConstantServiceUrlProvider(ResourceRegistryTest.TEST_MODELS_URL));
 
 		objectMapper = new ObjectMapper();
 		objectMapper.registerModule(new JsonApiModuleBuilder().build(resourceRegistry, false));
@@ -89,8 +87,8 @@ public class DocumentSerializerTest {
 	@Test
 	public void testInformation() throws JsonProcessingException, IOException {
 		Document doc = new Document();
-		doc.setMeta(objectMapper.readTree("{\"metaName\" : \"metaValue\"}"));
-		doc.setLinks(objectMapper.readTree("{\"linkName\" : \"linkValue\"}"));
+		doc.setMeta((ObjectNode) objectMapper.readTree("{\"metaName\" : \"metaValue\"}"));
+		doc.setLinks((ObjectNode) objectMapper.readTree("{\"linkName\" : \"linkValue\"}"));
 
 		String json = writer.writeValueAsString(doc);
 
@@ -138,8 +136,8 @@ public class DocumentSerializerTest {
 		resource.setType("tasks");
 		Relationship relationship = new Relationship();
 		relationship.setData(new ResourceId("3", "projects"));
-		relationship.setMeta(objectMapper.readTree("{\"metaName\" : \"metaValue\"}"));
-		relationship.setLinks(objectMapper.readTree("{\"linkName\" : \"linkValue\"}"));
+		relationship.setMeta((ObjectNode) objectMapper.readTree("{\"metaName\" : \"metaValue\"}"));
+		relationship.setLinks((ObjectNode) objectMapper.readTree("{\"linkName\" : \"linkValue\"}"));
 		resource.getRelationships().put("project", relationship);
 		doc.setData(resource);
 
@@ -172,8 +170,8 @@ public class DocumentSerializerTest {
 	public void testMultiValuedRelationship() throws JsonProcessingException, IOException {
 		Relationship relationship = new Relationship();
 		relationship.setData(Arrays.asList(new ResourceId("3", "projects"), new ResourceId("4", "projects")));
-		relationship.setMeta(objectMapper.readTree("{\"metaName\" : \"metaValue\"}"));
-		relationship.setLinks(objectMapper.readTree("{\"linkName\" : \"linkValue\"}"));
+		relationship.setMeta((ObjectNode) objectMapper.readTree("{\"metaName\" : \"metaValue\"}"));
+		relationship.setLinks((ObjectNode) objectMapper.readTree("{\"linkName\" : \"linkValue\"}"));
 
 		String json = writer.writeValueAsString(relationship);
 
@@ -254,7 +252,7 @@ public class DocumentSerializerTest {
 		resource2.setType("tasks");
 		resource2.setAttribute("name", objectMapper.readTree("\"sample task2\""));
 
-		doc.setIncludes(Arrays.asList(resource1, resource2));
+		doc.setIncluded(Arrays.asList(resource1, resource2));
 
 		String json = writer.writeValueAsString(doc);
 

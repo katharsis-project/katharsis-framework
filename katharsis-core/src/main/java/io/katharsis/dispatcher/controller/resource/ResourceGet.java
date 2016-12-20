@@ -56,7 +56,7 @@ public class ResourceGet extends ResourceIncludeField {
 		Serializable castedId = typeParser.parse(id, idClass);
 		ResourceRepositoryAdapter resourceRepository = registryEntry.getResourceRepository(parameterProvider);
 		@SuppressWarnings("unchecked")
-		Document responseDocument = documentMapper.toDocument(resourceRepository.findOne(castedId, queryAdapter));
+		Document responseDocument = documentMapper.toDocument(resourceRepository.findOne(castedId, queryAdapter), queryAdapter);
 		includeFieldSetter.setIncludedElements(resourceName, responseDocument, queryAdapter, parameterProvider);
 
 		return new Response(responseDocument, 200);

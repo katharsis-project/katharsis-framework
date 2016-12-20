@@ -7,43 +7,47 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import io.katharsis.errorhandling.ErrorData;
 import io.katharsis.resource.internal.DocumentDataDeserializer;
 
-public class Document {
+public class Document implements MetaContainer, LinksContainer {
 
 	@JsonInclude(Include.NON_EMPTY)
 	@JsonDeserialize(using = DocumentDataDeserializer.class)
 	private Object data;
 
 	@JsonInclude(Include.NON_EMPTY)
-	private List<Resource> includes;
+	private List<Resource> included;
 
 	@JsonInclude(Include.NON_EMPTY)
-	private JsonNode links;
+	private ObjectNode links;
 
 	@JsonInclude(Include.NON_EMPTY)
-	private JsonNode meta;
+	private ObjectNode meta;
 
 	@JsonInclude(Include.NON_EMPTY)
 	private List<ErrorData> errors;
 
-	public JsonNode getLinks() {
+	@Override
+	public ObjectNode getLinks() {
 		return links;
 	}
 
-	public void setLinks(JsonNode links) {
+	@Override
+	public void setLinks(ObjectNode links) {
 		this.links = links;
 	}
 
-	public JsonNode getMeta() {
+	@Override
+	public ObjectNode getMeta() {
 		return meta;
 	}
 
-	public void setMeta(JsonNode meta) {
+	@Override
+	public void setMeta(ObjectNode meta) {
 		this.meta = meta;
 	}
 
@@ -55,12 +59,12 @@ public class Document {
 		this.data = data;
 	}
 
-	public List<Resource> getIncludes() {
-		return includes;
+	public List<Resource> getIncluded() {
+		return included;
 	}
 
-	public void setIncludes(List<Resource> includes) {
-		this.includes = includes;
+	public void setIncluded(List<Resource> includes) {
+		this.included = includes;
 	}
 
 	public List<ErrorData> getErrors() {
@@ -83,7 +87,7 @@ public class Document {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(data, errors, includes, links, meta);
+		return Objects.hash(data, errors, included, links, meta);
 	}
 
 	@Override
@@ -92,7 +96,6 @@ public class Document {
 			return false;
 		Document other = (Document) obj;
 		return Objects.equals(data, other.data) && Objects.equals(errors, other.errors) // NOSONAR
-				&& Objects.equals(includes, other.includes) && Objects.equals(meta, other.meta)
-				&& Objects.equals(links, other.links);
+				&& Objects.equals(included, other.included) && Objects.equals(meta, other.meta) && Objects.equals(links, other.links);
 	}
 }

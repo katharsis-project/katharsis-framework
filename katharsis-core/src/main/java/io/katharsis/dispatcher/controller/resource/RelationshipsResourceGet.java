@@ -58,11 +58,11 @@ public class RelationshipsResourceGet extends ResourceIncludeField {
         Document responseDocument;
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
             responseDocument = documentMapper.toDocument(relationshipRepositoryForClass
-                    .findManyTargets(castedResourceId, elementName, queryAdapter));
+                    .findManyTargets(castedResourceId, elementName, queryAdapter), queryAdapter);
             includeFieldSetter.setIncludedElements(resourceName, responseDocument, queryAdapter, parameterProvider);
         } else {
             responseDocument = documentMapper.toDocument(relationshipRepositoryForClass
-                    .findOneTarget(castedResourceId, elementName, queryAdapter));
+                    .findOneTarget(castedResourceId, elementName, queryAdapter), queryAdapter);
             includeFieldSetter.setIncludedElements(resourceName, responseDocument, queryAdapter, parameterProvider);
         }
         
