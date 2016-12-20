@@ -217,7 +217,7 @@ public class ResourcePatchTest extends BaseControllerTest {
         JsonPath complexPojoPath = pathBuilder.buildPath("/complexpojos/1");
 
         // WHEN
-        ResourceGet resourceGet = new ResourceGet(resourceRegistry, typeParser, includeFieldSetter);
+        ResourceGet resourceGet = new ResourceGet(resourceRegistry, objectMapper, typeParser, includeFieldSetter);
         Response complexPojoResponse = resourceGet.handle(complexPojoPath, new QueryParamsAdapter(REQUEST_PARAMS), null, null);
         assertThat(complexPojoResponse.getDocument().getSingleData().getType()).isEqualTo("complexpojos");
         Long complexPojoId = Long.parseLong(complexPojoResponse.getDocument().getSingleData().getId());

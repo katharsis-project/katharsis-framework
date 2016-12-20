@@ -2,6 +2,8 @@ package io.katharsis.dispatcher.controller.collection;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.dispatcher.controller.Response;
 import io.katharsis.dispatcher.controller.resource.ResourceIncludeField;
@@ -19,8 +21,8 @@ import io.katharsis.utils.parser.TypeParser;
 
 public class CollectionGet extends ResourceIncludeField {
 
-    public CollectionGet(ResourceRegistry resourceRegistry, TypeParser typeParser, IncludeLookupSetter fieldSetter) {
-        super(resourceRegistry, typeParser, fieldSetter);
+	public CollectionGet(ResourceRegistry resourceRegistry, ObjectMapper objectMapper, TypeParser typeParser, IncludeLookupSetter fieldSetter) {
+        super(resourceRegistry, objectMapper, typeParser, fieldSetter);
     }
 
     /**
@@ -45,13 +47,13 @@ public class CollectionGet extends ResourceIncludeField {
         Document responseDocument;
         ResourceRepositoryAdapter resourceRepository = registryEntry.getResourceRepository(parameterProvider);
         if (jsonPath.getIds() == null || jsonPath.getIds().getIds().isEmpty()) {
-            responseDocument = toDocument(resourceRepository.findAll(queryAdapter));
+            responseDocument = documentMapper.toDocument(resourceRepository.findAll(queryAdapter));
         } else {
             Class<? extends Serializable> idType = (Class<? extends Serializable>)registryEntry
                 .getResourceInformation().getIdField().getType();
             Iterable<? extends Serializable> parsedIds = typeParser.parse((Iterable<String>) jsonPath.getIds().getIds(),
                 idType);
-            responseDocument = toDocument(resourceRepository.findAll(parsedIds, queryAdapter));
+            responseDocument = documentMapper.toDocument(resourceRepository.findAll(parsedIds, queryAdapter));
         }
         includeFieldSetter.setIncludedElements(resourceName, responseDocument, queryAdapter, parameterProvider);
 

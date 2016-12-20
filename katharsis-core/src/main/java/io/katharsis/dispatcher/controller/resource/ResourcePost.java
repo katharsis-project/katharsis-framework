@@ -67,7 +67,7 @@ public class ResourcePost extends ResourceUpsert {
         setAttributes(resourceBody, newResource, bodyRegistryEntry.getResourceInformation());
         ResourceRepositoryAdapter resourceRepository = endpointRegistryEntry.getResourceRepository(parameterProvider);
         setRelations(newResource, bodyRegistryEntry, resourceBody, queryAdapter, parameterProvider);
-        Document responseDocument = toDocument(resourceRepository.create(newResource, queryAdapter));
+        Document responseDocument = documentMapper.toDocument(resourceRepository.create(newResource, queryAdapter));
 
         return new Response(responseDocument, HttpStatus.CREATED_201);
     }

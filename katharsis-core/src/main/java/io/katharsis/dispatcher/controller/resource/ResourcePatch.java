@@ -75,7 +75,7 @@ public class ResourcePatch extends ResourceUpsert {
         ResourceRepositoryAdapter resourceRepository = endpointRegistryEntry.getResourceRepository(parameterProvider);
         JsonApiResponse resourceFindResponse = resourceRepository.findOne(resourceId, queryAdapter);
         Object resource = extractResource(resourceFindResponse);
-        Resource resourceFindData = (Resource) toDocument(resourceFindResponse).getData();
+        Resource resourceFindData = (Resource) documentMapper.toDocument(resourceFindResponse).getData();
 
         String attributesFromFindOne = null;
 
@@ -111,7 +111,7 @@ public class ResourcePatch extends ResourceUpsert {
 
         setAttributes(resourceBody, resource, bodyRegistryEntry.getResourceInformation());
         setRelations(resource, bodyRegistryEntry, resourceBody, queryAdapter, parameterProvider);
-        Document responseDocument = toDocument(resourceRepository.update(resource, queryAdapter));
+        Document responseDocument = documentMapper.toDocument(resourceRepository.update(resource, queryAdapter));
 
         return new Response(responseDocument, 200);
     }

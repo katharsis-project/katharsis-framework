@@ -18,7 +18,6 @@ import io.katharsis.client.http.okhttp.OkHttpAdapter;
 import io.katharsis.client.internal.BaseResponseDeserializer;
 import io.katharsis.client.internal.ClientJsonApiModuleBuilder;
 import io.katharsis.client.internal.ClientStubInvocationHandler;
-import io.katharsis.client.internal.ErrorResponseDeserializer;
 import io.katharsis.client.internal.RelationshipRepositoryStubImpl;
 import io.katharsis.client.internal.ResourceRepositoryStubImpl;
 import io.katharsis.client.internal.core.BaseResponseContext;
@@ -31,6 +30,7 @@ import io.katharsis.errorhandling.ErrorResponse;
 import io.katharsis.errorhandling.mapper.ExceptionMapperLookup;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryBuilder;
+import io.katharsis.jackson.serializer.ErrorDataDeserializer;
 import io.katharsis.module.Module;
 import io.katharsis.module.ModuleRegistry;
 import io.katharsis.queryspec.QuerySpecRelationshipRepository;
@@ -110,7 +110,7 @@ public class KatharsisClient {
 		deserializer = new BaseResponseDeserializer(resourceRegistry, objectMapper);
 
 		jsonApiModule.addDeserializer(BaseResponseContext.class, deserializer);
-		jsonApiModule.addDeserializer(ErrorResponse.class, new ErrorResponseDeserializer());
+		jsonApiModule.addDeserializer(ErrorResponse.class, new ErrorDataDeserializer());
 		objectMapper.registerModule(jsonApiModule);
 
 		setProxyFactory(new BasicProxyFactory());

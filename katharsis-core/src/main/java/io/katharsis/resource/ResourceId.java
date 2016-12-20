@@ -2,6 +2,7 @@ package io.katharsis.resource;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class ResourceId {
 
@@ -34,23 +35,37 @@ public class ResourceId {
 	}
 
 	@Override
-	public ResourceId clone(){
+	public ResourceId clone() {
 		return new ResourceId(id, type);
 	}
-	
+
 	public static Object fromData(Object data) {
 		if (data == null) {
 			return null;
 		}
 		if (data instanceof Iterable) {
 			List<ResourceId> result = new ArrayList<>();
-			for(ResourceId id : (Iterable<ResourceId>) data){
+			for (ResourceId id : (Iterable<ResourceId>) data) {
 				result.add(id.clone());
 			}
 			return result;
-		} else {
+		}
+		else {
 			ResourceId id = (ResourceId) data;
 			return id.clone();
 		}
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id, type);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof ResourceId))
+			return false;
+		ResourceId other = (ResourceId) obj;
+		return Objects.equals(id, other.id) && Objects.equals(type, other.type);
 	}
 }

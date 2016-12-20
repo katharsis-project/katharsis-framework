@@ -35,7 +35,7 @@ public class CollectionGetTest extends BaseControllerTest {
 	public void onGivenRequestCollectionGetShouldAcceptIt() {
 		// GIVEN
 		JsonPath jsonPath = pathBuilder.build("/tasks/");
-		CollectionGet sut = new CollectionGet(resourceRegistry, typeParser, includeFieldSetter);
+		CollectionGet sut = new CollectionGet(resourceRegistry, objectMapper, typeParser, includeFieldSetter);
 
 		// WHEN
 		boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -48,7 +48,7 @@ public class CollectionGetTest extends BaseControllerTest {
 	public void onGivenRequestCollectionGetShouldDenyIt() {
 		// GIVEN
 		JsonPath jsonPath = pathBuilder.build("/tasks/2");
-		CollectionGet sut = new CollectionGet(resourceRegistry, typeParser, includeFieldSetter);
+		CollectionGet sut = new CollectionGet(resourceRegistry, objectMapper, typeParser, includeFieldSetter);
 
 		// WHEN
 		boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -62,7 +62,7 @@ public class CollectionGetTest extends BaseControllerTest {
 		// GIVEN
 
 		JsonPath jsonPath = pathBuilder.build("/tasks/");
-		CollectionGet sut = new CollectionGet(resourceRegistry, typeParser, includeFieldSetter);
+		CollectionGet sut = new CollectionGet(resourceRegistry, objectMapper, typeParser, includeFieldSetter);
 
 		// WHEN
 		Response response = sut.handle(jsonPath, new QueryParamsAdapter(new QueryParams()), null, null);
@@ -76,7 +76,7 @@ public class CollectionGetTest extends BaseControllerTest {
 		// GIVEN
 
 		JsonPath jsonPath = pathBuilder.build("/tasks/1,2");
-		CollectionGet sut = new CollectionGet(resourceRegistry, typeParser, includeFieldSetter);
+		CollectionGet sut = new CollectionGet(resourceRegistry, objectMapper, typeParser, includeFieldSetter);
 
 		// WHEN
 		Response response = sut.handle(jsonPath, new QueryParamsAdapter(new QueryParams()), null, null);
@@ -170,7 +170,7 @@ public class CollectionGetTest extends BaseControllerTest {
 
 		//Given
 		JsonPath jsonPath = pathBuilder.build("/tasks/" + taskId);
-		ResourceGet responseGetResp = new ResourceGet(resourceRegistry, typeParser, includeFieldSetter);
+		ResourceGet responseGetResp = new ResourceGet(resourceRegistry, objectMapper, typeParser, includeFieldSetter);
 		Map<String, Set<String>> queryParams = new HashMap<>();
 		queryParams.put(RestrictedQueryParamsMembers.include.name() + "[tasks]", Collections.singleton("includedProjects"));
 		QueryParams queryParams1 = new QueryParamsBuilder(new DefaultQueryParamsParser()).buildQueryParams(queryParams);
@@ -254,7 +254,7 @@ public class CollectionGetTest extends BaseControllerTest {
 
 		//Given
 		JsonPath jsonPath = pathBuilder.build("/tasks/" + taskId);
-		ResourceGet responseGetResp = new ResourceGet(resourceRegistry, typeParser, includeFieldSetter);
+		ResourceGet responseGetResp = new ResourceGet(resourceRegistry, objectMapper, typeParser, includeFieldSetter);
 		Map<String, Set<String>> queryParams = new HashMap<>();
 		queryParams.put(RestrictedQueryParamsMembers.include.name() + "[tasks]", Collections.singleton("[\"projects\"]"));
 		QueryParams requestParams = new QueryParamsBuilder(new DefaultQueryParamsParser()).buildQueryParams(queryParams);

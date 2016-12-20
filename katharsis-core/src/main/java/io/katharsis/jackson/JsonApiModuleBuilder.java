@@ -3,6 +3,8 @@ package io.katharsis.jackson;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
+import io.katharsis.errorhandling.ErrorData;
+import io.katharsis.jackson.serializer.ErrorDataDeserializer;
 import io.katharsis.jackson.serializer.ErrorDataSerializer;
 import io.katharsis.resource.registry.ResourceRegistry;
 
@@ -25,6 +27,7 @@ public class JsonApiModuleBuilder {
                 new Version(1, 0, 0, null, null, null));
 
         simpleModule.addSerializer(new ErrorDataSerializer());
+        simpleModule.addDeserializer(ErrorData.class, new ErrorDataDeserializer());
 
         return simpleModule;
     }

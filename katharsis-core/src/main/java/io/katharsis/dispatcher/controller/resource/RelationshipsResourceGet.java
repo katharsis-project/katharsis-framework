@@ -2,6 +2,8 @@ package io.katharsis.dispatcher.controller.resource;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.dispatcher.controller.Response;
 import io.katharsis.queryspec.internal.QueryAdapter;
@@ -21,8 +23,8 @@ import io.katharsis.utils.parser.TypeParser;
 
 public class RelationshipsResourceGet extends ResourceIncludeField {
 
-    public RelationshipsResourceGet(ResourceRegistry resourceRegistry, TypeParser typeParser, IncludeLookupSetter fieldSetter) {
-        super(resourceRegistry, typeParser, fieldSetter);
+    public RelationshipsResourceGet(ResourceRegistry resourceRegistry, ObjectMapper objectMapper, TypeParser typeParser, IncludeLookupSetter fieldSetter) {
+        super(resourceRegistry, objectMapper, typeParser, fieldSetter);
     }
 
     @Override
@@ -55,11 +57,11 @@ public class RelationshipsResourceGet extends ResourceIncludeField {
                 .getRelationshipRepositoryForClass(relationshipFieldClass, parameterProvider);
         Document responseDocument;
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
-            responseDocument = toDocument(relationshipRepositoryForClass
+            responseDocument = documentMapper.toDocument(relationshipRepositoryForClass
                     .findManyTargets(castedResourceId, elementName, queryAdapter));
             includeFieldSetter.setIncludedElements(resourceName, responseDocument, queryAdapter, parameterProvider);
         } else {
-            responseDocument = toDocument(relationshipRepositoryForClass
+            responseDocument = documentMapper.toDocument(relationshipRepositoryForClass
                     .findOneTarget(castedResourceId, elementName, queryAdapter));
             includeFieldSetter.setIncludedElements(resourceName, responseDocument, queryAdapter, parameterProvider);
         }

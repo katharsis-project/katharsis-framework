@@ -15,7 +15,7 @@ import io.katharsis.response.JsonApiResponse;
  * true, the matched controller is used to handle the request.
  */
 public abstract class BaseController {
-
+	
     /**
      * Checks if requested resource method is acceptable.
      *
@@ -57,9 +57,4 @@ public abstract class BaseController {
             return responseOrResource;
         }
     }
-    
-    // FIXME
-	protected Document toDocument(JsonApiResponse response) {
-		return null;
-	}
 }

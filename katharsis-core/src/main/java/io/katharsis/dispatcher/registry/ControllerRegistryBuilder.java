@@ -1,15 +1,17 @@
 package io.katharsis.dispatcher.registry;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.errorhandling.mapper.DefaultExceptionMapperLookup;
 import io.katharsis.internal.boot.PropertiesProvider;
 import io.katharsis.resource.include.IncludeLookupSetter;
+import io.katharsis.resource.internal.DocumentMapper;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.utils.parser.TypeParser;
-
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * A builder class which holds all of the Katharsis controllers, which must be placed in
@@ -29,7 +31,7 @@ public class ControllerRegistryBuilder {
         this.typeParser = typeParser;
         this.objectMapper = objectMapper;
         this.propertiesProvider = propertiesProvider;
-        this.includeFieldSetter = new IncludeLookupSetter(resourceRegistry, propertiesProvider);
+        this.includeFieldSetter = new IncludeLookupSetter(resourceRegistry, new DocumentMapper(resourceRegistry, objectMapper), propertiesProvider);
     }
 
     /**

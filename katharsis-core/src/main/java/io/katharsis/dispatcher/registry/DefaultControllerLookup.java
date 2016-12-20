@@ -44,10 +44,10 @@ public class DefaultControllerLookup implements ControllerLookup {
         controllers.add(new RelationshipsResourcePatch(resourceRegistry, typeParser));
         controllers.add(new RelationshipsResourcePost(resourceRegistry, typeParser));
         controllers.add(new ResourceDelete(resourceRegistry, typeParser));
-        controllers.add(new CollectionGet(resourceRegistry, typeParser, includeFieldSetter));
-        controllers.add(new FieldResourceGet(resourceRegistry, typeParser, includeFieldSetter));
-        controllers.add(new RelationshipsResourceGet(resourceRegistry, typeParser, includeFieldSetter));
-        controllers.add(new ResourceGet(resourceRegistry, typeParser, includeFieldSetter));
+        controllers.add(new CollectionGet(resourceRegistry, objectMapper, typeParser, includeFieldSetter));
+        controllers.add(new FieldResourceGet(resourceRegistry, objectMapper, typeParser, includeFieldSetter));
+        controllers.add(new RelationshipsResourceGet(resourceRegistry, objectMapper, typeParser, includeFieldSetter));
+        controllers.add(new ResourceGet(resourceRegistry, objectMapper, typeParser, includeFieldSetter));
         controllers.add(new FieldResourcePost(resourceRegistry, typeParser, objectMapper));
         controllers.add(new ResourcePatch(resourceRegistry, typeParser, objectMapper));
         controllers.add(new ResourcePost(resourceRegistry, typeParser, objectMapper));

@@ -43,7 +43,7 @@ public class ResourceGetTest extends BaseControllerTest {
 	public void onGivenRequestCollectionGetShouldDenyIt() {
 		// GIVEN
 		JsonPath jsonPath = pathBuilder.build("/tasks/");
-		ResourceGet sut = new ResourceGet(resourceRegistry, typeParser, includeFieldSetter);
+		ResourceGet sut = new ResourceGet(resourceRegistry, objectMapper, typeParser, includeFieldSetter);
 
 		// WHEN
 		boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -56,7 +56,7 @@ public class ResourceGetTest extends BaseControllerTest {
 	public void onGivenRequestResourceGetShouldAcceptIt() {
 		// GIVEN
 		JsonPath jsonPath = pathBuilder.build("/tasks/2");
-		ResourceGet sut = new ResourceGet(resourceRegistry, typeParser, includeFieldSetter);
+		ResourceGet sut = new ResourceGet(resourceRegistry, objectMapper, typeParser, includeFieldSetter);
 
 		// WHEN
 		boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -83,7 +83,7 @@ public class ResourceGetTest extends BaseControllerTest {
 
 		// GIVEN
 		JsonPath jsonPath = pathBuilder.buildPath("/tasks/" + taskId);
-		ResourceGet sut = new ResourceGet(resourceRegistry, typeParser, includeFieldSetter);
+		ResourceGet sut = new ResourceGet(resourceRegistry, objectMapper, typeParser, includeFieldSetter);
 
 		// WHEN
 		Response response = sut.handle(jsonPath, new QueryParamsAdapter(REQUEST_PARAMS), null, null);
@@ -96,7 +96,7 @@ public class ResourceGetTest extends BaseControllerTest {
 	public void onGivenRequestResourceShouldLoadAutoIncludeFields() throws Exception {
 		// GIVEN
 		JsonPath jsonPath = pathBuilder.buildPath("/task-with-lookup/1");
-		ResourceGet responseGetResp = new ResourceGet(resourceRegistry, typeParser, includeFieldSetter);
+		ResourceGet responseGetResp = new ResourceGet(resourceRegistry, objectMapper, typeParser, includeFieldSetter);
 		Map<String, Set<String>> queryParams = new HashMap<>();
 		queryParams.put(RestrictedQueryParamsMembers.include.name() + "[task-with-lookup]", new HashSet<>(Arrays.asList("project", "projectNull", "projectOverridden", "projectOverriddenNull")));
 		QueryParams queryParamsObject = new QueryParamsBuilder(new DefaultQueryParamsParser()).buildQueryParams(queryParams);
@@ -173,7 +173,7 @@ public class ResourceGetTest extends BaseControllerTest {
 
 		// Given
 		JsonPath jsonPath = pathBuilder.buildPath("/tasks/" + TASK_ID);
-		ResourceGet responseGetResp = new ResourceGet(resourceRegistry, typeParser, includeFieldSetter);
+		ResourceGet responseGetResp = new ResourceGet(resourceRegistry, objectMapper, typeParser, includeFieldSetter);
 		Map<String, Set<String>> queryParams = new HashMap<>();
 		queryParams.put(RestrictedQueryParamsMembers.include.name() + "[tasks]", Collections.singleton("[\"project\"]"));
 		QueryParams requestParams = new QueryParamsBuilder(new DefaultQueryParamsParser()).buildQueryParams(queryParams);

@@ -27,6 +27,7 @@ import io.katharsis.resource.ResourceId;
 import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.field.ResourceField.LookupIncludeBehavior;
 import io.katharsis.resource.information.ResourceInformation;
+import io.katharsis.resource.internal.DocumentMapper;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.repository.adapter.RelationshipRepositoryAdapter;
@@ -41,7 +42,10 @@ public class IncludeLookupSetter {
     private final PropertiesProvider propertiesProvider;
     private final LookupIncludeBehavior lookupIncludeBehavior;
 
-    public IncludeLookupSetter(ResourceRegistry resourceRegistry, PropertiesProvider propertiesProvider) {
+	private DocumentMapper documentMapper;
+
+    public IncludeLookupSetter(ResourceRegistry resourceRegistry, DocumentMapper documentMapper, PropertiesProvider propertiesProvider) {
+    	this.documentMapper = documentMapper;
         this.resourceRegistry = resourceRegistry;
         this.propertiesProvider = propertiesProvider;
 
@@ -183,9 +187,10 @@ public class IncludeLookupSetter {
 
             for (Resource resource : resources) {
                 Serializable id = resourceInformation.parseIdString(resource.getId());
-                Document response = responseMap.get(id);
+                JsonApiResponse response = responseMap.get(id);
                 if (response != null) {
                     // set the relation
+                	Document document = documentMapper.toDocument(response);
 
                 	String relationshipName = relationshipField.getJsonName();
                 	Map<String, Relationship> relationships = resource.getRelationships();
@@ -195,9 +200,9 @@ public class IncludeLookupSetter {
                 		relationships.put(relationshipName, relationship);
                 	}
                 	
-                	relationship.setData(ResourceId.fromData(response.getData()));
+                	relationship.setData(ResourceId.fromData(document.getData()));
 
-                    addAll(loadedEntities, response.getData());
+                    addAll(loadedEntities, document.getData());
                 }
             }
         }

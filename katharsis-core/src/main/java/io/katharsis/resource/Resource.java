@@ -2,7 +2,10 @@ package io.katharsis.resource;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.JsonNode;
 
 /**
@@ -12,12 +15,16 @@ import com.fasterxml.jackson.databind.JsonNode;
  */
 public class Resource extends ResourceId {
 
+	@JsonInclude(Include.NON_EMPTY)
 	private Map<String, JsonNode> attributes = new HashMap<>();
 
+	@JsonInclude(Include.NON_EMPTY)
 	private Map<String, Relationship> relationships = new HashMap<>();
 
+	@JsonInclude(Include.NON_EMPTY)
 	private Map<String, JsonNode> links = new HashMap<>();
 
+	@JsonInclude(Include.NON_EMPTY)
 	private Map<String, JsonNode> meta = new HashMap<>();
 
 	public Map<String, JsonNode> getLinks() {
@@ -54,6 +61,20 @@ public class Resource extends ResourceId {
 
 	public void setAttribute(String name, JsonNode value) {
 		attributes.put(name, value);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(attributes, relationships, links, meta);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof Resource))
+			return false;
+		Resource other = (Resource) obj;
+		return Objects.equals(attributes, other.attributes) && Objects.equals(relationships, other.relationships)
+				&& Objects.equals(meta, other.meta) && Objects.equals(links, other.links);
 	}
 
 }

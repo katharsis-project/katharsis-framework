@@ -20,6 +20,7 @@ import io.katharsis.resource.field.ResourceAttributesBridge;
 import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.information.ResourceInstanceBuilder;
+import io.katharsis.resource.internal.DocumentMapper;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.repository.adapter.RelationshipRepositoryAdapter;
@@ -31,11 +32,13 @@ public abstract class ResourceUpsert extends BaseController {
     final ResourceRegistry resourceRegistry;
     final TypeParser typeParser;
     protected final ObjectMapper objectMapper;
+	protected DocumentMapper documentMapper;
 
     public ResourceUpsert(ResourceRegistry resourceRegistry, TypeParser typeParser, ObjectMapper objectMapper) {
         this.resourceRegistry = resourceRegistry;
         this.typeParser = typeParser;
         this.objectMapper = objectMapper;
+        this.documentMapper = new DocumentMapper(resourceRegistry, objectMapper);
     }
 
     protected Object newResource(ResourceInformation resourceInformation, Resource dataBody) {

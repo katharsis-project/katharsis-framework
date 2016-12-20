@@ -2,6 +2,8 @@ package io.katharsis.dispatcher.controller.resource;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.dispatcher.controller.Response;
 import io.katharsis.queryspec.internal.QueryAdapter;
@@ -19,8 +21,8 @@ import io.katharsis.utils.parser.TypeParser;
 
 public class ResourceGet extends ResourceIncludeField {
 
-	public ResourceGet(ResourceRegistry resourceRegistry, TypeParser typeParser, IncludeLookupSetter fieldSetter) {
-		super(resourceRegistry, typeParser, fieldSetter);
+	public ResourceGet(ResourceRegistry resourceRegistry, ObjectMapper objectMapper, TypeParser typeParser, IncludeLookupSetter fieldSetter) {
+		super(resourceRegistry, objectMapper, typeParser, fieldSetter);
 	}
 
 	/**
@@ -54,7 +56,7 @@ public class ResourceGet extends ResourceIncludeField {
 		Serializable castedId = typeParser.parse(id, idClass);
 		ResourceRepositoryAdapter resourceRepository = registryEntry.getResourceRepository(parameterProvider);
 		@SuppressWarnings("unchecked")
-		Document responseDocument = toDocument(resourceRepository.findOne(castedId, queryAdapter));
+		Document responseDocument = documentMapper.toDocument(resourceRepository.findOne(castedId, queryAdapter));
 		includeFieldSetter.setIncludedElements(resourceName, responseDocument, queryAdapter, parameterProvider);
 
 		return new Response(responseDocument, 200);
