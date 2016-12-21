@@ -148,8 +148,7 @@ public class QuerySpecClientTest extends AbstractClientTest {
 		try {
 			taskRepo.findOne(1L, new QuerySpec(Task.class));
 			Assert.fail();
-		}
-		catch (ClientException e) {
+		} catch (ClientException e) {
 			Assert.assertEquals("Not Found", e.getMessage());
 		}
 	}
@@ -246,8 +245,7 @@ public class QuerySpecClientTest extends AbstractClientTest {
 			if (pushAlways) {
 				Assert.assertEquals("POST", methods.get(2));
 				Assert.assertEquals("/tasks/", paths.get(2));
-			}
-			else {
+			} else {
 				Assert.assertEquals("PATCH", methods.get(2));
 				Assert.assertEquals("/tasks/1/", paths.get(2));
 			}
@@ -369,7 +367,8 @@ public class QuerySpecClientTest extends AbstractClientTest {
 		savedSchedule.setLazyTask(task);
 		scheduleRepo.save(savedSchedule);
 
-		// still not null because cannot differantiate between not loaded and nulled
+		// still not null because cannot differantiate between not loaded and
+		// nulled
 		Schedule updatedSchedule = scheduleRepo.findOne(schedule.getId(), querySpec);
 		Assert.assertNotNull(updatedSchedule.getLazyTask());
 	}

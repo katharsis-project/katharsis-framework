@@ -6,8 +6,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import io.katharsis.queryParams.include.Inclusion;
-import io.katharsis.queryParams.params.IncludedRelationsParams;
 import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.resource.Relationship;
 import io.katharsis.resource.Resource;
@@ -80,7 +78,7 @@ public class ResourceMapper {
 		return info;
 	}
 
-	private void setAttributes(Resource resource, Object entity, ResourceInformation resourceInformation, QueryAdapter queryAdapter) {
+	protected void setAttributes(Resource resource, Object entity, ResourceInformation resourceInformation, QueryAdapter queryAdapter) {
 		// fields parameter may further limit the number of fields
 		List<ResourceField> fields = DocumentMapperUtil.getRequestedFields(resourceInformation, queryAdapter, resourceInformation.getAttributeFields().getFields(), false);
 
@@ -92,33 +90,20 @@ public class ResourceMapper {
 		}
 	}
 
-	private void setRelationships(Resource resource, Object entity, ResourceInformation resourceInformation, QueryAdapter queryAdapter) {
+	protected void setRelationships(Resource resource, Object entity, ResourceInformation resourceInformation, QueryAdapter queryAdapter) {
 		List<ResourceField> fields = DocumentMapperUtil.getRequestedFields(resourceInformation, queryAdapter, resourceInformation.getRelationshipFields(), true);
 		for (ResourceField field : fields) {
-			ObjectNode relationshipLinks = objectMapper.createObjectNode();
-			relationshipLinks.put(SELF_FIELD_NAME, util.getRelationshipLink(resourceInformation, entity, field, false));
-			relationshipLinks.put(RELATED_FIELD_NAME, util.getRelationshipLink(resourceInformation, entity, field, true));
-
-			Relationship relationship = new Relationship();
-			relationship.setLinks(relationshipLinks);
-			resource.getRelationships().put(field.getJsonName(), relationship);
-
+			setRelationship(resource, field, entity, resourceInformation, queryAdapter);
 		}
 	}
 
-	protected boolean getIncludeRelationshipData(ResourceInformation resourceInformation, ResourceField field, QueryAdapter queryAdapter) {
-		if (field.getIncludeByDefault() || !field.isLazy()) {
-			return true;
-		}
-		String resourceType = resourceInformation.getResourceType();
-		IncludedRelationsParams includedRelationsParams = queryAdapter.getIncludedRelations() != null ? queryAdapter.getIncludedRelations().getParams().get(resourceType) : null;
-		if (includedRelationsParams != null) {
-			for (Inclusion inclusion : includedRelationsParams.getParams()) {
-				if (inclusion.getPath().equals(field.getJsonName())) {
-					return true;
-				}
-			}
-		}
-		return false;
+	protected void setRelationship(Resource resource, ResourceField field, Object entity, ResourceInformation resourceInformation, QueryAdapter queryAdapter) {
+		ObjectNode relationshipLinks = objectMapper.createObjectNode();
+		relationshipLinks.put(SELF_FIELD_NAME, util.getRelationshipLink(resourceInformation, entity, field, false));
+		relationshipLinks.put(RELATED_FIELD_NAME, util.getRelationshipLink(resourceInformation, entity, field, true));
+
+		Relationship relationship = new Relationship();
+		relationship.setLinks(relationshipLinks);
+		resource.getRelationships().put(field.getJsonName(), relationship);		
 	}
 }

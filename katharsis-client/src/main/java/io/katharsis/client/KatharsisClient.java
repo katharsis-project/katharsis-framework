@@ -15,24 +15,19 @@ import io.katharsis.client.action.ActionStubFactoryContext;
 import io.katharsis.client.http.HttpAdapter;
 import io.katharsis.client.http.apache.HttpClientAdapter;
 import io.katharsis.client.http.okhttp.OkHttpAdapter;
-import io.katharsis.client.internal.BaseResponseDeserializer;
-import io.katharsis.client.internal.ClientJsonApiModuleBuilder;
+import io.katharsis.client.internal.ClientDocumentMapper;
 import io.katharsis.client.internal.ClientStubInvocationHandler;
-import io.katharsis.client.internal.ErrorResponseDeserializer;
 import io.katharsis.client.internal.RelationshipRepositoryStubImpl;
 import io.katharsis.client.internal.ResourceRepositoryStubImpl;
-import io.katharsis.client.internal.core.BaseResponseContext;
-import io.katharsis.client.internal.core.ResourceRelationships;
-import io.katharsis.client.internal.core.ResourceRelationshipsDeserializer;
 import io.katharsis.client.internal.proxy.BasicProxyFactory;
 import io.katharsis.client.internal.proxy.ClientProxyFactory;
 import io.katharsis.client.internal.proxy.ClientProxyFactoryContext;
 import io.katharsis.client.module.ClientModule;
 import io.katharsis.client.module.HttpAdapterAware;
-import io.katharsis.errorhandling.ErrorResponse;
 import io.katharsis.errorhandling.mapper.ExceptionMapperLookup;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryBuilder;
+import io.katharsis.jackson.JsonApiModuleBuilder;
 import io.katharsis.module.Module;
 import io.katharsis.module.ModuleRegistry;
 import io.katharsis.queryspec.QuerySpecRelationshipRepository;
@@ -87,7 +82,7 @@ public class KatharsisClient {
 
 	private ActionStubFactory actionStubFactory;
 
-	private BaseResponseDeserializer deserializer;
+	private ClientDocumentMapper documentMapper;
 
 	public KatharsisClient(String serviceUrl) {
 		this(new ConstantServiceUrlProvider(normalize(serviceUrl)));
@@ -107,15 +102,11 @@ public class KatharsisClient {
 		objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
 
 		// consider use of katharsis module in the future
-		ClientJsonApiModuleBuilder moduleBuilder = new ClientJsonApiModuleBuilder();
+		JsonApiModuleBuilder moduleBuilder = new JsonApiModuleBuilder();
 		SimpleModule jsonApiModule = moduleBuilder.build(resourceRegistry, true);
-		deserializer = new BaseResponseDeserializer(resourceRegistry, objectMapper);
-
-		jsonApiModule.addDeserializer(BaseResponseContext.class, deserializer);
-		jsonApiModule.addDeserializer(ErrorResponse.class, new ErrorResponseDeserializer());
-		jsonApiModule.addDeserializer(ResourceRelationships.class, new ResourceRelationshipsDeserializer());
 		objectMapper.registerModule(jsonApiModule);
 
+		documentMapper = new ClientDocumentMapper(resourceRegistry, objectMapper, null);
 		setProxyFactory(new BasicProxyFactory());
 	}
 
@@ -131,13 +122,12 @@ public class KatharsisClient {
 			public <T> DefaultResourceList<T> getCollection(Class<T> resourceClass, String url) {
 				RegistryEntry<T> entry = resourceRegistry.getEntry(resourceClass);
 				ResourceInformation resourceInformation = entry.getResourceInformation();
-				final ResourceRepositoryStubImpl<T, ?> repositoryStub = new ResourceRepositoryStubImpl<>(KatharsisClient.this,
-						resourceClass, resourceInformation, urlBuilder);
+				final ResourceRepositoryStubImpl<T, ?> repositoryStub = new ResourceRepositoryStubImpl<>(KatharsisClient.this, resourceClass, resourceInformation, urlBuilder);
 				return repositoryStub.findAll(url);
 
 			}
 		});
-		deserializer.setProxyFactory(proxyFactory);
+		documentMapper.setProxyFactory(proxyFactory);
 	}
 
 	private HttpAdapter detectHttpAdapter() {
@@ -147,16 +137,14 @@ public class KatharsisClient {
 		if (existsClass(APACHE_HTTP_CLIENT_DETECTION_CLASS)) {
 			return HttpClientAdapter.newInstance();
 		}
-		throw new IllegalStateException(
-				"no httpAdapter can be initialized, add okhttp3 (com.squareup.okhttp3:okhttp) or apache http client (org.apache.httpcomponents:httpclient) to the classpath");
+		throw new IllegalStateException("no httpAdapter can be initialized, add okhttp3 (com.squareup.okhttp3:okhttp) or apache http client (org.apache.httpcomponents:httpclient) to the classpath");
 	}
 
 	private static boolean existsClass(String className) {
 		try {
 			Class.forName(className);
 			return true;
-		}
-		catch (ClassNotFoundException e) {
+		} catch (ClassNotFoundException e) {
 			return false;
 		}
 	}
@@ -182,11 +170,14 @@ public class KatharsisClient {
 	}
 
 	/**
-	 * Older KatharsisClient implementation only supported a save() operation that POSTs the resource to the server. No difference is made
-	 * between insert and update. The server-implementation still does not make a difference. 
+	 * Older KatharsisClient implementation only supported a save() operation
+	 * that POSTs the resource to the server. No difference is made between
+	 * insert and update. The server-implementation still does not make a
+	 * difference.
 	 * 
-	 * By default the flag is enabled to maintain backward compatibility. But it is strongly adviced to turn id on. It will become
-	 * the default in one of the subsequent releases.
+	 * By default the flag is enabled to maintain backward compatibility. But it
+	 * is strongly adviced to turn id on. It will become the default in one of
+	 * the subsequent releases.
 	 * 
 	 * @param pushAlways
 	 */
@@ -201,8 +192,7 @@ public class KatharsisClient {
 	private static String normalize(String serviceUrl) {
 		if (serviceUrl.endsWith("/")) {
 			return serviceUrl.substring(0, serviceUrl.length() - 1);
-		}
-		else {
+		} else {
 			return serviceUrl;
 		}
 	}
@@ -228,8 +218,7 @@ public class KatharsisClient {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private <T, I extends Serializable> RegistryEntry<T> allocateRepository(Class<T> resourceClass, boolean allocateRelated) {
 		ResourceInformation resourceInformation = moduleRegistry.getResourceInformationBuilder().build(resourceClass);
-		final ResourceRepositoryStub<T, I> repositoryStub = new ResourceRepositoryStubImpl<>(this, resourceClass,
-				resourceInformation, urlBuilder);
+		final ResourceRepositoryStub<T, I> repositoryStub = new ResourceRepositoryStubImpl<>(this, resourceClass, resourceInformation, urlBuilder);
 
 		// create interface for it!
 		RepositoryInstanceBuilder repositoryInstanceBuilder = new RepositoryInstanceBuilder(null, null) {
@@ -239,8 +228,7 @@ public class KatharsisClient {
 				return repositoryStub;
 			}
 		};
-		ResourceRepositoryInformation repositoryInformation = new ResourceRepositoryInformationImpl(repositoryStub.getClass(),
-				resourceInformation.getResourceType(), resourceInformation);
+		ResourceRepositoryInformation repositoryInformation = new ResourceRepositoryInformationImpl(repositoryStub.getClass(), resourceInformation.getResourceType(), resourceInformation);
 		ResourceEntry<T, I> resourceEntry = new DirectResponseResourceEntry<>(repositoryInstanceBuilder);
 		List<ResponseRelationshipEntry<T, ?>> relationshipEntries = new ArrayList<>();
 		RegistryEntry<T> registryEntry = new RegistryEntry<>(repositoryInformation, resourceEntry, relationshipEntries);
@@ -252,26 +240,22 @@ public class KatharsisClient {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private <T> void allocateRepositoryRelations(RegistryEntry<T> registryEntry, boolean allocateRelated,
-			List<ResponseRelationshipEntry<T, ?>> relationshipEntries) {
+	private <T> void allocateRepositoryRelations(RegistryEntry<T> registryEntry, boolean allocateRelated, List<ResponseRelationshipEntry<T, ?>> relationshipEntries) {
 		ResourceInformation resourceInformation = registryEntry.getResourceInformation();
 		List<ResourceField> relationshipFields = resourceInformation.getRelationshipFields();
 		for (ResourceField relationshipField : relationshipFields) {
 			final Class<?> targetClass = relationshipField.getElementType();
 			Class<?> resourceClass = resourceInformation.getResourceClass();
 
-			final RelationshipRepositoryStubImpl relationshipRepositoryStub = new RelationshipRepositoryStubImpl(this,
-					resourceClass, targetClass, resourceInformation, urlBuilder, registryEntry);
-			RepositoryInstanceBuilder<RelationshipRepository> relationshipRepositoryInstanceBuilder = new RepositoryInstanceBuilder<RelationshipRepository>(
-					null, null) {
+			final RelationshipRepositoryStubImpl relationshipRepositoryStub = new RelationshipRepositoryStubImpl(this, resourceClass, targetClass, resourceInformation, urlBuilder, registryEntry);
+			RepositoryInstanceBuilder<RelationshipRepository> relationshipRepositoryInstanceBuilder = new RepositoryInstanceBuilder<RelationshipRepository>(null, null) {
 
 				@Override
 				public RelationshipRepository buildRepository() {
 					return relationshipRepositoryStub;
 				}
 			};
-			DirectResponseRelationshipEntry relationshipEntry = new DirectResponseRelationshipEntry(
-					relationshipRepositoryInstanceBuilder) {
+			DirectResponseRelationshipEntry relationshipEntry = new DirectResponseRelationshipEntry(relationshipRepositoryInstanceBuilder) {
 
 				@Override
 				public Class<?> getTargetAffiliation() {
@@ -294,18 +278,15 @@ public class KatharsisClient {
 	public <R extends QuerySpecResourceRepository<?, ?>> R getResourceRepository(Class<R> repositoryInterfaceClass) {
 		RepositoryInformationBuilder informationBuilder = moduleRegistry.getRepositoryInformationBuilder();
 		PreconditionUtil.assertTrue("no a valid repository interface", informationBuilder.accept(repositoryInterfaceClass));
-		ResourceRepositoryInformation repositoryInformation = (ResourceRepositoryInformation) informationBuilder
-				.build(repositoryInterfaceClass, newRepositoryInformationBuilderContext());
+		ResourceRepositoryInformation repositoryInformation = (ResourceRepositoryInformation) informationBuilder.build(repositoryInterfaceClass, newRepositoryInformationBuilderContext());
 		Class<?> resourceClass = repositoryInformation.getResourceInformation().getResourceClass();
 
 		Object actionStub = actionStubFactory != null ? actionStubFactory.createStub(repositoryInterfaceClass) : null;
 		QuerySpecResourceRepositoryStub<?, Serializable> repositoryStub = getQuerySpecRepository(resourceClass);
 
 		ClassLoader classLoader = repositoryInterfaceClass.getClassLoader();
-		InvocationHandler invocationHandler = new ClientStubInvocationHandler(repositoryInterfaceClass, repositoryStub,
-				actionStub);
-		return (R) Proxy.newProxyInstance(classLoader,
-				new Class[] { repositoryInterfaceClass, QuerySpecResourceRepositoryStub.class }, invocationHandler);
+		InvocationHandler invocationHandler = new ClientStubInvocationHandler(repositoryInterfaceClass, repositoryStub, actionStub);
+		return (R) Proxy.newProxyInstance(classLoader, new Class[] { repositoryInterfaceClass, QuerySpecResourceRepositoryStub.class }, invocationHandler);
 	}
 
 	private RepositoryInformationBuilderContext newRepositoryInformationBuilderContext() {
@@ -318,13 +299,13 @@ public class KatharsisClient {
 		};
 	}
 
-	public <R extends QuerySpecRelationshipRepository<?, ?, ?, ?>> R getRelationshipRepository(
-			Class<R> repositoryInterfaceClass) {
+	public <R extends QuerySpecRelationshipRepository<?, ?, ?, ?>> R getRelationshipRepository(Class<R> repositoryInterfaceClass) {
 		return null;
 	}
 
 	/**
-	 * @param resourceClass resource class
+	 * @param resourceClass
+	 *            resource class
 	 * @return stub for the given resourceClass
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -339,7 +320,8 @@ public class KatharsisClient {
 	}
 
 	/**
-	 * @param resourceClass resource class
+	 * @param resourceClass
+	 *            resource class
 	 * @return stub for the given resourceClass
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -354,14 +336,15 @@ public class KatharsisClient {
 	}
 
 	/**
-	 * @param sourceClass source class
-	 * @param targetClass target class
+	 * @param sourceClass
+	 *            source class
+	 * @param targetClass
+	 *            target class
 	 * @return stub for the relationship between the given source and target
 	 *         class
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public <T, I extends Serializable, D, J extends Serializable> RelationshipRepositoryStub<T, I, D, J> getRepository(
-			Class<T> sourceClass, Class<D> targetClass) {
+	public <T, I extends Serializable, D, J extends Serializable> RelationshipRepositoryStub<T, I, D, J> getRepository(Class<T> sourceClass, Class<D> targetClass) {
 		init();
 
 		RegistryEntry<T> entry = resourceRegistry.getEntry(sourceClass);
@@ -371,14 +354,15 @@ public class KatharsisClient {
 	}
 
 	/**
-	 * @param sourceClass source class
-	 * @param targetClass target class
+	 * @param sourceClass
+	 *            source class
+	 * @param targetClass
+	 *            target class
 	 * @return stub for the relationship between the given source and target
 	 *         class
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public <T, I extends Serializable, D, J extends Serializable> QuerySpecRelationshipRepositoryStub<T, I, D, J> getQuerySpecRepository(
-			Class<T> sourceClass, Class<D> targetClass) {
+	public <T, I extends Serializable, D, J extends Serializable> QuerySpecRelationshipRepositoryStub<T, I, D, J> getQuerySpecRepository(Class<T> sourceClass, Class<D> targetClass) {
 		init();
 
 		RegistryEntry<T> entry = resourceRegistry.getEntry(sourceClass);
@@ -437,9 +421,11 @@ public class KatharsisClient {
 	}
 
 	/**
-	 * Sets the factory to use to create action stubs (like JAX-RS annotated repository methods).
+	 * Sets the factory to use to create action stubs (like JAX-RS annotated
+	 * repository methods).
 	 * 
-	 * @param actionStubFactory to use
+	 * @param actionStubFactory
+	 *            to use
 	 */
 	public void setActionStubFactory(ActionStubFactory actionStubFactory) {
 		this.actionStubFactory = actionStubFactory;
@@ -461,5 +447,9 @@ public class KatharsisClient {
 
 	public ModuleRegistry getModuleRegistry() {
 		return moduleRegistry;
+	}
+
+	public ClientDocumentMapper getDocumentMapper() {
+		return documentMapper;
 	}
 }

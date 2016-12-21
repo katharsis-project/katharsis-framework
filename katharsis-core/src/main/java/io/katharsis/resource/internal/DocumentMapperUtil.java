@@ -1,6 +1,7 @@
 package io.katharsis.resource.internal;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -47,6 +48,14 @@ public class DocumentMapperUtil {
 		return resourceUrl + "/" + resourceId + (!related ? "/" + PathBuilder.RELATIONSHIP_MARK + "/" : "/") + field.getJsonName();
 	}
 
+	public List<ResourceIdentifier> toResourceIds(Collection<?> entities) {
+		List<ResourceIdentifier> results = new ArrayList<>();
+		for (Object entity : entities) {
+			results.add(toResourceId(entity));
+		}
+		return results;
+	}
+
 	public ResourceIdentifier toResourceId(Object entity) {
 		if (entity == null) {
 			return null;
@@ -64,7 +73,7 @@ public class DocumentMapperUtil {
 	}
 
 	protected static List<ResourceField> getRequestedFields(ResourceInformation resourceInformation, QueryAdapter queryAdapter, List<ResourceField> fields, boolean relation) {
-		TypedParams<IncludedFieldsParams> includedFieldsSet = queryAdapter.getIncludedFields();
+		TypedParams<IncludedFieldsParams> includedFieldsSet = queryAdapter != null ? queryAdapter.getIncludedFields() : null;
 		IncludedFieldsParams includedFields = includedFieldsSet != null ? includedFieldsSet.getParams().get(resourceInformation.getResourceType()) : null;
 
 		if (noResourceIncludedFieldsSpecified(includedFields)) {
@@ -162,7 +171,7 @@ public class DocumentMapperUtil {
 	public ResourceInformation getResourceInformation(Class<?> dataClass) {
 		return resourceRegistry.getEntry(dataClass).getResourceInformation();
 	}
-	
+
 	public ResourceInformation getResourceInformation(String resourceType) {
 		return resourceRegistry.getEntry(resourceType).getResourceInformation();
 	}

@@ -1,6 +1,7 @@
 package io.katharsis.resource;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -104,5 +105,20 @@ public class Document implements MetaContainer, LinksContainer {
 		Document other = (Document) obj;
 		return Objects.equals(data, other.data) && Objects.equals(errors, other.errors) // NOSONAR
 				&& Objects.equals(included, other.included) && Objects.equals(meta, other.meta) && Objects.equals(links, other.links);
+	}
+
+	@JsonIgnore
+	public Nullable<List<Resource>> getCollectionData() {
+		if (!data.isPresent()) {
+			return Nullable.empty();
+		}
+		Object value = data.get();
+		if (value == null) {
+			return Nullable.of((List<Resource>) (List) Collections.emptyList());
+		}
+		if (!(value instanceof Iterable)) {
+			return Nullable.of((Collections.singletonList((Resource) value)));
+		}
+		return Nullable.of((List<Resource>) value);
 	}
 }

@@ -23,14 +23,21 @@ public class DocumentMapper {
 
 	private IncludeLookupSetter includeLookupSetter;
 
+	private boolean client;
+
 	public DocumentMapper(ResourceRegistry resourceRegistry, ObjectMapper objectMapper, PropertiesProvider propertiesProvider) {
 		this(resourceRegistry, objectMapper, propertiesProvider, false);
 	}
 
 	public DocumentMapper(ResourceRegistry resourceRegistry, ObjectMapper objectMapper, PropertiesProvider propertiesProvider, boolean client) {
 		this.util = new DocumentMapperUtil(resourceRegistry, objectMapper);
-		this.resourceMapper = new ResourceMapper(util, client, objectMapper);
+		this.resourceMapper = newResourceMapper(util, client, objectMapper);
 		this.includeLookupSetter = new IncludeLookupSetter(resourceRegistry, resourceMapper, propertiesProvider);
+		this.client = client;
+	}
+
+	protected ResourceMapper newResourceMapper(DocumentMapperUtil util, boolean client, ObjectMapper objectMapper) {
+		return new ResourceMapper(util, client, objectMapper);
 	}
 
 	public Document toDocument(JsonApiResponse response, QueryAdapter queryAdapter) {
@@ -53,7 +60,7 @@ public class DocumentMapper {
 	}
 
 	private void addRelationDataAndInclusions(Document doc, Object entity, QueryAdapter queryAdapter, RepositoryMethodParameterProvider parameterProvider) {
-		if (doc.getData().isPresent()) {
+		if (doc.getData().isPresent() && !client) {
 			includeLookupSetter.setIncludedElements(doc, entity, queryAdapter, parameterProvider);
 		}
 	}

@@ -183,4 +183,8 @@ public class ResourceField {
 	public String toString(){
 		return getClass().getSimpleName() + "[jsonName=" + jsonName + ",resourceType=" + resourceInformation.getResourceType() + "]";
 	}
+
+	public boolean isCollection() {
+		return Iterable.class.isAssignableFrom(getType());
+	}
 }

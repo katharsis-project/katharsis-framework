@@ -9,26 +9,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.client.KatharsisClient;
 import io.katharsis.client.QuerySpecRelationshipRepositoryStub;
 import io.katharsis.client.RelationshipRepositoryStub;
-import io.katharsis.client.internal.core.BaseResponseContext;
-import io.katharsis.client.internal.core.CollectionResponseContext;
-import io.katharsis.client.internal.core.LinkageContainer;
-import io.katharsis.client.internal.core.ResourceResponseContext;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryspec.QuerySpec;
-import io.katharsis.queryspec.internal.QueryAdapter;
-import io.katharsis.request.path.JsonPath;
-import io.katharsis.request.path.ResourcePath;
+import io.katharsis.resource.Document;
+import io.katharsis.resource.ResourceIdentifier;
 import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.list.DefaultResourceList;
 import io.katharsis.resource.registry.RegistryEntry;
-import io.katharsis.response.JsonApiResponse;
 import io.katharsis.utils.JsonApiUrlBuilder;
 import io.katharsis.utils.PropertyUtils;
+import io.katharsis.utils.java.Nullable;
 
-public class RelationshipRepositoryStubImpl<T, I extends Serializable, D, J extends Serializable> extends AbstractStub
-		implements RelationshipRepositoryStub<T, I, D, J>, QuerySpecRelationshipRepositoryStub<T, I, D, J> {
+public class RelationshipRepositoryStubImpl<T, I extends Serializable, D, J extends Serializable> extends AbstractStub implements RelationshipRepositoryStub<T, I, D, J>, QuerySpecRelationshipRepositoryStub<T, I, D, J> {
 
 	private Class<T> sourceClass;
 
@@ -38,8 +32,7 @@ public class RelationshipRepositoryStubImpl<T, I extends Serializable, D, J exte
 
 	private RegistryEntry<?> relationshipEntry;
 
-	public RelationshipRepositoryStubImpl(KatharsisClient client, Class<T> sourceClass, Class<D> targetClass,
-			ResourceInformation resourceInformation, JsonApiUrlBuilder urlBuilder, RegistryEntry<?> relationshipEntry) {
+	public RelationshipRepositoryStubImpl(KatharsisClient client, Class<T> sourceClass, Class<D> targetClass, ResourceInformation resourceInformation, JsonApiUrlBuilder urlBuilder, RegistryEntry<?> relationshipEntry) {
 		super(client, urlBuilder);
 		this.sourceClass = sourceClass;
 		this.targetClass = targetClass;
@@ -84,61 +77,53 @@ public class RelationshipRepositoryStubImpl<T, I extends Serializable, D, J exte
 	@Override
 	public D findOneTarget(I sourceId, String fieldName, QueryParams queryParams) {
 		String url = urlBuilder.buildUrl(sourceClass, sourceId, queryParams, fieldName);
-		BaseResponseContext responseContext = executeGet(url);
-		return (D) responseContext.getResponse().getEntity();
+		return (D) executeGet(url, ResponseType.RESOURCE);
 	}
 
 	@Override
 	public DefaultResourceList<D> findManyTargets(I sourceId, String fieldName, QueryParams queryParams) {
 		String url = urlBuilder.buildUrl(sourceClass, sourceId, queryParams, fieldName);
-		BaseResponseContext responseContext = executeGet(url);
-		return toList(responseContext.getResponse());
+		return (DefaultResourceList<D>) executeGet(url, ResponseType.RESOURCES);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public D findOneTarget(I sourceId, String fieldName, QuerySpec querySpec) {
 		String url = urlBuilder.buildUrl(sourceClass, sourceId, querySpec, fieldName);
-		BaseResponseContext responseContext = executeGet(url);
-		return (D) responseContext.getResponse().getEntity();
+		return (D) executeGet(url, ResponseType.RESOURCE);
 	}
 
 	@Override
 	public DefaultResourceList<D> findManyTargets(I sourceId, String fieldName, QuerySpec querySpec) {
 		String url = urlBuilder.buildUrl(sourceClass, sourceId, querySpec, fieldName);
-		BaseResponseContext responseContext = executeGet(url);
-		return toList(responseContext.getResponse());
+		return (DefaultResourceList<D>) executeGet(url, ResponseType.RESOURCES);
 	}
 
 	private void execute(String requestUrl, HttpMethod method, Object targetIds) {
-		JsonPath fieldPath = new ResourcePath(resourceInformation.getResourceType());
+		Document document = new Document();
 
-		JsonApiResponse response = new JsonApiResponse();
-		BaseResponseContext context;
 		if (targetIds instanceof Iterable) {
-			ArrayList<LinkageContainer> containers = new ArrayList<>();
+			ArrayList<ResourceIdentifier> resourceIdentifiers = new ArrayList<>();
 			for (Object targetId : (Iterable<?>) targetIds) {
-				containers.add(new LinkageContainer(targetId, targetClass, relationshipEntry));
+				String strTargetId = resourceInformation.toIdString(targetId);
+				resourceIdentifiers.add(new ResourceIdentifier(strTargetId, resourceInformation.getResourceType()));
 			}
-			response.setEntity(containers);
-			context = new CollectionResponseContext(response, fieldPath, null);
-		}
-		else {
-			Object targetId = targetIds;
-			response.setEntity(new LinkageContainer(targetId, targetClass, relationshipEntry));
-			context = new ResourceResponseContext(response, fieldPath, (QueryAdapter) null);
+			document.setData(Nullable.of((Object) resourceIdentifiers));
+		} else {
+			String strTargetId = resourceInformation.toIdString(targetIds);
+			ResourceIdentifier resourceIdentifier = new ResourceIdentifier(strTargetId, resourceInformation.getResourceType());
+			document.setData(Nullable.of((Object) resourceIdentifier));
 		}
 
-		ObjectMapper objectMapper = katharsis.getObjectMapper();
+		ObjectMapper objectMapper = client.getObjectMapper();
 		String requestBodyValue;
 		try {
-			requestBodyValue = objectMapper.writeValueAsString(context);
-		}
-		catch (JsonProcessingException e) {
+			requestBodyValue = objectMapper.writeValueAsString(document);
+		} catch (JsonProcessingException e) {
 			throw new IllegalStateException(e);
 		}
 
-		execute(requestUrl, false, method, requestBodyValue);
+		execute(requestUrl, ResponseType.NONE, method, requestBodyValue);
 	}
 
 	@Override
