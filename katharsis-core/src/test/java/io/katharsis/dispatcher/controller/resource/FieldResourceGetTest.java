@@ -147,7 +147,7 @@ public class FieldResourceGetTest extends BaseControllerTest {
 		Assert.assertEquals(project.getId().toString(), returnedProject.getId());
 		Relationship relationship = returnedProject.getRelationships().get("includedTask");
 		Assert.assertNotNull(relationship);
-		Assert.assertEquals(task.getId().toString(), relationship.getSingleData().getId());
+		Assert.assertEquals(task.getId().toString(), relationship.getSingleData().get().getId());
 	}
 
 }

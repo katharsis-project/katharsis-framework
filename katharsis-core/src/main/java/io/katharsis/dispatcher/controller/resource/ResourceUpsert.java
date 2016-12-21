@@ -68,17 +68,19 @@ public abstract class ResourceUpsert extends BaseController {
                                  RepositoryMethodParameterProvider parameterProvider) {
         if (dataBody.getRelationships() != null) {
             for (Map.Entry<String, Relationship> property : dataBody.getRelationships().entrySet()) {
-            	Object data = property.getValue().getData();
-                if (data instanceof Iterable) {
-                    //noinspection unchecked
-                    saveRelationsField(queryAdapter, savedResource, registryEntry, (Map.Entry) property, registryEntry
-                            .getResourceInformation(), parameterProvider);
-                } else {
-                    //noinspection unchecked
-                    saveRelationField(queryAdapter, savedResource, registryEntry, (Map.Entry) property, registryEntry
-                            .getResourceInformation(), parameterProvider);
-                }
-
+            	Relationship relationship = property.getValue();
+            	if(relationship != null && relationship.getData().isPresent()){
+	            	Object data = relationship.getData();
+	                if (data instanceof Iterable) {
+	                    //noinspection unchecked
+	                    saveRelationsField(queryAdapter, savedResource, registryEntry, (Map.Entry) property, registryEntry
+	                            .getResourceInformation(), parameterProvider);
+	                } else {
+	                    //noinspection unchecked
+	                    saveRelationField(queryAdapter, savedResource, registryEntry, (Map.Entry) property, registryEntry
+	                            .getResourceInformation(), parameterProvider);
+	                }
+            	}
             }
         }
     }
@@ -188,31 +190,33 @@ public abstract class ResourceUpsert extends BaseController {
         }
     }
 
-    protected void setRelations(Object newResource, RegistryEntry registryEntry, Resource dataBody, QueryAdapter
+    protected void setRelations(Object newResource, RegistryEntry registryEntry, Resource resource, QueryAdapter
             queryAdapter,
                                 RepositoryMethodParameterProvider parameterProvider) {
-        if (dataBody.getRelationships() != null) {
-            for (Map.Entry<String, Relationship> property : dataBody.getRelationships().entrySet()) {
+        if (resource.getRelationships() != null) {
+            for (Map.Entry<String, Relationship> property : resource.getRelationships().entrySet()) {
             	String propertyName = property.getKey();
-            	
-            	ResourceInformation resourceInformation = registryEntry.getResourceInformation();
-				ResourceField field = resourceInformation.findRelationshipFieldByName(propertyName);
-				if(field == null){
-					 throw new ResourceException(String.format("Invalid relationship name: %s for %s", property.getKey(), resourceInformation.getResourceType()));
-				}
-            	if (Iterable.class.isAssignableFrom(field.getType())){
-                    //noinspection unchecked
-                    setRelationsField(newResource,
-                            registryEntry,
-                            property,
-                            queryAdapter,
-                            parameterProvider);
-                } else {
-                    //noinspection unchecked
-                	ResourceId relationId = (ResourceId) (property.getValue() != null ? property.getValue().getData() : null);
-                    setRelationField(newResource, registryEntry, propertyName, relationId, queryAdapter, parameterProvider);
-                }
-
+            	Relationship relationship = property.getValue();
+            	if(relationship != null && relationship.getData().isPresent()){
+	            	
+	            	ResourceInformation resourceInformation = registryEntry.getResourceInformation();
+					ResourceField field = resourceInformation.findRelationshipFieldByName(propertyName);
+					if(field == null){
+						 throw new ResourceException(String.format("Invalid relationship name: %s for %s", property.getKey(), resourceInformation.getResourceType()));
+					}
+	            	if (Iterable.class.isAssignableFrom(field.getType())){
+	                    //noinspection unchecked
+	                    setRelationsField(newResource,
+	                            registryEntry,
+	                            property,
+	                            queryAdapter,
+	                            parameterProvider);
+	                } else {
+	                    //noinspection unchecked
+	                	ResourceId relationId = (ResourceId) relationship.getData().get();
+	                    setRelationField(newResource, registryEntry, propertyName, relationId, queryAdapter, parameterProvider);
+	                }
+            	}
             }
         }
     }
@@ -220,33 +224,32 @@ public abstract class ResourceUpsert extends BaseController {
     protected void setRelationsField(Object newResource, RegistryEntry registryEntry,
                                    Map.Entry<String, Relationship> property, QueryAdapter queryAdapter,
                                    RepositoryMethodParameterProvider parameterProvider) {
-    	if(property.getValue() != null){
-	        String propertyName = property.getKey();
-	        ResourceField relationshipField = registryEntry.getResourceInformation()
-	                .findRelationshipFieldByName(propertyName);
-	        Class<?> relationshipFieldClass = Generics.getResourceClass(relationshipField.getGenericType(),
-	                relationshipField.getType());
-	        RegistryEntry entry = null;
-	        Class idFieldType = null;
-	        List relationships = new LinkedList<>();
-	        boolean first = true;
-	        
-	        for (ResourceId linkageData : property.getValue().getCollectionData()) {
-	            if (first) {
-	                entry = resourceRegistry.getEntry(linkageData.getType(), relationshipFieldClass);
-	                idFieldType = entry.getResourceInformation()
-	                        .getIdField()
-	                        .getType();
-	                first = false;
-	            }
-	            Serializable castedRelationshipId = typeParser.parse(linkageData.getId(), idFieldType);
-	            
-	            Object relationObject = fetchRelatedObject(entry, castedRelationshipId, parameterProvider, queryAdapter);
-	            
-	            relationships.add(relationObject);
-	        }
-	        PropertyUtils.setProperty(newResource, relationshipField.getUnderlyingName(), relationships);
-    	}
+    	Relationship relationship = property.getValue();
+        String propertyName = property.getKey();
+        ResourceField relationshipField = registryEntry.getResourceInformation()
+                .findRelationshipFieldByName(propertyName);
+        Class<?> relationshipFieldClass = Generics.getResourceClass(relationshipField.getGenericType(),
+                relationshipField.getType());
+        RegistryEntry entry = null;
+        Class idFieldType = null;
+        List relationships = new LinkedList<>();
+        boolean first = true;
+        
+        for (ResourceId linkageData : relationship.getCollectionData().get()) {
+            if (first) {
+                entry = resourceRegistry.getEntry(linkageData.getType(), relationshipFieldClass);
+                idFieldType = entry.getResourceInformation()
+                        .getIdField()
+                        .getType();
+                first = false;
+            }
+            Serializable castedRelationshipId = typeParser.parse(linkageData.getId(), idFieldType);
+            
+            Object relationObject = fetchRelatedObject(entry, castedRelationshipId, parameterProvider, queryAdapter);
+            
+            relationships.add(relationObject);
+        }
+        PropertyUtils.setProperty(newResource, relationshipField.getUnderlyingName(), relationships);
     }
 
     protected void setRelationField(Object newResource, RegistryEntry registryEntry,

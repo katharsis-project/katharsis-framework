@@ -1,6 +1,5 @@
 package io.katharsis.resource.internal;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -12,7 +11,6 @@ import io.katharsis.queryParams.params.IncludedRelationsParams;
 import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.resource.Relationship;
 import io.katharsis.resource.Resource;
-import io.katharsis.resource.ResourceId;
 import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.internal.DocumentMapperUtil.DefaultSelfRelatedLinksInformation;
@@ -105,7 +103,6 @@ public class ResourceMapper {
 			relationship.setLinks(relationshipLinks);
 			resource.getRelationships().put(field.getJsonName(), relationship);
 
-			
 		}
 	}
 
@@ -124,18 +121,4 @@ public class ResourceMapper {
 		}
 		return false;
 	}
-
-	private Object getRelationshipData(Object entity, ResourceInformation resourceInformation, ResourceField field) {
-		Object propertyValue = PropertyUtils.getProperty(entity, field.getUnderlyingName());
-		if (propertyValue instanceof Iterable) {
-			ArrayList<ResourceId> data = new ArrayList<>();
-			for (Object propertyElement : (Iterable<?>) propertyValue) {
-				data.add(util.toResourceId(propertyElement));
-			}
-			return data;
-		} else {
-			return util.toResourceId(propertyValue);
-		}
-	}
-
 }

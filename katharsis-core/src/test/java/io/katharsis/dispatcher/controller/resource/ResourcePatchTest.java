@@ -208,7 +208,7 @@ public class ResourcePatchTest extends BaseControllerTest {
         Assert.assertNotNull(response);
         assertThat(response.getDocument().getSingleData().getType()).isEqualTo("tasks");
         assertThat(response.getDocument().getSingleData().getAttributes().get("name").asText()).isEqualTo("task updated");
-        assertThat(response.getDocument().getSingleData().getRelationships().get("project").getData()).isNull();
+        assertThat(response.getDocument().getSingleData().getRelationships().get("project").getData().get()).isNull();
     }
 
     @Test

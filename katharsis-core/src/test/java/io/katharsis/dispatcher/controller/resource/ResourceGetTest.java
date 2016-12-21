@@ -109,10 +109,10 @@ public class ResourceGetTest extends BaseControllerTest {
 		assertThat(response.getDocument().getData()).isExactlyInstanceOf(Resource.class);
 		assertThat(response.getDocument().getSingleData().getType()).isEqualTo("task-with-lookup");
 		Resource responseData = response.getDocument().getSingleData();
-		assertThat(responseData.getRelationships().get("project").getSingleData().getId()).isEqualTo("42");
-		assertThat(responseData.getRelationships().get("projectNull").getSingleData().getId()).isEqualTo("1");
-		assertThat(responseData.getRelationships().get("projectOverridden").getSingleData().getId()).isEqualTo("1");
-		assertThat(responseData.getRelationships().get("projectOverriddenNull").getSingleData().getId()).isEqualTo("1");
+		assertThat(responseData.getRelationships().get("project").getSingleData().get().getId()).isEqualTo("42");
+		assertThat(responseData.getRelationships().get("projectNull").getSingleData().get().getId()).isEqualTo("1");
+		assertThat(responseData.getRelationships().get("projectOverridden").getSingleData().get().getId()).isEqualTo("1");
+		assertThat(responseData.getRelationships().get("projectOverriddenNull").getSingleData().get().getId()).isEqualTo("1");
 	}
 
 	@Test
@@ -184,7 +184,7 @@ public class ResourceGetTest extends BaseControllerTest {
 		// THEN
 		Assert.assertNotNull(response);
 		assertThat(response.getDocument().getSingleData().getType()).isEqualTo("tasks");
-		assertThat(taskResponse.getDocument().getSingleData().getRelationships().get("project").getData()).isNull();
+		assertThat(taskResponse.getDocument().getSingleData().getRelationships().get("project").getData().get()).isNull();
 	}
 
 }

@@ -36,6 +36,7 @@ import io.katharsis.resource.mock.repository.UserToProjectRepository;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.HttpStatus;
 import io.katharsis.utils.ClassUtils;
+import io.katharsis.utils.java.Nullable;
 
 public class RelationshipsResourcePatchTest extends BaseControllerTest {
 
@@ -295,7 +296,7 @@ public class RelationshipsResourcePatchTest extends BaseControllerTest {
 		data = newProjectBody.getSingleData();
 		data.setId(projectId.toString());
 		projectPolymorphic.setId(Long.toString(projectId));
-		data.getRelationships().get("tasks").setData(new ArrayList<ResourceId>());
+		data.getRelationships().get("tasks").setData(Nullable.of((Object)new ArrayList<ResourceId>()));
 
 		// WHEN
 		Response baseResponseContext = resourcePatch.handle(projectPolymorphicTypePath, new QueryParamsAdapter(REQUEST_PARAMS),

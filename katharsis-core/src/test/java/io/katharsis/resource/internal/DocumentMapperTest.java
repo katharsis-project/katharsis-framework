@@ -4,60 +4,30 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import io.katharsis.errorhandling.ErrorData;
-import io.katharsis.jackson.JsonApiModuleBuilder;
-import io.katharsis.locator.SampleJsonServiceLocator;
-import io.katharsis.module.ModuleRegistry;
 import io.katharsis.queryspec.QuerySpec;
-import io.katharsis.queryspec.internal.QueryAdapter;
-import io.katharsis.queryspec.internal.QuerySpecAdapter;
 import io.katharsis.resource.Document;
 import io.katharsis.resource.Relationship;
 import io.katharsis.resource.Resource;
 import io.katharsis.resource.ResourceId;
-import io.katharsis.resource.field.ResourceFieldNameTransformer;
-import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
-import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.mock.models.LazyTask;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
-import io.katharsis.resource.registry.ConstantServiceUrlProvider;
-import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.resource.registry.ResourceRegistryBuilder;
-import io.katharsis.resource.registry.ResourceRegistryBuilderTest;
-import io.katharsis.resource.registry.ResourceRegistryTest;
 import io.katharsis.response.JsonApiResponse;
 import io.katharsis.response.LinksInformation;
 import io.katharsis.response.MetaInformation;
+import io.katharsis.utils.java.Nullable;
 
-public class DocumentMapperTest {
-
-	private DocumentMapper mapper;
-	private ResourceRegistry resourceRegistry;
-
-	@Before
-	public void setup() {
-		ResourceInformationBuilder resourceInformationBuilder = new AnnotationResourceInformationBuilder(new ResourceFieldNameTransformer());
-		ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonServiceLocator(), resourceInformationBuilder);
-		resourceRegistry = registryBuilder.build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, new ModuleRegistry(), new ConstantServiceUrlProvider(ResourceRegistryTest.TEST_MODELS_URL));
-
-		ObjectMapper objectMapper = new ObjectMapper();
-		objectMapper.registerModule(new JsonApiModuleBuilder().build(resourceRegistry, false));
-
-		mapper = new DocumentMapper(resourceRegistry, objectMapper, null);
-	}
+public class DocumentMapperTest extends AbstractDocumentMapperTest {
 
 	@Test
 	public void testAttributesBasic() {
 		Task task = createTask(2, "sample task");
 
-		Document document = mapper.toDocument(toResponse(task), toAdapter(new QuerySpec(Task.class)));
+		Document document = mapper.toDocument(toResponse(task), createAdapter());
 		Resource resource = document.getSingleData();
 		Assert.assertEquals("2", resource.getId());
 		Assert.assertEquals("tasks", resource.getType());
@@ -78,7 +48,7 @@ public class DocumentMapperTest {
 		response.setMetaInformation(meta);
 		response.setLinksInformation(links);
 
-		Document document = mapper.toDocument(response, toAdapter(new QuerySpec(Task.class)));
+		Document document = mapper.toDocument(response, createAdapter());
 		Assert.assertEquals("linksValue", document.getLinks().get("value").asText());
 		Assert.assertEquals("metaValue", document.getMeta().get("value").asText());
 	}
@@ -95,7 +65,7 @@ public class DocumentMapperTest {
 		task.setMetaInformation(meta);
 		task.setLinksInformation(links);
 
-		Document document = mapper.toDocument(toResponse(task), toAdapter(new QuerySpec(Task.class)));
+		Document document = mapper.toDocument(toResponse(task), createAdapter());
 		Resource resource = document.getSingleData();
 		Assert.assertEquals("linksValue", resource.getLinks().get("value").asText());
 		Assert.assertEquals("metaValue", resource.getMeta().get("value").asText());
@@ -108,7 +78,7 @@ public class DocumentMapperTest {
 		ErrorData error = Mockito.mock(ErrorData.class);
 		response.setErrors(Arrays.asList(error));
 
-		Document document = mapper.toDocument(response, toAdapter(new QuerySpec(Task.class)));
+		Document document = mapper.toDocument(response, createAdapter());
 		List<ErrorData> errors = document.getErrors();
 		Assert.assertEquals(1, errors.size());
 		Assert.assertSame(error, errors.get(0));
@@ -128,13 +98,13 @@ public class DocumentMapperTest {
 		Project project = createProject(3, "sample project");
 		task.setProject(project);
 
-		Document document = mapper.toDocument(toResponse(task), toAdapter(new QuerySpec(LazyTask.class)));
+		Document document = mapper.toDocument(toResponse(task), createAdapter());
 		Resource resource = document.getSingleData();
 		Assert.assertEquals("2", resource.getId());
 
 		Relationship relationship = resource.getRelationships().get("project");
 		Assert.assertNotNull(relationship);
-		ResourceId relationshipData = relationship.getSingleData();
+		ResourceId relationshipData = relationship.getSingleData().get();
 		Assert.assertNotNull(relationshipData);
 		Assert.assertEquals("3", relationshipData.getId());
 		Assert.assertEquals("projects", relationshipData.getType());
@@ -149,14 +119,14 @@ public class DocumentMapperTest {
 		Project project2 = createProject(4, "sample project");
 		task.setProjects(Arrays.asList(project1, project2));
 
-		Document document = mapper.toDocument(toResponse(task), toAdapter(new QuerySpec(LazyTask.class)));
+		Document document = mapper.toDocument(toResponse(task), createAdapter());
 		Resource resource = document.getSingleData();
 		Assert.assertEquals("2", resource.getId());
 
 		Relationship relationship = resource.getRelationships().get("projects");
 		Assert.assertNotNull(relationship);
-		List<ResourceId> relationshipData = relationship.getCollectionData();
-		Assert.assertNull(relationshipData);
+		Nullable<List<ResourceId>> relationshipData = relationship.getCollectionData();
+		Assert.assertFalse(relationshipData.isPresent());
 		Assert.assertTrue(document.getIncluded().isEmpty());
 	}
 
@@ -176,7 +146,7 @@ public class DocumentMapperTest {
 
 		Relationship relationship = resource.getRelationships().get("projects");
 		Assert.assertNotNull(relationship);
-		List<ResourceId> relationshipData = relationship.getCollectionData();
+		List<ResourceId> relationshipData = relationship.getCollectionData().get();
 		Assert.assertNotNull(relationshipData);
 		Assert.assertEquals(2, relationshipData.size());
 		Assert.assertEquals("3", relationshipData.get(0).getId());
@@ -211,7 +181,7 @@ public class DocumentMapperTest {
 
 		Relationship relationship = resource.getRelationships().get("project");
 		Assert.assertNotNull(relationship);
-		ResourceId relationshipData = relationship.getSingleData();
+		ResourceId relationshipData = relationship.getSingleData().get();
 		Assert.assertNotNull(relationshipData);
 		Assert.assertEquals("3", relationshipData.getId());
 		Assert.assertEquals("projects", relationshipData.getType());
@@ -240,7 +210,7 @@ public class DocumentMapperTest {
 
 		Relationship relationship = resource.getRelationships().get("project");
 		Assert.assertNotNull(relationship);
-		ResourceId relationshipData = relationship.getSingleData();
+		ResourceId relationshipData = relationship.getSingleData().get();
 		Assert.assertNotNull(relationshipData);
 		Assert.assertEquals("3", relationshipData.getId());
 		Assert.assertEquals("projects", relationshipData.getType());
@@ -250,7 +220,7 @@ public class DocumentMapperTest {
 		Assert.assertEquals("3", included.get(0).getId());
 		Assert.assertEquals("projects", included.get(0).getType());
 		Assert.assertEquals("sample project", included.get(0).getAttributes().get("name").asText());
-		Assert.assertEquals("2", included.get(0).getRelationships().get("task").getSingleData().getId());
+		Assert.assertEquals("2", included.get(0).getRelationships().get("task").getSingleData().get().getId());
 	}
 
 	@Test
@@ -259,7 +229,7 @@ public class DocumentMapperTest {
 		Project project = createProject(3, "sample project");
 		task.setProject(project);
 
-		Document document = mapper.toDocument(toResponse(task), toAdapter(new QuerySpec(Task.class)));
+		Document document = mapper.toDocument(toResponse(task), createAdapter());
 		Resource resource = document.getSingleData();
 		Assert.assertEquals("2", resource.getId());
 		Assert.assertEquals("tasks", resource.getType());
@@ -269,7 +239,7 @@ public class DocumentMapperTest {
 		Assert.assertNotNull(relationship);
 		Assert.assertEquals("https://service.local/tasks/2/relationships/project", relationship.getLinks().get("self").asText());
 		Assert.assertEquals("https://service.local/tasks/2/project", relationship.getLinks().get("related").asText());
-		ResourceId relationshipData = relationship.getSingleData();
+		ResourceId relationshipData = relationship.getSingleData().get();
 		Assert.assertNotNull(relationshipData);
 		Assert.assertEquals("3", relationshipData.getId());
 		Assert.assertEquals("projects", relationshipData.getType());
@@ -287,7 +257,7 @@ public class DocumentMapperTest {
 		Project project = createProject(3, "sample project");
 		task.setLazyProject(project);
 
-		Document document = mapper.toDocument(toResponse(task), toAdapter(new QuerySpec(Task.class)));
+		Document document = mapper.toDocument(toResponse(task), createAdapter());
 		Resource resource = document.getSingleData();
 		Assert.assertEquals("2", resource.getId());
 		Assert.assertEquals("lazy_tasks", resource.getType());
@@ -296,8 +266,8 @@ public class DocumentMapperTest {
 		Assert.assertNotNull(relationship);
 		Assert.assertEquals("https://service.local/lazy_tasks/2/relationships/lazyProject", relationship.getLinks().get("self").asText());
 		Assert.assertEquals("https://service.local/lazy_tasks/2/lazyProject", relationship.getLinks().get("related").asText());
-		ResourceId relationshipData = relationship.getSingleData();
-		Assert.assertNull(relationshipData);
+		Nullable<ResourceId> relationshipData = relationship.getSingleData();
+		Assert.assertFalse(relationshipData.isPresent());
 		Assert.assertTrue(document.getIncluded().isEmpty());
 	}
 
@@ -321,12 +291,6 @@ public class DocumentMapperTest {
 		Assert.assertEquals("sample category", resource.getAttributes().get("category").asText());
 	}
 
-	private JsonApiResponse toResponse(Object entity) {
-		JsonApiResponse response = new JsonApiResponse();
-		response.setEntity(entity);
-		return response;
-	}
-
 	private Project createProject(long id, String name) {
 		Project project = new Project();
 		project.setId(id);
@@ -345,10 +309,6 @@ public class DocumentMapperTest {
 		LazyTask task = new LazyTask();
 		task.setId(id);
 		return task;
-	}
-
-	private QueryAdapter toAdapter(QuerySpec querySpec) {
-		return new QuerySpecAdapter(querySpec, resourceRegistry);
 	}
 
 }

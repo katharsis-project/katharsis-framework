@@ -35,7 +35,7 @@ public class DocumentMapper {
 	public Document toDocument(JsonApiResponse response, QueryAdapter queryAdapter) {
 		return toDocument(response, queryAdapter, null);
 	}
-	
+
 	public Document toDocument(JsonApiResponse response, QueryAdapter queryAdapter, RepositoryMethodParameterProvider parameterProvider) {
 		if (response == null) {
 			return null;
@@ -52,7 +52,9 @@ public class DocumentMapper {
 	}
 
 	private void addRelationDataAndInclusions(Document doc, Object entity, QueryAdapter queryAdapter, RepositoryMethodParameterProvider parameterProvider) {
-		includeLookupSetter.setIncludedElements(doc, entity, queryAdapter, parameterProvider);
+		if (doc.getData() != null) {
+			includeLookupSetter.setIncludedElements(doc, entity, queryAdapter, parameterProvider);
+		}
 	}
 
 	private void addData(Document doc, Object entity, QueryAdapter queryAdapter) {

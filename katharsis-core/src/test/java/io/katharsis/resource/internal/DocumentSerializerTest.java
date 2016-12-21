@@ -32,6 +32,7 @@ import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryBuilder;
 import io.katharsis.resource.registry.ResourceRegistryBuilderTest;
 import io.katharsis.resource.registry.ResourceRegistryTest;
+import io.katharsis.utils.java.Nullable;
 
 public class DocumentSerializerTest {
 
@@ -135,7 +136,7 @@ public class DocumentSerializerTest {
 		resource.setId("2");
 		resource.setType("tasks");
 		Relationship relationship = new Relationship();
-		relationship.setData(new ResourceId("3", "projects"));
+		relationship.setData(Nullable.of((Object) new ResourceId("3", "projects")));
 		relationship.setMeta((ObjectNode) objectMapper.readTree("{\"metaName\" : \"metaValue\"}"));
 		relationship.setLinks((ObjectNode) objectMapper.readTree("{\"linkName\" : \"linkValue\"}"));
 		resource.getRelationships().put("project", relationship);
@@ -165,11 +166,84 @@ public class DocumentSerializerTest {
 		Assert.assertEquals(relationship, readRelationship);
 		Assert.assertEquals(doc, readDoc);
 	}
+	
+	@Test
+	public void testNoRelationshipData() throws JsonProcessingException, IOException {
+		Document doc = new Document();
+		Resource resource = new Resource();
+		resource.setId("2");
+		resource.setType("tasks");
+		Relationship relationship = new Relationship();
+		relationship.setMeta((ObjectNode) objectMapper.readTree("{\"metaName\" : \"metaValue\"}"));
+		relationship.setLinks((ObjectNode) objectMapper.readTree("{\"linkName\" : \"linkValue\"}"));
+		resource.getRelationships().put("project", relationship);
+		doc.setData(resource);
+
+		String json = writer.writeValueAsString(doc);
+
+		StringBuilder expected = new StringBuilder();
+		expected.append("{");
+		expected.append("'data' : {");
+		expected.append("  'id' : '2',");
+		expected.append("  'type' : 'tasks',");
+		expected.append("  'relationships' : {");
+		expected.append("    'project' : {");
+		expected.append("       'meta' : {'metaName' = 'metaValue'},");
+		expected.append("       'links' : {'linkName' = 'linkValue'}");
+		expected.append("    }");
+		expected.append("  }");
+		expected.append("}");
+		expected.append("}");
+
+		assertThatJson(json).describedAs(expected.toString().replace('\'', '\"'));
+
+		Document readDoc = reader.readValue(json);
+		Relationship readRelationship = readDoc.getSingleData().getRelationships().get("project");
+		Assert.assertEquals(relationship, readRelationship);
+		Assert.assertEquals(doc, readDoc);
+	}
+	
+	@Test
+	public void testNullRelationshipData() throws JsonProcessingException, IOException {
+		Document doc = new Document();
+		Resource resource = new Resource();
+		resource.setId("2");
+		resource.setType("tasks");
+		Relationship relationship = new Relationship();
+		relationship.setData(Nullable.of(null));
+		relationship.setMeta((ObjectNode) objectMapper.readTree("{\"metaName\" : \"metaValue\"}"));
+		relationship.setLinks((ObjectNode) objectMapper.readTree("{\"linkName\" : \"linkValue\"}"));
+		resource.getRelationships().put("project", relationship);
+		doc.setData(resource);
+
+		String json = writer.writeValueAsString(doc);
+
+		StringBuilder expected = new StringBuilder();
+		expected.append("{");
+		expected.append("'data' : {");
+		expected.append("  'id' : '2',");
+		expected.append("  'type' : 'tasks',");
+		expected.append("  'relationships' : {");
+		expected.append("    'project' : {");
+		expected.append("       'meta' : {'metaName' = 'metaValue'},");
+		expected.append("       'links' : {'linkName' = 'linkValue'}");
+		expected.append("    }");
+		expected.append("  }");
+		expected.append("}");
+		expected.append("}");
+
+		assertThatJson(json).describedAs(expected.toString().replace('\'', '\"'));
+
+		Document readDoc = reader.readValue(json);
+		Relationship readRelationship = readDoc.getSingleData().getRelationships().get("project");
+		Assert.assertEquals(relationship, readRelationship);
+		Assert.assertEquals(doc, readDoc);
+	}
 
 	@Test
 	public void testMultiValuedRelationship() throws JsonProcessingException, IOException {
 		Relationship relationship = new Relationship();
-		relationship.setData(Arrays.asList(new ResourceId("3", "projects"), new ResourceId("4", "projects")));
+		relationship.setData(Nullable.of((Object) Arrays.asList(new ResourceId("3", "projects"), new ResourceId("4", "projects"))));
 		relationship.setMeta((ObjectNode) objectMapper.readTree("{\"metaName\" : \"metaValue\"}"));
 		relationship.setLinks((ObjectNode) objectMapper.readTree("{\"linkName\" : \"linkValue\"}"));
 

@@ -1,6 +1,7 @@
 package io.katharsis.resource.include;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -12,7 +13,9 @@ import io.katharsis.internal.boot.PropertiesProvider;
 import io.katharsis.queryParams.include.Inclusion;
 import io.katharsis.queryParams.params.IncludedRelationsParams;
 import io.katharsis.queryspec.internal.QueryAdapter;
+import io.katharsis.resource.Relationship;
 import io.katharsis.resource.Resource;
+import io.katharsis.resource.ResourceId;
 import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.field.ResourceField.LookupIncludeBehavior;
 import io.katharsis.resource.information.ResourceInformation;
@@ -46,7 +49,7 @@ public class IncludeLookupUtil {
 		}
 	}
 
-	public Set<ResourceField> getRelationshipFields(List<Resource> resources) {
+	public Set<ResourceField> getRelationshipFields(Collection<Resource> resources) {
 		Map<String, ResourceField> fieldMap = new HashMap<>();
 
 		Set<String> processedTypes = new HashSet<>();
@@ -91,7 +94,7 @@ public class IncludeLookupUtil {
 		return hasSuperType ? resourceRegistry.getEntry(superclass).getResourceInformation() : null;
 	}
 
-	public List<Resource> filterByType(List<Resource> resources, ResourceInformation resourceInformation) {
+	public List<Resource> filterByType(Collection<Resource> resources, ResourceInformation resourceInformation) {
 		List<Resource> results = new ArrayList<>();
 		for (Resource resource : resources) {
 			if (isInstance(resourceInformation, resource)) {
@@ -133,8 +136,9 @@ public class IncludeLookupUtil {
 	}
 
 	private boolean contains(IncludedRelationsParams includedRelationsParams, String path) {
+		String pathPrefix = path + ".";
 		for (Inclusion inclusion : includedRelationsParams.getParams()) {
-			if (inclusion.getPath().equals(path)) {
+			if (inclusion.getPath().equals(path) || inclusion.getPath().startsWith(pathPrefix)) {
 				return true;
 			}
 		}
@@ -153,9 +157,49 @@ public class IncludeLookupUtil {
 		return builder.toString();
 	}
 
-	public List<Resource> sub(List<Resource> resourcesWithField, List<Resource> resourcesForLookup) {
+	public List<Resource> sub(Collection<Resource> resourcesWithField, Collection<Resource> resourcesForLookup) {
 		List<Resource> result = new ArrayList<>(resourcesWithField);
 		result.removeAll(resourcesForLookup);
 		return result;
+	}
+
+	public List<Resource> filterByLoadedRelationship(List<Resource> resources, ResourceField resourceField) {
+		List<Resource> results = new ArrayList<>();
+		for (Resource resource : resources) {
+			if (resource.getRelationships().get(resourceField.getJsonName()) != null) {
+				results.add(resource);
+			}
+		}
+		return results;
+	}
+
+	public Set<ResourceId> toIds(Set<Resource> resources) {
+		Set<ResourceId> results = new HashSet<>();
+		for (Resource resource : resources) {
+			results.add(resource.toIdentifier());
+		}
+		return results;
+	}
+
+	public Set<Resource> union(Collection<Resource> set0, Collection<Resource> set1) {
+		Map<ResourceId, Resource> map = new HashMap<>();
+		for (Resource resource : set0) {
+			map.put(resource.toIdentifier(), resource);
+		}
+		for (Resource resource : set1) {
+			map.put(resource.toIdentifier(), resource);
+		}
+		return new HashSet<>(map.values());
+	}
+
+	public List<Resource> findResourcesWithoutRelationshipData(List<Resource> resources, ResourceField resourceField) {
+		List<Resource> results = new ArrayList<>();
+		for (Resource resource : resources) {
+			Relationship relationship = resource.getRelationships().get(resourceField.getJsonName());
+			if (!relationship.getData().isPresent()) {
+				results.add(resource);
+			}
+		}
+		return results;
 	}
 }

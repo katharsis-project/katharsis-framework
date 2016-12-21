@@ -21,10 +21,10 @@ import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.queryspec.internal.QueryParamsAdapter;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.resource.Document;
+import io.katharsis.resource.Relationship;
 import io.katharsis.resource.Resource;
 import io.katharsis.resource.RestrictedQueryParamsMembers;
 import io.katharsis.resource.mock.models.Project;
-import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.repository.TaskToProjectRepository;
 
 public class CollectionGetTest extends BaseControllerTest {
@@ -113,7 +113,6 @@ public class CollectionGetTest extends BaseControllerTest {
 		Document newTaskBody = new Document();
 		Resource data = createTask();
 		newTaskBody.setData(data);
-
 		JsonPath taskPath = pathBuilder.build("/tasks");
 		ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper, documentMapper);
 
@@ -131,18 +130,15 @@ public class CollectionGetTest extends BaseControllerTest {
 		Document newProjectBody = new Document();
 		data = createProject();
 		newProjectBody.setData(data);
-
 		JsonPath projectPath = pathBuilder.build("/projects");
 
 		// WHEN -- adding a project
-		Response projectResponse = resourcePost.handle(projectPath, new QueryParamsAdapter(new QueryParams()), null,
-				newProjectBody);
+		Response projectResponse = resourcePost.handle(projectPath, new QueryParamsAdapter(new QueryParams()), null, newProjectBody);
 
 		// THEN
 		assertThat(projectResponse.getDocument().getSingleData().getType()).isEqualTo("projects");
 		assertThat(projectResponse.getDocument().getSingleData().getId()).isNotNull();
-		assertThat(projectResponse.getDocument().getSingleData().getAttributes().get("name").asText())
-				.isEqualTo("sample project");
+		assertThat(projectResponse.getDocument().getSingleData().getAttributes().get("name").asText()).isEqualTo("sample project");
 		Long projectId = Long.parseLong(projectResponse.getDocument().getSingleData().getId());
 		assertThat(projectId).isNotNull();
 
@@ -159,8 +155,7 @@ public class CollectionGetTest extends BaseControllerTest {
 		RelationshipsResourcePost sut = new RelationshipsResourcePost(resourceRegistry, typeParser);
 
 		// WHEN -- adding a relation between task and project
-		Response projectRelationshipResponse = sut.handle(savedTaskPath, new QueryParamsAdapter(new QueryParams()), null,
-				newTaskToProjectBody);
+		Response projectRelationshipResponse = sut.handle(savedTaskPath, new QueryParamsAdapter(new QueryParams()), null, newTaskToProjectBody);
 		assertThat(projectRelationshipResponse).isNotNull();
 
 		// THEN
@@ -168,7 +163,7 @@ public class CollectionGetTest extends BaseControllerTest {
 		Project project = taskToProjectRepository.findOneTarget(taskId, "includedProjects", REQUEST_PARAMS);
 		assertThat(project.getId()).isEqualTo(projectId);
 
-		//Given
+		// Given
 		JsonPath jsonPath = pathBuilder.build("/tasks/" + taskId);
 		ResourceGet responseGetResp = new ResourceGet(resourceRegistry, objectMapper, typeParser, documentMapper);
 		Map<String, Set<String>> queryParams = new HashMap<>();
@@ -180,14 +175,13 @@ public class CollectionGetTest extends BaseControllerTest {
 
 		// THEN
 		Assert.assertNotNull(response);
-		assertThat(response.getDocument().getSingleData().getType()).isEqualTo("tasks");
-		assertThat(taskResponse.getDocument().getSingleData().getRelationships().get("includedProjects").getCollectionData())
-				.isNotNull();
-		assertThat(
-				taskResponse.getDocument().getSingleData().getRelationships().get("includedProjects").getCollectionData().size())
-						.isEqualTo(1);
-		assertThat(taskResponse.getDocument().getSingleData().getRelationships().get("includedProjects").getCollectionData()
-				.get(0).getId()).isEqualTo(projectId.toString());
+		data = response.getDocument().getSingleData();
+		assertThat(data.getType()).isEqualTo("tasks");
+		Relationship relationship = data.getRelationships().get("includedProjects");
+		assertThat(relationship);
+		assertThat(relationship.getCollectionData()).isNotNull();
+		assertThat(relationship.getCollectionData().get().size()).isEqualTo(1);
+		assertThat(relationship.getCollectionData().get().get(0).getId()).isEqualTo(projectId.toString());
 	}
 
 	@Test
@@ -219,14 +213,12 @@ public class CollectionGetTest extends BaseControllerTest {
 		JsonPath projectPath = pathBuilder.build("/projects");
 
 		// WHEN -- adding a project
-		Response projectResponse = resourcePost.handle(projectPath, new QueryParamsAdapter(new QueryParams()), null,
-				newProjectBody);
+		Response projectResponse = resourcePost.handle(projectPath, new QueryParamsAdapter(new QueryParams()), null, newProjectBody);
 
 		// THEN
 		assertThat(projectResponse.getDocument().getSingleData().getType()).isEqualTo("projects");
 		assertThat(projectResponse.getDocument().getSingleData().getId()).isNotNull();
-		assertThat(projectResponse.getDocument().getSingleData().getAttributes().get("name").asText())
-				.isEqualTo("sample project");
+		assertThat(projectResponse.getDocument().getSingleData().getAttributes().get("name").asText()).isEqualTo("sample project");
 		Long projectId = Long.parseLong(projectResponse.getDocument().getSingleData().getId());
 		assertThat(projectId).isNotNull();
 
@@ -243,8 +235,7 @@ public class CollectionGetTest extends BaseControllerTest {
 		RelationshipsResourcePost sut = new RelationshipsResourcePost(resourceRegistry, typeParser);
 
 		// WHEN -- adding a relation between task and project
-		Response projectRelationshipResponse = sut.handle(savedTaskPath, new QueryParamsAdapter(new QueryParams()), null,
-				newTaskToProjectBody);
+		Response projectRelationshipResponse = sut.handle(savedTaskPath, new QueryParamsAdapter(new QueryParams()), null, newTaskToProjectBody);
 		assertThat(projectRelationshipResponse).isNotNull();
 
 		// THEN
@@ -252,7 +243,7 @@ public class CollectionGetTest extends BaseControllerTest {
 		Project project = taskToProjectRepository.findOneTarget(taskId, "projects", REQUEST_PARAMS);
 		assertThat(project.getId()).isNotNull();
 
-		//Given
+		// Given
 		JsonPath jsonPath = pathBuilder.build("/tasks/" + taskId);
 		ResourceGet responseGetResp = new ResourceGet(resourceRegistry, objectMapper, typeParser, documentMapper);
 		Map<String, Set<String>> queryParams = new HashMap<>();
@@ -265,6 +256,8 @@ public class CollectionGetTest extends BaseControllerTest {
 		// THEN
 		Assert.assertNotNull(response);
 		assertThat(response.getDocument().getSingleData().getType()).isEqualTo("tasks");
-		assertThat(taskResponse.getDocument().getSingleData().getRelationships().get("projects")).isNull();
+		
+		// eager loading but no inclusion
+		assertThat(response.getDocument().getSingleData().getRelationships().get("projects").getData().isPresent()).isFalse();
 	}
 }

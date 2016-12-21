@@ -197,9 +197,9 @@ public class ResourcePostTest extends BaseControllerTest {
 		assertThat(userId).isNotNull();
 		assertThat(taskResponse.getDocument().getSingleData().getAttributes().get("name").asText()).isEqualTo("some user");
 
-		assertThat(taskResponse.getDocument().getSingleData().getRelationships().get("assignedProjects").getCollectionData())
+		assertThat(taskResponse.getDocument().getSingleData().getRelationships().get("assignedProjects").getCollectionData().get())
 				.hasSize(1);
-		assertThat(taskResponse.getDocument().getSingleData().getRelationships().get("assignedProjects").getCollectionData()
+		assertThat(taskResponse.getDocument().getSingleData().getRelationships().get("assignedProjects").getCollectionData().get()
 				.get(0).getId()).isEqualTo(projectId.toString());
 	}
 
@@ -273,7 +273,7 @@ public class ResourcePostTest extends BaseControllerTest {
 		assertThat(persistedPojo.getId()).isNotNull();
 		assertThat(persistedPojo.getAttributes().get("other-pojo").get("value").asText()).isEqualTo("hello");
 		assertThat(persistedPojo.getRelationships().get("some-project").getSingleData()).isNotNull();
-		assertThat(persistedPojo.getRelationships().get("some-project").getSingleData().getId()).isEqualTo(projectId.toString());
+		assertThat(persistedPojo.getRelationships().get("some-project").getSingleData().get().getId()).isEqualTo(projectId.toString());
 		Relationship persistedProjectsRelationship = persistedPojo.getRelationships().get("some-projects");
 		assertThat(persistedProjectsRelationship).isNotNull();
 		

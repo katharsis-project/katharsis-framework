@@ -178,4 +178,9 @@ public class ResourceField {
 	public void setResourceInformation(ResourceInformation resourceInformation) {
 		this.resourceInformation = resourceInformation;
 	}
+	
+	@Override
+	public String toString(){
+		return getClass().getSimpleName() + "[jsonName=" + jsonName + ",resourceType=" + resourceInformation.getResourceType() + "]";
+	}
 }

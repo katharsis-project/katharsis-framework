@@ -225,7 +225,6 @@ public class AnnotationResourceInformationBuilder implements ResourceInformation
         }
     }
 
-    @ToString(of = "annotations", callSuper = true)
     public static class AnnotatedResourceField extends ResourceField {
 
     	private List<Annotation> annotations;
