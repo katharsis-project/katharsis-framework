@@ -68,7 +68,7 @@ public class RelationshipsResourceDeleteTest extends BaseControllerTest {
 		data.setType("tasks");
 
 		JsonPath taskPath = pathBuilder.buildPath("/tasks");
-		ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
+		ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER, documentMapper);
 
 		// WHEN -- adding a task
 		Response taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(new QueryParams()), null, newTaskBody);
@@ -144,13 +144,13 @@ public class RelationshipsResourceDeleteTest extends BaseControllerTest {
 		newUserDocument.setData(createUser());
 
 		JsonPath taskPath = pathBuilder.buildPath("/users");
-		ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
+		ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER, documentMapper);
 
 		// WHEN -- adding a user
 		Response taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(new QueryParams()), null, newUserDocument);
 
 		// THEN
-		assertThat(taskResponse.getDocument().getSingleData()).isEqualTo("users");
+		assertThat(taskResponse.getDocument().getSingleData().getType()).isEqualTo("users");
 		Long userId = Long.parseLong(taskResponse.getDocument().getSingleData().getId());
 		assertThat(userId).isNotNull();
 
@@ -178,7 +178,7 @@ public class RelationshipsResourceDeleteTest extends BaseControllerTest {
 
 		// GIVEN
 		Document newProjectDocument2 = new Document();
-		newProjectDocument2.setData(createProject("3"));
+		newProjectDocument2.setData(createProject(projectId.toString()));
 
 		JsonPath savedTaskPath = pathBuilder.buildPath("/users/" + userId + "/relationships/assignedProjects");
 		RelationshipsResourcePost relationshipsResourcePost = new RelationshipsResourcePost(resourceRegistry, typeParser);

@@ -29,16 +29,17 @@ import io.katharsis.utils.PropertyUtils;
 import io.katharsis.utils.parser.TypeParser;
 
 public abstract class ResourceUpsert extends BaseController {
-    final ResourceRegistry resourceRegistry;
+    private static final String ResourceId = null;
+	final ResourceRegistry resourceRegistry;
     final TypeParser typeParser;
     protected final ObjectMapper objectMapper;
 	protected DocumentMapper documentMapper;
 
-    public ResourceUpsert(ResourceRegistry resourceRegistry, TypeParser typeParser, ObjectMapper objectMapper) {
+    public ResourceUpsert(ResourceRegistry resourceRegistry, TypeParser typeParser, ObjectMapper objectMapper, DocumentMapper documentMapper) {
         this.resourceRegistry = resourceRegistry;
         this.typeParser = typeParser;
         this.objectMapper = objectMapper;
-        this.documentMapper = new DocumentMapper(resourceRegistry, objectMapper);
+        this.documentMapper = documentMapper;
     }
 
     protected Object newResource(ResourceInformation resourceInformation, Resource dataBody) {
@@ -203,12 +204,13 @@ public abstract class ResourceUpsert extends BaseController {
                     //noinspection unchecked
                     setRelationsField(newResource,
                             registryEntry,
-                            (Map.Entry) property,
+                            property,
                             queryAdapter,
                             parameterProvider);
                 } else {
                     //noinspection unchecked
-                    setRelationField(newResource, registryEntry, propertyName, (ResourceId)property.getValue().getData(), queryAdapter, parameterProvider);
+                	ResourceId relationId = (ResourceId) (property.getValue() != null ? property.getValue().getData() : null);
+                    setRelationField(newResource, registryEntry, propertyName, relationId, queryAdapter, parameterProvider);
                 }
 
             }
@@ -216,7 +218,7 @@ public abstract class ResourceUpsert extends BaseController {
     }
 
     protected void setRelationsField(Object newResource, RegistryEntry registryEntry,
-                                   Map.Entry<String, Iterable<ResourceId>> property, QueryAdapter queryAdapter,
+                                   Map.Entry<String, Relationship> property, QueryAdapter queryAdapter,
                                    RepositoryMethodParameterProvider parameterProvider) {
     	if(property.getValue() != null){
 	        String propertyName = property.getKey();
@@ -229,7 +231,7 @@ public abstract class ResourceUpsert extends BaseController {
 	        List relationships = new LinkedList<>();
 	        boolean first = true;
 	        
-	        for (ResourceId linkageData : property.getValue()) {
+	        for (ResourceId linkageData : property.getValue().getCollectionData()) {
 	            if (first) {
 	                entry = resourceRegistry.getEntry(linkageData.getType(), relationshipFieldClass);
 	                idFieldType = entry.getResourceInformation()

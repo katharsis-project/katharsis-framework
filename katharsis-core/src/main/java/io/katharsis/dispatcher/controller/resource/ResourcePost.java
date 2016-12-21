@@ -15,6 +15,7 @@ import io.katharsis.resource.Resource;
 import io.katharsis.resource.exception.RequestBodyException;
 import io.katharsis.resource.exception.RequestBodyNotFoundException;
 import io.katharsis.resource.exception.ResourceNotFoundException;
+import io.katharsis.resource.internal.DocumentMapper;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.repository.adapter.ResourceRepositoryAdapter;
@@ -23,8 +24,8 @@ import io.katharsis.utils.parser.TypeParser;
 
 public class ResourcePost extends ResourceUpsert {
 
-    public ResourcePost(ResourceRegistry resourceRegistry, TypeParser typeParser, ObjectMapper objectMapper) {
-        super(resourceRegistry, typeParser, objectMapper);
+    public ResourcePost(ResourceRegistry resourceRegistry, TypeParser typeParser, ObjectMapper objectMapper, DocumentMapper documentMapper) {
+        super(resourceRegistry, typeParser, objectMapper, documentMapper);
     }
 
     /**

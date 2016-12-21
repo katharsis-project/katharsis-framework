@@ -14,17 +14,18 @@ import io.katharsis.request.path.RelationshipsPath;
 import io.katharsis.resource.Document;
 import io.katharsis.resource.exception.ResourceFieldNotFoundException;
 import io.katharsis.resource.field.ResourceField;
-import io.katharsis.resource.include.IncludeLookupSetter;
+import io.katharsis.resource.internal.DocumentMapper;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.repository.adapter.RelationshipRepositoryAdapter;
+import io.katharsis.response.JsonApiResponse;
 import io.katharsis.utils.Generics;
 import io.katharsis.utils.parser.TypeParser;
 
 public class RelationshipsResourceGet extends ResourceIncludeField {
 
-    public RelationshipsResourceGet(ResourceRegistry resourceRegistry, ObjectMapper objectMapper, TypeParser typeParser, IncludeLookupSetter fieldSetter) {
-        super(resourceRegistry, objectMapper, typeParser, fieldSetter);
+    public RelationshipsResourceGet(ResourceRegistry resourceRegistry, ObjectMapper objectMapper, TypeParser typeParser, DocumentMapper documentMapper) {
+        super(resourceRegistry, objectMapper, typeParser, documentMapper);
     }
 
     @Override
@@ -55,16 +56,13 @@ public class RelationshipsResourceGet extends ResourceIncludeField {
 
         RelationshipRepositoryAdapter relationshipRepositoryForClass = registryEntry
                 .getRelationshipRepositoryForClass(relationshipFieldClass, parameterProvider);
-        Document responseDocument;
-        if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
-            responseDocument = documentMapper.toDocument(relationshipRepositoryForClass
-                    .findManyTargets(castedResourceId, elementName, queryAdapter), queryAdapter);
-            includeFieldSetter.setIncludedElements(resourceName, responseDocument, queryAdapter, parameterProvider);
+        JsonApiResponse entities;
+		if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
+        	entities = relationshipRepositoryForClass.findManyTargets(castedResourceId, elementName, queryAdapter);
         } else {
-            responseDocument = documentMapper.toDocument(relationshipRepositoryForClass
-                    .findOneTarget(castedResourceId, elementName, queryAdapter), queryAdapter);
-            includeFieldSetter.setIncludedElements(resourceName, responseDocument, queryAdapter, parameterProvider);
+            entities = relationshipRepositoryForClass.findOneTarget(castedResourceId, elementName, queryAdapter);
         }
+        Document responseDocument = documentMapper.toDocument(entities, queryAdapter);
         
         // FIXME related vs self
 

@@ -50,7 +50,7 @@ public class DocumentMapperTest {
 		ObjectMapper objectMapper = new ObjectMapper();
 		objectMapper.registerModule(new JsonApiModuleBuilder().build(resourceRegistry, false));
 
-		mapper = new DocumentMapper(resourceRegistry, objectMapper);
+		mapper = new DocumentMapper(resourceRegistry, objectMapper, null);
 	}
 
 	@Test

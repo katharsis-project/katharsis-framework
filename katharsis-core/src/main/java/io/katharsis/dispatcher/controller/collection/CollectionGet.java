@@ -13,16 +13,17 @@ import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.Document;
 import io.katharsis.resource.exception.ResourceNotFoundException;
-import io.katharsis.resource.include.IncludeLookupSetter;
+import io.katharsis.resource.internal.DocumentMapper;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.repository.adapter.ResourceRepositoryAdapter;
+import io.katharsis.response.JsonApiResponse;
 import io.katharsis.utils.parser.TypeParser;
 
 public class CollectionGet extends ResourceIncludeField {
 
-	public CollectionGet(ResourceRegistry resourceRegistry, ObjectMapper objectMapper, TypeParser typeParser, IncludeLookupSetter fieldSetter) {
-        super(resourceRegistry, objectMapper, typeParser, fieldSetter);
+	public CollectionGet(ResourceRegistry resourceRegistry, ObjectMapper objectMapper, TypeParser typeParser, DocumentMapper documentMapper) {
+        super(resourceRegistry, objectMapper, typeParser, documentMapper);
     }
 
     /**
@@ -46,17 +47,18 @@ public class CollectionGet extends ResourceIncludeField {
         }
         Document responseDocument;
         ResourceRepositoryAdapter resourceRepository = registryEntry.getResourceRepository(parameterProvider);
-        if (jsonPath.getIds() == null || jsonPath.getIds().getIds().isEmpty()) {
-            responseDocument = documentMapper.toDocument(resourceRepository.findAll(queryAdapter), queryAdapter);
+        JsonApiResponse entities;
+		if (jsonPath.getIds() == null || jsonPath.getIds().getIds().isEmpty()) {
+            entities = resourceRepository.findAll(queryAdapter);
         } else {
             Class<? extends Serializable> idType = (Class<? extends Serializable>)registryEntry
                 .getResourceInformation().getIdField().getType();
             Iterable<? extends Serializable> parsedIds = typeParser.parse((Iterable<String>) jsonPath.getIds().getIds(),
                 idType);
-            responseDocument = documentMapper.toDocument(resourceRepository.findAll(parsedIds, queryAdapter), queryAdapter);
+            entities = resourceRepository.findAll(parsedIds, queryAdapter);
         }
-        includeFieldSetter.setIncludedElements(resourceName, responseDocument, queryAdapter, parameterProvider);
-
+        responseDocument = documentMapper.toDocument(entities, queryAdapter);
+        
         return new Response(responseDocument, 200);
     }
 }

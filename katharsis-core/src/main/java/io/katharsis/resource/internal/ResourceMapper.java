@@ -36,10 +36,10 @@ public class ResourceMapper {
 		this.objectMapper = objectMapper;
 	}
 
-	public Object toData(Object entity, QueryAdapter queryAdapter) {
-		if (entity instanceof ResourceId) {
+	public Resource toData(Object entity, QueryAdapter queryAdapter) {
+		if (entity instanceof Resource) {
 			// Resource and ResourceId
-			return entity;
+			return (Resource) entity;
 		} else {
 			// map resource objects
 			Class<?> dataClass = entity.getClass();
@@ -103,12 +103,9 @@ public class ResourceMapper {
 
 			Relationship relationship = new Relationship();
 			relationship.setLinks(relationshipLinks);
-			resource.getRelationships().put(field.getUnderlyingName(), relationship);
+			resource.getRelationships().put(field.getJsonName(), relationship);
 
-			boolean includeData = getIncludeRelationshipData(resourceInformation, field, queryAdapter);
-			if (includeData) {
-				relationship.setData(getRelationshipData(entity, resourceInformation, field));
-			}
+			
 		}
 	}
 

@@ -12,6 +12,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import io.katharsis.dispatcher.controller.BaseControllerTest;
 import io.katharsis.dispatcher.controller.Response;
+import io.katharsis.queryParams.DefaultQueryParamsParser;
+import io.katharsis.queryParams.QueryParams;
+import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.queryspec.internal.QueryParamsAdapter;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
@@ -21,7 +24,9 @@ import io.katharsis.resource.Resource;
 import io.katharsis.resource.ResourceId;
 import io.katharsis.resource.exception.ResourceException;
 import io.katharsis.resource.exception.ResourceNotFoundException;
+import io.katharsis.resource.mock.models.Pojo;
 import io.katharsis.resource.mock.models.Task;
+import io.katharsis.resource.mock.repository.PojoRepository;
 import io.katharsis.resource.mock.repository.TaskRepository;
 import io.katharsis.response.HttpStatus;
 
@@ -33,7 +38,7 @@ public class ResourcePostTest extends BaseControllerTest {
 	public void onGivenRequestCollectionGetShouldDenyIt() {
 		// GIVEN
 		JsonPath jsonPath = pathBuilder.build("/tasks/1");
-		ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper);
+		ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper, documentMapper);
 
 		// WHEN
 		boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -46,7 +51,7 @@ public class ResourcePostTest extends BaseControllerTest {
 	public void onGivenRequestResourceGetShouldAcceptIt() {
 		// GIVEN
 		JsonPath jsonPath = pathBuilder.build("/tasks/");
-		ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper);
+		ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper, documentMapper);
 
 		// WHEN
 		boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -63,7 +68,7 @@ public class ResourcePostTest extends BaseControllerTest {
 		newProjectBody.setData(data);
 
 		JsonPath projectPath = pathBuilder.build("/tasks");
-		ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper);
+		ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper, documentMapper);
 
 		// THEN
 		expectedException.expect(RuntimeException.class);
@@ -80,7 +85,7 @@ public class ResourcePostTest extends BaseControllerTest {
 		data.setType("fridges");
 		newProjectBody.setData(data);
 
-		ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper);
+		ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper, documentMapper);
 
 		// THEN
 		expectedException.expect(ResourceNotFoundException.class);
@@ -92,7 +97,7 @@ public class ResourcePostTest extends BaseControllerTest {
 	@Test
 	public void onNoBodyResourceShouldThrowException() throws Exception {
 		// GIVEN
-		ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper);
+		ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper, documentMapper);
 
 		// THEN
 		expectedException.expect(RuntimeException.class);
@@ -109,7 +114,7 @@ public class ResourcePostTest extends BaseControllerTest {
 		newProjectBody.setData(data);
 
 		JsonPath projectPath = pathBuilder.build("/projects");
-		ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper);
+		ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper, documentMapper);
 
 		// WHEN
 		Response projectResponse = sut.handle(projectPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newProjectBody);
@@ -158,7 +163,7 @@ public class ResourcePostTest extends BaseControllerTest {
 		data.setType("projects");
 
 		JsonPath projectPath = pathBuilder.build("/projects");
-		ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper);
+		ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper, documentMapper);
 
 		// WHEN
 		Response projectResponse = sut.handle(projectPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newProjectBody);
@@ -195,7 +200,7 @@ public class ResourcePostTest extends BaseControllerTest {
 		assertThat(taskResponse.getDocument().getSingleData().getRelationships().get("assignedProjects").getCollectionData())
 				.hasSize(1);
 		assertThat(taskResponse.getDocument().getSingleData().getRelationships().get("assignedProjects").getCollectionData()
-				.get(0).getId()).isEqualTo(projectId);
+				.get(0).getId()).isEqualTo(projectId.toString());
 	}
 
 	@Test
@@ -209,7 +214,7 @@ public class ResourcePostTest extends BaseControllerTest {
 		data.setAttribute("body", objectMapper.readTree("\"sample body\""));
 
 		JsonPath projectPath = pathBuilder.build("/documents");
-		ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper);
+		ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper, documentMapper);
 
 		// WHEN
 		Response memorandumResponse = sut.handle(projectPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newMemorandumBody);
@@ -230,7 +235,7 @@ public class ResourcePostTest extends BaseControllerTest {
 		newProjectBody.setData(data);
 
 		JsonPath projectPath = pathBuilder.build("/projects");
-		ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper);
+		ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper, documentMapper);
 
 		// WHEN
 		Response projectResponse = sut.handle(projectPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newProjectBody);
@@ -250,25 +255,33 @@ public class ResourcePostTest extends BaseControllerTest {
 		pojoBody.setData(pojoData);
 		pojoData.setType("pojo");
 		JsonNode put = objectMapper.createObjectNode().put("value", "hello");
-		data.setAttribute("other-pojo", put);
-		data.getRelationships().put("some-project", new Relationship(new ResourceId(Long.toString(projectId), "projects")));
-		data.getRelationships().put("some-projects",
+		pojoData.setAttribute("other-pojo", put);
+		pojoData.getRelationships().put("some-project", new Relationship(new ResourceId(Long.toString(projectId), "projects")));
+		pojoData.getRelationships().put("some-projects",
 				new Relationship(Arrays.asList(new ResourceId(Long.toString(projectId), "projects"))));
 
 		JsonPath pojoPath = pathBuilder.build("/pojo");
 
 		// WHEN
-		Response pojoResponse = sut.handle(pojoPath, new QueryParamsAdapter(REQUEST_PARAMS), null, pojoBody);
+		QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
+        QueryParams queryParams = queryParamsBuilder.buildQueryParams(Collections.singletonMap("include[pojo]", Collections.singleton("projects")));
+		Response pojoResponse = sut.handle(pojoPath, new QueryParamsAdapter(queryParams), null, pojoBody);
 
 		// THEN
 		assertThat(pojoResponse.getDocument().getSingleData().getType()).isEqualTo("pojo");
 		Resource persistedPojo = pojoResponse.getDocument().getSingleData();
 		assertThat(persistedPojo.getId()).isNotNull();
-		assertThat(persistedPojo.getAttributes().get("otherPojo").get("value").asText()).isEqualTo("hello");
-		assertThat(persistedPojo.getRelationships().get("project").getSingleData()).isNotNull();
-		assertThat(persistedPojo.getRelationships().get("project").getSingleData().getId()).isEqualTo(projectId.toString());
-		assertThat(persistedPojo.getRelationships().get("projects").getCollectionData()).hasSize(1);
-		assertThat(persistedPojo.getRelationships().get("projects").getCollectionData().get(0)).isEqualTo(projectId.toString());
+		assertThat(persistedPojo.getAttributes().get("other-pojo").get("value").asText()).isEqualTo("hello");
+		assertThat(persistedPojo.getRelationships().get("some-project").getSingleData()).isNotNull();
+		assertThat(persistedPojo.getRelationships().get("some-project").getSingleData().getId()).isEqualTo(projectId.toString());
+		Relationship persistedProjectsRelationship = persistedPojo.getRelationships().get("some-projects");
+		assertThat(persistedProjectsRelationship).isNotNull();
+		
+		// check lazy loaded relation
+		PojoRepository repo = (PojoRepository) resourceRegistry.getEntry(Pojo.class).getResourceRepository(null).getResourceRepository();
+		Pojo pojo = repo.findOne(null, null);
+		assertThat(pojo.getProjects()).hasSize(1);
+		assertThat(pojo.getProjects().get(0).getId()).isEqualTo(projectId);
 	}
 
 	@Test
@@ -279,7 +292,7 @@ public class ResourcePostTest extends BaseControllerTest {
 		newProjectBody.setData(data);
 
 		JsonPath projectPath = pathBuilder.build("/projects");
-		ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper);
+		ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper, documentMapper);
 
 		// WHEN
 		Response projectResponse = sut.handle(projectPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newProjectBody);
@@ -301,7 +314,7 @@ public class ResourcePostTest extends BaseControllerTest {
 		JsonNode put = objectMapper.createObjectNode().put("value", "hello");
 		pojoData.setAttribute("other-pojo", objectMapper.readTree("null"));
 		String invalidRelationshipName = "invalid-relationship";
-		pojoData.getRelationships().put("projects", new Relationship(new ResourceId(Long.toString(projectId), "projects")));
+		pojoData.getRelationships().put(invalidRelationshipName, new Relationship(new ResourceId(Long.toString(projectId), "projects")));
 
 		JsonPath pojoPath = pathBuilder.build("/pojo");
 

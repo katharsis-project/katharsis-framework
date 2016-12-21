@@ -89,6 +89,10 @@ public class ResourceInformation {
 
 			this.metaFieldName = getMetaFieldName(resourceClass, fields);
 			this.linksFieldName = getLinksFieldName(resourceClass, fields);
+			
+			for(ResourceField resourceField : fields){
+				resourceField.setResourceInformation(this);
+			}
 		}
 		else {
 			this.relationshipFields = Collections.emptyList();

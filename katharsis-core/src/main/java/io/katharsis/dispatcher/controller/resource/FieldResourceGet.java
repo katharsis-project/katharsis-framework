@@ -14,17 +14,18 @@ import io.katharsis.request.path.PathIds;
 import io.katharsis.resource.Document;
 import io.katharsis.resource.exception.ResourceFieldNotFoundException;
 import io.katharsis.resource.field.ResourceField;
-import io.katharsis.resource.include.IncludeLookupSetter;
+import io.katharsis.resource.internal.DocumentMapper;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.repository.adapter.RelationshipRepositoryAdapter;
+import io.katharsis.response.JsonApiResponse;
 import io.katharsis.utils.Generics;
 import io.katharsis.utils.parser.TypeParser;
 
 public class FieldResourceGet extends ResourceIncludeField {
 
-    public FieldResourceGet(ResourceRegistry resourceRegistry, ObjectMapper objectMapper, TypeParser typeParser, IncludeLookupSetter fieldSetter) {
-        super(resourceRegistry, objectMapper, typeParser, fieldSetter);
+    public FieldResourceGet(ResourceRegistry resourceRegistry, ObjectMapper objectMapper, TypeParser typeParser, DocumentMapper documentMapper) {
+        super(resourceRegistry, objectMapper, typeParser, documentMapper);
     }
 
     @Override
@@ -56,18 +57,13 @@ public class FieldResourceGet extends ResourceIncludeField {
         
         RelationshipRepositoryAdapter relationshipRepositoryForClass = registryEntry
                 .getRelationshipRepositoryForClass(relationshipFieldClass, parameterProvider);
-        Document responseDocument;
-        if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
-            responseDocument = documentMapper.toDocument(relationshipRepositoryForClass
-                    .findManyTargets(castedResourceId, elementName, queryAdapter), queryAdapter);
-            includeFieldSetter.setIncludedElements(relationshipResourceType, responseDocument, queryAdapter, parameterProvider);
-        } else
-
-        {
-        	responseDocument = documentMapper.toDocument(relationshipRepositoryForClass
-                    .findOneTarget(castedResourceId, elementName, queryAdapter), queryAdapter);
-            includeFieldSetter.setIncludedElements(relationshipResourceType, responseDocument, queryAdapter, parameterProvider);
+        JsonApiResponse entities; 
+		if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
+        	entities = relationshipRepositoryForClass.findManyTargets(castedResourceId, elementName, queryAdapter);
+        } else {
+        	entities = relationshipRepositoryForClass.findOneTarget(castedResourceId, elementName, queryAdapter);
         }
+        Document responseDocument = documentMapper.toDocument(entities, queryAdapter);
 
         return new Response(responseDocument, 200);
     }

@@ -13,16 +13,17 @@ import io.katharsis.request.path.PathIds;
 import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.Document;
 import io.katharsis.resource.exception.ResourceNotFoundException;
-import io.katharsis.resource.include.IncludeLookupSetter;
+import io.katharsis.resource.internal.DocumentMapper;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.repository.adapter.ResourceRepositoryAdapter;
+import io.katharsis.response.JsonApiResponse;
 import io.katharsis.utils.parser.TypeParser;
 
 public class ResourceGet extends ResourceIncludeField {
 
-	public ResourceGet(ResourceRegistry resourceRegistry, ObjectMapper objectMapper, TypeParser typeParser, IncludeLookupSetter fieldSetter) {
-		super(resourceRegistry, objectMapper, typeParser, fieldSetter);
+	public ResourceGet(ResourceRegistry resourceRegistry, ObjectMapper objectMapper, TypeParser typeParser, DocumentMapper documentMapper) {
+		super(resourceRegistry, objectMapper, typeParser, documentMapper);
 	}
 
 	/**
@@ -55,9 +56,8 @@ public class ResourceGet extends ResourceIncludeField {
 		Class<? extends Serializable> idClass = (Class<? extends Serializable>) registryEntry.getResourceInformation().getIdField().getType();
 		Serializable castedId = typeParser.parse(id, idClass);
 		ResourceRepositoryAdapter resourceRepository = registryEntry.getResourceRepository(parameterProvider);
-		@SuppressWarnings("unchecked")
-		Document responseDocument = documentMapper.toDocument(resourceRepository.findOne(castedId, queryAdapter), queryAdapter);
-		includeFieldSetter.setIncludedElements(resourceName, responseDocument, queryAdapter, parameterProvider);
+		JsonApiResponse entities = resourceRepository.findOne(castedId, queryAdapter);
+		Document responseDocument = documentMapper.toDocument(entities, queryAdapter);
 
 		return new Response(responseDocument, 200);
 	}

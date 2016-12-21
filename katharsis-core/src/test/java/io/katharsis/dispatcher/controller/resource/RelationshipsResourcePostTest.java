@@ -27,6 +27,7 @@ import io.katharsis.resource.ResourceId;
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.ProjectPolymorphic;
+import io.katharsis.resource.mock.repository.ProjectPolymorphicRepository;
 import io.katharsis.resource.mock.repository.TaskToProjectRepository;
 import io.katharsis.resource.mock.repository.UserToProjectRepository;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -83,7 +84,7 @@ public class RelationshipsResourcePostTest extends BaseControllerTest {
 		newTaskBody.setData(createTask());
 
 		JsonPath taskPath = pathBuilder.buildPath("/tasks");
-		ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
+		ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER, documentMapper);
 
 		// WHEN -- adding a task
 		Response taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newTaskBody);
@@ -140,7 +141,7 @@ public class RelationshipsResourcePostTest extends BaseControllerTest {
 		newUserBody.setData(data);
 
 		JsonPath taskPath = pathBuilder.buildPath("/users");
-		ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
+		ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER, documentMapper);
 
 		// WHEN -- adding a user
 		Response taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newUserBody);
@@ -202,7 +203,7 @@ public class RelationshipsResourcePostTest extends BaseControllerTest {
 		newTaskBody.setData(data);
 
 		JsonPath taskPath = pathBuilder.buildPath("/tasks");
-		ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
+		ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER, documentMapper);
 
 		// WHEN -- adding a task
 		Response taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newTaskBody);
@@ -242,7 +243,7 @@ public class RelationshipsResourcePostTest extends BaseControllerTest {
 
 		JsonPath taskPath = pathBuilder.buildPath("/tasks");
 
-		ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper);
+		ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper, documentMapper);
 		Response taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newTaskBody);
 		assertThat(taskResponse.getDocument().getSingleData().getType()).isEqualTo("tasks");
 		Long taskIdOne = Long.parseLong(taskResponse.getDocument().getSingleData().getId());
@@ -275,8 +276,11 @@ public class RelationshipsResourcePostTest extends BaseControllerTest {
 		assertThat(projectId).isNotNull();
 		Resource projectPolymorphic = projectResponse.getDocument().getSingleData();
 		assertNotNull(projectPolymorphic.getRelationships().get("task").getSingleData());
-		assertNotNull(projectPolymorphic.getRelationships().get("tasks").getCollectionData());
-		assertEquals(2, projectPolymorphic.getRelationships().get("tasks").getCollectionData().size());
-
+		assertNotNull(projectPolymorphic.getRelationships().get("tasks"));
+		
+		ProjectPolymorphicRepository repository = (ProjectPolymorphicRepository) resourceRegistry.getEntry(ProjectPolymorphic.class).getResourceRepository(null).getResourceRepository();
+		ProjectPolymorphic projectPolymorphicObj = repository.findOne(projectId, null);
+		assertNotNull(projectPolymorphicObj.getTasks());
+		assertEquals(2, projectPolymorphicObj.getTasks().size());
 	}
 }

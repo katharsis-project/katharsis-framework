@@ -19,6 +19,7 @@ import io.katharsis.resource.exception.RequestBodyNotFoundException;
 import io.katharsis.resource.exception.ResourceFieldNotFoundException;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.field.ResourceField;
+import io.katharsis.resource.internal.DocumentMapper;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.repository.adapter.RelationshipRepositoryAdapter;
@@ -26,7 +27,6 @@ import io.katharsis.resource.registry.repository.adapter.ResourceRepositoryAdapt
 import io.katharsis.response.HttpStatus;
 import io.katharsis.response.JsonApiResponse;
 import io.katharsis.utils.Generics;
-import io.katharsis.utils.PropertyUtils;
 import io.katharsis.utils.parser.TypeParser;
 
 /**
@@ -35,8 +35,8 @@ import io.katharsis.utils.parser.TypeParser;
 public class FieldResourcePost extends ResourceUpsert {
 
     public FieldResourcePost(ResourceRegistry resourceRegistry, TypeParser typeParser, @SuppressWarnings
-        ("SameParameterValue") ObjectMapper objectMapper) {
-        super(resourceRegistry, typeParser, objectMapper);
+        ("SameParameterValue") ObjectMapper objectMapper, DocumentMapper documentMapper) {
+        super(resourceRegistry, typeParser, objectMapper, documentMapper);
     }
 
     @Override
@@ -85,10 +85,7 @@ public class FieldResourcePost extends ResourceUpsert {
         Document savedResourceResponse = documentMapper.toDocument(resourceRepository.create(resource, queryAdapter), queryAdapter);
         saveRelations(queryAdapter, extractResource(savedResourceResponse), relationshipRegistryEntry, dataBody, parameterProvider);
 
-        Serializable resourceId = (Serializable) PropertyUtils
-            .getProperty(extractResource(savedResourceResponse), relationshipRegistryEntry.getResourceInformation()
-                .getIdField()
-                .getUnderlyingName());
+        Serializable resourceId = relationshipRegistryEntry.getResourceInformation().parseIdString(savedResourceResponse.getSingleData().getId());
 
         RelationshipRepositoryAdapter relationshipRepositoryForClass = endpointRegistryEntry
             .getRelationshipRepositoryForClass(relationshipFieldClass, parameterProvider);

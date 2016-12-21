@@ -6,30 +6,37 @@ import java.util.List;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.katharsis.errorhandling.ErrorData;
+import io.katharsis.internal.boot.PropertiesProvider;
 import io.katharsis.queryspec.internal.QueryAdapter;
+import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.resource.Document;
-import io.katharsis.resource.Resource;
+import io.katharsis.resource.include.IncludeLookupSetter;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.JsonApiResponse;
 
 public class DocumentMapper {
 
-	private io.katharsis.resource.internal.IncludedRelationshipExtractor includedRelationshipExtractor;
 	private DocumentMapperUtil util;
 
 	private ResourceMapper resourceMapper;
 
-	public DocumentMapper(ResourceRegistry resourceRegistry, ObjectMapper objectMapper) {
-		this(resourceRegistry, objectMapper, false);
+	private IncludeLookupSetter includeLookupSetter;
+
+	public DocumentMapper(ResourceRegistry resourceRegistry, ObjectMapper objectMapper, PropertiesProvider propertiesProvider) {
+		this(resourceRegistry, objectMapper, propertiesProvider, false);
 	}
 
-	public DocumentMapper(ResourceRegistry resourceRegistry, ObjectMapper objectMapper, boolean client) {
+	public DocumentMapper(ResourceRegistry resourceRegistry, ObjectMapper objectMapper, PropertiesProvider propertiesProvider, boolean client) {
 		this.util = new DocumentMapperUtil(resourceRegistry, objectMapper);
 		this.resourceMapper = new ResourceMapper(util, client, objectMapper);
-		this.includedRelationshipExtractor = new IncludedRelationshipExtractor(util, resourceMapper);
+		this.includeLookupSetter = new IncludeLookupSetter(resourceRegistry, resourceMapper, propertiesProvider);
 	}
 
 	public Document toDocument(JsonApiResponse response, QueryAdapter queryAdapter) {
+		return toDocument(response, queryAdapter, null);
+	}
+	
+	public Document toDocument(JsonApiResponse response, QueryAdapter queryAdapter, RepositoryMethodParameterProvider parameterProvider) {
 		if (response == null) {
 			return null;
 		}
@@ -39,16 +46,13 @@ public class DocumentMapper {
 		util.setMeta(doc, response.getMetaInformation());
 		util.setLinks(doc, response.getLinksInformation());
 		addData(doc, response.getEntity(), queryAdapter);
-		addIncluded(doc, response.getEntity(), queryAdapter);
+		addRelationDataAndInclusions(doc, response.getEntity(), queryAdapter, parameterProvider);
+
 		return doc;
 	}
 
-	private void addIncluded(Document doc, Object entity, QueryAdapter queryAdapter) {
-		if (entity != null) {
-			List<Resource> data = DocumentMapperUtil.toList(doc.getData());
-			List<Object> entities = DocumentMapperUtil.toList(entity);
-			doc.setIncluded(includedRelationshipExtractor.extractIncludedResources(data, entities, queryAdapter));
-		}
+	private void addRelationDataAndInclusions(Document doc, Object entity, QueryAdapter queryAdapter, RepositoryMethodParameterProvider parameterProvider) {
+		includeLookupSetter.setIncludedElements(doc, entity, queryAdapter, parameterProvider);
 	}
 
 	private void addData(Document doc, Object entity, QueryAdapter queryAdapter) {

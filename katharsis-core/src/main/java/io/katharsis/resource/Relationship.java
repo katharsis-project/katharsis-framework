@@ -1,5 +1,6 @@
 package io.katharsis.resource;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -60,6 +61,12 @@ public class Relationship implements MetaContainer, LinksContainer {
 
 	@JsonIgnore
 	public List<ResourceId> getCollectionData() {
+		if(data == null){
+			return null;
+		}
+		if (!(data instanceof Iterable)) {
+			return Collections.singletonList(getSingleData());
+		}
 		return (List<ResourceId>) data;
 	}
 

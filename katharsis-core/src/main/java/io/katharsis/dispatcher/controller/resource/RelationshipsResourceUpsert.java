@@ -1,6 +1,7 @@
 package io.katharsis.dispatcher.controller.resource;
 
 import java.io.Serializable;
+import java.util.Collections;
 
 import io.katharsis.dispatcher.controller.BaseController;
 import io.katharsis.dispatcher.controller.HttpMethod;
@@ -111,10 +112,7 @@ public abstract class RelationshipsResourceUpsert extends BaseController {
         RelationshipRepositoryAdapter relationshipRepositoryForClass = registryEntry
                 .getRelationshipRepositoryForClass(relationshipFieldClass, parameterProvider);
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
-            if (!requestBody.isMultiple()) {
-                throw new RequestBodyException(HttpMethod.POST, resourceName, "Non-multiple data in body");
-            }
-            Iterable<ResourceId> dataBodies = (Iterable<ResourceId>) requestBody.getData();
+            Iterable<ResourceId> dataBodies = (Iterable<ResourceId>) (requestBody.isMultiple() ? requestBody.getData() : Collections.singletonList(requestBody.getData()));
             processToManyRelationship(resource, relationshipIdType, jsonPath.getElementName(), dataBodies, queryAdapter,
                     relationshipRepositoryForClass);
         } else {

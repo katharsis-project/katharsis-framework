@@ -39,8 +39,7 @@ public class FieldResourceGetTest extends BaseControllerTest {
 		// GIVEN
 		JsonPath jsonPath = pathBuilder.buildPath("tasks/1/project");
 		ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-		IncludeLookupSetter includeFieldSetter = mock(IncludeLookupSetter.class);
-		FieldResourceGet sut = new FieldResourceGet(resourceRegistry, objectMapper, typeParser, includeFieldSetter);
+		FieldResourceGet sut = new FieldResourceGet(resourceRegistry, objectMapper, typeParser, documentMapper);
 
 		// WHEN
 		boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -54,8 +53,7 @@ public class FieldResourceGetTest extends BaseControllerTest {
 		// GIVEN
 		JsonPath jsonPath = new ResourcePath("tasks/1/relationships/project");
 		ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-		IncludeLookupSetter includeFieldSetter = mock(IncludeLookupSetter.class);
-		FieldResourceGet sut = new FieldResourceGet(resourceRegistry, objectMapper, typeParser, includeFieldSetter);
+		FieldResourceGet sut = new FieldResourceGet(resourceRegistry, objectMapper, typeParser, documentMapper);
 
 		// WHEN
 		boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -69,8 +67,7 @@ public class FieldResourceGetTest extends BaseControllerTest {
 		// GIVEN
 		JsonPath jsonPath = new ResourcePath("tasks");
 		ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-		IncludeLookupSetter includeFieldSetter = mock(IncludeLookupSetter.class);
-		FieldResourceGet sut = new FieldResourceGet(resourceRegistry, objectMapper, typeParser, includeFieldSetter);
+		FieldResourceGet sut = new FieldResourceGet(resourceRegistry, objectMapper, typeParser, documentMapper);
 
 		// WHEN
 		boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -84,7 +81,7 @@ public class FieldResourceGetTest extends BaseControllerTest {
 		// GIVEN
 
 		JsonPath jsonPath = pathBuilder.buildPath("/tasks/1/project");
-		FieldResourceGet sut = new FieldResourceGet(resourceRegistry, objectMapper, typeParser, includeFieldSetter);
+		FieldResourceGet sut = new FieldResourceGet(resourceRegistry, objectMapper, typeParser, documentMapper);
 
 		// WHEN
 		Response response = sut.handle(jsonPath, new QueryParamsAdapter(new QueryParams()), null, null);
@@ -98,7 +95,7 @@ public class FieldResourceGetTest extends BaseControllerTest {
 		// GIVEN
 
 		JsonPath jsonPath = pathBuilder.buildPath("/users/1/assignedProjects");
-		FieldResourceGet sut = new FieldResourceGet(resourceRegistry, objectMapper, typeParser, includeFieldSetter);
+		FieldResourceGet sut = new FieldResourceGet(resourceRegistry, objectMapper, typeParser, documentMapper);
 
 		// WHEN
 		Response response = sut.handle(jsonPath, new QuerySpecAdapter(new QuerySpec(Project.class), resourceRegistry), null, null);
@@ -136,7 +133,7 @@ public class FieldResourceGetTest extends BaseControllerTest {
 		QueryParams queryParams = queryParamsBuilder.buildQueryParams(params);
 		QueryAdapter queryAdapter = new QueryParamsAdapter(Project.class, queryParams, resourceRegistry);
 		JsonPath jsonPath = pathBuilder.buildPath("/users/1/assignedProjects");
-		FieldResourceGet sut = new FieldResourceGet(resourceRegistry, objectMapper, typeParser, includeFieldSetter);
+		FieldResourceGet sut = new FieldResourceGet(resourceRegistry, objectMapper, typeParser, documentMapper);
 
 		Response response = sut.handle(jsonPath, queryAdapter, null, null);
 

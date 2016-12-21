@@ -3,6 +3,7 @@ package io.katharsis.dispatcher.controller.resource;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -22,6 +23,7 @@ import io.katharsis.resource.exception.RequestBodyException;
 import io.katharsis.resource.exception.RequestBodyNotFoundException;
 import io.katharsis.resource.exception.ResourceException;
 import io.katharsis.resource.exception.ResourceNotFoundException;
+import io.katharsis.resource.internal.DocumentMapper;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.repository.adapter.ResourceRepositoryAdapter;
@@ -30,8 +32,8 @@ import io.katharsis.utils.parser.TypeParser;
 
 public class ResourcePatch extends ResourceUpsert {
 
-    public ResourcePatch(ResourceRegistry resourceRegistry, TypeParser typeParser, @SuppressWarnings("SameParameterValue") ObjectMapper objectMapper) {
-        super(resourceRegistry, typeParser, objectMapper);
+    public ResourcePatch(ResourceRegistry resourceRegistry, TypeParser typeParser, @SuppressWarnings("SameParameterValue") ObjectMapper objectMapper, DocumentMapper documentMapper) {
+        super(resourceRegistry, typeParser, objectMapper, documentMapper);
     }
 
     @Override
@@ -77,15 +79,16 @@ public class ResourcePatch extends ResourceUpsert {
         Object resource = extractResource(resourceFindResponse);
         Resource resourceFindData = (Resource) documentMapper.toDocument(resourceFindResponse, queryAdapter).getData();
 
-        String attributesFromFindOne = null;
-
         // extract current attributes from findOne without any manipulation by query params (such as sparse fieldsets)
         try{
-	        attributesFromFindOne = extractAttributesFromResourceAsJson(resourceFindData);
-	        Map<String,Object> attributesToUpdate = objectMapper.readValue(attributesFromFindOne, Map.class);
+        	String attributesFromFindOne = extractAttributesFromResourceAsJson(resourceFindData);
+	        Map<String,Object> attributesToUpdate = emptyIfNull(objectMapper.readValue(attributesFromFindOne, Map.class));
+	      
 	        // deserialize the request JSON's attributes object into a map
 	        String attributesAsJson = objectMapper.writeValueAsString(resourceBody.getAttributes());
-	        Map<String,Object> attributesFromRequest = objectMapper.readValue(attributesAsJson, Map.class);
+	        Map<String,Object> attributesFromRequest = emptyIfNull(objectMapper.readValue(attributesAsJson, Map.class));
+	        
+	        
    
 	        // remove attributes that were omitted in the request
 	        Iterator<String> it = attributesToUpdate.keySet().iterator();
@@ -116,7 +119,11 @@ public class ResourcePatch extends ResourceUpsert {
         return new Response(responseDocument, 200);
     }
 
-    private String extractAttributesFromResourceAsJson(Resource resource) throws IOException{
+    private <K,V> Map<K,V> emptyIfNull(Map<K,V> value) {
+		return (Map<K, V>) (value != null ? value : Collections.emptyMap());
+	}
+
+	private String extractAttributesFromResourceAsJson(Resource resource) throws IOException{
 
         JsonApiResponse response = new JsonApiResponse();
         response.setEntity(resource);

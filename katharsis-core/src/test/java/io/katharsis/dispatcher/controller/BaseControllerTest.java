@@ -21,7 +21,6 @@ import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.request.path.PathBuilder;
 import io.katharsis.resource.Resource;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
-import io.katharsis.resource.include.IncludeLookupSetter;
 import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.internal.DocumentMapper;
@@ -49,7 +48,7 @@ public abstract class BaseControllerTest {
 	protected PathBuilder pathBuilder;
 	protected ResourceRegistry resourceRegistry;
 	protected TypeParser typeParser;
-	protected IncludeLookupSetter includeFieldSetter;
+	protected DocumentMapper documentMapper;
 	protected QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
 
 	@Rule
@@ -64,7 +63,7 @@ public abstract class BaseControllerTest {
 		typeParser = new TypeParser();
 		objectMapper = new ObjectMapper();
 		objectMapper.registerModule(new JsonApiModuleBuilder().build(resourceRegistry, false));
-		includeFieldSetter = new IncludeLookupSetter(resourceRegistry, new DocumentMapper(resourceRegistry, objectMapper), new EmptyPropertiesProvider());
+		documentMapper = new DocumentMapper(resourceRegistry, objectMapper, new EmptyPropertiesProvider());
 		UserRepository.clear();
 		ProjectRepository.clear();
 		TaskRepository.clear();

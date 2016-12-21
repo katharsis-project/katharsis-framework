@@ -47,7 +47,7 @@ public class RelationshipsResourceGetTest extends BaseControllerTest {
         // GIVEN
         JsonPath jsonPath = pathBuilder.buildPath("tasks/1/relationships/project");
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-        RelationshipsResourceGet sut = new RelationshipsResourceGet(resourceRegistry, objectMapper, typeParser, includeFieldSetter);
+        RelationshipsResourceGet sut = new RelationshipsResourceGet(resourceRegistry, objectMapper, typeParser, documentMapper);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -61,7 +61,7 @@ public class RelationshipsResourceGetTest extends BaseControllerTest {
         // GIVEN
         JsonPath jsonPath = new ResourcePath("tasks/1/project");
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-        RelationshipsResourceGet sut = new RelationshipsResourceGet(resourceRegistry, objectMapper, typeParser, includeFieldSetter);
+        RelationshipsResourceGet sut = new RelationshipsResourceGet(resourceRegistry, objectMapper, typeParser, documentMapper);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -75,7 +75,7 @@ public class RelationshipsResourceGetTest extends BaseControllerTest {
         // GIVEN
         JsonPath jsonPath = new ResourcePath("tasks");
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-        RelationshipsResourceGet sut = new RelationshipsResourceGet(resourceRegistry, objectMapper, typeParser, includeFieldSetter);
+        RelationshipsResourceGet sut = new RelationshipsResourceGet(resourceRegistry, objectMapper, typeParser, documentMapper);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -89,7 +89,7 @@ public class RelationshipsResourceGetTest extends BaseControllerTest {
         // GIVEN
 
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/1/relationships/project");
-        RelationshipsResourceGet sut = new RelationshipsResourceGet(resourceRegistry, objectMapper, typeParser, includeFieldSetter);
+        RelationshipsResourceGet sut = new RelationshipsResourceGet(resourceRegistry, objectMapper, typeParser, documentMapper);
 
         // WHEN
         Response response = sut.handle(jsonPath, new QueryParamsAdapter(REQUEST_PARAMS), null, null);
@@ -102,7 +102,7 @@ public class RelationshipsResourceGetTest extends BaseControllerTest {
     public void onGivenRequestLinkResourceGetShouldReturnDataField() throws Exception {
         // GIVEN
         JsonPath jsonPath = pathBuilder.buildPath("/tasks/1/relationships/project");
-        RelationshipsResourceGet sut = new RelationshipsResourceGet(resourceRegistry, objectMapper, typeParser, includeFieldSetter);
+        RelationshipsResourceGet sut = new RelationshipsResourceGet(resourceRegistry, objectMapper, typeParser, documentMapper);
         new TaskToProjectRepository().setRelation(new Task().setId(1L), 42L, "project");
 
         // WHEN
@@ -110,7 +110,7 @@ public class RelationshipsResourceGetTest extends BaseControllerTest {
 
         // THEN
         Assert.assertNotNull(response);
-        String resultJson = objectMapper.writeValueAsString(response);
+        String resultJson = objectMapper.writeValueAsString(response.getDocument());
         assertThatJson(resultJson).node("data.id").isStringEqualTo("42");
         assertThatJson(resultJson).node("data.type").isEqualTo("projects");
     }
@@ -127,7 +127,7 @@ public class RelationshipsResourceGetTest extends BaseControllerTest {
         projectPolymorphicToObjectRepository.setRelation(projectPolymorphic, 42L, "task");
 
         JsonPath jsonPath = pathBuilder.buildPath("/" + type + "/" + projectId + "/relationships/task");
-        RelationshipsResourceGet resourceGet = new RelationshipsResourceGet(resourceRegistry, objectMapper, typeParser, includeFieldSetter);
+        RelationshipsResourceGet resourceGet = new RelationshipsResourceGet(resourceRegistry, objectMapper, typeParser, documentMapper);
 
         // WHEN
         Response baseResponseContext = resourceGet.handle(jsonPath,
@@ -136,14 +136,14 @@ public class RelationshipsResourceGetTest extends BaseControllerTest {
                 null);
         // THEN
         Assert.assertNotNull(baseResponseContext);
-        String resultJson = objectMapper.writeValueAsString(baseResponseContext);
+        String resultJson = objectMapper.writeValueAsString(baseResponseContext.getDocument());
         assertThatJson(resultJson).node("data.id").isStringEqualTo("42");
         assertThatJson(resultJson).node("data.type").isEqualTo("tasks");
 
         // GIVEN
         projectPolymorphicToObjectRepository.setRelations(projectPolymorphic, Arrays.asList(44L, 45L), "tasks");
         jsonPath = pathBuilder.buildPath("/" + type + "/" + projectId + "/relationships/tasks");
-        resourceGet = new RelationshipsResourceGet(resourceRegistry, objectMapper, typeParser, includeFieldSetter);
+        resourceGet = new RelationshipsResourceGet(resourceRegistry, objectMapper, typeParser, documentMapper);
 
         // WHEN
         baseResponseContext = resourceGet.handle(jsonPath,
@@ -152,7 +152,7 @@ public class RelationshipsResourceGetTest extends BaseControllerTest {
                 null);
         Assert.assertNotNull(baseResponseContext);
 
-        resultJson = objectMapper.writeValueAsString(baseResponseContext);
+        resultJson = objectMapper.writeValueAsString(baseResponseContext.getDocument());
         ReadContext resultCtx = com.jayway.jsonpath.JsonPath.parse(resultJson);
         assertIncludeDoNotCareAboutOrder(new ArrayList<>(Arrays.asList("44", "45")), Arrays.asList(0, 1), resultCtx);
 
