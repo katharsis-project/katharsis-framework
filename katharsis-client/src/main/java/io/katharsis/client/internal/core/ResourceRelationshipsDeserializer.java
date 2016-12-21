@@ -53,7 +53,8 @@ public class ResourceRelationshipsDeserializer extends JsonDeserializer<Resource
 				List<LinkageData> linkageDatas = new LinkedList<>();
 
 				while (nodeIterator.hasNext()) {
-					LinkageData newLinkageData = jp.getCodec().treeToValue(nodeIterator.next(), LinkageData.class);
+					JsonNode linkageNode = nodeIterator.next();
+					LinkageData newLinkageData = jp.getCodec().treeToValue(linkageNode, LinkageData.class);
 					linkageDatas.add(newLinkageData);
 				}
 				value = linkageDatas;

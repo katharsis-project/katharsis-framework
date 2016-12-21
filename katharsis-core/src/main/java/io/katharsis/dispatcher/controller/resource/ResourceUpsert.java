@@ -13,7 +13,7 @@ import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.resource.Relationship;
 import io.katharsis.resource.Resource;
-import io.katharsis.resource.ResourceId;
+import io.katharsis.resource.ResourceIdentifier;
 import io.katharsis.resource.exception.ResourceException;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.field.ResourceAttributesBridge;
@@ -86,7 +86,7 @@ public abstract class ResourceUpsert extends BaseController {
     }
 
     private void saveRelationsField(QueryAdapter queryAdapter, Object savedResource, RegistryEntry registryEntry,
-                                    Map.Entry<String, Iterable<ResourceId>> property,
+                                    Map.Entry<String, Iterable<ResourceIdentifier>> property,
                                     ResourceInformation resourceInformation,
                                     RepositoryMethodParameterProvider parameterProvider) {
         if (!allTypesTheSame(property.getValue())) {
@@ -102,7 +102,7 @@ public abstract class ResourceUpsert extends BaseController {
                 .getType();
         List<Serializable> castedRelationIds = new LinkedList<>();
 
-        for (ResourceId linkageData : property.getValue()) {
+        for (ResourceIdentifier linkageData : property.getValue()) {
             Serializable castedRelationshipId = typeParser.parse(linkageData.getId(), relationshipIdClass);
             castedRelationIds.add(castedRelationshipId);
         }
@@ -117,12 +117,12 @@ public abstract class ResourceUpsert extends BaseController {
                 relationshipField.getUnderlyingName(), queryAdapter);
     }
 
-    private static boolean allTypesTheSame(Iterable<ResourceId> linkages) {
+    private static boolean allTypesTheSame(Iterable<ResourceIdentifier> linkages) {
         String type = linkages.iterator()
                 .hasNext() ? linkages.iterator()
                 .next()
                 .getType() : null;
-        for (ResourceId linkageData : linkages) {
+        for (ResourceIdentifier linkageData : linkages) {
             if (!Objects.equals(type, linkageData.getType())) {
                 return false;
             }
@@ -130,7 +130,7 @@ public abstract class ResourceUpsert extends BaseController {
         return true;
     }
 
-    protected String getLinkageType(Iterable<ResourceId> linkages) {
+    protected String getLinkageType(Iterable<ResourceIdentifier> linkages) {
         return linkages.iterator()
                 .hasNext() ? linkages.iterator()
                 .next()
@@ -138,7 +138,7 @@ public abstract class ResourceUpsert extends BaseController {
     }
 
     private void saveRelationField(QueryAdapter queryAdapter, Object savedResource, RegistryEntry registryEntry,
-                                   Map.Entry<String, ResourceId> property, ResourceInformation resourceInformation,
+                                   Map.Entry<String, ResourceIdentifier> property, ResourceInformation resourceInformation,
                                    RepositoryMethodParameterProvider parameterProvider) {
         RegistryEntry relationRegistryEntry = getRelationRegistryEntry(property.getValue()
                 .getType());
@@ -213,7 +213,7 @@ public abstract class ResourceUpsert extends BaseController {
 	                            parameterProvider);
 	                } else {
 	                    //noinspection unchecked
-	                	ResourceId relationId = (ResourceId) relationship.getData().get();
+	                	ResourceIdentifier relationId = (ResourceIdentifier) relationship.getData().get();
 	                    setRelationField(newResource, registryEntry, propertyName, relationId, queryAdapter, parameterProvider);
 	                }
             	}
@@ -235,7 +235,7 @@ public abstract class ResourceUpsert extends BaseController {
         List relationships = new LinkedList<>();
         boolean first = true;
         
-        for (ResourceId linkageData : relationship.getCollectionData().get()) {
+        for (ResourceIdentifier linkageData : relationship.getCollectionData().get()) {
             if (first) {
                 entry = resourceRegistry.getEntry(linkageData.getType(), relationshipFieldClass);
                 idFieldType = entry.getResourceInformation()
@@ -253,7 +253,7 @@ public abstract class ResourceUpsert extends BaseController {
     }
 
     protected void setRelationField(Object newResource, RegistryEntry registryEntry,
-                                  String relationshipName, ResourceId relationshipId, QueryAdapter queryAdapter,
+                                  String relationshipName, ResourceIdentifier relationshipId, QueryAdapter queryAdapter,
                                   RepositoryMethodParameterProvider parameterProvider) {
 
         ResourceField relationshipFieldByName = registryEntry.getResourceInformation()

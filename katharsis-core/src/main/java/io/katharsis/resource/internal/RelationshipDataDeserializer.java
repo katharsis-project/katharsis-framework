@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
-import io.katharsis.resource.ResourceId;
+import io.katharsis.resource.ResourceIdentifier;
 import io.katharsis.utils.java.Nullable;
 
 public class RelationshipDataDeserializer extends JsonDeserializer<Nullable<Object>> {
@@ -19,19 +19,19 @@ public class RelationshipDataDeserializer extends JsonDeserializer<Nullable<Obje
 	public Nullable<Object> deserialize(JsonParser jp, DeserializationContext context) throws IOException, JsonProcessingException {
 		JsonToken currentToken = jp.getCurrentToken();
 		if (currentToken == JsonToken.START_ARRAY) {
-			ResourceId[] resources = jp.readValueAs(ResourceId[].class);
+			ResourceIdentifier[] resources = jp.readValueAs(ResourceIdentifier[].class);
 			return Nullable.of((Object) Arrays.asList(resources));
 		} else if (currentToken == JsonToken.VALUE_NULL) {
 			return Nullable.of(null);
 		} else if (currentToken == JsonToken.START_OBJECT) {
-			return Nullable.of((Object) jp.readValueAs(ResourceId.class));
+			return Nullable.of((Object) jp.readValueAs(ResourceIdentifier.class));
 		}
 		throw new IllegalStateException(currentToken.toString());
 	}
 
 	@Override
 	public Nullable<Object> getNullValue(DeserializationContext ctxt) throws JsonMappingException {
-		return Nullable.of(null);
+		return Nullable.nullValue();
 	}
 
 }

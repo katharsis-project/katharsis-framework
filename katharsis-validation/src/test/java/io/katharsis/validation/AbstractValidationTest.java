@@ -1,5 +1,7 @@
 package io.katharsis.validation;
 
+import java.util.concurrent.TimeUnit;
+
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
@@ -41,6 +43,8 @@ public abstract class AbstractValidationTest extends JerseyTest {
 		projectRepo = client.getRepository(Project.class);
 		relRepo = client.getRepository(Task.class, Project.class);
 		TaskRepository.map.clear();
+		
+		client.getHttpAdapter().setReceiveTimeout(1000000, TimeUnit.MILLISECONDS);
 	}
 
 	@Override

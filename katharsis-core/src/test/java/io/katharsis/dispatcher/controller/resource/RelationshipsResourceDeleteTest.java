@@ -22,6 +22,7 @@ import io.katharsis.resource.mock.repository.TaskToProjectRepository;
 import io.katharsis.resource.mock.repository.UserToProjectRepository;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.HttpStatus;
+import io.katharsis.utils.java.Nullable;
 
 public class RelationshipsResourceDeleteTest extends BaseControllerTest {
 
@@ -64,7 +65,7 @@ public class RelationshipsResourceDeleteTest extends BaseControllerTest {
 		// GIVEN
 		Document newTaskBody = new Document();
 		Resource data = createTask();
-		newTaskBody.setData(data);
+		newTaskBody.setData(Nullable.of((Object) data));
 		data.setType("tasks");
 
 		JsonPath taskPath = pathBuilder.buildPath("/tasks");
@@ -74,8 +75,8 @@ public class RelationshipsResourceDeleteTest extends BaseControllerTest {
 		Response taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(new QueryParams()), null, newTaskBody);
 
 		// THEN
-		assertThat(taskResponse.getDocument().getSingleData().getType()).isEqualTo("tasks");
-		Long taskId = Long.parseLong(taskResponse.getDocument().getSingleData().getId());
+		assertThat(taskResponse.getDocument().getSingleData().get().getType()).isEqualTo("tasks");
+		Long taskId = Long.parseLong(taskResponse.getDocument().getSingleData().get().getId());
 		assertThat(taskId).isNotNull();
 
 		/* ------- */
@@ -83,20 +84,18 @@ public class RelationshipsResourceDeleteTest extends BaseControllerTest {
 		// GIVEN
 		Document newProjectBody = new Document();
 		data = createProject();
-		newProjectBody.setData(data);
+		newProjectBody.setData(Nullable.of((Object) data));
 
 		JsonPath projectPath = pathBuilder.buildPath("/projects");
 
 		// WHEN -- adding a project
-		Response projectResponse = resourcePost.handle(projectPath, new QueryParamsAdapter(new QueryParams()), null,
-				newProjectBody);
+		Response projectResponse = resourcePost.handle(projectPath, new QueryParamsAdapter(new QueryParams()), null, newProjectBody);
 
 		// THEN
-		assertThat(projectResponse.getDocument().getSingleData().getType()).isEqualTo("projects");
-		assertThat(projectResponse.getDocument().getSingleData().getId()).isNotNull();
-		assertThat(projectResponse.getDocument().getSingleData().getAttributes().get("name").asText())
-				.isEqualTo("sample project");
-		Long projectId = Long.parseLong(projectResponse.getDocument().getSingleData().getId());
+		assertThat(projectResponse.getDocument().getSingleData().get().getType()).isEqualTo("projects");
+		assertThat(projectResponse.getDocument().getSingleData().get().getId()).isNotNull();
+		assertThat(projectResponse.getDocument().getSingleData().get().getAttributes().get("name").asText()).isEqualTo("sample project");
+		Long projectId = Long.parseLong(projectResponse.getDocument().getSingleData().get().getId());
 		assertThat(projectId).isNotNull();
 
 		/* ------- */
@@ -104,7 +103,7 @@ public class RelationshipsResourceDeleteTest extends BaseControllerTest {
 		// GIVEN
 		Document newTaskToProjectBody = new Document();
 		data = new Resource();
-		newTaskToProjectBody.setData(data);
+		newTaskToProjectBody.setData(Nullable.of((Object) data));
 		data.setType("projects");
 		data.setId(projectId.toString());
 
@@ -112,8 +111,7 @@ public class RelationshipsResourceDeleteTest extends BaseControllerTest {
 		RelationshipsResourcePost relationshipsResourcePost = new RelationshipsResourcePost(resourceRegistry, typeParser);
 
 		// WHEN -- adding a relation between task and project
-		Response projectRelationshipResponse = relationshipsResourcePost.handle(savedTaskPath,
-				new QueryParamsAdapter(new QueryParams()), null, newTaskToProjectBody);
+		Response projectRelationshipResponse = relationshipsResourcePost.handle(savedTaskPath, new QueryParamsAdapter(new QueryParams()), null, newTaskToProjectBody);
 		assertThat(projectRelationshipResponse).isNotNull();
 
 		// THEN
@@ -141,7 +139,7 @@ public class RelationshipsResourceDeleteTest extends BaseControllerTest {
 	public void onExistingToManyRelationshipShouldRemoveIt() throws Exception {
 		// GIVEN
 		Document newUserDocument = new Document();
-		newUserDocument.setData(createUser());
+		newUserDocument.setData(Nullable.of((Object) createUser()));
 
 		JsonPath taskPath = pathBuilder.buildPath("/users");
 		ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER, documentMapper);
@@ -150,42 +148,39 @@ public class RelationshipsResourceDeleteTest extends BaseControllerTest {
 		Response taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(new QueryParams()), null, newUserDocument);
 
 		// THEN
-		assertThat(taskResponse.getDocument().getSingleData().getType()).isEqualTo("users");
-		Long userId = Long.parseLong(taskResponse.getDocument().getSingleData().getId());
+		assertThat(taskResponse.getDocument().getSingleData().get().getType()).isEqualTo("users");
+		Long userId = Long.parseLong(taskResponse.getDocument().getSingleData().get().getId());
 		assertThat(userId).isNotNull();
 
 		/* ------- */
 
 		// GIVEN
 		Document newProjectDocument = new Document();
-		newProjectDocument.setData(createProject());
+		newProjectDocument.setData(Nullable.of((Object) createProject()));
 
 		JsonPath projectPath = pathBuilder.buildPath("/projects");
 
 		// WHEN -- adding a project
-		Response projectResponse = resourcePost.handle(projectPath, new QueryParamsAdapter(new QueryParams()), null,
-				newProjectDocument);
+		Response projectResponse = resourcePost.handle(projectPath, new QueryParamsAdapter(new QueryParams()), null, newProjectDocument);
 
 		// THEN
-		assertThat(projectResponse.getDocument().getSingleData().getType()).isEqualTo("projects");
-		assertThat(projectResponse.getDocument().getSingleData().getId()).isNotNull();
-		assertThat(projectResponse.getDocument().getSingleData().getAttributes().get("name").asText())
-				.isEqualTo("sample project");
-		Long projectId = Long.parseLong(projectResponse.getDocument().getSingleData().getId());
+		assertThat(projectResponse.getDocument().getSingleData().get().getType()).isEqualTo("projects");
+		assertThat(projectResponse.getDocument().getSingleData().get().getId()).isNotNull();
+		assertThat(projectResponse.getDocument().getSingleData().get().getAttributes().get("name").asText()).isEqualTo("sample project");
+		Long projectId = Long.parseLong(projectResponse.getDocument().getSingleData().get().getId());
 		assertThat(projectId).isNotNull();
 
 		/* ------- */
 
 		// GIVEN
 		Document newProjectDocument2 = new Document();
-		newProjectDocument2.setData(createProject(projectId.toString()));
+		newProjectDocument2.setData(Nullable.of((Object) createProject(projectId.toString())));
 
 		JsonPath savedTaskPath = pathBuilder.buildPath("/users/" + userId + "/relationships/assignedProjects");
 		RelationshipsResourcePost relationshipsResourcePost = new RelationshipsResourcePost(resourceRegistry, typeParser);
 
 		// WHEN -- adding a relation between user and project
-		Response projectRelationshipResponse = relationshipsResourcePost.handle(savedTaskPath,
-				new QueryParamsAdapter(new QueryParams()), null, newProjectDocument2);
+		Response projectRelationshipResponse = relationshipsResourcePost.handle(savedTaskPath, new QueryParamsAdapter(new QueryParams()), null, newProjectDocument2);
 		assertThat(projectRelationshipResponse).isNotNull();
 
 		// THEN

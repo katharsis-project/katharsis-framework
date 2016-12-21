@@ -343,7 +343,7 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 			RelatedEntity related1 = new RelatedEntity();
 			related1.setId(i);
 			related1.setStringValue("related" + i);
-			relatedRepo.save(related1);
+			relatedRepo.create(related1);
 
 			relRepo.addRelations(test, Arrays.asList(i), TestEntity.ATTR_manyRelatedValues);
 		}
@@ -448,13 +448,13 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 		RelatedEntity related = new RelatedEntity();
 		related.setId(1L);
 		related.setStringValue("project");
-		relatedRepo.save(related);
+		relatedRepo.create(related);
 
 		TestEntity test = new TestEntity();
 		test.setId(2L);
 		test.setStringValue("test");
 		test.setEagerRelatedValue(related);
-		testRepo.save(test);
+		testRepo.create(test);
 
 		TestEntity savedTest = testRepo.findOne(2L, new QuerySpec(TestEntity.class));
 		Assert.assertEquals(test.getId(), savedTest.getId());

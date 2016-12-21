@@ -23,7 +23,7 @@ import io.katharsis.module.ModuleRegistry;
 import io.katharsis.resource.Document;
 import io.katharsis.resource.Relationship;
 import io.katharsis.resource.Resource;
-import io.katharsis.resource.ResourceId;
+import io.katharsis.resource.ResourceIdentifier;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
 import io.katharsis.resource.information.ResourceInformationBuilder;
@@ -63,7 +63,7 @@ public class DocumentSerializerTest {
 		resource.setId("2");
 		resource.setType("tasks");
 		resource.setAttribute("name", objectMapper.readTree("\"sample task\""));
-		doc.setData(resource);
+		doc.setData(Nullable.of((Object)resource));
 
 		String json = writer.writeValueAsString(doc);
 
@@ -136,11 +136,11 @@ public class DocumentSerializerTest {
 		resource.setId("2");
 		resource.setType("tasks");
 		Relationship relationship = new Relationship();
-		relationship.setData(Nullable.of((Object) new ResourceId("3", "projects")));
+		relationship.setData(Nullable.of((Object) new ResourceIdentifier("3", "projects")));
 		relationship.setMeta((ObjectNode) objectMapper.readTree("{\"metaName\" : \"metaValue\"}"));
 		relationship.setLinks((ObjectNode) objectMapper.readTree("{\"linkName\" : \"linkValue\"}"));
 		resource.getRelationships().put("project", relationship);
-		doc.setData(resource);
+		doc.setData(Nullable.of((Object)resource));
 
 		String json = writer.writeValueAsString(doc);
 
@@ -162,7 +162,7 @@ public class DocumentSerializerTest {
 		assertThatJson(json).describedAs(expected.toString().replace('\'', '\"'));
 
 		Document readDoc = reader.readValue(json);
-		Relationship readRelationship = readDoc.getSingleData().getRelationships().get("project");
+		Relationship readRelationship = readDoc.getSingleData().get().getRelationships().get("project");
 		Assert.assertEquals(relationship, readRelationship);
 		Assert.assertEquals(doc, readDoc);
 	}
@@ -177,7 +177,7 @@ public class DocumentSerializerTest {
 		relationship.setMeta((ObjectNode) objectMapper.readTree("{\"metaName\" : \"metaValue\"}"));
 		relationship.setLinks((ObjectNode) objectMapper.readTree("{\"linkName\" : \"linkValue\"}"));
 		resource.getRelationships().put("project", relationship);
-		doc.setData(resource);
+		doc.setData(Nullable.of((Object)resource));
 
 		String json = writer.writeValueAsString(doc);
 
@@ -198,7 +198,7 @@ public class DocumentSerializerTest {
 		assertThatJson(json).describedAs(expected.toString().replace('\'', '\"'));
 
 		Document readDoc = reader.readValue(json);
-		Relationship readRelationship = readDoc.getSingleData().getRelationships().get("project");
+		Relationship readRelationship = readDoc.getSingleData().get().getRelationships().get("project");
 		Assert.assertEquals(relationship, readRelationship);
 		Assert.assertEquals(doc, readDoc);
 	}
@@ -214,7 +214,7 @@ public class DocumentSerializerTest {
 		relationship.setMeta((ObjectNode) objectMapper.readTree("{\"metaName\" : \"metaValue\"}"));
 		relationship.setLinks((ObjectNode) objectMapper.readTree("{\"linkName\" : \"linkValue\"}"));
 		resource.getRelationships().put("project", relationship);
-		doc.setData(resource);
+		doc.setData(Nullable.of((Object)resource));
 
 		String json = writer.writeValueAsString(doc);
 
@@ -235,7 +235,7 @@ public class DocumentSerializerTest {
 		assertThatJson(json).describedAs(expected.toString().replace('\'', '\"'));
 
 		Document readDoc = reader.readValue(json);
-		Relationship readRelationship = readDoc.getSingleData().getRelationships().get("project");
+		Relationship readRelationship = readDoc.getSingleData().get().getRelationships().get("project");
 		Assert.assertEquals(relationship, readRelationship);
 		Assert.assertEquals(doc, readDoc);
 	}
@@ -243,7 +243,7 @@ public class DocumentSerializerTest {
 	@Test
 	public void testMultiValuedRelationship() throws JsonProcessingException, IOException {
 		Relationship relationship = new Relationship();
-		relationship.setData(Nullable.of((Object) Arrays.asList(new ResourceId("3", "projects"), new ResourceId("4", "projects"))));
+		relationship.setData(Nullable.of((Object) Arrays.asList(new ResourceIdentifier("3", "projects"), new ResourceIdentifier("4", "projects"))));
 		relationship.setMeta((ObjectNode) objectMapper.readTree("{\"metaName\" : \"metaValue\"}"));
 		relationship.setLinks((ObjectNode) objectMapper.readTree("{\"linkName\" : \"linkValue\"}"));
 
@@ -280,7 +280,7 @@ public class DocumentSerializerTest {
 		resource2.setType("tasks");
 		resource2.setAttribute("name", objectMapper.readTree("\"sample task2\""));
 
-		doc.setData(Arrays.asList(resource1, resource2));
+		doc.setData(Nullable.of((Object)Arrays.asList(resource1, resource2)));
 
 		String json = writer.writeValueAsString(doc);
 

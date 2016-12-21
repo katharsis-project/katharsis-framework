@@ -20,7 +20,7 @@ import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.resource.Document;
 import io.katharsis.resource.Relationship;
 import io.katharsis.resource.Resource;
-import io.katharsis.resource.ResourceId;
+import io.katharsis.resource.ResourceIdentifier;
 import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.field.ResourceField.LookupIncludeBehavior;
 import io.katharsis.resource.information.ResourceInformation;
@@ -56,20 +56,20 @@ public class IncludeLookupSetter {
 
 	public void setIncludedElements(Document document, Object entity, QueryAdapter queryAdapter, RepositoryMethodParameterProvider parameterProvider) {
 		List<Object> entityList = DocumentMapperUtil.toList(entity);
-		List<Resource> dataList = DocumentMapperUtil.toList(document.getData());
-		Map<ResourceId, Resource> dataMap = new HashMap<>();
-		Map<ResourceId, Object> entityMap = new HashMap<>();
+		List<Resource> dataList = DocumentMapperUtil.toList(document.getData().get());
+		Map<ResourceIdentifier, Resource> dataMap = new HashMap<>();
+		Map<ResourceIdentifier, Object> entityMap = new HashMap<>();
 		for (int i = 0; i < dataList.size(); i++) {
 			Resource dataElement = dataList.get(i);
-			ResourceId id = dataElement.toIdentifier();
+			ResourceIdentifier id = dataElement.toIdentifier();
 			entityMap.put(id, entityList.get(i));
 			dataMap.put(id, dataElement);
 		}
 
-		Map<ResourceId, Resource> resourceMap = new HashMap<>();
+		Map<ResourceIdentifier, Resource> resourceMap = new HashMap<>();
 		resourceMap.putAll(dataMap);
 
-		Set<ResourceId> inclusions = new HashSet<>();
+		Set<ResourceIdentifier> inclusions = new HashSet<>();
 
 		ArrayList<ResourceField> stack = new ArrayList<>();
 		populate(dataList, inclusions, resourceMap, entityMap, stack, queryAdapter, parameterProvider);
@@ -79,17 +79,17 @@ public class IncludeLookupSetter {
 
 		// setup included section
 		ArrayList<Resource> included = new ArrayList<>();
-		for (ResourceId inclusionId : inclusions) {
+		for (ResourceIdentifier inclusionId : inclusions) {
 			Resource includedResource = resourceMap.get(inclusionId);
 			PreconditionUtil.assertNotNull("resource not found", includedResource);
 			included.add(includedResource);
 		}
-		Collections.sort((List<? extends ResourceId>) included);
+		Collections.sort((List<? extends ResourceIdentifier>) included);
 		LOGGER.debug("Extracted included resources {}", included.toString());
 		document.setIncluded(included);
 	}
 
-	private void populate(Collection<Resource> dataList, Set<ResourceId> inclusions, Map<ResourceId, Resource> resourceMap, Map<ResourceId, Object> entityMap, List<ResourceField> fieldPath, QueryAdapter queryAdapter,
+	private void populate(Collection<Resource> dataList, Set<ResourceIdentifier> inclusions, Map<ResourceIdentifier, Resource> resourceMap, Map<ResourceIdentifier, Object> entityMap, List<ResourceField> fieldPath, QueryAdapter queryAdapter,
 			RepositoryMethodParameterProvider parameterProvider) {
 
 		if (dataList.isEmpty()) {
@@ -173,11 +173,11 @@ public class IncludeLookupSetter {
 	 * No lookup specified for the field. Attempt to load relationship from
 	 * original POJOs.
 	 */
-	private Set<Resource> extractRelationshipField(List<Resource> sourceResources, ResourceField relationshipField, QueryAdapter queryAdapter, Map<ResourceId, Resource> resourceMap, Map<ResourceId, Object> entityMap) {
+	private Set<Resource> extractRelationshipField(List<Resource> sourceResources, ResourceField relationshipField, QueryAdapter queryAdapter, Map<ResourceIdentifier, Resource> resourceMap, Map<ResourceIdentifier, Object> entityMap) {
 		// TODO nullable support to differentiate between not loaded and null
 		Set<Resource> loadedEntities = new HashSet<>();
 		for (Resource sourceResource : sourceResources) {
-			ResourceId id = sourceResource.toIdentifier();
+			ResourceIdentifier id = sourceResource.toIdentifier();
 
 			Object source = entityMap.get(id);
 			if (source != null && !(source instanceof Resource)) {
@@ -200,7 +200,7 @@ public class IncludeLookupSetter {
 	 */
 	@SuppressWarnings("unchecked")
 	private Set<Resource> lookupRelationshipField(Collection<Resource> sourceResources, ResourceField relationshipField, QueryAdapter queryAdapter, RepositoryMethodParameterProvider parameterProvider,
-			Map<ResourceId, Resource> resourceMap, Map<ResourceId, Object> entityMap) {
+			Map<ResourceIdentifier, Resource> resourceMap, Map<ResourceIdentifier, Object> entityMap) {
 		if (sourceResources.isEmpty()) {
 			return Collections.emptySet();
 		}
@@ -244,8 +244,8 @@ public class IncludeLookupSetter {
 		return loadedTargets;
 	}
 
-	private List<Resource> setupRelation(Resource sourceResource, ResourceField relationshipField, Object targetEntity, QueryAdapter queryAdapter, Map<ResourceId, Resource> resourceMap,
-			Map<ResourceId, Object> entityMap) {
+	private List<Resource> setupRelation(Resource sourceResource, ResourceField relationshipField, Object targetEntity, QueryAdapter queryAdapter, Map<ResourceIdentifier, Resource> resourceMap,
+			Map<ResourceIdentifier, Object> entityMap) {
 		// set the relation
 		String relationshipName = relationshipField.getJsonName();
 		Map<String, Relationship> relationships = sourceResource.getRelationships();
@@ -256,7 +256,7 @@ public class IncludeLookupSetter {
 				Resource targetResource = mergeResource(targetElement, queryAdapter, resourceMap, entityMap);
 				targets.add(targetResource);
 			}
-			relationship.setData(Nullable.of((Object)targets));
+			relationship.setData(Nullable.of((Object)util.toIds(targets)));
 			return targets;
 		} else {
 			Resource targetResource = mergeResource(targetEntity, queryAdapter, resourceMap, entityMap);
@@ -265,9 +265,9 @@ public class IncludeLookupSetter {
 		}
 	}
 
-	private Resource mergeResource(Object targetEntity, QueryAdapter queryAdapter, Map<ResourceId, Resource> resourceMap, Map<ResourceId, Object> entityMap) {
+	private Resource mergeResource(Object targetEntity, QueryAdapter queryAdapter, Map<ResourceIdentifier, Resource> resourceMap, Map<ResourceIdentifier, Object> entityMap) {
 		Resource targetResource = resourceMapper.toData(targetEntity, queryAdapter);
-		ResourceId targetId = targetResource.toIdentifier();
+		ResourceIdentifier targetId = targetResource.toIdentifier();
 		if (!resourceMap.containsKey(targetId)) {
 			resourceMap.put(targetId, targetResource);
 		} else {

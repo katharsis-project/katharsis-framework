@@ -62,7 +62,7 @@ public class ResourceRegistryBuilderTest {
         Assert.assertEquals("id", projectsEntry.getResourceInformation().getIdField().getUnderlyingName());
         Assert.assertNotNull(tasksEntry.getResourceRepository(null));
         List ProjectRelationshipRepositories = projectsEntry.getRelationshipEntries();
-        Assert.assertEquals(1, ProjectRelationshipRepositories.size());
+        Assert.assertEquals(2, ProjectRelationshipRepositories.size());
         Assert.assertEquals(TEST_MODELS_URL + "/projects", resourceRegistry.getResourceUrl(Project.class));
     }
 

@@ -9,6 +9,6 @@ public class ResourceEqualsContractTest {
 
 	@Test
 	public void testResourceIdEqualsContract() throws NoSuchFieldException {
-		EqualsVerifier.forClass(ResourceId.class).usingGetClass().suppress(Warning.NONFINAL_FIELDS).verify();
+		EqualsVerifier.forClass(ResourceIdentifier.class).usingGetClass().suppress(Warning.NONFINAL_FIELDS).verify();
 	}
 }

@@ -84,8 +84,8 @@ public class ResourceRepositoryStubImpl<T, I extends Serializable> extends Abstr
 
 	@SuppressWarnings("unchecked")
 	private <S extends T> S modify(S entity, boolean create) {
-		String strId = getStringId(entity, create);
-		String url = urlBuilder.buildUrl(resourceClass, strId, (QuerySpec) null);
+		Object id = getId(entity, create);
+		String url = urlBuilder.buildUrl(resourceClass, id, (QuerySpec) null);
 		BaseResponseContext context = executeUpdate(url, entity, create);
 		return (S) context.getResponse().getEntity();
 	}
@@ -95,7 +95,7 @@ public class ResourceRepositoryStubImpl<T, I extends Serializable> extends Abstr
 		return modify(entity, true);
 	}
 
-	private <S extends T> String getStringId(S entity, boolean create) {
+	private <S extends T> Object getId(S entity, boolean create) {
 		if (katharsis.getPushAlways()) {
 			return null;
 		}
@@ -104,8 +104,7 @@ public class ResourceRepositoryStubImpl<T, I extends Serializable> extends Abstr
 		}
 		else {
 			ResourceField idField = resourceInformation.getIdField();
-			Object objectId = PropertyUtils.getProperty(entity, idField.getUnderlyingName());
-			return resourceInformation.toIdString(objectId);
+			return PropertyUtils.getProperty(entity, idField.getUnderlyingName());
 		}
 	}
 

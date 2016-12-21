@@ -8,16 +8,20 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import io.katharsis.errorhandling.ErrorData;
 import io.katharsis.resource.internal.DocumentDataDeserializer;
+import io.katharsis.resource.internal.NullableSerializer;
+import io.katharsis.utils.java.Nullable;
 
 public class Document implements MetaContainer, LinksContainer {
 
 	@JsonInclude(Include.NON_EMPTY)
 	@JsonDeserialize(using = DocumentDataDeserializer.class)
-	private Object data;
+	@JsonSerialize(using = NullableSerializer.class)
+	private Nullable<Object> data = Nullable.empty();
 
 	@JsonInclude(Include.NON_EMPTY)
 	private List<Resource> included;
@@ -51,11 +55,14 @@ public class Document implements MetaContainer, LinksContainer {
 		this.meta = meta;
 	}
 
-	public Object getData() {
+	public Nullable<Object> getData() {
 		return data;
 	}
 
-	public void setData(Object data) {
+	public void setData(Nullable<Object> data) {
+		if (data == null) {
+			throw new NullPointerException("make use of Nullable instead of null");
+		}
 		this.data = data;
 	}
 
@@ -77,12 +84,12 @@ public class Document implements MetaContainer, LinksContainer {
 
 	@JsonIgnore
 	public boolean isMultiple() {
-		return data instanceof Collection;
+		return data.get() instanceof Collection;
 	}
 
 	@JsonIgnore
-	public Resource getSingleData() {
-		return (Resource) data;
+	public Nullable<Resource> getSingleData() {
+		return (Nullable<Resource>) (Nullable) data;
 	}
 
 	@Override

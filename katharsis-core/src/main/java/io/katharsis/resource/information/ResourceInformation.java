@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import io.katharsis.resource.Document;
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.exception.init.MultipleJsonApiLinksInformationException;
 import io.katharsis.resource.exception.init.MultipleJsonApiMetaInformationException;
@@ -265,6 +266,10 @@ public class ResourceInformation {
 
 	public void setId(Object resource, Object id) {
 		PropertyUtils.setProperty(resource, idField.getUnderlyingName(), id);		
+	}
+
+	@Deprecated // Temporary method until proper versioning/locking/timestamping is implemented, used by JPA module
+	public void verify(Object resource, Document requestDocument) {
 	}
 
 }

@@ -25,10 +25,11 @@ import io.katharsis.queryspec.internal.QueryParamsAdapter;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.resource.Document;
 import io.katharsis.resource.Resource;
-import io.katharsis.resource.ResourceId;
+import io.katharsis.resource.ResourceIdentifier;
 import io.katharsis.resource.RestrictedQueryParamsMembers;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.repository.TaskToProjectRepository;
+import io.katharsis.utils.java.Nullable;
 
 public class ResourceGetTest extends BaseControllerTest {
 
@@ -70,15 +71,15 @@ public class ResourceGetTest extends BaseControllerTest {
 		// GIVEN
 		Document newTaskBody = new Document();
 		Resource data = createTask();
-		newTaskBody.setData(data);
+		newTaskBody.setData(Nullable.of((Object) data));
 
 		JsonPath taskPath = pathBuilder.buildPath("/tasks");
 
 		// WHEN
 		ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper, documentMapper);
 		Response taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newTaskBody);
-		assertThat(taskResponse.getDocument().getData()).isExactlyInstanceOf(Resource.class);
-		String taskId = ((Resource) taskResponse.getDocument().getData()).getId();
+		assertThat(taskResponse.getDocument().getData().get()).isExactlyInstanceOf(Resource.class);
+		String taskId = ((Resource) taskResponse.getDocument().getData().get()).getId();
 		assertThat(taskId).isNotNull();
 
 		// GIVEN
@@ -106,9 +107,9 @@ public class ResourceGetTest extends BaseControllerTest {
 
 		// THEN
 		Assert.assertNotNull(response);
-		assertThat(response.getDocument().getData()).isExactlyInstanceOf(Resource.class);
-		assertThat(response.getDocument().getSingleData().getType()).isEqualTo("task-with-lookup");
-		Resource responseData = response.getDocument().getSingleData();
+		assertThat(response.getDocument().getData().get()).isExactlyInstanceOf(Resource.class);
+		assertThat(response.getDocument().getSingleData().get().getType()).isEqualTo("task-with-lookup");
+		Resource responseData = response.getDocument().getSingleData().get();
 		assertThat(responseData.getRelationships().get("project").getSingleData().get().getId()).isEqualTo("42");
 		assertThat(responseData.getRelationships().get("projectNull").getSingleData().get().getId()).isEqualTo("1");
 		assertThat(responseData.getRelationships().get("projectOverridden").getSingleData().get().getId()).isEqualTo("1");
@@ -120,7 +121,7 @@ public class ResourceGetTest extends BaseControllerTest {
 		// GIVEN
 		Document newTaskBody = new Document();
 		Resource data = createTask();
-		newTaskBody.setData(data);
+		newTaskBody.setData(Nullable.of((Object) data));
 
 		JsonPath taskPath = pathBuilder.buildPath("/tasks");
 		ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper, documentMapper);
@@ -129,15 +130,15 @@ public class ResourceGetTest extends BaseControllerTest {
 		Response taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newTaskBody);
 
 		// THEN
-		assertThat(taskResponse.getDocument().getSingleData()).isExactlyInstanceOf(Resource.class);
-		assertThat(taskResponse.getDocument().getSingleData().getType()).isEqualTo("tasks");
-		assertThat(taskResponse.getDocument().getSingleData().getId()).isNotNull();
+		assertThat(taskResponse.getDocument().getSingleData().get()).isExactlyInstanceOf(Resource.class);
+		assertThat(taskResponse.getDocument().getSingleData().get().getType()).isEqualTo("tasks");
+		assertThat(taskResponse.getDocument().getSingleData().get().getId()).isNotNull();
 
 		/* ------- */
 
 		// GIVEN
 		Document newProjectBody = new Document();
-		newProjectBody.setData(createProject());
+		newProjectBody.setData(Nullable.of((Object) createProject()));
 
 		JsonPath projectPath = pathBuilder.buildPath("/projects");
 
@@ -145,17 +146,17 @@ public class ResourceGetTest extends BaseControllerTest {
 		Response projectResponse = resourcePost.handle(projectPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newProjectBody);
 
 		// THEN
-		assertThat(projectResponse.getDocument().getSingleData()).isExactlyInstanceOf(Resource.class);
-		assertThat(projectResponse.getDocument().getSingleData().getType()).isEqualTo("projects");
-		assertThat(projectResponse.getDocument().getSingleData().getId()).isNotNull();
-		assertThat(projectResponse.getDocument().getSingleData().getAttributes().get("name").asText()).isEqualTo("sample project");
+		assertThat(projectResponse.getDocument().getSingleData().get()).isExactlyInstanceOf(Resource.class);
+		assertThat(projectResponse.getDocument().getSingleData().get().getType()).isEqualTo("projects");
+		assertThat(projectResponse.getDocument().getSingleData().get().getId()).isNotNull();
+		assertThat(projectResponse.getDocument().getSingleData().get().getAttributes().get("name").asText()).isEqualTo("sample project");
 
 		/* ------- */
 
 		// GIVEN
 		Document newTaskToProjectBody = new Document();
-		ResourceId reldata = new ResourceId();
-		newTaskToProjectBody.setData(data);
+		ResourceIdentifier reldata = new ResourceIdentifier();
+		newTaskToProjectBody.setData(Nullable.of((Object) data));
 		data.setType("projects");
 		data.setId("2");
 
@@ -183,8 +184,8 @@ public class ResourceGetTest extends BaseControllerTest {
 
 		// THEN
 		Assert.assertNotNull(response);
-		assertThat(response.getDocument().getSingleData().getType()).isEqualTo("tasks");
-		assertThat(taskResponse.getDocument().getSingleData().getRelationships().get("project").getData().get()).isNull();
+		assertThat(response.getDocument().getSingleData().get().getType()).isEqualTo("tasks");
+		assertThat(taskResponse.getDocument().getSingleData().get().getRelationships().get("project").getData().get()).isNull();
 	}
 
 }

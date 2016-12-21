@@ -6,7 +6,7 @@ import java.util.List;
 
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryspec.internal.QueryAdapter;
-import io.katharsis.resource.ResourceId;
+import io.katharsis.resource.ResourceIdentifier;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.repository.adapter.RelationshipRepositoryAdapter;
 import io.katharsis.utils.parser.TypeParser;
@@ -24,10 +24,10 @@ public class RelationshipsResourceDelete extends RelationshipsResourceUpsert {
 
     @Override
     public void processToManyRelationship(Object resource, Class<? extends Serializable> relationshipIdType,
-                                          String elementName, Iterable<ResourceId> dataBodies, QueryAdapter queryAdapter,
+                                          String elementName, Iterable<ResourceIdentifier> dataBodies, QueryAdapter queryAdapter,
                                           RelationshipRepositoryAdapter relationshipRepositoryForClass) {
         List<Serializable> parsedIds = new LinkedList<>();
-        for (ResourceId dataBody : dataBodies) {
+        for (ResourceIdentifier dataBody : dataBodies) {
             Serializable parsedId = typeParser.parse(dataBody.getId(), relationshipIdType);
             parsedIds.add(parsedId);
         }
@@ -37,7 +37,7 @@ public class RelationshipsResourceDelete extends RelationshipsResourceUpsert {
 
     @Override
     protected void processToOneRelationship(Object resource, Class<? extends Serializable> relationshipIdType,
-                                            String elementName, ResourceId dataBody, QueryAdapter queryAdapter,
+                                            String elementName, ResourceIdentifier dataBody, QueryAdapter queryAdapter,
                                             RelationshipRepositoryAdapter relationshipRepositoryForClass) {
         //noinspection unchecked
         relationshipRepositoryForClass.setRelation(resource, null, elementName, queryAdapter);

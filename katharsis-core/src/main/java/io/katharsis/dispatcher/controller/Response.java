@@ -1,5 +1,7 @@
 package io.katharsis.dispatcher.controller;
 
+import java.util.Objects;
+
 import io.katharsis.resource.Document;
 
 public class Response {
@@ -30,4 +32,16 @@ public class Response {
 		this.document = document;
 	}
 
+	@Override
+	public int hashCode() {
+		return Objects.hash(document, httpStatus);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof Response))
+			return false;
+		Response other = (Response) obj;
+		return Objects.equals(document, other.document) && Objects.equals(httpStatus, other.httpStatus);
+	}
 }

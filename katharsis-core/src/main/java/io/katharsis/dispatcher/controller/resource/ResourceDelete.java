@@ -58,6 +58,6 @@ public class ResourceDelete extends BaseController {
             registryEntry.getResourceRepository(parameterProvider).delete(castedId, queryAdapter);
         }
 
-        return new Response(null, 200);
+        return new Response(null, 204);
     }
 }

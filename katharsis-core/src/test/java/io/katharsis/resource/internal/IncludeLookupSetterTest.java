@@ -16,7 +16,7 @@ import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.resource.Document;
 import io.katharsis.resource.Relationship;
 import io.katharsis.resource.Resource;
-import io.katharsis.resource.ResourceId;
+import io.katharsis.resource.ResourceIdentifier;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.registry.repository.adapter.RelationshipRepositoryAdapter;
@@ -68,7 +68,7 @@ public class IncludeLookupSetterTest extends AbstractDocumentMapperTest {
 		task.setId(1L);
 
 		Document document = mapper.toDocument(toResponse(task), toAdapter(querySpec));
-		Resource taskResource = document.getSingleData();
+		Resource taskResource = document.getSingleData().get();
 
 		Relationship relationship = taskResource.getRelationships().get("includedProject");
 		Assert.assertNotNull(relationship);
@@ -87,7 +87,7 @@ public class IncludeLookupSetterTest extends AbstractDocumentMapperTest {
 		task.setId(1L);
 
 		Document document = mapper.toDocument(toResponse(task), toAdapter(querySpec));
-		Resource taskResource = document.getSingleData();
+		Resource taskResource = document.getSingleData().get();
 
 		Relationship relationship = taskResource.getRelationships().get("includedProjects");
 		Assert.assertNotNull(relationship);
@@ -103,7 +103,7 @@ public class IncludeLookupSetterTest extends AbstractDocumentMapperTest {
 		task.setId(3L);
 
 		Document document = mapper.toDocument(toResponse(task), toAdapter(querySpec));
-		Resource taskResource = document.getSingleData();
+		Resource taskResource = document.getSingleData().get();
 
 		Relationship oneRelationship = taskResource.getRelationships().get("includedProject");
 		Assert.assertNotNull(oneRelationship);
@@ -126,11 +126,11 @@ public class IncludeLookupSetterTest extends AbstractDocumentMapperTest {
 		task.setId(3L);
 
 		Document document = mapper.toDocument(toResponse(task), toAdapter(querySpec));
-		Resource taskResource = document.getSingleData();
+		Resource taskResource = document.getSingleData().get();
 
 		Relationship manyRelationship = taskResource.getRelationships().get("includedProjects");
 		Assert.assertNotNull(manyRelationship);
-		List<ResourceId> relationshipData = manyRelationship.getCollectionData().get();
+		List<ResourceIdentifier> relationshipData = manyRelationship.getCollectionData().get();
 		Assert.assertNotNull(relationshipData.get(0).getId());
 
 		List<Resource> includes = document.getIncluded();
@@ -162,7 +162,7 @@ public class IncludeLookupSetterTest extends AbstractDocumentMapperTest {
 		task.setId(1L);
 
 		Document document = mapper.toDocument(toResponse(task), toAdapter(querySpec));
-		Resource taskResource = document.getSingleData();
+		Resource taskResource = document.getSingleData().get();
 
 		Assert.assertNotNull(taskResource.getRelationships().get("project"));
 		Assert.assertNotNull(taskResource.getRelationships().get("project").getData());
@@ -193,7 +193,7 @@ public class IncludeLookupSetterTest extends AbstractDocumentMapperTest {
 		task.setProject(project);
 
 		Document document = mapper.toDocument(toResponse(task), toAdapter(querySpec));
-		Resource taskResource = document.getSingleData();
+		Resource taskResource = document.getSingleData().get();
 
 		Relationship relationship = taskResource.getRelationships().get("project");
 		Assert.assertNotNull(relationship);

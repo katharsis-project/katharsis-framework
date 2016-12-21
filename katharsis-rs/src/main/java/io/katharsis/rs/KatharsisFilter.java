@@ -195,7 +195,7 @@ public class KatharsisFilter implements ContainerRequestFilter {
         Response response;
         if (katharsisResponse != null) {
             ByteArrayOutputStream os = new ByteArrayOutputStream();
-            objectMapper.writeValue(os, katharsisResponse);
+            objectMapper.writeValue(os, katharsisResponse.getDocument());
             response = Response
                 .status(katharsisResponse.getHttpStatus())
                 .entity(new ByteArrayInputStream(os.toByteArray()))

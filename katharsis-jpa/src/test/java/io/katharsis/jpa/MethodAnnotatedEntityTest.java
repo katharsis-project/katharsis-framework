@@ -50,7 +50,7 @@ public class MethodAnnotatedEntityTest extends AbstractJpaJerseyTest {
 		MethodAnnotatedEntity task = new MethodAnnotatedEntity();
 		task.setId(1L);
 		task.setStringValue("test");
-		methodRepo.save(task);
+		methodRepo.create(task);
 
 		// check retrievable with findAll
 		List<MethodAnnotatedEntity> list = methodRepo.findAll(new QuerySpec(MethodAnnotatedEntity.class));

@@ -3,12 +3,16 @@ package io.katharsis.validation;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
+import javax.validation.Validation;
 import javax.validation.ValidationException;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -30,7 +34,7 @@ public class ValidationTest extends AbstractValidationTest {
 		project.setId(1L);
 		project.setName(null); // violation
 		try {
-			projectRepo.save(project);
+			projectRepo.create(project);
 			Assert.fail();
 		}
 		catch (ConstraintViolationException e) {
@@ -53,7 +57,7 @@ public class ValidationTest extends AbstractValidationTest {
 		project.getKeywords().add("3");
 		project.getKeywords().add("4");
 		try {
-			projectRepo.save(project);
+			projectRepo.create(project);
 			Assert.fail();
 		}
 		catch (ConstraintViolationException e) {
@@ -77,7 +81,7 @@ public class ValidationTest extends AbstractValidationTest {
 		project.setData(data);
 
 		try {
-			projectRepo.save(project);
+			projectRepo.create(project);
 			Assert.fail();
 		}
 		catch (ConstraintViolationException e) {
@@ -101,7 +105,7 @@ public class ValidationTest extends AbstractValidationTest {
 		project.getDataList().add(data);
 
 		try {
-			projectRepo.save(project);
+			projectRepo.create(project);
 			Assert.fail();
 		}
 		catch (ConstraintViolationException e) {
@@ -122,10 +126,16 @@ public class ValidationTest extends AbstractValidationTest {
 		Project project = new Project();
 		project.setId(1L);
 		project.setName("test");
+		project.setDataMap(new LinkedHashMap());
 		project.getDataMap().put("someKey", data);
 
+		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+		Validator validator = factory.getValidator();
+		System.out.println(validator.validate(project));
+		
+		
 		try {
-			projectRepo.save(project);
+			projectRepo.create(project);
 			Assert.fail();
 		}
 		catch (ConstraintViolationException e) {
@@ -154,7 +164,7 @@ public class ValidationTest extends AbstractValidationTest {
 		}
 
 		try {
-			projectRepo.save(project);
+			projectRepo.create(project);
 			Assert.fail();
 		}
 		catch (ConstraintViolationException e) {
@@ -181,7 +191,7 @@ public class ValidationTest extends AbstractValidationTest {
 		project.setId(1L);
 		project.setName(ComplexValidator.INVALID_NAME);
 		try {
-			projectRepo.save(project);
+			projectRepo.create(project);
 			Assert.fail();
 		}
 		catch (ConstraintViolationException e) {
@@ -201,7 +211,7 @@ public class ValidationTest extends AbstractValidationTest {
 		// trigger ValidationException
 		project.setName(ValidationException.class.getSimpleName());
 		try {
-			projectRepo.save(project);
+			projectRepo.create(project);
 			Assert.fail();
 		}
 		catch (ValidationException e) {
@@ -214,7 +224,7 @@ public class ValidationTest extends AbstractValidationTest {
 		Task task = new Task();
 		task.setId(1L);
 		task.setName(null);
-		taskRepo.save(task);
+		taskRepo.create(task);
 
 		Project project = new Project();
 		project.setId(2L);
@@ -222,7 +232,7 @@ public class ValidationTest extends AbstractValidationTest {
 		project.getTasks().add(task);
 
 		try {
-			projectRepo.save(project);
+			projectRepo.create(project);
 			Assert.fail();
 		}
 		catch (ConstraintViolationException e) {
@@ -240,14 +250,14 @@ public class ValidationTest extends AbstractValidationTest {
 		Task task = new Task();
 		task.setId(1L);
 		task.setName(ComplexValidator.INVALID_NAME);
-		taskRepo.save(task);
+		taskRepo.create(task);
 
 		Project project = new Project();
 		project.setName("test");
 		project.setTask(task);
 
 		try {
-			projectRepo.save(project);
+			projectRepo.create(project);
 			Assert.fail();
 		}
 		catch (ConstraintViolationException e) {

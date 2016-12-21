@@ -15,7 +15,7 @@ import io.katharsis.queryParams.params.IncludedRelationsParams;
 import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.resource.Relationship;
 import io.katharsis.resource.Resource;
-import io.katharsis.resource.ResourceId;
+import io.katharsis.resource.ResourceIdentifier;
 import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.field.ResourceField.LookupIncludeBehavior;
 import io.katharsis.resource.information.ResourceInformation;
@@ -173,8 +173,16 @@ public class IncludeLookupUtil {
 		return results;
 	}
 
-	public Set<ResourceId> toIds(Set<Resource> resources) {
-		Set<ResourceId> results = new HashSet<>();
+	public Set<ResourceIdentifier> toIds(Set<Resource> resources) {
+		Set<ResourceIdentifier> results = new HashSet<>();
+		for (Resource resource : resources) {
+			results.add(resource.toIdentifier());
+		}
+		return results;
+	}
+	
+	public List<ResourceIdentifier> toIds(List<Resource> resources) {
+		List<ResourceIdentifier> results = new ArrayList<>();
 		for (Resource resource : resources) {
 			results.add(resource.toIdentifier());
 		}
@@ -182,7 +190,7 @@ public class IncludeLookupUtil {
 	}
 
 	public Set<Resource> union(Collection<Resource> set0, Collection<Resource> set1) {
-		Map<ResourceId, Resource> map = new HashMap<>();
+		Map<ResourceIdentifier, Resource> map = new HashMap<>();
 		for (Resource resource : set0) {
 			map.put(resource.toIdentifier(), resource);
 		}

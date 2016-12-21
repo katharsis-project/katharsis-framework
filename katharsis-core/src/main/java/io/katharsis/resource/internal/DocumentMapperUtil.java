@@ -19,7 +19,7 @@ import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.request.path.PathBuilder;
 import io.katharsis.resource.LinksContainer;
 import io.katharsis.resource.MetaContainer;
-import io.katharsis.resource.ResourceId;
+import io.katharsis.resource.ResourceIdentifier;
 import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.RegistryEntry;
@@ -47,14 +47,14 @@ public class DocumentMapperUtil {
 		return resourceUrl + "/" + resourceId + (!related ? "/" + PathBuilder.RELATIONSHIP_MARK + "/" : "/") + field.getJsonName();
 	}
 
-	public ResourceId toResourceId(Object entity) {
+	public ResourceIdentifier toResourceId(Object entity) {
 		if (entity == null) {
 			return null;
 		}
 		RegistryEntry<Object> entry = resourceRegistry.getEntry(entity);
 		ResourceInformation resourceInformation = entry.getResourceInformation();
 		String strId = this.getIdString(entity, resourceInformation);
-		return new ResourceId(strId, resourceInformation.getResourceType());
+		return new ResourceIdentifier(strId, resourceInformation.getResourceType());
 	}
 
 	public String getIdString(Object entity, ResourceInformation resourceInformation) {

@@ -8,6 +8,7 @@ import io.katharsis.resource.annotations.JsonApiLinksInformation;
 import io.katharsis.resource.annotations.JsonApiMetaInformation;
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.annotations.JsonApiToMany;
+import io.katharsis.response.LinksInformation;
 import io.katharsis.response.MetaInformation;
 
 @JsonApiResource(type = "projects")
@@ -34,7 +35,7 @@ public class Project {
 	@JsonApiMetaInformation
 	private ProjectMeta meta;
 
-	public static class ProjectLinks implements MetaInformation {
+	public static class ProjectLinks implements LinksInformation {
 
 		private String value;
 

@@ -15,6 +15,7 @@ import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.dispatcher.controller.Response;
 import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
+import io.katharsis.repository.exception.RepositoryNotFoundException;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.Document;
@@ -23,6 +24,7 @@ import io.katharsis.resource.exception.RequestBodyException;
 import io.katharsis.resource.exception.RequestBodyNotFoundException;
 import io.katharsis.resource.exception.ResourceException;
 import io.katharsis.resource.exception.ResourceNotFoundException;
+import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.internal.DocumentMapper;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -61,34 +63,41 @@ public class ResourcePatch extends ResourceUpsert {
 
         String idString = jsonPath.getIds().getIds().get(0);
 
-        Resource resourceBody = (Resource) requestDocument.getData();
+        Resource resourceBody = (Resource) requestDocument.getData().get();
         if (resourceBody == null) {
             throw new RequestBodyException(HttpMethod.POST, resourceEndpointName, "No data field in the body.");
         }
         RegistryEntry bodyRegistryEntry = resourceRegistry.getEntry(resourceBody.getType());
+        if(bodyRegistryEntry == null){
+        	throw new RepositoryNotFoundException(resourceBody.getType());
+        }
+        ResourceInformation resourceInformation = bodyRegistryEntry.getResourceInformation();
         verifyTypes(HttpMethod.PATCH, resourceEndpointName, endpointRegistryEntry, bodyRegistryEntry);
 
         Class<?> type = bodyRegistryEntry
             .getResourceInformation()
             .getIdField()
             .getType();
-        Serializable resourceId = typeParser.parse(idString, (Class<? extends Serializable>) type);
+        Serializable resourceId = resourceInformation.parseIdString(idString);
 
         ResourceRepositoryAdapter resourceRepository = endpointRegistryEntry.getResourceRepository(parameterProvider);
         JsonApiResponse resourceFindResponse = resourceRepository.findOne(resourceId, queryAdapter);
         Object resource = extractResource(resourceFindResponse);
-        Resource resourceFindData = (Resource) documentMapper.toDocument(resourceFindResponse, queryAdapter).getData();
+        if(resource == null){
+        	throw new ResourceNotFoundException(jsonPath.toString());
+        }
+        Resource resourceFindData = documentMapper.toDocument(resourceFindResponse, queryAdapter).getSingleData().get();
 
+        resourceInformation.verify(resource, requestDocument);
+        
         // extract current attributes from findOne without any manipulation by query params (such as sparse fieldsets)
         try{
         	String attributesFromFindOne = extractAttributesFromResourceAsJson(resourceFindData);
-	        Map<String,Object> attributesToUpdate = emptyIfNull(objectMapper.readValue(attributesFromFindOne, Map.class));
+	        Map<String,Object> attributesToUpdate = new HashMap<>(emptyIfNull(objectMapper.readValue(attributesFromFindOne, Map.class)));
 	      
 	        // deserialize the request JSON's attributes object into a map
 	        String attributesAsJson = objectMapper.writeValueAsString(resourceBody.getAttributes());
 	        Map<String,Object> attributesFromRequest = emptyIfNull(objectMapper.readValue(attributesAsJson, Map.class));
-	        
-	        
    
 	        // remove attributes that were omitted in the request
 	        Iterator<String> it = attributesToUpdate.keySet().iterator();

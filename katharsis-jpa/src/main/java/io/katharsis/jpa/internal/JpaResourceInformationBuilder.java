@@ -27,6 +27,7 @@ import io.katharsis.jpa.internal.meta.MetaElement;
 import io.katharsis.jpa.internal.meta.MetaEntity;
 import io.katharsis.jpa.internal.meta.MetaKey;
 import io.katharsis.jpa.internal.meta.MetaLookup;
+import io.katharsis.resource.Document;
 import io.katharsis.resource.Resource;
 import io.katharsis.resource.annotations.JsonApiLinksInformation;
 import io.katharsis.resource.annotations.JsonApiMetaInformation;
@@ -116,33 +117,7 @@ public class JpaResourceInformationBuilder implements ResourceInformationBuilder
 		@SuppressWarnings("unchecked")
 		@Override
 		public T buildResource(Resource resource) {
-			String strId = resource.getId();
-
-			// use managed entities on the server-side
-			if (strId != null && em != null) {
-				Object id = meta.getPrimaryKey().fromKeyString(strId);
-				Object entity = em.find(meta.getImplementationClass(), id);
-				if (entity != null) {
-					// version check
-					checkOptimisticLocking(entity, resource);
-					return (T) entity;
-				}
-			}
 			return super.buildResource(resource);
-		}
-
-		private void checkOptimisticLocking(Object entity, Resource resource) {
-			MetaAttribute versionAttr = meta.getVersionAttribute();
-			if (versionAttr != null) {
-				JsonNode versionNode = resource.getAttributes().get(versionAttr.getName());
-				if (versionNode != null) {
-					Object requestVersion = versionAttr.getType().fromString(versionNode.asText());
-					Object currentVersion = versionAttr.getValue(entity);
-					if (!currentVersion.equals(requestVersion))
-						throw new OptimisticLockException(
-								resource.getId() + " changed from version " + requestVersion + " to " + currentVersion);
-				}
-			}
 		}
 
 		@Override
@@ -167,6 +142,26 @@ public class JpaResourceInformationBuilder implements ResourceInformationBuilder
 			super(resourceClass, resourceType, instanceBuilder, fields);
 			this.meta = meta;
 			this.ignoredFields = ignoredFields;
+		}
+		
+		@Override
+		@Deprecated // Temporary method until proper versioning/locking/timestamping is implemented
+		public void verify(Object entity, Document requestDocument) {
+			checkOptimisticLocking(entity, requestDocument.getSingleData().get());
+		}
+		
+		private void checkOptimisticLocking(Object entity, Resource resource) {
+			MetaAttribute versionAttr = meta.getVersionAttribute();
+			if (versionAttr != null) {
+				JsonNode versionNode = resource.getAttributes().get(versionAttr.getName());
+				if (versionNode != null) {
+					Object requestVersion = versionAttr.getType().fromString(versionNode.asText());
+					Object currentVersion = versionAttr.getValue(entity);
+					if (!currentVersion.equals(requestVersion))
+						throw new OptimisticLockException(
+								resource.getId() + " changed from version " + requestVersion + " to " + currentVersion);
+				}
+			}
 		}
 
 		/**

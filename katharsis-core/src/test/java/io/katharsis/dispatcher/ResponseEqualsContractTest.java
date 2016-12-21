@@ -5,6 +5,8 @@ import org.junit.Test;
 
 import io.katharsis.dispatcher.controller.Response;
 import io.katharsis.resource.Document;
+import io.katharsis.resource.Resource;
+import io.katharsis.utils.java.Nullable;
 
 public class ResponseEqualsContractTest {
 
@@ -12,6 +14,7 @@ public class ResponseEqualsContractTest {
 	public void testHashCodeEquals() {
 		Document r1 = new Document();
 		Document r2 = new Document();
+		r2.setData(Nullable.of((Object) new Resource()));
 		Response c1 = new Response(r1, 201);
 		Response c1copy = new Response(r1, 201);
 		Response c2 = new Response(r2, 202);

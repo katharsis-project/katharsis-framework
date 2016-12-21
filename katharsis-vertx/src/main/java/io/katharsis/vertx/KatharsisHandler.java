@@ -57,7 +57,7 @@ public class KatharsisHandler implements Handler<RoutingContext> {
             ctx.response()
                     .setStatusCode(response.getHttpStatus())
                     .putHeader(HttpHeaders.CONTENT_TYPE, JsonApiMediaTypeHandler.APPLICATION_JSON_API)
-                    .end(encode(response));
+                    .end(encode(response.getDocument()));
 
         } catch (Exception e) {
             throw new KatharsisVertxException("Exception during dispatch " + e.getMessage());

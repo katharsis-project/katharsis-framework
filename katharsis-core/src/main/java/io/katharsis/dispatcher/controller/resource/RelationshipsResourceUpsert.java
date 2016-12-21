@@ -12,7 +12,7 @@ import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathIds;
 import io.katharsis.request.path.RelationshipsPath;
 import io.katharsis.resource.Document;
-import io.katharsis.resource.ResourceId;
+import io.katharsis.resource.ResourceIdentifier;
 import io.katharsis.resource.exception.RequestBodyException;
 import io.katharsis.resource.exception.RequestBodyNotFoundException;
 import io.katharsis.resource.exception.ResourceFieldNotFoundException;
@@ -54,7 +54,7 @@ public abstract class RelationshipsResourceUpsert extends BaseController {
      * @param relationshipRepositoryForClass Relationship repository
      */
     protected abstract void processToManyRelationship(Object resource, Class<? extends Serializable> relationshipIdType,
-                                                      String elementName, Iterable<ResourceId> dataBodies, QueryAdapter queryAdapter,
+                                                      String elementName, Iterable<ResourceIdentifier> dataBodies, QueryAdapter queryAdapter,
                                                       RelationshipRepositoryAdapter relationshipRepositoryForClass);
 
     /**
@@ -68,7 +68,7 @@ public abstract class RelationshipsResourceUpsert extends BaseController {
      * @param relationshipRepositoryForClass Relationship repository
      */
     protected abstract void processToOneRelationship(Object resource, Class<? extends Serializable> relationshipIdType,
-                                                     String elementName, ResourceId dataBody, QueryAdapter queryAdapter,
+                                                     String elementName, ResourceIdentifier dataBody, QueryAdapter queryAdapter,
                                                      RelationshipRepositoryAdapter relationshipRepositoryForClass);
 
     @Override
@@ -112,14 +112,14 @@ public abstract class RelationshipsResourceUpsert extends BaseController {
         RelationshipRepositoryAdapter relationshipRepositoryForClass = registryEntry
                 .getRelationshipRepositoryForClass(relationshipFieldClass, parameterProvider);
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
-            Iterable<ResourceId> dataBodies = (Iterable<ResourceId>) (requestBody.isMultiple() ? requestBody.getData() : Collections.singletonList(requestBody.getData()));
+            Iterable<ResourceIdentifier> dataBodies = (Iterable<ResourceIdentifier>) (requestBody.isMultiple() ? requestBody.getData().get() : Collections.singletonList(requestBody.getData().get()));
             processToManyRelationship(resource, relationshipIdType, jsonPath.getElementName(), dataBodies, queryAdapter,
                     relationshipRepositoryForClass);
         } else {
             if (requestBody.isMultiple()) {
                 throw new RequestBodyException(HttpMethod.POST, resourceName, "Multiple data in body");
             }
-            ResourceId dataBody = (ResourceId) requestBody.getData();
+            ResourceIdentifier dataBody = (ResourceIdentifier) requestBody.getData().get();
             processToOneRelationship(resource, relationshipIdType, jsonPath.getElementName(), dataBody, queryAdapter,
                     relationshipRepositoryForClass);
         }

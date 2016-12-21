@@ -18,6 +18,7 @@ import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.repository.adapter.ResourceRepositoryAdapter;
 import io.katharsis.response.JsonApiResponse;
+import io.katharsis.utils.java.Nullable;
 import io.katharsis.utils.parser.TypeParser;
 
 public class ResourceGet extends ResourceIncludeField {
@@ -57,7 +58,13 @@ public class ResourceGet extends ResourceIncludeField {
 		Serializable castedId = typeParser.parse(id, idClass);
 		ResourceRepositoryAdapter resourceRepository = registryEntry.getResourceRepository(parameterProvider);
 		JsonApiResponse entities = resourceRepository.findOne(castedId, queryAdapter);
+		
 		Document responseDocument = documentMapper.toDocument(entities, queryAdapter);
+		
+		// return explicit { data : null } if values found
+		if(!responseDocument.getData().isPresent()){
+			responseDocument.setData(Nullable.nullValue());
+		}
 
 		return new Response(responseDocument, 200);
 	}

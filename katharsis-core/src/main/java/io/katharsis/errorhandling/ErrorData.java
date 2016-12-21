@@ -113,7 +113,7 @@ public class ErrorData {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public final boolean equals(Object o) {
         if (this == o) {
             return true;
         }
@@ -133,7 +133,7 @@ public class ErrorData {
     }
 
     @Override
-    public int hashCode() {
+    public final int hashCode() {
         return Objects.hash(id, aboutLink, status, code, title, detail, sourceParameter, sourcePointer, meta);
     }
 

@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 
 import io.katharsis.utils.java.Nullable;
 
-public class RelationshipDataSerializer extends JsonSerializer<Nullable<Object>> {
+public class NullableSerializer extends JsonSerializer<Nullable<Object>> {
 
 	@Override
 	public void serialize(Nullable<Object> value, JsonGenerator gen, SerializerProvider serializers) throws IOException, JsonProcessingException {

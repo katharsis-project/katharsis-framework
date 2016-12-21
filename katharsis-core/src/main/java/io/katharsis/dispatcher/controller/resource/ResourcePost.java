@@ -20,6 +20,7 @@ import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.repository.adapter.ResourceRepositoryAdapter;
 import io.katharsis.response.HttpStatus;
+import io.katharsis.response.JsonApiResponse;
 import io.katharsis.utils.parser.TypeParser;
 
 public class ResourcePost extends ResourceUpsert {
@@ -56,7 +57,7 @@ public class ResourcePost extends ResourceUpsert {
             throw new RequestBodyException(HttpMethod.POST, resourceEndpointName, "Multiple data in body");
         }
 
-        Resource resourceBody = (Resource) document.getData();
+        Resource resourceBody = (Resource) document.getData().get();
         if (resourceBody == null) {
             throw new RequestBodyException(HttpMethod.POST, resourceEndpointName, "No data field in the body.");
         }
@@ -68,7 +69,12 @@ public class ResourcePost extends ResourceUpsert {
         setAttributes(resourceBody, newResource, bodyRegistryEntry.getResourceInformation());
         ResourceRepositoryAdapter resourceRepository = endpointRegistryEntry.getResourceRepository(parameterProvider);
         setRelations(newResource, bodyRegistryEntry, resourceBody, queryAdapter, parameterProvider);
-        Document responseDocument = documentMapper.toDocument(resourceRepository.create(newResource, queryAdapter), queryAdapter);
+        
+        JsonApiResponse apiResponse = resourceRepository.create(newResource, queryAdapter);
+        if(apiResponse.getEntity() == null){
+        	throw new IllegalStateException("repository did not return the created resource");
+        }
+        Document responseDocument = documentMapper.toDocument(apiResponse, queryAdapter);
 
         return new Response(responseDocument, HttpStatus.CREATED_201);
     }

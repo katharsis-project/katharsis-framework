@@ -20,6 +20,7 @@ import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.repository.adapter.RelationshipRepositoryAdapter;
 import io.katharsis.response.JsonApiResponse;
 import io.katharsis.utils.Generics;
+import io.katharsis.utils.java.Nullable;
 import io.katharsis.utils.parser.TypeParser;
 
 public class RelationshipsResourceGet extends ResourceIncludeField {
@@ -65,6 +66,11 @@ public class RelationshipsResourceGet extends ResourceIncludeField {
         Document responseDocument = documentMapper.toDocument(entities, queryAdapter);
         
         // FIXME related vs self
+
+        // return explicit { data : null } if values found
+ 		if(!responseDocument.getData().isPresent()){
+ 			responseDocument.setData(Nullable.nullValue());
+ 		}
 
         return new Response(responseDocument, 200);
     }

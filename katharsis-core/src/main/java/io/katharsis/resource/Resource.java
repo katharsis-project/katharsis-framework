@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * <p/>
  * http://jsonapi.org/format/#document-resource-objects
  */
-public class Resource extends ResourceId implements MetaContainer, LinksContainer {
+public class Resource extends ResourceIdentifier implements MetaContainer, LinksContainer {
 
 	@JsonInclude(Include.NON_EMPTY)
 	private Map<String, JsonNode> attributes = new HashMap<>();
@@ -81,8 +81,8 @@ public class Resource extends ResourceId implements MetaContainer, LinksContaine
 		return Objects.equals(attributes, other.attributes) && Objects.equals(relationships, other.relationships) && Objects.equals(meta, other.meta) && Objects.equals(links, other.links);
 	}
 
-	public ResourceId toIdentifier() {
-		return new ResourceId(getId(), getType());
+	public ResourceIdentifier toIdentifier() {
+		return new ResourceIdentifier(getId(), getType());
 	}
 
 }

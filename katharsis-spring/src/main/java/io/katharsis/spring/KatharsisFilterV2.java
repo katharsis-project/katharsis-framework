@@ -149,7 +149,7 @@ public class KatharsisFilterV2 implements Filter, BeanFactoryAware {
                     try {
                         // first write to a buffer first because objectMapper may fail while writing.
                         baos = new ByteArrayOutputStream(BUFFER_SIZE);
-                        objectMapper.writeValue(baos, katharsisResponse);
+                        objectMapper.writeValue(baos, katharsisResponse.getDocument());
 
                         out = response.getOutputStream();
                         out.write(baos.toByteArray());

@@ -73,7 +73,7 @@ public class QuerySpecClientTest extends AbstractClientTest {
 		Schedule schedule = new Schedule();
 		schedule.setId(13L);
 		schedule.setName("mySchedule");
-		scheduleRepository.save(schedule);
+		scheduleRepository.create(schedule);
 
 		QuerySpec querySpec = new QuerySpec(Schedule.class);
 		ScheduleList list = scheduleRepository.findAll(querySpec);

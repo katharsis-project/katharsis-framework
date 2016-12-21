@@ -140,7 +140,7 @@ public class FieldResourceGetTest extends BaseControllerTest {
 		// THEN
 		Assert.assertNotNull(response);
 		Assert.assertNotNull(response.getDocument().getData());
-		List<Resource> entityList = ((List<Resource>) response.getDocument().getData());
+		List<Resource> entityList = ((List<Resource>) response.getDocument().getData().get());
 		Assert.assertEquals(true, entityList.size() > 0);
 		Assert.assertEquals("projects", entityList.get(0).getType());
 		Resource returnedProject = entityList.get(0);

@@ -14,10 +14,10 @@ import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.Document;
 import io.katharsis.resource.mock.models.Project;
-import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.repository.TaskToProjectRepository;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.HttpStatus;
+import io.katharsis.utils.java.Nullable;
 
 public class FieldResourcePostTest extends BaseControllerTest {
     private static final String REQUEST_TYPE = HttpMethod.POST.name();
@@ -68,7 +68,7 @@ public class FieldResourcePostTest extends BaseControllerTest {
     public void onExistingParentResourceShouldSaveIt() throws Exception {
         // GIVEN
     	Document newTaskDocument = new Document();
-    	newTaskDocument.setData(createTask());
+    	newTaskDocument.setData(Nullable.of((Object)createTask()));
 
         JsonPath taskPath = pathBuilder.buildPath("/tasks");
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper, documentMapper);
@@ -77,15 +77,15 @@ public class FieldResourcePostTest extends BaseControllerTest {
         Response taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(new QueryParams()), null, newTaskDocument);
 
         // THEN
-        assertThat(taskResponse.getDocument().getSingleData().getType()).isEqualTo("tasks");
-        Long taskId = Long.parseLong(taskResponse.getDocument().getSingleData().getId());
+        assertThat(taskResponse.getDocument().getSingleData().get().getType()).isEqualTo("tasks");
+        Long taskId = Long.parseLong(taskResponse.getDocument().getSingleData().get().getId());
         assertThat(taskId).isNotNull();
 
         /* ------- */
 
         // GIVEN
         Document newProjectDocument = new Document();
-        newProjectDocument.setData(createProject());
+        newProjectDocument.setData(Nullable.of((Object)createProject()));
 
         JsonPath projectPath = pathBuilder.buildPath("/tasks/" + taskId + "/project");
         FieldResourcePost sut = new FieldResourcePost(resourceRegistry, typeParser, objectMapper, documentMapper);
@@ -95,10 +95,10 @@ public class FieldResourcePostTest extends BaseControllerTest {
 
         // THEN
         assertThat(projectResponse.getHttpStatus()).isEqualTo(HttpStatus.CREATED_201);
-        assertThat(projectResponse.getDocument().getSingleData().getType()).isEqualTo("projects");
-        assertThat(projectResponse.getDocument().getSingleData().getId()).isNotNull();
-        assertThat(projectResponse.getDocument().getSingleData().getAttributes().get("name").asText()).isEqualTo("sample project");
-        Long projectId = Long.parseLong(projectResponse.getDocument().getSingleData().getId());
+        assertThat(projectResponse.getDocument().getSingleData().get().getType()).isEqualTo("projects");
+        assertThat(projectResponse.getDocument().getSingleData().get().getId()).isNotNull();
+        assertThat(projectResponse.getDocument().getSingleData().get().getAttributes().get("name").asText()).isEqualTo("sample project");
+        Long projectId = Long.parseLong(projectResponse.getDocument().getSingleData().get().getId());
         assertThat(projectId).isNotNull();
 
         TaskToProjectRepository taskToProjectRepository = new TaskToProjectRepository();
@@ -110,7 +110,7 @@ public class FieldResourcePostTest extends BaseControllerTest {
     public void onExistingParentResourceShouldSaveToToMany() throws Exception {
         // GIVEN
     	Document newTaskDocument = new Document();
-    	newTaskDocument.setData(createTask());
+    	newTaskDocument.setData(Nullable.of((Object)createTask()));
 
         JsonPath taskPath = pathBuilder.buildPath("/tasks");
         ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper, documentMapper);
@@ -119,15 +119,15 @@ public class FieldResourcePostTest extends BaseControllerTest {
         Response taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(new QueryParams()), null, newTaskDocument);
 
         // THEN
-        assertThat(taskResponse.getDocument().getSingleData().getType()).isEqualTo("tasks");
-        Long taskId = Long.parseLong(taskResponse.getDocument().getSingleData().getId());
+        assertThat(taskResponse.getDocument().getSingleData().get().getType()).isEqualTo("tasks");
+        Long taskId = Long.parseLong(taskResponse.getDocument().getSingleData().get().getId());
         assertThat(taskId).isNotNull();
 
         /* ------- */
 
         // GIVEN
         Document newProjectDocument = new Document();
-        newProjectDocument.setData(createProject());
+        newProjectDocument.setData(Nullable.of((Object)createProject()));
 
         JsonPath projectPath = pathBuilder.buildPath("/tasks/" + taskId + "/projects");
         FieldResourcePost sut = new FieldResourcePost(resourceRegistry, typeParser, objectMapper, documentMapper);
@@ -137,10 +137,10 @@ public class FieldResourcePostTest extends BaseControllerTest {
 
         // THEN
         assertThat(projectResponse.getHttpStatus()).isEqualTo(HttpStatus.CREATED_201);
-        assertThat(projectResponse.getDocument().getSingleData().getType()).isEqualTo("projects");
-        assertThat(projectResponse.getDocument().getSingleData().getId()).isNotNull();
-        assertThat(projectResponse.getDocument().getSingleData().getAttributes().get("name").asText()).isEqualTo("sample project");
-        Long projectId = Long.parseLong(projectResponse.getDocument().getSingleData().getId());
+        assertThat(projectResponse.getDocument().getSingleData().get().getType()).isEqualTo("projects");
+        assertThat(projectResponse.getDocument().getSingleData().get().getId()).isNotNull();
+        assertThat(projectResponse.getDocument().getSingleData().get().getAttributes().get("name").asText()).isEqualTo("sample project");
+        Long projectId = Long.parseLong(projectResponse.getDocument().getSingleData().get().getId());
         assertThat(projectId).isNotNull();
 
         TaskToProjectRepository taskToProjectRepository = new TaskToProjectRepository();

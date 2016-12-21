@@ -13,6 +13,7 @@ import io.katharsis.resource.Document;
 import io.katharsis.resource.include.IncludeLookupSetter;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.response.JsonApiResponse;
+import io.katharsis.utils.java.Nullable;
 
 public class DocumentMapper {
 
@@ -52,7 +53,7 @@ public class DocumentMapper {
 	}
 
 	private void addRelationDataAndInclusions(Document doc, Object entity, QueryAdapter queryAdapter, RepositoryMethodParameterProvider parameterProvider) {
-		if (doc.getData() != null) {
+		if (doc.getData().isPresent()) {
 			includeLookupSetter.setIncludedElements(doc, entity, queryAdapter, parameterProvider);
 		}
 	}
@@ -64,9 +65,9 @@ public class DocumentMapper {
 				for (Object obj : (Iterable<?>) entity) {
 					dataList.add(resourceMapper.toData(obj, queryAdapter));
 				}
-				doc.setData(dataList);
+				doc.setData(Nullable.of((Object) dataList));
 			} else {
-				doc.setData(resourceMapper.toData(entity, queryAdapter));
+				doc.setData(Nullable.of((Object) resourceMapper.toData(entity, queryAdapter)));
 			}
 		}
 	}

@@ -10,6 +10,7 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
@@ -85,7 +86,7 @@ public class ResourceAttributesBridge<T> {
     
     public void setProperties(ObjectMapper objectMapper, T instance, Map<String, JsonNode> attributes) {
         for(Map.Entry<String, JsonNode>  entry : attributes.entrySet()){
-        	setProperty1(objectMapper, instance, entry.getValue(), entry.getKey());
+        	setProperty(objectMapper, instance, entry.getValue(), entry.getKey());
         }
 
        // FIXME setAnyProperties1(instance, instanceWithNewFields);
@@ -107,19 +108,27 @@ public class ResourceAttributesBridge<T> {
 //        }
 //    }
 
-    private void setProperty1(ObjectMapper objectMapper, T instance, JsonNode valueNode, String propertyName) {
+    private void setProperty(ObjectMapper objectMapper, T instance, JsonNode valueNode, String propertyName) {
         Optional<ResourceField> staticField = findStaticField(propertyName);
         if (staticField.isPresent()) {
             String underlyingName = staticField.get().getUnderlyingName();
-            Class valueType = staticField.get().getType();
+            Type valueType = staticField.get().getGenericType();
             
-            ObjectReader reader = objectMapper.reader().forType(valueType);
             try{
-	            Object value = reader.readValue(valueNode);
+	            Object value;
+	            if(valueNode != null){
+	            	
+	            	JavaType jacksonValueType = objectMapper.getTypeFactory().constructType(valueType);
+	            	
+	            	ObjectReader reader = objectMapper.reader().forType(jacksonValueType);
+	            	value = reader.readValue(valueNode);
+	            }else{
+	            	value = null;
+	            }
 	            PropertyUtils.setProperty(instance, underlyingName, value);
-            }  catch (IOException e) {
+            }  catch (Exception e) {
 	            throw new ResourceException(
-	                    String.format("Exception while reading %s: %s", instance.getClass(), e.getMessage()), e);
+	                    String.format("Exception while reading %s.%s=%s due to %s", instance, propertyName, valueNode, e.getMessage()), e);
             }
         } else {
             // Needed for JsonIgnore and dynamic attributes

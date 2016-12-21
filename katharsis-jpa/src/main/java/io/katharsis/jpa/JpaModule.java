@@ -16,7 +16,6 @@ import javax.persistence.metamodel.ManagedType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.katharsis.client.internal.core.BaseResponseContext;
 import io.katharsis.dispatcher.controller.Response;
 import io.katharsis.dispatcher.filter.AbstractFilter;
 import io.katharsis.dispatcher.filter.FilterChain;

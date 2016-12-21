@@ -4,16 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class ResourceId implements Comparable<ResourceId> {
+public class ResourceIdentifier implements Comparable<ResourceIdentifier> {
 
 	private String id;
 
 	private String type;
 
-	public ResourceId() {
+	public ResourceIdentifier() {
 	}
 
-	public ResourceId(String id, String type) {
+	public ResourceIdentifier(String id, String type) {
 		this.id = id;
 		this.type = type;
 	}
@@ -35,8 +35,8 @@ public class ResourceId implements Comparable<ResourceId> {
 	}
 
 	@Override
-	public ResourceId clone() {
-		return new ResourceId(id, type);
+	public ResourceIdentifier clone() {
+		return new ResourceIdentifier(id, type);
 	}
 
 	public static Object fromData(Object data) {
@@ -44,13 +44,13 @@ public class ResourceId implements Comparable<ResourceId> {
 			return null;
 		}
 		if (data instanceof Iterable) {
-			List<ResourceId> result = new ArrayList<>();
-			for (ResourceId id : (Iterable<ResourceId>) data) {
+			List<ResourceIdentifier> result = new ArrayList<>();
+			for (ResourceIdentifier id : (Iterable<ResourceIdentifier>) data) {
 				result.add(id.clone());
 			}
 			return result;
 		} else {
-			ResourceId id = (ResourceId) data;
+			ResourceIdentifier id = (ResourceIdentifier) data;
 			return id.clone();
 		}
 	}
@@ -62,14 +62,14 @@ public class ResourceId implements Comparable<ResourceId> {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (!(obj instanceof ResourceId))
+		if (obj == null || obj.getClass() != ResourceIdentifier.class)
 			return false;
-		ResourceId other = (ResourceId) obj;
+		ResourceIdentifier other = (ResourceIdentifier) obj;
 		return Objects.equals(id, other.id) && Objects.equals(type, other.type);
 	}
 
 	@Override
-	public int compareTo(ResourceId o) {
+	public int compareTo(ResourceIdentifier o) {
 		int d = type.compareTo(o.type);
 		if (d != 0) {
 			return d;

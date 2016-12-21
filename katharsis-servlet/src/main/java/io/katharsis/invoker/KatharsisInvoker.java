@@ -115,7 +115,7 @@ public class KatharsisInvoker {
                 try {
                     // first write to a buffer first because objectMapper may fail while writing.
                     baos = new ByteArrayOutputStream(BUFFER_SIZE);
-                    objectMapper.writeValue(baos, katharsisResponse);
+                    objectMapper.writeValue(baos, katharsisResponse.getDocument());
 
                     out = invokerContext.getResponseOutputStream();
                     out.write(baos.toByteArray());

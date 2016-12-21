@@ -69,7 +69,7 @@ public class MergeTest extends AbstractJpaJerseyTest {
 	@Test
 	public void testInsert() throws InstantiationException, IllegalAccessException {
 		final MergedResource test = newMergedResource();
-		repo.save(test);
+		repo.create(test);
 
 		SpringTransactionRunner transactionRunner = context.getBean(SpringTransactionRunner.class);
 		transactionRunner.doInTransaction(new Callable<Object>() {

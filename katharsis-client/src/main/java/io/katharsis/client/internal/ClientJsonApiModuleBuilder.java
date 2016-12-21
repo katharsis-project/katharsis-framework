@@ -8,6 +8,8 @@ import io.katharsis.client.internal.core.ContainerSerializer;
 import io.katharsis.client.internal.core.ErrorResponseSerializer;
 import io.katharsis.client.internal.core.LinkageContainerSerializer;
 import io.katharsis.client.internal.core.RelationshipContainerSerializer;
+import io.katharsis.client.internal.core.ResourceRelationships;
+import io.katharsis.client.internal.core.ResourceRelationshipsDeserializer;
 import io.katharsis.resource.registry.ResourceRegistry;
 
 public class ClientJsonApiModuleBuilder {

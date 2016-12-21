@@ -1,5 +1,6 @@
 package io.katharsis.resource;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -11,29 +12,31 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import io.katharsis.resource.internal.NullableSerializer;
 import io.katharsis.resource.internal.RelationshipDataDeserializer;
-import io.katharsis.resource.internal.RelationshipDataSerializer;
 import io.katharsis.utils.java.Nullable;
 
 public class Relationship implements MetaContainer, LinksContainer {
 
 	@JsonInclude(Include.NON_EMPTY)
-	@JsonSerialize(using = RelationshipDataSerializer.class)
+	@JsonSerialize(using = NullableSerializer.class)
 	@JsonDeserialize(using = RelationshipDataDeserializer.class)
 	private Nullable<Object> data = Nullable.empty();
 
+	@JsonInclude(Include.NON_NULL)
 	private ObjectNode links;
 
+	@JsonInclude(Include.NON_NULL)
 	private ObjectNode meta;
 
 	public Relationship() {
 	}
 
-	public Relationship(ResourceId resourceId) {
+	public Relationship(ResourceIdentifier resourceId) {
 		this.data = Nullable.of((Object) resourceId);
 	}
 
-	public Relationship(List<ResourceId> resourceIds) {
+	public Relationship(List<ResourceIdentifier> resourceIds) {
 		this.data = Nullable.of((Object) resourceIds);
 	}
 
@@ -62,26 +65,42 @@ public class Relationship implements MetaContainer, LinksContainer {
 	}
 
 	@JsonIgnore
-	public Nullable<ResourceId> getSingleData() {
-		return (Nullable<ResourceId>) (Nullable) data;
+	public Nullable<ResourceIdentifier> getSingleData() {
+		return (Nullable<ResourceIdentifier>) (Nullable) data;
 	}
 
 	@JsonIgnore
-	public Nullable<List<ResourceId>> getCollectionData() {
+	public Nullable<List<ResourceIdentifier>> getCollectionData() {
 		if (!data.isPresent()) {
 			return Nullable.empty();
 		}
 		Object value = data.get();
 		if (!(value instanceof Iterable)) {
-			return Nullable.of((Collections.singletonList((ResourceId) value)));
+			return Nullable.of((Collections.singletonList((ResourceIdentifier) value)));
 		}
-		return Nullable.of((List<ResourceId>) value);
+		return Nullable.of((List<ResourceIdentifier>) value);
 	}
 
 	public void setData(Nullable<Object> data) {
 		if (data == null) {
 			throw new NullPointerException("make use of Nullable");
 		}
+		if(data.isPresent()){
+			Object value = data.get();
+			if(value instanceof Collection){
+				Collection<?> col = (Collection<?>) value;
+				if(!col.isEmpty()){
+					Object object = col.iterator().next();
+					if(object instanceof Resource){
+						throw new IllegalArgumentException();
+					}
+				}
+			}else if(value != null && value instanceof Resource){
+				throw new IllegalArgumentException();
+			}
+			
+		}
+		
 		this.data = data;
 	}
 

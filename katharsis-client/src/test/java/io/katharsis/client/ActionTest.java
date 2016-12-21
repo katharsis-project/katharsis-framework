@@ -54,7 +54,7 @@ public class ActionTest extends AbstractClientTest {
 		Schedule schedule = new Schedule();
 		schedule.setId(1L);
 		schedule.setName("schedule");
-		scheduleRepo.save(schedule);
+		scheduleRepo.create(schedule);
 
 		Iterable<Schedule> schedules = scheduleRepo.findAll(new QuerySpec(Schedule.class));
 		schedule = schedules.iterator().next();
@@ -83,7 +83,7 @@ public class ActionTest extends AbstractClientTest {
 		Schedule schedule = new Schedule();
 		schedule.setId(1L);
 		schedule.setName("scheduleName");
-		scheduleRepo.save(schedule);
+		scheduleRepo.create(schedule);
 
 		String result = scheduleRepo.resourceAction(1, "hello");
 		Assert.assertEquals("resource action: hello@scheduleName", result);
