@@ -57,7 +57,7 @@ public class CollectionGet extends ResourceIncludeField {
                 idType);
             entities = resourceRepository.findAll(parsedIds, queryAdapter);
         }
-        responseDocument = documentMapper.toDocument(entities, queryAdapter);
+        responseDocument = documentMapper.toDocument(entities, queryAdapter, parameterProvider);
         
         return new Response(responseDocument, 200);
     }

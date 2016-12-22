@@ -63,7 +63,7 @@ public class FieldResourceGet extends ResourceIncludeField {
         } else {
         	entities = relationshipRepositoryForClass.findOneTarget(castedResourceId, elementName, queryAdapter);
         }
-        Document responseDocument = documentMapper.toDocument(entities, queryAdapter);
+        Document responseDocument = documentMapper.toDocument(entities, queryAdapter, parameterProvider);
 
         return new Response(responseDocument, 200);
     }

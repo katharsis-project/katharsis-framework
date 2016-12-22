@@ -74,7 +74,7 @@ public class ResourcePost extends ResourceUpsert {
         if(apiResponse.getEntity() == null){
         	throw new IllegalStateException("repository did not return the created resource");
         }
-        Document responseDocument = documentMapper.toDocument(apiResponse, queryAdapter);
+        Document responseDocument = documentMapper.toDocument(apiResponse, queryAdapter, parameterProvider);
 
         return new Response(responseDocument, HttpStatus.CREATED_201);
     }

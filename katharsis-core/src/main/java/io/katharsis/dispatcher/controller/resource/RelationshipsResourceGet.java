@@ -63,7 +63,7 @@ public class RelationshipsResourceGet extends ResourceIncludeField {
         } else {
             entities = relationshipRepositoryForClass.findOneTarget(castedResourceId, elementName, queryAdapter);
         }
-        Document responseDocument = documentMapper.toDocument(entities, queryAdapter);
+        Document responseDocument = documentMapper.toDocument(entities, queryAdapter, parameterProvider);
         
         // FIXME related vs self
 

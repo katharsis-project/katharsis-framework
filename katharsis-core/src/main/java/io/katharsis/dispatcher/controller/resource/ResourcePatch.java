@@ -86,7 +86,7 @@ public class ResourcePatch extends ResourceUpsert {
         if(resource == null){
         	throw new ResourceNotFoundException(jsonPath.toString());
         }
-        Resource resourceFindData = documentMapper.toDocument(resourceFindResponse, queryAdapter).getSingleData().get();
+        Resource resourceFindData = documentMapper.toDocument(resourceFindResponse, queryAdapter, parameterProvider).getSingleData().get();
 
         resourceInformation.verify(resource, requestDocument);
         

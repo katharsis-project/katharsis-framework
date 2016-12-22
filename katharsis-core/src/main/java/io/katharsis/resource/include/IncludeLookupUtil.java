@@ -50,18 +50,18 @@ public class IncludeLookupUtil {
 	}
 
 	public Set<ResourceField> getRelationshipFields(Collection<Resource> resources) {
-		Map<String, ResourceField> fieldMap = new HashMap<>();
+		Set<ResourceField> fields = new HashSet<>();
 
 		Set<String> processedTypes = new HashSet<>();
 
 		for (Resource resource : resources) {
-			process(resource.getType(), processedTypes, fieldMap);
+			process(resource.getType(), processedTypes, fields);
 		}
 
-		return new HashSet<>(fieldMap.values());
+		return fields;
 	}
 
-	private void process(String type, Set<String> processedTypes, Map<String, ResourceField> fieldMap) {
+	private void process(String type, Set<String> processedTypes, Set<ResourceField> fields) {
 		if (!processedTypes.contains(type)) {
 			processedTypes.add(type);
 
@@ -70,14 +70,14 @@ public class IncludeLookupUtil {
 
 			ResourceInformation superInformation = getSuperInformation(information);
 			if (superInformation != null) {
-				process(superInformation.getResourceType(), processedTypes, fieldMap);
+				process(superInformation.getResourceType(), processedTypes, fields);
 			}
 
 			// TODO same relationship on multiple children
 			for (ResourceField field : information.getRelationshipFields()) {
-				String name = field.getUnderlyingName();
-				if (!fieldMap.containsKey(name)) {
-					fieldMap.put(name, field);
+				boolean existsOnSuperType = superInformation != null && superInformation.findRelationshipFieldByName(field.getJsonName()) != null;
+				if(!existsOnSuperType){
+					fields.add(field);
 				}
 			}
 		}
