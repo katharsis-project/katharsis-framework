@@ -2,7 +2,6 @@ package io.katharsis.dispatcher.controller.resource;
 
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.errorhandling.ErrorData;
-import io.katharsis.errorhandling.ErrorDataBuilder;
 import io.katharsis.errorhandling.ErrorResponse;
 import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
