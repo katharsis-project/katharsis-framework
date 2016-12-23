@@ -113,6 +113,7 @@ public class IncludedRelationshipExtractor {
 
     }
 
+
     private List<ResourceField> getRelationshipFields(Object resource) {
         Class<?> dataClass = resource.getClass();
         RegistryEntry entry = resourceRegistry.getEntry(dataClass);
