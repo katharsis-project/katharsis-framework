@@ -52,12 +52,14 @@ public class FieldResourceGet extends ResourceIncludeField {
         Class<?> baseRelationshipFieldClass = relationshipField.getType();
        
         Class<?> relationshipFieldClass = Generics.getResourceClass(relationshipField.getGenericType(), baseRelationshipFieldClass);
+        String relationshipResourceType = resourceRegistry.getResourceType(relationshipFieldClass);
 
         String relationshipResourceType = resourceRegistry.getResourceType(relationshipField.getElementType());
         
         RelationshipRepositoryAdapter relationshipRepositoryForClass = registryEntry
                 .getRelationshipRepositoryForClass(relationshipFieldClass, parameterProvider);
         BaseResponseContext target;
+
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
             @SuppressWarnings("unchecked")
             JsonApiResponse response = relationshipRepositoryForClass
