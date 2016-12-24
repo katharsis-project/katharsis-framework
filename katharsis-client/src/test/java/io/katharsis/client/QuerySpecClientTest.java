@@ -23,6 +23,7 @@ import io.katharsis.client.mock.repository.ScheduleRepository.ScheduleListMeta;
 import io.katharsis.queryspec.Direction;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.SortSpec;
+import io.katharsis.resource.exception.ResourceNotFoundException;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient.Builder;
 import okhttp3.Request;
@@ -143,14 +144,9 @@ public class QuerySpecClientTest extends AbstractClientTest {
 		Assert.assertTrue(tasks.isEmpty());
 	}
 
-	@Test
+	@Test(expected=ResourceNotFoundException.class)
 	public void testFindNull() {
-		try {
-			taskRepo.findOne(1L, new QuerySpec(Task.class));
-			Assert.fail();
-		} catch (ClientException e) {
-			Assert.assertEquals("Not Found", e.getMessage());
-		}
+		taskRepo.findOne(1L, new QuerySpec(Task.class));
 	}
 
 	@Test

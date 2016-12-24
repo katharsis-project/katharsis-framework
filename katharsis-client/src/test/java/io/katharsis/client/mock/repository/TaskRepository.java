@@ -50,7 +50,7 @@ public class TaskRepository {
 	public Task findOne(Long aLong, QuerySpec querySpec) {
 		Task task = map.get(aLong);
 		if (task == null) {
-			throw new ResourceNotFoundException("");
+			throw new ResourceNotFoundException("failed to find resource with id " + aLong);
 		}
 		return task;
 	}

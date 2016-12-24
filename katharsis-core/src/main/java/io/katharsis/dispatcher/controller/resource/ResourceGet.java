@@ -59,7 +59,7 @@ public class ResourceGet extends ResourceIncludeField {
 		ResourceRepositoryAdapter resourceRepository = registryEntry.getResourceRepository(parameterProvider);
 		JsonApiResponse entities = resourceRepository.findOne(castedId, queryAdapter);
 		
-		Document responseDocument = documentMapper.toDocument(entities, queryAdapter, parameterProvider);
+		Document responseDocument = documentMapper.toDocument(entities, queryAdapter);
 		
 		// return explicit { data : null } if values found
 		if(!responseDocument.getData().isPresent()){

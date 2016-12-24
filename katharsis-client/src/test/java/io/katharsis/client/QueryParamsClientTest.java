@@ -17,6 +17,7 @@ import io.katharsis.client.mock.models.Project;
 import io.katharsis.client.mock.models.Schedule;
 import io.katharsis.client.mock.models.Task;
 import io.katharsis.queryParams.QueryParams;
+import io.katharsis.resource.exception.ResourceNotFoundException;
 
 public class QueryParamsClientTest extends AbstractClientTest {
 
@@ -50,15 +51,9 @@ public class QueryParamsClientTest extends AbstractClientTest {
 		Assert.assertTrue(schedule.isEmpty());
 	}
 
-	@Test
+	@Test(expected=ResourceNotFoundException.class)
 	public void testFindNull() {
-		try {
-			taskRepo.findOne(1L, new QueryParams());
-			Assert.fail();
-		}
-		catch (ClientException e) {
-			Assert.assertEquals("Not Found", e.getMessage());
-		}
+		taskRepo.findOne(1L, new QueryParams());
 	}
 
 	@Test
