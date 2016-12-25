@@ -20,10 +20,6 @@
         <artifactId>jacoco-maven-plugin</artifactId>
       </plugin>
       <plugin>
-        <groupId>org.eluder.coveralls</groupId>
-        <artifactId>coveralls-maven-plugin</artifactId>
-      </plugin>
-      <plugin>
         <groupId>com.github.danielflower.mavenplugins</groupId>
         <artifactId>gitlog-maven-plugin</artifactId>
       </plugin>
