@@ -34,7 +34,6 @@
 		<maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
 		<jacoco-maven-plugin.version>0.7.7.201606060606</jacoco-maven-plugin.version>
 		<maven-compiler-plugin.version>3.2</maven-compiler-plugin.version>
-		<coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
 		<gitlog-maven-plugin.version>1.12.3</gitlog-maven-plugin.version>
 		<maven-bundle-plugin.version>2.5.3</maven-bundle-plugin.version>
 
@@ -112,31 +111,6 @@
 					<configuration>
 						<source>${javaVersion}</source>
 						<target>${javaVersion}</target>
-					</configuration>
-				</plugin>
-				<plugin>
-					<groupId>org.jacoco</groupId>
-					<artifactId>jacoco-maven-plugin</artifactId>
-					<version>${jacoco-maven-plugin.version}</version>
-					<executions>
-						<execution>
-							<id>prepare-agent</id>
-							<goals>
-								<goal>prepare-agent</goal>
-							</goals>
-						</execution>
-					</executions>
-					<configuration>
-						<destFile>${project.basedir}/../target/jacoco.exec</destFile>
-					</configuration>
-				</plugin>
-				<plugin>
-					<groupId>org.eluder.coveralls</groupId>
-					<artifactId>coveralls-maven-plugin</artifactId>
-					<version>${coveralls-maven-plugin.version}</version>
-					<configuration>
-						<!--suppress MavenModelInspection -->
-						<repoToken>${env.coverallsToken}</repoToken>
 					</configuration>
 				</plugin>
 				<plugin>
@@ -230,23 +204,6 @@
 					<mavenExecutorId>forked-path</mavenExecutorId>
 					<useReleaseProfile>false</useReleaseProfile>
 					<arguments>-Dgpg.passphrase=${gpg.passphrase} -Psonatype-oss-release</arguments>
-				</configuration>
-			</plugin>
-
-			<plugin>
-				<groupId>org.jacoco</groupId>
-				<artifactId>jacoco-maven-plugin</artifactId>
-				<configuration>
-					<destFile>${project.build.directory}/jacoco.exec</destFile>
-				
-					<fileSets>
-					  <fileSet implementation="org.apache.maven.shared.model.fileset.FileSet">
-					    <directory>${project.basedir}</directory>
-					    <includes>
-					      <include>**/*.exec</include>
-					    </includes>
-					  </fileSet>
-					</fileSets>
 				</configuration>
 			</plugin>
 		</plugins>

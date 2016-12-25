@@ -1,7 +1,7 @@
 #!/bin/bash
 set -ev
 
-mvn clean install jacoco:report coveralls:report -Dmaven.javadoc.skip=true -B
+mvn clean install jacoco:report -Dmaven.javadoc.skip=true -B
 if [ "${TRAVIS_PULL_REQUEST}" != "true" ] && [ "$(git status | head -1)" != "HEAD detached at FETCH_HEAD" ] ; then
 
     if [[ $TRAVIS_BRANCH == 'master' ]]; then

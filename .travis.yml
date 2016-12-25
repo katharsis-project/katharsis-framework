@@ -11,6 +11,8 @@ script:
   - "./build.sh"
   - jdk_switcher use oraclejdk8
   - "./sonar.sh"
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
 notifications:
   webhooks:
     urls:
