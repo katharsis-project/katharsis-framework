@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -37,8 +38,8 @@
     </developers>
 
     <properties>
-        <spring.version>4.1.8.RELEASE</spring.version>
-        <spring-boot.version>1.3.1.RELEASE</spring-boot.version>
+        <spring.version>4.3.4.RELEASE</spring.version>
+        <spring-boot.version>1.4.2.RELEASE</spring-boot.version>
 
         <javax.servlet.version>3.0.1</javax.servlet.version>
         <json-unit-fluent.version>1.5.3</json-unit-fluent.version>
@@ -94,6 +95,19 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>io.katharsis</groupId>
+            <artifactId>katharsis-jpa</artifactId>
+            <version>${project.version}</version>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>javax</groupId>
+            <artifactId>javaee-api</artifactId>
+            <version>7.0</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
             <groupId>org.reflections</groupId>
             <artifactId>reflections</artifactId>
             <optional>true</optional>
@@ -110,6 +124,13 @@
             <artifactId>json-unit-fluent</artifactId>
             <version>${json-unit-fluent.version}</version>
             <scope>test</scope>
+        </dependency>
+
+        <!-- only used to compile and test, application has to specify dependency if it makes use of JPA features -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-orm</artifactId>
+            <version>${spring.version}</version>
         </dependency>
     </dependencies>
 </project>

@@ -41,8 +41,7 @@ Because of the usage of JSON API, Katharsis can be used with many other librarie
 
 
 ## Documentation and examples
-Documentation, along with example projects and project details are available on project website [katharsis.io](http://katharsis.io) and [katharsis-jsonapi.readthedocs.io](http://katharsis-jsonapi.readthedocs.io/)
-
+Documentation, along with example projects and project details are available on project website [katharsis.io](http://katharsis.io)
 
 ## Chat
 Need to directly talk to us? Write on gitter: 

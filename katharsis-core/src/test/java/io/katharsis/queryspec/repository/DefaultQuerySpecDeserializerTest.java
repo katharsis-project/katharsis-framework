@@ -1,24 +1,16 @@
 package io.katharsis.queryspec.repository;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
+import io.katharsis.errorhandling.exception.BadRequestException;
 import io.katharsis.jackson.exception.ParametersDeserializationException;
-import io.katharsis.queryspec.AbstractQuerySpecTest;
-import io.katharsis.queryspec.DefaultQuerySpecDeserializer;
-import io.katharsis.queryspec.Direction;
-import io.katharsis.queryspec.FilterOperator;
-import io.katharsis.queryspec.FilterSpec;
-import io.katharsis.queryspec.QuerySpec;
-import io.katharsis.queryspec.QuerySpecDeserializerContext;
-import io.katharsis.queryspec.SortSpec;
+import io.katharsis.queryspec.*;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -27,6 +19,9 @@ import io.katharsis.utils.PropertyException;
 public class DefaultQuerySpecDeserializerTest extends AbstractQuerySpecTest {
 
 	private DefaultQuerySpecDeserializer deserializer;
+
+	@Rule
+	public ExpectedException expectedException = ExpectedException.none();
 
 	@Before
 	public void setup() {
@@ -48,6 +43,7 @@ public class DefaultQuerySpecDeserializerTest extends AbstractQuerySpecTest {
 		Assert.assertTrue(deserializer.getAllowUnknownAttributes());
 		Assert.assertEquals(0, deserializer.getDefaultOffset());
 		Assert.assertNull(deserializer.getDefaultLimit());
+		Assert.assertNull(deserializer.getMaxPageLimit());
 		deserializer.getSupportedOperators().clear();
 		deserializer.setDefaultOperator(FilterOperator.LIKE);
 		deserializer.addSupportedOperator(FilterOperator.LIKE);
@@ -249,6 +245,33 @@ public class DefaultQuerySpecDeserializerTest extends AbstractQuerySpecTest {
 		add(params, "page[limit]", "2");
 
 		deserializer.deserialize(Task.class, params);
+	}
+
+	@Test
+	public void testPagingMaxLimitNotAllowed() throws InstantiationException, IllegalAccessException {
+		Map<String, Set<String>> params = new HashMap<>();
+		add(params, "page[offset]", "1");
+		add(params, "page[limit]", "5");
+
+		deserializer.setMaxPageLimit(3L);
+		expectedException.expect(BadRequestException.class);
+
+		deserializer.deserialize(Task.class, params);
+	}
+
+	@Test
+	public void testPagingMaxLimitAllowed() throws InstantiationException, IllegalAccessException {
+		QuerySpec expectedSpec = new QuerySpec(Task.class);
+		expectedSpec.setOffset(1L);
+		expectedSpec.setLimit(5L);
+
+		Map<String, Set<String>> params = new HashMap<>();
+		add(params, "page[offset]", "1");
+		add(params, "page[limit]", "5");
+
+		deserializer.setMaxPageLimit(5L);
+		QuerySpec actualSpec = deserializer.deserialize(Task.class, params);
+		Assert.assertEquals(expectedSpec, actualSpec);
 	}
 
 	@Test

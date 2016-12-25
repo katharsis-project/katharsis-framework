@@ -228,17 +228,12 @@ public class PropertyUtils {
     }
 
     private Method getGetter(Class<?> beanClass, String fieldName) throws NoSuchMethodException {
-        String upperCaseName = fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
-
-        try {
-            return beanClass.getMethod("get" + upperCaseName);
-        } catch (NoSuchMethodException e) {
-            try {
-                return beanClass.getMethod("is" + upperCaseName);
-            } catch (NoSuchMethodException e1) {
-                throw new RepositoryMethodException(String.format("Unable to find accessor method for %s.%s",beanClass.getName(),fieldName));
-            }
-        }
+    	Method getter = ClassUtils.findGetter(beanClass, fieldName);
+    	if(getter != null){
+    		return getter;
+    	}else{
+    		throw new RepositoryMethodException(String.format("Unable to find accessor method for %s.%s",beanClass.getName(),fieldName));
+    	}
     }
 
     /**
@@ -318,10 +313,12 @@ public class PropertyUtils {
     }
 
     private Method getSetter(Object bean, String fieldName, Class<?> fieldType) throws NoSuchMethodException {
-        Class<?> beanClass = bean.getClass();
-
-        String upperCaseName = fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
-
-        return beanClass.getMethod("set" + upperCaseName, fieldType);
+    	Class<? extends Object> beanClass = bean.getClass();
+    	Method setter = ClassUtils.findSetter(beanClass, fieldName, fieldType);
+    	if(setter != null){
+    		return setter;
+    	}else{
+    		throw new RepositoryMethodException(String.format("Unable to find accessor method for %s.%s",beanClass.getName(),fieldName));
+    	}
     }
 }

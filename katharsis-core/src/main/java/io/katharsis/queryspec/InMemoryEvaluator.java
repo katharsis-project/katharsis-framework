@@ -7,8 +7,9 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
-import io.katharsis.resource.list.DefaultResourceList;
-import io.katharsis.response.paging.DefaultPagedMetaInformation;
+import io.katharsis.resource.list.ResourceList;
+import io.katharsis.response.MetaInformation;
+import io.katharsis.response.paging.PagedMetaInformation;
 import io.katharsis.utils.PropertyUtils;
 
 /**
@@ -17,35 +18,33 @@ import io.katharsis.utils.PropertyUtils;
  */
 public class InMemoryEvaluator {
 
-	public <T> DefaultResourceList<T> eval(Iterable<T> resources, QuerySpec querySpec) {
-		DefaultResourceList<T> results = new DefaultResourceList<>();
-
+	public <T> void eval(Iterable<T> resources, QuerySpec querySpec, ResourceList<T> resultList) {
 		Iterator<T> iterator = resources.iterator();
 		while (iterator.hasNext()) {
-			results.add(iterator.next());
+			resultList.add(iterator.next());
 		}
 
 		// filter
 		if (!querySpec.getFilters().isEmpty()) {
 			FilterSpec filterSpec = FilterSpec.and(querySpec.getFilters());
-			applyFilter(results, filterSpec);
+			applyFilter(resultList, filterSpec);
 		}
-		long totalCount = results.size();
+		long totalCount = resultList.size();
 
 		// sort
-		applySorting(results, querySpec.getSort());
+		applySorting(resultList, querySpec.getSort());
 
 		// offset/limit
-		applyPaging(results, querySpec);
+		applyPaging(resultList, querySpec);
 
 		// set page information
 		if (querySpec.getLimit() != null || querySpec.getOffset() != 0) {
-			DefaultPagedMetaInformation metaInfo = new DefaultPagedMetaInformation();
-			metaInfo.setTotalResourceCount(totalCount);
-			results.setMeta(metaInfo);
+			MetaInformation meta = resultList.getMeta();
+			if (meta instanceof PagedMetaInformation) {
+				PagedMetaInformation pagedMeta = (PagedMetaInformation) meta;
+				pagedMeta.setTotalResourceCount(totalCount);
+			}
 		}
-
-		return results;
 	}
 
 	private <T> void applySorting(List<T> results, List<SortSpec> sortSpec) {

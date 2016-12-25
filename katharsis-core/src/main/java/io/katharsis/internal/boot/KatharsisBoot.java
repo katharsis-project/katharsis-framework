@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import net.jodah.typetools.TypeResolver;
 
 import io.katharsis.dispatcher.RequestDispatcher;
 import io.katharsis.dispatcher.filter.Filter;
@@ -16,11 +17,7 @@ import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
 import io.katharsis.jackson.JsonApiModuleBuilder;
 import io.katharsis.locator.JsonServiceLocator;
 import io.katharsis.locator.SampleJsonServiceLocator;
-import io.katharsis.module.Module;
-import io.katharsis.module.ModuleRegistry;
-import io.katharsis.module.ServiceDiscovery;
-import io.katharsis.module.ServiceDiscoveryFactory;
-import io.katharsis.module.SimpleModule;
+import io.katharsis.module.*;
 import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.queryspec.DefaultQuerySpecDeserializer;
 import io.katharsis.queryspec.QuerySpecDeserializer;
@@ -44,7 +41,6 @@ import io.katharsis.resource.registry.ServiceUrlProvider;
 import io.katharsis.utils.ClassUtils;
 import io.katharsis.utils.PreconditionUtil;
 import io.katharsis.utils.parser.TypeParser;
-import net.jodah.typetools.TypeResolver;
 
 /**
  * Facilitates the startup of Katharsis in various environments (Spring, CDI, JAX-RS, etc.).
@@ -347,6 +343,10 @@ public class KatharsisBoot {
 
 	public void setDefaultPageLimit(Long defaultPageLimit) {
 		((DefaultQuerySpecDeserializer) this.querySpecDeserializer).setDefaultLimit(defaultPageLimit);
+	}
+
+	public void setMaxPageLimit(Long maxPageLimit) {
+		((DefaultQuerySpecDeserializer) this.querySpecDeserializer).setMaxPageLimit(maxPageLimit);
 	}
 
 	public ModuleRegistry getModuleRegistry() {

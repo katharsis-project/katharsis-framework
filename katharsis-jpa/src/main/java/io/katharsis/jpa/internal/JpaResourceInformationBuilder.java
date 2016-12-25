@@ -2,10 +2,9 @@ package io.katharsis.jpa.internal;
 
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -266,15 +265,7 @@ public class JpaResourceInformationBuilder implements ResourceInformationBuilder
 		Class<?> type = attr.getType().getImplementationClass();
 		Type genericType = attr.getType().getImplementationType();
 
-		Class<?> beanClass = attr.getParent().getImplementationClass();
-		Field declaredField;
-		try {
-			declaredField = beanClass.getDeclaredField(attr.getName());
-		}
-		catch (Exception e) {
-			throw new IllegalStateException(e);
-		}
-		List<Annotation> annotations = Arrays.asList(declaredField.getAnnotations());
+		Collection<Annotation> annotations = attr.getAnnotations();
 
 		// use JPA annotations as default
 		String oppositeName = null;
@@ -302,8 +293,8 @@ public class JpaResourceInformationBuilder implements ResourceInformationBuilder
 
 		MetaKey primaryKey = meta.getPrimaryKey();
 		boolean id = primaryKey.getElements().contains(attr);
-		boolean linksInfo = declaredField.getAnnotation(JsonApiLinksInformation.class) != null;
-		boolean metaInfo = declaredField.getAnnotation(JsonApiMetaInformation.class) != null;
+		boolean linksInfo = attr.getAnnotation(JsonApiLinksInformation.class) != null;
+		boolean metaInfo = attr.getAnnotation(JsonApiMetaInformation.class) != null;
 		boolean association = isAssociation(meta, attr);
 		ResourceFieldType resourceFieldType = ResourceFieldType.get(id, linksInfo, metaInfo, association);
 
