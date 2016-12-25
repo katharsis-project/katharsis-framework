@@ -52,6 +52,7 @@
 		<maven-compiler-plugin.version>3.2</maven-compiler-plugin.version>
 		<gitlog-maven-plugin.version>1.12.3</gitlog-maven-plugin.version>
 		<maven-bundle-plugin.version>2.5.3</maven-bundle-plugin.version>
+		<maven-surefire-plugin.version>2.19.1</maven-surefire-plugin.version>
 
 		<okhttp.version>3.4.1</okhttp.version>
 		<httpclient.version>4.5.2</httpclient.version>

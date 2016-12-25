@@ -38,7 +38,6 @@
 		<maven-bundle-plugin.version>2.5.3</maven-bundle-plugin.version>
 
 		<gpg.passphrase />
-		<maven-surefire-plugin.version>2.19.1</maven-surefire-plugin.version>
 	</properties>
 
 	<scm>
