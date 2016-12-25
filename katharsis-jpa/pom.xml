@@ -29,7 +29,7 @@
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
-			</plugin>\
+			</plugin>
 			<plugin>
 				<groupId>com.github.danielflower.mavenplugins</groupId>
 				<artifactId>gitlog-maven-plugin</artifactId>
@@ -75,11 +75,6 @@
 			<artifactId>javaee-api</artifactId>
 			<version>${javaee-api.version}</version>
 			<scope>test</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.reflections</groupId>
-			<artifactId>reflections</artifactId>
 		</dependency>
 
 		<dependency>
