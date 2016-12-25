@@ -56,7 +56,11 @@ class ClientResourceUpsert extends ResourceUpsert {
 			Object object = resourceMap.get(uid);
 
 			RegistryEntry<?> registryEntry = resourceRegistry.getEntry(resource.getType());
+
+			// no need for any query parameters when doing POST/PATCH
 			QueryAdapter queryAdapter = null;
+
+			// no in use on the client side
 			RepositoryMethodParameterProvider parameterProvider = null;
 
 			setRelations(object, registryEntry, resource, queryAdapter, parameterProvider);
@@ -73,12 +77,11 @@ class ClientResourceUpsert extends ResourceUpsert {
 		Object relatedResource = resourceMap.get(uid);
 		if (relatedResource != null) {
 			return relatedResource;
-		} else {
-			ResourceInformation resourceInformation = entry.getResourceInformation();
-			Class<?> resourceClass = resourceInformation.getResourceClass();
-			String url = null;
-			return proxyFactory.createResourceProxy(resourceClass, relationId, url);
 		}
+		ResourceInformation resourceInformation = entry.getResourceInformation();
+		Class<?> resourceClass = resourceInformation.getResourceClass();
+		String url = null;
+		return proxyFactory.createResourceProxy(resourceClass, relationId, url);
 	}
 
 	public List<Object> allocateResources(List<Resource> resources) {
@@ -137,12 +140,14 @@ class ClientResourceUpsert extends ResourceUpsert {
 
 	@Override
 	public boolean isAcceptable(JsonPath jsonPath, String requestType) {
-		throw new IllegalStateException();
+		// no in use on client side, consider refactoring ResourceUpsert to separate from controllers
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public Response handle(JsonPath jsonPath, QueryAdapter queryAdapter, RepositoryMethodParameterProvider parameterProvider, Document document) {
-		throw new IllegalStateException();
+		// no in use on client side, consider refactoring ResourceUpsert to separate from controllers
+		throw new UnsupportedOperationException();
 	}
 
 	@Override

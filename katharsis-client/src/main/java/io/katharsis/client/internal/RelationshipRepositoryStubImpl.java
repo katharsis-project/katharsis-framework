@@ -44,28 +44,28 @@ public class RelationshipRepositoryStubImpl<T, I extends Serializable, D, J exte
 	public void setRelation(T source, J targetId, String fieldName) {
 		Serializable sourceId = getSourceId(source);
 		String url = urlBuilder.buildUrl(sourceClass, sourceId, (QuerySpec) null, fieldName);
-		execute(url, HttpMethod.PATCH, targetId);
+		executeWithId(url, HttpMethod.PATCH, targetId);
 	}
 
 	@Override
 	public void setRelations(T source, Iterable<J> targetIds, String fieldName) {
 		Serializable sourceId = getSourceId(source);
 		String url = urlBuilder.buildUrl(sourceClass, sourceId, (QuerySpec) null, fieldName);
-		execute(url, HttpMethod.PATCH, targetIds);
+		executeWithIds(url, HttpMethod.PATCH, targetIds);
 	}
 
 	@Override
 	public void addRelations(T source, Iterable<J> targetIds, String fieldName) {
 		Serializable sourceId = getSourceId(source);
 		String url = urlBuilder.buildUrl(sourceClass, sourceId, (QuerySpec) null, fieldName);
-		execute(url, HttpMethod.POST, targetIds);
+		executeWithIds(url, HttpMethod.POST, targetIds);
 	}
 
 	@Override
 	public void removeRelations(T source, Iterable<J> targetIds, String fieldName) {
 		Serializable sourceId = getSourceId(source);
 		String url = urlBuilder.buildUrl(sourceClass, sourceId, (QuerySpec) null, fieldName);
-		execute(url, HttpMethod.DELETE, targetIds);
+		executeWithIds(url, HttpMethod.DELETE, targetIds);
 	}
 
 	private Serializable getSourceId(T source) {
@@ -99,22 +99,26 @@ public class RelationshipRepositoryStubImpl<T, I extends Serializable, D, J exte
 		return (DefaultResourceList<D>) executeGet(url, ResponseType.RESOURCES);
 	}
 
-	private void execute(String requestUrl, HttpMethod method, Object targetIds) {
+	private void executeWithIds(String requestUrl, HttpMethod method, Iterable<?> targetIds) {
 		Document document = new Document();
-
-		if (targetIds instanceof Iterable) {
-			ArrayList<ResourceIdentifier> resourceIdentifiers = new ArrayList<>();
-			for (Object targetId : (Iterable<?>) targetIds) {
-				String strTargetId = resourceInformation.toIdString(targetId);
-				resourceIdentifiers.add(new ResourceIdentifier(strTargetId, resourceInformation.getResourceType()));
-			}
-			document.setData(Nullable.of((Object) resourceIdentifiers));
-		} else {
-			String strTargetId = resourceInformation.toIdString(targetIds);
-			ResourceIdentifier resourceIdentifier = new ResourceIdentifier(strTargetId, resourceInformation.getResourceType());
-			document.setData(Nullable.of((Object) resourceIdentifier));
+		ArrayList<ResourceIdentifier> resourceIdentifiers = new ArrayList<>();
+		for (Object targetId : (Iterable<?>) targetIds) {
+			String strTargetId = resourceInformation.toIdString(targetId);
+			resourceIdentifiers.add(new ResourceIdentifier(strTargetId, resourceInformation.getResourceType()));
 		}
+		document.setData(Nullable.of((Object) resourceIdentifiers));
+		doExecute(requestUrl, method, document);
+	}
+	
+	private void executeWithId(String requestUrl, HttpMethod method, Object targetIds) {
+		Document document = new Document();
+		String strTargetId = resourceInformation.toIdString(targetIds);
+		ResourceIdentifier resourceIdentifier = new ResourceIdentifier(strTargetId, resourceInformation.getResourceType());
+		document.setData(Nullable.of((Object) resourceIdentifier));
+		doExecute(requestUrl, method, document);
+	}
 
+	private void doExecute(String requestUrl, HttpMethod method, Document document) {
 		ObjectMapper objectMapper = client.getObjectMapper();
 		String requestBodyValue;
 		try {
@@ -122,7 +126,6 @@ public class RelationshipRepositoryStubImpl<T, I extends Serializable, D, J exte
 		} catch (JsonProcessingException e) {
 			throw new IllegalStateException(e);
 		}
-
 		execute(requestUrl, ResponseType.NONE, method, requestBodyValue);
 	}
 

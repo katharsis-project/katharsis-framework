@@ -79,7 +79,7 @@ public class ClientDocumentMapper extends DocumentMapper {
 		ClientResourceUpsert upsert = new ClientResourceUpsert(resourceRegistry, typeParser, objectMapper, null, proxyFactory);
 
 		if (document.getErrors() != null && !document.getErrors().isEmpty()) {
-
+			throw new IllegalStateException("document contains json api errors and cannot be processed");
 		}
 
 		if (!document.getData().isPresent()) {
@@ -113,7 +113,7 @@ public class ClientDocumentMapper extends DocumentMapper {
 			if(dataObjects.isEmpty()){
 				return null;
 			}
-			if(dataObjects.size() != 1){
+			if(dataObjects.size() > 1){
 				throw new IllegalStateException("expected unique result " + dataObjects);
 			}
 			return dataObjects.get(0);
