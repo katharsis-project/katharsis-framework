@@ -47,8 +47,8 @@ public class ResourceAttributesBridgeTest {
         ResourceField field = new ResourceField("name", "name", ResourceFieldType.ATTRIBUTE, String.class, String.class);
         ResourceAttributesBridge<Task> sut =
             new ResourceAttributesBridge<>(Collections.singletonList(field), Task.class);
-        JsonNode attributes = objectMapper.createObjectNode()
-            .put("name", "value");
+        HashMap<String, JsonNode> attributes = new HashMap<String, JsonNode>();
+        attributes.put("name", objectMapper.readTree("\"value\""));
         Task task = new Task();
 
         // WHEN
@@ -63,8 +63,8 @@ public class ResourceAttributesBridgeTest {
         // GIVEN
         ResourceAttributesBridge<DynamicResource> sut =
             new ResourceAttributesBridge<>(Collections.<ResourceField>emptyList(), DynamicResource.class);
-        JsonNode attributes = objectMapper.createObjectNode()
-            .put("name", "value");
+        HashMap<String, JsonNode> attributes = new HashMap<String, JsonNode>();
+        attributes.put("name", objectMapper.readTree("\"value\""));
         DynamicResource resource = new DynamicResource();
 
         // WHEN
@@ -80,8 +80,8 @@ public class ResourceAttributesBridgeTest {
         // GIVEN
         ResourceAttributesBridge<DynamicResourceWithSetterException> sut =
             new ResourceAttributesBridge<>(Collections.<ResourceField>emptyList(), DynamicResourceWithSetterException.class);
-        JsonNode attributes = objectMapper.createObjectNode()
-            .put("name", "value");
+        HashMap<String, JsonNode> attributes = new HashMap<String, JsonNode>();
+        attributes.put("name", objectMapper.readTree("\"value\""));
 
         // WHEN
         sut.setProperties(objectMapper, new DynamicResourceWithSetterException(), attributes);
@@ -90,13 +90,14 @@ public class ResourceAttributesBridgeTest {
     @Test(expected = ResourceException.class)
     public void onDynamicAttributesWritingShouldThrowException() throws Exception {
         // GIVEN
-        ResourceAttributesBridge<DynamicResourceWithGetterException> sut =
-            new ResourceAttributesBridge<>(Collections.<ResourceField>emptyList(), DynamicResourceWithGetterException.class);
-        JsonNode attributes = objectMapper.createObjectNode()
-            .put("name", "value");
+        ResourceAttributesBridge<DynamicResourceWithSetterException> sut =
+            new ResourceAttributesBridge<>(Collections.<ResourceField>emptyList(), DynamicResourceWithSetterException.class);
+        
+        HashMap<String, JsonNode> attributes = new HashMap<String, JsonNode>();
+        attributes.put("name", objectMapper.readTree("\"value\""));
 
         // WHEN
-        sut.setProperties(objectMapper, new DynamicResourceWithGetterException(), attributes);
+        sut.setProperties(objectMapper, new DynamicResourceWithSetterException(), attributes);
     }
 
     public static class DynamicResource {
