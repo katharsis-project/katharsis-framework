@@ -60,7 +60,7 @@ public class IncludedRelationshipExtractor {
         List<ResourceField> relationshipFields = getRelationshipFields(resource);
         for (ResourceField resourceField : relationshipFields) {
             if (resourceField.getIncludeByDefault() || isFieldIncluded(response, resourceField.getJsonName(), index, topResourceType)) {
-                Object targetDataObj = PropertyUtils.getProperty(resource, resourceField.getJsonName());
+                Object targetDataObj = PropertyUtils.getProperty(resource, resourceField.getUnderlyingName());
                 if (targetDataObj == null) {
                     continue;
                 }
