@@ -76,9 +76,8 @@ public class AbstractStub {
 
 				ClientDocumentMapper documentMapper = client.getDocumentMapper();
 				return documentMapper.fromDocument(document, responseType == ResponseType.RESOURCES);
-			} else {
-				return null;
-			}
+			} 
+			return null;
 		} catch (IOException e) {
 			throw new IllegalStateException(e);
 		}
