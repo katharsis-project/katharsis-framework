@@ -1,5 +1,7 @@
 package io.katharsis.resource.field;
 
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.List;
@@ -83,7 +85,7 @@ public class ResourceAttributesBridge<T> {
 	        	Object value = objectMapper.reader().forType(Object.class).readValue(valueNode);
 	        	jsonAnySetter.invoke(instance, propertyName, value);
 	        }
-        }  catch (Exception e) {
+        }  catch (IOException | IllegalAccessException | InvocationTargetException e) {
             throw new ResourceException(
                     String.format("Exception while reading %s.%s=%s due to %s", instance, propertyName, valueNode, e.getMessage()), e);
         }

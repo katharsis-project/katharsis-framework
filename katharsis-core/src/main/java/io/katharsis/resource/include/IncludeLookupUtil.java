@@ -12,7 +12,10 @@ import io.katharsis.internal.boot.KatharsisBootProperties;
 import io.katharsis.internal.boot.PropertiesProvider;
 import io.katharsis.queryParams.include.Inclusion;
 import io.katharsis.queryParams.params.IncludedRelationsParams;
+import io.katharsis.queryspec.IncludeRelationSpec;
+import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.internal.QueryAdapter;
+import io.katharsis.queryspec.internal.QuerySpecAdapter;
 import io.katharsis.resource.Relationship;
 import io.katharsis.resource.Resource;
 import io.katharsis.resource.ResourceIdentifier;
@@ -76,7 +79,7 @@ public class IncludeLookupUtil {
 			// TODO same relationship on multiple children
 			for (ResourceField field : information.getRelationshipFields()) {
 				boolean existsOnSuperType = superInformation != null && superInformation.findRelationshipFieldByName(field.getJsonName()) != null;
-				if(!existsOnSuperType){
+				if (!existsOnSuperType) {
 					fields.add(field);
 				}
 			}
@@ -104,32 +107,55 @@ public class IncludeLookupUtil {
 		return results;
 	}
 
-	private boolean isInstance(ResourceInformation resourceInformation, Resource resource) {
-		if (resourceInformation.getResourceType().equals(resource.getType())) {
+	private boolean isInstance(ResourceInformation desiredResourceInformation, Resource resource) {
+		if (desiredResourceInformation.getResourceType().equals(resource.getType())) {
 			return true;
 		}
-
-		ResourceInformation superInformation = getSuperInformation(resourceInformation);
-		if (superInformation != null) {
-			return isInstance(superInformation, resource);
-		} else {
-			return false;
+		
+		// TODO proper ResourceInformation API
+		ResourceInformation actualResourceInformation = resourceRegistry.getEntry(resource.getType()).getResourceInformation();
+		ResourceInformation superInformation = actualResourceInformation;
+		while((superInformation = getSuperInformation(superInformation)) != null){
+			if(superInformation.equals(desiredResourceInformation)){
+				return true;
+			}
 		}
+		return false;
 	}
 
 	public boolean isInclusionRequested(QueryAdapter queryAdapter, List<ResourceField> fieldPath) {
 		if (queryAdapter == null || queryAdapter.getIncludedRelations() == null || queryAdapter.getIncludedRelations().getParams() == null) {
 			return false;
 		}
-		Map<String, IncludedRelationsParams> params = queryAdapter.getIncludedRelations().getParams();
 
-		// we have to possibilities for inclusion: by type or dot notation
-		for (int i = fieldPath.size() - 1; i >= 0; i--) {
-			String path = toPath(fieldPath, i);
-			ResourceInformation rootInformation = fieldPath.get(i).getResourceInformation();
-			IncludedRelationsParams includedRelationsParams = params.get(rootInformation.getResourceType());
-			if (includedRelationsParams != null && contains(includedRelationsParams, path)) {
-				return true;
+		if (queryAdapter instanceof QuerySpecAdapter) {
+			// improvements regarding polymorphism
+			QuerySpec querySpec = ((QuerySpecAdapter) queryAdapter).getQuerySpec();
+			for (int i = fieldPath.size() - 1; i >= 0; i--) {
+				List<String> path = toPathList(fieldPath, i);
+
+				ResourceInformation rootInformation = fieldPath.get(i).getResourceInformation();
+
+				QuerySpec rootQuerySpec = querySpec.getQuerySpec(rootInformation.getResourceClass());
+				if (rootQuerySpec != null && contains(rootQuerySpec, path)) {
+					return true;
+				}
+				// FIXME subtyping 
+				if (querySpec != null && contains(querySpec, path)) {
+					return true;
+				}
+			}
+		} else {
+			Map<String, IncludedRelationsParams> params = queryAdapter.getIncludedRelations().getParams();
+
+			// we have to possibilities for inclusion: by type or dot notation
+			for (int i = fieldPath.size() - 1; i >= 0; i--) {
+				String path = toPath(fieldPath, i);
+				ResourceInformation rootInformation = fieldPath.get(i).getResourceInformation();
+				IncludedRelationsParams includedRelationsParams = params.get(rootInformation.getResourceType());
+				if (includedRelationsParams != null && contains(includedRelationsParams, path)) {
+					return true;
+				}
 			}
 		}
 		return false;
@@ -145,6 +171,19 @@ public class IncludeLookupUtil {
 		return false;
 	}
 
+	private boolean contains(QuerySpec querySpec, List<String> path) {
+		for (IncludeRelationSpec inclusion : querySpec.getIncludedRelations()) {
+			if (inclusion.getAttributePath().equals(path) || startsWith(inclusion, path)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean startsWith(IncludeRelationSpec inclusion, List<String> path) {
+		return inclusion.getAttributePath().size() > path.size() && inclusion.getAttributePath().subList(0, path.size()).equals(path);
+	}
+
 	private String toPath(List<ResourceField> fieldPath, int offset) {
 		StringBuilder builder = new StringBuilder();
 		for (int i = offset; i < fieldPath.size(); i++) {
@@ -155,6 +194,16 @@ public class IncludeLookupUtil {
 			builder.append(field.getJsonName());
 		}
 		return builder.toString();
+	}
+
+	private List<String> toPathList(List<ResourceField> fieldPath, int offset) {
+		List<String> builder = new ArrayList<>();
+		List<String> result = builder;
+		for (int i = offset; i < fieldPath.size(); i++) {
+			ResourceField field = fieldPath.get(i);
+			result.add(field.getJsonName());
+		}
+		return result;
 	}
 
 	public List<Resource> sub(Collection<Resource> resourcesWithField, Collection<Resource> resourcesForLookup) {
@@ -180,7 +229,7 @@ public class IncludeLookupUtil {
 		}
 		return results;
 	}
-	
+
 	public List<ResourceIdentifier> toIds(List<Resource> resources) {
 		List<ResourceIdentifier> results = new ArrayList<>();
 		for (Resource resource : resources) {

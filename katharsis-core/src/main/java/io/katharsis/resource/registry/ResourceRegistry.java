@@ -16,7 +16,7 @@ import java.util.Map;
 
 
 public class ResourceRegistry {
-    private final Map<Class, RegistryEntry> resources;
+    protected final Map<Class, RegistryEntry> resources;
     private final ServiceUrlProvider serviceUrlProvider;
     private final Logger logger = LoggerFactory.getLogger(ResourceRegistry.class);
     private ModuleRegistry moduleRegistry;

@@ -34,6 +34,7 @@ import io.katharsis.queryspec.QuerySpecRelationshipRepository;
 import io.katharsis.queryspec.QuerySpecResourceRepository;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.repository.RepositoryInstanceBuilder;
+import io.katharsis.repository.exception.RepositoryNotFoundException;
 import io.katharsis.repository.information.RepositoryInformationBuilder;
 import io.katharsis.repository.information.RepositoryInformationBuilderContext;
 import io.katharsis.repository.information.ResourceRepositoryInformation;
@@ -44,6 +45,7 @@ import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.list.DefaultResourceList;
 import io.katharsis.resource.registry.ConstantServiceUrlProvider;
 import io.katharsis.resource.registry.RegistryEntry;
+import io.katharsis.resource.registry.ResourceLookup;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ServiceUrlProvider;
 import io.katharsis.resource.registry.repository.DirectResponseRelationshipEntry;
@@ -91,7 +93,7 @@ public class KatharsisClient {
 	public KatharsisClient(ServiceUrlProvider serviceUrlProvider) {
 		httpAdapter = detectHttpAdapter();
 
-		moduleRegistry = new ModuleRegistry();
+		moduleRegistry = new ModuleRegistry(false);
 
 		moduleRegistry.addModule(new ClientModule());
 
@@ -157,8 +159,12 @@ public class KatharsisClient {
 
 		@Override
 		protected synchronized <T> RegistryEntry<T> getEntry(Class<T> clazz, boolean allowNull) {
-			RegistryEntry<T> entry = super.getEntry(clazz, true);
+			RegistryEntry<T> entry = resources.get(clazz);
 			if (entry == null) {
+				ResourceInformationBuilder informationBuilder = moduleRegistry.getResourceInformationBuilder();
+				if(!informationBuilder.accept(clazz)){
+					throw new RepositoryNotFoundException(clazz.getName() + " not recognized as resource class, consider adding @JsonApiResource annotation");
+				}
 				entry = allocateRepository(clazz, true);
 			}
 			return entry;
@@ -204,6 +210,14 @@ public class KatharsisClient {
 
 		initModuleRegistry();
 		initExceptionMapperRegistry();
+		initResources();
+	}
+
+	private void initResources() {
+		ResourceLookup resourceLookup = moduleRegistry.getResourceLookup();
+		for (Class<?> resourceClass : resourceLookup.getResourceClasses()) {
+			getQuerySpecRepository(resourceClass);
+		}
 	}
 
 	private void initModuleRegistry() {

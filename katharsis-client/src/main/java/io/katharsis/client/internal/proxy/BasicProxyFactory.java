@@ -42,7 +42,7 @@ public class BasicProxyFactory implements ClientProxyFactory {
 	}
 
 	@Override
-	public <T> T createResourceProxy(Class<T> clazz, Object id, String url) {
+	public <T> T createResourceProxy(Class<T> clazz, Object id) {
 		T instance = ClassUtils.newInstance(clazz);
 
 		ResourceRegistry resourceRegistry = context.getModuleRegistry().getResourceRegistry();

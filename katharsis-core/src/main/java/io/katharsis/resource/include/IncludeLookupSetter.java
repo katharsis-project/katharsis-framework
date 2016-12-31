@@ -114,7 +114,8 @@ public class IncludeLookupSetter {
 
 			// only handle resources from the proper subtype where the
 			// relationship is desired to be loaded
-			List<Resource> resourcesWithField = util.filterByLoadedRelationship(util.filterByType(dataList, resourceInformation), resourceField);
+			List<Resource> resourcesByType = util.filterByType(dataList, resourceInformation);
+			List<Resource> resourcesWithField = util.filterByLoadedRelationship(resourcesByType, resourceField);
 
 			// note that @JsonApiIncludeByDefault only applied for primary
 			// resource, not nested ones

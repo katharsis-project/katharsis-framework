@@ -285,5 +285,10 @@ public class SimpleModuleTest {
 		public void addRepositoryDecoratorFactory(RepositoryDecoratorFactory decorator) {
 			numDecorators++;
 		}
+
+		@Override
+		public boolean isServer() {
+			return true;
+		}
 	}
 }

@@ -56,16 +56,16 @@ public class ResourceMapper {
 	}
 
 	private MetaInformation getResourceMeta(Object entity, ResourceInformation resourceInformation) {
-		if (resourceInformation.getMetaFieldName() != null) {
-			return (MetaInformation) PropertyUtils.getProperty(entity, resourceInformation.getMetaFieldName());
+		if (resourceInformation.getMetaField() != null) {
+			return (MetaInformation) PropertyUtils.getProperty(entity, resourceInformation.getMetaField().getUnderlyingName());
 		}
 		return null;
 	}
 
 	public LinksInformation getResourceLinks(Object entity, ResourceInformation resourceInformation) {
 		LinksInformation info;
-		if (resourceInformation.getLinksFieldName() != null) {
-			info = (LinksInformation) PropertyUtils.getProperty(entity, resourceInformation.getLinksFieldName());
+		if (resourceInformation.getLinksField() != null) {
+			info = (LinksInformation) PropertyUtils.getProperty(entity, resourceInformation.getLinksField().getUnderlyingName());
 		} else {
 			info = new DefaultSelfRelatedLinksInformation();
 		}
@@ -104,6 +104,6 @@ public class ResourceMapper {
 
 		Relationship relationship = new Relationship();
 		relationship.setLinks(relationshipLinks);
-		resource.getRelationships().put(field.getJsonName(), relationship);		
+		resource.getRelationships().put(field.getJsonName(), relationship);
 	}
 }

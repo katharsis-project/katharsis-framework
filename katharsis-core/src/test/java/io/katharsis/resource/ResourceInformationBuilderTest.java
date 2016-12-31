@@ -110,7 +110,7 @@ public class ResourceInformationBuilderTest {
     public void shouldContainMetaInformationField() throws Exception {
         ResourceInformation resourceInformation = resourceInformationBuilder.build(Task.class);
 
-        assertThat(resourceInformation.getMetaFieldName())
+        assertThat(resourceInformation.getMetaField().getUnderlyingName())
                 .isEqualTo("metaInformation");
     }
 
@@ -118,7 +118,7 @@ public class ResourceInformationBuilderTest {
     public void shouldThrowExceptionOnMultipleMetaInformationFields() throws Exception {
         ResourceInformation resourceInformation = resourceInformationBuilder.build(Task.class);
 
-        assertThat(resourceInformation.getMetaFieldName())
+        assertThat(resourceInformation.getMetaField().getUnderlyingName())
                 .isEqualTo("metaInformation");
     }
 

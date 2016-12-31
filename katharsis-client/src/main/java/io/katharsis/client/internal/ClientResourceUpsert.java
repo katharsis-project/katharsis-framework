@@ -18,6 +18,7 @@ import io.katharsis.dispatcher.controller.Response;
 import io.katharsis.dispatcher.controller.resource.ResourceUpsert;
 import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
+import io.katharsis.repository.exception.RepositoryNotFoundException;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.resource.Document;
 import io.katharsis.resource.Relationship;
@@ -80,8 +81,7 @@ class ClientResourceUpsert extends ResourceUpsert {
 		}
 		ResourceInformation resourceInformation = entry.getResourceInformation();
 		Class<?> resourceClass = resourceInformation.getResourceClass();
-		String url = null;
-		return proxyFactory.createResourceProxy(resourceClass, relationId, url);
+		return proxyFactory.createResourceProxy(resourceClass, relationId);
 	}
 
 	public List<Object> allocateResources(List<Resource> resources) {
@@ -89,6 +89,9 @@ class ClientResourceUpsert extends ResourceUpsert {
 		for (Resource resource : resources) {
 
 			RegistryEntry<?> registryEntry = resourceRegistry.getEntry(resource.getType());
+			if (registryEntry == null) {
+				throw new RepositoryNotFoundException(resource.getType());
+			}
 			ResourceInformation resourceInformation = registryEntry.getResourceInformation();
 
 			Object object = newResource(resourceInformation, resource);
@@ -106,14 +109,14 @@ class ClientResourceUpsert extends ResourceUpsert {
 	}
 
 	protected void setLinks(Resource dataBody, Object instance, ResourceInformation resourceInformation) {
-		String linksFieldName = resourceInformation.getLinksFieldName();
-		if (dataBody.getLinks() != null && linksFieldName != null) {
+		ResourceField linksField = resourceInformation.getLinksField();
+		if (dataBody.getLinks() != null && linksField != null) {
 			JsonNode linksNode = dataBody.getLinks();
-			Class<?> linksClass = PropertyUtils.getPropertyClass(resourceInformation.getResourceClass(), linksFieldName);
+			Class<?> linksClass = linksField.getType();
 			ObjectReader linksMapper = objectMapper.readerFor(linksClass);
 			try {
 				Object links = linksMapper.readValue(linksNode);
-				PropertyUtils.setProperty(instance, linksFieldName, links);
+				PropertyUtils.setProperty(instance, linksField.getUnderlyingName(), links);
 			} catch (IOException e) {
 				throw new ResponseBodyException("failed to parse links information", e);
 			}
@@ -121,16 +124,16 @@ class ClientResourceUpsert extends ResourceUpsert {
 	}
 
 	protected void setMeta(Resource dataBody, Object instance, ResourceInformation resourceInformation) {
-		String metaFieldName = resourceInformation.getMetaFieldName();
-		if (dataBody.getMeta() != null && metaFieldName != null) {
+		ResourceField metaField = resourceInformation.getMetaField();
+		if (dataBody.getMeta() != null && metaField != null) {
 			JsonNode metaNode = dataBody.getMeta();
 
-			Class<?> metaClass = PropertyUtils.getPropertyClass(resourceInformation.getResourceClass(), metaFieldName);
+			Class<?> metaClass = metaField.getType();
 
 			ObjectReader metaMapper = objectMapper.readerFor(metaClass);
 			try {
 				Object meta = metaMapper.readValue(metaNode);
-				PropertyUtils.setProperty(instance, metaFieldName, meta);
+				PropertyUtils.setProperty(instance, metaField.getUnderlyingName(), meta);
 			} catch (IOException e) {
 				throw new ResponseBodyException("failed to parse links information", e);
 			}
@@ -140,13 +143,15 @@ class ClientResourceUpsert extends ResourceUpsert {
 
 	@Override
 	public boolean isAcceptable(JsonPath jsonPath, String requestType) {
-		// no in use on client side, consider refactoring ResourceUpsert to separate from controllers
+		// no in use on client side, consider refactoring ResourceUpsert to
+		// separate from controllers
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public Response handle(JsonPath jsonPath, QueryAdapter queryAdapter, RepositoryMethodParameterProvider parameterProvider, Document document) {
-		// no in use on client side, consider refactoring ResourceUpsert to separate from controllers
+		// no in use on client side, consider refactoring ResourceUpsert to
+		// separate from controllers
 		throw new UnsupportedOperationException();
 	}
 
