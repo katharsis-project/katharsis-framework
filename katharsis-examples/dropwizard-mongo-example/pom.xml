@@ -9,7 +9,7 @@
     <artifactId>dropwizard-mongo-example</artifactId>
     <packaging>jar</packaging>
 
-    <name>Katharsis Dropwizard + MongoDB Example</name>
+    <name>katharsis-examples-dropwizard-mongodb</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

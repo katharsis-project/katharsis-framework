@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
@@ -10,7 +11,15 @@
 
 	<artifactId>katharsis-cdi</artifactId>
 	<packaging>bundle</packaging>
-	<name>katharsis-cdi</name>
+
+	<name>${project.artifactId}</name>
+
+	<scm>
+		<connection>scm:git:git@github.com:katharsis-project/katharsis-framework.git</connection>
+		<developerConnection>scm:git:git@github.com:katharsis-project/katharsis-framework.git</developerConnection>
+		<url>http://github.com/katharsis-project/katharsis-framework.git</url>
+		<tag>HEAD</tag>
+	</scm>
 
 	<properties>
 		<javaee-api.version>7.0</javaee-api.version>
@@ -18,83 +27,67 @@
 		<weld.version>2.4.0.Final</weld.version>
 	</properties>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.jacoco</groupId>
-				<artifactId>jacoco-maven-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.eluder.coveralls</groupId>
-				<artifactId>coveralls-maven-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<configuration>
-					<instructions>
-						<Export-Package>io.katharsis.boot.cdi.*</Export-Package>
-					</instructions>
-				</configuration>
-			</plugin>
-
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.19.1</version>
-				<configuration>
-					<systemPropertyVariables>
-						<java.util.logging.config.file>logging.properties</java.util.logging.config.file>
-					</systemPropertyVariables>
-				</configuration>
-			</plugin>
-	
-			
-		</plugins>
-	</build>
-
-
 	<dependencies>
+		<!-- MODULE DEPENDENCIES -->
 		<dependency>
 			<groupId>io.katharsis</groupId>
 			<artifactId>katharsis-core</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 
+		<!--suppress NonOsgiMavenDependency -->
 		<dependency>
 			<groupId>javax</groupId>
 			<artifactId>javaee-api</artifactId>
 			<version>${javaee-api.version}</version>
 			<scope>provided</scope>
 		</dependency>
-		
+		<!-- END:MODULE DEPENDENCIES -->
+
+		<!-- TEST DEPENDENCIES -->
 		<dependency>
 			<groupId>org.apache.deltaspike.modules</groupId>
 			<artifactId>deltaspike-test-control-module-api</artifactId>
 			<version>${deltaspike.version}</version>
 			<scope>test</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.apache.deltaspike.modules</groupId>
 			<artifactId>deltaspike-test-control-module-impl</artifactId>
 			<version>${deltaspike.version}</version>
 			<scope>test</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.apache.deltaspike.cdictrl</groupId>
 			<artifactId>deltaspike-cdictrl-weld</artifactId>
 			<version>${deltaspike.version}</version>
 			<scope>test</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.jboss.weld.se</groupId>
 			<artifactId>weld-se-core</artifactId>
 			<version>${weld.version}</version>
 			<scope>test</scope>
 		</dependency>
+		<!-- END:TEST DEPENDENCIES -->
 	</dependencies>
 
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<configuration>
+					<instructions>
+						<Export-Package>
+							io.katharsis.boot.cdi.*
+						</Export-Package>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>

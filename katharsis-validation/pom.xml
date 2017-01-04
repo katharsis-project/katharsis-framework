@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
@@ -10,7 +11,14 @@
 
 	<artifactId>katharsis-validation</artifactId>
 	<packaging>bundle</packaging>
-	<name>katharsis-validation</name>
+	<name>${project.artifactId}</name>
+
+	<scm>
+		<connection>scm:git:git@github.com:katharsis-project/katharsis-framework.git</connection>
+		<developerConnection>scm:git:git@github.com:katharsis-project/katharsis-framework.git</developerConnection>
+		<url>http://github.com/katharsis-project/katharsis-framework.git</url>
+		<tag>HEAD</tag>
+	</scm>
 
 	<properties>
 		<h2.version>1.4.187</h2.version>
@@ -22,38 +30,9 @@
 		<javax.ws.rs-api.version>2.0.1</javax.ws.rs-api.version>
 	</properties>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.jacoco</groupId>
-				<artifactId>jacoco-maven-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.eluder.coveralls</groupId>
-				<artifactId>coveralls-maven-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>com.github.danielflower.mavenplugins</groupId>
-				<artifactId>gitlog-maven-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<configuration>
-					<instructions>
-						<Export-Package>io.katharsis.jpa.*,io.katharsis.jpa.query.*,io.katharsis.jpa.querydsl.*,io.katharsis.jpa.criteria.*</Export-Package>
-					</instructions>
-				</configuration>
-			</plugin>
-			
-			
-	
-			
-		</plugins>
-	</build>
-
-
 	<dependencies>
+
+		<!-- MODULE DEPENDENCIES -->
 		<dependency>
 			<groupId>io.katharsis</groupId>
 			<artifactId>katharsis-core</artifactId>
@@ -67,34 +46,22 @@
 			<version>${commons.beanutils.version}</version>
 		</dependency>
 
-		<dependency>
-			<groupId>javax</groupId>
-			<artifactId>javaee-api</artifactId>
-			<version>${javaee-api.version}</version>
-			<scope>test</scope>
-		</dependency>
-		
+		<!--suppress NonOsgiMavenDependency -->
 		<dependency>
 			<groupId>javax</groupId>
 			<artifactId>javaee-api</artifactId>
 			<version>${javaee-api.version}</version>
 			<scope>provided</scope>
 		</dependency>
-		
-		<dependency>
-			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate-validator</artifactId>
-			<version>${hibernate.validator.version}</version>
-			<scope>test</scope>
-		</dependency>
 
+		<!--suppress NonOsgiMavenDependency -->
 		<dependency>
 			<groupId>org.reflections</groupId>
 			<artifactId>reflections</artifactId>
 		</dependency>
+		<!-- END:MODULE DEPENDENCIES -->
 
-
-		<!-- Test Dependencies -->
+		<!-- TEST DEPENDENCIES -->
 		<dependency>
 			<groupId>io.katharsis</groupId>
 			<artifactId>katharsis-client</artifactId>
@@ -108,7 +75,7 @@
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>okhttp</artifactId>
@@ -171,18 +138,44 @@
 			<version>${jersey.version}</version>
 			<scope>test</scope>
 		</dependency>
-		
-		<dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <scope>test</scope>
-        </dependency>
 
-        <dependency>
-		    <groupId>org.slf4j</groupId>
-		    <artifactId>jul-to-slf4j</artifactId>
-            <scope>test</scope>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<scope>test</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jul-to-slf4j</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-validator</artifactId>
+			<version>${hibernate.validator.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<!-- END:TEST DEPENDENCIES -->
 	</dependencies>
 
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<configuration>
+					<instructions>
+						<Export-Package>
+							io.katharsis.jpa.*,
+							io.katharsis.jpa.query.*,
+							io.katharsis.jpa.querydsl.*,
+							io.katharsis.jpa.criteria.*
+						</Export-Package>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>

@@ -1,136 +1,113 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>io.katharsis</groupId>
-        <artifactId>katharsis-parent</artifactId>
-        <version>2.8.2-SNAPSHOT</version>
-        <relativePath>../katharsis-parent</relativePath>
-    </parent>
+	<parent>
+		<groupId>io.katharsis</groupId>
+		<artifactId>katharsis-parent</artifactId>
+		<version>2.8.2-SNAPSHOT</version>
+		<relativePath>../katharsis-parent</relativePath>
+	</parent>
 
-    <artifactId>katharsis-spring</artifactId>
-    <version>2.8.2-SNAPSHOT</version>
-    <packaging>bundle</packaging>
+	<artifactId>katharsis-spring</artifactId>
+	<version>2.8.2-SNAPSHOT</version>
+	<packaging>bundle</packaging>
 
-    <name>katharsis-spring</name>
-    <url>https://github.com/katharsis-project/katharsis-framework</url>
-    <description>Katharsis Spring integration</description>
-    <scm>
-        <url>https://github.com/katharsis-project/katharsis-framework</url>
-        <connection>scm:git:git://github.com/katharsis-project/katharsis-framework.git</connection>
-        <developerConnection>scm:git:git@github.com:katharsis-project/katharsis-framework.git</developerConnection>
-    </scm>
-    <issueManagement>
-        <system>GitHub</system>
-        <url>https://github.com/katharsis-project/katharsis-framework/issues</url>
-    </issueManagement>
-    <licenses>
-        <license>
-            <name>Apache License 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
-        </license>
-    </licenses>
-    <developers>
-        <developer>
-            <organization>Katharsis community</organization>
-        </developer>
-    </developers>
+	<name>katharsis-spring</name>
+	<description>Katharsis Spring integration</description>
 
-    <properties>
-        <spring.version>4.3.4.RELEASE</spring.version>
-        <spring-boot.version>1.4.2.RELEASE</spring-boot.version>
+	<scm>
+		<connection>scm:git:git@github.com:katharsis-project/katharsis-framework.git</connection>
+		<developerConnection>scm:git:git@github.com:katharsis-project/katharsis-framework.git</developerConnection>
+		<url>http://github.com/katharsis-project/katharsis-framework.git</url>
+		<tag>HEAD</tag>
+	</scm>
 
-        <javax.servlet.version>3.0.1</javax.servlet.version>
-        <json-unit-fluent.version>1.5.3</json-unit-fluent.version>
-    </properties>
+	<properties>
+		<spring.version>4.3.4.RELEASE</spring.version>
+		<spring-boot.version>1.4.2.RELEASE</spring-boot.version>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.19.1</version>
-                <configuration>
-                    <systemPropertyVariables>
-                        <java.util.logging.config.file>logging.properties</java.util.logging.config.file>
-                    </systemPropertyVariables>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.eluder.coveralls</groupId>
-                <artifactId>coveralls-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <configuration>
-                    <instructions>
-                        <Export-Package>io.katharsis.spring.*</Export-Package>
-                    </instructions>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+		<json-unit-fluent.version>1.5.3</json-unit-fluent.version>
+		<javaee-api.version>7.0</javaee-api.version>
+	</properties>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-            <version>${spring-boot.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-configuration-processor</artifactId>
-            <version>${spring-boot.version}</version>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>io.katharsis</groupId>
-            <artifactId>katharsis-servlet</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.katharsis</groupId>
-            <artifactId>katharsis-jpa</artifactId>
-            <version>${project.version}</version>
-            <optional>true</optional>
-        </dependency>
+	<dependencies>
+		<!-- MODULE DEPENDENCIES -->
+		<dependency>
+			<groupId>io.katharsis</groupId>
+			<artifactId>katharsis-servlet</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
-        <dependency>
-            <groupId>javax</groupId>
-            <artifactId>javaee-api</artifactId>
-            <version>7.0</version>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>org.reflections</groupId>
-            <artifactId>reflections</artifactId>
-            <optional>true</optional>
-        </dependency>
+		<dependency>
+			<groupId>io.katharsis</groupId>
+			<artifactId>katharsis-jpa</artifactId>
+			<version>${project.version}</version>
+			<optional>true</optional>
+		</dependency>
 
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <version>${spring-boot.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.javacrumbs.json-unit</groupId>
-            <artifactId>json-unit-fluent</artifactId>
-            <version>${json-unit-fluent.version}</version>
-            <scope>test</scope>
-        </dependency>
+		<!--suppress NonOsgiMavenDependency -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+			<version>${spring-boot.version}</version>
+		</dependency>
 
-        <!-- only used to compile and test, application has to specify dependency if it makes use of JPA features -->
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-orm</artifactId>
-            <version>${spring.version}</version>
-        </dependency>
-    </dependencies>
+		<!--suppress NonOsgiMavenDependency -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-configuration-processor</artifactId>
+			<version>${spring-boot.version}</version>
+			<optional>true</optional>
+		</dependency>
+
+		<!--suppress NonOsgiMavenDependency -->
+		<dependency>
+			<groupId>javax</groupId>
+			<artifactId>javaee-api</artifactId>
+			<version>${javaee-api.version}</version>
+			<optional>true</optional>
+		</dependency>
+
+		<!-- only used to compile and test, application has to specify dependency if it makes use of JPA features -->
+		<!--suppress NonOsgiMavenDependency -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-orm</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		<!-- END:MODULE DEPENDENCIES -->
+
+		<!-- TEST DEPENDENCIES -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<version>${spring-boot.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>net.javacrumbs.json-unit</groupId>
+			<artifactId>json-unit-fluent</artifactId>
+			<version>${json-unit-fluent.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<!-- END:TEST DEPENDENCIES -->
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<configuration>
+					<instructions>
+						<Export-Package>
+							io.katharsis.spring.*
+						</Export-Package>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>

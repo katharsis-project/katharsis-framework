@@ -8,7 +8,7 @@
 	<version>2.8.2-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
-	<name>Spring Boot Simple Example</name>
+	<name>katharsis-examples-spring-boot</name>
 	<description>Spring Boot Simple Example to demonstrate Katharsis integration</description>
 
 	<parent>
