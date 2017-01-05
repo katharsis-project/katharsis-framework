@@ -1,9 +1,11 @@
 package io.katharsis.resource.registry;
 
 import io.katharsis.module.ModuleRegistry;
+import io.katharsis.resource.Document;
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.exception.init.ResourceNotFoundInitializationException;
 import io.katharsis.resource.information.ResourceInformation;
+import io.katharsis.response.JsonApiResponse;
 import io.katharsis.utils.java.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +16,7 @@ import java.util.Map;
 
 
 public class ResourceRegistry {
-    private final Map<Class, RegistryEntry> resources;
+    protected final Map<Class, RegistryEntry> resources;
     private final ServiceUrlProvider serviceUrlProvider;
     private final Logger logger = LoggerFactory.getLogger(ResourceRegistry.class);
     private ModuleRegistry moduleRegistry;

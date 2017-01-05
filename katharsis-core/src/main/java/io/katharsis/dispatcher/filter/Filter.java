@@ -1,6 +1,6 @@
 package io.katharsis.dispatcher.filter;
 
-import io.katharsis.response.BaseResponseContext;
+import io.katharsis.dispatcher.controller.Response;
 
 /**
  * Allows to intercept and modify incoming requests and responses. This is 
@@ -17,6 +17,6 @@ public interface Filter {
 	 * @param chain next filters
 	 * @return response
 	 */
-	BaseResponseContext filter(FilterRequestContext filterRequestContext, FilterChain chain);
+	Response filter(FilterRequestContext filterRequestContext, FilterChain chain);
 
 }

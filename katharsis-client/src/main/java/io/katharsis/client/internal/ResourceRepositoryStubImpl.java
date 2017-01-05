@@ -12,51 +12,44 @@ import io.katharsis.client.ResourceRepositoryStub;
 import io.katharsis.dispatcher.controller.HttpMethod;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryspec.QuerySpec;
-import io.katharsis.request.path.JsonPath;
-import io.katharsis.request.path.ResourcePath;
+import io.katharsis.resource.Document;
 import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.list.DefaultResourceList;
-import io.katharsis.response.BaseResponseContext;
-import io.katharsis.response.CollectionResponseContext;
 import io.katharsis.response.JsonApiResponse;
-import io.katharsis.response.ResourceResponseContext;
 import io.katharsis.utils.JsonApiUrlBuilder;
 import io.katharsis.utils.PropertyUtils;
 
-public class ResourceRepositoryStubImpl<T, I extends Serializable> extends AbstractStub
-		implements ResourceRepositoryStub<T, I>, QuerySpecResourceRepositoryStub<T, I> {
+public class ResourceRepositoryStubImpl<T, I extends Serializable> extends AbstractStub implements ResourceRepositoryStub<T, I>, QuerySpecResourceRepositoryStub<T, I> {
 
 	private ResourceInformation resourceInformation;
 
 	private Class<T> resourceClass;
 
-	public ResourceRepositoryStubImpl(KatharsisClient client, Class<T> resourceClass, ResourceInformation resourceInformation,
-			JsonApiUrlBuilder urlBuilder) {
+	public ResourceRepositoryStubImpl(KatharsisClient client, Class<T> resourceClass, ResourceInformation resourceInformation, JsonApiUrlBuilder urlBuilder) {
 		super(client, urlBuilder);
 		this.resourceClass = resourceClass;
 		this.resourceInformation = resourceInformation;
 	}
 
-	private BaseResponseContext executeUpdate(String requestUrl, T resource, boolean create) {
+	private Object executeUpdate(String requestUrl, T resource, boolean create) {
 		JsonApiResponse response = new JsonApiResponse();
 		response.setEntity(resource);
 
-		JsonPath jsonPath = new ResourcePath(resourceInformation.getResourceType());
-		ResourceResponseContext context = new ResourceResponseContext(response, jsonPath, null);
+		ClientDocumentMapper documentMapper = client.getDocumentMapper();
+		Document requestDocument = documentMapper.toDocument(response, null);
 
-		ObjectMapper objectMapper = katharsis.getObjectMapper();
+		ObjectMapper objectMapper = client.getObjectMapper();
 		String requestBodyValue;
 		try {
-			requestBodyValue = objectMapper.writeValueAsString(context);
-		}
-		catch (JsonProcessingException e) {
+			requestBodyValue = objectMapper.writeValueAsString(requestDocument);
+		} catch (JsonProcessingException e) {
 			throw new IllegalStateException(e);
 		}
 
-		HttpMethod method = create || katharsis.getPushAlways() ? HttpMethod.POST : HttpMethod.PATCH;
+		HttpMethod method = create || client.getPushAlways() ? HttpMethod.POST : HttpMethod.PATCH;
 
-		return execute(requestUrl, true, method, requestBodyValue);
+		return execute(requestUrl, ResponseType.RESOURCE, method, requestBodyValue);
 	}
 
 	@Override
@@ -84,10 +77,9 @@ public class ResourceRepositoryStubImpl<T, I extends Serializable> extends Abstr
 
 	@SuppressWarnings("unchecked")
 	private <S extends T> S modify(S entity, boolean create) {
-		String strId = getStringId(entity, create);
-		String url = urlBuilder.buildUrl(resourceClass, strId, (QuerySpec) null);
-		BaseResponseContext context = executeUpdate(url, entity, create);
-		return (S) context.getResponse().getEntity();
+		Object id = getId(entity, create);
+		String url = urlBuilder.buildUrl(resourceClass, id, (QuerySpec) null);
+		return (S) executeUpdate(url, entity, create);
 	}
 
 	@Override
@@ -95,17 +87,15 @@ public class ResourceRepositoryStubImpl<T, I extends Serializable> extends Abstr
 		return modify(entity, true);
 	}
 
-	private <S extends T> String getStringId(S entity, boolean create) {
-		if (katharsis.getPushAlways()) {
+	private <S extends T> Object getId(S entity, boolean create) {
+		if (client.getPushAlways()) {
 			return null;
 		}
 		if (create) {
 			return null;
-		}
-		else {
+		} else {
 			ResourceField idField = resourceInformation.getIdField();
-			Object objectId = PropertyUtils.getProperty(entity, idField.getUnderlyingName());
-			return resourceInformation.toIdString(objectId);
+			return PropertyUtils.getProperty(entity, idField.getUnderlyingName());
 		}
 	}
 
@@ -138,21 +128,14 @@ public class ResourceRepositoryStubImpl<T, I extends Serializable> extends Abstr
 		return findAll(url);
 	}
 
+	@SuppressWarnings("unchecked")
 	public DefaultResourceList<T> findAll(String url) {
-		BaseResponseContext responseContext = executeGet(url);
-		if (responseContext instanceof CollectionResponseContext) {
-			CollectionResponseContext colResponseContext = (CollectionResponseContext) responseContext;
-			return toList(colResponseContext.getResponse());
-		}
-		else {
-			return toList(responseContext.getResponse());
-		}
+		return (DefaultResourceList<T>) executeGet(url, ResponseType.RESOURCES);
 	}
 
 	@SuppressWarnings("unchecked")
 	private T findOne(String url) {
-		BaseResponseContext responseContext = executeGet(url);
-		return (T) responseContext.getResponse().getEntity();
+		return (T) executeGet(url, ResponseType.RESOURCE);
 	}
 
 }

@@ -59,12 +59,12 @@ public class JpaRepositoryDecoratorTest extends AbstractJpaJerseyTest {
 		RelatedEntity related = new RelatedEntity();
 		related.setId(1L);
 		related.setStringValue("project");
-		relatedRepo.save(related);
+		relatedRepo.create(related);
 
 		TestEntity test = new TestEntity();
 		test.setId(2L);
 		test.setStringValue("test");
-		testRepo.save(test);
+		testRepo.create(test);
 
 		QuerySpecRelationshipRepositoryStub<TestEntity, Long, RelatedEntity, Long> relRepo = client
 				.getQuerySpecRepository(TestEntity.class, RelatedEntity.class);

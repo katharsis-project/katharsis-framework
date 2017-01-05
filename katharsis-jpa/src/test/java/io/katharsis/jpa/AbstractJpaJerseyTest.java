@@ -20,7 +20,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.client.KatharsisClient;
 import io.katharsis.client.http.okhttp.OkHttpAdapter;
 import io.katharsis.client.http.okhttp.OkHttpAdapterListenerBase;
-import io.katharsis.jpa.model.TestEntity;
 import io.katharsis.jpa.query.AbstractJpaTest;
 import io.katharsis.jpa.query.querydsl.QuerydslQueryFactory;
 import io.katharsis.jpa.util.EntityManagerProducer;
@@ -47,8 +46,9 @@ public abstract class AbstractJpaJerseyTest extends JerseyTest {
 	@Before
 	public void setup() {
 		client = new KatharsisClient(getBaseUri().toString());
+		client.setPushAlways(false);
 
-		JpaModule module = JpaModule.newClientModule(TestEntity.class.getPackage().getName());
+		JpaModule module = JpaModule.newClientModule();
 		setupModule(module, false);
 		client.addModule(module);
 		setNetworkTimeout(client, 10000, TimeUnit.SECONDS);

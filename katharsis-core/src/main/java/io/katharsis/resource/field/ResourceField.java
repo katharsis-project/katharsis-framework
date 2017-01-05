@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import io.katharsis.resource.information.ResourceInformation;
+
 public class ResourceField {
 
 	public enum LookupIncludeBehavior {
@@ -65,6 +67,8 @@ public class ResourceField {
 	private ResourceFieldType resourceFieldType;
 
 	private String oppositeName;
+
+	private ResourceInformation resourceInformation;
 
 	public ResourceField(String jsonName, String underlyingName, ResourceFieldType resourceFieldType, Class<?> type,
 			Type genericType) {
@@ -165,5 +169,22 @@ public class ResourceField {
 		else {
 			return type;
 		}
+	}
+
+	public ResourceInformation getResourceInformation(){
+		return resourceInformation;
+	}
+	
+	public void setResourceInformation(ResourceInformation resourceInformation) {
+		this.resourceInformation = resourceInformation;
+	}
+	
+	@Override
+	public String toString(){
+		return getClass().getSimpleName() + "[jsonName=" + jsonName + ",resourceType=" + resourceInformation.getResourceType() + "]";
+	}
+
+	public boolean isCollection() {
+		return Iterable.class.isAssignableFrom(getType());
 	}
 }

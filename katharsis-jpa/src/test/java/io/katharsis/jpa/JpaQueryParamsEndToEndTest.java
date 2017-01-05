@@ -73,7 +73,7 @@ public class JpaQueryParamsEndToEndTest extends AbstractJpaJerseyTest {
 		TestEntity task = new TestEntity();
 		task.setId(1L);
 		task.setStringValue("test");
-		testRepo.save(task);
+		testRepo.create(task);
 
 		// check retrievable with findAll
 		List<TestEntity> list = testRepo.findAll(new QueryParams());
@@ -101,7 +101,7 @@ public class JpaQueryParamsEndToEndTest extends AbstractJpaJerseyTest {
 		VersionedEntity entity = new VersionedEntity();
 		entity.setId(1L);
 		entity.setLongValue(13L);
-		VersionedEntity saved = repo.save(entity);
+		VersionedEntity saved = repo.create(entity);
 		Assert.assertEquals(0, saved.getVersion());
 
 		saved.setLongValue(14L);
@@ -132,7 +132,7 @@ public class JpaQueryParamsEndToEndTest extends AbstractJpaJerseyTest {
 		TestEntity test = new TestEntity();
 		test.setId(1L);
 		test.setStringValue("test");
-		testRepo.save(test);
+		testRepo.create(test);
 
 		testRepo.delete(1L);
 
@@ -164,13 +164,13 @@ public class JpaQueryParamsEndToEndTest extends AbstractJpaJerseyTest {
 		RelatedEntity related = new RelatedEntity();
 		related.setId(1L);
 		related.setStringValue("project");
-		relatedRepo.save(related);
+		relatedRepo.create(related);
 
 		TestEntity test = new TestEntity();
 		test.setId(2L);
 		test.setStringValue("test");
 		test.setEagerRelatedValue(related);
-		testRepo.save(test);
+		testRepo.create(test);
 
 		TestEntity savedTest = testRepo.findOne(2L, new QueryParams());
 		Assert.assertEquals(test.getId(), savedTest.getId());
@@ -190,7 +190,7 @@ public class JpaQueryParamsEndToEndTest extends AbstractJpaJerseyTest {
 		TestEmbeddedIdEntity entity = new TestEmbeddedIdEntity();
 		entity.setId(new TestIdEmbeddable(13, "test"));
 		entity.setLongValue(100L);
-		rep.save(entity);
+		rep.create(entity);
 
 		List<TestEmbeddedIdEntity> list = rep.findAll(new QueryParams());
 		Assert.assertEquals(1, list.size());
@@ -219,13 +219,13 @@ public class JpaQueryParamsEndToEndTest extends AbstractJpaJerseyTest {
 		RelatedEntity related = new RelatedEntity();
 		related.setId(1L);
 		related.setStringValue("project");
-		relatedRepo.save(related);
+		relatedRepo.create(related);
 
 		TestEntity test = new TestEntity();
 		test.setId(2L);
 		test.setStringValue("test");
 		test.setOneRelatedValue(related);
-		testRepo.save(test);
+		testRepo.create(test);
 		return test;
 	}
 

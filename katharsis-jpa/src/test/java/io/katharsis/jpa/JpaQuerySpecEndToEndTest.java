@@ -70,6 +70,27 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 	}
 
 	@Test
+	public void testUpdate() throws InstantiationException, IllegalAccessException {
+		TestEntity test = addTest();
+
+		test.setLongValue(15);
+		testRepo.save(test);
+
+		List<TestEntity> list = testRepo.findAll(new QuerySpec(TestEntity.class));
+		Assert.assertEquals(1, list.size());
+		test = list.get(0);
+		Assert.assertEquals(15, test.getLongValue());
+
+		test.setLongValue(16);
+		testRepo.save(test);
+
+		list = testRepo.findAll(new QuerySpec(TestEntity.class));
+		Assert.assertEquals(1, list.size());
+		test = list.get(0);
+		Assert.assertEquals(16, test.getLongValue());
+	}
+
+	@Test
 	public void testIncludeNested() throws InstantiationException, IllegalAccessException {
 		addTestWithManyRelations();
 
@@ -88,7 +109,7 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 			Assert.assertNotNull(relatedEntity.getOtherEntity());
 		}
 	}
-	
+
 	@Test
 	public void testLazyManyRelation() throws InstantiationException, IllegalAccessException {
 		addTestWithManyRelations();
@@ -101,7 +122,7 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 
 		List<RelatedEntity> manyRelatedValues = testEntity.getManyRelatedValues();
 		Assert.assertNotNull(manyRelatedValues);
-		
+
 		ObjectProxy proxy = (ObjectProxy) manyRelatedValues;
 		Assert.assertFalse(proxy.isLoaded());
 		Assert.assertEquals(3, manyRelatedValues.size());
@@ -154,7 +175,7 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 		TestEntity test = new TestEntity();
 		test.setId(2L);
 		test.setStringValue("test");
-		testRepo.save(test);
+		testRepo.create(test);
 
 		QuerySpecRelationshipRepositoryStub<TestEntity, Serializable, RelatedEntity, Serializable> relRepo = client
 				.getQuerySpecRepository(TestEntity.class, RelatedEntity.class);
@@ -194,12 +215,12 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 		RelatedEntity related1 = new RelatedEntity();
 		related1.setId(1L);
 		related1.setStringValue("related1");
-		relatedRepo.save(related1);
+		relatedRepo.create(related1);
 
 		RelatedEntity related2 = new RelatedEntity();
 		related2.setId(2L);
 		related2.setStringValue("related2");
-		relatedRepo.save(related2);
+		relatedRepo.create(related2);
 
 		TestEntity test = new TestEntity();
 		test.setId(3L);
@@ -207,7 +228,7 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 		if (onSave) {
 			test.setManyRelatedValues(Arrays.asList(related1, related2));
 		}
-		testRepo.save(test);
+		testRepo.create(test);
 
 		// query relation
 		QuerySpecRelationshipRepositoryStub<TestEntity, Long, RelatedEntity, Long> relRepo = client
@@ -256,7 +277,7 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 		TestEntity task = new TestEntity();
 		task.setId(1L);
 		task.setStringValue("test");
-		testRepo.save(task);
+		testRepo.create(task);
 
 		// check retrievable with findAll
 		List<TestEntity> list = testRepo.findAll(new QuerySpec(TestEntity.class));
@@ -284,7 +305,7 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 			TestEntity task = new TestEntity();
 			task.setId(i);
 			task.setStringValue("test");
-			testRepo.save(task);
+			testRepo.create(task);
 		}
 
 		QuerySpec querySpec = new QuerySpec(TestEntity.class);
@@ -313,7 +334,7 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 		TestEntity test = new TestEntity();
 		test.setId(1L);
 		test.setStringValue("test");
-		testRepo.save(test);
+		testRepo.create(test);
 
 		ResourceRepositoryStub<RelatedEntity, Long> relatedRepo = client.getRepository(RelatedEntity.class);
 		QuerySpecRelationshipRepositoryStub<TestEntity, Long, RelatedEntity, Long> relRepo = client
@@ -322,7 +343,7 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 			RelatedEntity related1 = new RelatedEntity();
 			related1.setId(i);
 			related1.setStringValue("related" + i);
-			relatedRepo.save(related1);
+			relatedRepo.create(related1);
 
 			relRepo.addRelations(test, Arrays.asList(i), TestEntity.ATTR_manyRelatedValues);
 		}
@@ -359,7 +380,7 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 		VersionedEntity entity = new VersionedEntity();
 		entity.setId(1L);
 		entity.setLongValue(13L);
-		VersionedEntity saved = repo.save(entity);
+		VersionedEntity saved = repo.create(entity);
 		Assert.assertEquals(0, saved.getVersion());
 
 		saved.setLongValue(14L);
@@ -390,7 +411,7 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 		TestEntity test = new TestEntity();
 		test.setId(1L);
 		test.setStringValue("test");
-		testRepo.save(test);
+		testRepo.create(test);
 
 		testRepo.delete(1L);
 
@@ -427,13 +448,13 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 		RelatedEntity related = new RelatedEntity();
 		related.setId(1L);
 		related.setStringValue("project");
-		relatedRepo.save(related);
+		relatedRepo.create(related);
 
 		TestEntity test = new TestEntity();
 		test.setId(2L);
 		test.setStringValue("test");
 		test.setEagerRelatedValue(related);
-		testRepo.save(test);
+		testRepo.create(test);
 
 		TestEntity savedTest = testRepo.findOne(2L, new QuerySpec(TestEntity.class));
 		Assert.assertEquals(test.getId(), savedTest.getId());
@@ -454,7 +475,7 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 		TestEmbeddedIdEntity entity = new TestEmbeddedIdEntity();
 		entity.setId(new TestIdEmbeddable(13, "test"));
 		entity.setLongValue(100L);
-		rep.save(entity);
+		rep.create(entity);
 
 		List<TestEmbeddedIdEntity> list = rep.findAll(new QuerySpec(TestEntity.class));
 		Assert.assertEquals(1, list.size());
@@ -483,13 +504,13 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 		RelatedEntity related = new RelatedEntity();
 		related.setId(1L);
 		related.setStringValue("project");
-		relatedRepo.save(related);
+		relatedRepo.create(related);
 
 		TestEntity test = new TestEntity();
 		test.setId(2L);
 		test.setStringValue("test");
 		test.setOneRelatedValue(related);
-		testRepo.save(test);
+		testRepo.create(test);
 		return test;
 	}
 
@@ -497,7 +518,7 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 		TestEntity test = new TestEntity();
 		test.setId(2L);
 		test.setStringValue("test");
-		testRepo.save(test);
+		testRepo.create(test);
 		return test;
 	}
 
@@ -513,37 +534,37 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 		TestEntity test = new TestEntity();
 		test.setId(2L);
 		test.setStringValue("test");
-		testRepo.save(test);
+		testRepo.create(test);
 
 		RelatedEntity related1 = new RelatedEntity();
 		related1.setId(101L);
 		related1.setStringValue("related1");
-		relatedRepo.save(related1);
+		relatedRepo.create(related1);
 
 		RelatedEntity related2 = new RelatedEntity();
 		related2.setId(102L);
 		related2.setStringValue("related2");
-		relatedRepo.save(related2);
+		relatedRepo.create(related2);
 
 		RelatedEntity related3 = new RelatedEntity();
 		related3.setId(103L);
 		related3.setStringValue("related3");
-		relatedRepo.save(related3);
+		relatedRepo.create(related3);
 
 		OtherRelatedEntity other1 = new OtherRelatedEntity();
 		other1.setId(101L);
 		other1.setStringValue("related1");
-		otherRepo.save(other1);
+		otherRepo.create(other1);
 
 		OtherRelatedEntity other2 = new OtherRelatedEntity();
 		other2.setId(102L);
 		other2.setStringValue("related2");
-		otherRepo.save(other2);
+		otherRepo.create(other2);
 
 		OtherRelatedEntity other3 = new OtherRelatedEntity();
 		other3.setId(103L);
 		other3.setStringValue("related3");
-		otherRepo.save(other3);
+		otherRepo.create(other3);
 
 		List<Long> relatedIds = Arrays.asList(related1.getId(), related2.getId(), related3.getId());
 		relRepo.addRelations(test, relatedIds, TestEntity.ATTR_manyRelatedValues);

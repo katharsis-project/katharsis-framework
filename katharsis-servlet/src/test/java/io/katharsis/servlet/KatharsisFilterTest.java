@@ -114,7 +114,6 @@ public class KatharsisFilterTest {
         assertJsonPartEquals(FIRST_TASK_ATTRIBUTES, responseContent, "data[0].attributes");
         assertJsonPartEquals(FIRST_TASK_LINKS, responseContent, "data[0].links");
         assertJsonPartEquals(PROJECT1_RELATIONSHIP_LINKS, responseContent, "data[0].relationships.project.links");
-        assertJsonPartEquals("[]", responseContent, "included");
     }
 
     @Test
@@ -144,7 +143,6 @@ public class KatharsisFilterTest {
         assertJsonPartEquals(SOME_TASK_ATTRIBUTES, responseContent, "data.attributes");
         assertJsonPartEquals(FIRST_TASK_LINKS, responseContent, "data.links");
         assertJsonPartEquals(PROJECT1_RELATIONSHIP_LINKS, responseContent, "data.relationships.project.links");
-        assertJsonPartEquals("[]", responseContent, "included");
     }
 
     @Test
@@ -176,7 +174,6 @@ public class KatharsisFilterTest {
         assertJsonPartEquals(FIRST_TASK_ATTRIBUTES, responseContent, "data[0].attributes");
         assertJsonPartEquals(FIRST_TASK_LINKS, responseContent, "data[0].links");
         assertJsonPartEquals(PROJECT1_RELATIONSHIP_LINKS, responseContent, "data[0].relationships.project.links");
-        assertJsonPartEquals("[]", responseContent, "included");
     }
 
     @Test

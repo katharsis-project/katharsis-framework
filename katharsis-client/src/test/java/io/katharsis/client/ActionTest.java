@@ -9,13 +9,13 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import io.katharsis.client.mock.models.Schedule;
 import io.katharsis.client.mock.repository.ScheduleRepository;
+import io.katharsis.dispatcher.controller.Response;
 import io.katharsis.dispatcher.filter.Filter;
 import io.katharsis.dispatcher.filter.FilterChain;
 import io.katharsis.dispatcher.filter.FilterRequestContext;
 import io.katharsis.module.SimpleModule;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.request.path.ActionPath;
-import io.katharsis.response.BaseResponseContext;
 
 public class ActionTest extends AbstractClientTest {
 
@@ -35,7 +35,7 @@ public class ActionTest extends AbstractClientTest {
 		filter = Mockito.spy(new Filter() {
 
 			@Override
-			public BaseResponseContext filter(FilterRequestContext filterRequestContext, FilterChain chain) {
+			public Response filter(FilterRequestContext filterRequestContext, FilterChain chain) {
 				return chain.doFilter(filterRequestContext);
 			}
 		});
@@ -54,7 +54,7 @@ public class ActionTest extends AbstractClientTest {
 		Schedule schedule = new Schedule();
 		schedule.setId(1L);
 		schedule.setName("schedule");
-		scheduleRepo.save(schedule);
+		scheduleRepo.create(schedule);
 
 		Iterable<Schedule> schedules = scheduleRepo.findAll(new QuerySpec(Schedule.class));
 		schedule = schedules.iterator().next();
@@ -83,7 +83,7 @@ public class ActionTest extends AbstractClientTest {
 		Schedule schedule = new Schedule();
 		schedule.setId(1L);
 		schedule.setName("scheduleName");
-		scheduleRepo.save(schedule);
+		scheduleRepo.create(schedule);
 
 		String result = scheduleRepo.resourceAction(1, "hello");
 		Assert.assertEquals("resource action: hello@scheduleName", result);

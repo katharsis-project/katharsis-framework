@@ -1,11 +1,13 @@
 package io.katharsis.jackson;
 
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import io.katharsis.resource.registry.ResourceRegistry;
-import org.junit.Test;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+
+import org.junit.Test;
+
+import com.fasterxml.jackson.databind.module.SimpleModule;
+
+import io.katharsis.resource.registry.ResourceRegistry;
 
 public class JsonApiModuleBuilderTest {
 

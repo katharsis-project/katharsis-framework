@@ -1,6 +1,6 @@
 package io.katharsis.dispatcher.filter;
 
-import io.katharsis.response.BaseResponseContext;
+import io.katharsis.dispatcher.controller.Response;
 
 /**
  * Manages the chain of filters and their application to a request.
@@ -14,5 +14,5 @@ public interface FilterChain {
 	 * @param filterRequestContext request context
 	 * @return new execution context
 	 */
-	BaseResponseContext doFilter(FilterRequestContext filterRequestContext);
+	Response doFilter(FilterRequestContext filterRequestContext);
 }

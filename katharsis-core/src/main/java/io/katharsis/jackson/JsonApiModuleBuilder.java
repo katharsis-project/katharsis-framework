@@ -2,12 +2,10 @@ package io.katharsis.jackson;
 
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import io.katharsis.jackson.serializer.BaseResponseSerializer;
-import io.katharsis.jackson.serializer.ContainerSerializer;
-import io.katharsis.jackson.serializer.DataLinksContainerSerializer;
-import io.katharsis.jackson.serializer.ErrorResponseSerializer;
-import io.katharsis.jackson.serializer.LinkageContainerSerializer;
-import io.katharsis.jackson.serializer.RelationshipContainerSerializer;
+
+import io.katharsis.errorhandling.ErrorData;
+import io.katharsis.jackson.serializer.ErrorDataDeserializer;
+import io.katharsis.jackson.serializer.ErrorDataSerializer;
 import io.katharsis.resource.registry.ResourceRegistry;
 
 /**
@@ -28,12 +26,8 @@ public class JsonApiModuleBuilder {
         SimpleModule simpleModule = new SimpleModule(JSON_API_MODULE_NAME,
                 new Version(1, 0, 0, null, null, null));
 
-        simpleModule.addSerializer(new ContainerSerializer(resourceRegistry, isClient))
-                .addSerializer(new DataLinksContainerSerializer())
-                .addSerializer(new RelationshipContainerSerializer(resourceRegistry, isClient))
-                .addSerializer(new LinkageContainerSerializer())
-                .addSerializer(new BaseResponseSerializer(resourceRegistry))
-                .addSerializer(new ErrorResponseSerializer());
+        simpleModule.addSerializer(new ErrorDataSerializer());
+        simpleModule.addDeserializer(ErrorData.class, new ErrorDataDeserializer());
 
         return simpleModule;
     }

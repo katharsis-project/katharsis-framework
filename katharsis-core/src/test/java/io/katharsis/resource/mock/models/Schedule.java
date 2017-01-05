@@ -10,7 +10,7 @@ public class Schedule {
 	private Long id;
 
 	private String name;
-
+	
 	public Long getId() {
 		return id;
 	}
@@ -27,4 +27,6 @@ public class Schedule {
 	public void setName(String name) {
 		this.name = name;
 	}
+	
+	
 }

@@ -10,11 +10,11 @@ import java.util.Set;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.katharsis.dispatcher.RequestDispatcher;
+import io.katharsis.dispatcher.controller.Response;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
-import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathBuilder;
-import io.katharsis.response.BaseResponseContext;
+import io.katharsis.resource.Document;
 import io.netty.handler.codec.http.QueryStringDecoder;
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpHeaders;
@@ -49,15 +49,15 @@ public class KatharsisHandler implements Handler<RoutingContext> {
         Map<String, Set<String>> parameters = getParameters(ctx);
 
         RepositoryMethodParameterProvider provider = parameterProviderFactory.provider(ctx);
-        RequestBody body = requestBody(ctx.getBodyAsString());
+        Document body = requestBody(ctx.getBodyAsString());
 
         try {
-            BaseResponseContext response = requestDispatcher.dispatchRequest(jsonPath, requestMethod, parameters, provider, body);
+            Response response = requestDispatcher.dispatchRequest(jsonPath, requestMethod, parameters, provider, body);
 
             ctx.response()
                     .setStatusCode(response.getHttpStatus())
                     .putHeader(HttpHeaders.CONTENT_TYPE, JsonApiMediaTypeHandler.APPLICATION_JSON_API)
-                    .end(encode(response));
+                    .end(encode(response.getDocument()));
 
         } catch (Exception e) {
             throw new KatharsisVertxException("Exception during dispatch " + e.getMessage());
@@ -87,11 +87,11 @@ public class KatharsisHandler implements Handler<RoutingContext> {
         return transformed;
     }
 
-    protected RequestBody requestBody(String body) {
+    protected Document requestBody(String body) {
         if (body == null || body.length() == 0) {
             return null;
         }
-        return decodeValue(body, RequestBody.class);
+        return decodeValue(body, Document.class);
     }
 
     /**

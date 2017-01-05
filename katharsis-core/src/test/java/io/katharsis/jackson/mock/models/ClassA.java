@@ -1,11 +1,11 @@
 package io.katharsis.jackson.mock.models;
 
+import java.util.Collections;
+import java.util.List;
+
 import io.katharsis.resource.annotations.JsonApiId;
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.annotations.JsonApiToMany;
-
-import java.util.Collections;
-import java.util.List;
 
 @JsonApiResource(type = "classAs")
 public class ClassA {

@@ -1,7 +1,8 @@
 package io.katharsis.dispatcher.registry;
 
-import io.katharsis.request.path.ResourcePath;
 import org.junit.Test;
+
+import io.katharsis.request.path.ResourcePath;
 
 public class ControllerRegistryBuilderTest {
 

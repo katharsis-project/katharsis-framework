@@ -1,16 +1,20 @@
 package io.katharsis.resource.mock.repository;
 
-import io.katharsis.queryParams.QueryParams;
-import io.katharsis.repository.RepositoryAdapterTest;
-import io.katharsis.repository.annotations.*;
-import io.katharsis.resource.annotations.JsonApiMetaInformation;
-import io.katharsis.resource.exception.ResourceNotFoundException;
-import io.katharsis.resource.mock.models.Task;
-import io.katharsis.response.MetaInformation;
-
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+
+import io.katharsis.queryParams.QueryParams;
+import io.katharsis.repository.annotations.JsonApiDelete;
+import io.katharsis.repository.annotations.JsonApiFindAll;
+import io.katharsis.repository.annotations.JsonApiFindAllWithIds;
+import io.katharsis.repository.annotations.JsonApiFindOne;
+import io.katharsis.repository.annotations.JsonApiMeta;
+import io.katharsis.repository.annotations.JsonApiResourceRepository;
+import io.katharsis.repository.annotations.JsonApiSave;
+import io.katharsis.resource.exception.ResourceNotFoundException;
+import io.katharsis.resource.mock.models.Task;
+import io.katharsis.response.MetaInformation;
 
 @JsonApiResourceRepository(Task.class)
 public class TaskRepository {
@@ -78,5 +82,7 @@ public class TaskRepository {
     }
 
     public static class MetaData implements MetaInformation {
+    	
+    	public String someValue;
     }
 }

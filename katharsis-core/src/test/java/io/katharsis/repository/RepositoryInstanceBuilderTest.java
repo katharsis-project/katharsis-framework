@@ -1,12 +1,13 @@
 package io.katharsis.repository;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.Test;
+
 import io.katharsis.locator.JsonServiceLocator;
 import io.katharsis.locator.SampleJsonServiceLocator;
 import io.katharsis.repository.exception.RepositoryInstanceNotFoundException;
 import io.katharsis.resource.mock.repository.TaskRepository;
-import org.junit.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class RepositoryInstanceBuilderTest {
 

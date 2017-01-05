@@ -1,11 +1,11 @@
 package io.katharsis.request.path;
 
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Arrays;
 import java.util.Collections;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.Test;
 
 public class FieldPathTest {
 

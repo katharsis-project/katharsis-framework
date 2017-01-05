@@ -1,6 +1,7 @@
 package io.katharsis.dispatcher;
 
 import java.lang.reflect.ParameterizedType;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -9,10 +10,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.katharsis.dispatcher.controller.BaseController;
+import io.katharsis.dispatcher.controller.Response;
 import io.katharsis.dispatcher.filter.Filter;
 import io.katharsis.dispatcher.filter.FilterChain;
 import io.katharsis.dispatcher.filter.FilterRequestContext;
 import io.katharsis.dispatcher.registry.ControllerRegistry;
+import io.katharsis.errorhandling.ErrorData;
+import io.katharsis.errorhandling.ErrorResponse;
 import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
 import io.katharsis.module.ModuleRegistry;
@@ -22,13 +26,12 @@ import io.katharsis.queryspec.internal.QueryAdapterBuilder;
 import io.katharsis.queryspec.internal.QueryParamsAdapter;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.repository.exception.RepositoryNotFoundException;
-import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
+import io.katharsis.resource.Document;
 import io.katharsis.resource.exception.ResourceFieldNotFoundException;
 import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.response.BaseResponseContext;
 import io.katharsis.utils.java.Optional;
 
 /**
@@ -64,9 +67,9 @@ public class RequestDispatcher {
 	 * @param requestBody       deserialized body of the client request
 	 * @return the response form the Katharsis
 	 */
-	public BaseResponseContext dispatchRequest(JsonPath jsonPath, String method, Map<String, Set<String>> parameters,
+	public Response dispatchRequest(JsonPath jsonPath, String method, Map<String, Set<String>> parameters,
 			RepositoryMethodParameterProvider parameterProvider,
-			RequestBody requestBody) {
+			Document requestBody) {
 
 		try {
 			BaseController controller = controllerRegistry.getController(jsonPath, method);
@@ -82,7 +85,7 @@ public class RequestDispatcher {
 			Optional<JsonApiExceptionMapper> exceptionMapper = exceptionMapperRegistry.findMapperFor(e.getClass());
 			if (exceptionMapper.isPresent()) {
 				//noinspection unchecked
-				return exceptionMapper.get().toErrorResponse(e);
+				return exceptionMapper.get().toErrorResponse(e).toResponse();
 			}else {
 				logger.error("failed to process request", e);
 				throw e;
@@ -123,7 +126,7 @@ public class RequestDispatcher {
 		}
 
 		@Override
-		public BaseResponseContext doFilter(FilterRequestContext context) {
+		public Response doFilter(FilterRequestContext context) {
 			List<Filter> filters = moduleRegistry.getFilters();
 			if (filterIndex == filters.size()) {
 				return controller.handle(context.getJsonPath(), context.getQueryAdapter(), context.getParameterProvider(), context.getRequestBody());
@@ -142,7 +145,7 @@ public class RequestDispatcher {
 
 
 		@Override
-		public BaseResponseContext doFilter(FilterRequestContext context) {
+		public Response doFilter(FilterRequestContext context) {
 			List<Filter> filters = moduleRegistry.getFilters();
 			if (filterIndex == filters.size()) {
 				return null;
@@ -171,12 +174,12 @@ public class RequestDispatcher {
 
 		protected RepositoryMethodParameterProvider parameterProvider;
 
-		protected RequestBody requestBody;
+		protected Document requestBody;
 
 		private String method;
 
 		public DefaultFilterRequestContext(JsonPath jsonPath, QueryAdapter queryAdapter,
-				RepositoryMethodParameterProvider parameterProvider, RequestBody requestBody, String method) {
+				RepositoryMethodParameterProvider parameterProvider, Document requestBody, String method) {
 			this.jsonPath = jsonPath;
 			this.queryAdapter = queryAdapter;
 			this.parameterProvider = parameterProvider;
@@ -185,7 +188,7 @@ public class RequestDispatcher {
 		}
 
 		@Override
-		public RequestBody getRequestBody() {
+		public Document getRequestBody() {
 			return requestBody;
 		}
 

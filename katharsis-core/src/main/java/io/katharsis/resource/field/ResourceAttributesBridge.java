@@ -3,14 +3,16 @@ package io.katharsis.resource.field;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Iterator;
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 
 import io.katharsis.resource.exception.ResourceException;
 import io.katharsis.resource.exception.init.InvalidResourceException;
@@ -57,71 +59,38 @@ public class ResourceAttributesBridge<T> {
             (jsonAnySetter != null && jsonAnyGetter == null);
     }
 
-    /**
-     * Sets instance properties using found attributes and {@link JsonAnySetter} annotated method
-     *
-     * @param objectMapper used to map new attributes
-     * @param instance     instance to fill in attributes
-     * @param attributes   set od attributes
-     */
-    public void setProperties(ObjectMapper objectMapper, T instance, JsonNode attributes) {
-        T instanceWithNewFields;
-        try {
-            instanceWithNewFields = objectMapper.readerFor(resourceClass).readValue(attributes);
-        } catch (IOException e) {
-            throw new ResourceException(
-                String.format("Exception while reading %s: %s", instance.getClass(), e.getMessage()));
+    public void setProperties(ObjectMapper objectMapper, T instance, Map<String, JsonNode> attributes) {
+        for(Map.Entry<String, JsonNode>  entry : attributes.entrySet()){
+        	setProperty(objectMapper, instance, entry.getValue(), entry.getKey());
         }
-        Iterator<String> propertyNameIterator = attributes.fieldNames();
-        while (propertyNameIterator.hasNext()) {
-            setProperty(instance, instanceWithNewFields, propertyNameIterator);
-        }
-
-        setAnyProperties(instance, instanceWithNewFields);
     }
-
-    /**
-     * Jackson {@link ObjectMapper#readerForUpdating(Object)} cannot be used here, because there might be a case where
-     * <i>instance</i> parameter a proxied object e.g. by Hibernate.
-     *
-     * @param instance              instance of a resource
-     * @param instanceWithNewFields a temporary instance with fields to be set
-     * @param propertyNameIterator  set of properties
-     */
-    private void setProperty(T instance, T instanceWithNewFields, Iterator<String> propertyNameIterator) {
-        String propertyName = propertyNameIterator.next();
+    
+    private void setProperty(ObjectMapper objectMapper, T instance, JsonNode valueNode, String propertyName) {
         Optional<ResourceField> staticField = findStaticField(propertyName);
-        if (staticField.isPresent()) {
-            String underlyingName = staticField.get().getUnderlyingName();
-            Object property = PropertyUtils.getProperty(instanceWithNewFields, underlyingName);
-            PropertyUtils.setProperty(instance, underlyingName, property);
-        } else {
-            // Needed for JsonIgnore and dynamic attributes
+        try{
+	        if (staticField.isPresent()) {
+	            String underlyingName = staticField.get().getUnderlyingName();
+	            Type valueType = staticField.get().getGenericType();
+		            Object value;
+		            if(valueNode != null){
+		            	JavaType jacksonValueType = objectMapper.getTypeFactory().constructType(valueType);
+		            	ObjectReader reader = objectMapper.reader().forType(jacksonValueType);
+		            	value = reader.readValue(valueNode);
+		            }else{
+		            	value = null;
+		            }
+		            PropertyUtils.setProperty(instance, underlyingName, value);
+	        } else if(jsonAnySetter != null){
+	            // Needed for JsonIgnore and dynamic attributes
+	        	Object value = objectMapper.reader().forType(Object.class).readValue(valueNode);
+	        	jsonAnySetter.invoke(instance, propertyName, value);
+	        }
+        }  catch (IOException | IllegalAccessException | InvocationTargetException e) {
+            throw new ResourceException(
+                    String.format("Exception while reading %s.%s=%s due to %s", instance, propertyName, valueNode, e.getMessage()), e);
         }
     }
-
-    /**
-     * Get a map of additional attributes and pass to {@link JsonAnySetter} annotated method
-     *
-     * @param instance              instance to fill in attributes
-     * @param instanceWithNewFields temporary instance with new fields
-     */
-    private void setAnyProperties(T instance, T instanceWithNewFields) {
-        if (jsonAnySetter != null) {
-            @SuppressWarnings("unchecked")
-            Map<String, Object> additionalAttributes;
-            try {
-                additionalAttributes = (Map<String, Object>) jsonAnyGetter.invoke(instanceWithNewFields);
-                for (Map.Entry<String, Object> property : additionalAttributes.entrySet()) {
-                    jsonAnySetter.invoke(instance, property.getKey(), property.getValue());
-                }
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                throw new ResourceException(
-                    String.format("Exception while setting %s: %s", instance.getClass(), e.getMessage()));
-            }
-        }
-    }
-
+    
     private Optional<ResourceField> findStaticField(String propertyName) {
         for (ResourceField resourceField : staticFields) {
             if (resourceField.getJsonName().equals(propertyName)) {

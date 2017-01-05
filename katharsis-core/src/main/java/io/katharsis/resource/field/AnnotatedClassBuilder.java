@@ -1,13 +1,14 @@
 package io.katharsis.resource.field;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
-import io.katharsis.errorhandling.exception.InternalException;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import io.katharsis.errorhandling.exception.InternalException;
 
 /**
  * Since Jackson 2.7 there is a change in internal method {@link AnnotatedClass#construct} definition. Since Jackson

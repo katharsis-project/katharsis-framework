@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import io.katharsis.resource.Document;
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.exception.init.MultipleJsonApiLinksInformationException;
 import io.katharsis.resource.exception.init.MultipleJsonApiMetaInformationException;
@@ -50,12 +51,12 @@ public class ResourceInformation {
 	/**
 	 * An underlying field's name which contains meta information about for a resource
 	 */
-	private final String metaFieldName;
+	private final ResourceField metaField;
 
 	/**
 	 * An underlying field's name which contain links information about for a resource
 	 */
-	private final String linksFieldName;
+	private final ResourceField linksField;
 
 	/**
 	 * Creates a new instance of the given resource.
@@ -87,14 +88,18 @@ public class ResourceInformation {
 			this.attributeFields = new ResourceAttributesBridge(ResourceFieldType.ATTRIBUTE.filter(fields), resourceClass);
 			this.relationshipFields = ResourceFieldType.RELATIONSHIP.filter(fields);
 
-			this.metaFieldName = getMetaFieldName(resourceClass, fields);
-			this.linksFieldName = getLinksFieldName(resourceClass, fields);
+			this.metaField = getMetaField(resourceClass, fields);
+			this.linksField = getLinksField(resourceClass, fields);
+			
+			for(ResourceField resourceField : fields){
+				resourceField.setResourceInformation(this);
+			}
 		}
 		else {
 			this.relationshipFields = Collections.emptyList();
 			this.attributeFields = new ResourceAttributesBridge(Collections.emptyList(), resourceClass);
-			this.metaFieldName = null;
-			this.linksFieldName = null;
+			this.metaField = null;
+			this.linksField = null;
 			this.idField = null;
 		}
 		if (this.instanceBuilder == null) {
@@ -102,7 +107,7 @@ public class ResourceInformation {
 		}
 	}
 
-	private static <T> String getMetaFieldName(Class<T> resourceClass, Collection<ResourceField> classFields) {
+	private static <T> ResourceField getMetaField(Class<T> resourceClass, Collection<ResourceField> classFields) {
 		List<ResourceField> metaFields = new ArrayList<>(1);
 		for (ResourceField field : classFields) {
 			if (field.getResourceFieldType() == ResourceFieldType.META_INFORMATION) {
@@ -116,10 +121,10 @@ public class ResourceInformation {
 		else if (metaFields.size() > 1) {
 			throw new MultipleJsonApiMetaInformationException(resourceClass.getCanonicalName());
 		}
-		return metaFields.get(0).getUnderlyingName();
+		return metaFields.get(0);
 	}
 
-	private static <T> String getLinksFieldName(Class<T> resourceClass, Collection<ResourceField> classFields) {
+	private static <T> ResourceField getLinksField(Class<T> resourceClass, Collection<ResourceField> classFields) {
 		List<ResourceField> linksFields = new ArrayList<>(1);
 		for (ResourceField field : classFields) {
 			if (field.getResourceFieldType() == ResourceFieldType.LINKS_INFORMATION) {
@@ -133,7 +138,7 @@ public class ResourceInformation {
 		else if (linksFields.size() > 1) {
 			throw new MultipleJsonApiLinksInformationException(resourceClass.getCanonicalName());
 		}
-		return linksFields.get(0).getUnderlyingName();
+		return linksFields.get(0);
 	}
 
 	public String getResourceType() {
@@ -179,12 +184,12 @@ public class ResourceInformation {
 		return foundField;
 	}
 
-	public String getMetaFieldName() {
-		return metaFieldName;
+	public ResourceField getMetaField() {
+		return metaField;
 	}
 
-	public String getLinksFieldName() {
-		return linksFieldName;
+	public ResourceField getLinksField() {
+		return linksField;
 	}
 
 	/**
@@ -198,11 +203,11 @@ public class ResourceInformation {
 			notAttributeFields.add(relationshipField.getJsonName());
 		}
 		notAttributeFields.add(idField.getJsonName());
-		if (metaFieldName != null) {
-			notAttributeFields.add(metaFieldName);
+		if (metaField != null) {
+			notAttributeFields.add(metaField.getUnderlyingName());
 		}
-		if (linksFieldName != null) {
-			notAttributeFields.add(linksFieldName);
+		if (linksField != null) {
+			notAttributeFields.add(linksField.getUnderlyingName());
 		}
 		return notAttributeFields;
 	}
@@ -217,13 +222,13 @@ public class ResourceInformation {
 		return Objects.equals(resourceClass, that.resourceClass) && Objects.equals(resourceType, that.resourceType)
 				&& Objects.equals(idField, that.idField) && Objects.equals(attributeFields, that.attributeFields)
 				&& Objects.equals(relationshipFields, that.relationshipFields)
-				&& Objects.equals(metaFieldName, that.metaFieldName) && Objects.equals(linksFieldName, that.linksFieldName);
+				&& Objects.equals(metaField, that.metaField) && Objects.equals(linksField, that.linksField);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(resourceClass, resourceType, idField, attributeFields, relationshipFields, metaFieldName,
-				linksFieldName);
+		return Objects.hash(resourceClass, resourceType, idField, attributeFields, relationshipFields, metaField,
+				linksField);
 	}
 
 	/**
@@ -261,6 +266,10 @@ public class ResourceInformation {
 
 	public void setId(Object resource, Object id) {
 		PropertyUtils.setProperty(resource, idField.getUnderlyingName(), id);		
+	}
+
+	@Deprecated // Temporary method until proper versioning/locking/timestamping is implemented, used by JPA module
+	public void verify(Object resource, Document requestDocument) {
 	}
 
 }

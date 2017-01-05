@@ -10,6 +10,7 @@ import io.katharsis.errorhandling.ErrorResponse;
 import io.katharsis.errorhandling.exception.BadRequestException;
 import io.katharsis.errorhandling.exception.InternalServerErrorException;
 import io.katharsis.errorhandling.exception.KatharsisMappableException;
+import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.response.HttpStatus;
 import io.katharsis.security.ForbiddenException;
 import io.katharsis.security.UnauthorizedException;
@@ -45,6 +46,9 @@ public final class KatharsisExceptionMapper implements ExceptionMapper<Katharsis
 		if (httpStatus == HttpStatus.UNAUTHORIZED_401) {
 			return new UnauthorizedException(message);
 		}
+		if (httpStatus == HttpStatus.NOT_FOUND_404) {
+			return new ResourceNotFoundException(message);
+		}
 		if (httpStatus == HttpStatus.BAD_REQUEST_400) {
 			return new BadRequestException(message);
 		}
@@ -67,7 +71,8 @@ public final class KatharsisExceptionMapper implements ExceptionMapper<Katharsis
 	@Override
 	public boolean accepts(ErrorResponse errorResponse) {
 		int httpStatus = errorResponse.getHttpStatus();
-		return httpStatus == HttpStatus.BAD_REQUEST_400 || httpStatus == HttpStatus.FORBIDDEN_403
+		return  httpStatus == HttpStatus.NOT_FOUND_404 ||
+				httpStatus == HttpStatus.BAD_REQUEST_400 || httpStatus == HttpStatus.FORBIDDEN_403
 				|| httpStatus == HttpStatus.UNAUTHORIZED_401 || httpStatus == HttpStatus.INTERNAL_SERVER_ERROR_500;
 	}
 }
