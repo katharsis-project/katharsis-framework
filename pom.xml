@@ -264,13 +264,11 @@
 				<module>katharsis-servlet</module>
 				<module>katharsis-cdi</module>
 				<module>katharsis-spring</module>
-				<module>katharsis-vertx</module>
 				<module>katharsis-client</module>
 				<module>katharsis-jpa</module>
 				<module>katharsis-validation</module>
 				<module>katharsis-brave</module>
 				<module>katharsis-examples</module>
-				<module>katharsis-ui</module>
 			</modules>
 		</profile>
 		<profile>
