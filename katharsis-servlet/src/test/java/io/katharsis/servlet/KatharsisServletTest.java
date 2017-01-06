@@ -246,12 +246,13 @@ public class KatharsisServletTest {
 		katharsisServlet.service(request, response);
 		String responseContent = response.getContentAsString();
 		assertJsonPartEquals("nodes", responseContent, "data[0].type");
-		assertJsonPartEquals("\"1\"", responseContent, "data[0].id");
+		assertJsonPartEquals("\"2\"", responseContent, "data[0].id");
 		assertJsonNodePresent(responseContent, "data[0].relationships.children.data");
-		assertJsonPartEquals("\"2\"", responseContent, "data[0].relationships.children.data[0].id");
-		assertJsonPartEquals("\"3\"", responseContent, "data[0].relationships.children.data[1].id");
+		assertJsonNodePresent(responseContent, "data[1].relationships.children.data");
+		assertJsonPartEquals("\"2\"", responseContent, "data[1].relationships.children.data[0].id");
+		assertJsonPartEquals("\"3\"", responseContent, "data[1].relationships.children.data[1].id");
 		assertJsonNodePresent(responseContent, "included");
-		assertJsonPartEquals("\"3\"", responseContent, "included[0].id");
+		assertJsonPartEquals("\"2\"", responseContent, "included[0].id");
 		assertJsonNodePresent(responseContent, "included[0].relationships.parent.data");
 		assertJsonPartEquals("\"1\"", responseContent, "included[0].relationships.parent.data.id");
 	}
