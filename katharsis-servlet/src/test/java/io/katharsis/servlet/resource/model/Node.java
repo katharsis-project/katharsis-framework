@@ -21,10 +21,20 @@ public class Node {
 	@JsonApiToMany
 	private Set<Node> children;
 
+	@JsonApiToMany
+	private Set<NodeComment> nodeComments;
+
 	public Node(Long id, Node parent, Set<Node> children) {
 		this.id = id;
 		this.parent = parent;
 		this.children = children;
+	}
+
+	public Node(Long id, Node parent, Set<Node> children, Set<NodeComment> nodeComments) {
+		this.id = id;
+		this.parent = parent;
+		this.children = children;
+		this.nodeComments = nodeComments;
 	}
 
 	public Long getId() {
@@ -49,5 +59,13 @@ public class Node {
 
 	public void setChildren(Set<Node> children) {
 		this.children = children;
+	}
+
+	public Set<NodeComment> getNodeComments() {
+		return nodeComments;
+	}
+
+	public void setNodeComments(Set<NodeComment> nodeComments) {
+		this.nodeComments = nodeComments;
 	}
 }

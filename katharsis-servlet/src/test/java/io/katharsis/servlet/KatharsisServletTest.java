@@ -16,6 +16,7 @@
  */
 package io.katharsis.servlet;
 
+import static net.javacrumbs.jsonunit.JsonAssert.assertJsonNodeAbsent;
 import static net.javacrumbs.jsonunit.JsonAssert.assertJsonNodePresent;
 import static net.javacrumbs.jsonunit.JsonAssert.assertJsonPartEquals;
 import static org.junit.Assert.assertEquals;
@@ -29,6 +30,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -44,7 +46,9 @@ import org.springframework.mock.web.MockServletConfig;
 import org.springframework.mock.web.MockServletContext;
 
 import io.katharsis.invoker.JsonApiMediaType;
+import io.katharsis.servlet.resource.model.Locale;
 import io.katharsis.servlet.resource.model.Node;
+import io.katharsis.servlet.resource.model.NodeComment;
 import io.katharsis.servlet.resource.repository.NodeRepository;
 import io.katharsis.utils.StringUtils;
 
@@ -221,10 +225,69 @@ public class KatharsisServletTest {
 
 	}
 
+
 	@Test
 	public void testKatharsisInclude() throws Exception {
 
 		Node root = new Node(1L, null, null);
+		Node child1 = new Node(2L, root, Collections.EMPTY_SET);
+		Node child2 = new Node(3L, root, Collections.EMPTY_SET);
+		root.setChildren(new LinkedHashSet<>(Arrays.asList(child1, child2)));
+		nodeRepository.save(root);
+		nodeRepository.save(child1);
+		nodeRepository.save(child2);
+		MockHttpServletRequest request = new MockHttpServletRequest(servletContext);
+		request.setMethod("GET");
+		request.setServletPath("/api");
+		request.setPathInfo("/nodes");
+		request.setRequestURI("/api/nodes");
+		request.setQueryString("include[nodes]=parent");
+		request.setContentType(JsonApiMediaType.APPLICATION_JSON_API);
+		Map<String, String> params = new HashMap<>();
+		params.put("include[nodes]", "children");
+		request.setParameters(params);
+		request.addHeader("Accept", "*/*");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		katharsisServlet.service(request, response);
+		String responseContent = response.getContentAsString();
+		assertTopLevelNodesCorrectWithChildren(responseContent);
+		assertJsonNodeAbsent(responseContent, "included");
+	}
+
+	@Test
+	public void testKatharsisIncludeNestedWithDefault() throws Exception {
+		Node root = new Node(1L, null, null);
+		Locale engLocale = new Locale(1L, java.util.Locale.ENGLISH);
+		Node child1 = new Node(2L, root, Collections.EMPTY_SET);
+		NodeComment child1Comment = new NodeComment(1L, "Child 1", child1, engLocale);
+		child1.setNodeComments(new LinkedHashSet<>(Collections.singleton(child1Comment)));
+		Node child2 = new Node(3L, root, Collections.EMPTY_SET, Collections.EMPTY_SET);
+		root.setChildren(new LinkedHashSet<>(Arrays.asList(child1, child2)));
+		nodeRepository.save(root);
+		nodeRepository.save(child1);
+		nodeRepository.save(child2);
+
+		MockHttpServletRequest request = new MockHttpServletRequest(servletContext);
+		request.setMethod("GET");
+		request.setServletPath("/api");
+		request.setPathInfo("/nodes");
+		request.setRequestURI("/api/nodes");
+		request.setQueryString("include[nodes]=children.nodeComments");
+		request.setContentType(JsonApiMediaType.APPLICATION_JSON_API);
+		Map<String, String> params = new HashMap<>();
+		params.put("include[nodes]", "children.nodeComments.langLocale");
+		request.setParameters(params);
+		request.addHeader("Accept", "*/*");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		katharsisServlet.service(request, response);
+		String responseContent = response.getContentAsString();
+		assertTopLevelNodesCorrectWithChildren(responseContent);
+	}
+
+	@Test
+	public void testKatharsisIncludeWithNullIterableRelationshipCall() throws Exception {
+		Node root = new Node(1L, null, null);
+		// by making the setting children null and requesting them in the include statement should cause a serialization error
 		Node child1 = new Node(2L, root, null);
 		Node child2 = new Node(3L, root, null);
 		root.setChildren(new LinkedHashSet<>(Arrays.asList(child1, child2)));
@@ -244,7 +307,10 @@ public class KatharsisServletTest {
 		request.addHeader("Accept", "*/*");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		katharsisServlet.service(request, response);
-		String responseContent = response.getContentAsString();
+		assertEquals(500, response.getStatus());
+	}
+
+	private void assertTopLevelNodesCorrectWithChildren(String responseContent) {
 		assertJsonPartEquals("nodes", responseContent, "data[0].type");
 		assertJsonPartEquals("\"2\"", responseContent, "data[0].id");
 		assertJsonNodePresent(responseContent, "data[0].relationships.children.data");
@@ -253,10 +319,9 @@ public class KatharsisServletTest {
 		assertJsonNodePresent(responseContent, "data[1].relationships.children.data");
 		assertJsonPartEquals("\"2\"", responseContent, "data[1].relationships.children.data[0].id");
 		assertJsonPartEquals("\"3\"", responseContent, "data[1].relationships.children.data[1].id");
-		assertJsonNodePresent(responseContent, "included");
-		assertJsonPartEquals("\"2\"", responseContent, "included[0].id");
-		assertJsonNodePresent(responseContent, "included[0].relationships.parent.data");
-		assertJsonPartEquals("\"1\"", responseContent, "included[0].relationships.parent.data.id");
+		assertJsonPartEquals("nodes", responseContent, "data[2].type");
+		assertJsonPartEquals("\"3\"", responseContent, "data[2].id");
+		assertJsonNodePresent(responseContent, "data[2].relationships.children.data");
 	}
 
 }

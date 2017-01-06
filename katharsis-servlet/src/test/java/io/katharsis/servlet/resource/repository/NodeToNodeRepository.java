@@ -8,6 +8,9 @@ import io.katharsis.servlet.resource.model.Node;
  * Created by nickmitchell on 1/5/17.
  */
 public class NodeToNodeRepository implements RelationshipRepository<Node, Long, Node, Long> {
+
+	private NodeRepository nodeRepository = new NodeRepository();
+
 	@Override
 	public void setRelation(Node source, Long targetId, String fieldName) {
 
@@ -30,11 +33,13 @@ public class NodeToNodeRepository implements RelationshipRepository<Node, Long, 
 
 	@Override
 	public Node findOneTarget(Long sourceId, String fieldName, QueryParams queryParams) {
-		return null;
+		Node node = nodeRepository.findOne(sourceId, null);
+		return node.getParent();
 	}
 
 	@Override
 	public Iterable<Node> findManyTargets(Long sourceId, String fieldName, QueryParams queryParams) {
-		return null;
+		Node node = nodeRepository.findOne(sourceId, null);
+		return node.getChildren();
 	}
 }
