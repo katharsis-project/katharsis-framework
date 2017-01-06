@@ -248,6 +248,8 @@ public class KatharsisServletTest {
 		assertJsonPartEquals("nodes", responseContent, "data[0].type");
 		assertJsonPartEquals("\"2\"", responseContent, "data[0].id");
 		assertJsonNodePresent(responseContent, "data[0].relationships.children.data");
+		assertJsonPartEquals("nodes", responseContent, "data[1].type");
+		assertJsonPartEquals("\"1\"", responseContent, "data[1].id");
 		assertJsonNodePresent(responseContent, "data[1].relationships.children.data");
 		assertJsonPartEquals("\"2\"", responseContent, "data[1].relationships.children.data[0].id");
 		assertJsonPartEquals("\"3\"", responseContent, "data[1].relationships.children.data[1].id");
