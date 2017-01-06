@@ -2,18 +2,13 @@ package io.katharsis.servlet.resource.model;
 
 import java.util.Set;
 
-import io.katharsis.resource.annotations.JsonApiId;
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.annotations.JsonApiToMany;
 import io.katharsis.resource.annotations.JsonApiToOne;
 
-/**
- * Created by nickmitchell on 1/5/17.
- */
+
 @JsonApiResource(type = "nodes")
-public class Node {
-	@JsonApiId
-	private Long id;
+public class Node extends AbstractResource {
 
 	@JsonApiToOne
 	private Node parent;
@@ -25,24 +20,16 @@ public class Node {
 	private Set<NodeComment> nodeComments;
 
 	public Node(Long id, Node parent, Set<Node> children) {
-		this.id = id;
+		super(id);
 		this.parent = parent;
 		this.children = children;
 	}
 
 	public Node(Long id, Node parent, Set<Node> children, Set<NodeComment> nodeComments) {
-		this.id = id;
+		super(id);
 		this.parent = parent;
 		this.children = children;
 		this.nodeComments = nodeComments;
-	}
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
 	}
 
 	public Node getParent() {

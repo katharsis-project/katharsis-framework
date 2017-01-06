@@ -137,7 +137,7 @@ public class IncludeLookupSetter {
 					populatedResources = lookupRelationshipField(resourcesWithField, resourceField, queryAdapter, parameterProvider, resourceMap, entityMap);
 				} else if (fieldLookupIncludeBehavior == LookupIncludeBehavior.AUTOMATICALLY_WHEN_NULL || globalLookupIncludeBehavior == LookupIncludeBehavior.AUTOMATICALLY_WHEN_NULL) {
 					// try to populate from entities
-					Set<Resource> extractedResources = extractRelationshipField(resourcesWithField, resourceField, queryAdapter, resourceMap, entityMap);
+					Set<Resource> extractedResources = extractRelationshipField(resourcesWithField, resourceField, queryAdapter, resourceMap, entityMap, true);
 
 					// do lookups where relationship data is null
 					Collection<Resource> resourcesForLookup = util.findResourcesWithoutRelationshipData(resourcesWithField, resourceField);
@@ -146,7 +146,7 @@ public class IncludeLookupSetter {
 					populatedResources = util.union(lookedupResources, extractedResources);
 				} else {
 					// do not do any lookups
-					populatedResources = extractRelationshipField(resourcesWithField, resourceField, queryAdapter, resourceMap, entityMap);
+					populatedResources = extractRelationshipField(resourcesWithField, resourceField, queryAdapter, resourceMap, entityMap, false);
 
 					// set relationship data to null for single-valued relation. extractRelationshipField cannot differentiate between null and not loaded.
 					// It assume it is null and loaded. Otherwise an application can reconfigure the includeBehavior to make a lookup and be sure.
@@ -176,7 +176,7 @@ public class IncludeLookupSetter {
 	 * No lookup specified for the field. Attempt to load relationship from
 	 * original POJOs. Throw an InternalServerErrorException if the field is an Iterable and null.
 	 */
-	private Set<Resource> extractRelationshipField(List<Resource> sourceResources, ResourceField relationshipField, QueryAdapter queryAdapter, Map<ResourceIdentifier, Resource> resourceMap, Map<ResourceIdentifier, Object> entityMap) {
+	private Set<Resource> extractRelationshipField(List<Resource> sourceResources, ResourceField relationshipField, QueryAdapter queryAdapter, Map<ResourceIdentifier, Resource> resourceMap, Map<ResourceIdentifier, Object> entityMap, boolean lookUp) {
 		Set<Resource> loadedEntities = new HashSet<>();
 		for (Resource sourceResource : sourceResources) {
 			ResourceIdentifier id = sourceResource.toIdentifier();
@@ -185,8 +185,8 @@ public class IncludeLookupSetter {
 			if (source != null && !(source instanceof Resource)) {
 				Object targetEntity = PropertyUtils.getProperty(source, relationshipField.getUnderlyingName());
 
-				if (Iterable.class.isAssignableFrom(relationshipField.getType()) && targetEntity == null) {
-					throw new InternalServerErrorException(id + " relationship field collection '" + relationshipField.getJsonName() + "' can not be null. Either set the relationship as an empty @" + Iterable.class.getCanonicalName() + " or add annotation " + JsonApiLookupIncludeAutomatically.class.getCanonicalName());
+				if (!lookUp && Iterable.class.isAssignableFrom(relationshipField.getType()) && targetEntity == null) {
+					throw new InternalServerErrorException(id + " relationship field collection '" + relationshipField.getJsonName() + "' can not be null. Either set the relationship as an empty " + Iterable.class.getCanonicalName() + " or add annotation @" + JsonApiLookupIncludeAutomatically.class.getCanonicalName());
 				}
 				if (targetEntity == null) {
 					continue;

@@ -4,9 +4,6 @@ import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.servlet.resource.model.Node;
 
-/**
- * Created by nickmitchell on 1/5/17.
- */
 public class NodeToNodeRepository implements RelationshipRepository<Node, Long, Node, Long> {
 
 	private NodeRepository nodeRepository = new NodeRepository();

@@ -230,8 +230,8 @@ public class KatharsisServletTest {
 	public void testKatharsisInclude() throws Exception {
 
 		Node root = new Node(1L, null, null);
-		Node child1 = new Node(2L, root, Collections.EMPTY_SET);
-		Node child2 = new Node(3L, root, Collections.EMPTY_SET);
+		Node child1 = new Node(2L, root, Collections.<Node>emptySet());
+		Node child2 = new Node(3L, root, Collections.<Node>emptySet());
 		root.setChildren(new LinkedHashSet<>(Arrays.asList(child1, child2)));
 		nodeRepository.save(root);
 		nodeRepository.save(child1);
@@ -258,10 +258,10 @@ public class KatharsisServletTest {
 	public void testKatharsisIncludeNestedWithDefault() throws Exception {
 		Node root = new Node(1L, null, null);
 		Locale engLocale = new Locale(1L, java.util.Locale.ENGLISH);
-		Node child1 = new Node(2L, root, Collections.EMPTY_SET);
+		Node child1 = new Node(2L, root, Collections.<Node>emptySet());
 		NodeComment child1Comment = new NodeComment(1L, "Child 1", child1, engLocale);
 		child1.setNodeComments(new LinkedHashSet<>(Collections.singleton(child1Comment)));
-		Node child2 = new Node(3L, root, Collections.EMPTY_SET, Collections.EMPTY_SET);
+		Node child2 = new Node(3L, root, Collections.<Node>emptySet(), Collections.<NodeComment>emptySet());
 		root.setChildren(new LinkedHashSet<>(Arrays.asList(child1, child2)));
 		nodeRepository.save(root);
 		nodeRepository.save(child1);
