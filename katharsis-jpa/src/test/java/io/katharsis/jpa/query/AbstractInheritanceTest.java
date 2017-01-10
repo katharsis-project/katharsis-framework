@@ -9,7 +9,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.transaction.annotation.Transactional;
 
-import io.katharsis.jpa.internal.meta.MetaEntity;
+import io.katharsis.jpa.meta.MetaEntity;
 import io.katharsis.queryspec.Direction;
 import io.katharsis.queryspec.FilterOperator;
 
@@ -31,8 +31,8 @@ public abstract class AbstractInheritanceTest<B, C> extends AbstractJpaTest {
 
 	@Test
 	public void testMeta() {
-		MetaEntity baseMeta = module.getMetaLookup().getMeta(baseClass).asEntity();
-		MetaEntity childMeta = module.getMetaLookup().getMeta(childClass).asEntity();
+		MetaEntity baseMeta = module.getJpaMetaLookup().getMeta(baseClass, MetaEntity.class);
+		MetaEntity childMeta = module.getJpaMetaLookup().getMeta(childClass, MetaEntity.class);
 		Assert.assertSame(baseMeta, childMeta.getSuperType());
 
 		Assert.assertEquals(1, childMeta.getDeclaredAttributes().size());
@@ -44,8 +44,7 @@ public abstract class AbstractInheritanceTest<B, C> extends AbstractJpaTest {
 		try {
 			Assert.assertNull(baseMeta.getAttribute("intValue"));
 			Assert.fail();
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			// ok
 		}
 		Assert.assertNotNull(childMeta.getAttribute("id"));
@@ -61,7 +60,7 @@ public abstract class AbstractInheritanceTest<B, C> extends AbstractJpaTest {
 	@Test
 	public void testFilterBySubtypeAttribute() {
 		// FIXME subtype lookup
-		module.getMetaLookup().getMeta(childClass).asEntity();
+		Assert.assertTrue(module.getJpaMetaLookup().getMeta(childClass, MetaEntity.class) instanceof MetaEntity);
 
 		assertEquals(1, baseBuilder().addFilter("intValue", FilterOperator.EQ, 2).buildExecutor().getResultList().size());
 		assertEquals(3, baseBuilder().addFilter("intValue", FilterOperator.GT, 1).buildExecutor().getResultList().size());
@@ -70,19 +69,18 @@ public abstract class AbstractInheritanceTest<B, C> extends AbstractJpaTest {
 	@Test
 	public void testOrderBySubtypeAttribute() {
 		// FIXME subtype lookup
-		module.getMetaLookup().getMeta(childClass).asEntity();
+		Assert.assertTrue(module.getJpaMetaLookup().getMeta(childClass, MetaEntity.class) instanceof MetaEntity);
 
 		List<B> list = baseBuilder().addSortBy(Arrays.asList("intValue"), Direction.DESC).buildExecutor().getResultList();
 		Assert.assertEquals(10, list.size());
 		for (int i = 0; i < 10; i++) {
 			B entity = list.get(i);
-			MetaEntity meta = module.getMetaLookup().getMeta(entity.getClass()).asEntity();
+			MetaEntity meta = (MetaEntity) module.getJpaMetaLookup().getMeta(entity.getClass());
 
 			if (i < 5) {
 				Assert.assertTrue(childClass.isInstance(entity));
 				Assert.assertEquals(4 - i, meta.getAttribute("intValue").getValue(entity));
-			}
-			else {
+			} else {
 				Assert.assertFalse(childClass.isInstance(entity));
 
 				// order by primary key by default second order criteria

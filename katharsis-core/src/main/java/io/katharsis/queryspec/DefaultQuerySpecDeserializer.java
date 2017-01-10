@@ -23,8 +23,10 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 
 	private static final String LIMIT_PARAMETER = "limit";
 
-	private static final Pattern PARAMETER_PATTERN = Pattern.compile("(\\w+)(\\[(\\w+)\\])?([\\w\\[\\]]*)");
+	private static final Pattern PARAMETER_PATTERN = Pattern.compile("(\\w+)(\\[([^\\]]+)\\])?([\\w\\[\\]]*)");
 
+	
+	
 	private TypeParser typeParser = new TypeParser();
 
 	private FilterOperator defaultOperator = FilterOperator.EQ;

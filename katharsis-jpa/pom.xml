@@ -70,6 +70,12 @@
 			<artifactId>katharsis-core</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		
+		<dependency>
+			<groupId>io.katharsis</groupId>
+			<artifactId>katharsis-meta</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
 		<!-- consider migrating and enhancing Katharsis PropertyUtils -->
 		<dependency>

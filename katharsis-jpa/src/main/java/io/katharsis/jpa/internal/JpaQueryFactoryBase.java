@@ -2,11 +2,11 @@ package io.katharsis.jpa.internal;
 
 import javax.persistence.EntityManager;
 
-import io.katharsis.jpa.internal.meta.MetaLookup;
 import io.katharsis.jpa.internal.query.ComputedAttributeRegistryImpl;
 import io.katharsis.jpa.query.ComputedAttributeRegistry;
 import io.katharsis.jpa.query.JpaQueryFactory;
 import io.katharsis.jpa.query.JpaQueryFactoryContext;
+import io.katharsis.meta.MetaLookup;
 
 public abstract class JpaQueryFactoryBase implements JpaQueryFactory {
 

@@ -3,20 +3,21 @@ package io.katharsis.jpa.meta;
 import org.junit.Assert;
 import org.junit.Test;
 
-import io.katharsis.jpa.internal.meta.MetaAttribute;
-import io.katharsis.jpa.internal.meta.MetaCollectionType;
-import io.katharsis.jpa.internal.meta.MetaEntity;
-import io.katharsis.jpa.internal.meta.MetaLookup;
-import io.katharsis.jpa.internal.meta.MetaMapType;
 import io.katharsis.jpa.model.RelatedEntity;
 import io.katharsis.jpa.model.TestEntity;
+import io.katharsis.meta.MetaLookup;
+import io.katharsis.meta.model.MetaAttribute;
+import io.katharsis.meta.model.MetaCollectionType;
+import io.katharsis.meta.model.MetaMapType;
 
 public class MetaAttributeImplTest {
 
 	@Test
 	public void testPrimaryKey() {
 		MetaLookup lookup = new MetaLookup();
-		MetaEntity meta = lookup.getMeta(TestEntity.class).asEntity();
+		lookup.addProvider(new JpaMetaProvider());
+		lookup.initialize();
+		MetaEntity meta = lookup.getMeta(TestEntity.class, MetaEntity.class);
 		MetaAttribute attr = meta.getAttribute("id");
 		Assert.assertFalse(attr.isAssociation());
 		Assert.assertEquals("id", attr.getName());
@@ -24,14 +25,15 @@ public class MetaAttributeImplTest {
 		Assert.assertFalse(attr.isDerived());
 		Assert.assertFalse(attr.isVersion());
 		Assert.assertFalse(attr.isLazy());
-		Assert.assertTrue(attr.isId());
 		Assert.assertNull(attr.getOppositeAttribute());
 	}
 
 	@Test
 	public void testMapAttr() {
 		MetaLookup lookup = new MetaLookup();
-		MetaEntity meta = lookup.getMeta(TestEntity.class).asEntity();
+		lookup.addProvider(new JpaMetaProvider());
+		lookup.initialize();
+		MetaEntity meta = lookup.getMeta(TestEntity.class, MetaEntity.class);
 		MetaAttribute attr = meta.getAttribute(TestEntity.ATTR_mapValue);
 		Assert.assertFalse(attr.isAssociation());
 		Assert.assertEquals(TestEntity.ATTR_mapValue, attr.getName());
@@ -39,7 +41,6 @@ public class MetaAttributeImplTest {
 		Assert.assertFalse(attr.isDerived());
 		Assert.assertFalse(attr.isVersion());
 		Assert.assertFalse(attr.isLazy());
-		Assert.assertFalse(attr.isId());
 		Assert.assertNull(attr.getOppositeAttribute());
 
 		MetaMapType mapType = attr.getType().asMap();
@@ -52,7 +53,9 @@ public class MetaAttributeImplTest {
 	@Test
 	public void testRelationMany() {
 		MetaLookup lookup = new MetaLookup();
-		MetaEntity meta = lookup.getMeta(TestEntity.class).asEntity();
+		lookup.addProvider(new JpaMetaProvider());
+		lookup.initialize();
+		MetaEntity meta = lookup.getMeta(TestEntity.class, MetaEntity.class);
 		MetaAttribute attr = meta.getAttribute(TestEntity.ATTR_manyRelatedValues);
 		Assert.assertTrue(attr.isAssociation());
 		Assert.assertEquals(TestEntity.ATTR_manyRelatedValues, attr.getName());
@@ -60,7 +63,6 @@ public class MetaAttributeImplTest {
 		Assert.assertFalse(attr.isDerived());
 		Assert.assertFalse(attr.isVersion());
 		Assert.assertTrue(attr.isLazy());
-		Assert.assertFalse(attr.isId());
 		Assert.assertNotNull(attr.getOppositeAttribute());
 
 		MetaCollectionType colType = attr.getType().asCollection();

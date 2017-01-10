@@ -68,7 +68,7 @@ public class JpaPartialEntityExposureTest extends AbstractJpaJerseyTest {
 	@Test
 	public void testInformationBuilder() {
 		EntityManager em = null;
-		JpaResourceInformationBuilder builder = new JpaResourceInformationBuilder(module.getMetaLookup(), em);
+		JpaResourceInformationBuilder builder = new JpaResourceInformationBuilder(module.getJpaMetaLookup());
 		ResourceInformation info = builder.build(TestEntity.class);
 		List<ResourceField> relationshipFields = info.getRelationshipFields();
 		Assert.assertEquals(0, relationshipFields.size());

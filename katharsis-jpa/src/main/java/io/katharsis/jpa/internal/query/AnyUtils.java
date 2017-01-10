@@ -1,9 +1,9 @@
 package io.katharsis.jpa.internal.query;
 
-import io.katharsis.jpa.internal.meta.MetaAttribute;
-import io.katharsis.jpa.internal.meta.MetaDataObject;
-import io.katharsis.jpa.internal.meta.MetaLookup;
 import io.katharsis.jpa.query.AnyTypeObject;
+import io.katharsis.meta.MetaLookup;
+import io.katharsis.meta.model.MetaAttribute;
+import io.katharsis.meta.model.MetaDataObject;
 
 public class AnyUtils {
 

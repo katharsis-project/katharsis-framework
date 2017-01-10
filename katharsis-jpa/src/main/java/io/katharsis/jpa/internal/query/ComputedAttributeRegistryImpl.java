@@ -6,10 +6,12 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import io.katharsis.jpa.internal.meta.MetaDataObject;
-import io.katharsis.jpa.internal.meta.MetaLookup;
+import io.katharsis.jpa.meta.MetaJpaDataObject;
 import io.katharsis.jpa.query.ComputedAttributeRegistry;
 import io.katharsis.jpa.query.JpaQueryFactoryContext;
+import io.katharsis.meta.MetaLookup;
+import io.katharsis.meta.model.MetaDataObject;
+import io.katharsis.meta.model.MetaType;
 
 public class ComputedAttributeRegistryImpl implements ComputedAttributeRegistry {
 
@@ -34,9 +36,12 @@ public class ComputedAttributeRegistryImpl implements ComputedAttributeRegistry 
 				synchronized (this) {
 					if (attr == null) {
 						MetaLookup metaLookup = context.getMetaLookup();
-						MetaDataObject targetMeta = metaLookup.getMeta(targetClass).asDataObject();
-						attr = new MetaComputedAttribute(targetMeta, name, type);
-						attr.init(metaLookup);
+						MetaDataObject targetMeta = metaLookup.getMeta(targetClass, MetaJpaDataObject.class).asDataObject();
+						MetaType attrType = metaLookup.getMeta(type).asType();
+						attr = new MetaComputedAttribute();
+						attr.setParent(targetMeta, false);
+						attr.setName(name);
+						attr.setType(attrType);
 					}
 				}
 			}
