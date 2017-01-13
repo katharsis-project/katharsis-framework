@@ -65,7 +65,6 @@ public class MetaModuleTest extends AbstractMetaJerseyTest {
 		ResourceList<MetaAttribute> list = client.getQuerySpecRepository(MetaAttribute.class).findAll(querySpec);
 		Assert.assertFalse(list.isEmpty());
 		for (MetaAttribute elem : list) {
-			System.out.println(elem.getId());
 			Assert.assertNotNull(elem.getType());
 			Assert.assertNotNull(elem.getType().getElementType());
 		}
