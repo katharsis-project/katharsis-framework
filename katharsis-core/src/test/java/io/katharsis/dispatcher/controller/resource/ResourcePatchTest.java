@@ -2,6 +2,9 @@ package io.katharsis.dispatcher.controller.resource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.ArrayList;
+import java.util.Collections;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -12,7 +15,9 @@ import io.katharsis.queryspec.internal.QueryParamsAdapter;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.Document;
+import io.katharsis.resource.Relationship;
 import io.katharsis.resource.Resource;
+import io.katharsis.resource.ResourceIdentifier;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.registry.repository.adapter.ResourceRepositoryAdapter;
 import io.katharsis.response.JsonApiResponse;
@@ -210,7 +215,80 @@ public class ResourcePatchTest extends BaseControllerTest {
         assertThat(response.getDocument().getSingleData().get().getType()).isEqualTo("tasks");
         assertThat(response.getDocument().getSingleData().get().getAttributes().get("name").asText()).isEqualTo("task updated");
         assertThat(response.getDocument().getSingleData().get().getRelationships().get("project").getData().get()).isNull();
-    }
+    } 
+    
+    @Test
+	public void onUpdatedLazyRelationshipDataShouldReturnThatData() throws Exception {
+		// GIVEN
+		Document newTaskBody = new Document();
+		Resource data = createTask();
+		newTaskBody.setData(Nullable.of((Object)data));
+		data.setType("tasks");
+
+		JsonPath taskPath = pathBuilder.build("/tasks");
+		ResourcePost post = new ResourcePost(resourceRegistry, typeParser, objectMapper, documentMapper);
+		Response taskResponse = post.handle(taskPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newTaskBody);
+		Long taskId = Long.parseLong(taskResponse.getDocument().getSingleData().get().getId());
+
+		Document newProjectBody = new Document();
+		data = createProject();
+		data.setType("projects");
+		data.getRelationships().put("tasks", new Relationship(Collections.singletonList(new ResourceIdentifier(taskId.toString(), "tasks"))));
+		newProjectBody.setData(Nullable.of((Object)data));
+
+		JsonPath projectsPath = pathBuilder.build("/projects");
+		Response projectsResponse = post.handle(projectsPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newProjectBody);
+		assertThat(projectsResponse.getDocument().getSingleData().get().getRelationships().get("tasks").getCollectionData().get())
+				.hasSize(1);
+		
+		// update relationship and availability in response
+		ResourcePatch patch = new ResourcePatch(resourceRegistry, typeParser, objectMapper, documentMapper);
+		
+		Nullable<Object> emptyRelation = Nullable.of((Object)new ArrayList<ResourceIdentifier>());
+		data.getRelationships().get("tasks").setData(emptyRelation);
+		projectsResponse = patch.handle(pathBuilder.build("/projects/1"), new QueryParamsAdapter(REQUEST_PARAMS), null, newProjectBody);
+		assertThat(projectsResponse.getDocument().getSingleData().get().getType()).isEqualTo("projects");
+		assertThat(projectsResponse.getDocument().getSingleData().get().getAttributes().get("name").asText()).isEqualTo("sample project");
+		assertThat(projectsResponse.getDocument().getSingleData().get().getRelationships().get("tasks").getCollectionData().get())
+				.hasSize(0);
+		
+	}
+    
+    @Test
+   	public void onUnchagedLazyRelationshipDataShouldNotReturnThatData() throws Exception {
+   		// GIVEN
+   		Document newTaskBody = new Document();
+   		Resource data = createTask();
+   		newTaskBody.setData(Nullable.of((Object)data));
+   		data.setType("tasks");
+
+   		JsonPath taskPath = pathBuilder.build("/tasks");
+   		ResourcePost post = new ResourcePost(resourceRegistry, typeParser, objectMapper, documentMapper);
+   		Response taskResponse = post.handle(taskPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newTaskBody);
+   		Long taskId = Long.parseLong(taskResponse.getDocument().getSingleData().get().getId());
+
+   		Document newProjectBody = new Document();
+   		data = createProject();
+   		data.setType("projects");
+   		data.getRelationships().put("tasks", new Relationship(Collections.singletonList(new ResourceIdentifier(taskId.toString(), "tasks"))));
+   		newProjectBody.setData(Nullable.of((Object)data));
+
+   		JsonPath projectsPath = pathBuilder.build("/projects");
+   		Response projectsResponse = post.handle(projectsPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newProjectBody);
+   		assertThat(projectsResponse.getDocument().getSingleData().get().getRelationships().get("tasks").getCollectionData().get())
+   				.hasSize(1);
+   		
+   		// update relationship and availability in response
+   		ResourcePatch patch = new ResourcePatch(resourceRegistry, typeParser, objectMapper, documentMapper);
+   		
+   		data.getRelationships().remove("tasks");
+   		data.getAttributes().put("name", objectMapper.readTree("\"updated project\""));
+   		projectsResponse = patch.handle(pathBuilder.build("/projects/1"), new QueryParamsAdapter(REQUEST_PARAMS), null, newProjectBody);
+   		assertThat(projectsResponse.getDocument().getSingleData().get().getType()).isEqualTo("projects");
+   		assertThat(projectsResponse.getDocument().getSingleData().get().getAttributes().get("name").asText()).isEqualTo("updated project");
+   		assertThat(projectsResponse.getDocument().getSingleData().get().getRelationships().get("tasks").getCollectionData().isPresent()).isFalse();
+   		
+   	}
 
     @Test
     public void onGivenRequestResourcePatchShouldHandleMissingFields() throws Exception {

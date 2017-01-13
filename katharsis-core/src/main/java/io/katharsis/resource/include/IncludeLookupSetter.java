@@ -54,7 +54,7 @@ public class IncludeLookupSetter {
 
 	}
 
-	public void setIncludedElements(Document document, Object entity, QueryAdapter queryAdapter, RepositoryMethodParameterProvider parameterProvider) {
+	public void setIncludedElements(Document document, Object entity, QueryAdapter queryAdapter, RepositoryMethodParameterProvider parameterProvider, Set<String> additionalEagerLoadedRelations) {
 		List<Object> entityList = DocumentMapperUtil.toList(entity);
 		List<Resource> dataList = DocumentMapperUtil.toList(document.getData().get());
 		Map<ResourceIdentifier, Resource> dataMap = new HashMap<>();
@@ -72,7 +72,7 @@ public class IncludeLookupSetter {
 		Set<ResourceIdentifier> inclusions = new HashSet<>();
 
 		ArrayList<ResourceField> stack = new ArrayList<>();
-		populate(dataList, inclusions, resourceMap, entityMap, stack, queryAdapter, parameterProvider);
+		populate(dataList, inclusions, resourceMap, entityMap, stack, queryAdapter, parameterProvider, additionalEagerLoadedRelations);
 
 		// no need to include resources included in the data section
 		inclusions.removeAll(dataMap.keySet());
@@ -90,7 +90,7 @@ public class IncludeLookupSetter {
 	}
 
 	private void populate(Collection<Resource> dataList, Set<ResourceIdentifier> inclusions, Map<ResourceIdentifier, Resource> resourceMap, Map<ResourceIdentifier, Object> entityMap, List<ResourceField> fieldPath, QueryAdapter queryAdapter,
-			RepositoryMethodParameterProvider parameterProvider) {
+			RepositoryMethodParameterProvider parameterProvider, Set<String> additionalEagerLoadedRootRelations) {
 
 		if (dataList.isEmpty()) {
 			return; // nothing to do
@@ -123,7 +123,7 @@ public class IncludeLookupSetter {
 
 			boolean includeRequested = util.isInclusionRequested(queryAdapter, fieldPath);
 			boolean includeResources = includeRequested || resourceField.getIncludeByDefault() && isPrimaryResource;
-			boolean includeRelationshipData = !resourceField.isLazy() || includeResources;
+			boolean includeRelationshipData = !resourceField.isLazy() || includeResources || additionalEagerLoadedRootRelations.contains(resourceField.getJsonName());
 
 			if (includeRelationshipData) {
 				// lookup resources by inspecting the POJOs in entityMap
@@ -162,7 +162,8 @@ public class IncludeLookupSetter {
 				// add inclusions and do nested population if requested as such
 				if (includeResources && !populatedResources.isEmpty()) {
 					inclusions.addAll(util.toIds(populatedResources));
-					populate(populatedResources, inclusions, resourceMap, entityMap, fieldPath, queryAdapter, parameterProvider);
+					Set<String> additionalEagerLoadedNestedRelations = Collections.emptySet();
+					populate(populatedResources, inclusions, resourceMap, entityMap, fieldPath, queryAdapter, parameterProvider, additionalEagerLoadedNestedRelations);
 				}
 			}
 

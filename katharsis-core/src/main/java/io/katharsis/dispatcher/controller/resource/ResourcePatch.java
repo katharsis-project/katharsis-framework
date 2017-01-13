@@ -5,8 +5,11 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,6 +22,7 @@ import io.katharsis.repository.exception.RepositoryNotFoundException;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.Document;
+import io.katharsis.resource.Relationship;
 import io.katharsis.resource.Resource;
 import io.katharsis.resource.exception.RequestBodyException;
 import io.katharsis.resource.exception.RequestBodyNotFoundException;
@@ -123,12 +127,16 @@ public class ResourcePatch extends ResourceUpsert {
 
         setAttributes(resourceBody, resource, bodyRegistryEntry.getResourceInformation());
         setRelations(resource, bodyRegistryEntry, resourceBody, queryAdapter, parameterProvider);
-        Document responseDocument = documentMapper.toDocument(resourceRepository.update(resource, queryAdapter), queryAdapter);
+        
+        Set<String> loadedRelationshipNames = getLoadedRelationshipNames(resourceBody);
+        
+        JsonApiResponse updatedResource = resourceRepository.update(resource, queryAdapter);
+        Document responseDocument = documentMapper.toDocument(updatedResource, queryAdapter, parameterProvider, loadedRelationshipNames);
 
         return new Response(responseDocument, 200);
     }
 
-    private <K,V> Map<K,V> emptyIfNull(Map<K,V> value) {
+	private <K,V> Map<K,V> emptyIfNull(Map<K,V> value) {
 		return (Map<K, V>) (value != null ? value : Collections.emptyMap());
 	}
 

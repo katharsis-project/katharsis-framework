@@ -1,6 +1,7 @@
 package io.katharsis.dispatcher.controller.resource;
 
 import java.util.Collection;
+import java.util.Set;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -74,7 +75,8 @@ public class ResourcePost extends ResourceUpsert {
         if(apiResponse.getEntity() == null){
         	throw new IllegalStateException("repository did not return the created resource");
         }
-        Document responseDocument = documentMapper.toDocument(apiResponse, queryAdapter, parameterProvider);
+        Set<String> loadedRelationshipNames = getLoadedRelationshipNames(resourceBody);
+        Document responseDocument = documentMapper.toDocument(apiResponse, queryAdapter, parameterProvider, loadedRelationshipNames);
 
         return new Response(responseDocument, HttpStatus.CREATED_201);
     }
