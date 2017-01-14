@@ -7,11 +7,12 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import io.katharsis.client.QuerySpecResourceRepositoryStub;
-import io.katharsis.jpa.internal.meta.MetaAttribute;
-import io.katharsis.jpa.internal.meta.MetaEntity;
-import io.katharsis.jpa.internal.meta.MetaKey;
-import io.katharsis.jpa.internal.meta.MetaLookup;
+import io.katharsis.jpa.meta.JpaMetaProvider;
+import io.katharsis.jpa.meta.MetaEntity;
 import io.katharsis.jpa.model.MethodAnnotatedEntity;
+import io.katharsis.meta.MetaLookup;
+import io.katharsis.meta.model.MetaAttribute;
+import io.katharsis.meta.model.MetaKey;
 import io.katharsis.queryspec.QuerySpec;
 
 public class MethodAnnotatedEntityTest extends AbstractJpaJerseyTest {
@@ -23,7 +24,8 @@ public class MethodAnnotatedEntityTest extends AbstractJpaJerseyTest {
 		entity.setStringValue("test");
 
 		MetaLookup lookup = new MetaLookup();
-		MetaEntity meta = lookup.getMeta(MethodAnnotatedEntity.class).asEntity();
+		lookup.addProvider(new JpaMetaProvider());
+		MetaEntity meta = lookup.getMeta(MethodAnnotatedEntity.class, MetaEntity.class);
 		MetaKey primaryKey = meta.getPrimaryKey();
 		Assert.assertNotNull(primaryKey);
 		Assert.assertEquals(1, primaryKey.getElements().size());
@@ -37,15 +39,13 @@ public class MethodAnnotatedEntityTest extends AbstractJpaJerseyTest {
 		Assert.assertNotNull(idAttr);
 		Assert.assertEquals("id", idAttr.getName());
 		Assert.assertEquals(13L, idAttr.getValue(entity));
-		Assert.assertTrue(idAttr.isId());
 
 	}
 
 	@Test
 	public void testMethodAnnotatedFields() {
 		// tests whether JPA annotations on methods are supported as well
-		QuerySpecResourceRepositoryStub<MethodAnnotatedEntity, Long> methodRepo = client
-				.getQuerySpecRepository(MethodAnnotatedEntity.class);
+		QuerySpecResourceRepositoryStub<MethodAnnotatedEntity, Long> methodRepo = client.getQuerySpecRepository(MethodAnnotatedEntity.class);
 
 		MethodAnnotatedEntity task = new MethodAnnotatedEntity();
 		task.setId(1L);

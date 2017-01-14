@@ -7,11 +7,11 @@ import javax.persistence.EntityManager;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
-import io.katharsis.jpa.internal.meta.MetaLookup;
 import io.katharsis.jpa.internal.query.AbstractJpaQueryImpl;
 import io.katharsis.jpa.internal.query.ComputedAttributeRegistryImpl;
 import io.katharsis.jpa.query.querydsl.QuerydslQuery;
 import io.katharsis.jpa.query.querydsl.QuerydslTranslationInterceptor;
+import io.katharsis.meta.MetaLookup;
 
 public class QuerydslQueryImpl<T> extends AbstractJpaQueryImpl<T, QuerydslQueryBackend<T>> implements QuerydslQuery<T> {
 

@@ -11,10 +11,10 @@ import com.querydsl.core.Tuple;
 import com.querydsl.core.types.QTuple;
 import com.querydsl.jpa.impl.JPAQuery;
 
-import io.katharsis.jpa.internal.meta.MetaDataObject;
 import io.katharsis.jpa.internal.query.AbstractQueryExecutorImpl;
 import io.katharsis.jpa.query.querydsl.QuerydslExecutor;
 import io.katharsis.jpa.query.querydsl.QuerydslTuple;
+import io.katharsis.meta.model.MetaDataObject;
 
 public class QuerydslExecutorImpl<T> extends AbstractQueryExecutorImpl<T> implements QuerydslExecutor<T> {
 

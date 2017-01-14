@@ -8,6 +8,7 @@ import javax.persistence.EntityManager;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import io.katharsis.client.QuerySpecResourceRepositoryStub;
@@ -19,8 +20,10 @@ import io.katharsis.jpa.model.TestEntity;
 import io.katharsis.jpa.util.SpringTransactionRunner;
 
 /**
- * Example of how to merge an entity with several related entities into a single resource to achieve atomic updates.
+ * Example of how to merge an entity with several related entities into a single
+ * resource to achieve atomic updates.
  */
+@Ignore // not supported, use dtp maping, to be replaced by configuration
 public class MergeTest extends AbstractJpaJerseyTest {
 
 	private QuerySpecResourceRepositoryStub<MergedResource, Long> repo;

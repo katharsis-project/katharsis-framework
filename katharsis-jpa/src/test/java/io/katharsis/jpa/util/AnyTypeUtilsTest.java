@@ -8,15 +8,15 @@ import java.math.BigDecimal;
 import org.junit.Assert;
 import org.junit.Test;
 
-import io.katharsis.jpa.internal.meta.MetaLookup;
 import io.katharsis.jpa.internal.query.AnyUtils;
+import io.katharsis.jpa.meta.JpaMetaProvider;
 import io.katharsis.jpa.model.TestAnyType;
+import io.katharsis.meta.MetaLookup;
 
 public class AnyTypeUtilsTest {
 
 	@Test
-	public void testNotInstantiable() throws InstantiationException, IllegalAccessException, NoSuchMethodException,
-			SecurityException, IllegalArgumentException, InvocationTargetException {
+	public void testNotInstantiable() throws InstantiationException, IllegalAccessException, NoSuchMethodException, SecurityException, IllegalArgumentException, InvocationTargetException {
 		Constructor<AnyUtils> constructor = AnyUtils.class.getDeclaredConstructor();
 		Assert.assertTrue(Modifier.isPrivate(constructor.getModifiers()));
 		constructor.setAccessible(true);
@@ -26,6 +26,8 @@ public class AnyTypeUtilsTest {
 	@Test
 	public void testSet() {
 		MetaLookup lookup = new MetaLookup();
+		lookup.addProvider(new JpaMetaProvider());
+		lookup.initialize();
 		TestAnyType anyValue = new TestAnyType();
 		AnyUtils.setValue(lookup, anyValue, "stringValue");
 		Assert.assertEquals("stringValue", anyValue.getStringValue());
@@ -39,6 +41,7 @@ public class AnyTypeUtilsTest {
 	@Test(expected = IllegalStateException.class)
 	public void testNotAssignable() {
 		MetaLookup lookup = new MetaLookup();
+		lookup.addProvider(new JpaMetaProvider());
 		TestAnyType anyValue = new TestAnyType();
 		AnyUtils.setValue(lookup, anyValue, BigDecimal.ONE);
 	}

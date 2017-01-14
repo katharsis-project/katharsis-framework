@@ -1,25 +1,10 @@
 package io.katharsis.jpa.internal.query;
 
-import java.lang.reflect.Type;
+import io.katharsis.meta.model.MetaAttribute;
+import io.katharsis.resource.annotations.JsonApiResource;
 
-import io.katharsis.jpa.internal.meta.MetaDataObject;
-import io.katharsis.jpa.internal.meta.impl.MetaAttributeImpl;
-
-public class MetaComputedAttribute extends MetaAttributeImpl {
-
-	private MetaDataObject virtualParent;
-
-	public MetaComputedAttribute(MetaDataObject parent, String name, Type type) {
-		super(null, name, type);
-
-		// not attach to actual parent!
-		this.virtualParent = parent;
-	}
-
-	@Override
-	public MetaDataObject getParent() {
-		return virtualParent;
-	}
+@JsonApiResource(type = "metaComputedAttribute")
+public class MetaComputedAttribute extends MetaAttribute {
 
 	@Override
 	public Object getValue(Object dataObject) {
@@ -30,4 +15,5 @@ public class MetaComputedAttribute extends MetaAttributeImpl {
 	public void setValue(Object dataObject, Object value) {
 		throw new UnsupportedOperationException();
 	}
+
 }

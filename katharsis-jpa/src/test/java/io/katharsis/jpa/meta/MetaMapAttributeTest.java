@@ -5,28 +5,28 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import io.katharsis.jpa.internal.meta.MetaAttribute;
-import io.katharsis.jpa.internal.meta.MetaMapType;
-import io.katharsis.jpa.internal.meta.impl.MetaDataObjectImpl;
-import io.katharsis.jpa.internal.meta.impl.MetaMapAttributeImpl;
+import io.katharsis.meta.model.MetaAttribute;
+import io.katharsis.meta.model.MetaDataObject;
+import io.katharsis.meta.model.MetaMapAttribute;
+import io.katharsis.meta.model.MetaMapType;
 
 public class MetaMapAttributeTest {
 
-	private MetaMapAttributeImpl impl;
+	private MetaMapAttribute impl;
 
 	private MetaAttribute mapAttr;
 
 	private MetaMapType mapType;
 
-	private MetaDataObjectImpl parent;
+	private MetaDataObject parent;
 
 	@Before
 	public void setup() {
 		String keyString = "test";
 		mapAttr = Mockito.mock(MetaAttribute.class);
 		mapType = Mockito.mock(MetaMapType.class);
-		impl = new MetaMapAttributeImpl(mapType, mapAttr, keyString);
-		parent = Mockito.mock(MetaDataObjectImpl.class);
+		impl = new MetaMapAttribute(mapType, mapAttr, keyString);
+		parent = Mockito.mock(MetaDataObject.class);
 		impl.setParent(parent);
 	}
 

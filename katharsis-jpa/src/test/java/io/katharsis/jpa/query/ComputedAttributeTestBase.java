@@ -25,8 +25,7 @@ public abstract class ComputedAttributeTestBase extends AbstractJpaTest {
 	@Test
 	public void testEqualsFilter() {
 
-		assertEquals((Long) 1L, builder().addFilter(ATTR_VIRTUAL_VALUE, FilterOperator.EQ, "TEST1").buildExecutor()
-				.getUniqueResult(false).getId());
+		assertEquals((Long) 1L, builder().addFilter(ATTR_VIRTUAL_VALUE, FilterOperator.EQ, "TEST1").buildExecutor().getUniqueResult(false).getId());
 
 	}
 

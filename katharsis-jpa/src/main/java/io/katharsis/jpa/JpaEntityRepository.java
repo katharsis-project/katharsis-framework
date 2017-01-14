@@ -10,14 +10,14 @@ import javax.persistence.EntityManager;
 import io.katharsis.jpa.internal.JpaRepositoryBase;
 import io.katharsis.jpa.internal.JpaRepositoryUtils;
 import io.katharsis.jpa.internal.JpaRequestContext;
-import io.katharsis.jpa.internal.meta.MetaAttribute;
-import io.katharsis.jpa.internal.meta.MetaEntity;
 import io.katharsis.jpa.mapping.JpaMapper;
+import io.katharsis.jpa.meta.MetaEntity;
 import io.katharsis.jpa.query.ComputedAttributeRegistry;
 import io.katharsis.jpa.query.JpaQuery;
 import io.katharsis.jpa.query.JpaQueryExecutor;
 import io.katharsis.jpa.query.JpaQueryFactory;
 import io.katharsis.jpa.query.Tuple;
+import io.katharsis.meta.model.MetaAttribute;
 import io.katharsis.queryspec.FilterOperator;
 import io.katharsis.queryspec.FilterSpec;
 import io.katharsis.queryspec.QuerySpec;
@@ -38,7 +38,7 @@ public class JpaEntityRepository<T, I extends Serializable> extends JpaRepositor
 
 	public JpaEntityRepository(JpaModule module, JpaRepositoryConfig<T> config) {
 		super(module, config);
-		this.meta = module.getMetaLookup().getMeta(config.getEntityClass()).asEntity();
+		this.meta = module.getJpaMetaLookup().getMeta(config.getEntityClass(), MetaEntity.class);
 		this.primaryKeyAttr = JpaRepositoryUtils.getPrimaryKeyAttr(meta);
 	}
 

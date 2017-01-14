@@ -2,7 +2,7 @@ package io.katharsis.jpa.query;
 
 import javax.persistence.EntityManager;
 
-import io.katharsis.jpa.internal.meta.MetaLookup;
+import io.katharsis.meta.MetaLookup;
 
 public interface JpaQueryFactoryContext {
 

@@ -4,8 +4,8 @@ import java.util.List;
 
 import javax.persistence.criteria.JoinType;
 
-import io.katharsis.jpa.internal.meta.MetaAttribute;
-import io.katharsis.jpa.internal.meta.MetaAttributePath;
+import io.katharsis.meta.model.MetaAttribute;
+import io.katharsis.meta.model.MetaAttributePath;
 import io.katharsis.queryspec.Direction;
 import io.katharsis.queryspec.FilterOperator;
 

@@ -7,7 +7,7 @@ import com.querydsl.core.types.Predicate;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
-import io.katharsis.jpa.internal.meta.MetaAttributePath;
+import io.katharsis.meta.model.MetaAttributePath;
 
 public interface QuerydslTranslationContext<T> {
 
