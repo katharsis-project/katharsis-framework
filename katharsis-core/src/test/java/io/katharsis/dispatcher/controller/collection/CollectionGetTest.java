@@ -259,6 +259,6 @@ public class CollectionGetTest extends BaseControllerTest {
 		assertThat(response.getDocument().getSingleData().get().getType()).isEqualTo("tasks");
 
 		// eager loading but no inclusion
-		assertThat(response.getDocument().getSingleData().get().getRelationships().get("projects").getData().isPresent()).isFalse();
+		assertThat(response.getDocument().getSingleData().get().getRelationships().get("projects").getData().isPresent()).isTrue();
 	}
 }

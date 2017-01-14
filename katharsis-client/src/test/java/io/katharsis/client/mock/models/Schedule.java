@@ -1,5 +1,6 @@
 package io.katharsis.client.mock.models;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -23,10 +24,10 @@ public class Schedule {
 	private Task lazyTask;
 
 	@JsonApiToMany(opposite = "schedule")
-	private Set<Task> tasks;
+	private Set<Task> tasks = Collections.emptySet();
 
 	@JsonApiToMany(opposite = "schedule")
-	private List<Task> tasksList;
+	private List<Task> tasksList = Collections.emptyList();
 
 	public Long getId() {
 		return id;
