@@ -28,7 +28,17 @@ public abstract class FilterOperator {
 
 		@Override
 		public boolean matches(Object value1, Object value2) {
-			throw new UnsupportedOperationException(); // handle differently
+			if(value1 == null){
+				return false;
+			}
+			String text = value1.toString();
+			
+			String pattern = value2.toString();
+			pattern = pattern.replaceAll("\\.", "\\.");
+			pattern = pattern.replace("%", ".*");
+			pattern = pattern.toLowerCase();
+			
+			return text.toLowerCase().matches(pattern);
 		}
 
 	};

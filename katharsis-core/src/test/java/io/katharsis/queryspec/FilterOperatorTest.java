@@ -19,6 +19,16 @@ public class FilterOperatorTest {
 	public void orMatchNotSupported() {
 		FilterOperator.OR.matches(null, null);
 	}
+	
+	@Test
+	public void testLikeOperator() {
+		Assert.assertTrue(FilterOperator.LIKE.matches("test", "te%"));
+		Assert.assertTrue(FilterOperator.LIKE.matches("test", "Te%"));
+		Assert.assertTrue(FilterOperator.LIKE.matches("test", "tE%"));
+		Assert.assertFalse(FilterOperator.LIKE.matches("test", "aE%"));
+		Assert.assertTrue(FilterOperator.LIKE.matches("test", "t%t"));
+	}
+
 
 	@Test
 	public void testEquals() {
