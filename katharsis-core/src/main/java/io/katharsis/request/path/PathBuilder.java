@@ -1,19 +1,18 @@
 package io.katharsis.request.path;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+
+import io.katharsis.repository.exception.RepositoryNotFoundException;
 import io.katharsis.resource.exception.ResourceException;
 import io.katharsis.resource.exception.ResourceFieldNotFoundException;
-import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.field.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.utils.StringUtils;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
 
 /**
  * Builder responsible for parsing URL path.
@@ -34,14 +33,14 @@ public class PathBuilder {
      *
      * @param path Path to be parsed
      * @return doubly-linked list which represents path given at the input
-     * @deprecated use {@link #build(Path)}
+     * @deprecated use build
      */
     public JsonPath buildPath(String path) {
     	JsonPath jsonPath = build(path);
     	if(jsonPath != null){
     		return jsonPath;
     	}else{
-    		throw new ResourceNotFoundException(path);
+    		throw new RepositoryNotFoundException(path);
     	}
     }
     
@@ -75,13 +74,29 @@ public class PathBuilder {
                 relationshipMark = true;
                 currentElementIdx++;
             }
-
+            
+            RegistryEntry<?> entry = null;
             if (currentElementIdx < strings.length && !RELATIONSHIP_MARK.equals(strings[currentElementIdx])) {
                 elementName = strings[currentElementIdx];
+                
+                // support "/" in resource type to group repositories
+                StringBuilder potentialResourceType = new StringBuilder();
+                for(int i = 0; currentElementIdx + i < strings.length;i++){
+                	if(potentialResourceType.length() > 0){
+                		potentialResourceType.append("/");
+                	}
+                	potentialResourceType.append(strings[currentElementIdx + i]);
+                	entry = resourceRegistry.getEntry(potentialResourceType.toString());
+                	if(entry != null){
+                		currentElementIdx += i;
+                		elementName = potentialResourceType.toString();
+                		break;
+                	}
+                }
+                
                 currentElementIdx++;
             }
-            RegistryEntry<?> entry = resourceRegistry.getEntry(elementName);
-            
+          
             if (currentElementIdx < strings.length && entry != null && entry.getRepositoryInformation().getActions().containsKey(strings[currentElementIdx])) {
             	// repository action
             	actionName = strings[currentElementIdx];

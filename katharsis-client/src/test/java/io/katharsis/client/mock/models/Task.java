@@ -1,5 +1,6 @@
 package io.katharsis.client.mock.models;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -31,7 +32,7 @@ public class Task {
 	private Schedule schedule;
 
 	@JsonApiToMany(lazy = false)
-	private List<Project> projects;
+	private List<Project> projects = Collections.emptyList();
 
 	@JsonApiToOne
 	@JsonApiLookupIncludeAutomatically
@@ -69,7 +70,7 @@ public class Task {
 			}
 			if (schedule != null) {
 				Set<Task> tasks = schedule.getTasks();
-				if (tasks == null) {
+				if (tasks == null || Collections.EMPTY_SET.getClass().isAssignableFrom(tasks.getClass())) {
 					tasks = new HashSet<>();
 					schedule.setTasks(tasks);
 				}

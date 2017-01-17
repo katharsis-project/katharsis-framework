@@ -29,9 +29,9 @@ import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.queryspec.internal.QuerySpecAdapterBuilder;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.repository.mock.NewInstanceRepositoryMethodParameterProvider;
-import io.katharsis.request.dto.RequestBody;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.PathBuilder;
+import io.katharsis.resource.Document;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
 import io.katharsis.resource.information.ResourceInformationBuilder;
@@ -56,14 +56,11 @@ public class FilterTest {
 	@Before
 	public void prepare() {
 		moduleRegistry = new ModuleRegistry();
-		
-		ResourceInformationBuilder resourceInformationBuilder = new AnnotationResourceInformationBuilder(
-				new ResourceFieldNameTransformer());
-		ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonServiceLocator(),
-				resourceInformationBuilder);
-		resourceRegistry = registryBuilder.build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, moduleRegistry,
-				new ConstantServiceUrlProvider(ResourceRegistryTest.TEST_MODELS_URL));
-		
+
+		ResourceInformationBuilder resourceInformationBuilder = new AnnotationResourceInformationBuilder(new ResourceFieldNameTransformer());
+		ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonServiceLocator(), resourceInformationBuilder);
+		resourceRegistry = registryBuilder.build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, moduleRegistry, new ConstantServiceUrlProvider(ResourceRegistryTest.TEST_MODELS_URL));
+
 		pathBuilder = new PathBuilder(resourceRegistry);
 		ControllerRegistry controllerRegistry = new ControllerRegistry(null);
 		collectionGet = mock(CollectionGet.class);
@@ -74,10 +71,10 @@ public class FilterTest {
 
 	@Test
 	public void test() throws Exception {
-		
+
 		// GIVEN
 		filter = mock(TestFilter.class);
-		
+
 		SimpleModule filterModule = new SimpleModule("filter");
 		filterModule.addFilter(filter);
 		moduleRegistry.addModule(filterModule);
@@ -90,13 +87,12 @@ public class FilterTest {
 		JsonPath jsonPath = pathBuilder.buildPath(path);
 		Map<String, Set<String>> queryParams = new HashMap<>();
 		RepositoryMethodParameterProvider parameterProvider = new NewInstanceRepositoryMethodParameterProvider();
-		RequestBody requestBody = new RequestBody();
-		dispatcher.dispatchRequest(jsonPath, requestType, queryParams, parameterProvider, requestBody );
+		Document requestBody = new Document();
+		dispatcher.dispatchRequest(jsonPath, requestType, queryParams, parameterProvider, requestBody);
 
 		// THEN
 		verify(filter).filter(captor.capture(), any(FilterChain.class));
-		verify(collectionGet, times(1)).handle(any(JsonPath.class), any(QueryAdapter.class),
-				any(RepositoryMethodParameterProvider.class), any(RequestBody.class));
+		verify(collectionGet, times(1)).handle(any(JsonPath.class), any(QueryAdapter.class), any(RepositoryMethodParameterProvider.class), any(Document.class));
 		verify(filter, times(1)).filter(any(FilterRequestContext.class), any(FilterChain.class));
 
 		FilterRequestContext value = captor.getValue();

@@ -195,6 +195,36 @@ public class ClassUtilsTest {
 		// WHEN
 		ClassUtils.newInstance(ClassWithoutDefaultConstructor.class);
 	}
+	
+	@Test
+	public void onFindGetterShouldReturnIntegerMethod() throws Exception {
+		Method method = ClassUtils.findGetter(IntegerClass.class, "id");
+		assertThat(method.getName()).isEqualTo("getId");
+	}
+	
+	@Test
+	public void onFindSetterShouldReturnIntegerMethod() throws Exception {
+		Method method = ClassUtils.findSetter(IntegerClass.class, "id", Integer.class);
+		assertThat(method.getName()).isEqualTo("setId");
+	}
+	
+	@Test
+	public void onFindGetterShouldReturnPrimitiveBooleanMethod() throws Exception {
+		Method method = ClassUtils.findGetter(ParentClass.class, "primitiveBooleanProperty");
+		assertThat(method.getName()).isEqualTo("isPrimitiveBooleanProperty");
+	}
+	
+	@Test
+	public void onFindGetterShouldReturnBooleanMethod() throws Exception {
+		Method method = ClassUtils.findGetter(ParentClass.class, "booleanProperty");
+		assertThat(method.getName()).isEqualTo("isBooleanProperty");
+	}
+	
+	@Test
+	public void onFindGetterShouldNotReturnNonBooleanIsMethods() throws Exception {
+		Method method = ClassUtils.findGetter(InvalidBooleanClass.class, "notABooleanReturnType");
+		assertThat(method).isNull();
+	}
 
 	private abstract class BaseGenericClass<T> {
 
@@ -202,6 +232,13 @@ public class ClassUtilsTest {
 
 		public abstract void setId(T id);
 
+	}
+	
+	private class InvalidBooleanClass {
+
+		public int isNotABooleanReturnType() {
+			return 12;
+		}
 	}
 
 	private class IntegerClass extends BaseGenericClass<Integer> {

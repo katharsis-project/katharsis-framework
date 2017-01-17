@@ -1,5 +1,8 @@
 package io.katharsis.resource.mock.models;
 
+import java.util.Collections;
+import java.util.List;
+
 import io.katharsis.resource.annotations.JsonApiId;
 import io.katharsis.resource.annotations.JsonApiIncludeByDefault;
 import io.katharsis.resource.annotations.JsonApiLinksInformation;
@@ -8,8 +11,6 @@ import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.annotations.JsonApiToMany;
 import io.katharsis.response.LinksInformation;
 import io.katharsis.response.MetaInformation;
-
-import java.util.List;
 
 @JsonApiResource(type = "users")
 public class User {
@@ -21,11 +22,11 @@ public class User {
 
     @JsonApiToMany(lazy = false)
     @JsonApiIncludeByDefault
-    private List<Project> assignedProjects;
+    private List<Project> assignedProjects = Collections.emptyList();
     
     @JsonApiToMany(lazy = false)
     @JsonApiIncludeByDefault
-    private List<Project> assignedTasks;
+    private List<Project> assignedTasks = Collections.emptyList();
 
     @JsonApiMetaInformation
     private MetaInformation metaInformation;

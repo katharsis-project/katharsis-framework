@@ -4,7 +4,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 
-public final class ErrorData {
+public class ErrorData {
 
     /**
      * A unique identifier for this particular occurrence of the problem.
@@ -113,7 +113,7 @@ public final class ErrorData {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public final boolean equals(Object o) {
         if (this == o) {
             return true;
         }
@@ -133,7 +133,7 @@ public final class ErrorData {
     }
 
     @Override
-    public int hashCode() {
+    public final int hashCode() {
         return Objects.hash(id, aboutLink, status, code, title, detail, sourceParameter, sourcePointer, meta);
     }
 

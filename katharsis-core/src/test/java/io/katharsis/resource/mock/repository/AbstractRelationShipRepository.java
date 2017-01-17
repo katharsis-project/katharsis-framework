@@ -1,9 +1,9 @@
 package io.katharsis.resource.mock.repository;
 
-import io.katharsis.resource.mock.repository.util.Relation;
-
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentMap;
+
+import io.katharsis.resource.mock.repository.util.Relation;
 
 
 public abstract class AbstractRelationShipRepository<T> {

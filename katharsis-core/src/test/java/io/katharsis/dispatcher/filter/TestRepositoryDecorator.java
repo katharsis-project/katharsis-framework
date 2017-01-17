@@ -4,9 +4,9 @@ import java.io.Serializable;
 
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.repository.ResourceRepositoryV2;
+import io.katharsis.repository.decorate.RepositoryDecoratorFactoryBase;
 import io.katharsis.repository.decorate.ResourceRepositoryDecorator;
 import io.katharsis.repository.decorate.ResourceRepositoryDecoratorBase;
-import io.katharsis.repository.decorate.RepositoryDecoratorFactoryBase;
 import io.katharsis.resource.mock.models.Schedule;
 import io.katharsis.resource.mock.repository.ScheduleRepository;
 

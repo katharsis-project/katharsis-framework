@@ -1,13 +1,13 @@
 package io.katharsis.resource.mock.repository;
 
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.mock.models.Project;
-
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class ProjectRepository implements ResourceRepository<Project, Long> {
 

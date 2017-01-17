@@ -1,20 +1,21 @@
 package io.katharsis.resource.registry;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.katharsis.module.ModuleRegistry;
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.exception.init.ResourceNotFoundInitializationException;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.utils.java.Optional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 
 public class ResourceRegistry {
-    private final Map<Class, RegistryEntry> resources;
+    protected final Map<Class, RegistryEntry> resources;
     private final ServiceUrlProvider serviceUrlProvider;
     private final Logger logger = LoggerFactory.getLogger(ResourceRegistry.class);
     private ModuleRegistry moduleRegistry;
@@ -171,4 +172,8 @@ public class ResourceRegistry {
     public Map<Class<?>, RegistryEntry<?>> getResources() {
         return (Map) Collections.unmodifiableMap(resources);
     }
+
+	public RegistryEntry<?> getEntryForClass(Class<?> resourceClass) {
+		return resources.get(resourceClass);
+	}
 }

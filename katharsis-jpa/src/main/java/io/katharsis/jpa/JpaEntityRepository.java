@@ -10,14 +10,14 @@ import javax.persistence.EntityManager;
 import io.katharsis.jpa.internal.JpaRepositoryBase;
 import io.katharsis.jpa.internal.JpaRepositoryUtils;
 import io.katharsis.jpa.internal.JpaRequestContext;
-import io.katharsis.jpa.internal.meta.MetaAttribute;
-import io.katharsis.jpa.internal.meta.MetaEntity;
 import io.katharsis.jpa.mapping.JpaMapper;
+import io.katharsis.jpa.meta.MetaEntity;
 import io.katharsis.jpa.query.ComputedAttributeRegistry;
 import io.katharsis.jpa.query.JpaQuery;
 import io.katharsis.jpa.query.JpaQueryExecutor;
 import io.katharsis.jpa.query.JpaQueryFactory;
 import io.katharsis.jpa.query.Tuple;
+import io.katharsis.meta.model.MetaAttribute;
 import io.katharsis.queryspec.FilterOperator;
 import io.katharsis.queryspec.FilterSpec;
 import io.katharsis.queryspec.QuerySpec;
@@ -30,8 +30,7 @@ import io.katharsis.utils.PropertyUtils;
 /**
  * Exposes a JPA entity as ResourceRepository.
  */
-public class JpaEntityRepository<T, I extends Serializable> extends JpaRepositoryBase<T>
-		implements ResourceRepositoryV2<T, I> {
+public class JpaEntityRepository<T, I extends Serializable> extends JpaRepositoryBase<T> implements ResourceRepositoryV2<T, I> {
 
 	private MetaEntity meta;
 
@@ -39,7 +38,7 @@ public class JpaEntityRepository<T, I extends Serializable> extends JpaRepositor
 
 	public JpaEntityRepository(JpaModule module, JpaRepositoryConfig<T> config) {
 		super(module, config);
-		this.meta = module.getMetaLookup().getMeta(config.getEntityClass()).asEntity();
+		this.meta = module.getJpaMetaLookup().getMeta(config.getEntityClass(), MetaEntity.class);
 		this.primaryKeyAttr = JpaRepositoryUtils.getPrimaryKeyAttr(meta);
 	}
 
@@ -60,7 +59,6 @@ public class JpaEntityRepository<T, I extends Serializable> extends JpaRepositor
 
 	@Override
 	public ResourceList<T> findAll(QuerySpec querySpec) {
-		resetEntityManager();
 		Class<?> entityClass = repositoryConfig.getEntityClass();
 		QuerySpec filteredQuerySpec = filterQuerySpec(querySpec);
 		JpaQueryFactory queryFactory = module.getQueryFactory();
@@ -75,7 +73,6 @@ public class JpaEntityRepository<T, I extends Serializable> extends JpaRepositor
 		JpaQueryExecutor<?> executor = query.buildExecutor();
 		JpaRepositoryUtils.prepareExecutor(executor, filteredQuerySpec, fetchRelations(null));
 		executor = filterExecutor(filteredQuerySpec, executor);
-		resetEntityManager();
 
 		List<Tuple> tuples = executor.getResultTuples();
 		tuples = filterTuples(filteredQuerySpec, tuples);
@@ -89,28 +86,34 @@ public class JpaEntityRepository<T, I extends Serializable> extends JpaRepositor
 				((PagedMetaInformation) metaInfo).setTotalResourceCount(totalRowCount);
 			}
 		}
-		
+
 		return resources;
 	}
-	
+
 	@Override
 	public <S extends T> S create(S resource) {
-		return save(resource);
+		return saveInternal(resource);
+	}
+
+	@Override
+	public <S extends T> S save(S resource) {
+		return saveInternal(resource);
 	}
 
 	@SuppressWarnings("unchecked")
-	@Override
-	public <S extends T> S save(S resource) {
+	private <S extends T> S saveInternal(S resource) {
+		I id = (I) PropertyUtils.getProperty(resource, primaryKeyAttr.getName());
+
 		JpaMapper<Object, T> mapper = repositoryConfig.getMapper();
 		Object entity = mapper.unmap(resource);
 
+		// PATCH reads, updates and saves entities, needs reattachment during
+		// save since reads do a detach
 		EntityManager em = module.getEntityManager();
 		em.persist(entity);
-		em.flush();
 
 		// fetch again since we may have to fetch tuple data and do DTO mapping
 		QuerySpec querySpec = new QuerySpec(repositoryConfig.getResourceClass());
-		I id = (I) PropertyUtils.getProperty(resource, primaryKeyAttr.getName());
 		if (id == null) {
 			throw new IllegalStateException("id not available for entity " + id);
 		}

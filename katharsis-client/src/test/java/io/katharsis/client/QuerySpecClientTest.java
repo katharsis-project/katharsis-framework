@@ -23,6 +23,7 @@ import io.katharsis.client.mock.repository.ScheduleRepository.ScheduleListMeta;
 import io.katharsis.queryspec.Direction;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.SortSpec;
+import io.katharsis.resource.exception.ResourceNotFoundException;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient.Builder;
 import okhttp3.Request;
@@ -73,7 +74,7 @@ public class QuerySpecClientTest extends AbstractClientTest {
 		Schedule schedule = new Schedule();
 		schedule.setId(13L);
 		schedule.setName("mySchedule");
-		scheduleRepository.save(schedule);
+		scheduleRepository.create(schedule);
 
 		QuerySpec querySpec = new QuerySpec(Schedule.class);
 		ScheduleList list = scheduleRepository.findAll(querySpec);
@@ -143,15 +144,9 @@ public class QuerySpecClientTest extends AbstractClientTest {
 		Assert.assertTrue(tasks.isEmpty());
 	}
 
-	@Test
+	@Test(expected=ResourceNotFoundException.class)
 	public void testFindNull() {
-		try {
-			taskRepo.findOne(1L, new QuerySpec(Task.class));
-			Assert.fail();
-		}
-		catch (ClientException e) {
-			Assert.assertEquals("Not Found", e.getMessage());
-		}
+		taskRepo.findOne(1L, new QuerySpec(Task.class));
 	}
 
 	@Test
@@ -246,8 +241,7 @@ public class QuerySpecClientTest extends AbstractClientTest {
 			if (pushAlways) {
 				Assert.assertEquals("POST", methods.get(2));
 				Assert.assertEquals("/tasks/", paths.get(2));
-			}
-			else {
+			} else {
 				Assert.assertEquals("PATCH", methods.get(2));
 				Assert.assertEquals("/tasks/1/", paths.get(2));
 			}
@@ -369,7 +363,8 @@ public class QuerySpecClientTest extends AbstractClientTest {
 		savedSchedule.setLazyTask(task);
 		scheduleRepo.save(savedSchedule);
 
-		// still not null because cannot differantiate between not loaded and nulled
+		// still not null because cannot differantiate between not loaded and
+		// nulled
 		Schedule updatedSchedule = scheduleRepo.findOne(schedule.getId(), querySpec);
 		Assert.assertNotNull(updatedSchedule.getLazyTask());
 	}

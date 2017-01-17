@@ -9,7 +9,7 @@ public interface ClientProxyFactory {
 
 	public void init(ClientProxyFactoryContext context);
 
-	<T> T createResourceProxy(Class<T> clazz, Object id, String url);
+	<T> T createResourceProxy(Class<T> clazz, Object id);
 
 	<C extends Collection<T>, T> C createCollectionProxy(Class<T> resourceClass, Class<C> collectionClass, String url);
 }

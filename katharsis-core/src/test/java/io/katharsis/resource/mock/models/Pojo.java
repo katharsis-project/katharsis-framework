@@ -1,11 +1,12 @@
 package io.katharsis.resource.mock.models;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.annotations.JsonApiToMany;
 import io.katharsis.resource.annotations.JsonApiToOne;
-
-import java.util.List;
 
 @JsonApiResource(type = "pojo")
 public class Pojo extends Thing {

@@ -1,337 +1,307 @@
 package io.katharsis.dispatcher.controller.resource;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.katharsis.dispatcher.controller.BaseControllerTest;
-import io.katharsis.dispatcher.controller.HttpMethod;
-import io.katharsis.queryParams.QueryParams;
-import io.katharsis.queryspec.QuerySpec;
-import io.katharsis.queryspec.internal.QueryParamsAdapter;
-import io.katharsis.request.dto.DataBody;
-import io.katharsis.request.dto.LinkageData;
-import io.katharsis.request.dto.RequestBody;
-import io.katharsis.request.dto.ResourceRelationships;
-import io.katharsis.request.path.JsonPath;
-import io.katharsis.request.path.ResourcePath;
-import io.katharsis.resource.annotations.JsonApiResource;
-import io.katharsis.resource.mock.models.Project;
-import io.katharsis.resource.mock.models.ProjectPolymorphic;
-import io.katharsis.resource.mock.models.Task;
-import io.katharsis.resource.mock.models.User;
-import io.katharsis.resource.mock.repository.TaskToProjectRepository;
-import io.katharsis.resource.mock.repository.UserToProjectRepository;
-import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.response.BaseResponseContext;
-import io.katharsis.response.HttpStatus;
-import io.katharsis.response.ResourceResponseContext;
-import io.katharsis.utils.ClassUtils;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+
+import org.junit.Before;
+import org.junit.Test;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.katharsis.dispatcher.controller.BaseControllerTest;
+import io.katharsis.dispatcher.controller.HttpMethod;
+import io.katharsis.dispatcher.controller.Response;
+import io.katharsis.queryParams.QueryParams;
+import io.katharsis.queryspec.QuerySpec;
+import io.katharsis.queryspec.internal.QueryParamsAdapter;
+import io.katharsis.request.path.JsonPath;
+import io.katharsis.request.path.ResourcePath;
+import io.katharsis.resource.Document;
+import io.katharsis.resource.Relationship;
+import io.katharsis.resource.Resource;
+import io.katharsis.resource.ResourceIdentifier;
+import io.katharsis.resource.annotations.JsonApiResource;
+import io.katharsis.resource.mock.models.Project;
+import io.katharsis.resource.mock.models.ProjectPolymorphic;
+import io.katharsis.resource.mock.models.Task;
+import io.katharsis.resource.mock.repository.ProjectPolymorphicRepository;
+import io.katharsis.resource.mock.repository.TaskToProjectRepository;
+import io.katharsis.resource.mock.repository.UserToProjectRepository;
+import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.response.HttpStatus;
+import io.katharsis.utils.ClassUtils;
+import io.katharsis.utils.java.Nullable;
+
 public class RelationshipsResourcePatchTest extends BaseControllerTest {
 
-    private static final String REQUEST_TYPE = HttpMethod.PATCH.name();
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    private static final QueryParams REQUEST_PARAMS = new QueryParams();
+	private static final String REQUEST_TYPE = HttpMethod.PATCH.name();
 
-    private UserToProjectRepository localUserToProjectRepository;
+	private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-    @Before
-    public void beforeTest() throws Exception {
-        localUserToProjectRepository = new UserToProjectRepository();
-        localUserToProjectRepository.removeRelations("project");
-        localUserToProjectRepository.removeRelations("assignedProjects");
-    }
+	private static final QueryParams REQUEST_PARAMS = new QueryParams();
 
-    @Test
-    public void onValidRequestShouldAcceptIt() {
-        // GIVEN
-        JsonPath jsonPath = pathBuilder.buildPath("tasks/1/relationships/project");
-        ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-        RelationshipsResourcePatch sut = new RelationshipsResourcePatch(resourceRegistry, typeParser);
+	private UserToProjectRepository localUserToProjectRepository;
 
-        // WHEN
-        boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
+	@Before
+	public void beforeTest() throws Exception {
+		localUserToProjectRepository = new UserToProjectRepository();
+		localUserToProjectRepository.removeRelations("project");
+		localUserToProjectRepository.removeRelations("assignedProjects");
+	}
 
-        // THEN
-        assertThat(result).isTrue();
-    }
+	@Test
+	public void onValidRequestShouldAcceptIt() {
+		// GIVEN
+		JsonPath jsonPath = pathBuilder.build("tasks/1/relationships/project");
+		ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
+		RelationshipsResourcePatch sut = new RelationshipsResourcePatch(resourceRegistry, typeParser);
 
-    @Test
-    public void onNonRelationRequestShouldDenyIt() {
-        // GIVEN
-        JsonPath jsonPath = new ResourcePath("tasks");
-        ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-        RelationshipsResourcePatch sut = new RelationshipsResourcePatch(resourceRegistry, typeParser);
+		// WHEN
+		boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
 
-        // WHEN
-        boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
+		// THEN
+		assertThat(result).isTrue();
+	}
 
-        // THEN
-        assertThat(result).isFalse();
-    }
+	@Test
+	public void onNonRelationRequestShouldDenyIt() {
+		// GIVEN
+		JsonPath jsonPath = new ResourcePath("tasks");
+		ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
+		RelationshipsResourcePatch sut = new RelationshipsResourcePatch(resourceRegistry, typeParser);
 
-    @Test
-    public void onExistingResourcesShouldAddToOneRelationship() throws Exception {
-        // GIVEN
-        RequestBody newTaskBody = new RequestBody();
-        DataBody data = new DataBody();
-        newTaskBody.setData(data);
-        data.setType("tasks");
-        data.setAttributes(OBJECT_MAPPER.createObjectNode().put("name", "sample task"));
-        data.setRelationships(new ResourceRelationships());
+		// WHEN
+		boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
 
-        JsonPath taskPath = pathBuilder.buildPath("/tasks");
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
+		// THEN
+		assertThat(result).isFalse();
+	}
 
-        // WHEN -- adding a task
-        BaseResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newTaskBody);
+	@Test
+	public void onExistingResourcesShouldAddToOneRelationship() throws Exception {
+		// GIVEN
+		Document newTaskBody = new Document();
+		Resource data = createTask();
+		newTaskBody.setData(Nullable.of((Object) data));
+		data.setType("tasks");
 
-        // THEN
-        assertThat(taskResponse.getResponse().getEntity()).isExactlyInstanceOf(Task.class);
-        Long taskId = ((Task) (taskResponse.getResponse().getEntity())).getId();
-        assertThat(taskId).isNotNull();
+		JsonPath taskPath = pathBuilder.build("/tasks");
+		ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER, documentMapper);
 
-        /* ------- */
+		// WHEN -- adding a task
+		Response taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newTaskBody);
 
-        // GIVEN
-        RequestBody newProjectBody = new RequestBody();
-        data = new DataBody();
-        newProjectBody.setData(data);
-        data.setType("projects");
-        data.setAttributes(OBJECT_MAPPER.createObjectNode().put("name", "sample project"));
+		// THEN
+		assertThat(taskResponse.getDocument().getSingleData().get().getType()).isEqualTo("tasks");
+		Long taskId = Long.parseLong(taskResponse.getDocument().getSingleData().get().getId());
+		assertThat(taskId).isNotNull();
 
-        JsonPath projectPath = pathBuilder.buildPath("/projects");
+		/* ------- */
 
-        // WHEN -- adding a project
-        ResourceResponseContext projectResponse = resourcePost.handle(projectPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newProjectBody);
+		// GIVEN
+		Document newProjectBody = new Document();
+		data = createProject();
+		newProjectBody.setData(Nullable.of((Object) data));
 
-        // THEN
-        assertThat(projectResponse.getResponse().getEntity()).isExactlyInstanceOf(Project.class);
-        assertThat(((Project) (projectResponse.getResponse().getEntity())).getId()).isNotNull();
-        assertThat(((Project) (projectResponse.getResponse().getEntity())).getName()).isEqualTo("sample project");
-        Long projectId = ((Project) (projectResponse.getResponse().getEntity())).getId();
-        assertThat(projectId).isNotNull();
+		JsonPath projectPath = pathBuilder.build("/projects");
 
-        /* ------- */
+		// WHEN -- adding a project
+		Response projectResponse = resourcePost.handle(projectPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newProjectBody);
 
-        // GIVEN
-        RequestBody newTaskToProjectBody = new RequestBody();
-        data = new DataBody();
-        newTaskToProjectBody.setData(data);
-        data.setType("projects");
-        data.setId(projectId.toString());
+		// THEN
+		assertThat(projectResponse.getDocument().getSingleData().get().getType()).isEqualTo("projects");
+		assertThat(projectResponse.getDocument().getSingleData().get().getId()).isNotNull();
+		assertThat(projectResponse.getDocument().getSingleData().get().getAttributes().get("name").asText()).isEqualTo("sample project");
+		Long projectId = Long.parseLong(projectResponse.getDocument().getSingleData().get().getId());
+		assertThat(projectId).isNotNull();
 
-        JsonPath savedTaskPath = pathBuilder.buildPath("/tasks/" + taskId + "/relationships/project");
-        RelationshipsResourcePatch sut = new RelationshipsResourcePatch(resourceRegistry, typeParser);
+		/* ------- */
 
-        // WHEN -- adding a relation between task and project
-        BaseResponseContext projectRelationshipResponse = sut.handle(savedTaskPath, new QueryParamsAdapter(new QueryParams()), null, newTaskToProjectBody);
-        assertThat(projectRelationshipResponse).isNotNull();
+		// GIVEN
+		Document newTaskToProjectBody = new Document();
+		data = new Resource();
+		newTaskToProjectBody.setData(Nullable.of((Object) data));
+		data.setType("projects");
+		data.setId(projectId.toString());
 
-        // THEN
-        TaskToProjectRepository taskToProjectRepository = new TaskToProjectRepository();
-        Project project = taskToProjectRepository.findOneTarget(taskId, "project", REQUEST_PARAMS);
-        assertThat(project.getId()).isEqualTo(projectId);
-    }
+		JsonPath savedTaskPath = pathBuilder.build("/tasks/" + taskId + "/relationships/project");
+		RelationshipsResourcePatch sut = new RelationshipsResourcePatch(resourceRegistry, typeParser);
 
-    @Test
-    public void onExistingResourcesShouldAddToManyRelationship() throws Exception {
-        // GIVEN
-        RequestBody newUserBody = new RequestBody();
-        DataBody data = new DataBody();
-        newUserBody.setData(data);
-        data.setType("users");
-        data.setAttributes(OBJECT_MAPPER.createObjectNode().put("name", "sample user"));
-        data.setRelationships(new ResourceRelationships());
+		// WHEN -- adding a relation between task and project
+		Response projectRelationshipResponse = sut.handle(savedTaskPath, new QueryParamsAdapter(new QueryParams()), null, newTaskToProjectBody);
+		assertThat(projectRelationshipResponse).isNotNull();
 
-        JsonPath taskPath = pathBuilder.buildPath("/users");
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
+		// THEN
+		TaskToProjectRepository taskToProjectRepository = new TaskToProjectRepository();
+		Project project = taskToProjectRepository.findOneTarget(taskId, "project", REQUEST_PARAMS);
+		assertThat(project.getId()).isEqualTo(projectId);
+	}
 
-        // WHEN -- adding a user
-        BaseResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newUserBody);
+	@Test
+	public void onExistingResourcesShouldAddToManyRelationship() throws Exception {
+		// GIVEN
+		Document newUserBody = new Document();
+		Resource data = createUser();
+		newUserBody.setData(Nullable.of((Object) data));
 
-        // THEN
-        assertThat(taskResponse.getResponse().getEntity()).isExactlyInstanceOf(User.class);
-        Long userId = ((User) (taskResponse.getResponse().getEntity())).getId();
-        assertThat(userId).isNotNull();
+		JsonPath taskPath = pathBuilder.build("/users");
+		ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER, documentMapper);
 
-        /* ------- */
+		// WHEN -- adding a user
+		Response taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newUserBody);
 
-        // GIVEN
-        RequestBody newProjectBody = new RequestBody();
-        data = new DataBody();
-        newProjectBody.setData(data);
-        data.setType("projects");
-        data.setAttributes(OBJECT_MAPPER.createObjectNode().put("name", "sample project"));
+		// THEN
+		assertThat(taskResponse.getDocument().getSingleData().get().getType()).isEqualTo("users");
+		Long userId = Long.parseLong(taskResponse.getDocument().getSingleData().get().getId());
+		assertThat(userId).isNotNull();
 
-        JsonPath projectPath = pathBuilder.buildPath("/projects");
+		/* ------- */
 
-        // WHEN -- adding a project
-        ResourceResponseContext projectResponse = resourcePost.handle(projectPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newProjectBody);
+		// GIVEN
+		Document newProjectBody = new Document();
+		data = createProject();
+		newProjectBody.setData(Nullable.of((Object) data));
 
-        // THEN
-        assertThat(projectResponse.getResponse().getEntity()).isExactlyInstanceOf(Project.class);
-        assertThat(((Project) (projectResponse.getResponse().getEntity())).getId()).isNotNull();
-        assertThat(((Project) (projectResponse.getResponse().getEntity())).getName()).isEqualTo("sample project");
-        Long projectId = ((Project) (projectResponse.getResponse().getEntity())).getId();
-        assertThat(projectId).isNotNull();
+		JsonPath projectPath = pathBuilder.build("/projects");
 
-        /* ------- */
+		// WHEN -- adding a project
+		Response projectResponse = resourcePost.handle(projectPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newProjectBody);
 
-        // GIVEN
-        RequestBody newTaskToProjectBody = new RequestBody();
-        data = new DataBody();
-        newTaskToProjectBody.setData(Collections.singletonList(data));
-        data.setType("projects");
-        data.setId(projectId.toString());
+		// THEN
+		assertThat(projectResponse.getDocument().getSingleData().get().getType()).isEqualTo("projects");
+		assertThat(projectResponse.getDocument().getSingleData().get().getId()).isNotNull();
+		assertThat(projectResponse.getDocument().getSingleData().get().getAttributes().get("name").asText()).isEqualTo("sample project");
+		Long projectId = Long.parseLong(projectResponse.getDocument().getSingleData().get().getId());
+		assertThat(projectId).isNotNull();
 
-        JsonPath savedTaskPath = pathBuilder.buildPath("/users/" + userId + "/relationships/assignedProjects");
-        RelationshipsResourcePatch sut = new RelationshipsResourcePatch(resourceRegistry, typeParser);
+		/* ------- */
 
-        // WHEN -- adding a relation between user and project
-        BaseResponseContext projectRelationshipResponse = sut.handle(savedTaskPath, new QueryParamsAdapter(new QueryParams()), null, newTaskToProjectBody);
-        assertThat(projectRelationshipResponse).isNotNull();
+		// GIVEN
+		Document newTaskToProjectBody = new Document();
+		data = createProject();
+		data.setId(projectId.toString());
+		newTaskToProjectBody.setData(Nullable.of((Object) Collections.singletonList(data)));
 
-        // THEN
-        UserToProjectRepository userToProjectRepository = new UserToProjectRepository();
-        Project project = userToProjectRepository.findOneTarget(userId, "assignedProjects", new QuerySpec(Project.class));
-        assertThat(project.getId()).isEqualTo(projectId);
-    }
+		JsonPath savedTaskPath = pathBuilder.build("/users/" + userId + "/relationships/assignedProjects");
+		RelationshipsResourcePatch sut = new RelationshipsResourcePatch(resourceRegistry, typeParser);
 
-    @Test
-    public void onDeletingToOneRelationshipShouldSetTheValue() throws Exception {
-        // GIVEN
-        RequestBody newTaskBody = new RequestBody();
-        DataBody data = new DataBody();
-        newTaskBody.setData(data);
-        data.setType("tasks");
-        data.setAttributes(OBJECT_MAPPER.createObjectNode().put("name", "sample task"));
-        data.setRelationships(new ResourceRelationships());
+		// WHEN -- adding a relation between user and project
+		Response projectRelationshipResponse = sut.handle(savedTaskPath, new QueryParamsAdapter(new QueryParams()), null, newTaskToProjectBody);
+		assertThat(projectRelationshipResponse).isNotNull();
 
-        JsonPath taskPath = pathBuilder.buildPath("/tasks");
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER);
+		// THEN
+		UserToProjectRepository userToProjectRepository = new UserToProjectRepository();
+		Project project = userToProjectRepository.findOneTarget(userId, "assignedProjects", new QuerySpec(Project.class));
+		assertThat(project.getId()).isEqualTo(projectId);
+	}
 
-        // WHEN -- adding a task
-        BaseResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newTaskBody);
+	@Test
+	public void onDeletingToOneRelationshipShouldSetTheValue() throws Exception {
+		// GIVEN
+		Document newTaskBody = new Document();
+		Resource data = createTask();
+		newTaskBody.setData(Nullable.of((Object) data));
 
-        // THEN
-        assertThat(taskResponse.getResponse().getEntity()).isExactlyInstanceOf(Task.class);
-        Long taskId = ((Task) (taskResponse.getResponse().getEntity())).getId();
-        assertThat(taskId).isNotNull();
+		JsonPath taskPath = pathBuilder.build("/tasks");
+		ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER, documentMapper);
 
-        /* ------- */
+		// WHEN -- adding a task
+		Response taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newTaskBody);
 
-        // GIVEN
-        RequestBody newTaskToProjectBody = new RequestBody();
-        newTaskToProjectBody.setData(null);
+		// THEN
+		assertThat(taskResponse.getDocument().getSingleData().get().getType()).isEqualTo("tasks");
+		Long taskId = Long.parseLong(taskResponse.getDocument().getSingleData().get().getId());
+		assertThat(taskId).isNotNull();
 
-        JsonPath savedTaskPath = pathBuilder.buildPath("/tasks/" + taskId + "/relationships/project");
-        RelationshipsResourcePatch sut = new RelationshipsResourcePatch(resourceRegistry, typeParser);
+		/* ------- */
 
-        // WHEN -- adding a relation between user and project
-        BaseResponseContext projectRelationshipResponse = sut.handle(savedTaskPath, new QueryParamsAdapter(new QueryParams()), null,
-                newTaskToProjectBody);
-        assertThat(projectRelationshipResponse).isNotNull();
+		// GIVEN
+		Document newTaskToProjectBody = new Document();
+		newTaskToProjectBody.setData(Nullable.nullValue());
 
-        // THEN
-        assertThat(projectRelationshipResponse.getHttpStatus()).isEqualTo(HttpStatus.NO_CONTENT_204);
-        Project project = localUserToProjectRepository.findOneTarget(1L, "project", new QuerySpec(Project.class));
-        assertThat(project).isNull();
-    }
+		JsonPath savedTaskPath = pathBuilder.build("/tasks/" + taskId + "/relationships/project");
+		RelationshipsResourcePatch sut = new RelationshipsResourcePatch(resourceRegistry, typeParser);
 
-    @Test
-    public void supportPolymorphicRelationshipTypes() {
+		// WHEN -- adding a relation between user and project
+		Response projectRelationshipResponse = sut.handle(savedTaskPath, new QueryParamsAdapter(new QueryParams()), null, newTaskToProjectBody);
+		assertThat(projectRelationshipResponse).isNotNull();
 
-        // GIVEN
-        RequestBody newTaskBody = new RequestBody();
-        DataBody data = new DataBody();
-        data.setType(ClassUtils.getAnnotation(Task.class, JsonApiResource.class).get().type());
-        data.setAttributes(objectMapper.createObjectNode());
-        newTaskBody.setData(data);
+		// THEN
+		assertThat(projectRelationshipResponse.getHttpStatus()).isEqualTo(HttpStatus.NO_CONTENT_204);
+		Project project = localUserToProjectRepository.findOneTarget(1L, "project", new QuerySpec(Project.class));
+		assertThat(project).isNull();
+	}
 
-        JsonPath taskPath = pathBuilder.buildPath("/tasks");
+	@Test
+	public void supportPolymorphicRelationshipTypes() {
 
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper);
-        ResourceResponseContext taskResponse = resourcePost.handle(taskPath,
-                new QueryParamsAdapter(REQUEST_PARAMS),
-                null,
-                newTaskBody);
-        assertThat(taskResponse.getResponse().getEntity()).isExactlyInstanceOf(Task.class);
-        Long taskIdOne = ((Task) (taskResponse.getResponse().getEntity())).getId();
-        assertThat(taskIdOne).isNotNull();
-        taskResponse = resourcePost.handle(taskPath,
-                new QueryParamsAdapter(REQUEST_PARAMS),
-                null,
-                newTaskBody);
-        Long taskIdTwo = ((Task) (taskResponse.getResponse().getEntity())).getId();
-        assertThat(taskIdOne).isNotNull();
-        taskResponse = resourcePost.handle(taskPath,
-                new QueryParamsAdapter(REQUEST_PARAMS),
-                null,
-                newTaskBody);
-        Long taskIdThree = ((Task) (taskResponse.getResponse().getEntity())).getId();
-        assertThat(taskIdOne).isNotNull();
-        newTaskBody = new RequestBody();
+		// GIVEN
+		Document newTaskBody = new Document();
+		Resource data = new Resource();
+		data.setType(ClassUtils.getAnnotation(Task.class, JsonApiResource.class).get().type());
+		newTaskBody.setData(Nullable.of((Object) data));
 
-        // Create ProjectPolymorphic object
-        RequestBody newProjectBody = new RequestBody();
-        data = new DataBody();
-        String type = ClassUtils.getAnnotation(ProjectPolymorphic.class, JsonApiResource.class).get().type();
-        data.setType(type);
-        data.setAttributes(objectMapper.createObjectNode());
-        ResourceRelationships resourceRelationships = new ResourceRelationships();
-        resourceRelationships.setAdditionalProperty("task", new LinkageData("tasks", taskIdOne.toString()));
-        List<LinkageData> linkageDataList = new ArrayList<>();
-        linkageDataList.add(new LinkageData("tasks", taskIdTwo.toString()));
-        linkageDataList.add(new LinkageData("tasks", taskIdThree.toString()));
-        resourceRelationships.setAdditionalProperty("tasks", linkageDataList);
-        data.setRelationships(resourceRelationships);
-        newProjectBody.setData(data);
-        JsonPath projectPolymorphicTypePath = pathBuilder.buildPath("/" + type);
+		JsonPath taskPath = pathBuilder.build("/tasks");
 
+		ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper, documentMapper);
+		Response taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newTaskBody);
+		assertThat(taskResponse.getDocument().getSingleData().get().getType()).isEqualTo("tasks");
+		Long taskIdOne = Long.parseLong(taskResponse.getDocument().getSingleData().get().getId());
+		assertThat(taskIdOne).isNotNull();
+		taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newTaskBody);
+		Long taskIdTwo = Long.parseLong(taskResponse.getDocument().getSingleData().get().getId());
+		assertThat(taskIdOne).isNotNull();
+		taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newTaskBody);
+		Long taskIdThree = Long.parseLong(taskResponse.getDocument().getSingleData().get().getId());
+		assertThat(taskIdOne).isNotNull();
+		newTaskBody = new Document();
 
-        ResourceResponseContext projectResponse = resourcePost.handle(projectPolymorphicTypePath,
-                new QueryParamsAdapter(REQUEST_PARAMS),
-                null,
-                newProjectBody);
+		// Create ProjectPolymorphic object
+		Document newProjectBody = new Document();
+		data = new Resource();
+		String type = ClassUtils.getAnnotation(ProjectPolymorphic.class, JsonApiResource.class).get().type();
+		data.setType(type);
+		data.getRelationships().put("task", new Relationship(new ResourceIdentifier(taskIdOne.toString(), "tasks")));
+		data.getRelationships().put("tasks", new Relationship(Arrays.asList(new ResourceIdentifier(taskIdTwo.toString(), "tasks"), new ResourceIdentifier(taskIdThree.toString(), "tasks"))));
+		newProjectBody.setData(Nullable.of((Object) data));
+		JsonPath projectPolymorphicTypePath = pathBuilder.build("/" + type);
 
-        assertThat(projectResponse.getResponse().getEntity()).isExactlyInstanceOf(ProjectPolymorphic.class);
-        Long projectId = ((ProjectPolymorphic) (projectResponse.getResponse().getEntity())).getId();
-        assertThat(projectId).isNotNull();
-        ProjectPolymorphic projectPolymorphic = (ProjectPolymorphic) projectResponse.getResponse()
-                .getEntity();
-        assertNotNull(projectPolymorphic.getTask());
-        assertNotNull(projectPolymorphic.getTasks());
-        assertEquals(2, projectPolymorphic.getTasks().size());
+		Response projectResponse = resourcePost.handle(projectPolymorphicTypePath, new QueryParamsAdapter(REQUEST_PARAMS), null, newProjectBody);
 
-        projectPolymorphicTypePath = pathBuilder.buildPath("/" + type + "/" + projectPolymorphic.getId());
-        ResourcePatch resourcePatch = new ResourcePatch(resourceRegistry, typeParser, objectMapper);
-        data = (DataBody) newProjectBody.getData();
-        data.setId(projectId.toString());
-        projectPolymorphic.setId(projectId);
-        ((List) resourceRelationships.getAdditionalProperties().get("tasks")).clear();
+		assertThat(projectResponse.getDocument().getSingleData().get().getType()).isEqualTo("projects-polymorphic");
+		Long projectId = Long.parseLong(projectResponse.getDocument().getSingleData().get().getId());
+		assertThat(projectId).isNotNull();
+		Resource projectPolymorphic = projectResponse.getDocument().getSingleData().get();
+		assertNotNull(projectPolymorphic.getRelationships().get("task").getSingleData().get());
+		assertNotNull(projectPolymorphic.getRelationships().get("tasks"));
 
-        // WHEN
-        BaseResponseContext baseResponseContext = resourcePatch.handle(projectPolymorphicTypePath,
-                new QueryParamsAdapter(REQUEST_PARAMS),
-                null,
-                newProjectBody);
-        assertThat(baseResponseContext.getResponse().getEntity()).isExactlyInstanceOf(ProjectPolymorphic.class);
-        projectId = ((ProjectPolymorphic) (baseResponseContext.getResponse().getEntity())).getId();
-        assertThat(projectId).isNotNull();
-        projectPolymorphic = (ProjectPolymorphic) baseResponseContext.getResponse()
-                .getEntity();
-        assertNotNull(projectPolymorphic.getTask());
-        assertNotNull(projectPolymorphic.getTasks());
-        assertEquals(0, projectPolymorphic.getTasks().size());
-    }
+		ProjectPolymorphicRepository resourceRepository = (ProjectPolymorphicRepository) resourceRegistry.getEntry(ProjectPolymorphic.class).getResourceRepository(null).getResourceRepository();
+		ProjectPolymorphic projectPolymorphicObj = resourceRepository.findOne(projectId, null);
+		assertEquals(2, projectPolymorphicObj.getTasks().size());
+
+		projectPolymorphicTypePath = pathBuilder.build("/" + type + "/" + projectPolymorphic.getId());
+		ResourcePatch resourcePatch = new ResourcePatch(resourceRegistry, typeParser, objectMapper, documentMapper);
+		data = newProjectBody.getSingleData().get();
+		data.setId(projectId.toString());
+		projectPolymorphic.setId(Long.toString(projectId));
+		data.getRelationships().get("tasks").setData(Nullable.of((Object) new ArrayList<ResourceIdentifier>()));
+
+		// WHEN
+		Response baseResponseContext = resourcePatch.handle(projectPolymorphicTypePath, new QueryParamsAdapter(REQUEST_PARAMS), null, newProjectBody);
+		assertThat(baseResponseContext.getDocument().getSingleData().get().getType()).isEqualTo("projects-polymorphic");
+		projectId = Long.parseLong(baseResponseContext.getDocument().getSingleData().get().getId());
+		assertThat(projectId).isNotNull();
+		projectPolymorphic = baseResponseContext.getDocument().getSingleData().get();
+		assertNotNull(projectPolymorphic.getRelationships().get("task").getSingleData().get());
+		assertNotNull(projectPolymorphic.getRelationships().get("tasks"));
+
+		projectPolymorphicObj = resourceRepository.findOne(projectId, null);
+		assertEquals(0, projectPolymorphicObj.getTasks().size());
+	}
 }

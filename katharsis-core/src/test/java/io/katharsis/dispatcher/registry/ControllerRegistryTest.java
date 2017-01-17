@@ -1,5 +1,12 @@
 package io.katharsis.dispatcher.registry;
 
+import static io.katharsis.resource.registry.ResourceRegistryTest.TEST_MODELS_URL;
+
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+
 import io.katharsis.locator.SampleJsonServiceLocator;
 import io.katharsis.module.ModuleRegistry;
 import io.katharsis.request.path.JsonPath;
@@ -11,12 +18,6 @@ import io.katharsis.resource.registry.ConstantServiceUrlProvider;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryBuilder;
 import io.katharsis.resource.registry.ResourceRegistryBuilderTest;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-
-import static io.katharsis.resource.registry.ResourceRegistryTest.TEST_MODELS_URL;
 
 public class ControllerRegistryTest {
 

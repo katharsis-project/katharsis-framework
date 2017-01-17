@@ -1,6 +1,17 @@
 package io.katharsis.dispatcher.controller.collection;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import org.junit.Assert;
+import org.junit.Test;
+
 import io.katharsis.dispatcher.controller.BaseControllerTest;
+import io.katharsis.dispatcher.controller.Response;
 import io.katharsis.dispatcher.controller.resource.RelationshipsResourcePost;
 import io.katharsis.dispatcher.controller.resource.ResourceGet;
 import io.katharsis.dispatcher.controller.resource.ResourcePost;
@@ -8,267 +19,246 @@ import io.katharsis.queryParams.DefaultQueryParamsParser;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.queryspec.internal.QueryParamsAdapter;
-import io.katharsis.request.dto.DataBody;
-import io.katharsis.request.dto.RequestBody;
-import io.katharsis.request.dto.ResourceRelationships;
 import io.katharsis.request.path.JsonPath;
+import io.katharsis.resource.Document;
+import io.katharsis.resource.Relationship;
+import io.katharsis.resource.Resource;
 import io.katharsis.resource.RestrictedQueryParamsMembers;
 import io.katharsis.resource.mock.models.Project;
-import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.repository.TaskToProjectRepository;
-import io.katharsis.response.BaseResponseContext;
-import io.katharsis.response.ResourceResponseContext;
-import org.junit.Assert;
-import org.junit.Test;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import io.katharsis.utils.java.Nullable;
 
 public class CollectionGetTest extends BaseControllerTest {
 
-    private static final String REQUEST_TYPE = "GET";
+	private static final String REQUEST_TYPE = "GET";
 
+	@Test
+	public void onGivenRequestCollectionGetShouldAcceptIt() {
+		// GIVEN
+		JsonPath jsonPath = pathBuilder.build("/tasks/");
+		CollectionGet sut = new CollectionGet(resourceRegistry, objectMapper, typeParser, documentMapper);
 
-    @Test
-    public void onGivenRequestCollectionGetShouldAcceptIt() {
-        // GIVEN
-        JsonPath jsonPath = pathBuilder.buildPath("/tasks/");
-        CollectionGet sut = new CollectionGet(resourceRegistry, typeParser, includeFieldSetter);
+		// WHEN
+		boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
 
-        // WHEN
-        boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
+		// THEN
+		Assert.assertEquals(result, true);
+	}
 
-        // THEN
-        Assert.assertEquals(result, true);
-    }
+	@Test
+	public void onGivenRequestCollectionGetShouldDenyIt() {
+		// GIVEN
+		JsonPath jsonPath = pathBuilder.build("/tasks/2");
+		CollectionGet sut = new CollectionGet(resourceRegistry, objectMapper, typeParser, documentMapper);
 
-    @Test
-    public void onGivenRequestCollectionGetShouldDenyIt() {
-        // GIVEN
-        JsonPath jsonPath = pathBuilder.buildPath("/tasks/2");
-        CollectionGet sut = new CollectionGet(resourceRegistry, typeParser, includeFieldSetter);
+		// WHEN
+		boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
 
-        // WHEN
-        boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
+		// THEN
+		Assert.assertEquals(result, false);
+	}
 
-        // THEN
-        Assert.assertEquals(result, false);
-    }
+	@Test
+	public void onGivenRequestCollectionGetShouldHandleIt() {
+		// GIVEN
 
-    @Test
-    public void onGivenRequestCollectionGetShouldHandleIt() {
-        // GIVEN
+		JsonPath jsonPath = pathBuilder.build("/tasks/");
+		CollectionGet sut = new CollectionGet(resourceRegistry, objectMapper, typeParser, documentMapper);
 
-        JsonPath jsonPath = pathBuilder.buildPath("/tasks/");
-        CollectionGet sut = new CollectionGet(resourceRegistry, typeParser, includeFieldSetter);
+		// WHEN
+		Response response = sut.handle(jsonPath, new QueryParamsAdapter(new QueryParams()), null, null);
 
-        // WHEN
-        BaseResponseContext response = sut.handle(jsonPath, new QueryParamsAdapter(new QueryParams()), null, null);
+		// THEN
+		Assert.assertNotNull(response);
+	}
 
-        // THEN
-        Assert.assertNotNull(response);
-    }
+	@Test
+	public void onGivenRequestCollectionWithIdsGetShouldHandleIt() {
+		// GIVEN
 
-    @Test
-    public void onGivenRequestCollectionWithIdsGetShouldHandleIt() {
-        // GIVEN
+		JsonPath jsonPath = pathBuilder.build("/tasks/1,2");
+		CollectionGet sut = new CollectionGet(resourceRegistry, objectMapper, typeParser, documentMapper);
 
-        JsonPath jsonPath = pathBuilder.buildPath("/tasks/1,2");
-        CollectionGet sut = new CollectionGet(resourceRegistry, typeParser, includeFieldSetter);
+		// WHEN
+		Response response = sut.handle(jsonPath, new QueryParamsAdapter(new QueryParams()), null, null);
 
-        // WHEN
-        BaseResponseContext response = sut.handle(jsonPath, new QueryParamsAdapter(new QueryParams()), null, null);
+		// THEN
+		Assert.assertNotNull(response);
+	}
 
-        // THEN
-        Assert.assertNotNull(response);
-    }
+	@Test
+	public void onGivenRequestResourceWithIdShouldSetIt() throws Exception {
+		// GIVEN
+		Document Document = new Document();
+		Resource data = new Resource();
+		Document.setData(Nullable.of((Object) data));
+		long taskId = Long.MAX_VALUE - 1L;
+		data.setType("tasks");
+		data.setId(Long.toString(taskId));
 
-    @Test
-    public void onGivenRequestResourceWithIdShouldSetIt() throws Exception {
-        // GIVEN
-        RequestBody requestBody = new RequestBody();
-        DataBody data = new DataBody();
-        requestBody.setData(data);
-        long taskId = Long.MAX_VALUE - 1L;
-        data.setType("tasks");
-        data.setId(Long.toString(taskId));
+		JsonPath taskPath = pathBuilder.build("/tasks");
+		ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper, documentMapper);
 
-        JsonPath taskPath = pathBuilder.buildPath("/tasks");
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper);
+		// WHEN -- adding a task
+		Response taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(new QueryParams()), null, Document);
 
-        // WHEN -- adding a task
-        BaseResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(new QueryParams()), null, requestBody);
+		// THEN
+		assertThat(taskResponse.getDocument().getSingleData().get().getType()).isEqualTo("tasks");
+		Long persistedTaskId = Long.parseLong(taskResponse.getDocument().getSingleData().get().getId());
+		assertThat(persistedTaskId).isEqualTo(taskId);
+	}
 
-        // THEN
-        assertThat(taskResponse.getResponse().getEntity()).isExactlyInstanceOf(Task.class);
-        Long persistedTaskId = ((Task) (taskResponse.getResponse().getEntity())).getId();
-        assertThat(persistedTaskId).isEqualTo(taskId);
-    }
+	@Test
+	public void onGivenRequestResourceShouldLoadAutoIncludeFields() throws Exception {
+		// GIVEN
+		Document newTaskBody = new Document();
+		Resource data = createTask();
+		newTaskBody.setData(Nullable.of((Object) data));
+		JsonPath taskPath = pathBuilder.build("/tasks");
+		ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper, documentMapper);
 
-    @Test
-    public void onGivenRequestResourceShouldLoadAutoIncludeFields() throws Exception {
-        // GIVEN
-        RequestBody newTaskBody = new RequestBody();
-        DataBody data = new DataBody();
-        newTaskBody.setData(data);
-        data.setType("tasks");
-        data.setAttributes(objectMapper.createObjectNode().put("name", "sample task"));
-        data.setRelationships(new ResourceRelationships());
+		// WHEN -- adding a task
+		Response taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(new QueryParams()), null, newTaskBody);
 
-        JsonPath taskPath = pathBuilder.buildPath("/tasks");
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper);
+		// THEN
+		assertThat(taskResponse.getDocument().getSingleData().get().getType()).isEqualTo("tasks");
+		Long taskId = Long.parseLong(taskResponse.getDocument().getSingleData().get().getId());
+		assertThat(taskId).isNotNull();
 
-        // WHEN -- adding a task
-        BaseResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(new QueryParams()), null, newTaskBody);
+		/* ------- */
 
-        // THEN
-        assertThat(taskResponse.getResponse().getEntity()).isExactlyInstanceOf(Task.class);
-        Long taskId = ((Task) (taskResponse.getResponse().getEntity())).getId();
-        assertThat(taskId).isNotNull();
+		// GIVEN
+		Document newProjectBody = new Document();
+		data = createProject();
+		newProjectBody.setData(Nullable.of((Object) data));
+		JsonPath projectPath = pathBuilder.build("/projects");
 
-        /* ------- */
+		// WHEN -- adding a project
+		Response projectResponse = resourcePost.handle(projectPath, new QueryParamsAdapter(new QueryParams()), null, newProjectBody);
 
-        // GIVEN
-        RequestBody newProjectBody = new RequestBody();
-        data = new DataBody();
-        newProjectBody.setData(data);
-        data.setType("projects");
-        data.setAttributes(objectMapper.createObjectNode().put("name", "sample project"));
+		// THEN
+		assertThat(projectResponse.getDocument().getSingleData().get().getType()).isEqualTo("projects");
+		assertThat(projectResponse.getDocument().getSingleData().get().getId()).isNotNull();
+		assertThat(projectResponse.getDocument().getSingleData().get().getAttributes().get("name").asText()).isEqualTo("sample project");
+		Long projectId = Long.parseLong(projectResponse.getDocument().getSingleData().get().getId());
+		assertThat(projectId).isNotNull();
 
-        JsonPath projectPath = pathBuilder.buildPath("/projects");
+		/* ------- */
 
-        // WHEN -- adding a project
-        ResourceResponseContext projectResponse = resourcePost.handle(projectPath, new QueryParamsAdapter(new QueryParams()), null, newProjectBody);
+		// GIVEN
+		Document newTaskToProjectBody = new Document();
+		data = new Resource();
+		newTaskToProjectBody.setData(Nullable.of((Object)Collections.singletonList(data)));
+		data.setType("projects");
+		data.setId(projectId.toString());
 
-        // THEN
-        assertThat(projectResponse.getResponse().getEntity()).isExactlyInstanceOf(Project.class);
-        assertThat(((Project) (projectResponse.getResponse().getEntity())).getId()).isNotNull();
-        assertThat(((Project) (projectResponse.getResponse().getEntity())).getName()).isEqualTo("sample project");
-        Long projectId = ((Project) (projectResponse.getResponse().getEntity())).getId();
-        assertThat(projectId).isNotNull();
+		JsonPath savedTaskPath = pathBuilder.build("/tasks/" + taskId + "/relationships/includedProjects");
+		RelationshipsResourcePost sut = new RelationshipsResourcePost(resourceRegistry, typeParser);
 
-        /* ------- */
+		// WHEN -- adding a relation between task and project
+		Response projectRelationshipResponse = sut.handle(savedTaskPath, new QueryParamsAdapter(new QueryParams()), null, newTaskToProjectBody);
+		assertThat(projectRelationshipResponse).isNotNull();
 
-        // GIVEN
-        RequestBody newTaskToProjectBody = new RequestBody();
-        data = new DataBody();
-        newTaskToProjectBody.setData(Collections.singletonList(data));
-        data.setType("projects");
-        data.setId(projectId.toString());
+		// THEN
+		TaskToProjectRepository taskToProjectRepository = new TaskToProjectRepository();
+		Project project = taskToProjectRepository.findOneTarget(taskId, "includedProjects", REQUEST_PARAMS);
+		assertThat(project.getId()).isEqualTo(projectId);
 
-        JsonPath savedTaskPath = pathBuilder.buildPath("/tasks/" + taskId + "/relationships/includedProjects");
-        RelationshipsResourcePost sut = new RelationshipsResourcePost(resourceRegistry, typeParser);
+		// Given
+		JsonPath jsonPath = pathBuilder.build("/tasks/" + taskId);
+		ResourceGet responseGetResp = new ResourceGet(resourceRegistry, objectMapper, typeParser, documentMapper);
+		Map<String, Set<String>> queryParams = new HashMap<>();
+		queryParams.put(RestrictedQueryParamsMembers.include.name() + "[tasks]", Collections.singleton("includedProjects"));
+		QueryParams queryParams1 = new QueryParamsBuilder(new DefaultQueryParamsParser()).buildQueryParams(queryParams);
 
-        // WHEN -- adding a relation between task and project
-        BaseResponseContext projectRelationshipResponse = sut.handle(savedTaskPath, new QueryParamsAdapter(new QueryParams()), null,
-            newTaskToProjectBody);
-        assertThat(projectRelationshipResponse).isNotNull();
+		// WHEN
+		Response response = responseGetResp.handle(jsonPath, new QueryParamsAdapter(queryParams1), null, null);
 
-        // THEN
-        TaskToProjectRepository taskToProjectRepository = new TaskToProjectRepository();
-        Project project = taskToProjectRepository.findOneTarget(taskId, "includedProjects", REQUEST_PARAMS);
-        assertThat(project.getId()).isEqualTo(projectId);
+		// THEN
+		Assert.assertNotNull(response);
+		data = response.getDocument().getSingleData().get();
+		assertThat(data.getType()).isEqualTo("tasks");
+		Relationship relationship = data.getRelationships().get("includedProjects");
+		assertThat(relationship);
+		assertThat(relationship.getCollectionData()).isNotNull();
+		assertThat(relationship.getCollectionData().get().size()).isEqualTo(1);
+		assertThat(relationship.getCollectionData().get().get(0).getId()).isEqualTo(projectId.toString());
+	}
 
-        //Given
-        JsonPath jsonPath = pathBuilder.buildPath("/tasks/" + taskId );
-        ResourceGet responseGetResp = new ResourceGet(resourceRegistry, typeParser, includeFieldSetter);
-        Map<String, Set<String>> queryParams = new HashMap<>();
-        queryParams.put(RestrictedQueryParamsMembers.include.name() + "[tasks]",
-            Collections.singleton("includedProjects"));
-        QueryParams queryParams1 = new QueryParamsBuilder(new DefaultQueryParamsParser()).buildQueryParams(queryParams);
+	@Test
+	public void onGivenRequestResourceShouldNotLoadAutoIncludeFields() throws Exception {
+		// GIVEN
+		Document newTaskBody = new Document();
+		Resource data = createTask();
+		newTaskBody.setData(Nullable.of((Object) data));
+		data.setType("tasks");
 
-        // WHEN
-        BaseResponseContext response = responseGetResp.handle(jsonPath, new QueryParamsAdapter(queryParams1), null, null);
+		JsonPath taskPath = pathBuilder.build("/tasks");
+		ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper, documentMapper);
 
-        // THEN
-        Assert.assertNotNull(response);
-        assertThat(response.getResponse().getEntity()).isExactlyInstanceOf(Task.class);
-        assertThat(((Task)(taskResponse.getResponse().getEntity())).getIncludedProjects()).isNotNull();
-        assertThat(((Task)(taskResponse.getResponse().getEntity())).getIncludedProjects().size()).isEqualTo(1);
-        assertThat(((Task)(taskResponse.getResponse().getEntity())).getIncludedProjects().get(0).getId()).isEqualTo(projectId);
-    }
+		// WHEN -- adding a task
+		Response taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(new QueryParams()), null, newTaskBody);
 
-    @Test
-    public void onGivenRequestResourceShouldNotLoadAutoIncludeFields() throws Exception {
-        // GIVEN
-        RequestBody newTaskBody = new RequestBody();
-        DataBody data = new DataBody();
-        newTaskBody.setData(data);
-        data.setType("tasks");
-        data.setAttributes(objectMapper.createObjectNode().put("name", "sample task"));
-        data.setRelationships(new ResourceRelationships());
+		// THEN
+		assertThat(taskResponse.getDocument().getSingleData().get().getType()).isEqualTo("tasks");
+		Long taskId = Long.parseLong(taskResponse.getDocument().getSingleData().get().getId());
+		assertThat(taskId).isNotNull();
 
-        JsonPath taskPath = pathBuilder.buildPath("/tasks");
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper);
+		/* ------- */
 
-        // WHEN -- adding a task
-        BaseResponseContext taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(new QueryParams()), null, newTaskBody);
+		// GIVEN
+		Document newProjectBody = new Document();
+		data = createProject();
+		newProjectBody.setData(Nullable.of((Object) data));
 
-        // THEN
-        assertThat(taskResponse.getResponse().getEntity()).isExactlyInstanceOf(Task.class);
-        Long taskId = ((Task) (taskResponse.getResponse().getEntity())).getId();
-        assertThat(taskId).isNotNull();
+		JsonPath projectPath = pathBuilder.build("/projects");
 
-        /* ------- */
+		// WHEN -- adding a project
+		Response projectResponse = resourcePost.handle(projectPath, new QueryParamsAdapter(new QueryParams()), null, newProjectBody);
 
-        // GIVEN
-        RequestBody newProjectBody = new RequestBody();
-        data = new DataBody();
-        newProjectBody.setData(data);
-        data.setType("projects");
-        data.setAttributes(objectMapper.createObjectNode().put("name", "sample project"));
+		// THEN
+		assertThat(projectResponse.getDocument().getSingleData().get().getType()).isEqualTo("projects");
+		assertThat(projectResponse.getDocument().getSingleData().get().getId()).isNotNull();
+		assertThat(projectResponse.getDocument().getSingleData().get().getAttributes().get("name").asText()).isEqualTo("sample project");
+		Long projectId = Long.parseLong(projectResponse.getDocument().getSingleData().get().getId());
+		assertThat(projectId).isNotNull();
 
-        JsonPath projectPath = pathBuilder.buildPath("/projects");
+		/* ------- */
 
-        // WHEN -- adding a project
-        ResourceResponseContext projectResponse = resourcePost.handle(projectPath, new QueryParamsAdapter(new QueryParams()), null, newProjectBody);
+		// GIVEN
+		Document newTaskToProjectBody = new Document();
+		data = new Resource();
+		newTaskToProjectBody.setData(Nullable.of((Object) Collections.singletonList(data)));
+		data.setType("projects");
+		data.setId(projectId.toString());
 
-        // THEN
-        assertThat(projectResponse.getResponse().getEntity()).isExactlyInstanceOf(Project.class);
-        assertThat(((Project) (projectResponse.getResponse().getEntity())).getId()).isNotNull();
-        assertThat(((Project) (projectResponse.getResponse().getEntity())).getName()).isEqualTo("sample project");
-        Long projectId = ((Project) (projectResponse.getResponse().getEntity())).getId();
-        assertThat(projectId).isNotNull();
+		JsonPath savedTaskPath = pathBuilder.build("/tasks/" + taskId + "/relationships/projects");
+		RelationshipsResourcePost sut = new RelationshipsResourcePost(resourceRegistry, typeParser);
 
-        /* ------- */
+		// WHEN -- adding a relation between task and project
+		Response projectRelationshipResponse = sut.handle(savedTaskPath, new QueryParamsAdapter(new QueryParams()), null, newTaskToProjectBody);
+		assertThat(projectRelationshipResponse).isNotNull();
 
-        // GIVEN
-        RequestBody newTaskToProjectBody = new RequestBody();
-        data = new DataBody();
-        newTaskToProjectBody.setData(Collections.singletonList(data));
-        data.setType("projects");
-        data.setId(projectId.toString());
+		// THEN
+		TaskToProjectRepository taskToProjectRepository = new TaskToProjectRepository();
+		Project project = taskToProjectRepository.findOneTarget(taskId, "projects", REQUEST_PARAMS);
+		assertThat(project.getId()).isNotNull();
 
-        JsonPath savedTaskPath = pathBuilder.buildPath("/tasks/" + taskId + "/relationships/projects");
-        RelationshipsResourcePost sut = new RelationshipsResourcePost(resourceRegistry, typeParser);
+		// Given
+		JsonPath jsonPath = pathBuilder.build("/tasks/" + taskId);
+		ResourceGet responseGetResp = new ResourceGet(resourceRegistry, objectMapper, typeParser, documentMapper);
+		Map<String, Set<String>> queryParams = new HashMap<>();
+		queryParams.put(RestrictedQueryParamsMembers.include.name() + "[tasks]", Collections.singleton("[\"projects\"]"));
+		QueryParams requestParams = new QueryParamsBuilder(new DefaultQueryParamsParser()).buildQueryParams(queryParams);
 
-        // WHEN -- adding a relation between task and project
-        BaseResponseContext projectRelationshipResponse = sut.handle(savedTaskPath, new QueryParamsAdapter(new QueryParams()), null, newTaskToProjectBody);
-        assertThat(projectRelationshipResponse).isNotNull();
+		// WHEN
+		Response response = responseGetResp.handle(jsonPath, new QueryParamsAdapter(requestParams), null, null);
 
-        // THEN
-        TaskToProjectRepository taskToProjectRepository = new TaskToProjectRepository();
-        Project project = taskToProjectRepository.findOneTarget(taskId, "projects", REQUEST_PARAMS);
-        assertThat(project.getId()).isNotNull();
+		// THEN
+		Assert.assertNotNull(response);
+		assertThat(response.getDocument().getSingleData().get().getType()).isEqualTo("tasks");
 
-        //Given
-        JsonPath jsonPath = pathBuilder.buildPath("/tasks/" + taskId );
-        ResourceGet responseGetResp = new ResourceGet(resourceRegistry, typeParser, includeFieldSetter);
-        Map<String, Set<String>> queryParams = new HashMap<>();
-        queryParams.put(RestrictedQueryParamsMembers.include.name() + "[tasks]",
-            Collections.singleton("[\"projects\"]"));
-        QueryParams requestParams = new QueryParamsBuilder(new DefaultQueryParamsParser()).buildQueryParams(queryParams);
-
-        // WHEN
-        BaseResponseContext response = responseGetResp.handle(jsonPath, new QueryParamsAdapter(requestParams), null, null);
-
-        // THEN
-        Assert.assertNotNull(response);
-        assertThat(response.getResponse().getEntity()).isExactlyInstanceOf(Task.class);
-        assertThat(((Task)(taskResponse.getResponse().getEntity())).getProjects()).isNull();
-    }
+		// eager loading but no inclusion
+		assertThat(response.getDocument().getSingleData().get().getRelationships().get("projects").getData().isPresent()).isTrue();
+	}
 }

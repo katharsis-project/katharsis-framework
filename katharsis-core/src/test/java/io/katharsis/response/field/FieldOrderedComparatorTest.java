@@ -1,15 +1,16 @@
 package io.katharsis.response.field;
 
-import io.katharsis.resource.field.ResourceField;
-import io.katharsis.resource.field.ResourceField.ResourceFieldType;
-import io.katharsis.resource.information.field.FieldOrderedComparator;
-import org.junit.Before;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Set;
 import java.util.TreeSet;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.Before;
+import org.junit.Test;
+
+import io.katharsis.resource.field.ResourceField;
+import io.katharsis.resource.field.ResourceField.ResourceFieldType;
+import io.katharsis.resource.information.field.FieldOrderedComparator;
 
 public class FieldOrderedComparatorTest {
 

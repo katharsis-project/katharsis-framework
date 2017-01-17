@@ -97,7 +97,7 @@ public class DtoMappingTest extends AbstractJpaJerseyTest {
 		TestEntity test = new TestEntity();
 		test.setId(2L);
 		test.setStringValue("test");
-		testRepo.save(test);
+		testRepo.create(test);
 
 		// query as regular entity (you may want to disable that in a real application)
 		List<TestEntity> list = testRepo.findAll(new QuerySpec(TestEntity.class));
@@ -134,12 +134,12 @@ public class DtoMappingTest extends AbstractJpaJerseyTest {
 		TestDTO test = new TestDTO();
 		test.setId(2L);
 		test.setStringValue("createdDto");
-		test = testRepo.save(test);
+		test = testRepo.create(test);
 
 		RelatedDTO related = new RelatedDTO();
 		related.setId(3L);
 		related.setStringValue("createdDto");
-		related = relatedRepo.save(related);
+		related = relatedRepo.create(related);
 
 		relRepo.setRelation(test, related.getId(), TestEntity.ATTR_oneRelatedValue);
 
@@ -170,17 +170,17 @@ public class DtoMappingTest extends AbstractJpaJerseyTest {
 		TestDTO test = new TestDTO();
 		test.setId(2L);
 		test.setStringValue("createdDto");
-		test = testRepo.save(test);
+		test = testRepo.create(test);
 
 		RelatedDTO related1 = new RelatedDTO();
 		related1.setId(1L);
 		related1.setStringValue("related1");
-		related1 = relatedRepo.save(related1);
+		related1 = relatedRepo.create(related1);
 
 		RelatedDTO related2 = new RelatedDTO();
 		related2.setId(2L);
 		related2.setStringValue("related2");
-		related2 = relatedRepo.save(related2);
+		related2 = relatedRepo.create(related2);
 
 		Assert.assertEquals(1, testRepo.findAll(new QuerySpec(TestDTO.class)).size());
 		relRepo.addRelations(test, Arrays.asList(related1.getId(), related2.getId()), TestEntity.ATTR_manyRelatedValues);
@@ -220,7 +220,7 @@ public class DtoMappingTest extends AbstractJpaJerseyTest {
 		TestDTO dto = new TestDTO();
 		dto.setId(2L);
 		dto.setStringValue("createdDto");
-		dto = dtoRepo.save(dto);
+		dto = dtoRepo.create(dto);
 		Assert.assertEquals("createdDto", dto.getStringValue());
 		Assert.assertEquals("CREATEDDTO", dto.getComputedUpperStringValue());
 
@@ -246,7 +246,7 @@ public class DtoMappingTest extends AbstractJpaJerseyTest {
 			TestDTO dto = new TestDTO();
 			dto.setId(i + 100);
 			dto.setStringValue(Long.toString(i));
-			dtoRepo.save(dto);
+			dtoRepo.create(dto);
 		}
 
 		// select, sort, filter by complex subquery

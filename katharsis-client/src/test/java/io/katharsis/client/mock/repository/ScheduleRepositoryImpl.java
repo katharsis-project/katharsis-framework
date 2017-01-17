@@ -62,7 +62,7 @@ public class ScheduleRepositoryImpl extends ResourceRepositoryBase<Schedule, Lon
 			}
 		}
 
-		return null;
+		return entity;
 	}
 
 	@Override

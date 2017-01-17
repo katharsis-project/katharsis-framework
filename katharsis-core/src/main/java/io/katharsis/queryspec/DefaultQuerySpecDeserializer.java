@@ -1,20 +1,15 @@
 package io.katharsis.queryspec;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import io.katharsis.errorhandling.exception.BadRequestException;
 import io.katharsis.jackson.exception.ParametersDeserializationException;
 import io.katharsis.resource.RestrictedQueryParamsMembers;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.utils.PreconditionUtil;
 import io.katharsis.utils.PropertyException;
 import io.katharsis.utils.PropertyUtils;
 import io.katharsis.utils.parser.TypeParser;
@@ -28,8 +23,10 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 
 	private static final String LIMIT_PARAMETER = "limit";
 
-	private static final Pattern PARAMETER_PATTERN = Pattern.compile("(\\w+)(\\[(\\w+)\\])?([\\w\\[\\]]*)");
+	private static final Pattern PARAMETER_PATTERN = Pattern.compile("(\\w+)(\\[([^\\]]+)\\])?([\\w\\[\\]]*)");
 
+	
+	
 	private TypeParser typeParser = new TypeParser();
 
 	private FilterOperator defaultOperator = FilterOperator.EQ;
@@ -37,6 +34,8 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 	private long defaultOffset = 0;
 
 	private Long defaultLimit = null;
+
+	private Long maxPageLimit = null;
 
 	private Set<FilterOperator> supportedOperators = new HashSet<>();
 
@@ -86,6 +85,18 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 	 */
 	public void setDefaultLimit(Long defaultLimit) {
 		this.defaultLimit = defaultLimit;
+	}
+
+	public Long getMaxPageLimit() {
+		return this.maxPageLimit;
+	}
+
+	/**
+	 * Sets the maximum page limit.
+	 * @param maxPageLimit
+	 */
+	public void setMaxPageLimit(Long maxPageLimit) {
+		this.maxPageLimit = maxPageLimit;
 	}
 
 	public FilterOperator getDefaultOperator() {
@@ -192,7 +203,13 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 			querySpec.setOffset(parameter.getLongValue());
 		}
 		else if (LIMIT_PARAMETER.equalsIgnoreCase(name)) {
-			querySpec.setLimit(parameter.getLongValue());
+			Long limit = parameter.getLongValue();
+			if(getMaxPageLimit() != null && limit != null && limit > getMaxPageLimit()) {
+				String error = String.format("%s parameter value %d is larger than the maximum allowed of " +
+						"of %d", LIMIT_PARAMETER, limit, getMaxPageLimit());
+				throw new BadRequestException(error);
+			}
+			querySpec.setLimit(limit);
 		}
 		else {
 			throw new ParametersDeserializationException(parameter.toString());

@@ -226,5 +226,6 @@ public class KatharsisBootTest {
 		List<Module> modules = boot.getModuleRegistry().getModules();
 		Assert.assertEquals(2, modules.size());
 		boot.setDefaultPageLimit(20L);
+		boot.setMaxPageLimit(100L);
 	}
 }

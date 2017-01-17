@@ -225,7 +225,6 @@ public class AnnotationResourceInformationBuilder implements ResourceInformation
         }
     }
 
-    @ToString(of = "annotations", callSuper = true)
     public static class AnnotatedResourceField extends ResourceField {
 
     	private List<Annotation> annotations;
@@ -247,7 +246,7 @@ public class AnnotationResourceInformationBuilder implements ResourceInformation
 			return null;
 		}
 
-		public static boolean getIncludeByDefault(List<Annotation> annotations) {
+		public static boolean getIncludeByDefault(Collection<Annotation> annotations) {
     		for (Annotation annotation : annotations) {
 				if(annotation instanceof JsonApiIncludeByDefault){
 					return true;
@@ -256,11 +255,11 @@ public class AnnotationResourceInformationBuilder implements ResourceInformation
 			return false;
 		}
 
-    	public static LookupIncludeBehavior getLookupIncludeBehavior(List<Annotation> annotations) {
+    	public static LookupIncludeBehavior getLookupIncludeBehavior(Collection<Annotation> annotations) {
     		return getLookupIncludeBehavior(annotations, LookupIncludeBehavior.NONE);
     	}
     	
-    	public static LookupIncludeBehavior getLookupIncludeBehavior(List<Annotation> annotations, LookupIncludeBehavior defaultBehavior) {
+    	public static LookupIncludeBehavior getLookupIncludeBehavior(Collection<Annotation> annotations, LookupIncludeBehavior defaultBehavior) {
     		for (Annotation annotation : annotations) {
     			 if(annotation instanceof JsonApiLookupIncludeAutomatically){
     				 JsonApiLookupIncludeAutomatically includeAnnotation = (JsonApiLookupIncludeAutomatically) annotation;
@@ -284,7 +283,7 @@ public class AnnotationResourceInformationBuilder implements ResourceInformation
          * @param defaultValue default value if it cannot be determined
          * @return is lazy
          */
-    	public static boolean isLazy(List<Annotation> annotations, boolean defaultValue) {
+    	public static boolean isLazy(Collection<Annotation> annotations, boolean defaultValue) {
 	        JsonApiIncludeByDefault includeByDefaultAnnotation = null;
 	        JsonApiToMany toManyAnnotation = null;
 	        JsonApiToOne toOneAnnotation = null;

@@ -18,15 +18,15 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Selection;
 
-import io.katharsis.jpa.internal.meta.MetaAttribute;
-import io.katharsis.jpa.internal.meta.MetaAttributePath;
-import io.katharsis.jpa.internal.meta.MetaEntity;
-import io.katharsis.jpa.internal.meta.MetaKey;
 import io.katharsis.jpa.internal.query.JoinRegistry;
 import io.katharsis.jpa.internal.query.MetaComputedAttribute;
 import io.katharsis.jpa.internal.query.QueryUtil;
 import io.katharsis.jpa.internal.query.backend.JpaQueryBackend;
+import io.katharsis.jpa.meta.MetaEntity;
 import io.katharsis.jpa.query.criteria.JpaCriteriaExpressionFactory;
+import io.katharsis.meta.model.MetaAttribute;
+import io.katharsis.meta.model.MetaAttributePath;
+import io.katharsis.meta.model.MetaKey;
 import io.katharsis.queryspec.Direction;
 import io.katharsis.queryspec.FilterOperator;
 import io.katharsis.utils.PreconditionUtil;
@@ -76,7 +76,7 @@ public class JpaCriteriaQueryBackend<T> implements JpaQueryBackend<From<?, ?>, O
 	}
 
 	private Expression<?> getParentIdExpression(MetaAttribute parentAttr) {
-		MetaEntity parentEntity = parentAttr.getParent().asEntity();
+		MetaEntity parentEntity = (MetaEntity) parentAttr.getParent();
 		MetaKey primaryKey = parentEntity.getPrimaryKey();
 		List<MetaAttribute> elements = primaryKey.getElements();
 		PreconditionUtil.assertFalse("composite primary keys not supported yet", elements.size() != 1);

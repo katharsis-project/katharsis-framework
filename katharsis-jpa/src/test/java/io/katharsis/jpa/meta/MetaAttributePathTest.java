@@ -6,8 +6,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import io.katharsis.jpa.internal.meta.MetaAttribute;
-import io.katharsis.jpa.internal.meta.MetaAttributePath;
+import io.katharsis.meta.model.MetaAttribute;
+import io.katharsis.meta.model.MetaAttributePath;
 
 public class MetaAttributePathTest {
 

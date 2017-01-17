@@ -12,9 +12,9 @@ import javax.persistence.metamodel.Attribute;
 import javax.persistence.metamodel.Bindable;
 import javax.persistence.metamodel.SingularAttribute;
 
-import io.katharsis.jpa.internal.meta.MetaAttribute;
-import io.katharsis.jpa.internal.meta.MetaDataObject;
-import io.katharsis.jpa.internal.meta.MetaKey;
+import io.katharsis.meta.model.MetaAttribute;
+import io.katharsis.meta.model.MetaDataObject;
+import io.katharsis.meta.model.MetaKey;
 import io.katharsis.queryspec.SortSpec;
 
 public class QueryUtil {
@@ -26,7 +26,7 @@ public class QueryUtil {
     boolean hasTotalOrder = contains(meta.getPrimaryKey(), sortSpecs);
     if (hasTotalOrder)
       return true;
-    for (MetaKey key : meta.getKeys()) {
+    for (MetaKey key : meta.getDeclaredKeys()) {
       if (key.isUnique() && contains(key, sortSpecs)) {
         return true;
       }

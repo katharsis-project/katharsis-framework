@@ -1,16 +1,11 @@
 sudo: false
 language: java
+
 jdk:
   - oraclejdk7
-addons:
-  sonarqube: true
-  apt:
-    packages:
-    - oracle-java8-installer
-script:
-  - "./build.sh"
-  - jdk_switcher use oraclejdk8
-  - "./sonar.sh"
+
+script: mvn clean install
+
 notifications:
   webhooks:
     urls:

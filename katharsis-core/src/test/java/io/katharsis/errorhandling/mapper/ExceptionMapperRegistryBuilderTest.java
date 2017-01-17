@@ -1,14 +1,15 @@
 package io.katharsis.errorhandling.mapper;
 
-import io.katharsis.errorhandling.exception.KatharsisMappableException;
-import io.katharsis.errorhandling.handlers.NoAnnotationExceptionMapper;
-import io.katharsis.errorhandling.handlers.SomeExceptionMapper;
-import io.katharsis.resource.exception.init.InvalidResourceException;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import io.katharsis.errorhandling.exception.KatharsisMappableException;
+import io.katharsis.errorhandling.handlers.NoAnnotationExceptionMapper;
+import io.katharsis.errorhandling.handlers.SomeExceptionMapper;
+import io.katharsis.resource.exception.init.InvalidResourceException;
 
 public class ExceptionMapperRegistryBuilderTest {
 

@@ -16,7 +16,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.katharsis.jpa.JpaModule;
-import io.katharsis.jpa.internal.meta.MetaLookup;
+import io.katharsis.jpa.meta.JpaMetaProvider;
 import io.katharsis.jpa.model.JoinedTableBaseEntity;
 import io.katharsis.jpa.model.JoinedTableChildEntity;
 import io.katharsis.jpa.model.OtherRelatedEntity;
@@ -34,6 +34,7 @@ import io.katharsis.jpa.model.TestNestedEmbeddable;
 import io.katharsis.jpa.query.criteria.JpaCriteriaQueryFactory;
 import io.katharsis.jpa.util.SpringTransactionRunner;
 import io.katharsis.jpa.util.TestConfig;
+import io.katharsis.meta.MetaLookup;
 import io.katharsis.module.CoreModule;
 import io.katharsis.module.ModuleRegistry;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
@@ -187,7 +188,9 @@ public abstract class AbstractJpaTest {
 
 			@Override
 			public MetaLookup getMetaLookup() {
-				return new MetaLookup();
+				MetaLookup metaLookup = new MetaLookup();
+				metaLookup.addProvider(new JpaMetaProvider());
+				return metaLookup;
 			}});
 		clear(em, factory.query(RelatedEntity.class).buildExecutor().getResultList());
 		clear(em, factory.query(TestEntity.class).buildExecutor().getResultList());

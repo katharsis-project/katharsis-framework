@@ -1,12 +1,13 @@
 package io.katharsis.resource.registry.repository;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.Test;
+
 import io.katharsis.locator.JsonServiceLocator;
 import io.katharsis.locator.SampleJsonServiceLocator;
 import io.katharsis.repository.RepositoryInstanceBuilder;
 import io.katharsis.repository.annotations.JsonApiRelationshipRepository;
-import org.junit.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @SuppressWarnings("unchecked")
 public class AnnotatedRelationshipEntryBuilderTest {

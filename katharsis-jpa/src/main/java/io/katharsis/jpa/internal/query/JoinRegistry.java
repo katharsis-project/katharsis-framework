@@ -5,10 +5,11 @@ import java.util.Map;
 
 import javax.persistence.criteria.JoinType;
 
-import io.katharsis.jpa.internal.meta.MetaAttribute;
-import io.katharsis.jpa.internal.meta.MetaAttributePath;
-import io.katharsis.jpa.internal.meta.MetaMapAttribute;
 import io.katharsis.jpa.internal.query.backend.JpaQueryBackend;
+import io.katharsis.meta.model.MetaAttribute;
+import io.katharsis.meta.model.MetaAttributePath;
+import io.katharsis.meta.model.MetaDataObject;
+import io.katharsis.meta.model.MetaMapAttribute;
 
 public class JoinRegistry<F, E> {
 
@@ -43,10 +44,10 @@ public class JoinRegistry<F, E> {
 				if (criteriaPath != null)
 					throw new IllegalStateException("Cannot join to map");
 				criteriaPath = joinMap(currentCriteriaPath, pathElement);
-			}
-			else {
+			} else {
 				// we may need to downcast if attribute is defined on a subtype
-				Class<?> pathType = pathElement.getParent().asDataObject().getImplementationClass();
+				MetaDataObject parent = pathElement.getParent().asDataObject();
+				Class<?> pathType = parent.getImplementationClass();
 				Class<?> currentType = backend.getJavaElementType(currentCriteriaPath);
 				boolean isSubType = !pathType.isAssignableFrom(currentType);
 				if (isSubType) {

@@ -1,5 +1,9 @@
 package io.katharsis.resource.field;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.SerializationConfig;
@@ -7,11 +11,8 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.AnnotatedField;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.introspect.AnnotationMap;
-import io.katharsis.utils.ClassUtils;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+import io.katharsis.utils.ClassUtils;
 
 /**
  * Returns a name of a field. It takes into account {@link JsonProperty} annotation and {@link PropertyNamingStrategy}

@@ -1,5 +1,16 @@
 package io.katharsis.repository;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+
+import java.util.Collections;
+import java.util.List;
+
+import org.junit.Before;
+import org.junit.Test;
+
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryspec.internal.QueryParamsAdapter;
 import io.katharsis.repository.annotated.AnnotatedResourceRepositoryAdapter;
@@ -13,16 +24,6 @@ import io.katharsis.repository.exception.RepositoryAnnotationNotFoundException;
 import io.katharsis.repository.exception.RepositoryMethodException;
 import io.katharsis.repository.mock.NewInstanceRepositoryMethodParameterProvider;
 import io.katharsis.resource.mock.models.Project;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.util.Collections;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
 
 public class AnnotatedResourceRepositoryAdapterTest {
     private QueryParams queryParams;

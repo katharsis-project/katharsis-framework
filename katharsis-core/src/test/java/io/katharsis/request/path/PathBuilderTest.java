@@ -14,11 +14,11 @@ import org.mockito.Mockito;
 
 import io.katharsis.locator.SampleJsonServiceLocator;
 import io.katharsis.module.ModuleRegistry;
+import io.katharsis.repository.exception.RepositoryNotFoundException;
 import io.katharsis.repository.information.RepositoryAction;
 import io.katharsis.repository.information.ResourceRepositoryInformation;
 import io.katharsis.resource.exception.ResourceException;
 import io.katharsis.resource.exception.ResourceFieldNotFoundException;
-import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
 import io.katharsis.resource.information.ResourceInformationBuilder;
@@ -233,7 +233,7 @@ public class PathBuilderTest {
         String path = "/nonExistingResource";
 
         // THEN
-        expectedException.expect(ResourceNotFoundException.class);
+        expectedException.expect(RepositoryNotFoundException.class);
 
         // WHEN
         pathBuilder.buildPath(path);
@@ -245,7 +245,7 @@ public class PathBuilderTest {
         String path = "/relationships";
 
         // THEN
-        expectedException.expect(ResourceNotFoundException.class);
+        expectedException.expect(RepositoryNotFoundException.class);
 
         // WHEN
         pathBuilder.buildPath(path);

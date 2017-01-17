@@ -1,14 +1,14 @@
 package io.katharsis.resource.mock.models;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import io.katharsis.resource.annotations.JsonApiId;
 import io.katharsis.resource.annotations.JsonApiIncludeByDefault;
 import io.katharsis.resource.annotations.JsonApiLookupIncludeAutomatically;
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.annotations.JsonApiToMany;
 import io.katharsis.resource.annotations.JsonApiToOne;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @JsonApiResource(type = "projects")
 public class Project {

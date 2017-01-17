@@ -16,23 +16,6 @@
  */
 package io.katharsis.invoker;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.net.MediaType;
-import io.katharsis.dispatcher.RequestDispatcher;
-import io.katharsis.errorhandling.exception.KatharsisMappableException;
-import io.katharsis.errorhandling.exception.KatharsisMatchingException;
-import io.katharsis.errorhandling.mapper.KatharsisExceptionMapper;
-import io.katharsis.internal.boot.PropertiesProvider;
-import io.katharsis.jackson.exception.JsonDeserializationException;
-import io.katharsis.repository.RepositoryMethodParameterProvider;
-import io.katharsis.request.dto.RequestBody;
-import io.katharsis.request.path.JsonPath;
-import io.katharsis.request.path.PathBuilder;
-import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.response.BaseResponseContext;
-import io.katharsis.servlet.util.QueryStringUtils;
-
-import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
@@ -41,6 +24,25 @@ import java.io.OutputStream;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
+
+import javax.servlet.http.HttpServletResponse;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.net.MediaType;
+
+import io.katharsis.dispatcher.RequestDispatcher;
+import io.katharsis.dispatcher.controller.Response;
+import io.katharsis.errorhandling.exception.KatharsisMappableException;
+import io.katharsis.errorhandling.exception.KatharsisMatchingException;
+import io.katharsis.errorhandling.mapper.KatharsisExceptionMapper;
+import io.katharsis.internal.boot.PropertiesProvider;
+import io.katharsis.jackson.exception.JsonDeserializationException;
+import io.katharsis.repository.RepositoryMethodParameterProvider;
+import io.katharsis.request.path.JsonPath;
+import io.katharsis.request.path.PathBuilder;
+import io.katharsis.resource.Document;
+import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.servlet.util.QueryStringUtils;
 
 /**
  * Katharsis dispatcher invoker.
@@ -77,7 +79,7 @@ public class KatharsisInvoker {
     }
 
     private void dispatchRequest(KatharsisInvokerContext invokerContext) throws Exception {
-        BaseResponseContext katharsisResponse = null;
+        Response katharsisResponse = null;
 
         boolean passToMethodMatcher = false;
 
@@ -89,7 +91,7 @@ public class KatharsisInvoker {
             Map<String, Set<String>> parameters = getParameters(invokerContext);
 
             in = invokerContext.getRequestEntityStream();
-            RequestBody requestBody = inputStreamToBody(in);
+            Document requestBody = inputStreamToBody(in);
 
             String method = invokerContext.getRequestMethod();
             RepositoryMethodParameterProvider parameterProvider = invokerContext.getParameterProvider();
@@ -97,7 +99,7 @@ public class KatharsisInvoker {
                     requestBody);
         } catch (KatharsisMappableException e) {
             // log error in KatharsisMappableException mapper.
-            katharsisResponse = new KatharsisExceptionMapper().toErrorResponse(e);
+            katharsisResponse = new KatharsisExceptionMapper().toErrorResponse(e).toResponse();
         } catch (KatharsisMatchingException e) {
             passToMethodMatcher = true;
         } finally {
@@ -113,7 +115,7 @@ public class KatharsisInvoker {
                 try {
                     // first write to a buffer first because objectMapper may fail while writing.
                     baos = new ByteArrayOutputStream(BUFFER_SIZE);
-                    objectMapper.writeValue(baos, katharsisResponse);
+                    objectMapper.writeValue(baos, katharsisResponse.getDocument());
 
                     out = invokerContext.getResponseOutputStream();
                     out.write(baos.toByteArray());
@@ -154,7 +156,7 @@ public class KatharsisInvoker {
                 QueryStringUtils.parseQueryStringAsSingleValueMap(invokerContext);
     }
 
-    private RequestBody inputStreamToBody(InputStream is) throws IOException {
+    private Document inputStreamToBody(InputStream is) throws IOException {
         if (is == null) {
             return null;
         }
@@ -167,7 +169,7 @@ public class KatharsisInvoker {
         }
 
         try {
-            return objectMapper.readValue(requestBody, RequestBody.class);
+            return objectMapper.readValue(requestBody, Document.class);
         } catch (IOException e) {
             throw new JsonDeserializationException(e.getMessage());
         }

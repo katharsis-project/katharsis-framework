@@ -1,18 +1,19 @@
 package io.katharsis.queryParams;
 
-import io.katharsis.module.TestResource;
-import io.katharsis.module.TestResourceInformationBuilder;
-import io.katharsis.queryParams.context.SimpleQueryParamsParserContext;
-import io.katharsis.queryParams.include.Inclusion;
-import org.junit.Before;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.Before;
+import org.junit.Test;
+
+import io.katharsis.module.TestResource;
+import io.katharsis.module.TestResourceInformationBuilder;
+import io.katharsis.queryParams.context.SimpleQueryParamsParserContext;
+import io.katharsis.queryParams.include.Inclusion;
 
 public class DefaultQueryParamsParserTest {
 

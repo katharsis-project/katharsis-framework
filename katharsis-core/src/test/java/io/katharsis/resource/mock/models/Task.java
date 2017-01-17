@@ -1,11 +1,18 @@
 package io.katharsis.resource.mock.models;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
-import io.katharsis.resource.annotations.*;
+import io.katharsis.resource.annotations.JsonApiId;
+import io.katharsis.resource.annotations.JsonApiIncludeByDefault;
+import io.katharsis.resource.annotations.JsonApiLinksInformation;
+import io.katharsis.resource.annotations.JsonApiLookupIncludeAutomatically;
+import io.katharsis.resource.annotations.JsonApiMetaInformation;
+import io.katharsis.resource.annotations.JsonApiResource;
+import io.katharsis.resource.annotations.JsonApiToMany;
+import io.katharsis.resource.annotations.JsonApiToOne;
 import io.katharsis.response.LinksInformation;
 import io.katharsis.response.MetaInformation;
 
@@ -25,11 +32,10 @@ public class Task {
     private Project project;
 
     @JsonApiToMany
-    private List<Project> projectsInit = new ArrayList<>();
-
+    private List<Project> projectsInit = Collections.emptyList();
 
     @JsonApiToMany(lazy = false)
-    private List<Project> projects;
+    private List<Project> projects = Collections.emptyList();
 
     @JsonApiToOne
     @JsonApiLookupIncludeAutomatically

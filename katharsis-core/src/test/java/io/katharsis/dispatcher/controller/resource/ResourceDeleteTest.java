@@ -6,12 +6,12 @@ import static org.mockito.Mockito.mock;
 import org.junit.Test;
 
 import io.katharsis.dispatcher.controller.BaseControllerTest;
+import io.katharsis.dispatcher.controller.Response;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryspec.internal.QueryParamsAdapter;
 import io.katharsis.request.path.JsonPath;
 import io.katharsis.request.path.ResourcePath;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.response.BaseResponseContext;
 
 public class ResourceDeleteTest extends BaseControllerTest {
 
@@ -53,9 +53,9 @@ public class ResourceDeleteTest extends BaseControllerTest {
         ResourceDelete sut = new ResourceDelete(resourceRegistry, typeParser);
 
         // WHEN
-        BaseResponseContext response = sut.handle(jsonPath, new QueryParamsAdapter(new QueryParams()), null, null);
+        Response response = sut.handle(jsonPath, new QueryParamsAdapter(new QueryParams()), null, null);
 
         // THEN
-        assertThat(response).isNull();
+        assertThat(response.getDocument()).isNull();
     }
 }
