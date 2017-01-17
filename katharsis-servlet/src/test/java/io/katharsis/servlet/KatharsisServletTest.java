@@ -323,5 +323,4 @@ public class KatharsisServletTest {
 		assertJsonPartEquals("\"3\"", responseContent, "data[2].id");
 		assertJsonNodePresent(responseContent, "data[2].relationships.children.data");
 	}
-
 }
