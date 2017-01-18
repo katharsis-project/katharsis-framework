@@ -6,62 +6,71 @@ import java.util.UUID;
 import org.junit.Assert;
 import org.junit.Test;
 
-import io.katharsis.jpa.internal.meta.impl.MetaPrimitiveType;
+import io.katharsis.meta.model.MetaPrimitiveType;
 
 public class MetaPrimitiveTypeTest {
 
 	@Test
 	public void testString() {
-		MetaPrimitiveType type = new MetaPrimitiveType(String.class, String.class);
+		MetaPrimitiveType type = new MetaPrimitiveType();
+		type.setImplementationType(String.class);
 		Assert.assertEquals("test", type.fromString("test"));
 	}
 
 	@Test
 	public void testInteger() {
-		MetaPrimitiveType type = new MetaPrimitiveType(Integer.class, Integer.class);
+		MetaPrimitiveType type = new MetaPrimitiveType();
+		type.setImplementationType(Integer.class);
 		Assert.assertEquals(12, type.fromString("12"));
 	}
 
 	@Test
 	public void testShort() {
-		MetaPrimitiveType type = new MetaPrimitiveType(Short.class, Short.class);
+		MetaPrimitiveType type = new MetaPrimitiveType();
+		type.setImplementationType(Short.class);
 		Assert.assertEquals((short) 12, type.fromString("12"));
 	}
 
 	@Test
 	public void testLong() {
-		MetaPrimitiveType type = new MetaPrimitiveType(Long.class, Long.class);
+		MetaPrimitiveType type = new MetaPrimitiveType();
+		type.setImplementationType(Long.class);
 		Assert.assertEquals(12L, type.fromString("12"));
 	}
 
 	@Test
 	public void testFloat() {
-		MetaPrimitiveType type = new MetaPrimitiveType(Float.class, Float.class);
+		MetaPrimitiveType type = new MetaPrimitiveType();
+		type.setImplementationType(Float.class);
 		Assert.assertEquals(12.0f, type.fromString("12.0"));
 	}
 
 	@Test
 	public void testDouble() {
-		MetaPrimitiveType type = new MetaPrimitiveType(Double.class, Double.class);
+		MetaPrimitiveType type = new MetaPrimitiveType();
+		type.setImplementationType(Double.class);
 		Assert.assertEquals(12.0, type.fromString("12.0"));
 	}
 
 	@Test
 	public void testBoolean() {
-		MetaPrimitiveType type = new MetaPrimitiveType(Boolean.class, Boolean.class);
+		MetaPrimitiveType type = new MetaPrimitiveType();
+		type.setImplementationType(Boolean.class);
 		Assert.assertTrue((Boolean) type.fromString("true"));
 	}
 
 	@Test
 	public void testByte() {
-		MetaPrimitiveType type = new MetaPrimitiveType(Byte.class, Byte.class);
+		MetaPrimitiveType type = new MetaPrimitiveType();
+		type.setImplementationType(Byte.class);
 		Assert.assertEquals((byte) 12, type.fromString("12"));
 	}
 
 	@Test
 	public void testUUID() {
 		UUID uuid = UUID.randomUUID();
-		MetaPrimitiveType type = new MetaPrimitiveType(UUID.class, UUID.class);
+		MetaPrimitiveType type = new MetaPrimitiveType();
+		type.setImplementationType(UUID.class);
 		Assert.assertEquals(uuid, type.fromString(uuid.toString()));
 	}
 
@@ -71,7 +80,8 @@ public class MetaPrimitiveTypeTest {
 
 	@Test
 	public void testEnum() {
-		MetaPrimitiveType type = new MetaPrimitiveType(TestEnum.class, TestEnum.class);
+		MetaPrimitiveType type = new MetaPrimitiveType();
+		type.setImplementationType(TestEnum.class);
 		Assert.assertEquals(TestEnum.A, type.fromString("A"));
 	}
 
@@ -130,7 +140,8 @@ public class MetaPrimitiveTypeTest {
 	public void testParse() {
 		TestObjectWithParse value = new TestObjectWithParse();
 		value.value = 12;
-		MetaPrimitiveType type = new MetaPrimitiveType(TestObjectWithParse.class, TestObjectWithParse.class);
+		MetaPrimitiveType type = new MetaPrimitiveType();
+		type.setImplementationType(TestObjectWithParse.class);
 		Assert.assertEquals(value, type.fromString("12"));
 	}
 
@@ -138,7 +149,8 @@ public class MetaPrimitiveTypeTest {
 	public void testOther() {
 		TestObjectWithConstructor value = new TestObjectWithConstructor();
 		value.value = 12;
-		MetaPrimitiveType type = new MetaPrimitiveType(TestObjectWithConstructor.class, TestObjectWithConstructor.class);
+		MetaPrimitiveType type = new MetaPrimitiveType();
+		type.setImplementationType(TestObjectWithConstructor.class);
 		Assert.assertEquals(value, type.fromString("12"));
 	}
 

@@ -7,14 +7,14 @@ import java.util.Set;
 
 import javax.persistence.criteria.JoinType;
 
-import io.katharsis.jpa.internal.meta.MetaAttribute;
-import io.katharsis.jpa.internal.meta.MetaAttributeFinder;
-import io.katharsis.jpa.internal.meta.MetaAttributePath;
-import io.katharsis.jpa.internal.meta.MetaDataObject;
-import io.katharsis.jpa.internal.meta.MetaMapType;
-import io.katharsis.jpa.internal.meta.MetaType;
 import io.katharsis.jpa.internal.query.backend.JpaQueryBackend;
 import io.katharsis.jpa.query.AnyTypeObject;
+import io.katharsis.meta.model.MetaAttribute;
+import io.katharsis.meta.model.MetaAttributeFinder;
+import io.katharsis.meta.model.MetaAttributePath;
+import io.katharsis.meta.model.MetaDataObject;
+import io.katharsis.meta.model.MetaMapType;
+import io.katharsis.meta.model.MetaType;
 import io.katharsis.queryspec.FilterOperator;
 import io.katharsis.queryspec.FilterSpec;
 

@@ -12,9 +12,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.Subgraph;
 
-import io.katharsis.jpa.internal.meta.MetaAttributePath;
-import io.katharsis.jpa.internal.meta.MetaDataObject;
 import io.katharsis.jpa.query.JpaQueryExecutor;
+import io.katharsis.meta.model.MetaAttributePath;
+import io.katharsis.meta.model.MetaDataObject;
 
 public abstract class AbstractQueryExecutorImpl<T> implements JpaQueryExecutor<T> {
 

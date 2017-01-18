@@ -266,6 +266,7 @@
 				<module>katharsis-spring</module>
 				<module>katharsis-vertx</module>
 				<module>katharsis-client</module>
+				<module>katharsis-meta</module>
 				<module>katharsis-jpa</module>
 				<module>katharsis-validation</module>
 				<module>katharsis-brave</module>

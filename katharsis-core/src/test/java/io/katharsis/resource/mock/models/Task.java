@@ -1,6 +1,6 @@
 package io.katharsis.resource.mock.models;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -32,11 +32,10 @@ public class Task {
     private Project project;
 
     @JsonApiToMany
-    private List<Project> projectsInit = new ArrayList<>();
-
+    private List<Project> projectsInit = Collections.emptyList();
 
     @JsonApiToMany(lazy = false)
-    private List<Project> projects;
+    private List<Project> projects = Collections.emptyList();
 
     @JsonApiToOne
     @JsonApiLookupIncludeAutomatically

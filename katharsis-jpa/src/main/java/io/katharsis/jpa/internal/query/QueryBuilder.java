@@ -5,13 +5,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import io.katharsis.jpa.internal.meta.MetaAttribute;
-import io.katharsis.jpa.internal.meta.MetaAttributeFinder;
-import io.katharsis.jpa.internal.meta.MetaAttributePath;
-import io.katharsis.jpa.internal.meta.MetaDataObject;
-import io.katharsis.jpa.internal.meta.MetaEntity;
-import io.katharsis.jpa.internal.meta.MetaKey;
 import io.katharsis.jpa.internal.query.backend.JpaQueryBackend;
+import io.katharsis.jpa.meta.MetaEntity;
+import io.katharsis.meta.model.MetaAttribute;
+import io.katharsis.meta.model.MetaAttributeFinder;
+import io.katharsis.meta.model.MetaAttributePath;
+import io.katharsis.meta.model.MetaDataObject;
+import io.katharsis.meta.model.MetaKey;
 import io.katharsis.queryspec.FilterSpec;
 import io.katharsis.queryspec.IncludeFieldSpec;
 
@@ -124,7 +124,7 @@ public class QueryBuilder<T, F, O, P, E> {
 
 		MetaAttribute parentAttr = query.getParentAttr();
 		if (parentAttr != null) {
-			MetaEntity parentEntity = parentAttr.getParent().asEntity();
+			MetaEntity parentEntity = (MetaEntity) parentAttr.getParent();
 			MetaKey primaryKey = parentEntity.getPrimaryKey();
 			MetaAttribute primaryKeyAttr = primaryKey.getUniqueElement();
 

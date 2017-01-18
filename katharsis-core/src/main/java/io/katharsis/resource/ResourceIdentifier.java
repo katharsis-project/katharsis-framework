@@ -62,7 +62,7 @@ public class ResourceIdentifier implements Comparable<ResourceIdentifier> {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj == null || obj.getClass() != ResourceIdentifier.class)
+		if (obj == null || obj.getClass() != this.getClass())
 			return false;
 		ResourceIdentifier other = (ResourceIdentifier) obj;
 		return Objects.equals(id, other.id) && Objects.equals(type, other.type);
@@ -75,5 +75,13 @@ public class ResourceIdentifier implements Comparable<ResourceIdentifier> {
 			return d;
 		}
 		return id.compareTo(o.id);
+	}
+
+	@Override
+	public String toString() {
+		return "ResourceIdentifier{" +
+				"id='" + id + '\'' +
+				", type='" + type + '\'' +
+				'}';
 	}
 }

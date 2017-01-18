@@ -161,7 +161,7 @@ public class KatharsisInvoker {
             return null;
         }
 
-        Scanner s = new Scanner(is).useDelimiter("\\A");
+        Scanner s = new Scanner(is, "UTF-8").useDelimiter("\\A");
         String requestBody = s.hasNext() ? s.next() : "";
 
         if (requestBody == null || requestBody.isEmpty()) {

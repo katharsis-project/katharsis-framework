@@ -27,7 +27,8 @@ public class TaskRepository {
 
     @JsonApiSave
     public <S extends Task> S save(S entity) {
-        return null;
+        entity.setId(1L);
+        return entity;
     }
 
     @JsonApiFindOne
