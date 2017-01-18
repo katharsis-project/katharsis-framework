@@ -22,23 +22,40 @@ public abstract class FilterOperator {
 	};
 
 	/**
-	 * like operation
+	 * Like operation. In case of in-memory filtering it makes use of "%" as
+	 * wildcard and is case-insenstive. 
+	 * 
+	 * Application may implement their own matches() method to match the 
+	 * filtering behavior of the used storage backend (like SQL).
 	 */
 	public static final FilterOperator LIKE = new FilterOperator("LIKE") {
 
 		@Override
 		public boolean matches(Object value1, Object value2) {
-			if(value1 == null){
+			if (value1 == null) {
 				return false;
 			}
 			String text = value1.toString();
-			
-			String pattern = value2.toString();
-			pattern = pattern.replaceAll("\\.", "\\.");
-			pattern = pattern.replace("%", ".*");
-			pattern = pattern.toLowerCase();
-			
-			return text.toLowerCase().matches(pattern);
+
+			// translate queryterm to a regex pattern
+			char[] queryTerm = value2.toString().toCharArray();
+
+			StringBuilder pattern = new StringBuilder();
+			pattern.append(".*");
+			String escapedCharacters = "[\\^$.|?*+()";
+			for (char c : queryTerm) {
+				if (escapedCharacters.contains(Character.toString(c))) {
+					pattern.append('\\');
+					pattern.append(c);
+				} else if (c == '%') {
+					pattern.append(".*");
+				} else {
+					pattern.append(Character.toLowerCase(c));
+				}
+			}
+			pattern.append(".*");
+
+			return text.toLowerCase().matches(pattern.toString());
 		}
 
 	};
@@ -190,8 +207,10 @@ public abstract class FilterOperator {
 	/**
 	 * Performs a in-memory evaluation of the operator on the given to values.
 	 *
-	 * @param value1 first value
-	 * @param value2 second value
+	 * @param value1
+	 *            first value
+	 * @param value2
+	 *            second value
 	 * @return true if matches
 	 */
 	public abstract boolean matches(Object value1, Object value2);

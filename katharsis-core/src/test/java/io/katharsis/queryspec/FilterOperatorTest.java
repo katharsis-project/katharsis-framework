@@ -27,6 +27,34 @@ public class FilterOperatorTest {
 		Assert.assertTrue(FilterOperator.LIKE.matches("test", "tE%"));
 		Assert.assertFalse(FilterOperator.LIKE.matches("test", "aE%"));
 		Assert.assertTrue(FilterOperator.LIKE.matches("test", "t%t"));
+		Assert.assertTrue(FilterOperator.LIKE.matches("test.", "t%."));
+		Assert.assertFalse(FilterOperator.LIKE.matches(".", "t"));
+		Assert.assertTrue(FilterOperator.LIKE.matches(".", "."));
+		
+		Assert.assertFalse(FilterOperator.LIKE.matches(".", "t"));
+		Assert.assertFalse(FilterOperator.LIKE.matches(".", "t"));
+		Assert.assertFalse(FilterOperator.LIKE.matches("[", "t"));
+		Assert.assertFalse(FilterOperator.LIKE.matches("\\", "t"));
+		Assert.assertFalse(FilterOperator.LIKE.matches("^", "t"));
+		Assert.assertFalse(FilterOperator.LIKE.matches("$", "t"));
+		Assert.assertFalse(FilterOperator.LIKE.matches("|", "t"));
+		Assert.assertFalse(FilterOperator.LIKE.matches("?", "t"));
+		Assert.assertFalse(FilterOperator.LIKE.matches(")", "t"));
+		Assert.assertFalse(FilterOperator.LIKE.matches("(", "t"));
+		Assert.assertFalse(FilterOperator.LIKE.matches("+", "t"));
+		Assert.assertFalse(FilterOperator.LIKE.matches("*", "t"));
+		
+		Assert.assertTrue(FilterOperator.LIKE.matches(".", "."));
+		Assert.assertTrue(FilterOperator.LIKE.matches("[", "["));
+		Assert.assertTrue(FilterOperator.LIKE.matches("\\", "\\"));
+		Assert.assertTrue(FilterOperator.LIKE.matches("^", "^"));
+		Assert.assertTrue(FilterOperator.LIKE.matches("$", "$"));
+		Assert.assertTrue(FilterOperator.LIKE.matches("|", "|"));
+		Assert.assertTrue(FilterOperator.LIKE.matches("?", "?"));
+		Assert.assertTrue(FilterOperator.LIKE.matches(")", ")"));
+		Assert.assertTrue(FilterOperator.LIKE.matches("(", "("));
+		Assert.assertTrue(FilterOperator.LIKE.matches("+", "+"));
+		Assert.assertTrue(FilterOperator.LIKE.matches("*", "*"));
 	}
 
 
