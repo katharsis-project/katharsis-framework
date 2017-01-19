@@ -1,15 +1,18 @@
 package io.katharsis.resource.internal;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import io.katharsis.internal.boot.EmptyPropertiesProvider;
 import io.katharsis.internal.boot.KatharsisBootProperties;
 import io.katharsis.internal.boot.PropertiesProvider;
 import io.katharsis.queryspec.QuerySpec;
@@ -25,7 +28,7 @@ import io.katharsis.resource.registry.repository.adapter.ResourceRepositoryAdapt
 @RunWith(MockitoJUnitRunner.class)
 public class IncludeLookupSetterTest extends AbstractDocumentMapperTest {
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	@Before
 	public void setup() {
 		super.setup();
@@ -71,11 +74,11 @@ public class IncludeLookupSetterTest extends AbstractDocumentMapperTest {
 		Resource taskResource = document.getSingleData().get();
 
 		Relationship relationship = taskResource.getRelationships().get("includedProject");
-		Assert.assertNotNull(relationship);
-		Assert.assertNotNull(relationship.getSingleData());
+		assertNotNull(relationship);
+		assertNotNull(relationship.getSingleData());
 
 		List<Resource> included = document.getIncluded();
-		Assert.assertEquals(1, included.size());
+		assertEquals(1, included.size());
 	}
 
 	@Test
@@ -90,8 +93,8 @@ public class IncludeLookupSetterTest extends AbstractDocumentMapperTest {
 		Resource taskResource = document.getSingleData().get();
 
 		Relationship relationship = taskResource.getRelationships().get("includedProjects");
-		Assert.assertNotNull(relationship);
-		Assert.assertEquals(1, relationship.getCollectionData().get().size());
+		assertNotNull(relationship);
+		assertEquals(1, relationship.getCollectionData().get().size());
 	}
 
 	@Test
@@ -106,15 +109,15 @@ public class IncludeLookupSetterTest extends AbstractDocumentMapperTest {
 		Resource taskResource = document.getSingleData().get();
 
 		Relationship oneRelationship = taskResource.getRelationships().get("includedProject");
-		Assert.assertNotNull(oneRelationship);
-		Assert.assertNotNull(oneRelationship.getSingleData());
+		assertNotNull(oneRelationship);
+		assertNotNull(oneRelationship.getSingleData());
 
 		List<Resource> includes = document.getIncluded();
-		Assert.assertEquals(1, includes.size());
+		assertEquals(1, includes.size());
 		Resource includedResource = includes.get(0);
-		Assert.assertEquals("projects", includedResource.getType());
-		Assert.assertNotNull(includedResource.getRelationships().get("includedTask"));
-		Assert.assertNotNull(includedResource.getRelationships().get("includedTask").getData());
+		assertEquals("projects", includedResource.getType());
+		assertNotNull(includedResource.getRelationships().get("includedTask"));
+		assertNotNull(includedResource.getRelationships().get("includedTask").getData());
 	}
 
 	@Test
@@ -129,16 +132,16 @@ public class IncludeLookupSetterTest extends AbstractDocumentMapperTest {
 		Resource taskResource = document.getSingleData().get();
 
 		Relationship manyRelationship = taskResource.getRelationships().get("includedProjects");
-		Assert.assertNotNull(manyRelationship);
+		assertNotNull(manyRelationship);
 		List<ResourceIdentifier> relationshipData = manyRelationship.getCollectionData().get();
-		Assert.assertNotNull(relationshipData.get(0).getId());
+		assertNotNull(relationshipData.get(0).getId());
 
 		List<Resource> includes = document.getIncluded();
-		Assert.assertEquals(1, includes.size());
+		assertEquals(1, includes.size());
 		Resource includedResource = includes.get(0);
-		Assert.assertEquals("projects", includedResource.getType());
-		Assert.assertNotNull(includedResource.getRelationships().get("includedTask"));
-		Assert.assertNotNull(includedResource.getRelationships().get("includedTask").getData());
+		assertEquals("projects", includedResource.getType());
+		assertNotNull(includedResource.getRelationships().get("includedTask"));
+		assertNotNull(includedResource.getRelationships().get("includedTask").getData());
 	}
 
 	@Test
@@ -164,8 +167,8 @@ public class IncludeLookupSetterTest extends AbstractDocumentMapperTest {
 		Document document = mapper.toDocument(toResponse(task), toAdapter(querySpec));
 		Resource taskResource = document.getSingleData().get();
 
-		Assert.assertNotNull(taskResource.getRelationships().get("project"));
-		Assert.assertNotNull(taskResource.getRelationships().get("project").getData());
+		assertNotNull(taskResource.getRelationships().get("project"));
+		assertNotNull(taskResource.getRelationships().get("project").getData());
 	}
 
 	@Test
@@ -196,7 +199,41 @@ public class IncludeLookupSetterTest extends AbstractDocumentMapperTest {
 		Resource taskResource = document.getSingleData().get();
 
 		Relationship relationship = taskResource.getRelationships().get("project");
-		Assert.assertNotNull(relationship);
-		Assert.assertEquals(relationship.getSingleData().get().getId(), "12");
+		assertNotNull(relationship);
+		assertEquals(relationship.getSingleData().get().getId(), "12");
+	}
+
+	@Test
+	public void includeByDefaultSerializeNLevels() throws Exception {
+		Project project = new Project();
+		project.setId(1L);
+
+		Task task = new Task().setId(2L);
+		project.setTask(task);
+
+		Project projectDefault = new Project().setId(3L);
+		task.setProject(projectDefault);
+
+
+		mapper = new DocumentMapper(resourceRegistry, objectMapper, new EmptyPropertiesProvider());
+
+		QuerySpec querySpec = new QuerySpec(Project.class);
+		querySpec.includeRelation(Collections.singletonList("task"));
+
+		Document document = mapper.toDocument(toResponse(project), toAdapter(querySpec));
+		Resource projectResource = document.getSingleData().get();
+
+		Relationship relationship = projectResource.getRelationships().get("task");
+		assertNotNull(relationship);
+		assertEquals("2", relationship.getSingleData().get().getId());
+
+		assertNotNull(document.getIncluded());
+		assertEquals(2, document.getIncluded().size());
+		List<Resource> resources = document.getIncluded();
+		assertEquals("projects", resources.get(0).getType());
+		assertEquals("3", resources.get(0).getId());
+		assertEquals("tasks", resources.get(1).getType());
+		assertEquals("2", resources.get(1).getId());
+
 	}
 }
