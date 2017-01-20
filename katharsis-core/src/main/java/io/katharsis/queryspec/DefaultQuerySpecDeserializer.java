@@ -1,7 +1,12 @@
 package io.katharsis.queryspec;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -359,8 +364,12 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 			throw new ParametersDeserializationException("invalid attribute path in " + param.toString());
 		}
 		String temp = pathString.substring(1, pathString.length() - 1);
-
-		return Arrays.asList(temp.split("\\]\\["));
+		String[] elements = temp.split("\\]\\[");
+		List<String> results = new ArrayList<>();
+		for(String element : elements){
+			results.addAll(Arrays.asList(element.split("\\.")));
+		}
+		return results;
 	}
 
 	private List<String> splitAttributePath(String pathString, Parameter param) {

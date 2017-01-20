@@ -119,12 +119,9 @@ public class IncludeLookupSetter {
 			List<Resource> resourcesByType = util.filterByType(dataList, resourceInformation);
 			List<Resource> resourcesWithField = util.filterByLoadedRelationship(resourcesByType, resourceField);
 
-			// note that @JsonApiIncludeByDefault only applied for primary
-			// resource, not nested ones
-			boolean isPrimaryResource = fieldPath.size() == 1;
-
 			boolean includeRequested = util.isInclusionRequested(queryAdapter, fieldPath);
-			boolean includeResources = includeRequested || resourceField.getIncludeByDefault() && isPrimaryResource;
+
+			boolean includeResources = includeRequested || resourceField.getIncludeByDefault();
 			boolean includeRelationshipData = !resourceField.isLazy() || includeResources || additionalEagerLoadedRootRelations.contains(resourceField.getJsonName());
 
 			if (includeRelationshipData) {
