@@ -1,7 +1,9 @@
 package io.katharsis.resource.internal;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -45,6 +47,11 @@ public class DocumentMapper {
 	}
 
 	public Document toDocument(JsonApiResponse response, QueryAdapter queryAdapter, RepositoryMethodParameterProvider parameterProvider) {
+		Set<String> eagerLoadedRelations = Collections.emptySet();
+		return toDocument(response, queryAdapter, parameterProvider, eagerLoadedRelations);
+	}
+	
+	public Document toDocument(JsonApiResponse response, QueryAdapter queryAdapter, RepositoryMethodParameterProvider parameterProvider, Set<String> additionalEagerLoadedRelations) {
 		if (response == null) {
 			return null;
 		}
@@ -54,14 +61,14 @@ public class DocumentMapper {
 		util.setMeta(doc, response.getMetaInformation());
 		util.setLinks(doc, response.getLinksInformation());
 		addData(doc, response.getEntity(), queryAdapter);
-		addRelationDataAndInclusions(doc, response.getEntity(), queryAdapter, parameterProvider);
+		addRelationDataAndInclusions(doc, response.getEntity(), queryAdapter, parameterProvider, additionalEagerLoadedRelations);
 
 		return doc;
 	}
 
-	private void addRelationDataAndInclusions(Document doc, Object entity, QueryAdapter queryAdapter, RepositoryMethodParameterProvider parameterProvider) {
+	private void addRelationDataAndInclusions(Document doc, Object entity, QueryAdapter queryAdapter, RepositoryMethodParameterProvider parameterProvider, Set<String> additionalEagerLoadedRelations) {
 		if (doc.getData().isPresent() && !client) {
-			includeLookupSetter.setIncludedElements(doc, entity, queryAdapter, parameterProvider);
+			includeLookupSetter.setIncludedElements(doc, entity, queryAdapter, parameterProvider, additionalEagerLoadedRelations);
 		}
 	}
 

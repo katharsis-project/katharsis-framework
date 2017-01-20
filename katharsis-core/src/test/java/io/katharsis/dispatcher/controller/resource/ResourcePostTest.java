@@ -203,6 +203,77 @@ public class ResourcePostTest extends BaseControllerTest {
 		assertThat(taskResponse.getDocument().getSingleData().get().getRelationships().get("assignedProjects").getCollectionData().get()
 				.get(0).getId()).isEqualTo(projectId.toString());
 	}
+	
+	
+	@Test
+	public void onUpdatedLazyRelationshipDataShouldReturnThatData() throws Exception {
+		// GIVEN
+		Document newTaskBody = new Document();
+		Resource data = createTask();
+		newTaskBody.setData(Nullable.of((Object)data));
+		data.setType("tasks");
+
+		JsonPath taskPath = pathBuilder.build("/tasks");
+		ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper, documentMapper);
+
+		// WHEN
+		Response taskResponse = sut.handle(taskPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newTaskBody);
+
+		// THEN
+		assertThat(taskResponse.getDocument().getSingleData().get().getType()).isEqualTo("tasks");
+		assertThat(taskResponse.getDocument().getSingleData().get().getId()).isNotNull();
+		assertThat(taskResponse.getDocument().getSingleData().get().getAttributes().get("name").asText())
+				.isEqualTo("sample task");
+		Long taskId = Long.parseLong(taskResponse.getDocument().getSingleData().get().getId());
+
+		/* ------- */
+
+		// GIVEN
+		
+		Document newProjectBody = new Document();
+		data = createProject();
+		data.setType("projects");
+		data.getRelationships().put("tasks", new Relationship(Collections.singletonList(new ResourceIdentifier(taskId.toString(), "tasks"))));
+		newProjectBody.setData(Nullable.of((Object)data));
+
+		JsonPath projectsPath = pathBuilder.build("/projects");
+
+		// WHEN
+		Response projectsResponse = sut.handle(projectsPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newProjectBody);
+
+		// THEN
+		assertThat(projectsResponse.getDocument().getSingleData().get().getType()).isEqualTo("projects");
+		Long userId = Long.parseLong(projectsResponse.getDocument().getSingleData().get().getId());
+		assertThat(userId).isNotNull();
+		assertThat(projectsResponse.getDocument().getSingleData().get().getAttributes().get("name").asText()).isEqualTo("sample project");
+
+		assertThat(projectsResponse.getDocument().getSingleData().get().getRelationships().get("tasks").getCollectionData().get())
+				.hasSize(1);
+		assertThat(projectsResponse.getDocument().getSingleData().get().getRelationships().get("tasks").getCollectionData().get()
+				.get(0).getId()).isEqualTo(taskId.toString());
+	}
+	
+	@Test
+	public void onUnchangedLazyRelationshipDataShouldNotReturnThatData() throws Exception {
+		ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper, documentMapper);
+		Document newProjectBody = new Document();
+		Resource data = createProject();
+		data.setType("projects");
+		newProjectBody.setData(Nullable.of((Object)data));
+
+		JsonPath projectsPath = pathBuilder.build("/projects");
+
+		// WHEN
+		Response projectsResponse = sut.handle(projectsPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newProjectBody);
+
+		// THEN
+		assertThat(projectsResponse.getDocument().getSingleData().get().getType()).isEqualTo("projects");
+		Long userId = Long.parseLong(projectsResponse.getDocument().getSingleData().get().getId());
+		assertThat(userId).isNotNull();
+		assertThat(projectsResponse.getDocument().getSingleData().get().getAttributes().get("name").asText()).isEqualTo("sample project");
+		assertThat(projectsResponse.getDocument().getSingleData().get().getRelationships().get("tasks").getData().isPresent()).isFalse();
+	}
+	
 
 	@Test
 	public void onNewInheritedResourceShouldPersistThisResource() throws Exception {

@@ -1,10 +1,13 @@
 package io.katharsis.dispatcher.controller.resource;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.Map.Entry;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -56,6 +59,16 @@ public abstract class ResourceUpsert extends BaseController {
         }
     }
 
+    protected Set<String> getLoadedRelationshipNames(Resource resourceBody) {
+    	Set<String> result = new HashSet<>();
+    	for(Entry<String, Relationship> entry : resourceBody.getRelationships().entrySet()){
+    		if(entry.getValue() != null && entry.getValue().getData() != null){
+    			result.add(entry.getKey());
+    		}
+    	}
+    	return result;
+	}
+    
     protected void setAttributes(Resource dataBody, Object instance, ResourceInformation resourceInformation) {
         if (dataBody.getAttributes() != null) {
             ResourceAttributesBridge resourceAttributesBridge = resourceInformation.getAttributeFields();
