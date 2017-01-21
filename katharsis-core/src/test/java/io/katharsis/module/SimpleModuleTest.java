@@ -11,11 +11,11 @@ import org.mockito.Mockito;
 
 import com.fasterxml.jackson.databind.Module;
 
+import io.katharsis.core.internal.dispatcher.filter.TestFilter;
+import io.katharsis.core.internal.dispatcher.filter.TestRepositoryDecorator;
 import io.katharsis.core.internal.exception.ExceptionMapperLookup;
 import io.katharsis.core.internal.exception.KatharsisExceptionMapper;
 import io.katharsis.core.internal.exception.ExceptionMapperRegistryTest.IllegalStateExceptionMapper;
-import io.katharsis.dispatcher.filter.TestFilter;
-import io.katharsis.dispatcher.filter.TestRepositoryDecorator;
 import io.katharsis.errorhandling.mapper.ExceptionMapper;
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
 import io.katharsis.module.Module.ModuleContext;

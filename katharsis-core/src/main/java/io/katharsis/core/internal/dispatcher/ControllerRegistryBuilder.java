@@ -14,7 +14,7 @@ import io.katharsis.resource.registry.ResourceRegistry;
 
 /**
  * A builder class which holds all of the Katharsis controllers, which must be placed in
- * {@link io.katharsis.dispatcher.controller} package.
+ * {@link io.katharsis.core.internal.dispatcher.controller} package.
  */
 public class ControllerRegistryBuilder {
 
