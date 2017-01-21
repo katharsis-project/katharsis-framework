@@ -260,7 +260,6 @@
 			<modules>
 				<module>katharsis-parent</module>
 				<module>katharsis-core</module>
-				<module>katharsis-core-legacy</module>
 				<module>katharsis-test</module>
 				<module>katharsis-rs</module>
 				<module>katharsis-servlet</module>

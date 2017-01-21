@@ -11,14 +11,14 @@ import io.katharsis.core.internal.dispatcher.ControllerRegistry;
 import io.katharsis.core.internal.dispatcher.path.JsonPath;
 import io.katharsis.core.internal.dispatcher.path.PathBuilder;
 import io.katharsis.errorhandling.exception.MethodNotFoundException;
-import io.katharsis.locator.SampleJsonServiceLocator;
+import io.katharsis.legacy.locator.SampleJsonServiceLocator;
+import io.katharsis.legacy.registry.ResourceRegistryBuilder;
 import io.katharsis.module.ModuleRegistry;
 import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
 import io.katharsis.resource.information.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ConstantServiceUrlProvider;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.resource.registry.ResourceRegistryBuilder;
 import io.katharsis.resource.registry.ResourceRegistryBuilderTest;
 
 public class ControllerRegistryTest {

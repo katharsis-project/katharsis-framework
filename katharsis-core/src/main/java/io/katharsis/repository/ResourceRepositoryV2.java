@@ -3,7 +3,7 @@ package io.katharsis.repository;
 import java.io.Serializable;
 
 import io.katharsis.errorhandling.exception.ResourceNotFoundException;
-import io.katharsis.queryParams.QueryParams;
+import io.katharsis.legacy.queryParams.QueryParams;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.resource.list.ResourceList;
 

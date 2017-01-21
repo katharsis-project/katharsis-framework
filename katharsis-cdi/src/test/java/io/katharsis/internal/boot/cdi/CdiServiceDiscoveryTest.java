@@ -13,9 +13,9 @@ import io.katharsis.cdi.internal.CdiServiceDiscovery;
 import io.katharsis.core.internal.boot.DefaultServiceDiscoveryFactory;
 import io.katharsis.internal.boot.cdi.model.ProjectRepository;
 import io.katharsis.internal.boot.cdi.model.TaskRepository;
+import io.katharsis.legacy.repository.annotations.JsonApiResourceRepository;
 import io.katharsis.module.ServiceDiscovery;
 import io.katharsis.repository.Repository;
-import io.katharsis.repository.annotations.JsonApiResourceRepository;
 
 @RunWith(CdiTestRunner.class)
 @ApplicationScoped

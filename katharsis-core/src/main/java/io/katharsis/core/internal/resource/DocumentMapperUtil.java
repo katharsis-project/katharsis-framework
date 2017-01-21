@@ -14,10 +14,10 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import io.katharsis.core.internal.dispatcher.path.PathBuilder;
 import io.katharsis.core.internal.utils.PropertyUtils;
-import io.katharsis.queryParams.include.Inclusion;
-import io.katharsis.queryParams.params.IncludedFieldsParams;
-import io.katharsis.queryParams.params.IncludedRelationsParams;
-import io.katharsis.queryParams.params.TypedParams;
+import io.katharsis.legacy.queryParams.include.Inclusion;
+import io.katharsis.legacy.queryParams.params.IncludedFieldsParams;
+import io.katharsis.legacy.queryParams.params.IncludedRelationsParams;
+import io.katharsis.legacy.queryParams.params.TypedParams;
 import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.resource.LinksContainer;
 import io.katharsis.resource.MetaContainer;

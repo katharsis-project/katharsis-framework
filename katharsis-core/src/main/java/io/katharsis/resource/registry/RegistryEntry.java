@@ -126,7 +126,7 @@ public class RegistryEntry<T> {
 	 *
 	 * @param parentRegistryEntry parent resource
 	 */
-	void setParentRegistryEntry(RegistryEntry parentRegistryEntry) {
+	public void setParentRegistryEntry(RegistryEntry parentRegistryEntry) {
 		this.parentRegistryEntry = parentRegistryEntry;
 	}
 

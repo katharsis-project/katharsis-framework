@@ -36,11 +36,11 @@ import io.katharsis.core.internal.repository.information.ResourceRepositoryInfor
 import io.katharsis.core.internal.utils.JsonApiUrlBuilder;
 import io.katharsis.core.internal.utils.PreconditionUtil;
 import io.katharsis.errorhandling.exception.RepositoryNotFoundException;
+import io.katharsis.legacy.registry.RepositoryInstanceBuilder;
 import io.katharsis.module.Module;
 import io.katharsis.module.ModuleRegistry;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.repository.RelationshipRepositoryV2;
-import io.katharsis.repository.RepositoryInstanceBuilder;
 import io.katharsis.repository.ResourceRepositoryV2;
 import io.katharsis.repository.information.RepositoryInformationBuilder;
 import io.katharsis.repository.information.RepositoryInformationBuilderContext;

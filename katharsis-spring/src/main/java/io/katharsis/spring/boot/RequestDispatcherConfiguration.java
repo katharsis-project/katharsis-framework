@@ -11,8 +11,8 @@ import io.katharsis.core.internal.query.QueryAdapterBuilder;
 import io.katharsis.core.internal.query.QueryParamsAdapterBuilder;
 import io.katharsis.core.internal.query.QuerySpecAdapterBuilder;
 import io.katharsis.core.internal.utils.parser.TypeParser;
+import io.katharsis.legacy.queryParams.QueryParamsBuilder;
 import io.katharsis.module.ModuleRegistry;
-import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.queryspec.QuerySpecDeserializer;
 import io.katharsis.resource.registry.ResourceRegistry;
 

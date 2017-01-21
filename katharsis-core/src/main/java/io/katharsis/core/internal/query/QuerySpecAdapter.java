@@ -6,10 +6,10 @@ import java.util.Map;
 import java.util.Set;
 
 import io.katharsis.core.internal.utils.StringUtils;
-import io.katharsis.queryParams.include.Inclusion;
-import io.katharsis.queryParams.params.IncludedFieldsParams;
-import io.katharsis.queryParams.params.IncludedRelationsParams;
-import io.katharsis.queryParams.params.TypedParams;
+import io.katharsis.legacy.queryParams.include.Inclusion;
+import io.katharsis.legacy.queryParams.params.IncludedFieldsParams;
+import io.katharsis.legacy.queryParams.params.IncludedRelationsParams;
+import io.katharsis.legacy.queryParams.params.TypedParams;
 import io.katharsis.queryspec.IncludeFieldSpec;
 import io.katharsis.queryspec.IncludeRelationSpec;
 import io.katharsis.queryspec.QuerySpec;

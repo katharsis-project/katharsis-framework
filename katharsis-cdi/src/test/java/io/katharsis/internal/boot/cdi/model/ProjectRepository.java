@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.enterprise.context.ApplicationScoped;
 
 import io.katharsis.errorhandling.exception.ResourceNotFoundException;
-import io.katharsis.queryParams.QueryParams;
+import io.katharsis.legacy.queryParams.QueryParams;
 import io.katharsis.repository.ResourceRepository;
 
 @ApplicationScoped

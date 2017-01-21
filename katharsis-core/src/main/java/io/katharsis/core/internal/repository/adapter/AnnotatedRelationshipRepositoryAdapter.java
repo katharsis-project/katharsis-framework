@@ -4,14 +4,14 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 
 import io.katharsis.core.internal.utils.ClassUtils;
+import io.katharsis.legacy.repository.annotations.JsonApiAddRelations;
+import io.katharsis.legacy.repository.annotations.JsonApiFindManyTargets;
+import io.katharsis.legacy.repository.annotations.JsonApiFindOneTarget;
+import io.katharsis.legacy.repository.annotations.JsonApiRemoveRelations;
+import io.katharsis.legacy.repository.annotations.JsonApiSetRelation;
+import io.katharsis.legacy.repository.annotations.JsonApiSetRelations;
 import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.repository.ParametersFactory;
-import io.katharsis.repository.annotations.JsonApiAddRelations;
-import io.katharsis.repository.annotations.JsonApiFindManyTargets;
-import io.katharsis.repository.annotations.JsonApiFindOneTarget;
-import io.katharsis.repository.annotations.JsonApiRemoveRelations;
-import io.katharsis.repository.annotations.JsonApiSetRelation;
-import io.katharsis.repository.annotations.JsonApiSetRelations;
 
 public class AnnotatedRelationshipRepositoryAdapter<T, T_ID extends Serializable, D, D_ID extends Serializable>
     extends AnnotatedRepositoryAdapter<T>{

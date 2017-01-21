@@ -1,6 +1,6 @@
 package io.katharsis.rs.resource.repository;
 
-import io.katharsis.repository.annotations.*;
+import io.katharsis.legacy.repository.annotations.*;
 import io.katharsis.rs.resource.exception.ExampleException;
 import io.katharsis.rs.resource.model.Task;
 

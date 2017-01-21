@@ -1,7 +1,7 @@
 package io.katharsis.repository;
 
 import io.katharsis.errorhandling.exception.RepositoryNotFoundException;
-import io.katharsis.queryParams.QueryParams;
+import io.katharsis.legacy.queryParams.QueryParams;
 
 import java.io.Serializable;
 

@@ -7,10 +7,10 @@ import org.junit.Test;
 
 import io.katharsis.core.internal.query.QuerySpecAdapter;
 import io.katharsis.core.internal.repository.information.ResourceRepositoryInformationImpl;
+import io.katharsis.legacy.queryParams.params.IncludedFieldsParams;
+import io.katharsis.legacy.queryParams.params.IncludedRelationsParams;
+import io.katharsis.legacy.queryParams.params.TypedParams;
 import io.katharsis.module.ModuleRegistry;
-import io.katharsis.queryParams.params.IncludedFieldsParams;
-import io.katharsis.queryParams.params.IncludedRelationsParams;
-import io.katharsis.queryParams.params.TypedParams;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.registry.ConstantServiceUrlProvider;

@@ -1,6 +1,6 @@
 package io.katharsis.jpa.server;
 
-import io.katharsis.locator.JsonServiceLocator;
+import io.katharsis.legacy.locator.JsonServiceLocator;
 
 public class TestServiceLocator implements JsonServiceLocator {
 

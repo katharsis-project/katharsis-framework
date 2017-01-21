@@ -10,10 +10,15 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 
+import io.katharsis.legacy.queryParams.DefaultQueryParamsParser;
+import io.katharsis.legacy.queryParams.QueryParams;
+import io.katharsis.legacy.queryParams.QueryParamsParser;
+import io.katharsis.legacy.queryParams.RestrictedPaginationKeys;
+import io.katharsis.legacy.queryParams.RestrictedSortingValues;
+import io.katharsis.legacy.queryParams.context.SimpleQueryParamsParserContext;
+import io.katharsis.legacy.queryParams.include.Inclusion;
 import io.katharsis.module.TestResource;
 import io.katharsis.module.TestResourceInformationBuilder;
-import io.katharsis.queryParams.context.SimpleQueryParamsParserContext;
-import io.katharsis.queryParams.include.Inclusion;
 
 public class DefaultQueryParamsParserTest {
 

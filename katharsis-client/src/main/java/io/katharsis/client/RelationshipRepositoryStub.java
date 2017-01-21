@@ -3,7 +3,7 @@ package io.katharsis.client;
 import java.io.Serializable;
 import java.util.List;
 
-import io.katharsis.queryParams.QueryParams;
+import io.katharsis.legacy.queryParams.QueryParams;
 import io.katharsis.repository.RelationshipRepository;
 
 /**

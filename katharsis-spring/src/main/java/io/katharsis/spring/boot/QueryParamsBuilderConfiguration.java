@@ -1,10 +1,11 @@
 package io.katharsis.spring.boot;
 
-import io.katharsis.queryParams.DefaultQueryParamsParser;
-import io.katharsis.queryParams.QueryParamsBuilder;
-import io.katharsis.queryParams.QueryParamsParser;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import io.katharsis.legacy.queryParams.DefaultQueryParamsParser;
+import io.katharsis.legacy.queryParams.QueryParamsBuilder;
+import io.katharsis.legacy.queryParams.QueryParamsParser;
 
 @Configuration
 public class QueryParamsBuilderConfiguration {

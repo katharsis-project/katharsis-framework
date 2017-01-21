@@ -3,8 +3,8 @@ package io.katharsis.core.internal.registry;
 import java.io.Serializable;
 
 import io.katharsis.core.internal.repository.adapter.AnnotatedResourceRepositoryAdapter;
+import io.katharsis.legacy.registry.RepositoryInstanceBuilder;
 import io.katharsis.repository.ParametersFactory;
-import io.katharsis.repository.RepositoryInstanceBuilder;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.resource.registry.ResourceEntry;
 import io.katharsis.resource.registry.ResourceRegistry;

@@ -4,7 +4,7 @@ import static io.katharsis.rs.KatharsisProperties.RESOURCE_SEARCH_PACKAGE;
 
 import io.dropwizard.Application;
 import io.dropwizard.setup.Environment;
-import io.katharsis.locator.SampleJsonServiceLocator;
+import io.katharsis.legacy.locator.SampleJsonServiceLocator;
 import io.katharsis.queryspec.DefaultQuerySpecDeserializer;
 import io.katharsis.rs.KatharsisFeature;
 

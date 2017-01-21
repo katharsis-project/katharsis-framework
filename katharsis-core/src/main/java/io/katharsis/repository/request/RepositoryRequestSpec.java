@@ -2,7 +2,7 @@ package io.katharsis.repository.request;
 
 import java.io.Serializable;
 
-import io.katharsis.queryParams.QueryParams;
+import io.katharsis.legacy.queryParams.QueryParams;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.internal.QueryAdapter;
 

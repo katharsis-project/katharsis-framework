@@ -17,8 +17,8 @@
 package io.katharsis.servlet;
 
 import io.katharsis.invoker.KatharsisInvokerBuilder;
-import io.katharsis.locator.JsonServiceLocator;
-import io.katharsis.locator.SampleJsonServiceLocator;
+import io.katharsis.legacy.locator.JsonServiceLocator;
+import io.katharsis.legacy.locator.SampleJsonServiceLocator;
 
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;

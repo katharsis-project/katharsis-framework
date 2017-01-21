@@ -1,7 +1,7 @@
 package io.katharsis.jackson.mock.repositories;
 
 import io.katharsis.jackson.mock.models.ClassCWithInclusion;
-import io.katharsis.queryParams.QueryParams;
+import io.katharsis.legacy.queryParams.QueryParams;
 import io.katharsis.repository.ResourceRepository;
 
 public class ClassCWithInclusionRepository implements ResourceRepository<ClassCWithInclusion, Long> {

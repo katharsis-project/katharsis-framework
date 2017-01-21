@@ -5,9 +5,9 @@ import java.util.Map;
 
 import io.katharsis.core.internal.utils.ClassUtils;
 import io.katharsis.core.internal.utils.PreconditionUtil;
+import io.katharsis.legacy.repository.annotations.JsonApiResourceRepository;
 import io.katharsis.repository.ResourceRepositoryV2;
 import io.katharsis.repository.ResourceRepository;
-import io.katharsis.repository.annotations.JsonApiResourceRepository;
 import io.katharsis.repository.information.RepositoryAction;
 import io.katharsis.repository.information.RepositoryInformation;
 import io.katharsis.repository.information.RepositoryInformationBuilder;

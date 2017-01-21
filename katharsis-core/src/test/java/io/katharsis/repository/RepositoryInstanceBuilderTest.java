@@ -5,8 +5,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Test;
 
 import io.katharsis.errorhandling.exception.RepositoryInstanceNotFoundException;
-import io.katharsis.locator.JsonServiceLocator;
-import io.katharsis.locator.SampleJsonServiceLocator;
+import io.katharsis.legacy.locator.JsonServiceLocator;
+import io.katharsis.legacy.locator.SampleJsonServiceLocator;
+import io.katharsis.legacy.registry.RepositoryInstanceBuilder;
 import io.katharsis.resource.mock.repository.TaskRepository;
 
 public class RepositoryInstanceBuilderTest {

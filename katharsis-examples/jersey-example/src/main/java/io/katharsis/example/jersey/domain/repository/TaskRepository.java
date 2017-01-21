@@ -1,7 +1,7 @@
 package io.katharsis.example.jersey.domain.repository;
 
 import io.katharsis.example.jersey.domain.model.Task;
-import io.katharsis.queryParams.QueryParams;
+import io.katharsis.legacy.queryParams.QueryParams;
 import io.katharsis.repository.ResourceRepository;
 
 import java.util.Arrays;

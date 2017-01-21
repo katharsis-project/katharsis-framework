@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import io.katharsis.errorhandling.exception.ResourceNotFoundException;
-import io.katharsis.queryParams.QueryParams;
+import io.katharsis.legacy.queryParams.QueryParams;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.ProjectPolymorphic;

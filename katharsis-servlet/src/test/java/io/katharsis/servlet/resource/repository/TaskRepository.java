@@ -16,7 +16,7 @@
  */
 package io.katharsis.servlet.resource.repository;
 
-import io.katharsis.repository.annotations.*;
+import io.katharsis.legacy.repository.annotations.*;
 import io.katharsis.servlet.resource.model.Task;
 
 import javax.servlet.http.HttpServletRequest;

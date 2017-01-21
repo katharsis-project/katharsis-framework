@@ -1,13 +1,13 @@
 package io.katharsis.resource.annotations;
 
-import io.katharsis.queryParams.QueryParams;
-
 import java.io.Serializable;
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import io.katharsis.legacy.queryParams.QueryParams;
 
 /**
  * This annotation is used to make automatic value assignment using a defined relationship repository if such repository

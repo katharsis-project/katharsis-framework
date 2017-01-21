@@ -1,8 +1,8 @@
 package io.katharsis.queryspec.internal;
 
-import io.katharsis.queryParams.params.IncludedFieldsParams;
-import io.katharsis.queryParams.params.IncludedRelationsParams;
-import io.katharsis.queryParams.params.TypedParams;
+import io.katharsis.legacy.queryParams.params.IncludedFieldsParams;
+import io.katharsis.legacy.queryParams.params.IncludedRelationsParams;
+import io.katharsis.legacy.queryParams.params.TypedParams;
 
 public interface QueryAdapter {
 

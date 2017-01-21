@@ -17,7 +17,8 @@ import io.katharsis.core.internal.query.QuerySpecAdapter;
 import io.katharsis.core.internal.repository.adapter.AnnotatedRelationshipRepositoryAdapter;
 import io.katharsis.core.internal.repository.adapter.RelationshipRepositoryAdapter;
 import io.katharsis.core.internal.repository.adapter.ResourceRepositoryAdapter;
-import io.katharsis.locator.SampleJsonServiceLocator;
+import io.katharsis.legacy.locator.SampleJsonServiceLocator;
+import io.katharsis.legacy.registry.ResourceRegistryBuilder;
 import io.katharsis.module.ModuleRegistry;
 import io.katharsis.module.SimpleModule;
 import io.katharsis.queryspec.QuerySpec;
@@ -44,7 +45,6 @@ import io.katharsis.resource.mock.repository.UserToTaskRepository;
 import io.katharsis.resource.registry.ConstantServiceUrlProvider;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.resource.registry.ResourceRegistryBuilder;
 import io.katharsis.resource.registry.ResourceRegistryBuilderTest;
 import io.katharsis.resource.registry.ResourceRegistryTest;
 

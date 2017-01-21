@@ -30,16 +30,16 @@ import io.katharsis.core.internal.query.QueryAdapterBuilder;
 import io.katharsis.core.internal.query.QueryParamsAdapterBuilder;
 import io.katharsis.core.internal.query.QuerySpecAdapterBuilder;
 import io.katharsis.core.internal.utils.parser.TypeParser;
-import io.katharsis.locator.JsonServiceLocator;
+import io.katharsis.legacy.locator.JsonServiceLocator;
+import io.katharsis.legacy.queryParams.DefaultQueryParamsParser;
+import io.katharsis.legacy.queryParams.QueryParamsBuilder;
+import io.katharsis.legacy.registry.ResourceRegistryBuilder;
 import io.katharsis.module.CoreModule;
 import io.katharsis.module.ModuleRegistry;
-import io.katharsis.queryParams.DefaultQueryParamsParser;
-import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.queryspec.QuerySpecDeserializer;
 import io.katharsis.resource.information.ResourceFieldNameTransformer;
 import io.katharsis.resource.registry.ConstantServiceUrlProvider;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.resource.registry.ResourceRegistryBuilder;
 
 /**
  * KatharsisInvoker builder.

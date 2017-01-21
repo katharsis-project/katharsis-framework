@@ -21,7 +21,7 @@ import io.katharsis.core.internal.repository.adapter.RelationshipRepositoryAdapt
 import io.katharsis.core.internal.repository.adapter.ResourceRepositoryAdapter;
 import io.katharsis.core.internal.resource.IncludeLookupSetter;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
-import io.katharsis.queryParams.QueryParams;
+import io.katharsis.legacy.queryParams.QueryParams;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.repository.response.Response;

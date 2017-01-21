@@ -4,6 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import io.katharsis.core.internal.query.QueryParamsAdapter;
+import io.katharsis.legacy.queryParams.QueryParams;
 import io.katharsis.module.ModuleRegistry;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.registry.ConstantServiceUrlProvider;

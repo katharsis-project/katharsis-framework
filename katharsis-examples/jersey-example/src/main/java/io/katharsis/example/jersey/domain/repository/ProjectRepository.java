@@ -1,7 +1,7 @@
 package io.katharsis.example.jersey.domain.repository;
 
 import io.katharsis.example.jersey.domain.model.Project;
-import io.katharsis.queryParams.QueryParams;
+import io.katharsis.legacy.queryParams.QueryParams;
 import io.katharsis.repository.ResourceRepository;
 
 public class ProjectRepository implements ResourceRepository<Project, Long> {

@@ -1,6 +1,6 @@
 package io.katharsis.core.internal.registry;
 
-import io.katharsis.repository.RepositoryInstanceBuilder;
+import io.katharsis.legacy.registry.RepositoryInstanceBuilder;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.resource.registry.ResourceEntry;
 

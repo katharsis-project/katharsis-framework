@@ -31,13 +31,13 @@ import org.springframework.validation.annotation.Validated;
 
 import io.katharsis.errorhandling.exception.ResourceNotFoundException;
 import io.katharsis.example.springboot.simple.domain.model.Task;
+import io.katharsis.legacy.repository.annotations.JsonApiDelete;
+import io.katharsis.legacy.repository.annotations.JsonApiFindAll;
+import io.katharsis.legacy.repository.annotations.JsonApiFindAllWithIds;
+import io.katharsis.legacy.repository.annotations.JsonApiFindOne;
+import io.katharsis.legacy.repository.annotations.JsonApiResourceRepository;
+import io.katharsis.legacy.repository.annotations.JsonApiSave;
 import io.katharsis.queryspec.QuerySpec;
-import io.katharsis.repository.annotations.JsonApiDelete;
-import io.katharsis.repository.annotations.JsonApiFindAll;
-import io.katharsis.repository.annotations.JsonApiFindAllWithIds;
-import io.katharsis.repository.annotations.JsonApiFindOne;
-import io.katharsis.repository.annotations.JsonApiResourceRepository;
-import io.katharsis.repository.annotations.JsonApiSave;
 
 @Component
 @JsonApiResourceRepository(Task.class)

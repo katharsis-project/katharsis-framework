@@ -14,7 +14,7 @@ import io.katharsis.core.internal.dispatcher.path.JsonPath;
 import io.katharsis.core.internal.dispatcher.path.ResourcePath;
 import io.katharsis.core.internal.query.QueryParamsAdapter;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
-import io.katharsis.queryParams.QueryParams;
+import io.katharsis.legacy.queryParams.QueryParams;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.repository.request.HttpMethod;
 import io.katharsis.repository.response.HttpStatus;

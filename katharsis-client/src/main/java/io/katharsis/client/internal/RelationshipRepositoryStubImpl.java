@@ -10,7 +10,7 @@ import io.katharsis.client.KatharsisClient;
 import io.katharsis.client.RelationshipRepositoryStub;
 import io.katharsis.core.internal.utils.JsonApiUrlBuilder;
 import io.katharsis.core.internal.utils.PropertyUtils;
-import io.katharsis.queryParams.QueryParams;
+import io.katharsis.legacy.queryParams.QueryParams;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.repository.RelationshipRepositoryV2;
 import io.katharsis.repository.request.HttpMethod;

@@ -6,7 +6,7 @@ import org.junit.Test;
 
 import io.katharsis.core.internal.boot.KatharsisBoot;
 import io.katharsis.core.internal.boot.ReflectionsServiceDiscovery;
-import io.katharsis.locator.SampleJsonServiceLocator;
+import io.katharsis.legacy.locator.SampleJsonServiceLocator;
 import io.katharsis.meta.model.MetaAttribute;
 import io.katharsis.meta.model.MetaDataObject;
 import io.katharsis.meta.model.MetaElement;

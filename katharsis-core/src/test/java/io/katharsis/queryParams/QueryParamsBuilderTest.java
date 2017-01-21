@@ -13,7 +13,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 import io.katharsis.core.internal.jackson.exception.ParametersDeserializationException;
-import io.katharsis.queryParams.include.Inclusion;
+import io.katharsis.legacy.queryParams.DefaultQueryParamsParser;
+import io.katharsis.legacy.queryParams.QueryParams;
+import io.katharsis.legacy.queryParams.QueryParamsBuilder;
+import io.katharsis.legacy.queryParams.RestrictedPaginationKeys;
+import io.katharsis.legacy.queryParams.RestrictedSortingValues;
+import io.katharsis.legacy.queryParams.include.Inclusion;
 
 public class QueryParamsBuilderTest {
 

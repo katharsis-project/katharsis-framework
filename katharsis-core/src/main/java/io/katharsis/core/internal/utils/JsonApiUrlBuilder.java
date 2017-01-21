@@ -8,9 +8,9 @@ import java.util.Map;
 
 import io.katharsis.core.internal.query.QueryParamsAdapter;
 import io.katharsis.core.internal.query.QuerySpecAdapter;
-import io.katharsis.queryParams.DefaultQueryParamsSerializer;
-import io.katharsis.queryParams.QueryParams;
-import io.katharsis.queryParams.QueryParamsSerializer;
+import io.katharsis.legacy.queryParams.DefaultQueryParamsSerializer;
+import io.katharsis.legacy.queryParams.QueryParams;
+import io.katharsis.legacy.queryParams.QueryParamsSerializer;
 import io.katharsis.queryspec.DefaultQuerySpecSerializer;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.QuerySpecSerializer;

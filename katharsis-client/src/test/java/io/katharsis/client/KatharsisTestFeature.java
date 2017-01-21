@@ -4,9 +4,9 @@ import javax.ws.rs.core.FeatureContext;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.katharsis.locator.JsonServiceLocator;
-import io.katharsis.locator.SampleJsonServiceLocator;
-import io.katharsis.queryParams.QueryParamsBuilder;
+import io.katharsis.legacy.locator.JsonServiceLocator;
+import io.katharsis.legacy.locator.SampleJsonServiceLocator;
+import io.katharsis.legacy.queryParams.QueryParamsBuilder;
 import io.katharsis.queryspec.DefaultQuerySpecDeserializer;
 import io.katharsis.rs.KatharsisFeature;
 

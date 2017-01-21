@@ -5,9 +5,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import io.katharsis.core.internal.utils.MultivaluedMap;
+import io.katharsis.legacy.repository.annotations.JsonApiFindManyTargets;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.repository.BulkRelationshipRepositoryV2;
-import io.katharsis.repository.annotations.JsonApiFindManyTargets;
 import io.katharsis.resource.list.DefaultResourceList;
 import io.katharsis.resource.list.ResourceList;
 import io.katharsis.resource.mock.models.Task;

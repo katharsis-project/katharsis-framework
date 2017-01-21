@@ -4,9 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.katharsis.core.internal.exception.ExceptionMapperRegistry;
 import io.katharsis.core.internal.exception.ExceptionMapperRegistryBuilder;
+import io.katharsis.legacy.registry.ResourceRegistryBuilder;
 import io.katharsis.module.ModuleRegistry;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.resource.registry.ResourceRegistryBuilder;
 import io.katharsis.resource.registry.ServiceUrlProvider;
 import io.katharsis.spring.SpringServiceLocator;
 import org.springframework.beans.factory.annotation.Autowired;

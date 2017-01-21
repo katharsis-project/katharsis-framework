@@ -4,18 +4,18 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 
 import io.katharsis.core.internal.utils.ClassUtils;
-import io.katharsis.queryParams.QueryParams;
+import io.katharsis.legacy.queryParams.QueryParams;
+import io.katharsis.legacy.repository.annotations.JsonApiDelete;
+import io.katharsis.legacy.repository.annotations.JsonApiFindAll;
+import io.katharsis.legacy.repository.annotations.JsonApiFindAllWithIds;
+import io.katharsis.legacy.repository.annotations.JsonApiFindOne;
+import io.katharsis.legacy.repository.annotations.JsonApiSave;
 import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.repository.ParametersFactory;
-import io.katharsis.repository.annotations.JsonApiDelete;
-import io.katharsis.repository.annotations.JsonApiFindAll;
-import io.katharsis.repository.annotations.JsonApiFindAllWithIds;
-import io.katharsis.repository.annotations.JsonApiFindOne;
-import io.katharsis.repository.annotations.JsonApiSave;
 
 /**
  * An adapter for annotation-based resource repository. Stores references to repository methods and call o proper one
- * when a repository method has to be called. This class is instantiated in {@link io.katharsis.repository.RepositoryInstanceBuilder}
+ * when a repository method has to be called. This class is instantiated in {@link io.katharsis.legacy.registry.RepositoryInstanceBuilder}
  */
 public class AnnotatedResourceRepositoryAdapter<T, ID extends Serializable>
     extends AnnotatedRepositoryAdapter<T> {

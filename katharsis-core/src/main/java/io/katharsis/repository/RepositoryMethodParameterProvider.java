@@ -13,7 +13,7 @@ import java.lang.reflect.Method;
  *  }
  *  }
  * </pre>
- * This method has {@link io.katharsis.repository.annotations.JsonApiFindOne} annotation which require the first
+ * This method has {@link io.katharsis.legacy.repository.annotations.JsonApiFindOne} annotation which require the first
  * parameter to be a resource identifier to be found. However, it is not the only parameter that can be defined.
  * It's possible to pass additional, web framework dependant objects associated with a request. When using JAX-RS
  * integration, it's possible to pass <b>javax.ws.rs.core.SecurityContext</b>. To allow doing that, JAX-RS adapter

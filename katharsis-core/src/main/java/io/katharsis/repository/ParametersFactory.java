@@ -4,7 +4,7 @@ import io.katharsis.core.internal.query.DefaultQuerySpecConverter;
 import io.katharsis.core.internal.query.QueryParamsAdapter;
 import io.katharsis.core.internal.query.QuerySpecAdapter;
 import io.katharsis.errorhandling.exception.RepositoryMethodException;
-import io.katharsis.queryParams.QueryParams;
+import io.katharsis.legacy.queryParams.QueryParams;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.internal.QueryAdapter;
 

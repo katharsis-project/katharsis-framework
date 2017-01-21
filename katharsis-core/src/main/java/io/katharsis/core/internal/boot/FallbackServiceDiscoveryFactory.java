@@ -1,6 +1,6 @@
 package io.katharsis.core.internal.boot;
 
-import io.katharsis.locator.JsonServiceLocator;
+import io.katharsis.legacy.locator.JsonServiceLocator;
 import io.katharsis.module.ServiceDiscovery;
 import io.katharsis.module.ServiceDiscoveryFactory;
 

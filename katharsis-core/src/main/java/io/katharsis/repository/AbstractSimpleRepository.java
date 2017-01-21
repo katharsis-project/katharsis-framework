@@ -2,7 +2,7 @@ package io.katharsis.repository;
 
 import java.io.Serializable;
 
-import io.katharsis.queryParams.QueryParams;
+import io.katharsis.legacy.queryParams.QueryParams;
 
 public abstract class AbstractSimpleRepository<T, ID extends Serializable> implements ResourceRepository<T, ID> {
 

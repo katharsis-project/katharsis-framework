@@ -20,7 +20,7 @@ import io.katharsis.jpa.model.TestEmbeddedIdEntity;
 import io.katharsis.jpa.model.TestEntity;
 import io.katharsis.jpa.model.TestIdEmbeddable;
 import io.katharsis.jpa.model.VersionedEntity;
-import io.katharsis.queryParams.QueryParams;
+import io.katharsis.legacy.queryParams.QueryParams;
 
 public class JpaQueryParamsEndToEndTest extends AbstractJpaJerseyTest {
 

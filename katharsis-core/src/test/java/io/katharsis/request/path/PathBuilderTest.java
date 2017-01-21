@@ -22,7 +22,8 @@ import io.katharsis.core.internal.dispatcher.path.ResourcePath;
 import io.katharsis.errorhandling.exception.RepositoryNotFoundException;
 import io.katharsis.errorhandling.exception.ResourceException;
 import io.katharsis.errorhandling.exception.ResourceFieldNotFoundException;
-import io.katharsis.locator.SampleJsonServiceLocator;
+import io.katharsis.legacy.locator.SampleJsonServiceLocator;
+import io.katharsis.legacy.registry.ResourceRegistryBuilder;
 import io.katharsis.module.ModuleRegistry;
 import io.katharsis.repository.information.RepositoryAction;
 import io.katharsis.repository.information.ResourceRepositoryInformation;
@@ -33,7 +34,6 @@ import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.registry.ConstantServiceUrlProvider;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.resource.registry.ResourceRegistryBuilder;
 import io.katharsis.resource.registry.ResourceRegistryBuilderTest;
 import io.katharsis.resource.registry.ResourceRegistryTest;
 

@@ -7,7 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import io.katharsis.client.mock.models.Task;
-import io.katharsis.queryParams.QueryParams;
+import io.katharsis.legacy.queryParams.QueryParams;
 
 public class HeadersTest extends AbstractClientTest {
 	private static final String EXPECTED_CONTENT_TYPE = "application/vnd.api+json";

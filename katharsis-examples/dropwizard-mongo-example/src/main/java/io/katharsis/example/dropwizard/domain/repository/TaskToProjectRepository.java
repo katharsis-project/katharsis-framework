@@ -2,7 +2,7 @@ package io.katharsis.example.dropwizard.domain.repository;
 
 import io.katharsis.example.dropwizard.domain.model.Project;
 import io.katharsis.example.dropwizard.domain.model.Task;
-import io.katharsis.queryParams.QueryParams;
+import io.katharsis.legacy.queryParams.QueryParams;
 import io.katharsis.repository.RelationshipRepository;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.bson.types.ObjectId;

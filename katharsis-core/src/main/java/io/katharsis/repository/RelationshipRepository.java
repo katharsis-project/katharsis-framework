@@ -1,8 +1,8 @@
 package io.katharsis.repository;
 
-import io.katharsis.queryParams.QueryParams;
-
 import java.io.Serializable;
+
+import io.katharsis.legacy.queryParams.QueryParams;
 
 /**
  * <p>

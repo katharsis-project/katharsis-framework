@@ -1,6 +1,6 @@
 package io.katharsis.vertx.examples.repository;
 
-import io.katharsis.queryParams.QueryParams;
+import io.katharsis.legacy.queryParams.QueryParams;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.vertx.examples.domain.Project;
 import io.katharsis.vertx.examples.domain.Task;
