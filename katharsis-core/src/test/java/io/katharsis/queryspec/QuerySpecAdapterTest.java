@@ -5,12 +5,12 @@ import java.util.Arrays;
 import org.junit.Assert;
 import org.junit.Test;
 
+import io.katharsis.core.internal.query.QuerySpecAdapter;
+import io.katharsis.core.internal.repository.information.ResourceRepositoryInformationImpl;
 import io.katharsis.module.ModuleRegistry;
 import io.katharsis.queryParams.params.IncludedFieldsParams;
 import io.katharsis.queryParams.params.IncludedRelationsParams;
 import io.katharsis.queryParams.params.TypedParams;
-import io.katharsis.queryspec.internal.QuerySpecAdapter;
-import io.katharsis.repository.information.internal.ResourceRepositoryInformationImpl;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.registry.ConstantServiceUrlProvider;

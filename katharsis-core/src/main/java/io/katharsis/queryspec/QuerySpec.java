@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import io.katharsis.core.internal.utils.CompareUtils;
 import io.katharsis.resource.list.DefaultResourceList;
 import io.katharsis.resource.list.ResourceList;
-import io.katharsis.response.paging.DefaultPagedMetaInformation;
-import io.katharsis.utils.CompareUtils;
+import io.katharsis.resource.meta.DefaultPagedMetaInformation;
 
 public class QuerySpec {
 

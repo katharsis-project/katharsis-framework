@@ -18,18 +18,19 @@ import org.junit.Test;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.jayway.jsonpath.ReadContext;
 
+import io.katharsis.core.internal.dispatcher.controller.RelationshipsResourceGet;
+import io.katharsis.core.internal.dispatcher.path.JsonPath;
+import io.katharsis.core.internal.dispatcher.path.ResourcePath;
+import io.katharsis.core.internal.query.QueryParamsAdapter;
+import io.katharsis.core.internal.utils.ClassUtils;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
-import io.katharsis.dispatcher.controller.Response;
-import io.katharsis.queryspec.internal.QueryParamsAdapter;
-import io.katharsis.request.path.JsonPath;
-import io.katharsis.request.path.ResourcePath;
+import io.katharsis.repository.response.Response;
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.mock.models.ProjectPolymorphic;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.repository.ProjectPolymorphicToObjectRepository;
 import io.katharsis.resource.mock.repository.TaskToProjectRepository;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.utils.ClassUtils;
 
 public class RelationshipsResourceGetTest extends BaseControllerTest {
 

@@ -12,7 +12,7 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 
-import io.katharsis.jackson.exception.ParametersDeserializationException;
+import io.katharsis.core.internal.jackson.exception.ParametersDeserializationException;
 import io.katharsis.queryParams.include.Inclusion;
 
 public class QueryParamsBuilderTest {

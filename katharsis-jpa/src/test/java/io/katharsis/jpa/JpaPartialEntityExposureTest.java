@@ -15,7 +15,7 @@ import io.katharsis.jpa.internal.JpaResourceInformationBuilder;
 import io.katharsis.jpa.model.RelatedEntity;
 import io.katharsis.jpa.model.TestEntity;
 import io.katharsis.queryParams.QueryParams;
-import io.katharsis.resource.field.ResourceField;
+import io.katharsis.resource.information.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
 
 @Ignore

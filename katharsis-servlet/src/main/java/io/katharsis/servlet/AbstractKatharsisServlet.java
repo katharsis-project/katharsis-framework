@@ -16,7 +16,7 @@
  */
 package io.katharsis.servlet;
 
-import io.katharsis.dispatcher.RequestDispatcher;
+import io.katharsis.core.internal.dispatcher.RequestDispatcher;
 import io.katharsis.invoker.KatharsisInvoker;
 import io.katharsis.invoker.KatharsisInvokerBuilder;
 import io.katharsis.invoker.KatharsisInvokerContext;

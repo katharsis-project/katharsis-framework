@@ -7,6 +7,10 @@ import java.util.Collections;
 
 import org.junit.Test;
 
+import io.katharsis.core.internal.dispatcher.path.JsonPath;
+import io.katharsis.core.internal.dispatcher.path.PathIds;
+import io.katharsis.core.internal.dispatcher.path.ResourcePath;
+
 public class ResourcePathTest {
 
     @Test

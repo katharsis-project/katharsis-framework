@@ -17,7 +17,10 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
-import io.katharsis.repository.exception.RepositoryAnnotationNotFoundException;
+import io.katharsis.core.internal.utils.ClassUtils;
+import io.katharsis.core.internal.utils.FieldOrderedComparator;
+import io.katharsis.core.internal.utils.StringUtils;
+import io.katharsis.errorhandling.exception.RepositoryAnnotationNotFoundException;
 import io.katharsis.resource.annotations.JsonApiId;
 import io.katharsis.resource.annotations.JsonApiIncludeByDefault;
 import io.katharsis.resource.annotations.JsonApiLinksInformation;
@@ -26,12 +29,7 @@ import io.katharsis.resource.annotations.JsonApiMetaInformation;
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.annotations.JsonApiToMany;
 import io.katharsis.resource.annotations.JsonApiToOne;
-import io.katharsis.resource.field.ResourceField;
-import io.katharsis.resource.field.ResourceFieldNameTransformer;
-import io.katharsis.resource.information.field.FieldOrderedComparator;
-import io.katharsis.utils.ClassUtils;
-import io.katharsis.utils.StringUtils;
-import io.katharsis.utils.java.Optional;
+import io.katharsis.utils.Optional;
 import lombok.ToString;
 
 /**

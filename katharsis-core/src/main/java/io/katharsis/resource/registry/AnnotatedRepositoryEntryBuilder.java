@@ -5,15 +5,13 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import io.katharsis.core.internal.registry.AnnotatedRelationshipEntryBuilder;
+import io.katharsis.core.internal.registry.AnnotatedResourceEntry;
+import io.katharsis.core.internal.utils.Predicate1;
 import io.katharsis.locator.JsonServiceLocator;
 import io.katharsis.repository.RepositoryInstanceBuilder;
 import io.katharsis.repository.annotations.JsonApiRelationshipRepository;
 import io.katharsis.repository.annotations.JsonApiResourceRepository;
-import io.katharsis.resource.registry.repository.AnnotatedRelationshipEntryBuilder;
-import io.katharsis.resource.registry.repository.AnnotatedResourceEntry;
-import io.katharsis.resource.registry.repository.ResourceEntry;
-import io.katharsis.resource.registry.repository.ResponseRelationshipEntry;
-import io.katharsis.utils.Predicate1;
 
 /**
  * Repository entries builder for classes annotated with repository annotations.

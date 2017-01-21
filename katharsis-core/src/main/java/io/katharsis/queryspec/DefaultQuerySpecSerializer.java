@@ -8,11 +8,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import io.katharsis.repository.exception.RepositoryNotFoundException;
+import io.katharsis.core.internal.utils.StringUtils;
+import io.katharsis.errorhandling.exception.RepositoryNotFoundException;
 import io.katharsis.resource.RestrictedQueryParamsMembers;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.utils.StringUtils;
 
 public class DefaultQuerySpecSerializer implements QuerySpecSerializer {
 

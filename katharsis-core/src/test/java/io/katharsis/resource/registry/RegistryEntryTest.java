@@ -9,12 +9,15 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import io.katharsis.core.internal.registry.AnnotatedResourceEntry;
+import io.katharsis.core.internal.registry.DirectResponseRelationshipEntry;
+import io.katharsis.core.internal.repository.adapter.RelationshipRepositoryAdapter;
+import io.katharsis.core.internal.repository.information.ResourceRepositoryInformationImpl;
+import io.katharsis.errorhandling.exception.RelationshipRepositoryNotFoundException;
 import io.katharsis.locator.SampleJsonServiceLocator;
 import io.katharsis.module.ModuleRegistry;
 import io.katharsis.repository.RepositoryInstanceBuilder;
-import io.katharsis.repository.exception.RelationshipRepositoryNotFoundException;
 import io.katharsis.repository.information.ResourceRepositoryInformation;
-import io.katharsis.repository.information.internal.ResourceRepositoryInformationImpl;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.mock.models.Document;
 import io.katharsis.resource.mock.models.Memorandum;
@@ -24,9 +27,6 @@ import io.katharsis.resource.mock.models.Thing;
 import io.katharsis.resource.mock.models.User;
 import io.katharsis.resource.mock.repository.TaskRepository;
 import io.katharsis.resource.mock.repository.TaskToProjectRepository;
-import io.katharsis.resource.registry.repository.AnnotatedResourceEntry;
-import io.katharsis.resource.registry.repository.DirectResponseRelationshipEntry;
-import io.katharsis.resource.registry.repository.adapter.RelationshipRepositoryAdapter;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
 

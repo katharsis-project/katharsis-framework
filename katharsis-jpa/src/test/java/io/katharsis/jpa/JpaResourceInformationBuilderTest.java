@@ -21,7 +21,7 @@ import io.katharsis.jpa.model.TestEntity;
 import io.katharsis.jpa.util.ResourceFieldComparator;
 import io.katharsis.meta.MetaLookup;
 import io.katharsis.meta.provider.resource.ResourceMetaProvider;
-import io.katharsis.resource.field.ResourceField;
+import io.katharsis.resource.information.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
 
 public class JpaResourceInformationBuilderTest {

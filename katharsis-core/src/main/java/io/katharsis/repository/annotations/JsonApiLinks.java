@@ -19,7 +19,7 @@ import java.lang.annotation.Target;
  *     <li>A list of resources</li>
  * </ol>
  * <p>
- * The return value must be an instance of {@link io.katharsis.response.LinksInformation} type.
+ * The return value must be an instance of {@link io.katharsis.resource.links.LinksInformation} type.
  * </p>
  *
  * @see io.katharsis.repository.LinksRepository

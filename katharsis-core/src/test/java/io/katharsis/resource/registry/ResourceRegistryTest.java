@@ -8,13 +8,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import io.katharsis.core.internal.repository.information.ResourceRepositoryInformationImpl;
+import io.katharsis.errorhandling.exception.ResourceNotFoundInitializationException;
 import io.katharsis.module.ModuleRegistry;
-import io.katharsis.repository.information.internal.ResourceRepositoryInformationImpl;
 import io.katharsis.resource.annotations.JsonApiResource;
-import io.katharsis.resource.exception.init.ResourceNotFoundInitializationException;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.mock.models.Task;
-import io.katharsis.utils.java.Optional;
+import io.katharsis.utils.Optional;
 
 public class ResourceRegistryTest {
 

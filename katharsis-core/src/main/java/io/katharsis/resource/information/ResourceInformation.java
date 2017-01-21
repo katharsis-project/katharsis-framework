@@ -9,17 +9,15 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import io.katharsis.core.internal.utils.PropertyUtils;
+import io.katharsis.core.internal.utils.parser.TypeParser;
+import io.katharsis.errorhandling.exception.MultipleJsonApiLinksInformationException;
+import io.katharsis.errorhandling.exception.MultipleJsonApiMetaInformationException;
+import io.katharsis.errorhandling.exception.ResourceDuplicateIdException;
+import io.katharsis.errorhandling.exception.ResourceIdNotFoundException;
 import io.katharsis.resource.Document;
 import io.katharsis.resource.annotations.JsonApiResource;
-import io.katharsis.resource.exception.init.MultipleJsonApiLinksInformationException;
-import io.katharsis.resource.exception.init.MultipleJsonApiMetaInformationException;
-import io.katharsis.resource.exception.init.ResourceDuplicateIdException;
-import io.katharsis.resource.exception.init.ResourceIdNotFoundException;
-import io.katharsis.resource.field.ResourceAttributesBridge;
-import io.katharsis.resource.field.ResourceField;
-import io.katharsis.resource.field.ResourceField.ResourceFieldType;
-import io.katharsis.utils.PropertyUtils;
-import io.katharsis.utils.parser.TypeParser;
+import io.katharsis.resource.information.ResourceField.ResourceFieldType;
 
 /**
  * Holds information about the type of the resource.

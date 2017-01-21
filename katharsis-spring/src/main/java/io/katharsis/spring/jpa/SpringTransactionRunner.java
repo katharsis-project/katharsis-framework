@@ -8,7 +8,7 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import io.katharsis.internal.boot.TransactionRunner;
+import io.katharsis.core.internal.boot.TransactionRunner;
 
 public class SpringTransactionRunner implements TransactionRunner {
 

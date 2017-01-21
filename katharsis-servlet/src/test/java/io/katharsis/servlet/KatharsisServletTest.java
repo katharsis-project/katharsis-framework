@@ -45,12 +45,12 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockServletConfig;
 import org.springframework.mock.web.MockServletContext;
 
+import io.katharsis.core.internal.utils.StringUtils;
 import io.katharsis.invoker.JsonApiMediaType;
 import io.katharsis.servlet.resource.model.Locale;
 import io.katharsis.servlet.resource.model.Node;
 import io.katharsis.servlet.resource.model.NodeComment;
 import io.katharsis.servlet.resource.repository.NodeRepository;
-import io.katharsis.utils.StringUtils;
 
 /**
  * Test for {@link AbstractKatharsisServlet}.

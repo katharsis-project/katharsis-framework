@@ -1,7 +1,8 @@
 package io.katharsis.spring.boot;
 
 import com.fasterxml.jackson.databind.Module;
-import io.katharsis.jackson.JsonApiModuleBuilder;
+
+import io.katharsis.core.internal.jackson.JsonApiModuleBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

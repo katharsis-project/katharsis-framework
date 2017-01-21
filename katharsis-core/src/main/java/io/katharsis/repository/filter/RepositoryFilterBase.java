@@ -2,9 +2,9 @@ package io.katharsis.repository.filter;
 
 import java.util.Map;
 
-import io.katharsis.response.JsonApiResponse;
-import io.katharsis.response.LinksInformation;
-import io.katharsis.response.MetaInformation;
+import io.katharsis.repository.response.JsonApiResponse;
+import io.katharsis.resource.links.LinksInformation;
+import io.katharsis.resource.meta.MetaInformation;
 
 /**
  * Base class for {@links RepositoryFilter} implementations doing nothing except forwarding the call to the next element in the filter chain.

@@ -1,11 +1,14 @@
 package io.katharsis.dispatcher.filter;
 
-import io.katharsis.dispatcher.controller.Response;
+import io.katharsis.repository.filter.DocumentFilter;
+import io.katharsis.repository.filter.DocumentFilterChain;
+import io.katharsis.repository.filter.DocumentFilterContext;
+import io.katharsis.repository.response.Response;
 
-public class TestFilter implements Filter {
+public class TestFilter implements DocumentFilter {
 
 	@Override
-	public Response filter(FilterRequestContext filterRequestContext, FilterChain chain) {
+	public Response filter(DocumentFilterContext filterRequestContext, DocumentFilterChain chain) {
 		return chain.doFilter(filterRequestContext);
 	}
 }

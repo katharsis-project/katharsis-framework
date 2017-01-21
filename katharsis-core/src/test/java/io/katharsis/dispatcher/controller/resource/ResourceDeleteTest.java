@@ -5,12 +5,13 @@ import static org.mockito.Mockito.mock;
 
 import org.junit.Test;
 
+import io.katharsis.core.internal.dispatcher.controller.ResourceDelete;
+import io.katharsis.core.internal.dispatcher.path.JsonPath;
+import io.katharsis.core.internal.dispatcher.path.ResourcePath;
+import io.katharsis.core.internal.query.QueryParamsAdapter;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
-import io.katharsis.dispatcher.controller.Response;
 import io.katharsis.queryParams.QueryParams;
-import io.katharsis.queryspec.internal.QueryParamsAdapter;
-import io.katharsis.request.path.JsonPath;
-import io.katharsis.request.path.ResourcePath;
+import io.katharsis.repository.response.Response;
 import io.katharsis.resource.registry.ResourceRegistry;
 
 public class ResourceDeleteTest extends BaseControllerTest {

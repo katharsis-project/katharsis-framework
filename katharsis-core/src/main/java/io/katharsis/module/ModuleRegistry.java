@@ -10,9 +10,17 @@ import java.util.Set;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.katharsis.dispatcher.filter.Filter;
+import io.katharsis.core.internal.exception.ExceptionMapperLookup;
+import io.katharsis.core.internal.registry.AnnotatedRelationshipEntryBuilder;
+import io.katharsis.core.internal.registry.AnnotatedResourceEntry;
+import io.katharsis.core.internal.registry.DirectResponseRelationshipEntry;
+import io.katharsis.core.internal.registry.DirectResponseResourceEntry;
+import io.katharsis.core.internal.repository.information.ResourceRepositoryInformationImpl;
+import io.katharsis.core.internal.utils.ClassUtils;
+import io.katharsis.core.internal.utils.Decorator;
+import io.katharsis.core.internal.utils.MultivaluedMap;
+import io.katharsis.core.internal.utils.PreconditionUtil;
 import io.katharsis.errorhandling.mapper.ExceptionMapper;
-import io.katharsis.errorhandling.mapper.ExceptionMapperLookup;
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
 import io.katharsis.repository.RelationshipRepositoryV2;
 import io.katharsis.repository.RepositoryInstanceBuilder;
@@ -22,31 +30,23 @@ import io.katharsis.repository.annotations.JsonApiResourceRepository;
 import io.katharsis.repository.decorate.RelationshipRepositoryDecorator;
 import io.katharsis.repository.decorate.RepositoryDecoratorFactory;
 import io.katharsis.repository.decorate.ResourceRepositoryDecorator;
+import io.katharsis.repository.filter.DocumentFilter;
 import io.katharsis.repository.filter.RepositoryFilter;
 import io.katharsis.repository.information.RelationshipRepositoryInformation;
 import io.katharsis.repository.information.RepositoryInformation;
 import io.katharsis.repository.information.RepositoryInformationBuilder;
 import io.katharsis.repository.information.RepositoryInformationBuilderContext;
 import io.katharsis.repository.information.ResourceRepositoryInformation;
-import io.katharsis.repository.information.internal.ResourceRepositoryInformationImpl;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.registry.MultiResourceLookup;
 import io.katharsis.resource.registry.RegistryEntry;
+import io.katharsis.resource.registry.ResourceEntry;
 import io.katharsis.resource.registry.ResourceLookup;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryAware;
-import io.katharsis.resource.registry.repository.AnnotatedRelationshipEntryBuilder;
-import io.katharsis.resource.registry.repository.AnnotatedResourceEntry;
-import io.katharsis.resource.registry.repository.DirectResponseRelationshipEntry;
-import io.katharsis.resource.registry.repository.DirectResponseResourceEntry;
-import io.katharsis.resource.registry.repository.ResourceEntry;
-import io.katharsis.resource.registry.repository.ResponseRelationshipEntry;
+import io.katharsis.resource.registry.ResponseRelationshipEntry;
 import io.katharsis.security.SecurityProvider;
-import io.katharsis.utils.ClassUtils;
-import io.katharsis.utils.Decorator;
-import io.katharsis.utils.MultivaluedMap;
-import io.katharsis.utils.PreconditionUtil;
 
 /**
  * Container for setting up and holding {@link Module} instances;
@@ -129,7 +129,7 @@ public class ModuleRegistry {
 		}
 
 		@Override
-		public void addFilter(Filter filter) {
+		public void addFilter(DocumentFilter filter) {
 			checkNotInitialized();
 			aggregatedModule.addFilter(filter);
 		}
@@ -537,9 +537,9 @@ public class ModuleRegistry {
 	}
 
 	/**
-	 * @return {@link Filter} added by all modules
+	 * @return {@link DocumentFilter} added by all modules
 	 */
-	public List<Filter> getFilters() {
+	public List<DocumentFilter> getFilters() {
 		return aggregatedModule.getFilters();
 	}
 

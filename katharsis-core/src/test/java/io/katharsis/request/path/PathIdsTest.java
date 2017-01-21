@@ -2,6 +2,7 @@ package io.katharsis.request.path;
 
 import org.junit.Test;
 
+import io.katharsis.core.internal.dispatcher.path.PathIds;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
 

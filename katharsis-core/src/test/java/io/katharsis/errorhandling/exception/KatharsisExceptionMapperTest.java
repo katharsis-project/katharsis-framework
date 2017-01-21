@@ -5,12 +5,10 @@ import static org.assertj.core.api.Assertions.tuple;
 
 import org.junit.Test;
 
+import io.katharsis.core.internal.exception.KatharsisExceptionMapper;
 import io.katharsis.errorhandling.ErrorData;
 import io.katharsis.errorhandling.ErrorResponse;
-import io.katharsis.errorhandling.mapper.KatharsisExceptionMapper;
-import io.katharsis.response.HttpStatus;
-import io.katharsis.security.ForbiddenException;
-import io.katharsis.security.UnauthorizedException;
+import io.katharsis.repository.response.HttpStatus;
 
 public class KatharsisExceptionMapperTest {
 

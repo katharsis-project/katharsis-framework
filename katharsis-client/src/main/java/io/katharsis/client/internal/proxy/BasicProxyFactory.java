@@ -8,13 +8,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import io.katharsis.core.internal.utils.ClassUtils;
+import io.katharsis.core.internal.utils.WrappedList;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.list.DefaultResourceList;
 import io.katharsis.resource.list.ResourceList;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.utils.ClassUtils;
-import io.katharsis.utils.WrappedList;
 
 /**
  * Basic implementation of {@link ClientProxyFactory}.

@@ -5,19 +5,17 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
+import io.katharsis.core.internal.registry.AnnotatedRelationshipEntryBuilder;
+import io.katharsis.core.internal.registry.AnnotatedResourceEntry;
+import io.katharsis.core.internal.registry.DirectResponseRelationshipEntry;
+import io.katharsis.core.internal.registry.DirectResponseResourceEntry;
+import io.katharsis.core.internal.repository.adapter.RelationshipRepositoryAdapter;
+import io.katharsis.core.internal.repository.adapter.ResourceRepositoryAdapter;
+import io.katharsis.errorhandling.exception.RelationshipRepositoryNotFoundException;
 import io.katharsis.module.ModuleRegistry;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
-import io.katharsis.repository.exception.RelationshipRepositoryNotFoundException;
 import io.katharsis.repository.information.ResourceRepositoryInformation;
 import io.katharsis.resource.information.ResourceInformation;
-import io.katharsis.resource.registry.repository.AnnotatedRelationshipEntryBuilder;
-import io.katharsis.resource.registry.repository.AnnotatedResourceEntry;
-import io.katharsis.resource.registry.repository.DirectResponseRelationshipEntry;
-import io.katharsis.resource.registry.repository.DirectResponseResourceEntry;
-import io.katharsis.resource.registry.repository.ResourceEntry;
-import io.katharsis.resource.registry.repository.ResponseRelationshipEntry;
-import io.katharsis.resource.registry.repository.adapter.RelationshipRepositoryAdapter;
-import io.katharsis.resource.registry.repository.adapter.ResourceRepositoryAdapter;
 
 /**
  * Holds information about a resource of type <i>T</i> and its repositories.

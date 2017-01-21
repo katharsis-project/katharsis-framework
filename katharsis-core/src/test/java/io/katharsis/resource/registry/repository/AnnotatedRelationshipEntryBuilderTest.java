@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
 
+import io.katharsis.core.internal.registry.AnnotatedRelationshipEntryBuilder;
 import io.katharsis.locator.JsonServiceLocator;
 import io.katharsis.locator.SampleJsonServiceLocator;
 import io.katharsis.repository.RepositoryInstanceBuilder;

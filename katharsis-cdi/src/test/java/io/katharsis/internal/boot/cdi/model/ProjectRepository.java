@@ -6,9 +6,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.enterprise.context.ApplicationScoped;
 
+import io.katharsis.errorhandling.exception.ResourceNotFoundException;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.repository.ResourceRepository;
-import io.katharsis.resource.exception.ResourceNotFoundException;
 
 @ApplicationScoped
 public class ProjectRepository implements ResourceRepository<Project, Long> {

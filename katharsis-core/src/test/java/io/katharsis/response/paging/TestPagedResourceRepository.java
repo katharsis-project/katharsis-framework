@@ -5,10 +5,11 @@ import java.util.Iterator;
 import java.util.List;
 
 import io.katharsis.queryspec.QuerySpec;
-import io.katharsis.queryspec.QuerySpecResourceRepository;
+import io.katharsis.repository.ResourceRepositoryV2;
+import io.katharsis.resource.list.ResourceList;
 import io.katharsis.resource.mock.models.Task;
 
-public class TestPagedResourceRepository implements QuerySpecResourceRepository<Task, Long> {
+public class TestPagedResourceRepository implements ResourceRepositoryV2<Task, Long> {
 
 	private static List<Task> tasks = new ArrayList<Task>();
 
@@ -28,18 +29,12 @@ public class TestPagedResourceRepository implements QuerySpecResourceRepository<
 	}
 
 	@Override
-	public Iterable<Task> findAll(QuerySpec querySpec) {
-		if (querySpec == null) {
-			return tasks;
-		}
+	public ResourceList<Task> findAll(QuerySpec querySpec) {
 		return querySpec.apply(tasks);
 	}
 
 	@Override
-	public Iterable<Task> findAll(Iterable<Long> ids, QuerySpec querySpec) {
-		if (querySpec == null) {
-			return tasks;
-		}
+	public ResourceList<Task> findAll(Iterable<Long> ids, QuerySpec querySpec) {
 		return querySpec.apply(tasks);
 	}
 
@@ -62,5 +57,10 @@ public class TestPagedResourceRepository implements QuerySpecResourceRepository<
 
 	public static void clear() {
 		tasks.clear();
+	}
+
+	@Override
+	public <S extends Task> S create(S entity) {
+		return save(entity);
 	}
 }

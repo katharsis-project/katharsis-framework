@@ -11,27 +11,29 @@ import org.mockito.Mockito;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.katharsis.dispatcher.filter.Filter;
+import io.katharsis.core.internal.exception.ExceptionMapperLookup;
+import io.katharsis.core.internal.exception.ExceptionMapperRegistryTest.IllegalStateExceptionMapper;
+import io.katharsis.core.internal.exception.ExceptionMapperRegistryTest.SomeIllegalStateExceptionMapper;
+import io.katharsis.core.internal.registry.DirectResponseRelationshipEntry;
 import io.katharsis.dispatcher.filter.TestFilter;
 import io.katharsis.dispatcher.filter.TestRepositoryDecorator;
 import io.katharsis.dispatcher.filter.TestRepositoryDecorator.DecoratedScheduleRepository;
-import io.katharsis.errorhandling.mapper.ExceptionMapperLookup;
-import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryTest.IllegalStateExceptionMapper;
-import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryTest.SomeIllegalStateExceptionMapper;
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
 import io.katharsis.queryspec.QuerySpec;
-import io.katharsis.queryspec.QuerySpecRelationshipRepository;
-import io.katharsis.queryspec.QuerySpecResourceRepository;
+import io.katharsis.repository.RelationshipRepositoryV2;
+import io.katharsis.repository.ResourceRepositoryV2;
 import io.katharsis.repository.decorate.RepositoryDecoratorFactory;
+import io.katharsis.repository.filter.DocumentFilter;
 import io.katharsis.repository.information.RelationshipRepositoryInformation;
 import io.katharsis.repository.information.RepositoryInformationBuilder;
 import io.katharsis.repository.information.RepositoryInformationBuilderContext;
 import io.katharsis.repository.information.ResourceRepositoryInformation;
 import io.katharsis.resource.annotations.JsonApiId;
 import io.katharsis.resource.annotations.JsonApiResource;
-import io.katharsis.resource.field.ResourceFieldNameTransformer;
+import io.katharsis.resource.information.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.information.ResourceInformationBuilder;
+import io.katharsis.resource.list.ResourceList;
 import io.katharsis.resource.mock.models.ComplexPojo;
 import io.katharsis.resource.mock.models.Document;
 import io.katharsis.resource.mock.models.FancyProject;
@@ -55,7 +57,6 @@ import io.katharsis.resource.registry.ConstantServiceUrlProvider;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceLookup;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.resource.registry.repository.DirectResponseRelationshipEntry;
 import io.katharsis.security.SecurityProvider;
 
 public class ModuleTest {
@@ -280,7 +281,7 @@ public class ModuleTest {
 
 	@Test
 	public void testFilter() throws Exception {
-		List<Filter> filters = moduleRegistry.getFilters();
+		List<DocumentFilter> filters = moduleRegistry.getFilters();
 		Assert.assertEquals(1, filters.size());
 	}
 
@@ -405,7 +406,7 @@ public class ModuleTest {
 		}
 	}
 
-	class TestRelationshipRepository2 implements QuerySpecRelationshipRepository<TestResource2, Integer, TestResource2, Integer> {
+	class TestRelationshipRepository2 implements RelationshipRepositoryV2<TestResource2, Integer, TestResource2, Integer> {
 
 		@Override
 		public void setRelation(TestResource2 source, Integer targetId, String fieldName) {
@@ -429,7 +430,7 @@ public class ModuleTest {
 		}
 
 		@Override
-		public Iterable<TestResource2> findManyTargets(Integer sourceId, String fieldName, QuerySpec queryParams) {
+		public ResourceList<TestResource2> findManyTargets(Integer sourceId, String fieldName, QuerySpec queryParams) {
 			return null;
 		}
 
@@ -444,7 +445,7 @@ public class ModuleTest {
 		}
 	}
 
-	class TestRepository2 implements QuerySpecResourceRepository<TestResource2, Integer> {
+	class TestRepository2 implements ResourceRepositoryV2<TestResource2, Integer> {
 
 		@Override
 		public <S extends TestResource2> S save(S entity) {
@@ -466,12 +467,17 @@ public class ModuleTest {
 		}
 
 		@Override
-		public Iterable<TestResource2> findAll(QuerySpec querySpec) {
+		public ResourceList<TestResource2> findAll(QuerySpec querySpec) {
 			return null;
 		}
 
 		@Override
-		public Iterable<TestResource2> findAll(Iterable<Integer> ids, QuerySpec querySpec) {
+		public ResourceList<TestResource2> findAll(Iterable<Integer> ids, QuerySpec querySpec) {
+			return null;
+		}
+
+		@Override
+		public <S extends TestResource2> S create(S entity) {
 			return null;
 		}
 	}

@@ -7,12 +7,14 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import io.katharsis.core.internal.dispatcher.ControllerRegistry;
+import io.katharsis.core.internal.dispatcher.path.JsonPath;
+import io.katharsis.core.internal.dispatcher.path.PathBuilder;
+import io.katharsis.errorhandling.exception.MethodNotFoundException;
 import io.katharsis.locator.SampleJsonServiceLocator;
 import io.katharsis.module.ModuleRegistry;
-import io.katharsis.request.path.JsonPath;
-import io.katharsis.request.path.PathBuilder;
-import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
+import io.katharsis.resource.information.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ConstantServiceUrlProvider;
 import io.katharsis.resource.registry.ResourceRegistry;

@@ -1,7 +1,7 @@
 package io.katharsis.repository;
 
+import io.katharsis.errorhandling.exception.RepositoryInstanceNotFoundException;
 import io.katharsis.locator.JsonServiceLocator;
-import io.katharsis.repository.exception.RepositoryInstanceNotFoundException;
 
 /**
  * This builder is responsible for creating a new instance of a repository

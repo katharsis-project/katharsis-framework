@@ -8,19 +8,19 @@ import java.util.Set;
 import com.github.kristofa.brave.Brave;
 import com.github.kristofa.brave.LocalTracer;
 
+import io.katharsis.core.internal.query.QuerySpecAdapter;
+import io.katharsis.core.internal.utils.StringUtils;
 import io.katharsis.module.Module;
 import io.katharsis.module.Module.ModuleContext;
 import io.katharsis.queryspec.DefaultQuerySpecSerializer;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.internal.QueryAdapter;
-import io.katharsis.queryspec.internal.QuerySpecAdapter;
 import io.katharsis.repository.filter.RepositoryFilterBase;
 import io.katharsis.repository.filter.RepositoryFilterContext;
 import io.katharsis.repository.filter.RepositoryRequestFilterChain;
-import io.katharsis.request.repository.RepositoryRequestSpec;
+import io.katharsis.repository.request.RepositoryRequestSpec;
+import io.katharsis.repository.response.JsonApiResponse;
 import io.katharsis.resource.registry.RegistryEntry;
-import io.katharsis.response.JsonApiResponse;
-import io.katharsis.utils.StringUtils;
 
 /**
  * Performs a local trace for each repository call. Keep in mind that a single HTTP request

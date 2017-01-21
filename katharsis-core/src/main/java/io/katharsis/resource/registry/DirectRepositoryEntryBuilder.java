@@ -8,17 +8,15 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.katharsis.core.internal.registry.DirectResponseRelationshipEntry;
+import io.katharsis.core.internal.registry.DirectResponseResourceEntry;
+import io.katharsis.errorhandling.exception.RepositoryInstanceNotFoundException;
 import io.katharsis.locator.JsonServiceLocator;
-import io.katharsis.queryspec.QuerySpecRelationshipRepository;
-import io.katharsis.queryspec.QuerySpecResourceRepository;
+import io.katharsis.repository.RelationshipRepositoryV2;
+import io.katharsis.repository.ResourceRepositoryV2;
 import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.repository.RepositoryInstanceBuilder;
 import io.katharsis.repository.ResourceRepository;
-import io.katharsis.repository.exception.RepositoryInstanceNotFoundException;
-import io.katharsis.resource.registry.repository.DirectResponseRelationshipEntry;
-import io.katharsis.resource.registry.repository.DirectResponseResourceEntry;
-import io.katharsis.resource.registry.repository.ResourceEntry;
-import io.katharsis.resource.registry.repository.ResponseRelationshipEntry;
 import net.jodah.typetools.TypeResolver;
 
 /**
@@ -54,8 +52,8 @@ public class DirectRepositoryEntryBuilder implements RepositoryEntryBuilder {
                     return repoClass;
                 }
             }
-            if (QuerySpecResourceRepository.class.isAssignableFrom(repoClass)) {
-                Class<?>[] typeArgs = TypeResolver.resolveRawArguments(QuerySpecResourceRepository.class, repoClass);
+            if (ResourceRepositoryV2.class.isAssignableFrom(repoClass)) {
+                Class<?>[] typeArgs = TypeResolver.resolveRawArguments(ResourceRepositoryV2.class, repoClass);
                 if (typeArgs[0] == resourceClass) {
                     return repoClass;
                 }
@@ -99,8 +97,8 @@ public class DirectRepositoryEntryBuilder implements RepositoryEntryBuilder {
                     relationshipRepositories.add(repoClass);
                 }
             }
-            if (QuerySpecRelationshipRepository.class.isAssignableFrom(repoClass)) {
-                Class<?>[] typeArgs = TypeResolver.resolveRawArguments(QuerySpecRelationshipRepository.class, repoClass);
+            if (RelationshipRepositoryV2.class.isAssignableFrom(repoClass)) {
+                Class<?>[] typeArgs = TypeResolver.resolveRawArguments(RelationshipRepositoryV2.class, repoClass);
                 if (typeArgs[0] == resourceClass) {
                     relationshipRepositories.add(repoClass);
                 }

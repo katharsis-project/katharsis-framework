@@ -3,10 +3,10 @@ package io.katharsis.dispatcher;
 import org.junit.Assert;
 import org.junit.Test;
 
-import io.katharsis.dispatcher.controller.Response;
+import io.katharsis.repository.response.Response;
 import io.katharsis.resource.Document;
 import io.katharsis.resource.Resource;
-import io.katharsis.utils.java.Nullable;
+import io.katharsis.utils.Nullable;
 
 public class ResponseEqualsContractTest {
 

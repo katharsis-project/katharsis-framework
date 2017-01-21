@@ -20,28 +20,29 @@ import org.junit.rules.ExpectedException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.katharsis.dispatcher.controller.Response;
-import io.katharsis.dispatcher.controller.collection.CollectionGet;
-import io.katharsis.dispatcher.registry.ControllerRegistry;
-import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryTest;
+import io.katharsis.core.internal.dispatcher.ControllerRegistry;
+import io.katharsis.core.internal.dispatcher.RequestDispatcher;
+import io.katharsis.core.internal.dispatcher.controller.CollectionGet;
+import io.katharsis.core.internal.dispatcher.path.JsonPath;
+import io.katharsis.core.internal.dispatcher.path.PathBuilder;
+import io.katharsis.core.internal.exception.ExceptionMapperRegistryTest;
+import io.katharsis.core.internal.query.QuerySpecAdapterBuilder;
 import io.katharsis.locator.SampleJsonServiceLocator;
 import io.katharsis.module.ModuleRegistry;
 import io.katharsis.queryspec.DefaultQuerySpecDeserializer;
 import io.katharsis.queryspec.internal.QueryAdapter;
-import io.katharsis.queryspec.internal.QuerySpecAdapterBuilder;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
-import io.katharsis.request.path.JsonPath;
-import io.katharsis.request.path.PathBuilder;
+import io.katharsis.repository.response.HttpStatus;
+import io.katharsis.repository.response.Response;
 import io.katharsis.resource.Document;
-import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
+import io.katharsis.resource.information.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ConstantServiceUrlProvider;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryBuilder;
 import io.katharsis.resource.registry.ResourceRegistryBuilderTest;
 import io.katharsis.resource.registry.ResourceRegistryTest;
-import io.katharsis.response.HttpStatus;
 
 public class RequestDispatcherTest {
 

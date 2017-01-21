@@ -7,6 +7,7 @@ import org.junit.Test;
 
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
+import io.katharsis.core.internal.jackson.JsonApiModuleBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
 
 public class JsonApiModuleBuilderTest {

@@ -5,13 +5,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import io.katharsis.dispatcher.controller.Response;
+import io.katharsis.core.internal.dispatcher.path.JsonPath;
 import io.katharsis.errorhandling.ErrorData;
 import io.katharsis.errorhandling.ErrorResponseBuilder;
 import io.katharsis.queryspec.internal.QueryAdapter;
-import io.katharsis.request.path.JsonPath;
+import io.katharsis.repository.response.JsonApiResponse;
+import io.katharsis.repository.response.Response;
 import io.katharsis.resource.Document;
-import io.katharsis.response.JsonApiResponse;
 
 public final class ErrorResponse {
 
@@ -71,7 +71,7 @@ public final class ErrorResponse {
         return Objects.hash(data, httpStatus);
     }
 
-	public io.katharsis.dispatcher.controller.Response toResponse() {
+	public io.katharsis.repository.response.Response toResponse() {
 		Document responseDocument = new Document();
 		List<ErrorData> errors = new ArrayList<>();
 		for(ErrorData error : getErrors()){

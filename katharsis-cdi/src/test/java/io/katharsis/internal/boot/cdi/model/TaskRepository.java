@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.enterprise.context.ApplicationScoped;
 
+import io.katharsis.errorhandling.exception.ResourceNotFoundException;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.repository.annotations.JsonApiDelete;
 import io.katharsis.repository.annotations.JsonApiFindAll;
@@ -13,7 +14,6 @@ import io.katharsis.repository.annotations.JsonApiFindAllWithIds;
 import io.katharsis.repository.annotations.JsonApiFindOne;
 import io.katharsis.repository.annotations.JsonApiResourceRepository;
 import io.katharsis.repository.annotations.JsonApiSave;
-import io.katharsis.resource.exception.ResourceNotFoundException;
 
 @JsonApiResourceRepository(Task.class)
 @ApplicationScoped

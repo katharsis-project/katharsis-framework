@@ -1,11 +1,9 @@
 package io.katharsis.resource.registry;
 
+import io.katharsis.core.internal.registry.DirectResponseResourceEntry;
 import io.katharsis.locator.JsonServiceLocator;
 import io.katharsis.repository.NotFoundRepository;
 import io.katharsis.repository.RepositoryInstanceBuilder;
-import io.katharsis.resource.registry.repository.DirectResponseResourceEntry;
-import io.katharsis.resource.registry.repository.ResourceEntry;
-import io.katharsis.resource.registry.repository.ResponseRelationshipEntry;
 
 import java.util.LinkedList;
 import java.util.List;

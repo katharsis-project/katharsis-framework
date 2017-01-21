@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
 
+import io.katharsis.core.internal.utils.BeanUtils;
+
 public class BeanUtilsTest {
 
     @Test

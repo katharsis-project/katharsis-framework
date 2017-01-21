@@ -2,7 +2,7 @@ package io.katharsis.rs.parameterProvider;
 
 import io.katharsis.rs.parameterProvider.provider.Parameter;
 import io.katharsis.rs.parameterProvider.provider.RequestContextParameterProvider;
-import io.katharsis.utils.java.Optional;
+import io.katharsis.utils.Optional;
 
 import java.util.Collection;
 import java.util.Set;

@@ -8,20 +8,23 @@ import java.util.Collections;
 import org.junit.Assert;
 import org.junit.Test;
 
+import io.katharsis.core.internal.dispatcher.controller.ResourceGet;
+import io.katharsis.core.internal.dispatcher.controller.ResourcePatch;
+import io.katharsis.core.internal.dispatcher.controller.ResourcePost;
+import io.katharsis.core.internal.dispatcher.path.JsonPath;
+import io.katharsis.core.internal.dispatcher.path.ResourcePath;
+import io.katharsis.core.internal.query.QueryParamsAdapter;
+import io.katharsis.core.internal.repository.adapter.ResourceRepositoryAdapter;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
-import io.katharsis.dispatcher.controller.Response;
 import io.katharsis.errorhandling.exception.KatharsisException;
-import io.katharsis.queryspec.internal.QueryParamsAdapter;
-import io.katharsis.request.path.JsonPath;
-import io.katharsis.request.path.ResourcePath;
+import io.katharsis.repository.response.JsonApiResponse;
+import io.katharsis.repository.response.Response;
 import io.katharsis.resource.Document;
 import io.katharsis.resource.Relationship;
 import io.katharsis.resource.Resource;
 import io.katharsis.resource.ResourceIdentifier;
 import io.katharsis.resource.mock.models.Task;
-import io.katharsis.resource.registry.repository.adapter.ResourceRepositoryAdapter;
-import io.katharsis.response.JsonApiResponse;
-import io.katharsis.utils.java.Nullable;
+import io.katharsis.utils.Nullable;
 
 public class ResourcePatchTest extends BaseControllerTest {
 

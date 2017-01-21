@@ -12,9 +12,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import io.katharsis.internal.boot.EmptyPropertiesProvider;
-import io.katharsis.internal.boot.KatharsisBootProperties;
-import io.katharsis.internal.boot.PropertiesProvider;
+import io.katharsis.core.internal.boot.EmptyPropertiesProvider;
+import io.katharsis.core.internal.boot.KatharsisBootProperties;
+import io.katharsis.core.internal.boot.PropertiesProvider;
+import io.katharsis.core.internal.repository.adapter.RelationshipRepositoryAdapter;
+import io.katharsis.core.internal.repository.adapter.ResourceRepositoryAdapter;
+import io.katharsis.core.internal.resource.DocumentMapper;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.resource.Document;
 import io.katharsis.resource.Relationship;
@@ -22,8 +25,6 @@ import io.katharsis.resource.Resource;
 import io.katharsis.resource.ResourceIdentifier;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
-import io.katharsis.resource.registry.repository.adapter.RelationshipRepositoryAdapter;
-import io.katharsis.resource.registry.repository.adapter.ResourceRepositoryAdapter;
 
 @RunWith(MockitoJUnitRunner.class)
 public class IncludeLookupSetterTest extends AbstractDocumentMapperTest {

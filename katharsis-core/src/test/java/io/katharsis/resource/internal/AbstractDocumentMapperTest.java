@@ -5,16 +5,18 @@ import org.junit.Before;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.katharsis.jackson.JsonApiModuleBuilder;
+import io.katharsis.core.internal.jackson.JsonApiModuleBuilder;
+import io.katharsis.core.internal.query.QueryParamsAdapter;
+import io.katharsis.core.internal.query.QuerySpecAdapter;
+import io.katharsis.core.internal.resource.DocumentMapper;
 import io.katharsis.locator.SampleJsonServiceLocator;
 import io.katharsis.module.ModuleRegistry;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.internal.QueryAdapter;
-import io.katharsis.queryspec.internal.QueryParamsAdapter;
-import io.katharsis.queryspec.internal.QuerySpecAdapter;
-import io.katharsis.resource.field.ResourceFieldNameTransformer;
+import io.katharsis.repository.response.JsonApiResponse;
 import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
+import io.katharsis.resource.information.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.mock.repository.MockRepositoryUtil;
 import io.katharsis.resource.registry.ConstantServiceUrlProvider;
@@ -22,7 +24,6 @@ import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryBuilder;
 import io.katharsis.resource.registry.ResourceRegistryBuilderTest;
 import io.katharsis.resource.registry.ResourceRegistryTest;
-import io.katharsis.response.JsonApiResponse;
 
 public class AbstractDocumentMapperTest {
 

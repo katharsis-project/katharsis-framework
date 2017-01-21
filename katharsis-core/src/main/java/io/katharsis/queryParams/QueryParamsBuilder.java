@@ -1,7 +1,7 @@
 package io.katharsis.queryParams;
 
+import io.katharsis.core.internal.jackson.exception.ParametersDeserializationException;
 import io.katharsis.errorhandling.exception.KatharsisException;
-import io.katharsis.jackson.exception.ParametersDeserializationException;
 import io.katharsis.queryParams.context.SimpleQueryParamsParserContext;
 import io.katharsis.queryParams.context.QueryParamsParserContext;
 

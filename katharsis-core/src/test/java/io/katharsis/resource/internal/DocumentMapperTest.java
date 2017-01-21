@@ -9,17 +9,17 @@ import org.mockito.Mockito;
 
 import io.katharsis.errorhandling.ErrorData;
 import io.katharsis.queryspec.QuerySpec;
+import io.katharsis.repository.response.JsonApiResponse;
 import io.katharsis.resource.Document;
 import io.katharsis.resource.Relationship;
 import io.katharsis.resource.Resource;
 import io.katharsis.resource.ResourceIdentifier;
+import io.katharsis.resource.links.LinksInformation;
+import io.katharsis.resource.meta.MetaInformation;
 import io.katharsis.resource.mock.models.LazyTask;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
-import io.katharsis.response.JsonApiResponse;
-import io.katharsis.response.LinksInformation;
-import io.katharsis.response.MetaInformation;
-import io.katharsis.utils.java.Nullable;
+import io.katharsis.utils.Nullable;
 
 public class DocumentMapperTest extends AbstractDocumentMapperTest {
 

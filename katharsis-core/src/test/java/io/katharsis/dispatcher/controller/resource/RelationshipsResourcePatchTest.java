@@ -14,14 +14,19 @@ import org.junit.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.katharsis.core.internal.dispatcher.controller.RelationshipsResourcePatch;
+import io.katharsis.core.internal.dispatcher.controller.ResourcePatch;
+import io.katharsis.core.internal.dispatcher.controller.ResourcePost;
+import io.katharsis.core.internal.dispatcher.path.JsonPath;
+import io.katharsis.core.internal.dispatcher.path.ResourcePath;
+import io.katharsis.core.internal.query.QueryParamsAdapter;
+import io.katharsis.core.internal.utils.ClassUtils;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
-import io.katharsis.dispatcher.controller.HttpMethod;
-import io.katharsis.dispatcher.controller.Response;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryspec.QuerySpec;
-import io.katharsis.queryspec.internal.QueryParamsAdapter;
-import io.katharsis.request.path.JsonPath;
-import io.katharsis.request.path.ResourcePath;
+import io.katharsis.repository.request.HttpMethod;
+import io.katharsis.repository.response.HttpStatus;
+import io.katharsis.repository.response.Response;
 import io.katharsis.resource.Document;
 import io.katharsis.resource.Relationship;
 import io.katharsis.resource.Resource;
@@ -34,9 +39,7 @@ import io.katharsis.resource.mock.repository.ProjectPolymorphicRepository;
 import io.katharsis.resource.mock.repository.TaskToProjectRepository;
 import io.katharsis.resource.mock.repository.UserToProjectRepository;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.response.HttpStatus;
-import io.katharsis.utils.ClassUtils;
-import io.katharsis.utils.java.Nullable;
+import io.katharsis.utils.Nullable;
 
 public class RelationshipsResourcePatchTest extends BaseControllerTest {
 

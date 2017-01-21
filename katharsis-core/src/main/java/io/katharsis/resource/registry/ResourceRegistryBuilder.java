@@ -7,14 +7,12 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.katharsis.core.internal.repository.information.ResourceRepositoryInformationImpl;
 import io.katharsis.locator.JsonServiceLocator;
 import io.katharsis.module.ModuleRegistry;
 import io.katharsis.repository.information.ResourceRepositoryInformation;
-import io.katharsis.repository.information.internal.ResourceRepositoryInformationImpl;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.information.ResourceInformationBuilder;
-import io.katharsis.resource.registry.repository.ResourceEntry;
-import io.katharsis.resource.registry.repository.ResponseRelationshipEntry;
 
 /**
  * Builder responsible for building an instance of ResourceRegistry.

@@ -11,17 +11,17 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
+import io.katharsis.core.internal.query.QueryParamsAdapter;
+import io.katharsis.core.internal.repository.adapter.AnnotatedResourceRepositoryAdapter;
+import io.katharsis.errorhandling.exception.RepositoryAnnotationNotFoundException;
+import io.katharsis.errorhandling.exception.RepositoryMethodException;
 import io.katharsis.queryParams.QueryParams;
-import io.katharsis.queryspec.internal.QueryParamsAdapter;
-import io.katharsis.repository.annotated.AnnotatedResourceRepositoryAdapter;
 import io.katharsis.repository.annotations.JsonApiDelete;
 import io.katharsis.repository.annotations.JsonApiFindAll;
 import io.katharsis.repository.annotations.JsonApiFindAllWithIds;
 import io.katharsis.repository.annotations.JsonApiFindOne;
 import io.katharsis.repository.annotations.JsonApiResourceRepository;
 import io.katharsis.repository.annotations.JsonApiSave;
-import io.katharsis.repository.exception.RepositoryAnnotationNotFoundException;
-import io.katharsis.repository.exception.RepositoryMethodException;
 import io.katharsis.repository.mock.NewInstanceRepositoryMethodParameterProvider;
 import io.katharsis.resource.mock.models.Project;
 

@@ -7,6 +7,7 @@ import java.util.Set;
 
 import javax.persistence.EntityManager;
 
+import io.katharsis.core.internal.utils.PropertyUtils;
 import io.katharsis.jpa.internal.JpaRepositoryBase;
 import io.katharsis.jpa.internal.JpaRepositoryUtils;
 import io.katharsis.jpa.internal.JpaRequestContext;
@@ -23,9 +24,8 @@ import io.katharsis.queryspec.FilterSpec;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.repository.ResourceRepositoryV2;
 import io.katharsis.resource.list.ResourceList;
-import io.katharsis.response.MetaInformation;
-import io.katharsis.response.paging.PagedMetaInformation;
-import io.katharsis.utils.PropertyUtils;
+import io.katharsis.resource.meta.MetaInformation;
+import io.katharsis.resource.meta.PagedMetaInformation;
 
 /**
  * Exposes a JPA entity as ResourceRepository.

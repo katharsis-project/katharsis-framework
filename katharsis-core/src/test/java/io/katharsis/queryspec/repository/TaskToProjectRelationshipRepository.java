@@ -1,16 +1,16 @@
 package io.katharsis.queryspec.repository;
 
 import io.katharsis.queryspec.QuerySpec;
-import io.katharsis.queryspec.QuerySpecLinksRepository;
-import io.katharsis.queryspec.QuerySpecMetaRepository;
-import io.katharsis.queryspec.QuerySpecRelationshipRepositoryBase;
+import io.katharsis.repository.RelationshipRepositoryBase;
+import io.katharsis.repository.LinksRepositoryV2;
+import io.katharsis.repository.MetaRepositoryV2;
+import io.katharsis.resource.links.LinksInformation;
+import io.katharsis.resource.meta.MetaInformation;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
-import io.katharsis.response.LinksInformation;
-import io.katharsis.response.MetaInformation;
 
-public class TaskToProjectRelationshipRepository extends QuerySpecRelationshipRepositoryBase<Task, Long, Project, Long>
-		implements QuerySpecMetaRepository<Project>, QuerySpecLinksRepository<Project> {
+public class TaskToProjectRelationshipRepository extends RelationshipRepositoryBase<Task, Long, Project, Long>
+		implements MetaRepositoryV2<Project>, LinksRepositoryV2<Project> {
 
 	public TaskToProjectRelationshipRepository() {
 		super(Task.class, Project.class);

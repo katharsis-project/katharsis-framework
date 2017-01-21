@@ -12,20 +12,22 @@ import io.katharsis.client.mock.models.Project;
 import io.katharsis.client.mock.models.Schedule;
 import io.katharsis.client.mock.models.Task;
 import io.katharsis.queryspec.QuerySpec;
+import io.katharsis.repository.RelationshipRepositoryV2;
+import io.katharsis.repository.ResourceRepositoryV2;
 
 public class ProxiedObjectsClientTest extends AbstractClientTest {
 
-	protected QuerySpecResourceRepositoryStub<Task, Long> taskRepo;
+	protected ResourceRepositoryV2<Task, Long> taskRepo;
 
-	protected QuerySpecResourceRepositoryStub<Project, Long> projectRepo;
+	protected ResourceRepositoryV2<Project, Long> projectRepo;
 
-	protected QuerySpecRelationshipRepositoryStub<Task, Long, Project, Long> relRepo;
+	protected RelationshipRepositoryV2<Task, Long, Project, Long> relRepo;
 
-	private QuerySpecResourceRepositoryStub<Schedule, Long> scheduleRepo;
+	private ResourceRepositoryV2<Schedule, Long> scheduleRepo;
 
-	private QuerySpecRelationshipRepositoryStub<Schedule, Serializable, Task, Serializable> scheduleTaskRepo;
+	private RelationshipRepositoryV2<Schedule, Serializable, Task, Serializable> scheduleTaskRepo;
 
-	private QuerySpecRelationshipRepositoryStub<Task, Serializable, Schedule, Serializable> taskScheduleRepo;
+	private RelationshipRepositoryV2<Task, Serializable, Schedule, Serializable> taskScheduleRepo;
 
 	@Before
 	public void setup() {

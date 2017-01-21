@@ -6,11 +6,13 @@ import java.util.Arrays;
 import org.junit.Assert;
 import org.junit.Test;
 
+import io.katharsis.core.internal.utils.WrappedList;
+
 public class WrappedListTest {
 
 	@Test
 	public void test() {
-		WrappedList<String> list = new WrappedList<>(new ArrayList<String>());
+		WrappedList<String> list = new WrappedList<String>(new ArrayList<String>());
 		list.setWrappedList(new ArrayList<String>());
 		Assert.assertEquals(0, list.size());
 		Assert.assertEquals(list, list);

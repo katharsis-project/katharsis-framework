@@ -3,8 +3,8 @@ package io.katharsis.queryParams;
 import org.junit.Assert;
 import org.junit.Test;
 
+import io.katharsis.core.internal.query.QueryParamsAdapter;
 import io.katharsis.module.ModuleRegistry;
-import io.katharsis.queryspec.internal.QueryParamsAdapter;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.registry.ConstantServiceUrlProvider;
 import io.katharsis.resource.registry.ResourceRegistry;

@@ -11,11 +11,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import io.katharsis.core.internal.repository.adapter.RelationshipRepositoryAdapter;
+import io.katharsis.core.internal.repository.adapter.ResourceRepositoryAdapter;
+import io.katharsis.errorhandling.exception.RepositoryInstanceNotFoundException;
 import io.katharsis.locator.SampleJsonServiceLocator;
 import io.katharsis.module.ModuleRegistry;
-import io.katharsis.repository.exception.RepositoryInstanceNotFoundException;
-import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
+import io.katharsis.resource.information.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.mock.models.Document;
 import io.katharsis.resource.mock.models.Project;
@@ -23,8 +25,6 @@ import io.katharsis.resource.mock.models.ResourceWithoutRepository;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.models.Thing;
 import io.katharsis.resource.mock.repository.TaskToProjectRepository;
-import io.katharsis.resource.registry.repository.adapter.RelationshipRepositoryAdapter;
-import io.katharsis.resource.registry.repository.adapter.ResourceRepositoryAdapter;
 
 public class ResourceRegistryBuilderTest {
 

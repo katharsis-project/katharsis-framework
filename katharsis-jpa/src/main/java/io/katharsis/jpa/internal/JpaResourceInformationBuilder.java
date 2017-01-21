@@ -18,6 +18,7 @@ import javax.persistence.OptimisticLockException;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import io.katharsis.core.internal.utils.StringUtils;
 import io.katharsis.jpa.annotations.JpaMergeRelations;
 import io.katharsis.jpa.annotations.JpaResource;
 import io.katharsis.jpa.meta.MetaEntity;
@@ -32,15 +33,14 @@ import io.katharsis.resource.Document;
 import io.katharsis.resource.Resource;
 import io.katharsis.resource.annotations.JsonApiLinksInformation;
 import io.katharsis.resource.annotations.JsonApiMetaInformation;
-import io.katharsis.resource.field.ResourceField;
-import io.katharsis.resource.field.ResourceField.LookupIncludeBehavior;
-import io.katharsis.resource.field.ResourceField.ResourceFieldType;
 import io.katharsis.resource.information.AnnotationResourceInformationBuilder.AnnotatedResourceField;
+import io.katharsis.resource.information.ResourceField.LookupIncludeBehavior;
+import io.katharsis.resource.information.ResourceField.ResourceFieldType;
 import io.katharsis.resource.information.DefaultResourceInstanceBuilder;
+import io.katharsis.resource.information.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.information.ResourceInstanceBuilder;
-import io.katharsis.utils.StringUtils;
 
 /**
  * Extracts resource information from JPA and Katharsis annotations. Katharsis

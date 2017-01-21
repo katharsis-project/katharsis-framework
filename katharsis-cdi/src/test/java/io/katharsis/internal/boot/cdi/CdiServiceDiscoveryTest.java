@@ -10,7 +10,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import io.katharsis.cdi.internal.CdiServiceDiscovery;
-import io.katharsis.internal.boot.DefaultServiceDiscoveryFactory;
+import io.katharsis.core.internal.boot.DefaultServiceDiscoveryFactory;
 import io.katharsis.internal.boot.cdi.model.ProjectRepository;
 import io.katharsis.internal.boot.cdi.model.TaskRepository;
 import io.katharsis.module.ServiceDiscovery;

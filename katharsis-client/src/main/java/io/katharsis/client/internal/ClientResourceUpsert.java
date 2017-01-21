@@ -14,23 +14,23 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import io.katharsis.client.ResponseBodyException;
 import io.katharsis.client.internal.proxy.ClientProxyFactory;
-import io.katharsis.dispatcher.controller.Response;
-import io.katharsis.dispatcher.controller.resource.ResourceUpsert;
+import io.katharsis.core.internal.dispatcher.controller.ResourceUpsert;
+import io.katharsis.core.internal.dispatcher.path.JsonPath;
+import io.katharsis.core.internal.resource.DocumentMapper;
+import io.katharsis.core.internal.utils.PropertyUtils;
+import io.katharsis.core.internal.utils.parser.TypeParser;
+import io.katharsis.errorhandling.exception.RepositoryNotFoundException;
 import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
-import io.katharsis.repository.exception.RepositoryNotFoundException;
-import io.katharsis.request.path.JsonPath;
+import io.katharsis.repository.response.Response;
 import io.katharsis.resource.Document;
 import io.katharsis.resource.Relationship;
 import io.katharsis.resource.Resource;
 import io.katharsis.resource.ResourceIdentifier;
-import io.katharsis.resource.field.ResourceField;
+import io.katharsis.resource.information.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
-import io.katharsis.resource.internal.DocumentMapper;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.utils.PropertyUtils;
-import io.katharsis.utils.parser.TypeParser;
 
 class ClientResourceUpsert extends ResourceUpsert {
 

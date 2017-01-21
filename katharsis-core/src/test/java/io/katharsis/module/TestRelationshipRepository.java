@@ -1,9 +1,10 @@
 package io.katharsis.module;
 
 import io.katharsis.queryspec.QuerySpec;
-import io.katharsis.queryspec.QuerySpecRelationshipRepository;
+import io.katharsis.repository.RelationshipRepositoryV2;
+import io.katharsis.resource.list.ResourceList;
 
-class TestRelationshipRepository implements QuerySpecRelationshipRepository<TestResource, Integer, TestResource, Integer> {
+class TestRelationshipRepository implements RelationshipRepositoryV2<TestResource, Integer, TestResource, Integer> {
 
 	@Override
 	public void setRelation(TestResource source, Integer targetId, String fieldName) {
@@ -27,7 +28,7 @@ class TestRelationshipRepository implements QuerySpecRelationshipRepository<Test
 	}
 
 	@Override
-	public Iterable<TestResource> findManyTargets(Integer sourceId, String fieldName, QuerySpec queryParams) {
+	public ResourceList<TestResource> findManyTargets(Integer sourceId, String fieldName, QuerySpec queryParams) {
 		return null;
 	}
 

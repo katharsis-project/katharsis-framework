@@ -1,8 +1,9 @@
 package io.katharsis.spring.boot;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
-import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryBuilder;
+
+import io.katharsis.core.internal.exception.ExceptionMapperRegistry;
+import io.katharsis.core.internal.exception.ExceptionMapperRegistryBuilder;
 import io.katharsis.module.ModuleRegistry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryBuilder;

@@ -2,7 +2,9 @@ package io.katharsis.dispatcher.registry;
 
 import org.junit.Test;
 
-import io.katharsis.request.path.ResourcePath;
+import io.katharsis.core.internal.dispatcher.ControllerRegistry;
+import io.katharsis.core.internal.dispatcher.ControllerRegistryBuilder;
+import io.katharsis.core.internal.dispatcher.path.ResourcePath;
 
 public class ControllerRegistryBuilderTest {
 

@@ -12,24 +12,25 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.Test;
 
+import io.katharsis.core.internal.dispatcher.controller.FieldResourceGet;
+import io.katharsis.core.internal.dispatcher.path.JsonPath;
+import io.katharsis.core.internal.dispatcher.path.ResourcePath;
+import io.katharsis.core.internal.query.QueryParamsAdapter;
+import io.katharsis.core.internal.query.QuerySpecAdapter;
+import io.katharsis.core.internal.repository.adapter.RelationshipRepositoryAdapter;
+import io.katharsis.core.internal.repository.adapter.ResourceRepositoryAdapter;
+import io.katharsis.core.internal.resource.IncludeLookupSetter;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
-import io.katharsis.dispatcher.controller.Response;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.internal.QueryAdapter;
-import io.katharsis.queryspec.internal.QueryParamsAdapter;
-import io.katharsis.queryspec.internal.QuerySpecAdapter;
-import io.katharsis.request.path.JsonPath;
-import io.katharsis.request.path.ResourcePath;
+import io.katharsis.repository.response.Response;
 import io.katharsis.resource.Relationship;
 import io.katharsis.resource.Resource;
-import io.katharsis.resource.include.IncludeLookupSetter;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.models.User;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.resource.registry.repository.adapter.RelationshipRepositoryAdapter;
-import io.katharsis.resource.registry.repository.adapter.ResourceRepositoryAdapter;
 
 public class FieldResourceGetTest extends BaseControllerTest {
 	private static final String REQUEST_TYPE = "GET";

@@ -14,19 +14,19 @@ import javax.ws.rs.ext.Provider;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.katharsis.dispatcher.RequestDispatcher;
-import io.katharsis.internal.boot.KatharsisBoot;
-import io.katharsis.internal.boot.PropertiesProvider;
+import io.katharsis.core.internal.boot.KatharsisBoot;
+import io.katharsis.core.internal.boot.PropertiesProvider;
+import io.katharsis.core.internal.dispatcher.RequestDispatcher;
+import io.katharsis.core.internal.repository.adapter.ResourceRepositoryAdapter;
 import io.katharsis.locator.JsonServiceLocator;
 import io.katharsis.module.Module;
 import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.queryspec.QuerySpecDeserializer;
 import io.katharsis.repository.information.ResourceRepositoryInformation;
-import io.katharsis.resource.field.ResourceFieldNameTransformer;
+import io.katharsis.resource.information.ResourceFieldNameTransformer;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ServiceUrlProvider;
-import io.katharsis.resource.registry.repository.adapter.ResourceRepositoryAdapter;
 import io.katharsis.rs.internal.JaxrsModule;
 import io.katharsis.rs.parameterProvider.RequestContextParameterProviderRegistry;
 import io.katharsis.rs.parameterProvider.RequestContextParameterProviderRegistryBuilder;

@@ -1,8 +1,5 @@
 package io.katharsis.resource.registry;
 
-import io.katharsis.resource.registry.repository.ResourceEntry;
-import io.katharsis.resource.registry.repository.ResponseRelationshipEntry;
-
 import java.util.List;
 
 /**

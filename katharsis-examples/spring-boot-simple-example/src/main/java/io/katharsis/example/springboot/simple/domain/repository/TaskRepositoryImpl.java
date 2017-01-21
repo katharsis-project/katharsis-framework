@@ -29,6 +29,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 
+import io.katharsis.errorhandling.exception.ResourceNotFoundException;
 import io.katharsis.example.springboot.simple.domain.model.Task;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.repository.annotations.JsonApiDelete;
@@ -37,7 +38,6 @@ import io.katharsis.repository.annotations.JsonApiFindAllWithIds;
 import io.katharsis.repository.annotations.JsonApiFindOne;
 import io.katharsis.repository.annotations.JsonApiResourceRepository;
 import io.katharsis.repository.annotations.JsonApiSave;
-import io.katharsis.resource.exception.ResourceNotFoundException;
 
 @Component
 @JsonApiResourceRepository(Task.class)

@@ -5,7 +5,7 @@ import java.util.List;
 import io.katharsis.errorhandling.ErrorData;
 import io.katharsis.errorhandling.ErrorResponse;
 import io.katharsis.errorhandling.mapper.ExceptionMapper;
-import io.katharsis.response.JsonApiResponse;
+import io.katharsis.repository.response.JsonApiResponse;
 
 public class TestExceptionMapper implements ExceptionMapper<TestException> {
 

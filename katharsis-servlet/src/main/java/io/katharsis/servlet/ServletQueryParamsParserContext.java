@@ -1,9 +1,9 @@
 package io.katharsis.servlet;
 
+import io.katharsis.core.internal.dispatcher.path.JsonPath;
 import io.katharsis.invoker.KatharsisInvokerContext;
 import io.katharsis.queryParams.context.AbstractQueryParamsParserContext;
 import io.katharsis.queryParams.context.QueryParamsParserContext;
-import io.katharsis.request.path.JsonPath;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.servlet.util.QueryStringUtils;

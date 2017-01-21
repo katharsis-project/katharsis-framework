@@ -8,6 +8,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import io.katharsis.core.internal.utils.Generics;
+
 public class GenericsTest {
 
     @Rule

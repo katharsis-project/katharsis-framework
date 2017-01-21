@@ -18,22 +18,24 @@ import org.mockito.ArgumentCaptor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.katharsis.dispatcher.RequestDispatcher;
-import io.katharsis.dispatcher.controller.collection.CollectionGet;
-import io.katharsis.dispatcher.registry.ControllerRegistry;
+import io.katharsis.core.internal.dispatcher.ControllerRegistry;
+import io.katharsis.core.internal.dispatcher.RequestDispatcher;
+import io.katharsis.core.internal.dispatcher.controller.CollectionGet;
+import io.katharsis.core.internal.dispatcher.path.JsonPath;
+import io.katharsis.core.internal.dispatcher.path.PathBuilder;
+import io.katharsis.core.internal.query.QuerySpecAdapterBuilder;
 import io.katharsis.locator.SampleJsonServiceLocator;
 import io.katharsis.module.ModuleRegistry;
 import io.katharsis.module.SimpleModule;
 import io.katharsis.queryspec.DefaultQuerySpecDeserializer;
 import io.katharsis.queryspec.internal.QueryAdapter;
-import io.katharsis.queryspec.internal.QuerySpecAdapterBuilder;
 import io.katharsis.repository.RepositoryMethodParameterProvider;
+import io.katharsis.repository.filter.DocumentFilterChain;
+import io.katharsis.repository.filter.DocumentFilterContext;
 import io.katharsis.repository.mock.NewInstanceRepositoryMethodParameterProvider;
-import io.katharsis.request.path.JsonPath;
-import io.katharsis.request.path.PathBuilder;
 import io.katharsis.resource.Document;
-import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
+import io.katharsis.resource.information.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ConstantServiceUrlProvider;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -81,9 +83,9 @@ public class FilterTest {
 		moduleRegistry.init(new ObjectMapper());
 
 		// WHEN
-		ArgumentCaptor<FilterRequestContext> captor = ArgumentCaptor.forClass(FilterRequestContext.class);
+		ArgumentCaptor<DocumentFilterContext> captor = ArgumentCaptor.forClass(DocumentFilterContext.class);
 		when(collectionGet.isAcceptable(any(JsonPath.class), eq(requestType))).thenCallRealMethod();
-		when(filter.filter(any(FilterRequestContext.class), any(FilterChain.class))).thenCallRealMethod();
+		when(filter.filter(any(DocumentFilterContext.class), any(DocumentFilterChain.class))).thenCallRealMethod();
 		JsonPath jsonPath = pathBuilder.buildPath(path);
 		Map<String, Set<String>> queryParams = new HashMap<>();
 		RepositoryMethodParameterProvider parameterProvider = new NewInstanceRepositoryMethodParameterProvider();
@@ -91,11 +93,11 @@ public class FilterTest {
 		dispatcher.dispatchRequest(jsonPath, requestType, queryParams, parameterProvider, requestBody);
 
 		// THEN
-		verify(filter).filter(captor.capture(), any(FilterChain.class));
+		verify(filter).filter(captor.capture(), any(DocumentFilterChain.class));
 		verify(collectionGet, times(1)).handle(any(JsonPath.class), any(QueryAdapter.class), any(RepositoryMethodParameterProvider.class), any(Document.class));
-		verify(filter, times(1)).filter(any(FilterRequestContext.class), any(FilterChain.class));
+		verify(filter, times(1)).filter(any(DocumentFilterContext.class), any(DocumentFilterChain.class));
 
-		FilterRequestContext value = captor.getValue();
+		DocumentFilterContext value = captor.getValue();
 		Assert.assertEquals("tasks", value.getJsonPath().getElementName());
 		Assert.assertEquals(parameterProvider, value.getParameterProvider());
 		Assert.assertEquals(requestBody, value.getRequestBody());

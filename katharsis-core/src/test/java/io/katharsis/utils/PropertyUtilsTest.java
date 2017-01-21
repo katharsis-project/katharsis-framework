@@ -14,6 +14,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import io.katharsis.core.internal.utils.PropertyException;
+import io.katharsis.core.internal.utils.PropertyUtils;
+
 public class PropertyUtilsTest {
 
     @Rule
@@ -537,7 +540,7 @@ public class PropertyUtilsTest {
 
     }
 
-    private static class GetterTest {
+    public static class GetterTest {
         public String getProperty() {
             return "valueProperty";
         }

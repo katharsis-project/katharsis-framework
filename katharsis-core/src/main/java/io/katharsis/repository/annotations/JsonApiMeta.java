@@ -19,7 +19,7 @@ import java.lang.annotation.Target;
  *     <li>A list of resources</li>
  * </ol>
  * <p>
- * The return value must be an instance of {@link io.katharsis.response.MetaInformation} type.
+ * The return value must be an instance of {@link io.katharsis.resource.meta.MetaInformation} type.
  * </p>
  *
  * @see io.katharsis.repository.MetaRepository

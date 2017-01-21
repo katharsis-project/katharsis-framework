@@ -7,9 +7,9 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
-import io.katharsis.resource.field.ResourceField;
-import io.katharsis.resource.field.ResourceField.ResourceFieldType;
+import io.katharsis.resource.information.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
+import io.katharsis.resource.information.ResourceField.ResourceFieldType;
 import io.katharsis.resource.mock.models.Task;
 
 public class ResourceInformationTest {

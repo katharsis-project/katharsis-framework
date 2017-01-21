@@ -7,20 +7,20 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.katharsis.client.KatharsisClient;
-import io.katharsis.client.QuerySpecResourceRepositoryStub;
 import io.katharsis.client.ResourceRepositoryStub;
-import io.katharsis.dispatcher.controller.HttpMethod;
+import io.katharsis.core.internal.utils.JsonApiUrlBuilder;
+import io.katharsis.core.internal.utils.PropertyUtils;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryspec.QuerySpec;
+import io.katharsis.repository.ResourceRepositoryV2;
+import io.katharsis.repository.request.HttpMethod;
+import io.katharsis.repository.response.JsonApiResponse;
 import io.katharsis.resource.Document;
-import io.katharsis.resource.field.ResourceField;
+import io.katharsis.resource.information.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.list.DefaultResourceList;
-import io.katharsis.response.JsonApiResponse;
-import io.katharsis.utils.JsonApiUrlBuilder;
-import io.katharsis.utils.PropertyUtils;
 
-public class ResourceRepositoryStubImpl<T, I extends Serializable> extends AbstractStub implements ResourceRepositoryStub<T, I>, QuerySpecResourceRepositoryStub<T, I> {
+public class ResourceRepositoryStubImpl<T, I extends Serializable> extends AbstractStub implements ResourceRepositoryV2<T, I>, ResourceRepositoryStub<T, I> {
 
 	private ResourceInformation resourceInformation;
 

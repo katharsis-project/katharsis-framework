@@ -2,7 +2,7 @@ package io.katharsis.queryspec;
 
 import java.util.Collection;
 
-import io.katharsis.utils.CompareUtils;
+import io.katharsis.core.internal.utils.CompareUtils;
 
 /**
  * Filter operator used to compare attributes to values by {@link FilterSpec}.

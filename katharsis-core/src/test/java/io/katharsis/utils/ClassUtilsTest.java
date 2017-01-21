@@ -12,11 +12,11 @@ import org.junit.Test;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+import io.katharsis.core.internal.utils.ClassUtils;
+import io.katharsis.errorhandling.exception.ResourceException;
 import io.katharsis.repository.ResourceRepository;
 import io.katharsis.resource.annotations.JsonApiResource;
-import io.katharsis.resource.exception.ResourceException;
 import io.katharsis.resource.mock.repository.ProjectRepository;
-import io.katharsis.utils.java.Optional;
 
 public class ClassUtilsTest {
 

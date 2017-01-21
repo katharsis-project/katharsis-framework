@@ -1,7 +1,7 @@
 package io.katharsis.errorhandling.exception;
 
 import io.katharsis.errorhandling.ErrorData;
-import io.katharsis.response.HttpStatus;
+import io.katharsis.repository.response.HttpStatus;
 
 public class InternalServerErrorException extends KatharsisMappableException {  // NOSONAR exception hierarchy deep but ok
 

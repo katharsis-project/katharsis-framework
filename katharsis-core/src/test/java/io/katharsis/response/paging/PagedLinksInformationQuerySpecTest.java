@@ -5,13 +5,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import io.katharsis.core.internal.query.QuerySpecAdapter;
+import io.katharsis.core.internal.repository.adapter.ResourceRepositoryAdapter;
 import io.katharsis.queryspec.AbstractQuerySpecTest;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.internal.QueryAdapter;
-import io.katharsis.queryspec.internal.QuerySpecAdapter;
+import io.katharsis.resource.links.PagedLinksInformation;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.registry.RegistryEntry;
-import io.katharsis.resource.registry.repository.adapter.ResourceRepositoryAdapter;
 
 public class PagedLinksInformationQuerySpecTest extends AbstractQuerySpecTest {
 

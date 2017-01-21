@@ -16,20 +16,23 @@ import org.junit.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+import io.katharsis.core.internal.dispatcher.controller.RelationshipsResourcePost;
+import io.katharsis.core.internal.dispatcher.controller.ResourceGet;
+import io.katharsis.core.internal.dispatcher.controller.ResourcePost;
+import io.katharsis.core.internal.dispatcher.path.JsonPath;
+import io.katharsis.core.internal.query.QueryParamsAdapter;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
-import io.katharsis.dispatcher.controller.Response;
 import io.katharsis.queryParams.DefaultQueryParamsParser;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
-import io.katharsis.queryspec.internal.QueryParamsAdapter;
-import io.katharsis.request.path.JsonPath;
+import io.katharsis.repository.response.Response;
 import io.katharsis.resource.Document;
 import io.katharsis.resource.Resource;
 import io.katharsis.resource.ResourceIdentifier;
 import io.katharsis.resource.RestrictedQueryParamsMembers;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.repository.TaskToProjectRepository;
-import io.katharsis.utils.java.Nullable;
+import io.katharsis.utils.Nullable;
 
 public class ResourceGetTest extends BaseControllerTest {
 

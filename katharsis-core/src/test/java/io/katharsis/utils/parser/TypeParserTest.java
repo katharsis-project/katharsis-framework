@@ -13,6 +13,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import io.katharsis.core.internal.utils.parser.ParserException;
+import io.katharsis.core.internal.utils.parser.TypeParser;
+
 public class TypeParserTest {
 
     @Rule
@@ -233,7 +236,7 @@ public class TypeParserTest {
         SAMPLE_VALUE
     }
 
-    static class SampleClass implements Serializable {
+    public static class SampleClass implements Serializable {
         private final String input;
 
         public SampleClass(@SuppressWarnings("SameParameterValue") String input) {

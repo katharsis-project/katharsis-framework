@@ -13,16 +13,26 @@ import org.mockito.Mockito;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.katharsis.dispatcher.controller.HttpMethod;
+import io.katharsis.core.internal.query.QuerySpecAdapter;
+import io.katharsis.core.internal.repository.adapter.AnnotatedRelationshipRepositoryAdapter;
+import io.katharsis.core.internal.repository.adapter.RelationshipRepositoryAdapter;
+import io.katharsis.core.internal.repository.adapter.ResourceRepositoryAdapter;
 import io.katharsis.locator.SampleJsonServiceLocator;
 import io.katharsis.module.ModuleRegistry;
 import io.katharsis.module.SimpleModule;
 import io.katharsis.queryspec.QuerySpec;
-import io.katharsis.queryspec.internal.QuerySpecAdapter;
-import io.katharsis.repository.annotated.AnnotatedRelationshipRepositoryAdapter;
-import io.katharsis.request.repository.RepositoryRequestSpec;
-import io.katharsis.resource.field.ResourceFieldNameTransformer;
+import io.katharsis.repository.filter.RepositoryBulkRequestFilterChain;
+import io.katharsis.repository.filter.RepositoryFilter;
+import io.katharsis.repository.filter.RepositoryFilterBase;
+import io.katharsis.repository.filter.RepositoryFilterContext;
+import io.katharsis.repository.filter.RepositoryLinksFilterChain;
+import io.katharsis.repository.filter.RepositoryMetaFilterChain;
+import io.katharsis.repository.filter.RepositoryRequestFilterChain;
+import io.katharsis.repository.filter.RepositoryResultFilterChain;
+import io.katharsis.repository.request.HttpMethod;
+import io.katharsis.repository.request.RepositoryRequestSpec;
 import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
+import io.katharsis.resource.information.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Schedule;
@@ -37,8 +47,6 @@ import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryBuilder;
 import io.katharsis.resource.registry.ResourceRegistryBuilderTest;
 import io.katharsis.resource.registry.ResourceRegistryTest;
-import io.katharsis.resource.registry.repository.adapter.RelationshipRepositoryAdapter;
-import io.katharsis.resource.registry.repository.adapter.ResourceRepositoryAdapter;
 
 public class RepositoryFilterTest {
 

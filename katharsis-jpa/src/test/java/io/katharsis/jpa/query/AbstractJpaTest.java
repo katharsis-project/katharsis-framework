@@ -37,7 +37,7 @@ import io.katharsis.jpa.util.TestConfig;
 import io.katharsis.meta.MetaLookup;
 import io.katharsis.module.CoreModule;
 import io.katharsis.module.ModuleRegistry;
-import io.katharsis.resource.field.ResourceFieldNameTransformer;
+import io.katharsis.resource.information.ResourceFieldNameTransformer;
 import io.katharsis.resource.registry.ConstantServiceUrlProvider;
 import io.katharsis.resource.registry.ResourceRegistry;
 

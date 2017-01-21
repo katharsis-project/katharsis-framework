@@ -19,14 +19,16 @@ import io.katharsis.queryspec.FilterOperator;
 import io.katharsis.queryspec.FilterSpec;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.SortSpec;
+import io.katharsis.repository.RelationshipRepositoryV2;
+import io.katharsis.repository.ResourceRepositoryV2;
 
 public class QuerySpecUnknownAttributeClientTest extends AbstractClientTest {
 
-	protected QuerySpecResourceRepositoryStub<Task, Long> taskRepo;
+	protected ResourceRepositoryV2<Task, Long> taskRepo;
 
-	protected QuerySpecResourceRepositoryStub<Project, Long> projectRepo;
+	protected ResourceRepositoryV2<Project, Long> projectRepo;
 
-	protected QuerySpecRelationshipRepositoryStub<Task, Long, Project, Long> relRepo;
+	protected RelationshipRepositoryV2<Task, Long, Project, Long> relRepo;
 
 	private DefaultQuerySpecDeserializer deserializer;
 

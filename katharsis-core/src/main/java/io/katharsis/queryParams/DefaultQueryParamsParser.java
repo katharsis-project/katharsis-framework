@@ -17,12 +17,12 @@
 
 package io.katharsis.queryParams;
 
-import io.katharsis.jackson.exception.ParametersDeserializationException;
+import io.katharsis.core.internal.jackson.exception.ParametersDeserializationException;
+import io.katharsis.core.internal.utils.StringUtils;
 import io.katharsis.queryParams.context.QueryParamsParserContext;
 import io.katharsis.queryParams.include.Inclusion;
 import io.katharsis.queryParams.params.*;
 import io.katharsis.resource.RestrictedQueryParamsMembers;
-import io.katharsis.utils.StringUtils;
 
 import java.util.*;
 import java.util.regex.Matcher;

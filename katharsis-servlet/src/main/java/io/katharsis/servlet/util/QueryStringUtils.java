@@ -16,8 +16,8 @@
  */
 package io.katharsis.servlet.util;
 
+import io.katharsis.core.internal.jackson.exception.ParametersDeserializationException;
 import io.katharsis.invoker.KatharsisInvokerContext;
-import io.katharsis.jackson.exception.ParametersDeserializationException;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;

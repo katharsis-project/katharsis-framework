@@ -1,21 +1,17 @@
 package io.katharsis.client.mock.repository;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import io.katharsis.client.mock.models.Project;
 import io.katharsis.client.mock.models.Task;
-import io.katharsis.queryspec.FilterOperator;
 import io.katharsis.queryspec.QuerySpec;
-import io.katharsis.queryspec.QuerySpecRelationshipRepository;
+import io.katharsis.repository.RelationshipRepositoryV2;
+import io.katharsis.resource.list.DefaultResourceList;
+import io.katharsis.resource.list.ResourceList;
 
-public class TaskToProjectRepository implements QuerySpecRelationshipRepository<Task, Long, Project, Long> {
+public class TaskToProjectRepository implements RelationshipRepositoryV2<Task, Long, Project, Long> {
 
 	private static final ConcurrentMap<Relation<Task>, Integer> THREAD_LOCAL_REPOSITORY = new ConcurrentHashMap<>();
 
@@ -84,8 +80,8 @@ public class TaskToProjectRepository implements QuerySpecRelationshipRepository<
 	}
 
 	@Override
-	public Iterable<Project> findManyTargets(Long sourceId, String fieldName, QuerySpec queryParams) {
-		List<Project> projects = new LinkedList<>();
+	public ResourceList<Project> findManyTargets(Long sourceId, String fieldName, QuerySpec queryParams) {
+		DefaultResourceList<Project> projects = new DefaultResourceList<>();
 		for (Relation<Task> relation : THREAD_LOCAL_REPOSITORY.keySet()) {
 			if (relation.getSource().getId().equals(sourceId) && relation.getFieldName().equals(fieldName)) {
 				Project project = new Project();

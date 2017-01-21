@@ -7,11 +7,11 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.katharsis.errorhandling.exception.ResourceNotFoundInitializationException;
 import io.katharsis.module.ModuleRegistry;
 import io.katharsis.resource.annotations.JsonApiResource;
-import io.katharsis.resource.exception.init.ResourceNotFoundInitializationException;
 import io.katharsis.resource.information.ResourceInformation;
-import io.katharsis.utils.java.Optional;
+import io.katharsis.utils.Optional;
 
 
 public class ResourceRegistry {

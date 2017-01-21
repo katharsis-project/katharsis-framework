@@ -12,21 +12,21 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import io.katharsis.core.internal.query.QueryParamsAdapter;
+import io.katharsis.core.internal.query.QuerySpecAdapter;
+import io.katharsis.core.internal.repository.adapter.RelationshipRepositoryAdapter;
+import io.katharsis.core.internal.repository.adapter.ResourceRepositoryAdapter;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryspec.AbstractQuerySpecTest;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.internal.QueryAdapter;
-import io.katharsis.queryspec.internal.QueryParamsAdapter;
-import io.katharsis.queryspec.internal.QuerySpecAdapter;
+import io.katharsis.repository.response.JsonApiResponse;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Schedule;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.repository.ScheduleRepository;
 import io.katharsis.resource.mock.repository.ScheduleRepositoryImpl;
 import io.katharsis.resource.registry.RegistryEntry;
-import io.katharsis.resource.registry.repository.adapter.RelationshipRepositoryAdapter;
-import io.katharsis.resource.registry.repository.adapter.ResourceRepositoryAdapter;
-import io.katharsis.response.JsonApiResponse;
 
 public class QuerySpecRepositoryTest extends AbstractQuerySpecTest {
 

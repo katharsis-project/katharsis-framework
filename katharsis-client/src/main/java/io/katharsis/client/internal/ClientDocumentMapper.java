@@ -9,21 +9,21 @@ import io.katharsis.client.internal.proxy.ClientProxyFactory;
 import io.katharsis.client.internal.proxy.ObjectProxy;
 import io.katharsis.client.response.JsonLinksInformation;
 import io.katharsis.client.response.JsonMetaInformation;
-import io.katharsis.internal.boot.PropertiesProvider;
+import io.katharsis.core.internal.boot.PropertiesProvider;
+import io.katharsis.core.internal.resource.DocumentMapper;
+import io.katharsis.core.internal.resource.DocumentMapperUtil;
+import io.katharsis.core.internal.resource.ResourceMapper;
+import io.katharsis.core.internal.utils.PropertyUtils;
+import io.katharsis.core.internal.utils.parser.TypeParser;
 import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.resource.Document;
 import io.katharsis.resource.Relationship;
 import io.katharsis.resource.Resource;
-import io.katharsis.resource.field.ResourceField;
+import io.katharsis.resource.information.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
-import io.katharsis.resource.internal.DocumentMapper;
-import io.katharsis.resource.internal.DocumentMapperUtil;
-import io.katharsis.resource.internal.ResourceMapper;
 import io.katharsis.resource.list.DefaultResourceList;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.utils.PropertyUtils;
-import io.katharsis.utils.java.Nullable;
-import io.katharsis.utils.parser.TypeParser;
+import io.katharsis.utils.Nullable;
 
 public class ClientDocumentMapper extends DocumentMapper {
 

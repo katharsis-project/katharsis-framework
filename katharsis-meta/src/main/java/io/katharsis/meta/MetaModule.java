@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import io.katharsis.core.internal.utils.PreconditionUtil;
 import io.katharsis.meta.internal.MetaRelationshipRepository;
 import io.katharsis.meta.internal.MetaResourceRepository;
 import io.katharsis.meta.model.MetaAttribute;
@@ -20,13 +21,12 @@ import io.katharsis.meta.model.MetaType;
 import io.katharsis.meta.provider.MetaProvider;
 import io.katharsis.module.InitializingModule;
 import io.katharsis.module.Module;
-import io.katharsis.resource.field.ResourceField;
-import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
+import io.katharsis.resource.information.ResourceField;
+import io.katharsis.resource.information.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.ResourceLookup;
 import io.katharsis.resource.registry.ResourceRegistryAware;
-import io.katharsis.utils.PreconditionUtil;
 
 public class MetaModule implements Module, InitializingModule {
 

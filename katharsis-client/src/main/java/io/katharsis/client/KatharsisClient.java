@@ -24,38 +24,38 @@ import io.katharsis.client.internal.proxy.ClientProxyFactory;
 import io.katharsis.client.internal.proxy.ClientProxyFactoryContext;
 import io.katharsis.client.module.ClientModule;
 import io.katharsis.client.module.HttpAdapterAware;
-import io.katharsis.errorhandling.mapper.ExceptionMapperLookup;
-import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
-import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryBuilder;
-import io.katharsis.jackson.JsonApiModuleBuilder;
+import io.katharsis.core.internal.exception.ExceptionMapperLookup;
+import io.katharsis.core.internal.exception.ExceptionMapperRegistry;
+import io.katharsis.core.internal.exception.ExceptionMapperRegistryBuilder;
+import io.katharsis.core.internal.jackson.JsonApiModuleBuilder;
+import io.katharsis.core.internal.registry.DirectResponseRelationshipEntry;
+import io.katharsis.core.internal.registry.DirectResponseResourceEntry;
+import io.katharsis.core.internal.repository.adapter.RelationshipRepositoryAdapter;
+import io.katharsis.core.internal.repository.adapter.ResourceRepositoryAdapter;
+import io.katharsis.core.internal.repository.information.ResourceRepositoryInformationImpl;
+import io.katharsis.core.internal.utils.JsonApiUrlBuilder;
+import io.katharsis.core.internal.utils.PreconditionUtil;
+import io.katharsis.errorhandling.exception.RepositoryNotFoundException;
 import io.katharsis.module.Module;
 import io.katharsis.module.ModuleRegistry;
-import io.katharsis.queryspec.QuerySpecRelationshipRepository;
-import io.katharsis.queryspec.QuerySpecResourceRepository;
 import io.katharsis.repository.RelationshipRepository;
+import io.katharsis.repository.RelationshipRepositoryV2;
 import io.katharsis.repository.RepositoryInstanceBuilder;
-import io.katharsis.repository.exception.RepositoryNotFoundException;
+import io.katharsis.repository.ResourceRepositoryV2;
 import io.katharsis.repository.information.RepositoryInformationBuilder;
 import io.katharsis.repository.information.RepositoryInformationBuilderContext;
 import io.katharsis.repository.information.ResourceRepositoryInformation;
-import io.katharsis.repository.information.internal.ResourceRepositoryInformationImpl;
-import io.katharsis.resource.field.ResourceField;
+import io.katharsis.resource.information.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.list.DefaultResourceList;
 import io.katharsis.resource.registry.ConstantServiceUrlProvider;
 import io.katharsis.resource.registry.RegistryEntry;
+import io.katharsis.resource.registry.ResourceEntry;
 import io.katharsis.resource.registry.ResourceLookup;
 import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.resource.registry.ResponseRelationshipEntry;
 import io.katharsis.resource.registry.ServiceUrlProvider;
-import io.katharsis.resource.registry.repository.DirectResponseRelationshipEntry;
-import io.katharsis.resource.registry.repository.DirectResponseResourceEntry;
-import io.katharsis.resource.registry.repository.ResourceEntry;
-import io.katharsis.resource.registry.repository.ResponseRelationshipEntry;
-import io.katharsis.resource.registry.repository.adapter.RelationshipRepositoryAdapter;
-import io.katharsis.resource.registry.repository.adapter.ResourceRepositoryAdapter;
-import io.katharsis.utils.JsonApiUrlBuilder;
-import io.katharsis.utils.PreconditionUtil;
 
 /**
  * Client implementation giving access to JSON API repositories using stubs.
@@ -289,18 +289,18 @@ public class KatharsisClient {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <R extends QuerySpecResourceRepository<?, ?>> R getResourceRepository(Class<R> repositoryInterfaceClass) {
+	public <R extends ResourceRepositoryV2<?, ?>> R getResourceRepository(Class<R> repositoryInterfaceClass) {
 		RepositoryInformationBuilder informationBuilder = moduleRegistry.getRepositoryInformationBuilder();
 		PreconditionUtil.assertTrue("no a valid repository interface", informationBuilder.accept(repositoryInterfaceClass));
 		ResourceRepositoryInformation repositoryInformation = (ResourceRepositoryInformation) informationBuilder.build(repositoryInterfaceClass, newRepositoryInformationBuilderContext());
 		Class<?> resourceClass = repositoryInformation.getResourceInformation().getResourceClass();
 
 		Object actionStub = actionStubFactory != null ? actionStubFactory.createStub(repositoryInterfaceClass) : null;
-		QuerySpecResourceRepositoryStub<?, Serializable> repositoryStub = getQuerySpecRepository(resourceClass);
+		ResourceRepositoryV2<?, Serializable> repositoryStub = getQuerySpecRepository(resourceClass);
 
 		ClassLoader classLoader = repositoryInterfaceClass.getClassLoader();
 		InvocationHandler invocationHandler = new ClientStubInvocationHandler(repositoryInterfaceClass, repositoryStub, actionStub);
-		return (R) Proxy.newProxyInstance(classLoader, new Class[] { repositoryInterfaceClass, QuerySpecResourceRepositoryStub.class }, invocationHandler);
+		return (R) Proxy.newProxyInstance(classLoader, new Class[] { repositoryInterfaceClass, ResourceRepositoryV2.class }, invocationHandler);
 	}
 
 	private RepositoryInformationBuilderContext newRepositoryInformationBuilderContext() {
@@ -313,7 +313,7 @@ public class KatharsisClient {
 		};
 	}
 
-	public <R extends QuerySpecRelationshipRepository<?, ?, ?, ?>> R getRelationshipRepository(Class<R> repositoryInterfaceClass) {
+	public <R extends RelationshipRepositoryV2<?, ?, ?, ?>> R getRelationshipRepository(Class<R> repositoryInterfaceClass) {
 		return null;
 	}
 
@@ -339,14 +339,14 @@ public class KatharsisClient {
 	 * @return stub for the given resourceClass
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public <T, I extends Serializable> QuerySpecResourceRepositoryStub<T, I> getQuerySpecRepository(Class<T> resourceClass) {
+	public <T, I extends Serializable> ResourceRepositoryV2<T, I> getQuerySpecRepository(Class<T> resourceClass) {
 		init();
 
 		RegistryEntry<T> entry = resourceRegistry.getEntry(resourceClass);
 
 		// TODO fix this in katharsis, should be able to get original resource
 		ResourceRepositoryAdapter repositoryAdapter = entry.getResourceRepository(null);
-		return (QuerySpecResourceRepositoryStub<T, I>) repositoryAdapter.getResourceRepository();
+		return (ResourceRepositoryV2<T, I>) repositoryAdapter.getResourceRepository();
 	}
 
 	/**
@@ -376,13 +376,13 @@ public class KatharsisClient {
 	 *         class
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public <T, I extends Serializable, D, J extends Serializable> QuerySpecRelationshipRepositoryStub<T, I, D, J> getQuerySpecRepository(Class<T> sourceClass, Class<D> targetClass) {
+	public <T, I extends Serializable, D, J extends Serializable> RelationshipRepositoryV2<T, I, D, J> getQuerySpecRepository(Class<T> sourceClass, Class<D> targetClass) {
 		init();
 
 		RegistryEntry<T> entry = resourceRegistry.getEntry(sourceClass);
 
 		RelationshipRepositoryAdapter repositoryAdapter = entry.getRelationshipRepositoryForClass(targetClass, null);
-		return (QuerySpecRelationshipRepositoryStub<T, I, D, J>) repositoryAdapter.getRelationshipRepository();
+		return (RelationshipRepositoryV2<T, I, D, J>) repositoryAdapter.getRelationshipRepository();
 	}
 
 	/**

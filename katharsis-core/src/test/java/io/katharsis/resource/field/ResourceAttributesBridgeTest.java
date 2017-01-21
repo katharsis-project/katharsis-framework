@@ -14,9 +14,11 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.katharsis.resource.exception.ResourceException;
-import io.katharsis.resource.exception.init.InvalidResourceException;
-import io.katharsis.resource.field.ResourceField.ResourceFieldType;
+import io.katharsis.errorhandling.exception.InvalidResourceException;
+import io.katharsis.errorhandling.exception.ResourceException;
+import io.katharsis.resource.information.ResourceAttributesBridge;
+import io.katharsis.resource.information.ResourceField;
+import io.katharsis.resource.information.ResourceField.ResourceFieldType;
 import io.katharsis.resource.mock.models.Task;
 
 public class ResourceAttributesBridgeTest {

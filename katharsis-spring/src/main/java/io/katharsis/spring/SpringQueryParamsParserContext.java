@@ -1,8 +1,8 @@
 package io.katharsis.spring;
 
+import io.katharsis.core.internal.dispatcher.path.JsonPath;
 import io.katharsis.queryParams.context.AbstractQueryParamsParserContext;
 import io.katharsis.queryParams.context.QueryParamsParserContext;
-import io.katharsis.request.path.JsonPath;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.ResourceRegistry;
 

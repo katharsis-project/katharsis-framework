@@ -7,22 +7,22 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.katharsis.client.KatharsisClient;
-import io.katharsis.client.QuerySpecRelationshipRepositoryStub;
 import io.katharsis.client.RelationshipRepositoryStub;
-import io.katharsis.dispatcher.controller.HttpMethod;
+import io.katharsis.core.internal.utils.JsonApiUrlBuilder;
+import io.katharsis.core.internal.utils.PropertyUtils;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryspec.QuerySpec;
+import io.katharsis.repository.RelationshipRepositoryV2;
+import io.katharsis.repository.request.HttpMethod;
 import io.katharsis.resource.Document;
 import io.katharsis.resource.ResourceIdentifier;
-import io.katharsis.resource.field.ResourceField;
+import io.katharsis.resource.information.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.list.DefaultResourceList;
 import io.katharsis.resource.registry.RegistryEntry;
-import io.katharsis.utils.JsonApiUrlBuilder;
-import io.katharsis.utils.PropertyUtils;
-import io.katharsis.utils.java.Nullable;
+import io.katharsis.utils.Nullable;
 
-public class RelationshipRepositoryStubImpl<T, I extends Serializable, D, J extends Serializable> extends AbstractStub implements RelationshipRepositoryStub<T, I, D, J>, QuerySpecRelationshipRepositoryStub<T, I, D, J> {
+public class RelationshipRepositoryStubImpl<T, I extends Serializable, D, J extends Serializable> extends AbstractStub implements RelationshipRepositoryStub<T, I, D, J>, RelationshipRepositoryV2<T, I, D, J> {
 
 	private Class<T> sourceClass;
 

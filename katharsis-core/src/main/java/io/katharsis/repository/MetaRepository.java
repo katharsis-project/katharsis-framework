@@ -1,7 +1,7 @@
 package io.katharsis.repository;
 
 import io.katharsis.queryParams.QueryParams;
-import io.katharsis.response.MetaInformation;
+import io.katharsis.resource.meta.MetaInformation;
 
 /**
  * An optional interface that can be implemented along with {@link ResourceRepository} or {@link

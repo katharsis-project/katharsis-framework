@@ -18,16 +18,16 @@ import javax.validation.Path.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.katharsis.core.internal.utils.PropertyUtils;
 import io.katharsis.errorhandling.ErrorData;
 import io.katharsis.errorhandling.ErrorDataBuilder;
 import io.katharsis.errorhandling.ErrorResponse;
 import io.katharsis.errorhandling.mapper.ExceptionMapper;
 import io.katharsis.module.Module.ModuleContext;
-import io.katharsis.resource.field.ResourceField;
+import io.katharsis.resource.information.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.utils.PropertyUtils;
 
 public class ConstraintViolationExceptionMapper implements ExceptionMapper<ConstraintViolationException> {
 

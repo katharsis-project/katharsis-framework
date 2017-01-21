@@ -15,12 +15,12 @@ import javax.validation.Path;
 import javax.validation.Path.Node;
 import javax.validation.metadata.ConstraintDescriptor;
 
+import io.katharsis.core.internal.utils.ClassUtils;
+import io.katharsis.core.internal.utils.PreconditionUtil;
+import io.katharsis.core.internal.utils.PropertyUtils;
 import io.katharsis.errorhandling.ErrorData;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.utils.ClassUtils;
-import io.katharsis.utils.PreconditionUtil;
-import io.katharsis.utils.PropertyUtils;
 
 // TODO remo: take care of UnsupportedOperationExceptions to adhere to spec
 public class ConstraintViolationImpl implements ConstraintViolation<Object> {

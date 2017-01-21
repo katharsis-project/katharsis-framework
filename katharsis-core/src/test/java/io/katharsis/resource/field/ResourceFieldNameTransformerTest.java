@@ -12,6 +12,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 
+import io.katharsis.resource.information.ResourceFieldNameTransformer;
+
 public class ResourceFieldNameTransformerTest {
 
     private ObjectMapper objectMapper;

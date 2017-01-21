@@ -3,10 +3,10 @@ package io.katharsis.module;
 import java.util.Arrays;
 import java.util.List;
 
-import io.katharsis.resource.field.ResourceField;
-import io.katharsis.resource.field.ResourceField.ResourceFieldType;
+import io.katharsis.resource.information.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.information.ResourceInformationBuilder;
+import io.katharsis.resource.information.ResourceField.ResourceFieldType;
 
 public class TestResourceInformationBuilder implements ResourceInformationBuilder {
 

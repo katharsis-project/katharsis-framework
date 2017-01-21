@@ -3,7 +3,7 @@ package io.katharsis.queryspec;
 import java.io.Serializable;
 import java.util.List;
 
-import io.katharsis.utils.StringUtils;
+import io.katharsis.core.internal.utils.StringUtils;
 
 public abstract class IncludeSpec extends AbstractPathSpec implements Serializable {
 

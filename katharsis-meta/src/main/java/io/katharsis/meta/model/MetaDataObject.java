@@ -12,10 +12,10 @@ import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import io.katharsis.core.internal.utils.PreconditionUtil;
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.annotations.JsonApiToMany;
 import io.katharsis.resource.annotations.JsonApiToOne;
-import io.katharsis.utils.PreconditionUtil;
 
 @JsonApiResource(type = "meta/dataObject")
 public abstract class MetaDataObject extends MetaType {

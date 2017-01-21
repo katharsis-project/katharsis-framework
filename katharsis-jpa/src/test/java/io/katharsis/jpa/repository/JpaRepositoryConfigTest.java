@@ -7,13 +7,14 @@ import io.katharsis.jpa.JpaRepositoryConfig;
 import io.katharsis.jpa.JpaRepositoryConfig.Builder;
 import io.katharsis.jpa.model.TestEntity;
 import io.katharsis.queryspec.QuerySpec;
-import io.katharsis.queryspec.QuerySpecResourceRepository;
+import io.katharsis.repository.ResourceRepositoryV2;
+import io.katharsis.resource.links.DefaultPagedLinksInformation;
+import io.katharsis.resource.links.LinksInformation;
 import io.katharsis.resource.list.DefaultResourceList;
+import io.katharsis.resource.list.ResourceList;
 import io.katharsis.resource.list.ResourceListBase;
-import io.katharsis.response.LinksInformation;
-import io.katharsis.response.MetaInformation;
-import io.katharsis.response.paging.DefaultPagedLinksInformation;
-import io.katharsis.response.paging.DefaultPagedMetaInformation;
+import io.katharsis.resource.meta.DefaultPagedMetaInformation;
+import io.katharsis.resource.meta.MetaInformation;
 
 public class JpaRepositoryConfigTest {
 
@@ -48,21 +49,21 @@ public class JpaRepositoryConfigTest {
     builder.setInterfaceClass(InvalidReturnTypeTestRepository.class);
   }
 
-  public interface TestRepository extends QuerySpecResourceRepository<TestEntity, Long> {
+  public interface TestRepository extends ResourceRepositoryV2<TestEntity, Long> {
 
     @Override
     public TestList findAll(QuerySpec querySpec);
 
   }
 
-  public interface IncompleteTestRepository extends QuerySpecResourceRepository<TestEntity, Long> {
+  public interface IncompleteTestRepository extends ResourceRepositoryV2<TestEntity, Long> {
 
   }
 
-  public interface InvalidReturnTypeTestRepository extends QuerySpecResourceRepository<TestEntity, Long> {
+  public interface InvalidReturnTypeTestRepository extends ResourceRepositoryV2<TestEntity, Long> {
 
     @Override
-    public Iterable<TestEntity> findAll(QuerySpec querySpec);
+    public ResourceList<TestEntity> findAll(QuerySpec querySpec);
 
   }
 

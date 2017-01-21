@@ -7,13 +7,14 @@ import java.util.Set;
 
 import org.junit.Before;
 
+import io.katharsis.core.internal.query.DefaultQuerySpecConverter;
 import io.katharsis.locator.JsonServiceLocator;
 import io.katharsis.locator.SampleJsonServiceLocator;
 import io.katharsis.module.ModuleRegistry;
 import io.katharsis.queryParams.DefaultQueryParamsParser;
 import io.katharsis.queryParams.QueryParamsBuilder;
-import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
+import io.katharsis.resource.information.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.repository.ScheduleRepositoryImpl;

@@ -11,8 +11,15 @@ import org.mockito.Mockito;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.katharsis.dispatcher.RequestDispatcher;
-import io.katharsis.dispatcher.filter.Filter;
+import io.katharsis.core.internal.boot.KatharsisBoot;
+import io.katharsis.core.internal.boot.KatharsisBootProperties;
+import io.katharsis.core.internal.boot.PropertiesProvider;
+import io.katharsis.core.internal.dispatcher.RequestDispatcher;
+import io.katharsis.core.internal.query.QueryAdapterBuilder;
+import io.katharsis.core.internal.query.QueryParamsAdapter;
+import io.katharsis.core.internal.query.QueryParamsAdapterBuilder;
+import io.katharsis.core.internal.query.QuerySpecAdapterBuilder;
+import io.katharsis.core.internal.repository.adapter.ResourceRepositoryAdapter;
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
 import io.katharsis.locator.SampleJsonServiceLocator;
 import io.katharsis.module.Module;
@@ -23,18 +30,14 @@ import io.katharsis.module.SimpleModule;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.queryspec.QuerySpecDeserializer;
-import io.katharsis.queryspec.internal.QueryAdapterBuilder;
-import io.katharsis.queryspec.internal.QueryParamsAdapter;
-import io.katharsis.queryspec.internal.QueryParamsAdapterBuilder;
-import io.katharsis.queryspec.internal.QuerySpecAdapterBuilder;
-import io.katharsis.resource.field.ResourceFieldNameTransformer;
+import io.katharsis.repository.filter.DocumentFilter;
+import io.katharsis.repository.response.JsonApiResponse;
+import io.katharsis.resource.information.ResourceFieldNameTransformer;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.registry.ConstantServiceUrlProvider;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ServiceUrlProvider;
-import io.katharsis.resource.registry.repository.adapter.ResourceRepositoryAdapter;
-import io.katharsis.response.JsonApiResponse;
 
 public class KatharsisBootTest {
 
@@ -113,9 +116,9 @@ public class KatharsisBootTest {
 		boot.setServiceUrlProvider(Mockito.mock(ServiceUrlProvider.class));
 
 		Module module = Mockito.mock(Module.class);
-		Filter filter = Mockito.mock(Filter.class);
+		DocumentFilter filter = Mockito.mock(DocumentFilter.class);
 		JsonApiExceptionMapper exceptionMapper = Mockito.mock(JsonApiExceptionMapper.class);
-		Mockito.when(serviceDiscovery.getInstancesByType(Mockito.eq(Filter.class))).thenReturn(Arrays.asList(filter));
+		Mockito.when(serviceDiscovery.getInstancesByType(Mockito.eq(DocumentFilter.class))).thenReturn(Arrays.asList(filter));
 		Mockito.when(serviceDiscovery.getInstancesByType(Mockito.eq(Module.class))).thenReturn(Arrays.asList(module));
 		Mockito.when(serviceDiscovery.getInstancesByType(Mockito.eq(JsonApiExceptionMapper.class)))
 				.thenReturn(Arrays.asList(exceptionMapper));

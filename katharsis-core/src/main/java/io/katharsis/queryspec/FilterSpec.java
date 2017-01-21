@@ -6,8 +6,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import io.katharsis.utils.CompareUtils;
-import io.katharsis.utils.StringUtils;
+import io.katharsis.core.internal.utils.CompareUtils;
+import io.katharsis.core.internal.utils.StringUtils;
 
 public class FilterSpec extends AbstractPathSpec implements Comparable<FilterSpec> {
 

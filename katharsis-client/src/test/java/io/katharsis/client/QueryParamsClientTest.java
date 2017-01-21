@@ -16,8 +16,8 @@ import org.junit.Test;
 import io.katharsis.client.mock.models.Project;
 import io.katharsis.client.mock.models.Schedule;
 import io.katharsis.client.mock.models.Task;
+import io.katharsis.errorhandling.exception.ResourceNotFoundException;
 import io.katharsis.queryParams.QueryParams;
-import io.katharsis.resource.exception.ResourceNotFoundException;
 
 public class QueryParamsClientTest extends AbstractClientTest {
 

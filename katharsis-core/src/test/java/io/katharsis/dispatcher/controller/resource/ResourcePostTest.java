@@ -10,26 +10,27 @@ import org.junit.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import io.katharsis.core.internal.dispatcher.controller.ResourcePost;
+import io.katharsis.core.internal.dispatcher.path.JsonPath;
+import io.katharsis.core.internal.dispatcher.path.ResourcePath;
+import io.katharsis.core.internal.query.QueryParamsAdapter;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
-import io.katharsis.dispatcher.controller.Response;
+import io.katharsis.errorhandling.exception.ResourceException;
+import io.katharsis.errorhandling.exception.ResourceNotFoundException;
 import io.katharsis.queryParams.DefaultQueryParamsParser;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
-import io.katharsis.queryspec.internal.QueryParamsAdapter;
-import io.katharsis.request.path.JsonPath;
-import io.katharsis.request.path.ResourcePath;
+import io.katharsis.repository.response.HttpStatus;
+import io.katharsis.repository.response.Response;
 import io.katharsis.resource.Document;
 import io.katharsis.resource.Relationship;
 import io.katharsis.resource.Resource;
 import io.katharsis.resource.ResourceIdentifier;
-import io.katharsis.resource.exception.ResourceException;
-import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.mock.models.Pojo;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.repository.PojoRepository;
 import io.katharsis.resource.mock.repository.TaskRepository;
-import io.katharsis.response.HttpStatus;
-import io.katharsis.utils.java.Nullable;
+import io.katharsis.utils.Nullable;
 
 public class ResourcePostTest extends BaseControllerTest {
 

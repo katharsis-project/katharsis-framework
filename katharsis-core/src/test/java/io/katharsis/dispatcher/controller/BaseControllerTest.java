@@ -11,19 +11,20 @@ import org.junit.rules.ExpectedException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.katharsis.internal.boot.EmptyPropertiesProvider;
-import io.katharsis.jackson.JsonApiModuleBuilder;
+import io.katharsis.core.internal.boot.EmptyPropertiesProvider;
+import io.katharsis.core.internal.dispatcher.path.PathBuilder;
+import io.katharsis.core.internal.jackson.JsonApiModuleBuilder;
+import io.katharsis.core.internal.resource.DocumentMapper;
+import io.katharsis.core.internal.utils.parser.TypeParser;
 import io.katharsis.locator.SampleJsonServiceLocator;
 import io.katharsis.module.ModuleRegistry;
 import io.katharsis.queryParams.DefaultQueryParamsParser;
 import io.katharsis.queryParams.QueryParams;
 import io.katharsis.queryParams.QueryParamsBuilder;
-import io.katharsis.request.path.PathBuilder;
 import io.katharsis.resource.Resource;
-import io.katharsis.resource.field.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
+import io.katharsis.resource.information.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.ResourceInformationBuilder;
-import io.katharsis.resource.internal.DocumentMapper;
 import io.katharsis.resource.mock.repository.ProjectRepository;
 import io.katharsis.resource.mock.repository.ProjectToTaskRepository;
 import io.katharsis.resource.mock.repository.TaskRepository;
@@ -35,7 +36,6 @@ import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryBuilder;
 import io.katharsis.resource.registry.ResourceRegistryBuilderTest;
 import io.katharsis.resource.registry.ResourceRegistryTest;
-import io.katharsis.utils.parser.TypeParser;
 
 public abstract class BaseControllerTest {
 
