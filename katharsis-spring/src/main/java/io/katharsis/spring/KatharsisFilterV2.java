@@ -40,7 +40,7 @@ import io.katharsis.errorhandling.exception.KatharsisMappableException;
 import io.katharsis.errorhandling.exception.KatharsisMatchingException;
 import io.katharsis.invoker.JsonApiMediaType;
 import io.katharsis.invoker.KatharsisInvokerException;
-import io.katharsis.repository.RepositoryMethodParameterProvider;
+import io.katharsis.legacy.internal.RepositoryMethodParameterProvider;
 import io.katharsis.repository.response.Response;
 import io.katharsis.resource.Document;
 import io.katharsis.resource.registry.ResourceRegistry;

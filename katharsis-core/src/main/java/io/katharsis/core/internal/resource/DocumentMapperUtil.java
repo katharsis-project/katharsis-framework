@@ -18,7 +18,7 @@ import io.katharsis.legacy.queryParams.include.Inclusion;
 import io.katharsis.legacy.queryParams.params.IncludedFieldsParams;
 import io.katharsis.legacy.queryParams.params.IncludedRelationsParams;
 import io.katharsis.legacy.queryParams.params.TypedParams;
-import io.katharsis.queryspec.internal.QueryAdapter;
+import io.katharsis.repository.request.QueryAdapter;
 import io.katharsis.resource.LinksContainer;
 import io.katharsis.resource.MetaContainer;
 import io.katharsis.resource.ResourceIdentifier;

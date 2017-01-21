@@ -9,8 +9,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.katharsis.core.internal.boot.PropertiesProvider;
 import io.katharsis.errorhandling.ErrorData;
-import io.katharsis.queryspec.internal.QueryAdapter;
-import io.katharsis.repository.RepositoryMethodParameterProvider;
+import io.katharsis.legacy.internal.RepositoryMethodParameterProvider;
+import io.katharsis.repository.request.QueryAdapter;
 import io.katharsis.repository.response.JsonApiResponse;
 import io.katharsis.resource.Document;
 import io.katharsis.resource.registry.ResourceRegistry;

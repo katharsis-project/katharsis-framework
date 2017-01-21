@@ -5,7 +5,7 @@ import java.util.Set;
 
 import io.katharsis.queryspec.QuerySpecDeserializer;
 import io.katharsis.queryspec.QuerySpecDeserializerContext;
-import io.katharsis.queryspec.internal.QueryAdapter;
+import io.katharsis.repository.request.QueryAdapter;
 import io.katharsis.resource.registry.ResourceRegistry;
 
 public class QuerySpecAdapterBuilder implements QueryAdapterBuilder {

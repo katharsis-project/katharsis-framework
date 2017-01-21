@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.core.internal.dispatcher.RequestDispatcher;
 import io.katharsis.core.internal.dispatcher.path.JsonPath;
 import io.katharsis.core.internal.dispatcher.path.PathBuilder;
-import io.katharsis.repository.RepositoryMethodParameterProvider;
+import io.katharsis.legacy.internal.RepositoryMethodParameterProvider;
 import io.katharsis.repository.response.Response;
 import io.katharsis.resource.Document;
 import io.netty.handler.codec.http.QueryStringDecoder;

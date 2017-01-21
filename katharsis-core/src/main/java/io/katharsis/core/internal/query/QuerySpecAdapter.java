@@ -13,7 +13,7 @@ import io.katharsis.legacy.queryParams.params.TypedParams;
 import io.katharsis.queryspec.IncludeFieldSpec;
 import io.katharsis.queryspec.IncludeRelationSpec;
 import io.katharsis.queryspec.QuerySpec;
-import io.katharsis.queryspec.internal.QueryAdapter;
+import io.katharsis.repository.request.QueryAdapter;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;

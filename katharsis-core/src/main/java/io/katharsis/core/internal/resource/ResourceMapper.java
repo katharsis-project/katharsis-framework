@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import io.katharsis.core.internal.resource.DocumentMapperUtil.DefaultSelfRelatedLinksInformation;
 import io.katharsis.core.internal.utils.PropertyUtils;
-import io.katharsis.queryspec.internal.QueryAdapter;
+import io.katharsis.repository.request.QueryAdapter;
 import io.katharsis.resource.Relationship;
 import io.katharsis.resource.Resource;
 import io.katharsis.resource.information.ResourceField;

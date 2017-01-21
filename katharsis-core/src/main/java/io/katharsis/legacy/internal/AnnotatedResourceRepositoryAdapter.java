@@ -10,8 +10,7 @@ import io.katharsis.legacy.repository.annotations.JsonApiFindAll;
 import io.katharsis.legacy.repository.annotations.JsonApiFindAllWithIds;
 import io.katharsis.legacy.repository.annotations.JsonApiFindOne;
 import io.katharsis.legacy.repository.annotations.JsonApiSave;
-import io.katharsis.queryspec.internal.QueryAdapter;
-import io.katharsis.repository.ParametersFactory;
+import io.katharsis.repository.request.QueryAdapter;
 
 /**
  * An adapter for annotation-based resource repository. Stores references to repository methods and call o proper one

@@ -2,7 +2,7 @@ package io.katharsis.repository.mock;
 
 import java.lang.reflect.Method;
 
-import io.katharsis.repository.RepositoryMethodParameterProvider;
+import io.katharsis.legacy.internal.RepositoryMethodParameterProvider;
 
 public class NewInstanceRepositoryMethodParameterProvider implements RepositoryMethodParameterProvider {
 

@@ -2,9 +2,9 @@ package io.katharsis.core.internal.dispatcher.controller;
 
 import io.katharsis.core.internal.dispatcher.path.JsonPath;
 import io.katharsis.errorhandling.exception.RequestBodyException;
-import io.katharsis.queryspec.internal.QueryAdapter;
-import io.katharsis.repository.RepositoryMethodParameterProvider;
+import io.katharsis.legacy.internal.RepositoryMethodParameterProvider;
 import io.katharsis.repository.request.HttpMethod;
+import io.katharsis.repository.request.QueryAdapter;
 import io.katharsis.repository.response.JsonApiResponse;
 import io.katharsis.repository.response.Response;
 import io.katharsis.resource.Document;

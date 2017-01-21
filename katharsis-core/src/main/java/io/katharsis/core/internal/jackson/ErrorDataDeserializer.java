@@ -1,4 +1,4 @@
-package io.katharsis.core.internal.jackson.serializer;
+package io.katharsis.core.internal.jackson;
 
 import java.io.IOException;
 import java.util.Map;

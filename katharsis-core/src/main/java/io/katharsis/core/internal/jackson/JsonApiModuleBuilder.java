@@ -3,8 +3,6 @@ package io.katharsis.core.internal.jackson;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
-import io.katharsis.core.internal.jackson.serializer.ErrorDataDeserializer;
-import io.katharsis.core.internal.jackson.serializer.ErrorDataSerializer;
 import io.katharsis.errorhandling.ErrorData;
 import io.katharsis.resource.registry.ResourceRegistry;
 

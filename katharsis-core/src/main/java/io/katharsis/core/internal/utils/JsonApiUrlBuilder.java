@@ -14,7 +14,7 @@ import io.katharsis.legacy.queryParams.QueryParamsSerializer;
 import io.katharsis.queryspec.DefaultQuerySpecSerializer;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.QuerySpecSerializer;
-import io.katharsis.queryspec.internal.QueryAdapter;
+import io.katharsis.repository.request.QueryAdapter;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;

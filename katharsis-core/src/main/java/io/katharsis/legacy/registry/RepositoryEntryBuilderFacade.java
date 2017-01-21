@@ -1,8 +1,8 @@
 package io.katharsis.legacy.registry;
 
 import io.katharsis.core.internal.registry.DirectResponseResourceEntry;
+import io.katharsis.core.internal.repository.NotFoundRepository;
 import io.katharsis.legacy.locator.JsonServiceLocator;
-import io.katharsis.repository.NotFoundRepository;
 import io.katharsis.resource.registry.ResourceEntry;
 import io.katharsis.resource.registry.ResourceLookup;
 import io.katharsis.resource.registry.ResponseRelationshipEntry;

@@ -1,9 +1,9 @@
 package io.katharsis.repository.filter;
 
 import io.katharsis.core.internal.dispatcher.path.JsonPath;
+import io.katharsis.legacy.internal.RepositoryMethodParameterProvider;
 import io.katharsis.legacy.queryParams.QueryParams;
-import io.katharsis.queryspec.internal.QueryAdapter;
-import io.katharsis.repository.RepositoryMethodParameterProvider;
+import io.katharsis.repository.request.QueryAdapter;
 import io.katharsis.resource.Document;
 
 /**

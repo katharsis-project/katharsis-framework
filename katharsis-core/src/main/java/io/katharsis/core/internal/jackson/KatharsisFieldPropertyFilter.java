@@ -1,4 +1,4 @@
-package io.katharsis.core.internal.jackson.serializer;
+package io.katharsis.core.internal.jackson;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;

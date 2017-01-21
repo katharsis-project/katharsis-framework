@@ -14,6 +14,7 @@ import io.katharsis.errorhandling.exception.RepositoryAnnotationNotFoundExceptio
 import io.katharsis.errorhandling.exception.RepositoryMethodException;
 import io.katharsis.legacy.internal.AnnotatedRepositoryAdapter;
 import io.katharsis.legacy.internal.AnnotatedResourceRepositoryAdapter;
+import io.katharsis.legacy.internal.ParametersFactory;
 import io.katharsis.legacy.internal.QueryParamsAdapter;
 import io.katharsis.legacy.queryParams.QueryParams;
 import io.katharsis.legacy.repository.annotations.JsonApiLinks;

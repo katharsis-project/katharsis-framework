@@ -10,8 +10,7 @@ import io.katharsis.legacy.repository.annotations.JsonApiFindOneTarget;
 import io.katharsis.legacy.repository.annotations.JsonApiRemoveRelations;
 import io.katharsis.legacy.repository.annotations.JsonApiSetRelation;
 import io.katharsis.legacy.repository.annotations.JsonApiSetRelations;
-import io.katharsis.queryspec.internal.QueryAdapter;
-import io.katharsis.repository.ParametersFactory;
+import io.katharsis.repository.request.QueryAdapter;
 
 public class AnnotatedRelationshipRepositoryAdapter<T, T_ID extends Serializable, D, D_ID extends Serializable>
     extends AnnotatedRepositoryAdapter<T>{

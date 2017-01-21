@@ -8,8 +8,7 @@ import io.katharsis.core.internal.utils.ClassUtils;
 import io.katharsis.errorhandling.exception.RepositoryAnnotationNotFoundException;
 import io.katharsis.legacy.repository.annotations.JsonApiLinks;
 import io.katharsis.legacy.repository.annotations.JsonApiMeta;
-import io.katharsis.queryspec.internal.QueryAdapter;
-import io.katharsis.repository.ParametersFactory;
+import io.katharsis.repository.request.QueryAdapter;
 import io.katharsis.resource.links.LinksInformation;
 import io.katharsis.resource.meta.MetaInformation;
 

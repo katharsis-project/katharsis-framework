@@ -1,4 +1,4 @@
-package io.katharsis.queryspec.internal;
+package io.katharsis.repository.request;
 
 import io.katharsis.legacy.queryParams.params.IncludedFieldsParams;
 import io.katharsis.legacy.queryParams.params.IncludedRelationsParams;

@@ -1,4 +1,4 @@
-package io.katharsis.repository;
+package io.katharsis.core.internal.repository;
 
 import io.katharsis.errorhandling.exception.RepositoryNotFoundException;
 import io.katharsis.legacy.queryParams.QueryParams;

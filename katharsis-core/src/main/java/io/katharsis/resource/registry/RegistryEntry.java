@@ -12,8 +12,8 @@ import io.katharsis.core.internal.registry.DirectResponseResourceEntry;
 import io.katharsis.core.internal.repository.adapter.RelationshipRepositoryAdapter;
 import io.katharsis.core.internal.repository.adapter.ResourceRepositoryAdapter;
 import io.katharsis.errorhandling.exception.RelationshipRepositoryNotFoundException;
+import io.katharsis.legacy.internal.RepositoryMethodParameterProvider;
 import io.katharsis.module.ModuleRegistry;
-import io.katharsis.repository.RepositoryMethodParameterProvider;
 import io.katharsis.repository.information.ResourceRepositoryInformation;
 import io.katharsis.resource.information.ResourceInformation;
 

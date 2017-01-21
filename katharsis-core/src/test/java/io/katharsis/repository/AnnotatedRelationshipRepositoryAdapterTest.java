@@ -13,6 +13,7 @@ import org.junit.Test;
 import io.katharsis.errorhandling.exception.RepositoryAnnotationNotFoundException;
 import io.katharsis.errorhandling.exception.RepositoryMethodException;
 import io.katharsis.legacy.internal.AnnotatedRelationshipRepositoryAdapter;
+import io.katharsis.legacy.internal.ParametersFactory;
 import io.katharsis.legacy.internal.QueryParamsAdapter;
 import io.katharsis.legacy.queryParams.QueryParams;
 import io.katharsis.legacy.repository.annotations.JsonApiAddRelations;
@@ -22,8 +23,8 @@ import io.katharsis.legacy.repository.annotations.JsonApiRelationshipRepository;
 import io.katharsis.legacy.repository.annotations.JsonApiRemoveRelations;
 import io.katharsis.legacy.repository.annotations.JsonApiSetRelation;
 import io.katharsis.legacy.repository.annotations.JsonApiSetRelations;
-import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.repository.mock.NewInstanceRepositoryMethodParameterProvider;
+import io.katharsis.repository.request.QueryAdapter;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
 

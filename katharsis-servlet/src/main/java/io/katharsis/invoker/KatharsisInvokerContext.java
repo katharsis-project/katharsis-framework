@@ -16,11 +16,12 @@
  */
 package io.katharsis.invoker;
 
-import io.katharsis.repository.RepositoryMethodParameterProvider;
-
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import io.katharsis.legacy.internal.RepositoryMethodParameterProvider;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

@@ -23,7 +23,7 @@ import io.katharsis.dispatcher.controller.BaseControllerTest;
 import io.katharsis.legacy.internal.QueryParamsAdapter;
 import io.katharsis.legacy.queryParams.QueryParams;
 import io.katharsis.queryspec.QuerySpec;
-import io.katharsis.queryspec.internal.QueryAdapter;
+import io.katharsis.repository.request.QueryAdapter;
 import io.katharsis.repository.response.Response;
 import io.katharsis.resource.Relationship;
 import io.katharsis.resource.Resource;

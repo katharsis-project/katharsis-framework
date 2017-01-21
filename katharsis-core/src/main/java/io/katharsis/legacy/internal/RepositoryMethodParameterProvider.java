@@ -1,4 +1,4 @@
-package io.katharsis.repository;
+package io.katharsis.legacy.internal;
 
 import java.lang.reflect.Method;
 

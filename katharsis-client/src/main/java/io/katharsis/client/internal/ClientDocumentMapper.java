@@ -15,7 +15,7 @@ import io.katharsis.core.internal.resource.DocumentMapperUtil;
 import io.katharsis.core.internal.resource.ResourceMapper;
 import io.katharsis.core.internal.utils.PropertyUtils;
 import io.katharsis.core.internal.utils.parser.TypeParser;
-import io.katharsis.queryspec.internal.QueryAdapter;
+import io.katharsis.repository.request.QueryAdapter;
 import io.katharsis.resource.Document;
 import io.katharsis.resource.Relationship;
 import io.katharsis.resource.Resource;

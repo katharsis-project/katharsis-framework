@@ -6,7 +6,7 @@ import java.util.Set;
 import io.katharsis.core.internal.query.QueryAdapterBuilder;
 import io.katharsis.legacy.queryParams.QueryParamsBuilder;
 import io.katharsis.legacy.queryParams.context.SimpleQueryParamsParserContext;
-import io.katharsis.queryspec.internal.QueryAdapter;
+import io.katharsis.repository.request.QueryAdapter;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.ResourceRegistry;
 
