@@ -8,13 +8,14 @@ import java.util.List;
 import java.util.Map;
 
 import io.katharsis.core.internal.utils.MultivaluedMap;
+import io.katharsis.legacy.internal.AnnotatedRelationshipRepositoryAdapter;
+import io.katharsis.legacy.repository.RelationshipRepository;
 import io.katharsis.module.ModuleRegistry;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.repository.RelationshipRepositoryV2;
 import io.katharsis.repository.filter.RepositoryFilterContext;
 import io.katharsis.queryspec.internal.QueryAdapter;
 import io.katharsis.repository.BulkRelationshipRepositoryV2;
-import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.repository.request.HttpMethod;
 import io.katharsis.repository.request.RepositoryRequestSpec;
 import io.katharsis.repository.response.JsonApiResponse;

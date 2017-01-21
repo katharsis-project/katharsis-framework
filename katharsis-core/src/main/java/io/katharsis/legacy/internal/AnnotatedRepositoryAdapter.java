@@ -1,4 +1,4 @@
-package io.katharsis.core.internal.repository.adapter;
+package io.katharsis.legacy.internal;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;

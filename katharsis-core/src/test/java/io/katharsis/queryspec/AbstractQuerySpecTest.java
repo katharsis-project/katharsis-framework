@@ -7,7 +7,7 @@ import java.util.Set;
 
 import org.junit.Before;
 
-import io.katharsis.core.internal.query.DefaultQuerySpecConverter;
+import io.katharsis.legacy.internal.DefaultQuerySpecConverter;
 import io.katharsis.legacy.locator.JsonServiceLocator;
 import io.katharsis.legacy.locator.SampleJsonServiceLocator;
 import io.katharsis.legacy.queryParams.DefaultQueryParamsParser;

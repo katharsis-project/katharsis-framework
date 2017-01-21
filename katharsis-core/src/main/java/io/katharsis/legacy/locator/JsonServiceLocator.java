@@ -3,7 +3,9 @@ package io.katharsis.legacy.locator;
 /**
  * Central interface to provide domain repositories to the framework. Each repository is fetched from implementation
  * of this locator.
+ * @deprecated make use of ServiceDiscovery and ServiceDiscoveryFactory
  */
+@Deprecated
 public interface JsonServiceLocator {
 
     /**

@@ -35,7 +35,7 @@ import io.katharsis.core.internal.dispatcher.RequestDispatcher;
 import io.katharsis.core.internal.dispatcher.path.JsonPath;
 import io.katharsis.core.internal.dispatcher.path.PathBuilder;
 import io.katharsis.core.internal.exception.KatharsisExceptionMapper;
-import io.katharsis.core.internal.jackson.exception.JsonDeserializationException;
+import io.katharsis.errorhandling.exception.JsonDeserializationException;
 import io.katharsis.errorhandling.exception.KatharsisMappableException;
 import io.katharsis.errorhandling.exception.KatharsisMatchingException;
 import io.katharsis.repository.RepositoryMethodParameterProvider;

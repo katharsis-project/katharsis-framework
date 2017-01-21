@@ -1,9 +1,10 @@
-package io.katharsis.repository;
+package io.katharsis.legacy.repository;
+
+import java.io.Serializable;
 
 import io.katharsis.errorhandling.exception.ResourceNotFoundException;
 import io.katharsis.legacy.queryParams.QueryParams;
-
-import java.io.Serializable;
+import io.katharsis.repository.Repository;
 
 /**
  * Base repository which is used to operate on the resources. Each resource should have a corresponding repository
@@ -11,7 +12,10 @@ import java.io.Serializable;
  *
  * @param <T>  Type of an entity
  * @param <ID> Type of Identifier of an entity
+ *
+ * @deprecated Make use of ResourceRepositoryV2
  */
+@Deprecated
 public interface ResourceRepository<T, ID extends Serializable> extends Repository{
 
     /**

@@ -20,11 +20,15 @@ package io.katharsis.legacy.queryParams;
 import io.katharsis.legacy.queryParams.context.QueryParamsParserContext;
 
 /**
- * QueryParamsParser implementations will create QueryParams objects using the given
- * QueryParamsParserContext.
+ * QueryParamsParser implementations will create QueryParams objects using the
+ * given QueryParamsParserContext.
  *
- * Known implementations: {@link DefaultQueryParamsParser} {@link JsonApiQueryParamsParser}
+ * Known implementations: {@link DefaultQueryParamsParser}
+ * {@link JsonApiQueryParamsParser}
+ *
+ * @deprecated make use of QuerySpec
  */
+@Deprecated
 public interface QueryParamsParser {
-    QueryParams parse(QueryParamsParserContext context);
+	QueryParams parse(QueryParamsParserContext context);
 }

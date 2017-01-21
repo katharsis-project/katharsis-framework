@@ -1,4 +1,4 @@
-package io.katharsis.core.internal.query;
+package io.katharsis.legacy.internal;
 
 import java.util.Arrays;
 import java.util.HashSet;

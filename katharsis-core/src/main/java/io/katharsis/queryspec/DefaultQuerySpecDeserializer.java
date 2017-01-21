@@ -10,11 +10,11 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import io.katharsis.core.internal.jackson.exception.ParametersDeserializationException;
 import io.katharsis.core.internal.utils.PropertyException;
 import io.katharsis.core.internal.utils.PropertyUtils;
 import io.katharsis.core.internal.utils.parser.TypeParser;
 import io.katharsis.errorhandling.exception.BadRequestException;
+import io.katharsis.errorhandling.exception.ParametersDeserializationException;
 import io.katharsis.resource.RestrictedQueryParamsMembers;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;

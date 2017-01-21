@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import io.katharsis.legacy.queryParams.QueryParams;
-import io.katharsis.repository.RelationshipRepository;
+import io.katharsis.legacy.repository.RelationshipRepository;
 
 /**
  * Implemented by every {@link RelationshipRepository} stub.

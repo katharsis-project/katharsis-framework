@@ -10,10 +10,10 @@ import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
 
-import io.katharsis.core.internal.query.QueryParamsAdapter;
-import io.katharsis.core.internal.repository.adapter.AnnotatedRelationshipRepositoryAdapter;
 import io.katharsis.errorhandling.exception.RepositoryAnnotationNotFoundException;
 import io.katharsis.errorhandling.exception.RepositoryMethodException;
+import io.katharsis.legacy.internal.AnnotatedRelationshipRepositoryAdapter;
+import io.katharsis.legacy.internal.QueryParamsAdapter;
 import io.katharsis.legacy.queryParams.QueryParams;
 import io.katharsis.legacy.repository.annotations.JsonApiAddRelations;
 import io.katharsis.legacy.repository.annotations.JsonApiFindManyTargets;

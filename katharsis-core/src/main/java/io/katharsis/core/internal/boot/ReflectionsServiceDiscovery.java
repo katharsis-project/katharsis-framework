@@ -16,10 +16,10 @@ import org.reflections.util.FilterBuilder;
 
 import io.katharsis.core.internal.utils.PreconditionUtil;
 import io.katharsis.legacy.locator.JsonServiceLocator;
+import io.katharsis.legacy.repository.ResourceRepository;
 import io.katharsis.module.ServiceDiscovery;
 import io.katharsis.repository.ResourceRepositoryV2;
 import io.katharsis.repository.Repository;
-import io.katharsis.repository.ResourceRepository;
 
 public class ReflectionsServiceDiscovery implements ServiceDiscovery {
 

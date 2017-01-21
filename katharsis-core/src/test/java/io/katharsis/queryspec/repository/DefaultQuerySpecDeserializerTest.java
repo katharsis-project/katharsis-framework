@@ -8,9 +8,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import io.katharsis.core.internal.jackson.exception.ParametersDeserializationException;
 import io.katharsis.core.internal.utils.PropertyException;
 import io.katharsis.errorhandling.exception.BadRequestException;
+import io.katharsis.errorhandling.exception.ParametersDeserializationException;
 import io.katharsis.queryspec.*;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;

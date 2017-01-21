@@ -11,20 +11,25 @@ import io.katharsis.legacy.queryParams.QueryParams;
 
 /**
  * <p>
- * Method annotated with this annotation will be used to perform find one operation on a particular resource. The method
- * must be defined in a class annotated with {@link JsonApiResourceRepository}.
+ * Method annotated with this annotation will be used to perform find one
+ * operation on a particular resource. The method must be defined in a class
+ * annotated with {@link JsonApiResourceRepository}.
  * </p>
  * <p>
  * The requirements for the method parameters are as follows:
  * </p>
  * <ol>
- *     <li>A resource identifier</li>
+ * <li>A resource identifier</li>
  * </ol>
  * <p>
- * The return value should be a resource of {@link JsonApiResourceRepository#value()} type.
+ * The return value should be a resource of
+ * {@link JsonApiResourceRepository#value()} type.
  * </p>
  *
- * @see io.katharsis.repository.ResourceRepository#findOne(Serializable, QueryParams)
+ * @see io.katharsis.legacy.repository.ResourceRepository#findOne(Serializable,
+ *      QueryParams)
+ *
+ * @deprecated Make use of ResourceRepositoryV2 and related classes
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

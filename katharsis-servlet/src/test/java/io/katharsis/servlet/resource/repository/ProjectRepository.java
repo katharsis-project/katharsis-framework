@@ -17,7 +17,7 @@
 package io.katharsis.servlet.resource.repository;
 
 import io.katharsis.legacy.queryParams.QueryParams;
-import io.katharsis.repository.ResourceRepository;
+import io.katharsis.legacy.repository.ResourceRepository;
 import io.katharsis.servlet.resource.model.Project;
 
 public class ProjectRepository implements ResourceRepository<Project, Long> {

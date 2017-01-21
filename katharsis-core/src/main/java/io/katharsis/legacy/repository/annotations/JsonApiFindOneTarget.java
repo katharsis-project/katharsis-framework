@@ -25,7 +25,9 @@ import io.katharsis.legacy.queryParams.QueryParams;
  * The return value must be a resources of {@link JsonApiRelationshipRepository#target()} type.
  * </p>
  *
- * @see io.katharsis.repository.RelationshipRepository#findOneTarget(Serializable, String, QueryParams)
+ * @see io.katharsis.legacy.repository.RelationshipRepository#findOneTarget(Serializable, String, QueryParams)
+ *
+ * @deprecated Make use of ResourceRepositoryV2 and related classes
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

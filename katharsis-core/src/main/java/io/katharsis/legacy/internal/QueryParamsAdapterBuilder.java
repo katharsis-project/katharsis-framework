@@ -1,8 +1,9 @@
-package io.katharsis.core.internal.query;
+package io.katharsis.legacy.internal;
 
 import java.util.Map;
 import java.util.Set;
 
+import io.katharsis.core.internal.query.QueryAdapterBuilder;
 import io.katharsis.legacy.queryParams.QueryParamsBuilder;
 import io.katharsis.legacy.queryParams.context.SimpleQueryParamsParserContext;
 import io.katharsis.queryspec.internal.QueryAdapter;

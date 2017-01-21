@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import io.katharsis.legacy.queryParams.QueryParams;
-import io.katharsis.repository.ResourceRepository;
+import io.katharsis.legacy.repository.ResourceRepository;
 
 /**
  * Implemented by every {@link ResourceRepository} stub.

@@ -1,7 +1,7 @@
 package io.katharsis.core.internal.registry;
 
 import io.katharsis.legacy.registry.RepositoryInstanceBuilder;
-import io.katharsis.repository.ResourceRepository;
+import io.katharsis.legacy.repository.ResourceRepository;
 import io.katharsis.resource.registry.ResourceEntry;
 
 import java.io.Serializable;

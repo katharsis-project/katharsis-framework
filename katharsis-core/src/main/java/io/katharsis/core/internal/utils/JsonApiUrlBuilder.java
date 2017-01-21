@@ -6,8 +6,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
-import io.katharsis.core.internal.query.QueryParamsAdapter;
 import io.katharsis.core.internal.query.QuerySpecAdapter;
+import io.katharsis.legacy.internal.QueryParamsAdapter;
 import io.katharsis.legacy.queryParams.DefaultQueryParamsSerializer;
 import io.katharsis.legacy.queryParams.QueryParams;
 import io.katharsis.legacy.queryParams.QueryParamsSerializer;

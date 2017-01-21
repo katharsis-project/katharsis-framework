@@ -1,10 +1,10 @@
 package io.katharsis.errorhandling.handlers;
 
-import io.katharsis.core.internal.exception.ExceptionMapperProvider;
 import io.katharsis.errorhandling.ErrorData;
 import io.katharsis.errorhandling.ErrorResponse;
 import io.katharsis.errorhandling.ErrorResponseBuilder;
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
+import io.katharsis.legacy.queryParams.errorhandling.ExceptionMapperProvider;
 
 @ExceptionMapperProvider
 public class SomeExceptionMapper implements JsonApiExceptionMapper<SomeExceptionMapper.SomeException> {

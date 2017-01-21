@@ -12,10 +12,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import io.katharsis.core.internal.query.QueryParamsAdapter;
 import io.katharsis.core.internal.query.QuerySpecAdapter;
 import io.katharsis.core.internal.repository.adapter.RelationshipRepositoryAdapter;
 import io.katharsis.core.internal.repository.adapter.ResourceRepositoryAdapter;
+import io.katharsis.legacy.internal.QueryParamsAdapter;
 import io.katharsis.legacy.queryParams.QueryParams;
 import io.katharsis.queryspec.AbstractQuerySpecTest;
 import io.katharsis.queryspec.QuerySpec;

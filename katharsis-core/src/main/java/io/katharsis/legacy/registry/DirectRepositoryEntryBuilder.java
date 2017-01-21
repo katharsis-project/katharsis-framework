@@ -12,13 +12,13 @@ import io.katharsis.core.internal.registry.DirectResponseRelationshipEntry;
 import io.katharsis.core.internal.registry.DirectResponseResourceEntry;
 import io.katharsis.errorhandling.exception.RepositoryInstanceNotFoundException;
 import io.katharsis.legacy.locator.JsonServiceLocator;
+import io.katharsis.legacy.repository.RelationshipRepository;
+import io.katharsis.legacy.repository.ResourceRepository;
 import io.katharsis.repository.RelationshipRepositoryV2;
 import io.katharsis.repository.ResourceRepositoryV2;
 import io.katharsis.resource.registry.ResourceEntry;
 import io.katharsis.resource.registry.ResourceLookup;
 import io.katharsis.resource.registry.ResponseRelationshipEntry;
-import io.katharsis.repository.RelationshipRepository;
-import io.katharsis.repository.ResourceRepository;
 import net.jodah.typetools.TypeResolver;
 
 /**

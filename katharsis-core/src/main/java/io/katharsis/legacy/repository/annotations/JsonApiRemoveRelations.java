@@ -23,7 +23,9 @@ import java.lang.annotation.Target;
  * The method's return value should be <i>void</i>.
  * </p>
  *
- * @see io.katharsis.repository.RelationshipRepository#removeRelations(Object, Iterable, String)
+ * @see io.katharsis.legacy.repository.RelationshipRepository#removeRelations(Object, Iterable, String)
+ *
+ * @deprecated Make use of ResourceRepositoryV2 and related classes
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

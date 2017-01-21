@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import io.katharsis.legacy.queryParams.QueryParams;
-import io.katharsis.repository.ResourceRepository;
+import io.katharsis.legacy.repository.ResourceRepository;
 import io.katharsis.servlet.resource.model.AbstractResource;
 
 

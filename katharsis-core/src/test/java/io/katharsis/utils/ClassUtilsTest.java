@@ -14,7 +14,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import io.katharsis.core.internal.utils.ClassUtils;
 import io.katharsis.errorhandling.exception.ResourceException;
-import io.katharsis.repository.ResourceRepository;
+import io.katharsis.legacy.repository.ResourceRepository;
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.mock.repository.ProjectRepository;
 

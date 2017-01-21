@@ -1,5 +1,7 @@
 package io.katharsis.repository;
 
+import io.katharsis.legacy.repository.RelationshipRepository;
+import io.katharsis.legacy.repository.ResourceRepository;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.resource.links.LinksInformation;
 

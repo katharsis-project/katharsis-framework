@@ -17,7 +17,7 @@
 package io.katharsis.servlet.resource.repository;
 
 import io.katharsis.legacy.queryParams.QueryParams;
-import io.katharsis.repository.RelationshipRepository;
+import io.katharsis.legacy.repository.RelationshipRepository;
 import io.katharsis.servlet.resource.model.Project;
 import io.katharsis.servlet.resource.model.Task;
 

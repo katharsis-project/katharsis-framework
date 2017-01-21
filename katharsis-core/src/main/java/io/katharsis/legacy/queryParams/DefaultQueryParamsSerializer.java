@@ -14,6 +14,10 @@ import io.katharsis.legacy.queryParams.params.SortingParams;
 import io.katharsis.legacy.queryParams.params.TypedParams;
 import io.katharsis.resource.RestrictedQueryParamsMembers;
 
+/**
+ * @deprecated make use of QuerySpec
+ */
+@Deprecated
 public class DefaultQueryParamsSerializer implements QueryParamsSerializer {
 
 	@Override

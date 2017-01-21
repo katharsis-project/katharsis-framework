@@ -22,7 +22,8 @@ import java.lang.annotation.Target;
  * The return value must be an instance of {@link io.katharsis.resource.meta.MetaInformation} type.
  * </p>
  *
- * @see io.katharsis.repository.MetaRepository
+ * @see io.katharsis.legacy.repository.MetaRepository
+ * @deprecated Make use of ResourceRepositoryV2 and related classes
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

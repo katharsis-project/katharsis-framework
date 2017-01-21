@@ -2,7 +2,10 @@ package io.katharsis.legacy.locator;
 
 /**
  * Sample implementation of {@link JsonServiceLocator}. It makes new instance for every method call.
+ * 
+ * @deprecated make use of ServiceDiscovery and ServiceDiscoveryFactory
  */
+@Deprecated
 public class SampleJsonServiceLocator implements JsonServiceLocator {
     @Override
     public <T> T getInstance(Class<T> clazz) {

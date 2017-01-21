@@ -20,8 +20,8 @@ import io.katharsis.core.internal.dispatcher.controller.RelationshipsResourcePos
 import io.katharsis.core.internal.dispatcher.controller.ResourceGet;
 import io.katharsis.core.internal.dispatcher.controller.ResourcePost;
 import io.katharsis.core.internal.dispatcher.path.JsonPath;
-import io.katharsis.core.internal.query.QueryParamsAdapter;
 import io.katharsis.dispatcher.controller.BaseControllerTest;
+import io.katharsis.legacy.internal.QueryParamsAdapter;
 import io.katharsis.legacy.queryParams.DefaultQueryParamsParser;
 import io.katharsis.legacy.queryParams.QueryParams;
 import io.katharsis.legacy.queryParams.QueryParamsBuilder;

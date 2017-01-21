@@ -2,8 +2,8 @@ package io.katharsis.core.internal.repository.information;
 
 import io.katharsis.core.internal.utils.ClassUtils;
 import io.katharsis.core.internal.utils.PreconditionUtil;
+import io.katharsis.legacy.repository.RelationshipRepository;
 import io.katharsis.legacy.repository.annotations.JsonApiRelationshipRepository;
-import io.katharsis.repository.RelationshipRepository;
 import io.katharsis.repository.RelationshipRepositoryV2;
 import io.katharsis.repository.information.RepositoryInformation;
 import io.katharsis.repository.information.RepositoryInformationBuilder;

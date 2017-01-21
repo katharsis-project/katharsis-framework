@@ -2,7 +2,7 @@ package io.katharsis.jackson.mock.repositories;
 
 import io.katharsis.jackson.mock.models.ClassB;
 import io.katharsis.legacy.queryParams.QueryParams;
-import io.katharsis.repository.ResourceRepository;
+import io.katharsis.legacy.repository.ResourceRepository;
 
 public class ClassBRepository implements ResourceRepository<ClassB, Long> {
     @Override

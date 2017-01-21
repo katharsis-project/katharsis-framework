@@ -1,9 +1,9 @@
 package io.katharsis.repository;
 
-import io.katharsis.core.internal.query.DefaultQuerySpecConverter;
-import io.katharsis.core.internal.query.QueryParamsAdapter;
 import io.katharsis.core.internal.query.QuerySpecAdapter;
 import io.katharsis.errorhandling.exception.RepositoryMethodException;
+import io.katharsis.legacy.internal.DefaultQuerySpecConverter;
+import io.katharsis.legacy.internal.QueryParamsAdapter;
 import io.katharsis.legacy.queryParams.QueryParams;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.internal.QueryAdapter;

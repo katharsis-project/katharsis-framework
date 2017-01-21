@@ -1,7 +1,7 @@
 package io.katharsis.core.internal.registry;
 
-import io.katharsis.core.internal.repository.adapter.AnnotatedRelationshipRepositoryAdapter;
 import io.katharsis.core.internal.utils.ClassUtils;
+import io.katharsis.legacy.internal.AnnotatedRelationshipRepositoryAdapter;
 import io.katharsis.legacy.registry.RepositoryInstanceBuilder;
 import io.katharsis.legacy.repository.annotations.JsonApiRelationshipRepository;
 import io.katharsis.repository.ParametersFactory;

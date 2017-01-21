@@ -21,7 +21,8 @@ import java.lang.annotation.Target;
  * The return value should be a resource of {@link JsonApiResourceRepository#value()} type.
  * </p>
  *
- * @see io.katharsis.repository.ResourceRepository#save(Object)
+ * @see io.katharsis.legacy.repository.ResourceRepository#save(Object)
+ * @deprecated Make use of ResourceRepositoryV2 and related classes
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

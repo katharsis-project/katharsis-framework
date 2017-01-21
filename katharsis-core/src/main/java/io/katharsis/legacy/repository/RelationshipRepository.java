@@ -1,8 +1,9 @@
-package io.katharsis.repository;
+package io.katharsis.legacy.repository;
 
 import java.io.Serializable;
 
 import io.katharsis.legacy.queryParams.QueryParams;
+import io.katharsis.repository.Repository;
 
 /**
  * <p>
@@ -31,7 +32,10 @@ import io.katharsis.legacy.queryParams.QueryParams;
  * @param <T_ID> T class id type
  * @param <D> target class type
  * @param <D_ID> D class id type
+ *
+ * @deprecated Make use of RelationshipRepositoryV2
  */
+@Deprecated
 public interface RelationshipRepository<T, T_ID extends Serializable, D, D_ID extends Serializable> extends Repository {
 
     int TARGET_TYPE_GENERIC_PARAMETER_IDX = 2;

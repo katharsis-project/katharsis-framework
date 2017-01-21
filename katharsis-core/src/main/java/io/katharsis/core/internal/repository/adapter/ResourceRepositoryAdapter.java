@@ -2,12 +2,13 @@ package io.katharsis.core.internal.repository.adapter;
 
 import java.io.Serializable;
 
+import io.katharsis.legacy.internal.AnnotatedResourceRepositoryAdapter;
+import io.katharsis.legacy.repository.ResourceRepository;
 import io.katharsis.module.ModuleRegistry;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.repository.ResourceRepositoryV2;
 import io.katharsis.repository.filter.RepositoryFilterContext;
 import io.katharsis.queryspec.internal.QueryAdapter;
-import io.katharsis.repository.ResourceRepository;
 import io.katharsis.repository.ResourceRepositoryV2;
 import io.katharsis.repository.request.HttpMethod;
 import io.katharsis.repository.request.RepositoryRequestSpec;

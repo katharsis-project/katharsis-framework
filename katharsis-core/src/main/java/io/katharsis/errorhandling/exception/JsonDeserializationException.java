@@ -1,7 +1,6 @@
-package io.katharsis.core.internal.jackson.exception;
+package io.katharsis.errorhandling.exception;
 
 import io.katharsis.errorhandling.ErrorData;
-import io.katharsis.errorhandling.exception.BadRequestException;
 import io.katharsis.repository.response.HttpStatus;
 
 /**

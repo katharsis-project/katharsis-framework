@@ -2,7 +2,7 @@ package io.katharsis.core.internal.registry;
 
 import io.katharsis.repository.RelationshipRepositoryV2;
 import io.katharsis.legacy.registry.RepositoryInstanceBuilder;
-import io.katharsis.repository.RelationshipRepository;
+import io.katharsis.legacy.repository.RelationshipRepository;
 import io.katharsis.resource.registry.ResponseRelationshipEntry;
 import net.jodah.typetools.TypeResolver;
 

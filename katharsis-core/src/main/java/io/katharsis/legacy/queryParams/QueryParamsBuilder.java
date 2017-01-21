@@ -1,7 +1,7 @@
 package io.katharsis.legacy.queryParams;
 
-import io.katharsis.core.internal.jackson.exception.ParametersDeserializationException;
 import io.katharsis.errorhandling.exception.KatharsisException;
+import io.katharsis.errorhandling.exception.ParametersDeserializationException;
 import io.katharsis.legacy.queryParams.context.QueryParamsParserContext;
 import io.katharsis.legacy.queryParams.context.SimpleQueryParamsParserContext;
 
@@ -20,7 +20,11 @@ import java.util.Set;
  * This way, the user can mix and match various parsing strategies for individual components.
  * QueryParamsParser could become a one method interface and this could be particularly useful to Java 8 users who
  * can simply pass instances of java.lang.Function to implement custom parsing per component (filter/sort/group/etc etc).
+ *
+ *
+ * @deprecated make use of QuerySpec
  */
+@Deprecated
 public class QueryParamsBuilder {
 
     private final QueryParamsParser queryParamsParser;

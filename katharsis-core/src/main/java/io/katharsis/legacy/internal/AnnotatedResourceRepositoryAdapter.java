@@ -1,4 +1,4 @@
-package io.katharsis.core.internal.repository.adapter;
+package io.katharsis.legacy.internal;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;

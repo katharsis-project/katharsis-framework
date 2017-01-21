@@ -17,8 +17,8 @@
 
 package io.katharsis.legacy.queryParams;
 
-import io.katharsis.core.internal.jackson.exception.ParametersDeserializationException;
 import io.katharsis.core.internal.utils.StringUtils;
+import io.katharsis.errorhandling.exception.ParametersDeserializationException;
 import io.katharsis.legacy.queryParams.context.QueryParamsParserContext;
 import io.katharsis.legacy.queryParams.include.Inclusion;
 import io.katharsis.legacy.queryParams.params.*;
@@ -32,7 +32,10 @@ import java.util.regex.Pattern;
  * The default QueryParamsParser implementation which parses query parameters with the behavior
  * specified in the Katharsis documentation.  This parser does NOT adhere to the JSON-API specification,
  * but it does provide more flexibility.  If you need to adhere to the spec, use {@link JsonApiQueryParamsParser}
+ * 
+ * @deprecated make use of QuerySpec
  */
+@Deprecated
 public class DefaultQueryParamsParser implements QueryParamsParser {
 
     /**

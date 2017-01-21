@@ -5,7 +5,11 @@ import java.util.Set;
 
 /**
  * Converts {@link QueryParams} into URL parameters.
+ *
+ *
+ * @deprecated make use of QuerySpec
  */
+@Deprecated
 public interface QueryParamsSerializer {
 
 	public Map<String, Set<String>> serializeFilters(QueryParams queryParams);

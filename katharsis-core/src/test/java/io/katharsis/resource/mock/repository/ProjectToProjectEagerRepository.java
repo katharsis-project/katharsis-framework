@@ -5,7 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import io.katharsis.legacy.queryParams.QueryParams;
-import io.katharsis.repository.RelationshipRepository;
+import io.katharsis.legacy.repository.RelationshipRepository;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.ProjectEager;
 import io.katharsis.resource.mock.repository.util.Relation;

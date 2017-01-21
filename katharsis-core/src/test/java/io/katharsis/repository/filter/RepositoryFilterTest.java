@@ -14,9 +14,9 @@ import org.mockito.Mockito;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.katharsis.core.internal.query.QuerySpecAdapter;
-import io.katharsis.core.internal.repository.adapter.AnnotatedRelationshipRepositoryAdapter;
 import io.katharsis.core.internal.repository.adapter.RelationshipRepositoryAdapter;
 import io.katharsis.core.internal.repository.adapter.ResourceRepositoryAdapter;
+import io.katharsis.legacy.internal.AnnotatedRelationshipRepositoryAdapter;
 import io.katharsis.legacy.locator.SampleJsonServiceLocator;
 import io.katharsis.legacy.registry.ResourceRegistryBuilder;
 import io.katharsis.module.ModuleRegistry;

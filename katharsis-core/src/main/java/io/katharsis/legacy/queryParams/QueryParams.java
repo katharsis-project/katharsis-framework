@@ -6,7 +6,10 @@ import io.katharsis.legacy.queryParams.params.*;
 
 /**
  * Contains a set of parameters passed along with the request.
+ * 
+ * @deprecated make use of QuerySpec
  */
+@Deprecated
 public class QueryParams {
     private TypedParams<FilterParams> filters;
     private TypedParams<SortingParams> sorting;

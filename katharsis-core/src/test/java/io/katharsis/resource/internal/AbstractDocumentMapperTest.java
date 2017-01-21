@@ -6,9 +6,9 @@ import org.junit.Before;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.katharsis.core.internal.jackson.JsonApiModuleBuilder;
-import io.katharsis.core.internal.query.QueryParamsAdapter;
 import io.katharsis.core.internal.query.QuerySpecAdapter;
 import io.katharsis.core.internal.resource.DocumentMapper;
+import io.katharsis.legacy.internal.QueryParamsAdapter;
 import io.katharsis.legacy.locator.SampleJsonServiceLocator;
 import io.katharsis.legacy.queryParams.QueryParams;
 import io.katharsis.legacy.registry.ResourceRegistryBuilder;

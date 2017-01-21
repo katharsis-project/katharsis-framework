@@ -11,11 +11,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import io.katharsis.core.internal.query.DefaultQuerySpecConverter;
-import io.katharsis.core.internal.query.QueryParamsAdapter;
 import io.katharsis.core.internal.query.QuerySpecAdapter;
 import io.katharsis.core.internal.utils.PreconditionUtil;
 import io.katharsis.core.internal.utils.StringUtils;
+import io.katharsis.legacy.internal.DefaultQuerySpecConverter;
+import io.katharsis.legacy.internal.QueryParamsAdapter;
 import io.katharsis.legacy.queryParams.DefaultQueryParamsParser;
 import io.katharsis.legacy.queryParams.QueryParams;
 import io.katharsis.legacy.queryParams.QueryParamsBuilder;

@@ -4,7 +4,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import io.katharsis.errorhandling.exception.ResourceNotFoundException;
 import io.katharsis.legacy.queryParams.QueryParams;
-import io.katharsis.repository.ResourceRepository;
+import io.katharsis.legacy.repository.ResourceRepository;
 import io.katharsis.resource.mock.models.ComplexPojo;
 import io.katharsis.resource.mock.models.ContainedPojo;
 

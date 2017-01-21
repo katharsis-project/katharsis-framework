@@ -2,6 +2,7 @@ package io.katharsis.core.internal.exception;
 
 import io.katharsis.errorhandling.exception.InvalidResourceException;
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
+import io.katharsis.legacy.queryParams.errorhandling.ExceptionMapperProvider;
 
 import org.reflections.Reflections;
 
