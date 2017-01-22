@@ -7,17 +7,15 @@ import java.util.Set;
 
 import org.reflections.Reflections;
 
-import io.katharsis.repository.RelationshipRepositoryV2;
-import io.katharsis.repository.RelationshipRepositoryBase;
-import io.katharsis.repository.ResourceRepositoryV2;
-import io.katharsis.repository.ResourceRepositoryBase;
 import io.katharsis.legacy.repository.RelationshipRepository;
 import io.katharsis.legacy.repository.ResourceRepository;
 import io.katharsis.legacy.repository.annotations.JsonApiRelationshipRepository;
 import io.katharsis.legacy.repository.annotations.JsonApiResourceRepository;
 import io.katharsis.repository.BulkRelationshipRepositoryV2;
 import io.katharsis.repository.RelationshipRepositoryBase;
+import io.katharsis.repository.RelationshipRepositoryV2;
 import io.katharsis.repository.ResourceRepositoryBase;
+import io.katharsis.repository.ResourceRepositoryV2;
 import io.katharsis.resource.annotations.JsonApiResource;
 
 /**

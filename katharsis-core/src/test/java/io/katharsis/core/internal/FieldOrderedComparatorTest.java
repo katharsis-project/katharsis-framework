@@ -19,8 +19,8 @@ public class FieldOrderedComparatorTest {
 
     @Before
     public void setUp() throws Exception {
-        fieldA = new ResourceField("a", "a", ResourceFieldType.ATTRIBUTE, String.class, String.class);
-        fieldB = new ResourceField("b", "b", ResourceFieldType.ATTRIBUTE, String.class, String.class);
+        fieldA = new ResourceField("a", "a", ResourceFieldType.ATTRIBUTE, String.class, String.class, null);
+        fieldB = new ResourceField("b", "b", ResourceFieldType.ATTRIBUTE, String.class, String.class, null);
     }
 
     @Test

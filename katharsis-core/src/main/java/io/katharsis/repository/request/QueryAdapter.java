@@ -3,6 +3,7 @@ package io.katharsis.repository.request;
 import io.katharsis.legacy.queryParams.params.IncludedFieldsParams;
 import io.katharsis.legacy.queryParams.params.IncludedRelationsParams;
 import io.katharsis.legacy.queryParams.params.TypedParams;
+import io.katharsis.resource.information.ResourceInformation;
 
 public interface QueryAdapter {
 
@@ -12,7 +13,7 @@ public interface QueryAdapter {
 
 	TypedParams<IncludedFieldsParams> getIncludedFields();
 
-	Class<?> getResourceClass();
+	ResourceInformation getResourceInformation();
 
 	/**
 	 * @return maximum number of resources to return or null for unbounded

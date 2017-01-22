@@ -1,7 +1,6 @@
 package io.katharsis.core.internal.dispatcher;
 
 import java.lang.reflect.ParameterizedType;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -13,8 +12,6 @@ import io.katharsis.core.internal.dispatcher.controller.BaseController;
 import io.katharsis.core.internal.dispatcher.path.JsonPath;
 import io.katharsis.core.internal.exception.ExceptionMapperRegistry;
 import io.katharsis.core.internal.query.QueryAdapterBuilder;
-import io.katharsis.errorhandling.ErrorData;
-import io.katharsis.errorhandling.ErrorResponse;
 import io.katharsis.errorhandling.exception.RepositoryNotFoundException;
 import io.katharsis.errorhandling.exception.ResourceFieldNotFoundException;
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
@@ -29,6 +26,7 @@ import io.katharsis.repository.request.QueryAdapter;
 import io.katharsis.repository.response.Response;
 import io.katharsis.resource.Document;
 import io.katharsis.resource.information.ResourceField;
+import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.utils.Optional;
@@ -73,8 +71,8 @@ public class RequestDispatcher {
 		try {
 			BaseController controller = controllerRegistry.getController(jsonPath, method);
 
-			Class<?> resourceClass = getRequestedResource(jsonPath);
-			QueryAdapter queryAdapter = queryAdapterBuilder.build(resourceClass, parameters);
+			ResourceInformation resourceInformation = getRequestedResource(jsonPath);
+			QueryAdapter queryAdapter = queryAdapterBuilder.build(resourceInformation, parameters);
 
 			DefaultFilterRequestContext context = new DefaultFilterRequestContext(jsonPath, queryAdapter, parameterProvider,
 					requestBody, method);
@@ -92,9 +90,9 @@ public class RequestDispatcher {
 		}
 	}
 
-	private Class<?> getRequestedResource(JsonPath jsonPath) {
+	private ResourceInformation getRequestedResource(JsonPath jsonPath) {
 		ResourceRegistry resourceRegistry = moduleRegistry.getResourceRegistry();
-		RegistryEntry<?> registryEntry = resourceRegistry.getEntry(jsonPath.getResourceName());
+		RegistryEntry registryEntry = resourceRegistry.getEntry(jsonPath.getResourceName());
 		if (registryEntry == null) {
 			throw new RepositoryNotFoundException(jsonPath.getResourceName());
 		}
@@ -104,13 +102,10 @@ public class RequestDispatcher {
 			if (relationshipField == null) {
 				throw new ResourceFieldNotFoundException(elementName);
 			}
-			Class<?> type = relationshipField.getType();
-			if (Iterable.class.isAssignableFrom(type)) {
-				type = (Class<?>) ((ParameterizedType) relationshipField.getGenericType()).getActualTypeArguments()[0];
-			}
-			return type;
+			String oppositeResourceType = relationshipField.getOppositeResourceType();
+			return resourceRegistry.getEntry(oppositeResourceType).getResourceInformation();
 		}else {
-			return registryEntry.getResourceInformation().getResourceClass();
+			return registryEntry.getResourceInformation();
 		}
 	}
 

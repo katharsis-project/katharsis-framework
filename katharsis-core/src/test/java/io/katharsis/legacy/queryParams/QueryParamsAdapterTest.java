@@ -3,9 +3,13 @@ package io.katharsis.legacy.queryParams;
 import org.junit.Assert;
 import org.junit.Test;
 
+import io.katharsis.core.internal.registry.ResourceRegistryImpl;
 import io.katharsis.legacy.internal.QueryParamsAdapter;
-import io.katharsis.legacy.queryParams.QueryParams;
+import io.katharsis.legacy.registry.DefaultResourceInformationBuilderContext;
 import io.katharsis.module.ModuleRegistry;
+import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
+import io.katharsis.resource.information.ResourceFieldNameTransformer;
+import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.registry.ConstantServiceUrlProvider;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -14,10 +18,15 @@ public class QueryParamsAdapterTest {
 
 	@Test
 	public void test() {
-		ResourceRegistry resourceRegistry = new ResourceRegistry(new ModuleRegistry(), new ConstantServiceUrlProvider("http://localhost"));
+		ResourceRegistry resourceRegistry = new ResourceRegistryImpl(new ModuleRegistry(), new ConstantServiceUrlProvider("http://localhost"));
 		QueryParams params = new QueryParams();
-		QueryParamsAdapter adapter = new QueryParamsAdapter(Task.class, params, resourceRegistry);
-		Assert.assertEquals(Task.class, adapter.getResourceClass());
+		
+		AnnotationResourceInformationBuilder builder = new AnnotationResourceInformationBuilder(new ResourceFieldNameTransformer());
+		builder.init(new DefaultResourceInformationBuilderContext(builder));
+		ResourceInformation info = builder.build(Task.class);
+		
+		QueryParamsAdapter adapter = new QueryParamsAdapter(info, params, resourceRegistry);
+		Assert.assertEquals(Task.class, adapter.getResourceInformation().getResourceClass());
 		Assert.assertEquals(resourceRegistry, adapter.getResourceRegistry());
 	}
 
@@ -25,7 +34,7 @@ public class QueryParamsAdapterTest {
 	public void testGetNonExistingResourceClass() {
 		QueryParams params = new QueryParams();
 		QueryParamsAdapter adapter = new QueryParamsAdapter(params);
-		adapter.getResourceClass();
+		adapter.getResourceInformation();
 	}
 
 	@Test(expected = IllegalStateException.class)

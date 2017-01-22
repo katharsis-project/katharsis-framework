@@ -14,6 +14,7 @@ import io.katharsis.core.internal.exception.ExceptionMapperRegistryBuilder;
 import io.katharsis.core.internal.jackson.JsonApiModuleBuilder;
 import io.katharsis.core.internal.query.QueryAdapterBuilder;
 import io.katharsis.core.internal.query.QuerySpecAdapterBuilder;
+import io.katharsis.core.internal.registry.ResourceRegistryImpl;
 import io.katharsis.core.internal.repository.information.DefaultRelationshipRepositoryInformationBuilder;
 import io.katharsis.core.internal.repository.information.DefaultResourceRepositoryInformationBuilder;
 import io.katharsis.core.internal.utils.ClassUtils;
@@ -35,9 +36,9 @@ import io.katharsis.module.ServiceDiscoveryFactory;
 import io.katharsis.module.SimpleModule;
 import io.katharsis.queryspec.DefaultQuerySpecDeserializer;
 import io.katharsis.queryspec.QuerySpecDeserializer;
-import io.katharsis.repository.ResourceRepositoryV2;
 import io.katharsis.repository.RelationshipRepositoryV2;
 import io.katharsis.repository.Repository;
+import io.katharsis.repository.ResourceRepositoryV2;
 import io.katharsis.repository.filter.DocumentFilter;
 import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
 import io.katharsis.resource.information.ResourceFieldNameTransformer;
@@ -164,7 +165,7 @@ public class KatharsisBoot {
 		setupObjectMapper();
 		addModules();
 		setupComponents();
-		resourceRegistry = new ResourceRegistry(moduleRegistry, serviceUrlProvider);
+		resourceRegistry = new ResourceRegistryImpl(moduleRegistry, serviceUrlProvider);
 
 		moduleRegistry.init(objectMapper);
 

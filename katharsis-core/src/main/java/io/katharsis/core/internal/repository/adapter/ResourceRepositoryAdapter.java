@@ -47,7 +47,7 @@ public class ResourceRepositoryAdapter<T, I extends Serializable> extends Respon
 				}
 				else if (resourceRepository instanceof ResourceRepositoryV2) {
 					resource = ((ResourceRepositoryV2) resourceRepository).findOne(id,
-							request.getQuerySpec(resourceInformation.getResourceClass()));
+							request.getQuerySpec(resourceInformation));
 				}
 				else {
 					resource = ((ResourceRepository) resourceRepository).findOne(id, request.getQueryParams());
@@ -74,7 +74,7 @@ public class ResourceRepositoryAdapter<T, I extends Serializable> extends Respon
 					resources = ((AnnotatedResourceRepositoryAdapter) resourceRepository).findAll(queryAdapter);
 				}
 				else if (resourceRepository instanceof ResourceRepositoryV2) {
-					QuerySpec querySpec = request.getQuerySpec(resourceInformation.getResourceClass());
+					QuerySpec querySpec = request.getQuerySpec(resourceInformation);
 					resources = ((ResourceRepositoryV2) resourceRepository)
 							.findAll(querySpec);
 				}
@@ -105,7 +105,7 @@ public class ResourceRepositoryAdapter<T, I extends Serializable> extends Respon
 				}
 				else if (resourceRepository instanceof ResourceRepositoryV2) {
 					resources = ((ResourceRepositoryV2) resourceRepository).findAll(ids,
-							request.getQuerySpec(resourceInformation.getResourceClass()));
+							request.getQuerySpec(resourceInformation));
 				}
 				else {
 					resources = ((ResourceRepository) resourceRepository).findAll(ids, request.getQueryParams());
@@ -193,7 +193,7 @@ public class ResourceRepositoryAdapter<T, I extends Serializable> extends Respon
 	}
 
 	@Override
-	protected Class<?> getResourceClass(Object repository) {
-		return resourceInformation.getResourceClass();
+	protected ResourceInformation getResourceInformation(Object repository) {
+		return resourceInformation;
 	}
 }

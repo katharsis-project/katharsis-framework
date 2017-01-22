@@ -46,7 +46,7 @@ public class BasicProxyFactory implements ClientProxyFactory {
 		T instance = ClassUtils.newInstance(clazz);
 
 		ResourceRegistry resourceRegistry = context.getModuleRegistry().getResourceRegistry();
-		RegistryEntry<T> entry = resourceRegistry.getEntry(clazz);
+		RegistryEntry entry = resourceRegistry.findEntry(clazz);
 		ResourceInformation resourceInformation = entry.getResourceInformation();
 		resourceInformation.setId(instance, id);
 

@@ -14,8 +14,9 @@ import com.fasterxml.jackson.databind.Module;
 import io.katharsis.core.internal.dispatcher.filter.TestFilter;
 import io.katharsis.core.internal.dispatcher.filter.TestRepositoryDecorator;
 import io.katharsis.core.internal.exception.ExceptionMapperLookup;
-import io.katharsis.core.internal.exception.KatharsisExceptionMapper;
 import io.katharsis.core.internal.exception.ExceptionMapperRegistryTest.IllegalStateExceptionMapper;
+import io.katharsis.core.internal.exception.KatharsisExceptionMapper;
+import io.katharsis.core.internal.registry.ResourceRegistryImpl;
 import io.katharsis.errorhandling.mapper.ExceptionMapper;
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
 import io.katharsis.module.Module.ModuleContext;
@@ -238,7 +239,7 @@ public class SimpleModuleTest {
 
 		@Override
 		public ResourceRegistry getResourceRegistry() {
-			return new ResourceRegistry(null, null);
+			return new ResourceRegistryImpl(null, null);
 		}
 
 		@Override

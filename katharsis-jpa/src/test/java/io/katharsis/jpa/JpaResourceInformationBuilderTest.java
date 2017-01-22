@@ -19,6 +19,7 @@ import io.katharsis.jpa.model.RelatedEntity;
 import io.katharsis.jpa.model.TestEmbeddable;
 import io.katharsis.jpa.model.TestEntity;
 import io.katharsis.jpa.util.ResourceFieldComparator;
+import io.katharsis.legacy.registry.DefaultResourceInformationBuilderContext;
 import io.katharsis.meta.MetaLookup;
 import io.katharsis.meta.provider.resource.ResourceMetaProvider;
 import io.katharsis.resource.information.ResourceField;
@@ -34,6 +35,7 @@ public class JpaResourceInformationBuilderTest {
 		lookup.addProvider(new JpaMetaProvider());
 		lookup.addProvider(new ResourceMetaProvider());
 		builder = new JpaResourceInformationBuilder(lookup);
+		builder.init(new DefaultResourceInformationBuilderContext(builder));
 	}
 
 	@Test

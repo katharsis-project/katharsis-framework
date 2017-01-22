@@ -15,6 +15,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.katharsis.core.internal.registry.ResourceRegistryImpl;
 import io.katharsis.jpa.JpaModule;
 import io.katharsis.jpa.meta.JpaMetaProvider;
 import io.katharsis.jpa.model.JoinedTableBaseEntity;
@@ -68,7 +69,7 @@ public abstract class AbstractJpaTest {
 	public void setup() {
 
 		ModuleRegistry moduleRegistry = new ModuleRegistry();
-		resourceRegistry = new ResourceRegistry(moduleRegistry, new ConstantServiceUrlProvider("http://localhost:1234"));
+		resourceRegistry = new ResourceRegistryImpl(moduleRegistry, new ConstantServiceUrlProvider("http://localhost:1234"));
 		module = JpaModule.newServerModule(emFactory, em, transactionRunner);
 		setupModule(module);
 		moduleRegistry.addModule(new CoreModule(new ResourceFieldNameTransformer()));

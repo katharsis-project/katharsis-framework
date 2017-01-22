@@ -126,8 +126,8 @@ public class KatharsisFeature implements Feature {
 	 */
 	private void registerActionRepositories(FeatureContext context, KatharsisBoot boot) {
 		ResourceRegistry resourceRegistry = boot.getResourceRegistry();
-		Collection<RegistryEntry<?>> registryEntries = resourceRegistry.getResources().values();
-		for(RegistryEntry<?> registryEntry : registryEntries){
+		Collection<RegistryEntry> registryEntries = resourceRegistry.getResources();
+		for(RegistryEntry registryEntry : registryEntries){
 			ResourceRepositoryInformation repositoryInformation = registryEntry.getRepositoryInformation();
 			if(!repositoryInformation.getActions().isEmpty()){
 				ResourceRepositoryAdapter<?, Serializable> repositoryAdapter = registryEntry.getResourceRepository(null);

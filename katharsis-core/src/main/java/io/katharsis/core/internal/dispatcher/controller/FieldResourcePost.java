@@ -75,8 +75,8 @@ public class FieldResourcePost extends ResourceUpsert {
         Class<?> relationshipFieldClass = Generics
             .getResourceClass(relationshipField.getGenericType(), baseRelationshipFieldClass);
 
-        RegistryEntry relationshipRegistryEntry = resourceRegistry.getEntry(relationshipFieldClass);
-        String relationshipResourceType = resourceRegistry.getResourceType(relationshipFieldClass);
+        RegistryEntry relationshipRegistryEntry = resourceRegistry.findEntry(relationshipFieldClass);
+        String relationshipResourceType = relationshipField.getOppositeResourceType();
 
         Resource dataBody = (Resource) requestBody.getData().get();
         Object resource = buildNewResource(relationshipRegistryEntry, dataBody, relationshipResourceType);
@@ -95,16 +95,15 @@ public class FieldResourcePost extends ResourceUpsert {
             .findOne(castedResourceId, queryAdapter);
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
             //noinspection unchecked
-            relationshipRepositoryForClass.addRelations(parent.getEntity(), Collections.singletonList(resourceId), jsonPath
-                .getElementName(), queryAdapter);
+            relationshipRepositoryForClass.addRelations(parent.getEntity(), Collections.singletonList(resourceId), relationshipField, queryAdapter);
         } else {
             //noinspection unchecked
-            relationshipRepositoryForClass.setRelation(parent.getEntity(), resourceId, jsonPath.getElementName(), queryAdapter);
+            relationshipRepositoryForClass.setRelation(parent.getEntity(), resourceId, relationshipField, queryAdapter);
         }
         return new Response(savedResourceResponse, HttpStatus.CREATED_201);
     }
 
-    private Serializable getResourceId(PathIds resourceIds, RegistryEntry<?> registryEntry) {
+    private Serializable getResourceId(PathIds resourceIds, RegistryEntry registryEntry) {
         String resourceId = resourceIds.getIds()
             .get(0);
         @SuppressWarnings("unchecked")

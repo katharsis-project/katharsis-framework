@@ -25,62 +25,54 @@ import io.katharsis.utils.Nullable;
 
 public class RelationshipsResourceGet extends ResourceIncludeField {
 
-    public RelationshipsResourceGet(ResourceRegistry resourceRegistry, ObjectMapper objectMapper, TypeParser typeParser, DocumentMapper documentMapper) {
-        super(resourceRegistry, objectMapper, typeParser, documentMapper);
-    }
+	public RelationshipsResourceGet(ResourceRegistry resourceRegistry, ObjectMapper objectMapper, TypeParser typeParser, DocumentMapper documentMapper) {
+		super(resourceRegistry, objectMapper, typeParser, documentMapper);
+	}
 
-    @Override
-    public boolean isAcceptable(JsonPath jsonPath, String requestType) {
-        return !jsonPath.isCollection()
-                && jsonPath instanceof RelationshipsPath
-                && HttpMethod.GET.name().equals(requestType);
-    }
+	@Override
+	public boolean isAcceptable(JsonPath jsonPath, String requestType) {
+		return !jsonPath.isCollection() && jsonPath instanceof RelationshipsPath && HttpMethod.GET.name().equals(requestType);
+	}
 
-    @Override
-    public Response handle(JsonPath jsonPath, QueryAdapter queryAdapter,
-                                      RepositoryMethodParameterProvider parameterProvider, Document requestBody) {
-        String resourceName = jsonPath.getResourceName();
-        PathIds resourceIds = jsonPath.getIds();
-        RegistryEntry<?> registryEntry = resourceRegistry.getEntry(resourceName);
+	@Override
+	public Response handle(JsonPath jsonPath, QueryAdapter queryAdapter, RepositoryMethodParameterProvider parameterProvider, Document requestBody) {
+		String resourceName = jsonPath.getResourceName();
+		PathIds resourceIds = jsonPath.getIds();
+		RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
 
-        Serializable castedResourceId = getResourceId(resourceIds, registryEntry);
-        String elementName = jsonPath.getElementName();
-        ResourceField relationshipField = registryEntry.getResourceInformation()
-                .findRelationshipFieldByName(elementName);
-        if (relationshipField == null) {
-            throw new ResourceFieldNotFoundException(elementName);
-        }
+		Serializable castedResourceId = getResourceId(resourceIds, registryEntry);
+		String elementName = jsonPath.getElementName();
+		ResourceField relationshipField = registryEntry.getResourceInformation().findRelationshipFieldByName(elementName);
+		if (relationshipField == null) {
+			throw new ResourceFieldNotFoundException(elementName);
+		}
 
-        Class<?> baseRelationshipFieldClass = relationshipField.getType();
-        Class<?> relationshipFieldClass = Generics
-                .getResourceClass(relationshipField.getGenericType(), baseRelationshipFieldClass);
+		Class<?> baseRelationshipFieldClass = relationshipField.getType();
+		Class<?> relationshipFieldClass = Generics.getResourceClass(relationshipField.getGenericType(), baseRelationshipFieldClass);
 
-        RelationshipRepositoryAdapter relationshipRepositoryForClass = registryEntry
-                .getRelationshipRepositoryForClass(relationshipFieldClass, parameterProvider);
-        JsonApiResponse entities;
+		RelationshipRepositoryAdapter relationshipRepositoryForClass = registryEntry.getRelationshipRepositoryForClass(relationshipFieldClass, parameterProvider);
+		JsonApiResponse entities;
 		if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
-        	entities = relationshipRepositoryForClass.findManyTargets(castedResourceId, elementName, queryAdapter);
-        } else {
-            entities = relationshipRepositoryForClass.findOneTarget(castedResourceId, elementName, queryAdapter);
-        }
-        Document responseDocument = documentMapper.toDocument(entities, queryAdapter, parameterProvider);
-        
-        // FIXME related vs self
+			entities = relationshipRepositoryForClass.findManyTargets(castedResourceId, relationshipField, queryAdapter);
+		} else {
+			entities = relationshipRepositoryForClass.findOneTarget(castedResourceId, relationshipField, queryAdapter);
+		}
+		Document responseDocument = documentMapper.toDocument(entities, queryAdapter, parameterProvider);
 
-        // return explicit { data : null } if values found
- 		if(!responseDocument.getData().isPresent()){
- 			responseDocument.setData(Nullable.nullValue());
- 		}
+		// FIXME related vs self
 
-        return new Response(responseDocument, 200);
-    }
+		// return explicit { data : null } if values found
+		if (!responseDocument.getData().isPresent()) {
+			responseDocument.setData(Nullable.nullValue());
+		}
 
-    private Serializable getResourceId(PathIds resourceIds, RegistryEntry<?> registryEntry) {
-        String resourceId = resourceIds.getIds().get(0);
-        @SuppressWarnings("unchecked") Class<? extends Serializable> idClass = (Class<? extends Serializable>) registryEntry
-                .getResourceInformation()
-                .getIdField()
-                .getType();
-        return typeParser.parse(resourceId, idClass);
-    }
+		return new Response(responseDocument, 200);
+	}
+
+	private Serializable getResourceId(PathIds resourceIds, RegistryEntry registryEntry) {
+		String resourceId = resourceIds.getIds().get(0);
+		@SuppressWarnings("unchecked")
+		Class<? extends Serializable> idClass = (Class<? extends Serializable>) registryEntry.getResourceInformation().getIdField().getType();
+		return typeParser.parse(resourceId, idClass);
+	}
 }

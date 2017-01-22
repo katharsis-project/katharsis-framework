@@ -18,8 +18,8 @@ public class ResourceInformationTest {
     public void onRelationshipFieldSearchShouldReturnExistingField() throws NoSuchFieldException {
         // GIVEN
         Field field = String.class.getDeclaredField("value");
-        ResourceField idField = new ResourceField("id", "id", ResourceFieldType.ID, field.getType(), field.getGenericType());
-        ResourceField resourceField = new ResourceField("value", "value", ResourceFieldType.RELATIONSHIP, field.getType(), field.getGenericType());
+        ResourceField idField = new ResourceField("id", "id", ResourceFieldType.ID, field.getType(), field.getGenericType(), null);
+        ResourceField resourceField = new ResourceField("value", "value", ResourceFieldType.RELATIONSHIP, field.getType(), field.getGenericType(), "projects");
 		ResourceInformation sut = new ResourceInformation(Task.class, "tasks", Arrays.asList(idField, resourceField));
 
         // WHEN

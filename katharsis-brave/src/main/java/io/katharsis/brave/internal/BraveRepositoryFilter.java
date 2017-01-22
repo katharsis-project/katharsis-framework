@@ -20,6 +20,7 @@ import io.katharsis.repository.filter.RepositoryRequestFilterChain;
 import io.katharsis.repository.request.QueryAdapter;
 import io.katharsis.repository.request.RepositoryRequestSpec;
 import io.katharsis.repository.response.JsonApiResponse;
+import io.katharsis.resource.information.ResourceField;
 import io.katharsis.resource.registry.RegistryEntry;
 
 /**
@@ -104,7 +105,7 @@ public class BraveRepositoryFilter extends RepositoryFilterBase {
 		StringBuilder builder = new StringBuilder();
 		builder.append("?");
 		if (queryAdapter instanceof QuerySpecAdapter) {
-			QuerySpec querySpec = request.getQuerySpec(queryAdapter.getResourceClass());
+			QuerySpec querySpec = request.getQuerySpec(queryAdapter.getResourceInformation());
 			DefaultQuerySpecSerializer serializer = new DefaultQuerySpecSerializer(moduleContext.getResourceRegistry());
 			Map<String, Set<String>> parameters = serializer.serialize(querySpec);
 			for (Map.Entry<String, Set<String>> entry : parameters.entrySet()) {
@@ -121,7 +122,7 @@ public class BraveRepositoryFilter extends RepositoryFilterBase {
 	}
 
 	private String getComponentName(RepositoryRequestSpec request) {
-		String relationshipField = request.getRelationshipField();
+		ResourceField relationshipField = request.getRelationshipField();
 		StringBuilder pathBuilder = new StringBuilder();
 		String method = request.getMethod().toString();
 		pathBuilder.append(COMPONENT_NAME);
@@ -130,12 +131,11 @@ public class BraveRepositoryFilter extends RepositoryFilterBase {
 		pathBuilder.append(COMPONENT_NAME_SEPARATOR);
 		pathBuilder.append("/");
 		
-		Class<?> relationshipSourceClass = request.getRelationshipSourceClass();
-		if (relationshipSourceClass == null) {
-			pathBuilder.append(getResourceType(request.getQueryAdapter().getResourceClass()));
+		if (relationshipField == null) {
+			pathBuilder.append(request.getQueryAdapter().getResourceInformation().getResourceType());
 		}
 		else {
-			pathBuilder.append(getResourceType(relationshipSourceClass));
+			pathBuilder.append(relationshipField.getParentResourceInformation().getResourceType());
 		}
 		pathBuilder.append("/");
 		
@@ -150,14 +150,14 @@ public class BraveRepositoryFilter extends RepositoryFilterBase {
 			pathBuilder.append("/");
 		}
 		if (relationshipField != null) {
-			pathBuilder.append(relationshipField);
+			pathBuilder.append(relationshipField.getJsonName());
 			pathBuilder.append("/");
 		}
 		return pathBuilder.toString();
 	}
 
 	private String getResourceType(Class<?> resourceClass) {
-		RegistryEntry<?> resourceEntry = moduleContext.getResourceRegistry().getEntry(resourceClass);
+		RegistryEntry resourceEntry = moduleContext.getResourceRegistry().findEntry(resourceClass);
 		return resourceEntry.getResourceInformation().getResourceType();
 	}
 

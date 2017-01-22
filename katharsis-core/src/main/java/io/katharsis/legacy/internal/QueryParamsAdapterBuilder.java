@@ -15,16 +15,14 @@ public class QueryParamsAdapterBuilder implements QueryAdapterBuilder {
 	private QueryParamsBuilder queryParamsBuilder;
 	private ResourceRegistry resourceRegistry;
 
-
 	public QueryParamsAdapterBuilder(QueryParamsBuilder queryParamsBuilder, ResourceRegistry resourceRegistry) {
 		this.queryParamsBuilder = queryParamsBuilder;
 		this.resourceRegistry = resourceRegistry;
 	}
 
 	@Override
-	public QueryAdapter build(Class<?> resourceClass, Map<String, Set<String>> parameters) {
-		ResourceInformation info = resourceRegistry.getEntry(resourceClass).getResourceInformation();
+	public QueryAdapter build(ResourceInformation info, Map<String, Set<String>> parameters) {
 		SimpleQueryParamsParserContext context = new SimpleQueryParamsParserContext(parameters, info);
-		return new QueryParamsAdapter(resourceClass, queryParamsBuilder.buildQueryParams(context), resourceRegistry);
+		return new QueryParamsAdapter(info, queryParamsBuilder.buildQueryParams(context), resourceRegistry);
 	}
 }

@@ -47,7 +47,7 @@ class ClientResourceUpsert extends ResourceUpsert {
 		return id.getType() + "#" + id.getId();
 	}
 
-	public String getUID(RegistryEntry<?> entry, Serializable id) {
+	public String getUID(RegistryEntry entry, Serializable id) {
 		return entry.getResourceInformation().getResourceType() + "#" + id;
 	}
 
@@ -56,7 +56,7 @@ class ClientResourceUpsert extends ResourceUpsert {
 			String uid = getUID(resource);
 			Object object = resourceMap.get(uid);
 
-			RegistryEntry<?> registryEntry = resourceRegistry.getEntry(resource.getType());
+			RegistryEntry registryEntry = resourceRegistry.getEntry(resource.getType());
 
 			// no need for any query parameters when doing POST/PATCH
 			QueryAdapter queryAdapter = null;
@@ -88,7 +88,7 @@ class ClientResourceUpsert extends ResourceUpsert {
 		List<Object> objects = new ArrayList<>();
 		for (Resource resource : resources) {
 
-			RegistryEntry<?> registryEntry = resourceRegistry.getEntry(resource.getType());
+			RegistryEntry registryEntry = resourceRegistry.getEntry(resource.getType());
 			if (registryEntry == null) {
 				throw new RepositoryNotFoundException(resource.getType());
 			}

@@ -212,7 +212,7 @@ public class KatharsisBootTest {
 		RequestDispatcher requestDispatcher = boot.getRequestDispatcher();
 
 		ResourceRegistry resourceRegistry = boot.getResourceRegistry();
-		RegistryEntry<?> taskEntry = resourceRegistry.getEntry(Task.class);
+		RegistryEntry taskEntry = resourceRegistry.findEntry(Task.class);
 		Assert.assertNotEquals(0, taskEntry.getRelationshipEntries().size());
 		ResourceRepositoryAdapter<?, ?> repositoryAdapter = taskEntry.getResourceRepository(null);
 		Assert.assertNotNull(repositoryAdapter.getResourceRepository());

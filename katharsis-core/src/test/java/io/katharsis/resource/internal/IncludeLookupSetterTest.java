@@ -23,8 +23,12 @@ import io.katharsis.resource.Document;
 import io.katharsis.resource.Relationship;
 import io.katharsis.resource.Resource;
 import io.katharsis.resource.ResourceIdentifier;
+import io.katharsis.resource.information.ResourceField;
+import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
+import io.katharsis.resource.mock.models.User;
+import io.katharsis.resource.registry.RegistryEntry;
 
 @RunWith(MockitoJUnitRunner.class)
 public class IncludeLookupSetterTest extends AbstractDocumentMapperTest {
@@ -35,32 +39,41 @@ public class IncludeLookupSetterTest extends AbstractDocumentMapperTest {
 		super.setup();
 
 		// get repositories
-		ResourceRepositoryAdapter taskRepository = resourceRegistry.getEntry(Task.class).getResourceRepository(null);
-		RelationshipRepositoryAdapter relRepositoryTaskToProject = resourceRegistry.getEntry(Task.class).getRelationshipRepositoryForClass(Project.class, null);
-		RelationshipRepositoryAdapter relRepositoryProjectToTask = resourceRegistry.getEntry(Project.class).getRelationshipRepositoryForClass(Task.class, null);
-		ResourceRepositoryAdapter projectRepository = resourceRegistry.getEntry(Project.class).getResourceRepository(null);
+		ResourceRepositoryAdapter taskRepository = resourceRegistry.findEntry(Task.class).getResourceRepository(null);
+		RelationshipRepositoryAdapter relRepositoryTaskToProject = resourceRegistry.findEntry(Task.class).getRelationshipRepositoryForClass(Project.class, null);
+		RelationshipRepositoryAdapter relRepositoryProjectToTask = resourceRegistry.findEntry(Project.class).getRelationshipRepositoryForClass(Task.class, null);
+		ResourceRepositoryAdapter projectRepository = resourceRegistry.findEntry(Project.class).getResourceRepository(null);
 
 		// setup test data
+		
+		ResourceInformation taskInfo = resourceRegistry.findEntry(Task.class).getResourceInformation();
+		ResourceInformation projectInfo = resourceRegistry.findEntry(Project.class).getResourceInformation();
+		ResourceField includedTaskField = projectInfo.findRelationshipFieldByName("includedTask");
+		ResourceField includedProjectField = taskInfo.findRelationshipFieldByName("includedProject");
+		ResourceField includedProjectsField = taskInfo.findRelationshipFieldByName("includedProjects");
+		ResourceField projectField = taskInfo.findRelationshipFieldByName("project");
+		
+		
 		Project project = new Project();
 		project.setId(2L);
 		projectRepository.create(project, null);
 		Task task = new Task();
 		task.setId(1L);
 		taskRepository.create(task, null);
-		relRepositoryTaskToProject.setRelation(task, project.getId(), "includedProject", null);
-		relRepositoryTaskToProject.setRelation(task, project.getId(), "project", null);
-		relRepositoryTaskToProject.addRelations(task, Collections.singletonList(project.getId()), "includedProjects", null);
+		relRepositoryTaskToProject.setRelation(task, project.getId(), includedProjectField, null);
+		relRepositoryTaskToProject.setRelation(task, project.getId(), projectField, null);
+		relRepositoryTaskToProject.addRelations(task, Collections.singletonList(project.getId()), includedProjectsField, null);
 
 		// setup deep nested relationship
 		Task includedTask = new Task();
 		includedTask.setId(3L);
 		taskRepository.create(includedTask, null);
-		relRepositoryProjectToTask.setRelation(project, includedTask.getId(), "includedTask", null);
+		relRepositoryProjectToTask.setRelation(project, includedTask.getId(), includedTaskField, null);
 		Project deepIncludedProject = new Project();
 		deepIncludedProject.setId(2L);
 		projectRepository.create(project, null);
-		relRepositoryTaskToProject.setRelation(includedTask, deepIncludedProject.getId(), "includedProject", null);
-		relRepositoryTaskToProject.addRelations(includedTask, Collections.singletonList(project.getId()), "includedProjects", null);
+		relRepositoryTaskToProject.setRelation(includedTask, deepIncludedProject.getId(), includedProjectField, null);
+		relRepositoryTaskToProject.addRelations(includedTask, Collections.singletonList(project.getId()), includedProjectsField, null);
 	}
 
 	@Test

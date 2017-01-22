@@ -56,7 +56,7 @@ public class ResourceRegistryBuilderTest {
         Assert.assertNotNull(tasksEntry.getResourceRepository(null));
         List tasksRelationshipRepositories = tasksEntry.getRelationshipEntries();
         Assert.assertEquals(1, tasksRelationshipRepositories.size());
-        Assert.assertEquals(TEST_MODELS_URL + "/tasks", resourceRegistry.getResourceUrl(Task.class));
+        Assert.assertEquals(TEST_MODELS_URL + "/tasks", resourceRegistry.getResourceUrl(tasksEntry.getResourceInformation()));
 
         RegistryEntry projectsEntry = resourceRegistry.getEntry("projects");
         Assert.assertNotNull(projectsEntry);
@@ -64,7 +64,7 @@ public class ResourceRegistryBuilderTest {
         Assert.assertNotNull(tasksEntry.getResourceRepository(null));
         List ProjectRelationshipRepositories = projectsEntry.getRelationshipEntries();
         Assert.assertEquals(2, ProjectRelationshipRepositories.size());
-        Assert.assertEquals(TEST_MODELS_URL + "/projects", resourceRegistry.getResourceUrl(Project.class));
+        Assert.assertEquals(TEST_MODELS_URL + "/projects", resourceRegistry.getResourceUrl(projectsEntry.getResourceInformation()));
     }
 
     @Test
@@ -112,7 +112,7 @@ public class ResourceRegistryBuilderTest {
         ResourceRegistry result = sut.build(TEST_MODELS_PACKAGE, new ModuleRegistry(), new ConstantServiceUrlProvider(TEST_MODELS_URL));
 
         // THEN
-        RegistryEntry entry = result.getEntry(ResourceWithoutRepository.class);
+        RegistryEntry entry = result.findEntry(ResourceWithoutRepository.class);
 
         assertThat(entry.getResourceInformation().getResourceClass()).isEqualTo(ResourceWithoutRepository.class);
         assertThat(entry.getResourceRepository(null)).isExactlyInstanceOf(ResourceRepositoryAdapter.class);

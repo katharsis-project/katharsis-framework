@@ -1,15 +1,14 @@
-package io.katharsis.core.internal.registry;
+package io.katharsis.legacy.registry;
 
 import java.io.Serializable;
 
 import io.katharsis.legacy.internal.AnnotatedResourceRepositoryAdapter;
 import io.katharsis.legacy.internal.ParametersFactory;
 import io.katharsis.legacy.internal.RepositoryMethodParameterProvider;
-import io.katharsis.legacy.registry.RepositoryInstanceBuilder;
 import io.katharsis.resource.registry.ResourceEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 
-public class AnnotatedResourceEntry<T, ID extends Serializable> implements ResourceEntry<T, ID> {
+public class AnnotatedResourceEntry<T, ID extends Serializable> implements ResourceEntry {
     private final RepositoryInstanceBuilder repositoryInstanceBuilder;
 
     public AnnotatedResourceEntry(RepositoryInstanceBuilder RepositoryInstanceBuilder) {

@@ -57,7 +57,7 @@ public class ParametersFactory {
 		}
 		QueryParams queryParams = toQueryParams(queryAdapter);
 		DefaultQuerySpecConverter converter = new DefaultQuerySpecConverter(((QueryParamsAdapter)queryAdapter).getResourceRegistry());
-		return converter.fromParams(queryAdapter.getResourceClass(), queryParams);
+		return converter.fromParams(queryAdapter.getResourceInformation().getResourceClass(), queryParams);
 	}
 
 	protected QueryParams toQueryParams(QueryAdapter queryAdapter) {

@@ -1,16 +1,16 @@
 package io.katharsis.core.internal.registry;
 
-import io.katharsis.repository.RelationshipRepositoryV2;
 import io.katharsis.legacy.registry.RepositoryInstanceBuilder;
 import io.katharsis.legacy.repository.RelationshipRepository;
+import io.katharsis.repository.RelationshipRepositoryV2;
 import io.katharsis.resource.registry.ResponseRelationshipEntry;
 import net.jodah.typetools.TypeResolver;
 
-public class DirectResponseRelationshipEntry<T, D> implements ResponseRelationshipEntry<T, D> {
+public class DirectResponseRelationshipEntry implements ResponseRelationshipEntry {
 
     private RepositoryInstanceBuilder<RelationshipRepository> repositoryInstanceBuilder;
 
-    public DirectResponseRelationshipEntry(RepositoryInstanceBuilder<RelationshipRepository> repositoryInstanceBuilder) {
+    public DirectResponseRelationshipEntry(RepositoryInstanceBuilder repositoryInstanceBuilder) {
         this.repositoryInstanceBuilder = repositoryInstanceBuilder;
     }
 

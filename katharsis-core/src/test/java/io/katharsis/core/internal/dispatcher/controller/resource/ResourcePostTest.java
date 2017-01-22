@@ -351,7 +351,7 @@ public class ResourcePostTest extends BaseControllerTest {
 		assertThat(persistedProjectsRelationship).isNotNull();
 		
 		// check lazy loaded relation
-		PojoRepository repo = (PojoRepository) resourceRegistry.getEntry(Pojo.class).getResourceRepository(null).getResourceRepository();
+		PojoRepository repo = (PojoRepository) resourceRegistry.findEntry(Pojo.class).getResourceRepository(null).getResourceRepository();
 		Pojo pojo = repo.findOne(null, null);
 		assertThat(pojo.getProjects()).hasSize(1);
 		assertThat(pojo.getProjects().get(0).getId()).isEqualTo(projectId);

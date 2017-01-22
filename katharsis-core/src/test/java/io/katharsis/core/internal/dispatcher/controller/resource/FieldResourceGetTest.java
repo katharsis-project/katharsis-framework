@@ -19,7 +19,6 @@ import io.katharsis.core.internal.dispatcher.path.ResourcePath;
 import io.katharsis.core.internal.query.QuerySpecAdapter;
 import io.katharsis.core.internal.repository.adapter.RelationshipRepositoryAdapter;
 import io.katharsis.core.internal.repository.adapter.ResourceRepositoryAdapter;
-import io.katharsis.core.internal.resource.IncludeLookupSetter;
 import io.katharsis.legacy.internal.QueryParamsAdapter;
 import io.katharsis.legacy.queryParams.QueryParams;
 import io.katharsis.queryspec.QuerySpec;
@@ -27,6 +26,8 @@ import io.katharsis.repository.request.QueryAdapter;
 import io.katharsis.repository.response.Response;
 import io.katharsis.resource.Relationship;
 import io.katharsis.resource.Resource;
+import io.katharsis.resource.information.ResourceField;
+import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.models.User;
@@ -110,12 +111,18 @@ public class FieldResourceGetTest extends BaseControllerTest {
 	public void onGivenIncludeRequestFieldResourcesGetShouldHandleIt() throws Exception {
 
 		// get repositories
-		ResourceRepositoryAdapter userRepo = resourceRegistry.getEntry(User.class).getResourceRepository(null);
-		ResourceRepositoryAdapter projectRepo = resourceRegistry.getEntry(Project.class).getResourceRepository(null);
-		ResourceRepositoryAdapter taskRepo = resourceRegistry.getEntry(Task.class).getResourceRepository(null);
+		ResourceRepositoryAdapter userRepo = resourceRegistry.findEntry(User.class).getResourceRepository(null);
+		ResourceRepositoryAdapter projectRepo = resourceRegistry.findEntry(Project.class).getResourceRepository(null);
+		ResourceRepositoryAdapter taskRepo = resourceRegistry.findEntry(Task.class).getResourceRepository(null);
 
-		RelationshipRepositoryAdapter relRepositoryUserToProject = resourceRegistry.getEntry(User.class).getRelationshipRepositoryForClass(Project.class, null);
-		RelationshipRepositoryAdapter relRepositoryProjectToTask = resourceRegistry.getEntry(Project.class).getRelationshipRepositoryForClass(Task.class, null);
+		RelationshipRepositoryAdapter relRepositoryUserToProject = resourceRegistry.findEntry(User.class).getRelationshipRepositoryForClass(Project.class, null);
+		RelationshipRepositoryAdapter relRepositoryProjectToTask = resourceRegistry.findEntry(Project.class).getRelationshipRepositoryForClass(Task.class, null);
+		
+		ResourceInformation userInfo = resourceRegistry.findEntry(User.class).getResourceInformation();
+		ResourceInformation projectInfo = resourceRegistry.findEntry(Project.class).getResourceInformation();
+		ResourceField includedTaskField = projectInfo.findRelationshipFieldByName("includedTask");
+		ResourceField assignedProjectsField = userInfo.findRelationshipFieldByName("assignedProjects");
+		
 		// setup test data
 		User user = new User();
 		user.setId(1L);
@@ -126,13 +133,13 @@ public class FieldResourceGetTest extends BaseControllerTest {
 		Task task = new Task();
 		task.setId(3L);
 		taskRepo.create(task, null);
-		relRepositoryUserToProject.setRelations(user, Collections.singletonList(project.getId()), "assignedProjects", null);
-		relRepositoryProjectToTask.setRelation(project, task.getId(), "includedTask", null);
+		relRepositoryUserToProject.setRelations(user, Collections.singletonList(project.getId()), assignedProjectsField, null);
+		relRepositoryProjectToTask.setRelation(project, task.getId(), includedTaskField, null);
 
 		Map<String, Set<String>> params = new HashMap<String, Set<String>>();
 		addParams(params, "include[projects]", "includedTask");
 		QueryParams queryParams = queryParamsBuilder.buildQueryParams(params);
-		QueryAdapter queryAdapter = new QueryParamsAdapter(Project.class, queryParams, resourceRegistry);
+		QueryAdapter queryAdapter = new QueryParamsAdapter(projectInfo, queryParams, resourceRegistry);
 		JsonPath jsonPath = pathBuilder.buildPath("/users/1/assignedProjects");
 		FieldResourceGet sut = new FieldResourceGet(resourceRegistry, objectMapper, typeParser, documentMapper);
 

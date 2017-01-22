@@ -46,7 +46,7 @@ public class ResourceAttributesBridgeTest {
     @Test
     public void onSimpleAttributesShouldPutInstanceValues() throws Exception {
         // GIVEN
-        ResourceField field = new ResourceField("name", "name", ResourceFieldType.ATTRIBUTE, String.class, String.class);
+        ResourceField field = new ResourceField("name", "name", ResourceFieldType.ATTRIBUTE, String.class, String.class, null);
         ResourceAttributesBridge<Task> sut =
             new ResourceAttributesBridge<>(Collections.singletonList(field), Task.class);
         HashMap<String, JsonNode> attributes = new HashMap<String, JsonNode>();

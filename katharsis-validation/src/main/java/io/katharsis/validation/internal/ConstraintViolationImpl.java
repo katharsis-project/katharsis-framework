@@ -42,7 +42,7 @@ public class ConstraintViolationImpl implements ConstraintViolation<Object> {
 			String resourceType = (String) meta.get(ConstraintViolationExceptionMapper.META_RESOURCE_TYPE);
 
 			if (resourceType != null) {
-				RegistryEntry<?> entry = resourceRegistry.getEntry(resourceType);
+				RegistryEntry entry = resourceRegistry.getEntry(resourceType);
 				resourceClass = entry.getResourceInformation().getResourceClass();
 				if (strResourceId != null) {
 					resourceId = entry.getResourceInformation().parseIdString(strResourceId);

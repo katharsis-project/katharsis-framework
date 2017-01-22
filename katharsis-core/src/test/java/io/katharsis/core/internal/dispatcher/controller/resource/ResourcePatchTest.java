@@ -340,7 +340,7 @@ public class ResourcePatchTest extends BaseControllerTest {
     @Test
     public void omittedFieldsSettersAreNotCalled() throws Exception {
         // GIVEN
-        ResourceRepositoryAdapter taskRepo = resourceRegistry.getEntry(Task.class).getResourceRepository(null);
+        ResourceRepositoryAdapter taskRepo = resourceRegistry.findEntry(Task.class).getResourceRepository(null);
         Task task = new Task();
         task.setName("Mary Joe");
         JsonApiResponse jsonApiResponse = taskRepo.create(task, null);

@@ -25,88 +25,84 @@ import net.jodah.typetools.TypeResolver;
  * Repository entries builder for classes implementing repository interfaces.
  */
 public class DirectRepositoryEntryBuilder implements RepositoryEntryBuilder {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DirectRepositoryEntryBuilder.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(DirectRepositoryEntryBuilder.class);
 
-    private final JsonServiceLocator jsonServiceLocator;
+	private final JsonServiceLocator jsonServiceLocator;
 
-    public DirectRepositoryEntryBuilder(JsonServiceLocator jsonServiceLocator) {
-        this.jsonServiceLocator = jsonServiceLocator;
-    }
+	public DirectRepositoryEntryBuilder(JsonServiceLocator jsonServiceLocator) {
+		this.jsonServiceLocator = jsonServiceLocator;
+	}
 
-    @Override
-    public ResourceEntry<?, ?> buildResourceRepository(ResourceLookup lookup, Class<?> resourceClass) {
-        Class<?> repoClass = getRepoClassType(lookup.getResourceRepositoryClasses(), resourceClass);
+	@Override
+	public ResourceEntry buildResourceRepository(ResourceLookup lookup, Class<?> resourceClass) {
+		Class<?> repoClass = getRepoClassType(lookup.getResourceRepositoryClasses(), resourceClass);
 
-        if (repoClass == null) {
-            return null;
-        }
-        @SuppressWarnings("unchecked")
-        DirectResponseResourceEntry directResourceEntry = new DirectResponseResourceEntry(
-            new RepositoryInstanceBuilder(jsonServiceLocator, repoClass));
-        return directResourceEntry;
-    }
+		if (repoClass == null) {
+			return null;
+		}
+		@SuppressWarnings("unchecked")
+		DirectResponseResourceEntry directResourceEntry = new DirectResponseResourceEntry(new RepositoryInstanceBuilder(jsonServiceLocator, repoClass));
+		return directResourceEntry;
+	}
 
-    private Class<?> getRepoClassType(Set<Class<?>> repositoryClasses, Class<?> resourceClass) {
-        for (Class<?> repoClass : repositoryClasses) {
-            if (ResourceRepository.class.isAssignableFrom(repoClass)) {
-                Class<?>[] typeArgs = TypeResolver.resolveRawArguments(ResourceRepository.class, repoClass);
-                if (typeArgs[0] == resourceClass) {
-                    return repoClass;
-                }
-            }
-            if (ResourceRepositoryV2.class.isAssignableFrom(repoClass)) {
-                Class<?>[] typeArgs = TypeResolver.resolveRawArguments(ResourceRepositoryV2.class, repoClass);
-                if (typeArgs[0] == resourceClass) {
-                    return repoClass;
-                }
-            }
+	private Class<?> getRepoClassType(Set<Class<?>> repositoryClasses, Class<?> resourceClass) {
+		for (Class<?> repoClass : repositoryClasses) {
+			if (ResourceRepository.class.isAssignableFrom(repoClass)) {
+				Class<?>[] typeArgs = TypeResolver.resolveRawArguments(ResourceRepository.class, repoClass);
+				if (typeArgs[0] == resourceClass) {
+					return repoClass;
+				}
+			}
+			if (ResourceRepositoryV2.class.isAssignableFrom(repoClass)) {
+				Class<?>[] typeArgs = TypeResolver.resolveRawArguments(ResourceRepositoryV2.class, repoClass);
+				if (typeArgs[0] == resourceClass) {
+					return repoClass;
+				}
+			}
 
-        }
-        return null;
-    }
+		}
+		return null;
+	}
 
-    @Override
-    public List<ResponseRelationshipEntry<?, ?>> buildRelationshipRepositories(ResourceLookup lookup, Class<?> resourceClass) {
-        Set<Class<?>> relationshipRepositoryClasses = lookup.getResourceRepositoryClasses();
+	@Override
+	public List<ResponseRelationshipEntry> buildRelationshipRepositories(ResourceLookup lookup, Class<?> resourceClass) {
+		Set<Class<?>> relationshipRepositoryClasses = lookup.getResourceRepositoryClasses();
 
-        Set<Class<?>> relationshipRepositories =
-            findRelationshipRepositories(resourceClass, relationshipRepositoryClasses);
+		Set<Class<?>> relationshipRepositories = findRelationshipRepositories(resourceClass, relationshipRepositoryClasses);
 
-        List<ResponseRelationshipEntry<?, ?>> relationshipEntries = new LinkedList<>();
-        for (Class<?> relationshipRepositoryClass : relationshipRepositories) {
-            Object relationshipRepository = jsonServiceLocator.getInstance(relationshipRepositoryClass);
-            if (relationshipRepository == null) {
-                throw new RepositoryInstanceNotFoundException(relationshipRepositoryClass.getCanonicalName());
-            }
+		List<ResponseRelationshipEntry> relationshipEntries = new LinkedList<>();
+		for (Class<?> relationshipRepositoryClass : relationshipRepositories) {
+			Object relationshipRepository = jsonServiceLocator.getInstance(relationshipRepositoryClass);
+			if (relationshipRepository == null) {
+				throw new RepositoryInstanceNotFoundException(relationshipRepositoryClass.getCanonicalName());
+			}
 
-            LOGGER.debug("Assigned {} RelationshipRepository  to {} resource class",
-                relationshipRepositoryClass.getCanonicalName(), resourceClass.getCanonicalName());
+			LOGGER.debug("Assigned {} RelationshipRepository  to {} resource class", relationshipRepositoryClass.getCanonicalName(), resourceClass.getCanonicalName());
 
-            @SuppressWarnings("unchecked")
-            DirectResponseRelationshipEntry<Object, Object> relationshipEntry = new DirectResponseRelationshipEntry<>(
-                new RepositoryInstanceBuilder<>(jsonServiceLocator, (Class<RelationshipRepository>) relationshipRepositoryClass));
-            relationshipEntries.add(relationshipEntry);
-        }
-        return relationshipEntries;
-    }
+			@SuppressWarnings("unchecked")
+			DirectResponseRelationshipEntry relationshipEntry = new DirectResponseRelationshipEntry(new RepositoryInstanceBuilder<>(jsonServiceLocator, (Class<RelationshipRepository>) relationshipRepositoryClass));
+			relationshipEntries.add(relationshipEntry);
+		}
+		return relationshipEntries;
+	}
 
-    private Set<Class<?>> findRelationshipRepositories(Class resourceClass, Set<Class<?>> relationshipRepositoryClasses) {
-        Set<Class<?>> relationshipRepositories = new HashSet<>();
-        for (Class<?> repoClass : relationshipRepositoryClasses) {
-            if (RelationshipRepository.class.isAssignableFrom(repoClass)) {
-                Class<?>[] typeArgs = TypeResolver.resolveRawArguments(RelationshipRepository.class, repoClass);
-                if (typeArgs[0] == resourceClass) {
-                    relationshipRepositories.add(repoClass);
-                }
-            }
-            if (RelationshipRepositoryV2.class.isAssignableFrom(repoClass)) {
-                Class<?>[] typeArgs = TypeResolver.resolveRawArguments(RelationshipRepositoryV2.class, repoClass);
-                if (typeArgs[0] == resourceClass) {
-                    relationshipRepositories.add(repoClass);
-                }
-            }
-        }
+	private Set<Class<?>> findRelationshipRepositories(Class resourceClass, Set<Class<?>> relationshipRepositoryClasses) {
+		Set<Class<?>> relationshipRepositories = new HashSet<>();
+		for (Class<?> repoClass : relationshipRepositoryClasses) {
+			if (RelationshipRepository.class.isAssignableFrom(repoClass)) {
+				Class<?>[] typeArgs = TypeResolver.resolveRawArguments(RelationshipRepository.class, repoClass);
+				if (typeArgs[0] == resourceClass) {
+					relationshipRepositories.add(repoClass);
+				}
+			}
+			if (RelationshipRepositoryV2.class.isAssignableFrom(repoClass)) {
+				Class<?>[] typeArgs = TypeResolver.resolveRawArguments(RelationshipRepositoryV2.class, repoClass);
+				if (typeArgs[0] == resourceClass) {
+					relationshipRepositories.add(repoClass);
+				}
+			}
+		}
 
-        return relationshipRepositories;
-    }
+		return relationshipRepositories;
+	}
 }

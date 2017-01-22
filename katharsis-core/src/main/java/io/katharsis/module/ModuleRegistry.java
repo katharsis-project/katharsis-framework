@@ -11,8 +11,6 @@ import java.util.Set;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.katharsis.core.internal.exception.ExceptionMapperLookup;
-import io.katharsis.core.internal.registry.AnnotatedRelationshipEntryBuilder;
-import io.katharsis.core.internal.registry.AnnotatedResourceEntry;
 import io.katharsis.core.internal.registry.DirectResponseRelationshipEntry;
 import io.katharsis.core.internal.registry.DirectResponseResourceEntry;
 import io.katharsis.core.internal.repository.information.ResourceRepositoryInformationImpl;
@@ -22,6 +20,9 @@ import io.katharsis.core.internal.utils.MultivaluedMap;
 import io.katharsis.core.internal.utils.PreconditionUtil;
 import io.katharsis.errorhandling.mapper.ExceptionMapper;
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
+import io.katharsis.legacy.registry.AnnotatedRelationshipEntryBuilder;
+import io.katharsis.legacy.registry.AnnotatedResourceEntry;
+import io.katharsis.legacy.registry.DefaultResourceInformationBuilderContext;
 import io.katharsis.legacy.registry.RepositoryInstanceBuilder;
 import io.katharsis.legacy.repository.annotations.JsonApiRelationshipRepository;
 import io.katharsis.legacy.repository.annotations.JsonApiResourceRepository;
@@ -39,6 +40,7 @@ import io.katharsis.repository.information.RepositoryInformationBuilderContext;
 import io.katharsis.repository.information.ResourceRepositoryInformation;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.information.ResourceInformationBuilder;
+import io.katharsis.resource.information.ResourceInformationBuilderContext;
 import io.katharsis.resource.registry.MultiResourceLookup;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceEntry;
@@ -222,7 +224,10 @@ public class ModuleRegistry {
 	 * @return resource information builder
 	 */
 	public ResourceInformationBuilder getResourceInformationBuilder() {
-		return new CombinedResourceInformationBuilder(aggregatedModule.getResourceInformationBuilders());
+		CombinedResourceInformationBuilder resourceInformationBuilder = new CombinedResourceInformationBuilder(aggregatedModule.getResourceInformationBuilders());
+		DefaultResourceInformationBuilderContext context = new DefaultResourceInformationBuilderContext(resourceInformationBuilder);
+		resourceInformationBuilder.init(context);
+		return resourceInformationBuilder;
 	}
 
 	/**
@@ -298,6 +303,23 @@ public class ModuleRegistry {
 				}
 			}
 			throw new UnsupportedOperationException("no ResourceInformationBuilder for " + resourceClass.getName() + " available");
+		}
+
+		@Override
+		public String getResourceType(Class<?> resourceClass) {
+			for (ResourceInformationBuilder builder : builders) {
+				if (builder.accept(resourceClass)) {
+					return builder.getResourceType(resourceClass);
+				}
+			}
+			throw new UnsupportedOperationException("no ResourceInformationBuilder for " + resourceClass.getName() + " available");
+		}
+
+		@Override
+		public void init(ResourceInformationBuilderContext context) {
+			for (ResourceInformationBuilder builder : builders) {
+				builder.init(context);
+			}
 		}
 	}
 
@@ -456,7 +478,11 @@ public class ModuleRegistry {
 			}
 
 			if (resourceRepositoryInformation == null) {
-				ResourceInformation resourceInformation = getResourceInformationBuilder().build(resourceClass);
+
+				ResourceInformationBuilder resourceInformationBuilder = getResourceInformationBuilder();
+				DefaultResourceInformationBuilderContext context = new DefaultResourceInformationBuilderContext(resourceInformationBuilder);
+
+				ResourceInformation resourceInformation = resourceInformationBuilder.build(resourceClass);
 				resourceRepositoryInformation = new ResourceRepositoryInformationImpl(resourceClass, resourceInformation.getResourceType(), resourceInformation);
 			}
 
@@ -525,7 +551,7 @@ public class ModuleRegistry {
 		if (ClassUtils.getAnnotation(relRepository.getClass(), JsonApiRelationshipRepository.class).isPresent()) {
 			relationshipEntries.add(new AnnotatedRelationshipEntryBuilder(relationshipInstanceBuilder));
 		} else {
-			ResponseRelationshipEntry<?, ?> relationshipEntry = new DirectResponseRelationshipEntry(relationshipInstanceBuilder) {
+			ResponseRelationshipEntry relationshipEntry = new DirectResponseRelationshipEntry(relationshipInstanceBuilder) {
 
 				@Override
 				public Class<?> getTargetAffiliation() {

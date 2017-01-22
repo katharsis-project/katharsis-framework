@@ -4,17 +4,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.reflect.Field;
 import java.util.Collections;
+import java.util.List;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import io.katharsis.core.internal.registry.AnnotatedResourceEntry;
 import io.katharsis.core.internal.registry.DirectResponseRelationshipEntry;
 import io.katharsis.core.internal.repository.adapter.RelationshipRepositoryAdapter;
 import io.katharsis.core.internal.repository.information.ResourceRepositoryInformationImpl;
 import io.katharsis.errorhandling.exception.RelationshipRepositoryNotFoundException;
 import io.katharsis.legacy.locator.SampleJsonServiceLocator;
+import io.katharsis.legacy.registry.AnnotatedResourceEntry;
 import io.katharsis.legacy.registry.RepositoryInstanceBuilder;
 import io.katharsis.module.ModuleRegistry;
 import io.katharsis.repository.information.ResourceRepositoryInformation;
@@ -39,9 +40,9 @@ public class RegistryEntryTest {
 	@Test
 	public void onValidRelationshipClassShouldReturnRelationshipRepository() throws Exception {
 		// GIVEN
-		RegistryEntry<Task> sut = new RegistryEntry(new ResourceRepositoryInformationImpl(null, null, null),
-				new AnnotatedResourceEntry<>(new RepositoryInstanceBuilder(new SampleJsonServiceLocator(), TaskRepository.class)),
-				Collections.singletonList(new DirectResponseRelationshipEntry<>(
+		RegistryEntry sut = new RegistryEntry(new ResourceRepositoryInformationImpl(null, null, null),
+				new AnnotatedResourceEntry(new RepositoryInstanceBuilder(new SampleJsonServiceLocator(), TaskRepository.class)),
+				(List)Collections.singletonList(new DirectResponseRelationshipEntry(
 						new RepositoryInstanceBuilder(new SampleJsonServiceLocator(), TaskToProjectRepository.class))));
 
 		// WHEN
@@ -56,8 +57,8 @@ public class RegistryEntryTest {
 	public void onInvalidRelationshipClassShouldThrowException() throws Exception {
 		// GIVEN
 		ResourceRepositoryInformation resourceInformation = newRepositoryInformation(Task.class, "tasks");
-		RegistryEntry<Task> sut = new RegistryEntry(resourceInformation, null,
-				Collections.singletonList(new DirectResponseRelationshipEntry<>(
+		RegistryEntry sut = new RegistryEntry(resourceInformation, null, (List)
+				Collections.singletonList(new DirectResponseRelationshipEntry(
 						new RepositoryInstanceBuilder(new SampleJsonServiceLocator(), TaskToProjectRepository.class))));
 
 		// THEN
@@ -74,10 +75,10 @@ public class RegistryEntryTest {
 	@Test
 	public void onValidParentShouldReturnTrue() throws Exception {
 		// GIVEN
-		RegistryEntry<Thing> thing = new RegistryEntry<>(newRepositoryInformation(Thing.class, "things"), null);
-		RegistryEntry<Document> document = new RegistryEntry<>(newRepositoryInformation(Document.class, "documents"), null);
+		RegistryEntry thing = new RegistryEntry(newRepositoryInformation(Thing.class, "things"), null);
+		RegistryEntry document = new RegistryEntry(newRepositoryInformation(Document.class, "documents"), null);
 		document.setParentRegistryEntry(thing);
-		RegistryEntry<Memorandum> memorandum = new RegistryEntry<>(newRepositoryInformation(Memorandum.class, "memorandum"),
+		RegistryEntry memorandum = new RegistryEntry(newRepositoryInformation(Memorandum.class, "memorandum"),
 				null);
 		memorandum.setParentRegistryEntry(document);
 
@@ -91,8 +92,8 @@ public class RegistryEntryTest {
 	@Test
 	public void onInvalidParentShouldReturnFalse() throws Exception {
 		// GIVEN
-		RegistryEntry<Document> document = new RegistryEntry<>(newRepositoryInformation(Document.class, "documents"), null);
-		RegistryEntry<Task> task = new RegistryEntry<>(newRepositoryInformation(Task.class, "tasks"), null);
+		RegistryEntry document = new RegistryEntry(newRepositoryInformation(Document.class, "documents"), null);
+		RegistryEntry task = new RegistryEntry(newRepositoryInformation(Task.class, "tasks"), null);
 
 		// WHEN
 		boolean result = document.isParent(task);

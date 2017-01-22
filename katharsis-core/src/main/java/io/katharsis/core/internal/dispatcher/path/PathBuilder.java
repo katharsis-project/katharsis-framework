@@ -75,7 +75,7 @@ public class PathBuilder {
                 currentElementIdx++;
             }
             
-            RegistryEntry<?> entry = null;
+            RegistryEntry entry = null;
             if (currentElementIdx < strings.length && !RELATIONSHIP_MARK.equals(strings[currentElementIdx])) {
                 elementName = strings[currentElementIdx];
                 
@@ -145,7 +145,7 @@ public class PathBuilder {
 
     private JsonPath getNonResourcePath(JsonPath previousJsonPath, String elementName, boolean relationshipMark) {
         String previousElementName = previousJsonPath.getElementName();
-        RegistryEntry<?> previousEntry = resourceRegistry.getEntry(previousElementName);
+        RegistryEntry previousEntry = resourceRegistry.getEntry(previousElementName);
         
         ResourceInformation resourceInformation = previousEntry.getResourceInformation();
       

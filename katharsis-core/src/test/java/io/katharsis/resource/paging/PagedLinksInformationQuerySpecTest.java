@@ -23,7 +23,7 @@ public class PagedLinksInformationQuerySpecTest extends AbstractQuerySpecTest {
 		TestPagedResourceRepository.clear();
 
 		super.setup();
-		RegistryEntry<Task> registryEntry = resourceRegistry.getEntry(Task.class);
+		RegistryEntry registryEntry = resourceRegistry.findEntry(Task.class);
 		TestPagedResourceRepository repo = (TestPagedResourceRepository) registryEntry.getResourceRepository(null)
 				.getResourceRepository();
 

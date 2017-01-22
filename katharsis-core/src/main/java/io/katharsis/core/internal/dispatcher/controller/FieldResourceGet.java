@@ -41,7 +41,7 @@ public class FieldResourceGet extends ResourceIncludeField {
         String resourceName = jsonPath.getResourceName();
         PathIds resourceIds = jsonPath.getIds();
 
-        RegistryEntry<?> registryEntry = resourceRegistry.getEntry(resourceName);
+        RegistryEntry registryEntry = resourceRegistry.getEntry(resourceName);
         Serializable castedResourceId = getResourceId(resourceIds, registryEntry);
         String elementName = jsonPath.getElementName();
         ResourceField relationshipField = registryEntry.getResourceInformation().findRelationshipFieldByName(elementName);
@@ -53,22 +53,20 @@ public class FieldResourceGet extends ResourceIncludeField {
        
         Class<?> relationshipFieldClass = Generics.getResourceClass(relationshipField.getGenericType(), baseRelationshipFieldClass);
 
-        String relationshipResourceType = resourceRegistry.getResourceType(relationshipField.getElementType());
-        
         RelationshipRepositoryAdapter relationshipRepositoryForClass = registryEntry
                 .getRelationshipRepositoryForClass(relationshipFieldClass, parameterProvider);
         JsonApiResponse entities; 
 		if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
-        	entities = relationshipRepositoryForClass.findManyTargets(castedResourceId, elementName, queryAdapter);
+        	entities = relationshipRepositoryForClass.findManyTargets(castedResourceId, relationshipField, queryAdapter);
         } else {
-        	entities = relationshipRepositoryForClass.findOneTarget(castedResourceId, elementName, queryAdapter);
+        	entities = relationshipRepositoryForClass.findOneTarget(castedResourceId, relationshipField, queryAdapter);
         }
         Document responseDocument = documentMapper.toDocument(entities, queryAdapter, parameterProvider);
 
         return new Response(responseDocument, 200);
     }
 
-    private Serializable getResourceId(PathIds resourceIds, RegistryEntry<?> registryEntry) {
+    private Serializable getResourceId(PathIds resourceIds, RegistryEntry registryEntry) {
         String resourceId = resourceIds.getIds().get(0);
         @SuppressWarnings("unchecked")
         Class<? extends Serializable> idClass = (Class<? extends Serializable>) registryEntry

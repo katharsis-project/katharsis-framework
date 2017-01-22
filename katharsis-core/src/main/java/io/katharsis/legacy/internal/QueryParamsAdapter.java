@@ -5,19 +5,20 @@ import io.katharsis.legacy.queryParams.params.IncludedFieldsParams;
 import io.katharsis.legacy.queryParams.params.IncludedRelationsParams;
 import io.katharsis.legacy.queryParams.params.TypedParams;
 import io.katharsis.repository.request.QueryAdapter;
+import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.ResourceRegistry;
 
 public class QueryParamsAdapter implements QueryAdapter {
 
 	private QueryParams queryParams;
 
-	private Class<?> resourceClass;
+	private ResourceInformation resourceInformation;
 
 	private ResourceRegistry resourceRegistry;
 
-	public QueryParamsAdapter(Class<?> resourceClass, QueryParams queryParams, ResourceRegistry resourceRegistry) {
+	public QueryParamsAdapter(ResourceInformation resourceInformation, QueryParams queryParams, ResourceRegistry resourceRegistry) {
 		this.queryParams = queryParams;
-		this.resourceClass = resourceClass;
+		this.resourceInformation = resourceInformation;
 		this.resourceRegistry = resourceRegistry;
 	}
 
@@ -45,11 +46,11 @@ public class QueryParamsAdapter implements QueryAdapter {
 	}
 
 	@Override
-	public Class<?> getResourceClass() {
-		if (resourceClass == null) {
-			throw new IllegalStateException("resourceClass not set");
+	public ResourceInformation getResourceInformation() {
+		if (resourceInformation == null) {
+			throw new IllegalStateException("resourceInformation not set");
 		}
-		return resourceClass;
+		return resourceInformation;
 	}
 
 	public ResourceRegistry getResourceRegistry() {

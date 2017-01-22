@@ -12,13 +12,14 @@ import io.katharsis.legacy.internal.AnnotatedRelationshipRepositoryAdapter;
 import io.katharsis.legacy.repository.RelationshipRepository;
 import io.katharsis.module.ModuleRegistry;
 import io.katharsis.queryspec.QuerySpec;
+import io.katharsis.repository.BulkRelationshipRepositoryV2;
 import io.katharsis.repository.RelationshipRepositoryV2;
 import io.katharsis.repository.filter.RepositoryFilterContext;
-import io.katharsis.repository.BulkRelationshipRepositoryV2;
 import io.katharsis.repository.request.HttpMethod;
 import io.katharsis.repository.request.QueryAdapter;
 import io.katharsis.repository.request.RepositoryRequestSpec;
 import io.katharsis.repository.response.JsonApiResponse;
+import io.katharsis.resource.information.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
 
 /**
@@ -38,7 +39,7 @@ public class RelationshipRepositoryAdapter<T, I extends Serializable, D, J exten
     }
 
     @SuppressWarnings("rawtypes")
-	public JsonApiResponse setRelation(T source, J targetId, String fieldName, QueryAdapter queryAdapter) {
+	public JsonApiResponse setRelation(T source, J targetId, ResourceField field, QueryAdapter queryAdapter) {
     	RepositoryRequestFilterChainImpl chain = new RepositoryRequestFilterChainImpl() {
 
 			@Override
@@ -46,25 +47,25 @@ public class RelationshipRepositoryAdapter<T, I extends Serializable, D, J exten
 				RepositoryRequestSpec request = context.getRequest();
 				Object source = request.getEntity();
 				Serializable targetId = request.getId();
-				String fieldName = request.getRelationshipField();
+				ResourceField field = request.getRelationshipField();
 				QueryAdapter queryAdapter = request.getQueryAdapter();
 		        if (isAnnotated) {
 		            ((AnnotatedRelationshipRepositoryAdapter) relationshipRepository)
-		                .setRelation(source, targetId, fieldName, queryAdapter);
+		                .setRelation(source, targetId, field.getUnderlyingName(), queryAdapter);
 		        } else if(relationshipRepository instanceof RelationshipRepositoryV2){
-		        	((RelationshipRepositoryV2)relationshipRepository).setRelation(source, targetId, fieldName);
+		        	((RelationshipRepositoryV2)relationshipRepository).setRelation(source, targetId, field.getUnderlyingName());
 		        } else {
-		            ((RelationshipRepository) relationshipRepository).setRelation(source, targetId, fieldName);
+		            ((RelationshipRepository) relationshipRepository).setRelation(source, targetId, field.getUnderlyingName());
 		        }
 		        return new JsonApiResponse();
 			}
 		};
-		RepositoryRequestSpec requestSpec = RepositoryRequestSpecImpl.forRelation(moduleRegistry.getResourceRegistry(), HttpMethod.PATCH, source, queryAdapter, Arrays.asList(targetId), fieldName, resourceInformation.getResourceClass());
+		RepositoryRequestSpec requestSpec = RepositoryRequestSpecImpl.forRelation(moduleRegistry.getResourceRegistry(), HttpMethod.PATCH, source, queryAdapter, Arrays.asList(targetId), field);
 		return chain.doFilter(newRepositoryFilterContext(requestSpec));
     }
 
     @SuppressWarnings("rawtypes")
-	public JsonApiResponse setRelations(T source, Iterable<J> targetIds, String fieldName, QueryAdapter queryAdapter) {
+	public JsonApiResponse setRelations(T source, Iterable<J> targetIds, ResourceField field, QueryAdapter queryAdapter) {
     	RepositoryRequestFilterChainImpl chain = new RepositoryRequestFilterChainImpl() {
 
 			@Override
@@ -72,25 +73,25 @@ public class RelationshipRepositoryAdapter<T, I extends Serializable, D, J exten
 				RepositoryRequestSpec request = context.getRequest();
 				Object source = request.getEntity();
 				Iterable<?> targetIds = request.getIds();
-				String fieldName = request.getRelationshipField();
+				ResourceField field = request.getRelationshipField();
 				QueryAdapter queryAdapter = request.getQueryAdapter();
 		        if (isAnnotated) {
 		            ((AnnotatedRelationshipRepositoryAdapter) relationshipRepository)
-		                .setRelations(source, targetIds, fieldName, queryAdapter);
+		                .setRelations(source, targetIds, field.getUnderlyingName(), queryAdapter);
 		        } else if(relationshipRepository instanceof RelationshipRepositoryV2){
-		        	((RelationshipRepositoryV2)relationshipRepository).setRelations(source, targetIds, fieldName);
+		        	((RelationshipRepositoryV2)relationshipRepository).setRelations(source, targetIds, field.getUnderlyingName());
 		        } else {
-		            ((RelationshipRepository) relationshipRepository).setRelations(source, targetIds, fieldName);
+		            ((RelationshipRepository) relationshipRepository).setRelations(source, targetIds, field.getUnderlyingName());
 		        }
 		        return new JsonApiResponse();
 			}
 		};
-		RepositoryRequestSpec requestSpec = RepositoryRequestSpecImpl.forRelation(moduleRegistry.getResourceRegistry(), HttpMethod.PATCH, source, queryAdapter, targetIds, fieldName, resourceInformation.getResourceClass());
+		RepositoryRequestSpec requestSpec = RepositoryRequestSpecImpl.forRelation(moduleRegistry.getResourceRegistry(), HttpMethod.PATCH, source, queryAdapter, targetIds, field);
 		return chain.doFilter(newRepositoryFilterContext(requestSpec));
     }
 
     @SuppressWarnings("rawtypes")
-	public JsonApiResponse addRelations(T source, Iterable<J> targetIds, String fieldName, QueryAdapter queryAdapter) {
+	public JsonApiResponse addRelations(T source, Iterable<J> targetIds, ResourceField field, QueryAdapter queryAdapter) {
     	RepositoryRequestFilterChainImpl chain = new RepositoryRequestFilterChainImpl() {
 
 			@Override
@@ -98,25 +99,25 @@ public class RelationshipRepositoryAdapter<T, I extends Serializable, D, J exten
 				RepositoryRequestSpec request = context.getRequest();
 				Object source = request.getEntity();
 				Iterable<?> targetIds = request.getIds();
-				String fieldName = request.getRelationshipField();
+				ResourceField field = request.getRelationshipField();
 				QueryAdapter queryAdapter = request.getQueryAdapter();
 		        if (isAnnotated) {
 		            ((AnnotatedRelationshipRepositoryAdapter) relationshipRepository)
-		                .addRelations(source, targetIds, fieldName, queryAdapter);
+		                .addRelations(source, targetIds, field.getUnderlyingName(), queryAdapter);
 		        } else if(relationshipRepository instanceof RelationshipRepositoryV2){
-		        	((RelationshipRepositoryV2)relationshipRepository).addRelations(source, targetIds, fieldName);
+		        	((RelationshipRepositoryV2)relationshipRepository).addRelations(source, targetIds, field.getUnderlyingName());
 		        } else {
-		            ((RelationshipRepository) relationshipRepository).addRelations(source, targetIds, fieldName);
+		            ((RelationshipRepository) relationshipRepository).addRelations(source, targetIds, field.getUnderlyingName());
 		        }
 		        return new JsonApiResponse();
 			}
 		};
-		RepositoryRequestSpec requestSpec = RepositoryRequestSpecImpl.forRelation(moduleRegistry.getResourceRegistry(), HttpMethod.POST, source, queryAdapter, targetIds, fieldName, resourceInformation.getResourceClass());
+		RepositoryRequestSpec requestSpec = RepositoryRequestSpecImpl.forRelation(moduleRegistry.getResourceRegistry(), HttpMethod.POST, source, queryAdapter, targetIds, field);
 		return chain.doFilter(newRepositoryFilterContext(requestSpec));
     }
 
     @SuppressWarnings("rawtypes")
-	public JsonApiResponse removeRelations(T source, Iterable<J> targetIds, String fieldName, QueryAdapter queryAdapter) {
+	public JsonApiResponse removeRelations(T source, Iterable<J> targetIds, ResourceField field, QueryAdapter queryAdapter) {
     	RepositoryRequestFilterChainImpl chain = new RepositoryRequestFilterChainImpl() {
 
 			@Override
@@ -124,85 +125,87 @@ public class RelationshipRepositoryAdapter<T, I extends Serializable, D, J exten
 				RepositoryRequestSpec request = context.getRequest();
 				Object source = request.getEntity();
 				Iterable<?> targetIds = request.getIds();
-				String fieldName = request.getRelationshipField();
+				ResourceField field = request.getRelationshipField();
 				QueryAdapter queryAdapter = request.getQueryAdapter();
 		    	if (isAnnotated) {
 		            ((AnnotatedRelationshipRepositoryAdapter) relationshipRepository)
-		                .removeRelations(source, targetIds, fieldName, queryAdapter);
+		                .removeRelations(source, targetIds, field.getUnderlyingName(), queryAdapter);
 		        } else if(relationshipRepository instanceof RelationshipRepositoryV2){
-		        	((RelationshipRepositoryV2)relationshipRepository).removeRelations(source, targetIds, fieldName);
+		        	((RelationshipRepositoryV2)relationshipRepository).removeRelations(source, targetIds, field.getUnderlyingName());
 		        } else {
-		            ((RelationshipRepository) relationshipRepository).removeRelations(source, targetIds, fieldName);
+		            ((RelationshipRepository) relationshipRepository).removeRelations(source, targetIds, field.getUnderlyingName());
 		        }
 		        return new JsonApiResponse();
 			}
 		};
-		RepositoryRequestSpec requestSpec = RepositoryRequestSpecImpl.forRelation(moduleRegistry.getResourceRegistry(), HttpMethod.DELETE, source, queryAdapter, targetIds, fieldName, resourceInformation.getResourceClass());
+		RepositoryRequestSpec requestSpec = RepositoryRequestSpecImpl.forRelation(moduleRegistry.getResourceRegistry(), HttpMethod.DELETE, source, queryAdapter, targetIds, field);
 		return chain.doFilter(newRepositoryFilterContext(requestSpec));
     }
 
 	@SuppressWarnings("rawtypes")
-	public JsonApiResponse findOneTarget(I sourceId, String fieldName, QueryAdapter queryAdapter) {
+	public JsonApiResponse findOneTarget(I sourceId, ResourceField field, QueryAdapter queryAdapter) {
     	RepositoryRequestFilterChainImpl chain = new RepositoryRequestFilterChainImpl() {
 
 			@Override
 			protected JsonApiResponse invoke(RepositoryFilterContext context) {
 				RepositoryRequestSpec request = context.getRequest();
 				Serializable sourceId = request.getId();
-				String fieldName = request.getRelationshipField();
+				ResourceField field = request.getRelationshipField();
 				QueryAdapter queryAdapter = request.getQueryAdapter();
 				
 		    	Object resource;
 		        if (isAnnotated) {
 		            resource = ((AnnotatedRelationshipRepositoryAdapter) relationshipRepository)
-		                .findOneTarget(sourceId, fieldName, queryAdapter);
+		                .findOneTarget(sourceId, field.getUnderlyingName(), queryAdapter);
 		        } else if(relationshipRepository instanceof RelationshipRepositoryV2){
 		        	RelationshipRepositoryV2 querySpecRepository = (RelationshipRepositoryV2) relationshipRepository;
 		        	Class<?> targetResourceClass = querySpecRepository.getTargetResourceClass();
-		        	resource = querySpecRepository.findOneTarget(sourceId, fieldName, request.getQuerySpec(targetResourceClass));
+		        	ResourceInformation targetResourceInformation = moduleRegistry.getResourceRegistry().findEntry(targetResourceClass).getResourceInformation();
+		        	resource = querySpecRepository.findOneTarget(sourceId, field.getUnderlyingName(), request.getQuerySpec(targetResourceInformation));
 		        } else {
 		            resource = ((RelationshipRepository) relationshipRepository)
-		                .findOneTarget(sourceId, fieldName, request.getQueryParams());
+		                .findOneTarget(sourceId, field.getUnderlyingName(), request.getQueryParams());
 		        }
 		        return getResponse(relationshipRepository, resource, request);
 			};
     	};
-    	RepositoryRequestSpec requestSpec = RepositoryRequestSpecImpl.forFindTarget(moduleRegistry.getResourceRegistry(), queryAdapter, Arrays.asList(sourceId), fieldName, resourceInformation.getResourceClass());
+    	RepositoryRequestSpec requestSpec = RepositoryRequestSpecImpl.forFindTarget(moduleRegistry.getResourceRegistry(), queryAdapter, Arrays.asList(sourceId), field);
 		return chain.doFilter(newRepositoryFilterContext(requestSpec));
     }
 
 	@SuppressWarnings("rawtypes")
-	public JsonApiResponse findManyTargets(I sourceId, String fieldName, QueryAdapter queryAdapter) {
+	public JsonApiResponse findManyTargets(I sourceId, ResourceField field, QueryAdapter queryAdapter) {
 		RepositoryRequestFilterChainImpl chain = new RepositoryRequestFilterChainImpl() {
 
 			@Override
 			protected JsonApiResponse invoke(RepositoryFilterContext context) {
 				RepositoryRequestSpec request = context.getRequest();
 				Serializable sourceId = request.getId();
-				String fieldName = request.getRelationshipField();
+				ResourceField field = request.getRelationshipField();
 				QueryAdapter queryAdapter = request.getQueryAdapter();
 				
 				Object resources;
 		        if (isAnnotated) {
 		            resources = ((AnnotatedRelationshipRepositoryAdapter) relationshipRepository)
-		                .findManyTargets(sourceId, fieldName, queryAdapter);
+		                .findManyTargets(sourceId, field.getUnderlyingName(), queryAdapter);
 		        }else if(relationshipRepository instanceof RelationshipRepositoryV2){
 		        	RelationshipRepositoryV2 querySpecRepository = (RelationshipRepositoryV2) relationshipRepository;
 		        	Class<?> targetResourceClass = querySpecRepository.getTargetResourceClass();
-		            	resources = querySpecRepository.findManyTargets(sourceId, fieldName, request.getQuerySpec(targetResourceClass));
+		        	ResourceInformation targetResourceInformation = moduleRegistry.getResourceRegistry().findEntry(targetResourceClass).getResourceInformation();
+		            	resources = querySpecRepository.findManyTargets(sourceId, field.getUnderlyingName(), request.getQuerySpec(targetResourceInformation));
 		        } else {
 		            resources = ((RelationshipRepository) relationshipRepository)
-		                .findManyTargets(sourceId, fieldName, request.getQueryParams());
+		                .findManyTargets(sourceId, field.getUnderlyingName(), request.getQueryParams());
 		        }
 		        return getResponse(relationshipRepository, resources, request);
 			}
 		};
-		RepositoryRequestSpec requestSpec = RepositoryRequestSpecImpl.forFindTarget(moduleRegistry.getResourceRegistry(), queryAdapter, Arrays.asList(sourceId), fieldName, resourceInformation.getResourceClass());
+		RepositoryRequestSpec requestSpec = RepositoryRequestSpecImpl.forFindTarget(moduleRegistry.getResourceRegistry(), queryAdapter, Arrays.asList(sourceId), field);
 		return chain.doFilter(newRepositoryFilterContext(requestSpec));
     }
 	
 	@SuppressWarnings("rawtypes")
-	public Map<I, JsonApiResponse> findBulkManyTargets(List<I> sourceIds, String fieldName, QueryAdapter queryAdapter) {
+	public Map<I, JsonApiResponse> findBulkManyTargets(List<I> sourceIds, ResourceField field, QueryAdapter queryAdapter) {
 		if(relationshipRepository instanceof BulkRelationshipRepositoryV2){
 			RepositoryBulkRequestFilterChainImpl<I> chain = new RepositoryBulkRequestFilterChainImpl<I>() {
 
@@ -210,23 +213,24 @@ public class RelationshipRepositoryAdapter<T, I extends Serializable, D, J exten
 				protected Map<I, JsonApiResponse> invoke(RepositoryFilterContext context) {
 					RepositoryRequestSpec request = context.getRequest();
 					Iterable<I> sourceIds = request.getIds();
-					String fieldName = request.getRelationshipField();
+					ResourceField field = request.getRelationshipField();
 					QueryAdapter queryAdapter = request.getQueryAdapter();
 					
 					BulkRelationshipRepositoryV2 bulkRepository = (BulkRelationshipRepositoryV2) relationshipRepository;
 					Class<?> targetResourceClass = bulkRepository.getTargetResourceClass();
-					QuerySpec querySpec = request.getQuerySpec(targetResourceClass);
-					MultivaluedMap targetsMap = bulkRepository.findTargets(sourceIds, fieldName, querySpec);
-					return toResponses(targetsMap, true, queryAdapter, fieldName, HttpMethod.GET);
+					ResourceInformation targetResourceInformation = moduleRegistry.getResourceRegistry().findEntry(targetResourceClass).getResourceInformation();
+					QuerySpec querySpec = request.getQuerySpec(targetResourceInformation);
+					MultivaluedMap targetsMap = bulkRepository.findTargets(sourceIds, field.getUnderlyingName(), querySpec);
+					return toResponses(targetsMap, true, queryAdapter, field, HttpMethod.GET);
 				}
 			};
-			RepositoryRequestSpec requestSpec = RepositoryRequestSpecImpl.forFindTarget(moduleRegistry.getResourceRegistry(), queryAdapter, sourceIds, fieldName, resourceInformation.getResourceClass());
+			RepositoryRequestSpec requestSpec = RepositoryRequestSpecImpl.forFindTarget(moduleRegistry.getResourceRegistry(), queryAdapter, sourceIds, field);
 			return chain.doFilter(newRepositoryFilterContext(requestSpec));
 		}else{
 			// fallback to non-bulk operation
 			Map<I, JsonApiResponse> responseMap = new HashMap<>();
 			for(I sourceId : sourceIds){
-				JsonApiResponse response = findManyTargets(sourceId, fieldName, queryAdapter);
+				JsonApiResponse response = findManyTargets(sourceId, field, queryAdapter);
 				responseMap.put(sourceId, response);
 			}
 			return responseMap;
@@ -234,7 +238,7 @@ public class RelationshipRepositoryAdapter<T, I extends Serializable, D, J exten
 	}
 	
 	@SuppressWarnings("rawtypes")
-	public Map<I, JsonApiResponse> findBulkOneTargets(List<I> sourceIds, String fieldName, QueryAdapter queryAdapter) {
+	public Map<I, JsonApiResponse> findBulkOneTargets(List<I> sourceIds, ResourceField field, QueryAdapter queryAdapter) {
 		
 		if(relationshipRepository instanceof BulkRelationshipRepositoryV2){
 			
@@ -244,22 +248,23 @@ public class RelationshipRepositoryAdapter<T, I extends Serializable, D, J exten
 				protected Map<I, JsonApiResponse> invoke(RepositoryFilterContext context) {
 					RepositoryRequestSpec request = context.getRequest();
 					Iterable<?> sourceIds = request.getIds();
-					String fieldName = request.getRelationshipField();
+					ResourceField field = request.getRelationshipField();
 					QueryAdapter queryAdapter = request.getQueryAdapter();
 					
 					BulkRelationshipRepositoryV2 bulkRepository = (BulkRelationshipRepositoryV2) relationshipRepository;
 					Class targetResourceClass = bulkRepository.getTargetResourceClass();
-					MultivaluedMap<I, D> targetsMap = bulkRepository.findTargets(sourceIds, fieldName, request.getQuerySpec(targetResourceClass));
-					return toResponses(targetsMap, false, queryAdapter, fieldName, HttpMethod.GET);
+					ResourceInformation targetResourceInformation = moduleRegistry.getResourceRegistry().findEntry(targetResourceClass).getResourceInformation();
+					MultivaluedMap<I, D> targetsMap = bulkRepository.findTargets(sourceIds, field.getUnderlyingName(), request.getQuerySpec(targetResourceInformation));
+					return toResponses(targetsMap, false, queryAdapter, field, HttpMethod.GET);
 				}
 			};
-			RepositoryRequestSpec requestSpec = RepositoryRequestSpecImpl.forFindTarget(moduleRegistry.getResourceRegistry(), queryAdapter, sourceIds, fieldName, resourceInformation.getResourceClass());
+			RepositoryRequestSpec requestSpec = RepositoryRequestSpecImpl.forFindTarget(moduleRegistry.getResourceRegistry(), queryAdapter, sourceIds, field);
 			return chain.doFilter(newRepositoryFilterContext(requestSpec));
 		}else{
 			// fallback to non-bulk operation
 			Map<I, JsonApiResponse> responseMap = new HashMap<>();
 			for(I sourceId : sourceIds){
-				JsonApiResponse response = findOneTarget(sourceId, fieldName, queryAdapter);
+				JsonApiResponse response = findOneTarget(sourceId, field, queryAdapter);
 				responseMap.put(sourceId, response);
 			}
 			return responseMap;
@@ -267,11 +272,11 @@ public class RelationshipRepositoryAdapter<T, I extends Serializable, D, J exten
 	}
 	
 
-	private Map<I, JsonApiResponse> toResponses(MultivaluedMap<I, D> targetsMap, boolean isMany, QueryAdapter queryAdapter, String fieldName, HttpMethod method) {
+	private Map<I, JsonApiResponse> toResponses(MultivaluedMap<I, D> targetsMap, boolean isMany, QueryAdapter queryAdapter, ResourceField field, HttpMethod method) {
 		Map<I, JsonApiResponse> responseMap = new HashMap<>();
 		for(I sourceId : targetsMap.keySet()){
 			Object targets = isMany ? targetsMap.getList(sourceId) : targetsMap.getUnique(sourceId);
-			RepositoryRequestSpec requestSpec = RepositoryRequestSpecImpl.forRelation(moduleRegistry.getResourceRegistry(), method, null, queryAdapter, Collections.singleton(sourceId), fieldName, resourceInformation.getResourceClass());
+			RepositoryRequestSpec requestSpec = RepositoryRequestSpecImpl.forRelation(moduleRegistry.getResourceRegistry(), method, null, queryAdapter, Collections.singleton(sourceId), field);
 			JsonApiResponse response = getResponse(relationshipRepository, targets, requestSpec);
 			responseMap.put(sourceId, response);
 		}
@@ -283,7 +288,8 @@ public class RelationshipRepositoryAdapter<T, I extends Serializable, D, J exten
 	}
 	
 	@Override
-	protected Class<?> getResourceClass(Object repository) {
-		return ((RelationshipRepositoryV2<?,?,?,?>)repository).getTargetResourceClass();
+	protected ResourceInformation getResourceInformation(Object repository) {
+		Class<?> clazz = ((RelationshipRepositoryV2<?,?,?,?>)repository).getTargetResourceClass();
+		return this.moduleRegistry.getResourceRegistry().findEntry(clazz).getResourceInformation();
 	}
 }

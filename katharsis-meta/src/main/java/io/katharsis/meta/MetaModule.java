@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import io.katharsis.core.internal.utils.PreconditionUtil;
+import io.katharsis.legacy.registry.DefaultResourceInformationBuilderContext;
 import io.katharsis.meta.internal.MetaRelationshipRepository;
 import io.katharsis.meta.internal.MetaResourceRepository;
 import io.katharsis.meta.model.MetaAttribute;
@@ -74,6 +75,7 @@ public class MetaModule implements Module, InitializingModule {
 
 		AnnotationResourceInformationBuilder informationBuilder = new AnnotationResourceInformationBuilder(
 				new ResourceFieldNameTransformer());
+		informationBuilder.init(new DefaultResourceInformationBuilderContext(informationBuilder));
 
 		for (Class<? extends MetaElement> metaClass : metaClasses) {
 			if (context.isServer()) {

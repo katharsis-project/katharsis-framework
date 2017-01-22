@@ -30,12 +30,14 @@ import io.katharsis.core.internal.exception.ExceptionMapperRegistryBuilder;
 import io.katharsis.core.internal.jackson.JsonApiModuleBuilder;
 import io.katharsis.core.internal.registry.DirectResponseRelationshipEntry;
 import io.katharsis.core.internal.registry.DirectResponseResourceEntry;
+import io.katharsis.core.internal.registry.ResourceRegistryImpl;
 import io.katharsis.core.internal.repository.adapter.RelationshipRepositoryAdapter;
 import io.katharsis.core.internal.repository.adapter.ResourceRepositoryAdapter;
 import io.katharsis.core.internal.repository.information.ResourceRepositoryInformationImpl;
 import io.katharsis.core.internal.utils.JsonApiUrlBuilder;
 import io.katharsis.core.internal.utils.PreconditionUtil;
 import io.katharsis.errorhandling.exception.RepositoryNotFoundException;
+import io.katharsis.legacy.registry.DefaultResourceInformationBuilderContext;
 import io.katharsis.legacy.registry.RepositoryInstanceBuilder;
 import io.katharsis.legacy.repository.RelationshipRepository;
 import io.katharsis.module.Module;
@@ -122,7 +124,7 @@ public class KatharsisClient {
 
 			@Override
 			public <T> DefaultResourceList<T> getCollection(Class<T> resourceClass, String url) {
-				RegistryEntry<T> entry = resourceRegistry.getEntry(resourceClass);
+				RegistryEntry entry = resourceRegistry.findEntry(resourceClass);
 				ResourceInformation resourceInformation = entry.getResourceInformation();
 				final ResourceRepositoryStubImpl<T, ?> repositoryStub = new ResourceRepositoryStubImpl<>(KatharsisClient.this, resourceClass, resourceInformation, urlBuilder);
 				return repositoryStub.findAll(url);
@@ -151,18 +153,18 @@ public class KatharsisClient {
 		}
 	}
 
-	class ClientResourceRegistry extends ResourceRegistry {
+	class ClientResourceRegistry extends ResourceRegistryImpl {
 
 		public ClientResourceRegistry(ModuleRegistry moduleRegistry, ServiceUrlProvider serviceUrlProvider) {
 			super(moduleRegistry, serviceUrlProvider);
 		}
 
 		@Override
-		protected synchronized <T> RegistryEntry<T> getEntry(Class<T> clazz, boolean allowNull) {
-			RegistryEntry<T> entry = resources.get(clazz);
+		protected synchronized RegistryEntry getEntry(Class<?> clazz, boolean allowNull) {
+			RegistryEntry entry = resources.get(clazz);
 			if (entry == null) {
 				ResourceInformationBuilder informationBuilder = moduleRegistry.getResourceInformationBuilder();
-				if(!informationBuilder.accept(clazz)){
+				if (!informationBuilder.accept(clazz)) {
 					throw new RepositoryNotFoundException(clazz.getName() + " not recognized as resource class, consider adding @JsonApiResource annotation");
 				}
 				entry = allocateRepository(clazz, true);
@@ -230,8 +232,11 @@ public class KatharsisClient {
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private <T, I extends Serializable> RegistryEntry<T> allocateRepository(Class<T> resourceClass, boolean allocateRelated) {
-		ResourceInformation resourceInformation = moduleRegistry.getResourceInformationBuilder().build(resourceClass);
+	private <T, I extends Serializable> RegistryEntry allocateRepository(Class<T> resourceClass, boolean allocateRelated) {
+		ResourceInformationBuilder resourceInformationBuilder = moduleRegistry.getResourceInformationBuilder();
+		DefaultResourceInformationBuilderContext context = new DefaultResourceInformationBuilderContext(resourceInformationBuilder);
+
+		ResourceInformation resourceInformation =  resourceInformationBuilder.build(resourceClass);
 		final ResourceRepositoryStub<T, I> repositoryStub = new ResourceRepositoryStubImpl<>(this, resourceClass, resourceInformation, urlBuilder);
 
 		// create interface for it!
@@ -243,9 +248,9 @@ public class KatharsisClient {
 			}
 		};
 		ResourceRepositoryInformation repositoryInformation = new ResourceRepositoryInformationImpl(repositoryStub.getClass(), resourceInformation.getResourceType(), resourceInformation);
-		ResourceEntry<T, I> resourceEntry = new DirectResponseResourceEntry<>(repositoryInstanceBuilder);
-		List<ResponseRelationshipEntry<T, ?>> relationshipEntries = new ArrayList<>();
-		RegistryEntry<T> registryEntry = new RegistryEntry<>(repositoryInformation, resourceEntry, relationshipEntries);
+		ResourceEntry resourceEntry = new DirectResponseResourceEntry(repositoryInstanceBuilder);
+		List<ResponseRelationshipEntry> relationshipEntries = new ArrayList<>();
+		RegistryEntry registryEntry = new RegistryEntry(repositoryInformation, resourceEntry, relationshipEntries);
 		resourceRegistry.addEntry(resourceClass, registryEntry);
 
 		allocateRepositoryRelations(registryEntry, allocateRelated, relationshipEntries);
@@ -254,7 +259,7 @@ public class KatharsisClient {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private <T> void allocateRepositoryRelations(RegistryEntry<T> registryEntry, boolean allocateRelated, List<ResponseRelationshipEntry<T, ?>> relationshipEntries) {
+	private <T> void allocateRepositoryRelations(RegistryEntry registryEntry, boolean allocateRelated, List<ResponseRelationshipEntry> relationshipEntries) {
 		ResourceInformation resourceInformation = registryEntry.getResourceInformation();
 		List<ResourceField> relationshipFields = resourceInformation.getRelationshipFields();
 		for (ResourceField relationshipField : relationshipFields) {
@@ -326,7 +331,7 @@ public class KatharsisClient {
 	public <T, I extends Serializable> ResourceRepositoryStub<T, I> getRepository(Class<T> resourceClass) {
 		init();
 
-		RegistryEntry<T> entry = resourceRegistry.getEntry(resourceClass);
+		RegistryEntry entry = resourceRegistry.findEntry(resourceClass);
 
 		// TODO fix this in katharsis, should be able to get original resource
 		ResourceRepositoryAdapter repositoryAdapter = entry.getResourceRepository(null);
@@ -342,7 +347,7 @@ public class KatharsisClient {
 	public <T, I extends Serializable> ResourceRepositoryV2<T, I> getQuerySpecRepository(Class<T> resourceClass) {
 		init();
 
-		RegistryEntry<T> entry = resourceRegistry.getEntry(resourceClass);
+		RegistryEntry entry = resourceRegistry.findEntry(resourceClass);
 
 		// TODO fix this in katharsis, should be able to get original resource
 		ResourceRepositoryAdapter repositoryAdapter = entry.getResourceRepository(null);
@@ -361,7 +366,7 @@ public class KatharsisClient {
 	public <T, I extends Serializable, D, J extends Serializable> RelationshipRepositoryStub<T, I, D, J> getRepository(Class<T> sourceClass, Class<D> targetClass) {
 		init();
 
-		RegistryEntry<T> entry = resourceRegistry.getEntry(sourceClass);
+		RegistryEntry entry = resourceRegistry.findEntry(sourceClass);
 
 		RelationshipRepositoryAdapter repositoryAdapter = entry.getRelationshipRepositoryForClass(targetClass, null);
 		return (RelationshipRepositoryStub<T, I, D, J>) repositoryAdapter.getRelationshipRepository();
@@ -379,7 +384,7 @@ public class KatharsisClient {
 	public <T, I extends Serializable, D, J extends Serializable> RelationshipRepositoryV2<T, I, D, J> getQuerySpecRepository(Class<T> sourceClass, Class<D> targetClass) {
 		init();
 
-		RegistryEntry<T> entry = resourceRegistry.getEntry(sourceClass);
+		RegistryEntry entry = resourceRegistry.findEntry(sourceClass);
 
 		RelationshipRepositoryAdapter repositoryAdapter = entry.getRelationshipRepositoryForClass(targetClass, null);
 		return (RelationshipRepositoryV2<T, I, D, J>) repositoryAdapter.getRelationshipRepository();

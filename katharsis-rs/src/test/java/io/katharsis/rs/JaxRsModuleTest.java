@@ -16,6 +16,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import io.katharsis.legacy.registry.DefaultResourceInformationBuilderContext;
 import io.katharsis.repository.ResourceRepositoryV2;
 import io.katharsis.repository.information.RepositoryAction;
 import io.katharsis.repository.information.RepositoryAction.RepositoryActionType;
@@ -39,6 +40,7 @@ public class JaxRsModuleTest {
 		builder = new JaxrsResourceRepositoryInformationBuilder();
 		final ResourceInformationBuilder resourceInformationBuilder = new AnnotationResourceInformationBuilder(
 				new ResourceFieldNameTransformer());
+		resourceInformationBuilder.init(new DefaultResourceInformationBuilderContext(resourceInformationBuilder));
 		context = new RepositoryInformationBuilderContext() {
 
 			@Override

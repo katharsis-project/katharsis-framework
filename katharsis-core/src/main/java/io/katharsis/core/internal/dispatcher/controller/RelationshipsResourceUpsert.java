@@ -53,7 +53,7 @@ public abstract class RelationshipsResourceUpsert extends BaseController {
      * @param relationshipRepositoryForClass Relationship repository
      */
     protected abstract void processToManyRelationship(Object resource, Class<? extends Serializable> relationshipIdType,
-                                                      String elementName, Iterable<ResourceIdentifier> dataBodies, QueryAdapter queryAdapter,
+    												  ResourceField resourceField, Iterable<ResourceIdentifier> dataBodies, QueryAdapter queryAdapter,
                                                       RelationshipRepositoryAdapter relationshipRepositoryForClass);
 
     /**
@@ -67,7 +67,7 @@ public abstract class RelationshipsResourceUpsert extends BaseController {
      * @param relationshipRepositoryForClass Relationship repository
      */
     protected abstract void processToOneRelationship(Object resource, Class<? extends Serializable> relationshipIdType,
-                                                     String elementName, ResourceIdentifier dataBody, QueryAdapter queryAdapter,
+                                                     ResourceField resourceField, ResourceIdentifier dataBody, QueryAdapter queryAdapter,
                                                      RelationshipRepositoryAdapter relationshipRepositoryForClass);
 
     @Override
@@ -105,28 +105,28 @@ public abstract class RelationshipsResourceUpsert extends BaseController {
         Class<?> relationshipFieldClass = Generics
                 .getResourceClass(relationshipField.getGenericType(), baseRelationshipFieldClass);
         @SuppressWarnings("unchecked") Class<? extends Serializable> relationshipIdType = (Class<? extends Serializable>) resourceRegistry
-                .getEntry(relationshipFieldClass).getResourceInformation().getIdField().getType();
+                .findEntry(relationshipFieldClass).getResourceInformation().getIdField().getType();
 
         @SuppressWarnings("unchecked")
         RelationshipRepositoryAdapter relationshipRepositoryForClass = registryEntry
                 .getRelationshipRepositoryForClass(relationshipFieldClass, parameterProvider);
         if (Iterable.class.isAssignableFrom(baseRelationshipFieldClass)) {
             Iterable<ResourceIdentifier> dataBodies = (Iterable<ResourceIdentifier>) (requestBody.isMultiple() ? requestBody.getData().get() : Collections.singletonList(requestBody.getData().get()));
-            processToManyRelationship(resource, relationshipIdType, jsonPath.getElementName(), dataBodies, queryAdapter,
+            processToManyRelationship(resource, relationshipIdType, relationshipField, dataBodies, queryAdapter,
                     relationshipRepositoryForClass);
         } else {
             if (requestBody.isMultiple()) {
                 throw new RequestBodyException(HttpMethod.POST, resourceName, "Multiple data in body");
             }
             ResourceIdentifier dataBody = (ResourceIdentifier) requestBody.getData().get();
-            processToOneRelationship(resource, relationshipIdType, jsonPath.getElementName(), dataBody, queryAdapter,
+            processToOneRelationship(resource, relationshipIdType, relationshipField, dataBody, queryAdapter,
                     relationshipRepositoryForClass);
         }
 
         return new Response(new Document(), HttpStatus.NO_CONTENT_204);
     }
 
-    private Serializable getResourceId(PathIds resourceIds, RegistryEntry<?> registryEntry) {
+    private Serializable getResourceId(PathIds resourceIds, RegistryEntry registryEntry) {
         String resourceId = resourceIds.getIds().get(0);
         @SuppressWarnings("unchecked") Class<? extends Serializable> idClass = (Class<? extends Serializable>) registryEntry
                 .getResourceInformation()

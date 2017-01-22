@@ -1,14 +1,14 @@
 package io.katharsis.legacy.registry;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import io.katharsis.core.internal.registry.DirectResponseResourceEntry;
 import io.katharsis.core.internal.repository.NotFoundRepository;
 import io.katharsis.legacy.locator.JsonServiceLocator;
 import io.katharsis.resource.registry.ResourceEntry;
 import io.katharsis.resource.registry.ResourceLookup;
 import io.katharsis.resource.registry.ResponseRelationshipEntry;
-
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * Contains a strategy to decide which implementation of an entry will be provided. Keep in mind that there can be a
@@ -26,8 +26,8 @@ public class RepositoryEntryBuilderFacade implements RepositoryEntryBuilder {
 
     @Override
     @SuppressWarnings("unchecked")
-    public ResourceEntry<?, ?> buildResourceRepository(ResourceLookup lookup, final Class<?> resourceClass) {
-    	ResourceEntry<?, ?> resourceEntry =  annotatedRepositoryEntryBuilder.buildResourceRepository(lookup, resourceClass);
+    public ResourceEntry buildResourceRepository(ResourceLookup lookup, final Class<?> resourceClass) {
+    	ResourceEntry resourceEntry =  annotatedRepositoryEntryBuilder.buildResourceRepository(lookup, resourceClass);
         if (resourceEntry == null) {
             resourceEntry = directRepositoryEntryBuilder.buildResourceRepository(lookup, resourceClass);
         }
@@ -45,14 +45,14 @@ public class RepositoryEntryBuilderFacade implements RepositoryEntryBuilder {
     }
 
     @Override
-    public List<ResponseRelationshipEntry<?, ?>> buildRelationshipRepositories(ResourceLookup lookup, Class<?> resourceClass) {
-        List<ResponseRelationshipEntry<?, ?>> annotationEntries = annotatedRepositoryEntryBuilder
+    public List<ResponseRelationshipEntry> buildRelationshipRepositories(ResourceLookup lookup, Class<?> resourceClass) {
+        List<ResponseRelationshipEntry> annotationEntries = annotatedRepositoryEntryBuilder
             .buildRelationshipRepositories(lookup, resourceClass);
-        List<ResponseRelationshipEntry<?, ?>> targetEntries = new LinkedList<>(annotationEntries);
-        List<ResponseRelationshipEntry<?, ?>> directEntries = directRepositoryEntryBuilder
+        List<ResponseRelationshipEntry> targetEntries = new LinkedList<>(annotationEntries);
+        List<ResponseRelationshipEntry> directEntries = directRepositoryEntryBuilder
             .buildRelationshipRepositories(lookup, resourceClass);
 
-        for (ResponseRelationshipEntry<?, ?> directEntry : directEntries) {
+        for (ResponseRelationshipEntry directEntry : directEntries) {
             if (!contains(targetEntries, directEntry)) {
                 targetEntries.add(directEntry);
             }
@@ -61,9 +61,9 @@ public class RepositoryEntryBuilderFacade implements RepositoryEntryBuilder {
         return targetEntries;
     }
 
-    private boolean contains(List<ResponseRelationshipEntry<?, ?>> targetEntries, ResponseRelationshipEntry<?, ?> directEntry) {
+    private boolean contains(List<ResponseRelationshipEntry> targetEntries, ResponseRelationshipEntry directEntry) {
         boolean contains = false;
-        for (ResponseRelationshipEntry<?, ?> targetEntry : targetEntries) {
+        for (ResponseRelationshipEntry targetEntry : targetEntries) {
             if (targetEntry.getTargetAffiliation().equals(directEntry.getTargetAffiliation())) {
                 contains = true;
                 break;

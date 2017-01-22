@@ -125,7 +125,7 @@ public abstract class ResourceUpsert extends BaseController {
         ResourceField relationshipField = resourceInformation.findRelationshipFieldByName(property.getKey());
         //noinspection unchecked
         relationshipRepository.setRelations(savedResource, castedRelationIds,
-                relationshipField.getUnderlyingName(), queryAdapter);
+                relationshipField, queryAdapter);
     }
 
     private static boolean allTypesTheSame(Iterable<ResourceIdentifier> linkages) {
@@ -168,7 +168,7 @@ public abstract class ResourceUpsert extends BaseController {
                 .getRelationshipRepositoryForClass(relationshipClass, parameterProvider);
         ResourceField relationshipField = resourceInformation.findRelationshipFieldByName(property.getKey());
         //noinspection unchecked
-        relationshipRepository.setRelation(savedResource, castedRelationshipId, relationshipField.getUnderlyingName(),
+        relationshipRepository.setRelation(savedResource, castedRelationshipId, relationshipField,
                 queryAdapter);
     }
 
@@ -248,7 +248,7 @@ public abstract class ResourceUpsert extends BaseController {
 	        
 	        for (ResourceIdentifier resourceId : relationship.getCollectionData().get()) {
 	            if (first) {
-	                entry = resourceRegistry.getEntry(resourceId.getType(), relationshipFieldClass);
+	                entry = resourceRegistry.findEntry(resourceId.getType(), relationshipFieldClass);
 	                idFieldType = entry.getResourceInformation()
 	                        .getIdField()
 	                        .getType();
@@ -280,7 +280,7 @@ public abstract class ResourceUpsert extends BaseController {
 	
 	        Object relationObject;
 	        if (relationshipId != null) {
-	            RegistryEntry entry = resourceRegistry.getEntry(relationshipId.getType(),
+	            RegistryEntry entry = resourceRegistry.findEntry(relationshipId.getType(),
 	                    relationshipFieldByName.getType());
 	            Class idFieldType = entry.getResourceInformation()
 	                    .getIdField()

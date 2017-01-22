@@ -30,7 +30,7 @@ public class DefaultQuerySpecSerializer implements QuerySpecSerializer {
 	}
 
 	private void serialize(QuerySpec querySpec, Map<String, Set<String>> map) {
-		RegistryEntry<?> entry = resourceRegistry.getEntry(querySpec.getResourceClass());
+		RegistryEntry entry = resourceRegistry.findEntry(querySpec.getResourceClass());
 		if (entry == null) {
 			throw new RepositoryNotFoundException(querySpec.getResourceClass());
 		}

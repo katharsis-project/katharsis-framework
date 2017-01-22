@@ -4,12 +4,10 @@ import io.katharsis.legacy.registry.RepositoryInstanceBuilder;
 import io.katharsis.legacy.repository.ResourceRepository;
 import io.katharsis.resource.registry.ResourceEntry;
 
-import java.io.Serializable;
+public class DirectResponseResourceEntry implements ResourceEntry {
+    private final RepositoryInstanceBuilder<ResourceRepository> repositoryInstanceBuilder;
 
-public class DirectResponseResourceEntry<T, ID extends Serializable> implements ResourceEntry<T, ID> {
-    private final RepositoryInstanceBuilder<ResourceRepository<T, ID>> repositoryInstanceBuilder;
-
-    public DirectResponseResourceEntry(RepositoryInstanceBuilder<ResourceRepository<T, ID>> repositoryInstanceBuilder) {
+    public DirectResponseResourceEntry(RepositoryInstanceBuilder<ResourceRepository> repositoryInstanceBuilder) {
         this.repositoryInstanceBuilder = repositoryInstanceBuilder;
     }
 

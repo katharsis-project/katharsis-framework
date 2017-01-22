@@ -9,38 +9,38 @@ import io.katharsis.core.internal.utils.parser.TypeParser;
 import io.katharsis.repository.request.HttpMethod;
 import io.katharsis.repository.request.QueryAdapter;
 import io.katharsis.resource.ResourceIdentifier;
+import io.katharsis.resource.information.ResourceField;
 import io.katharsis.resource.registry.ResourceRegistry;
 
 public class RelationshipsResourceDelete extends RelationshipsResourceUpsert {
 
-    public RelationshipsResourceDelete(ResourceRegistry resourceRegistry, TypeParser typeParser) {
-        super(resourceRegistry, typeParser);
-    }
+	public RelationshipsResourceDelete(ResourceRegistry resourceRegistry, TypeParser typeParser) {
+		super(resourceRegistry, typeParser);
+	}
 
-    @Override
-    public HttpMethod method() {
-        return HttpMethod.DELETE;
-    }
+	@Override
+	public HttpMethod method() {
+		return HttpMethod.DELETE;
+	}
 
-    @Override
-    public void processToManyRelationship(Object resource, Class<? extends Serializable> relationshipIdType,
-                                          String elementName, Iterable<ResourceIdentifier> dataBodies, QueryAdapter queryAdapter,
-                                          RelationshipRepositoryAdapter relationshipRepositoryForClass) {
-        List<Serializable> parsedIds = new LinkedList<>();
-        for (ResourceIdentifier dataBody : dataBodies) {
-            Serializable parsedId = typeParser.parse(dataBody.getId(), relationshipIdType);
-            parsedIds.add(parsedId);
-        }
-        //noinspection unchecked
-        relationshipRepositoryForClass.removeRelations(resource, parsedIds, elementName, queryAdapter);
-    }
+	@Override
+	public void processToManyRelationship(Object resource, Class<? extends Serializable> relationshipIdType, ResourceField relationshipField, Iterable<ResourceIdentifier> dataBodies, QueryAdapter queryAdapter,
+			RelationshipRepositoryAdapter relationshipRepositoryForClass) {
 
-    @Override
-    protected void processToOneRelationship(Object resource, Class<? extends Serializable> relationshipIdType,
-                                            String elementName, ResourceIdentifier dataBody, QueryAdapter queryAdapter,
-                                            RelationshipRepositoryAdapter relationshipRepositoryForClass) {
-        //noinspection unchecked
-        relationshipRepositoryForClass.setRelation(resource, null, elementName, queryAdapter);
-    }
+		List<Serializable> parsedIds = new LinkedList<>();
+		for (ResourceIdentifier dataBody : dataBodies) {
+			Serializable parsedId = typeParser.parse(dataBody.getId(), relationshipIdType);
+			parsedIds.add(parsedId);
+		}
+		// noinspection unchecked
+		relationshipRepositoryForClass.removeRelations(resource, parsedIds, relationshipField, queryAdapter);
+	}
+
+	@Override
+	protected void processToOneRelationship(Object resource, Class<? extends Serializable> relationshipIdType, ResourceField relationshipField, ResourceIdentifier dataBody, QueryAdapter queryAdapter,
+			RelationshipRepositoryAdapter relationshipRepositoryForClass) {
+		// noinspection unchecked
+		relationshipRepositoryForClass.setRelation(resource, null, relationshipField, queryAdapter);
+	}
 
 }

@@ -28,6 +28,7 @@ import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.registry.ConstantServiceUrlProvider;
 import io.katharsis.resource.registry.DefaultResourceLookup;
+import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 
 public class DefaultQueryParamsSerializerTest {
@@ -36,6 +37,7 @@ public class DefaultQueryParamsSerializerTest {
 	private JsonApiUrlBuilder urlBuilder;
 	private DefaultResourceLookup resourceLookup;
 	private ResourceRegistryBuilder resourceRegistryBuilder;
+	private ResourceRegistry resourceRegistry;
 
 	@Before
 	public void setup() {
@@ -44,7 +46,7 @@ public class DefaultQueryParamsSerializerTest {
 				new ResourceFieldNameTransformer());
 		resourceRegistryBuilder = new ResourceRegistryBuilder(jsonServiceLocator, resourceInformationBuilder);
 		resourceLookup = new DefaultResourceLookup("io.katharsis.resource.mock");
-		ResourceRegistry resourceRegistry = resourceRegistryBuilder.build(resourceLookup, new ModuleRegistry(), new ConstantServiceUrlProvider("http://127.0.0.1"));
+		resourceRegistry = resourceRegistryBuilder.build(resourceLookup, new ModuleRegistry(), new ConstantServiceUrlProvider("http://127.0.0.1"));
 		urlBuilder = new JsonApiUrlBuilder(resourceRegistry);
 	}
 
@@ -166,7 +168,8 @@ public class DefaultQueryParamsSerializerTest {
 	}
 
 	private void check(String expectedUrl, Object id, QueryParams queryParams) {
-		String actualUrl = urlBuilder.buildUrl(Task.class, id, queryParams);
+		RegistryEntry entry = resourceRegistry.getEntryForClass(Task.class);
+		String actualUrl = urlBuilder.buildUrl(entry.getResourceInformation(), id, queryParams);
 		
 		assertEquals(expectedUrl, actualUrl);
 	}

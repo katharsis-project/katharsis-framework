@@ -55,7 +55,7 @@ public abstract class ResourceRepositoryBase<T, I extends Serializable> implemen
 	 */
 	@Override
 	public T findOne(I id, QuerySpec querySpec) {
-		RegistryEntry<T> entry = resourceRegistry.getEntry(resourceClass);
+		RegistryEntry entry = resourceRegistry.findEntry(resourceClass);
 		String idName = entry.getResourceInformation().getIdField().getUnderlyingName();
 
 		QuerySpec idQuerySpec = querySpec.duplicate();
@@ -82,7 +82,7 @@ public abstract class ResourceRepositoryBase<T, I extends Serializable> implemen
 	 */
 	@Override
 	public ResourceList<T> findAll(Iterable<I> ids, QuerySpec querySpec) {
-		RegistryEntry<T> entry = resourceRegistry.getEntry(resourceClass);
+		RegistryEntry entry = resourceRegistry.findEntry(resourceClass);
 		String idName = entry.getResourceInformation().getIdField().getUnderlyingName();
 
 		QuerySpec idQuerySpec = querySpec.duplicate();

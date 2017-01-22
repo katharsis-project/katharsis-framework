@@ -6,20 +6,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import io.katharsis.core.internal.utils.PreconditionUtil;
+
 public class ResourceField {
 
 	public enum LookupIncludeBehavior {
-		NONE,
-		AUTOMATICALLY_WHEN_NULL,
-		AUTOMATICALLY_ALWAYS,
+		NONE, AUTOMATICALLY_WHEN_NULL, AUTOMATICALLY_ALWAYS,
 	}
 
 	public enum ResourceFieldType {
-		ID,
-		ATTRIBUTE,
-		RELATIONSHIP,
-		META_INFORMATION,
-		LINKS_INFORMATION;
+		ID, ATTRIBUTE, RELATIONSHIP, META_INFORMATION, LINKS_INFORMATION;
 
 		public static ResourceFieldType get(boolean id, boolean linksInfo, boolean metaInfo, boolean association) {
 			if (id) {
@@ -54,6 +50,8 @@ public class ResourceField {
 
 	private final Class<?> type;
 
+	private String oppositeResourceType;
+
 	private final Type genericType;
 
 	private final boolean lazy;
@@ -66,16 +64,14 @@ public class ResourceField {
 
 	private String oppositeName;
 
-	private ResourceInformation resourceInformation;
+	private ResourceInformation parentResourceInformation;
 
-	public ResourceField(String jsonName, String underlyingName, ResourceFieldType resourceFieldType, Class<?> type,
-			Type genericType) {
-		this(jsonName, underlyingName, resourceFieldType, type, genericType, null, true, false, LookupIncludeBehavior.NONE);
+	public ResourceField(String jsonName, String underlyingName, ResourceFieldType resourceFieldType, Class<?> type, Type genericType, String oppositeResourceType) {
+		this(jsonName, underlyingName, resourceFieldType, type, genericType, oppositeResourceType, null, true, false, LookupIncludeBehavior.NONE);
 	}
 
-	public ResourceField(String jsonName, String underlyingName, ResourceFieldType resourceFieldType, Class<?> type,
-			Type genericType, String oppositeName, boolean lazy, boolean includeByDefault,
-			LookupIncludeBehavior lookupIncludeBehavior) {
+	public ResourceField(String jsonName, String underlyingName, ResourceFieldType resourceFieldType, Class<?> type, Type genericType, String oppositeResourceType, String oppositeName, boolean lazy,
+			boolean includeByDefault, LookupIncludeBehavior lookupIncludeBehavior) {
 		this.jsonName = jsonName;
 		this.underlyingName = underlyingName;
 		this.resourceFieldType = resourceFieldType;
@@ -85,6 +81,7 @@ public class ResourceField {
 		this.lazy = lazy;
 		this.lookupIncludeBehavior = lookupIncludeBehavior;
 		this.oppositeName = oppositeName;
+		this.oppositeResourceType = oppositeResourceType;
 	}
 
 	public ResourceFieldType getResourceFieldType() {
@@ -92,7 +89,8 @@ public class ResourceField {
 	}
 
 	/**
-	 * See also {@link io.katharsis.resource.annotations.JsonApiLookupIncludeAutomatically}}
+	 * See also
+	 * {@link io.katharsis.resource.annotations.JsonApiLookupIncludeAutomatically}}
 	 *
 	 * @return if lookup should be performed
 	 */
@@ -115,6 +113,12 @@ public class ResourceField {
 		return underlyingName;
 	}
 
+	public String getOppositeResourceType() {
+		PreconditionUtil.assertEquals("not an association", ResourceFieldType.RELATIONSHIP, resourceFieldType);
+		PreconditionUtil.assertNotNull("resourceType must not be null", oppositeResourceType);
+		return oppositeResourceType;
+	}
+
 	public Class<?> getType() {
 		return type;
 	}
@@ -124,7 +128,8 @@ public class ResourceField {
 	}
 
 	/**
-	 * Returns a flag which indicate if a field should not be serialized automatically.
+	 * Returns a flag which indicate if a field should not be serialized
+	 * automatically.
 	 * 
 	 * @return true if a field is lazy
 	 */
@@ -143,10 +148,8 @@ public class ResourceField {
 		if (o == null || getClass() != o.getClass())
 			return false;
 		ResourceField that = (ResourceField) o;
-		return Objects.equals(jsonName, that.jsonName) && Objects.equals(underlyingName, that.underlyingName)
-				&& Objects.equals(type, that.type) && Objects.equals(lookupIncludeBehavior, that.lookupIncludeBehavior)
-				&& Objects.equals(includeByDefault, that.includeByDefault) && Objects.equals(genericType, that.genericType)
-				&& Objects.equals(lazy, that.lazy);
+		return Objects.equals(jsonName, that.jsonName) && Objects.equals(underlyingName, that.underlyingName) && Objects.equals(type, that.type) && Objects.equals(lookupIncludeBehavior, that.lookupIncludeBehavior)
+				&& Objects.equals(includeByDefault, that.includeByDefault) && Objects.equals(genericType, that.genericType) && Objects.equals(lazy, that.lazy);
 	}
 
 	@Override
@@ -155,31 +158,30 @@ public class ResourceField {
 	}
 
 	/**
-	 * Returns the non-collection type. Matches {@link #getType()} for non-collections. Returns the type argument in case of 
-	 * a collection type.
+	 * Returns the non-collection type. Matches {@link #getType()} for
+	 * non-collections. Returns the type argument in case of a collection type.
 	 *
 	 * @return Ask Remmo
 	 */
 	public Class<?> getElementType() {
 		if (Iterable.class.isAssignableFrom(type)) {
 			return (Class<?>) ((ParameterizedType) getGenericType()).getActualTypeArguments()[0];
-		}
-		else {
+		} else {
 			return type;
 		}
 	}
 
-	public ResourceInformation getResourceInformation(){
-		return resourceInformation;
+	public ResourceInformation getParentResourceInformation() {
+		return parentResourceInformation;
 	}
-	
+
 	public void setResourceInformation(ResourceInformation resourceInformation) {
-		this.resourceInformation = resourceInformation;
+		this.parentResourceInformation = resourceInformation;
 	}
-	
+
 	@Override
-	public String toString(){
-		return getClass().getSimpleName() + "[jsonName=" + jsonName + ",resourceType=" + resourceInformation.getResourceType() + "]";
+	public String toString() {
+		return getClass().getSimpleName() + "[jsonName=" + jsonName + ",resourceType=" + parentResourceInformation.getResourceType() + "]";
 	}
 
 	public boolean isCollection() {

@@ -55,7 +55,7 @@ public class DefaultQuerySpecConverter implements QuerySpecConverter {
 	}
 
 	private Class<?> getResourceClass(String resourceType) {
-		RegistryEntry<?> registryEntry = resourceRegistry.getEntry(resourceType);
+		RegistryEntry registryEntry = resourceRegistry.getEntry(resourceType);
 		if (registryEntry == null) {
 			throw new IllegalArgumentException("resourceType " + resourceType + " not found");
 		}

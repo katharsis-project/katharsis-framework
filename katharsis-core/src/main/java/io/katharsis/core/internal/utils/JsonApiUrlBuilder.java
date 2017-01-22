@@ -32,38 +32,35 @@ public class JsonApiUrlBuilder {
 		this.querySpecSerializer = new DefaultQuerySpecSerializer(resourceRegistry);
 	}
 
-	public <T> String buildUrl(Class<T> resourceClass, Object id, QueryParams queryParams) {
-		return buildUrl(resourceClass, id, queryParams, null);
+	public <T> String buildUrl(ResourceInformation resourceInformation, Object id, QueryParams queryParams) {
+		return buildUrl(resourceInformation, id, queryParams, null);
 	}
 
-	public <T> String buildUrl(Class<T> resourceClass, Object id, QuerySpec querySpec) {
-		return buildUrl(resourceClass, id, querySpec, null);
+	public <T> String buildUrl(ResourceInformation resourceInformation, Object id, QuerySpec querySpec) {
+		return buildUrl(resourceInformation, id, querySpec, null);
 	}
 
-	public <T> String buildUrl(Class<T> resourceClass, Object id, QueryAdapter queryAdapter, String relationshipName) {
+	public <T> String buildUrl(ResourceInformation resourceInformation, Object id, QueryAdapter queryAdapter, String relationshipName) {
 		if(queryAdapter instanceof QuerySpecAdapter){
-			return buildUrl(resourceClass, id, ((QuerySpecAdapter)queryAdapter).getQuerySpec(), relationshipName);
+			return buildUrl(resourceInformation, id, ((QuerySpecAdapter)queryAdapter).getQuerySpec(), relationshipName);
 		}else{
-			return buildUrl(resourceClass, id, ((QueryParamsAdapter)queryAdapter).getQueryParams(), relationshipName);
+			return buildUrl(resourceInformation, id, ((QueryParamsAdapter)queryAdapter).getQueryParams(), relationshipName);
 		}
 	}
 	
-	public <T> String buildUrl(Class<T> resourceClass, Object id, QuerySpec querySpec, String relationshipName) {
-		return buildUrlInternal(resourceClass, id, querySpec, relationshipName);
+	public <T> String buildUrl(ResourceInformation resourceInformation, Object id, QuerySpec querySpec, String relationshipName) {
+		return buildUrlInternal(resourceInformation, id, querySpec, relationshipName);
 	}
 
-	public <T> String buildUrl(Class<T> resourceClass, Object id, QueryParams queryParams, String relationshipName) {
-		return buildUrlInternal(resourceClass, id, queryParams, relationshipName);
+	public <T> String buildUrl(ResourceInformation resourceInformation, Object id, QueryParams queryParams, String relationshipName) {
+		return buildUrlInternal(resourceInformation, id, queryParams, relationshipName);
 	}
 
-	private <T> String buildUrlInternal(Class<T> resourceClass, Object id, Object query, String relationshipName) {
-		String url = resourceRegistry.getResourceUrl(resourceClass);
+	private <T> String buildUrlInternal(ResourceInformation resourceInformation, Object id, Object query, String relationshipName) {
+		String url = resourceRegistry.getResourceUrl(resourceInformation);
 		if (!url.endsWith("/")) {
 			url += "/";
 		}
-
-		RegistryEntry<?> entry = resourceRegistry.getEntry(resourceClass);
-		ResourceInformation resourceInformation = entry.getResourceInformation();
 
 		if (id instanceof Collection) {
 			Collection<?> ids = (Collection<?>) id;

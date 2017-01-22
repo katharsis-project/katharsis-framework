@@ -19,6 +19,7 @@ import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.registry.ConstantServiceUrlProvider;
 import io.katharsis.resource.registry.DefaultResourceLookup;
+import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 
 public class DefaultQuerySpecSerializerTest {
@@ -29,6 +30,8 @@ public class DefaultQuerySpecSerializerTest {
 
 	private ResourceRegistryBuilder resourceRegistryBuilder;
 
+	private ResourceRegistry resourceRegistry;
+
 	@Before
 	public void setup() {
 		JsonServiceLocator jsonServiceLocator = new SampleJsonServiceLocator();
@@ -36,7 +39,7 @@ public class DefaultQuerySpecSerializerTest {
 				new ResourceFieldNameTransformer());
 		resourceRegistryBuilder = new ResourceRegistryBuilder(jsonServiceLocator, resourceInformationBuilder);
 		resourceLookup = new DefaultResourceLookup("io.katharsis.resource.mock");
-		ResourceRegistry resourceRegistry = resourceRegistryBuilder.build(resourceLookup, new ModuleRegistry(),
+		 resourceRegistry = resourceRegistryBuilder.build(resourceLookup, new ModuleRegistry(),
 				new ConstantServiceUrlProvider("http://127.0.0.1"));
 		urlBuilder = new JsonApiUrlBuilder(resourceRegistry);
 	}
@@ -98,7 +101,8 @@ public class DefaultQuerySpecSerializerTest {
 		QuerySpec querySpec = new QuerySpec(Task.class);
 		querySpec.addFilter(new FilterSpec(Arrays.asList("name"), FilterOperator.EQ, Arrays.asList("value1", "value2")));
 		
-		String actualUrl = urlBuilder.buildUrl(Task.class, null, querySpec);
+		RegistryEntry entry = resourceRegistry.findEntry(Task.class);
+		String actualUrl = urlBuilder.buildUrl(entry.getResourceInformation(), null, querySpec);
 		String expectedUrl0 = "http://127.0.0.1/tasks/?filter[tasks][name][EQ]=value2&filter[tasks][name][EQ]=value1";
 		String expectedUrl1 = "http://127.0.0.1/tasks/?filter[tasks][name][EQ]=value1&filter[tasks][name][EQ]=value2";
 		
@@ -134,7 +138,8 @@ public class DefaultQuerySpecSerializerTest {
 		querySpec.setLimit(2L);
 		querySpec.setOffset(1L);
 		
-		String actualUrl = urlBuilder.buildUrl(Task.class, 1L, querySpec, "projects");
+		RegistryEntry entry = resourceRegistry.findEntry(Task.class);
+		String actualUrl = urlBuilder.buildUrl(entry.getResourceInformation(), 1L, querySpec, "projects");
 		assertEquals("http://127.0.0.1/tasks/1/relationships/projects/?page[limit]=2&page[offset]=1", actualUrl);
 	}
 	
@@ -153,7 +158,8 @@ public class DefaultQuerySpecSerializerTest {
 	}
 
 	private void check(String expectedUrl, Object id, QuerySpec querySpec) {
-		String actualUrl = urlBuilder.buildUrl(Task.class, id, querySpec);
+		RegistryEntry entry = resourceRegistry.findEntry(Task.class);
+		String actualUrl = urlBuilder.buildUrl(entry.getResourceInformation(), id, querySpec);
 		assertEquals(expectedUrl, actualUrl);
 	}
 }

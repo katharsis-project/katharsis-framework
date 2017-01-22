@@ -18,7 +18,9 @@ import io.katharsis.core.internal.exception.ExceptionMapperLookup;
 import io.katharsis.core.internal.exception.ExceptionMapperRegistryTest.IllegalStateExceptionMapper;
 import io.katharsis.core.internal.exception.ExceptionMapperRegistryTest.SomeIllegalStateExceptionMapper;
 import io.katharsis.core.internal.registry.DirectResponseRelationshipEntry;
+import io.katharsis.core.internal.registry.ResourceRegistryImpl;
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
+import io.katharsis.legacy.registry.DefaultResourceInformationBuilderContext;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.repository.RelationshipRepositoryV2;
 import io.katharsis.repository.ResourceRepositoryV2;
@@ -72,7 +74,7 @@ public class ModuleTest {
 	@Before
 	public void setup() {
 		moduleRegistry = new ModuleRegistry();
-		resourceRegistry = new ResourceRegistry(moduleRegistry, new ConstantServiceUrlProvider("http://localhost"));
+		resourceRegistry = new ResourceRegistryImpl(moduleRegistry, new ConstantServiceUrlProvider("http://localhost"));
 
 		testModule = new TestModule();
 		moduleRegistry.addModule(new CoreModule("io.katharsis.module.mock", new ResourceFieldNameTransformer()));
@@ -250,6 +252,8 @@ public class ModuleTest {
 			// ok
 		}
 
+		DefaultResourceInformationBuilderContext context = new DefaultResourceInformationBuilderContext(informationBuilder);
+		
 		ResourceInformation userInfo = informationBuilder.build(User.class);
 		Assert.assertEquals("id", userInfo.getIdField().getUnderlyingName());
 
@@ -290,7 +294,7 @@ public class ModuleTest {
 		List<RepositoryDecoratorFactory> decorators = moduleRegistry.getRepositoryDecoratorFactories();
 		Assert.assertEquals(1, decorators.size());
 
-		RegistryEntry<Schedule> entry = this.resourceRegistry.getEntry(Schedule.class);
+		RegistryEntry entry = this.resourceRegistry.findEntry(Schedule.class);
 		Object resourceRepository = entry.getResourceRepository(null).getResourceRepository();
 		Assert.assertNotNull(resourceRepository);
 		Assert.assertTrue(resourceRepository instanceof ScheduleRepository);
@@ -306,14 +310,14 @@ public class ModuleTest {
 
 	@Test
 	public void testRepositoryRegistration() {
-		RegistryEntry<?> entry = resourceRegistry.getEntry(TestResource2.class);
+		RegistryEntry entry = resourceRegistry.findEntry(TestResource2.class);
 		ResourceInformation info = entry.getResourceInformation();
 		Assert.assertEquals(TestResource2.class, info.getResourceClass());
 
 		Assert.assertNotNull(entry.getResourceRepository(null));
 		List<?> relationshipEntries = entry.getRelationshipEntries();
 		Assert.assertEquals(1, relationshipEntries.size());
-		DirectResponseRelationshipEntry<?, ?> responseRelationshipEntry = (DirectResponseRelationshipEntry<?, ?>) relationshipEntries
+		DirectResponseRelationshipEntry responseRelationshipEntry = (DirectResponseRelationshipEntry) relationshipEntries
 				.get(0);
 		Assert.assertNotNull(responseRelationshipEntry);
 	}

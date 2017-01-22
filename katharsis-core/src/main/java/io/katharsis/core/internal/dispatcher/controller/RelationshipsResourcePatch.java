@@ -9,6 +9,7 @@ import io.katharsis.core.internal.utils.parser.TypeParser;
 import io.katharsis.repository.request.HttpMethod;
 import io.katharsis.repository.request.QueryAdapter;
 import io.katharsis.resource.ResourceIdentifier;
+import io.katharsis.resource.information.ResourceField;
 import io.katharsis.resource.registry.ResourceRegistry;
 
 public class RelationshipsResourcePatch extends RelationshipsResourceUpsert {
@@ -24,7 +25,7 @@ public class RelationshipsResourcePatch extends RelationshipsResourceUpsert {
 
     @Override
     public void processToManyRelationship(Object resource, Class<? extends Serializable> relationshipIdType,
-                                          String elementName, Iterable<ResourceIdentifier> dataBodies, QueryAdapter queryAdapter,
+    		ResourceField relationshipField, Iterable<ResourceIdentifier> dataBodies, QueryAdapter queryAdapter,
                                           RelationshipRepositoryAdapter relationshipRepositoryForClass) {
         List<Serializable> parsedIds = new LinkedList<>();
         for (ResourceIdentifier dataBody : dataBodies) {
@@ -32,18 +33,18 @@ public class RelationshipsResourcePatch extends RelationshipsResourceUpsert {
             parsedIds.add(parsedId);
         }
         //noinspection unchecked
-        relationshipRepositoryForClass.setRelations(resource, parsedIds, elementName, queryAdapter);
+        relationshipRepositoryForClass.setRelations(resource, parsedIds, relationshipField, queryAdapter);
     }
 
     @Override
     protected void processToOneRelationship(Object resource, Class<? extends Serializable> relationshipIdType,
-                                            String elementName, ResourceIdentifier dataBody, QueryAdapter queryAdapter,
+    		ResourceField relationshipField, ResourceIdentifier dataBody, QueryAdapter queryAdapter,
                                             RelationshipRepositoryAdapter relationshipRepositoryForClass) {
         Serializable parsedId = null;
         if (dataBody != null) {
             parsedId = typeParser.parse(dataBody.getId(), relationshipIdType);
         }
         //noinspection unchecked
-        relationshipRepositoryForClass.setRelation(resource, parsedId, elementName, queryAdapter);
+        relationshipRepositoryForClass.setRelation(resource, parsedId, relationshipField, queryAdapter);
     }
 }

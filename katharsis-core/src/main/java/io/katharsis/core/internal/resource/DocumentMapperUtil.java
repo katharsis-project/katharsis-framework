@@ -43,7 +43,7 @@ public class DocumentMapperUtil {
 	}
 
 	public String getRelationshipLink(ResourceInformation resourceInformation, Object entity, ResourceField field, boolean related) {
-		String resourceUrl = resourceRegistry.getResourceUrl(resourceInformation.getResourceClass());
+		String resourceUrl = resourceRegistry.getResourceUrl(resourceInformation);
 		String resourceId = getIdString(entity, resourceInformation);
 		return resourceUrl + "/" + resourceId + (!related ? "/" + PathBuilder.RELATIONSHIP_MARK + "/" : "/") + field.getJsonName();
 	}
@@ -60,7 +60,7 @@ public class DocumentMapperUtil {
 		if (entity == null) {
 			return null;
 		}
-		RegistryEntry<Object> entry = resourceRegistry.getEntry(entity);
+		RegistryEntry entry = resourceRegistry.findEntry(entity.getClass());
 		ResourceInformation resourceInformation = entry.getResourceInformation();
 		String strId = this.getIdString(entity, resourceInformation);
 		return new ResourceIdentifier(strId, resourceInformation.getResourceType());
@@ -169,7 +169,7 @@ public class DocumentMapperUtil {
 	}
 
 	public ResourceInformation getResourceInformation(Class<?> dataClass) {
-		return resourceRegistry.getEntry(dataClass).getResourceInformation();
+		return resourceRegistry.findEntry(dataClass).getResourceInformation();
 	}
 
 	public ResourceInformation getResourceInformation(String resourceType) {
@@ -177,7 +177,7 @@ public class DocumentMapperUtil {
 	}
 
 	public String getSelfUrl(ResourceInformation resourceInformation, Object entity) {
-		String resourceUrl = resourceRegistry.getResourceUrl(resourceInformation.getResourceClass());
+		String resourceUrl = resourceRegistry.getResourceUrl(resourceInformation);
 		return resourceUrl + "/" + getIdString(entity, resourceInformation);
 	}
 }

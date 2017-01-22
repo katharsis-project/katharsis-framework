@@ -5,6 +5,7 @@ import java.util.Map;
 
 import io.katharsis.core.internal.utils.ClassUtils;
 import io.katharsis.core.internal.utils.PreconditionUtil;
+import io.katharsis.legacy.registry.DefaultResourceInformationBuilderContext;
 import io.katharsis.legacy.repository.ResourceRepository;
 import io.katharsis.legacy.repository.annotations.JsonApiResourceRepository;
 import io.katharsis.repository.ResourceRepositoryV2;
@@ -50,6 +51,7 @@ public class DefaultResourceRepositoryInformationBuilder implements RepositoryIn
 		ResourceInformationBuilder resourceInformationBuilder = context.getResourceInformationBuilder();
 		PreconditionUtil.assertTrue("cannot get ResourceInformation for " + resourceClass,
 				resourceInformationBuilder.accept(resourceClass));
+		
 		ResourceInformation resourceInformation = resourceInformationBuilder.build(resourceClass);
 		String path = getPath(resourceInformation, repository);
 

@@ -3,7 +3,7 @@ package io.katharsis.resource.registry;
 /**
  * Identifies a relationship repository entry
  */
-public interface ResponseRelationshipEntry<T, D> {
+public interface ResponseRelationshipEntry {
 
     /**
      * @return target class

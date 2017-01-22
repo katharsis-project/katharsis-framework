@@ -55,7 +55,7 @@ public class PathBuilderTest {
 
         pathBuilder = new PathBuilder(resourceRegistry);
         
-        RegistryEntry<Task> entry = resourceRegistry.getEntry(Task.class);
+        RegistryEntry entry = resourceRegistry.findEntry(Task.class);
         ResourceRepositoryInformation repositoryInformation = entry.getRepositoryInformation();
         repositoryInformation.getActions().put("someRepositoryAction", Mockito.mock(RepositoryAction.class));
         repositoryInformation.getActions().put("someResourceAction", Mockito.mock(RepositoryAction.class));

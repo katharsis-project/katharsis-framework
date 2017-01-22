@@ -68,7 +68,7 @@ public class IncludeLookupUtil {
 		if (!processedTypes.contains(type)) {
 			processedTypes.add(type);
 
-			RegistryEntry<?> entry = resourceRegistry.getEntry(type);
+			RegistryEntry entry = resourceRegistry.getEntry(type);
 			ResourceInformation information = entry.getResourceInformation();
 
 			ResourceInformation superInformation = getSuperInformation(information);
@@ -94,7 +94,7 @@ public class IncludeLookupUtil {
 			return null;
 		}
 		boolean hasSuperType = resourceRegistry.hasEntry(superclass);
-		return hasSuperType ? resourceRegistry.getEntry(superclass).getResourceInformation() : null;
+		return hasSuperType ? resourceRegistry.findEntry(superclass).getResourceInformation() : null;
 	}
 
 	public List<Resource> filterByType(Collection<Resource> resources, ResourceInformation resourceInformation) {
@@ -134,7 +134,7 @@ public class IncludeLookupUtil {
 			for (int i = fieldPath.size() - 1; i >= 0; i--) {
 				List<String> path = toPathList(fieldPath, i);
 
-				ResourceInformation rootInformation = fieldPath.get(i).getResourceInformation();
+				ResourceInformation rootInformation = fieldPath.get(i).getParentResourceInformation();
 
 				QuerySpec rootQuerySpec = querySpec.getQuerySpec(rootInformation.getResourceClass());
 				if (rootQuerySpec != null && contains(rootQuerySpec, path)) {
@@ -151,7 +151,7 @@ public class IncludeLookupUtil {
 			// we have to possibilities for inclusion: by type or dot notation
 			for (int i = fieldPath.size() - 1; i >= 0; i--) {
 				String path = toPath(fieldPath, i);
-				ResourceInformation rootInformation = fieldPath.get(i).getResourceInformation();
+				ResourceInformation rootInformation = fieldPath.get(i).getParentResourceInformation();
 				IncludedRelationsParams includedRelationsParams = params.get(rootInformation.getResourceType());
 				if (includedRelationsParams != null && contains(includedRelationsParams, path)) {
 					return true;

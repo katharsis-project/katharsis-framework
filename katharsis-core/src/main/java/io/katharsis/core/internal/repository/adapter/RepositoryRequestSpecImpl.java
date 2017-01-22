@@ -25,8 +25,8 @@ import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.repository.request.HttpMethod;
 import io.katharsis.repository.request.QueryAdapter;
 import io.katharsis.repository.request.RepositoryRequestSpec;
+import io.katharsis.resource.information.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
-import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 
 /**
@@ -35,9 +35,7 @@ import io.katharsis.resource.registry.ResourceRegistry;
  */
 class RepositoryRequestSpecImpl implements RepositoryRequestSpec {
 
-	private String relationshipField;
-
-	private Class<?> relationshipSourceClass;
+	private ResourceField relationshipField;
 
 	private QueryAdapter queryAdapter;
 
@@ -64,19 +62,15 @@ class RepositoryRequestSpecImpl implements RepositoryRequestSpec {
 	}
 
 	@Override
-	public String getRelationshipField() {
+	public ResourceField getRelationshipField() {
 		return relationshipField;
 	}
 
 	@Override
-	public Class<?> getRelationshipSourceClass() {
-		return relationshipSourceClass;
-	}
-
-	@Override
-	public QuerySpec getQuerySpec(Class<?> targetResourceClass) {
+	public QuerySpec getQuerySpec(ResourceInformation targetResourceInformation) {
 		if (queryAdapter == null)
 			return null;
+		Class<?> targetResourceClass = targetResourceInformation.getResourceClass();
 		if (queryAdapter instanceof QuerySpecAdapter) {
 			QuerySpec querySpec = ((QuerySpecAdapter) queryAdapter).getQuerySpec();
 			return querySpec.getOrCreateQuerySpec(targetResourceClass);
@@ -108,7 +102,7 @@ class RepositoryRequestSpecImpl implements RepositoryRequestSpec {
 															// implemented
 			}
 
-			String resourceType = resourceRegistry.getResourceType(spec.getResourceClass());
+			String resourceType = resourceRegistry.findEntry(spec.getResourceClass()).getResourceInformation().getResourceType();
 			if (!spec.getIncludedFields().isEmpty()) {
 				Set<String> fieldNames = new HashSet<>();
 				for (IncludeFieldSpec field : spec.getIncludedFields()) {
@@ -146,8 +140,7 @@ class RepositoryRequestSpecImpl implements RepositoryRequestSpec {
 	@Override
 	public <T> Iterable<T> getIds() {
 		if (ids == null && entity != null) {
-			RegistryEntry<?> entry = resourceRegistry.getEntry(queryAdapter.getResourceClass());
-			ResourceInformation resourceInformation = entry.getResourceInformation();
+			ResourceInformation resourceInformation = queryAdapter.getResourceInformation();
 			return (Iterable<T>) Collections.singleton(resourceInformation.getId(entity));
 		}
 		return (Iterable<T>) ids;
@@ -197,29 +190,24 @@ class RepositoryRequestSpecImpl implements RepositoryRequestSpec {
 		return spec;
 	}
 
-	public static RepositoryRequestSpec forFindTarget(ResourceRegistry resourceRegistry, QueryAdapter queryAdapter, List<?> ids, String relationshipField, Class<?> resourceClass) {
+	public static RepositoryRequestSpec forFindTarget(ResourceRegistry resourceRegistry, QueryAdapter queryAdapter, List<?> ids, ResourceField relationshipField) {
 		RepositoryRequestSpecImpl spec = new RepositoryRequestSpecImpl(resourceRegistry);
 		spec.queryAdapter = queryAdapter;
 		spec.ids = ids;
 		spec.relationshipField = relationshipField;
-		spec.relationshipSourceClass = resourceClass;
 		spec.method = HttpMethod.GET;
 		PreconditionUtil.assertNotNull("relationshipField is null", relationshipField);
-		PreconditionUtil.assertNotNull("relationshipSourceClass is null", resourceClass);
 		return spec;
 	}
 
-	public static RepositoryRequestSpecImpl forRelation(ResourceRegistry resourceRegistry, HttpMethod method, Object entity, QueryAdapter queryAdapter, Iterable<?> ids, String relationshipField,
-			Class<?> relationshipSourceClass) {
+	public static RepositoryRequestSpecImpl forRelation(ResourceRegistry resourceRegistry, HttpMethod method, Object entity, QueryAdapter queryAdapter, Iterable<?> ids, ResourceField relationshipField) {
 		RepositoryRequestSpecImpl spec = new RepositoryRequestSpecImpl(resourceRegistry);
 		spec.entity = entity;
 		spec.queryAdapter = queryAdapter;
 		spec.ids = ids;
 		spec.relationshipField = relationshipField;
-		spec.relationshipSourceClass = relationshipSourceClass;
 		spec.method = method;
 		PreconditionUtil.assertNotNull("relationshipField is null", relationshipField);
-		PreconditionUtil.assertNotNull("relationshipSourceClass is null", relationshipSourceClass);
 		return spec;
 	}
 

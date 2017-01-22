@@ -110,7 +110,7 @@ public class IncludeLookupSetter {
 
 			fieldPath.add(resourceField);
 
-			ResourceInformation resourceInformation = resourceField.getResourceInformation();
+			ResourceInformation resourceInformation = resourceField.getParentResourceInformation();
 
 			// only handle resources from the proper subtype where the
 			// relationship is desired to be loaded
@@ -207,8 +207,8 @@ public class IncludeLookupSetter {
 			return Collections.emptySet();
 		}
 
-		ResourceInformation resourceInformation = relationshipField.getResourceInformation();
-		RegistryEntry<?> registyEntry = resourceRegistry.getEntry(resourceInformation.getResourceType());
+		ResourceInformation resourceInformation = relationshipField.getParentResourceInformation();
+		RegistryEntry registyEntry = resourceRegistry.getEntry(resourceInformation.getResourceType());
 
 		List<Serializable> resourceIds = getIds(sourceResources, resourceInformation);
 
@@ -222,9 +222,9 @@ public class IncludeLookupSetter {
 		if (relationshipRepository != null) {
 			Map<Object, JsonApiResponse> responseMap;
 			if (isMany) {
-				responseMap = relationshipRepository.findBulkManyTargets(resourceIds, relationshipField.getUnderlyingName(), queryAdapter);
+				responseMap = relationshipRepository.findBulkManyTargets(resourceIds, relationshipField, queryAdapter);
 			} else {
-				responseMap = relationshipRepository.findBulkOneTargets(resourceIds, relationshipField.getUnderlyingName(), queryAdapter);
+				responseMap = relationshipRepository.findBulkOneTargets(resourceIds, relationshipField, queryAdapter);
 			}
 
 			for (Resource sourceResource : sourceResources) {

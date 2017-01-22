@@ -18,8 +18,8 @@ import io.katharsis.core.internal.utils.PreconditionUtil;
 import io.katharsis.legacy.locator.JsonServiceLocator;
 import io.katharsis.legacy.repository.ResourceRepository;
 import io.katharsis.module.ServiceDiscovery;
-import io.katharsis.repository.ResourceRepositoryV2;
 import io.katharsis.repository.Repository;
+import io.katharsis.repository.ResourceRepositoryV2;
 
 public class ReflectionsServiceDiscovery implements ServiceDiscovery {
 
@@ -40,7 +40,7 @@ public class ReflectionsServiceDiscovery implements ServiceDiscovery {
 			filter.includePackage(resourceSearchPackage);
 		}
 		filter.includePackage(Repository.class.getPackage().getName());
-		filter.includePackage(ResourceRepositoryV2.class.getPackage().getName());
+		filter.includePackage(ResourceRepository.class.getPackage().getName());
 		builder = builder.filterInputsBy(filter);
 
 		builder = builder.addUrls(ClasspathHelper.forClass(Repository.class));

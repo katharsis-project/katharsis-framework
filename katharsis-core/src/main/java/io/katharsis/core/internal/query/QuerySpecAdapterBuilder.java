@@ -6,6 +6,7 @@ import java.util.Set;
 import io.katharsis.queryspec.QuerySpecDeserializer;
 import io.katharsis.queryspec.QuerySpecDeserializerContext;
 import io.katharsis.repository.request.QueryAdapter;
+import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.ResourceRegistry;
 
 public class QuerySpecAdapterBuilder implements QueryAdapterBuilder {
@@ -26,7 +27,9 @@ public class QuerySpecAdapterBuilder implements QueryAdapterBuilder {
 	}
 
 	@Override
-	public QueryAdapter build(Class<?> resourceClass, Map<String, Set<String>> parameters) {
-		return new QuerySpecAdapter(querySpecDeserializer.deserialize(resourceClass, parameters), resourceRegistry);
+	public QueryAdapter build(ResourceInformation resourceInformation, Map<String, Set<String>> parameters) {
+		
+		
+		return new QuerySpecAdapter(querySpecDeserializer.deserialize(resourceInformation, parameters), resourceRegistry);
 	}
 }

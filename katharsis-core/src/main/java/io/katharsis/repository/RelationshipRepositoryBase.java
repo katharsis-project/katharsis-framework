@@ -172,7 +172,7 @@ public class RelationshipRepositoryBase<T, I extends Serializable, D, J extends 
 
 	@SuppressWarnings("unchecked")
 	public MultivaluedMap<I, D> findTargets(Iterable<I> sourceIds, String fieldName, QuerySpec querySpec) {
-		RegistryEntry<T> sourceEntry = resourceRegistry.getEntry(sourceResourceClass);
+		RegistryEntry sourceEntry = resourceRegistry.findEntry(sourceResourceClass);
 		ResourceInformation sourceInformation = sourceEntry.getResourceInformation();
 
 		String oppositeName = getOppositeName(fieldName);
@@ -233,7 +233,7 @@ public class RelationshipRepositoryBase<T, I extends Serializable, D, J extends 
 	}
 
 	protected String getOppositeName(String fieldName) {
-		RegistryEntry<T> entry = resourceRegistry.getEntry(sourceResourceClass);
+		RegistryEntry entry = resourceRegistry.findEntry(sourceResourceClass);
 		ResourceInformation resourceInformation = entry.getResourceInformation();
 		ResourceField field = resourceInformation.findRelationshipFieldByName(fieldName);
 		if (field == null) {
@@ -247,12 +247,12 @@ public class RelationshipRepositoryBase<T, I extends Serializable, D, J extends 
 	}
 
 	private ResourceRepositoryAdapter<D, J> getTargetAdapter() {
-		RegistryEntry<D> entry = resourceRegistry.getEntry(targetResourceClass);
+		RegistryEntry entry = resourceRegistry.findEntry(targetResourceClass);
 		return entry.getResourceRepository(null);
 	}
 
 	private ResourceRepositoryAdapter<T, I> getSourceAdapter() {
-		RegistryEntry<T> entry = resourceRegistry.getEntry(sourceResourceClass);
+		RegistryEntry entry = resourceRegistry.findEntry(sourceResourceClass);
 		return entry.getResourceRepository(null);
 	}
 

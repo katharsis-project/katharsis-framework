@@ -67,7 +67,7 @@ public class QuerySpecAdapter implements QueryAdapter {
 	}
 
 	private String getResourceTypee(QuerySpec spec) {
-		RegistryEntry<?> entry = resourceRegistry.getEntry(spec.getResourceClass());
+		RegistryEntry entry = resourceRegistry.findEntry(spec.getResourceClass());
 		ResourceInformation resourceInformation = entry.getResourceInformation();
 		return resourceInformation.getResourceType();
 	}
@@ -93,8 +93,8 @@ public class QuerySpecAdapter implements QueryAdapter {
 	}
 
 	@Override
-	public Class<?> getResourceClass() {
-		return querySpec.getResourceClass();
+	public ResourceInformation getResourceInformation() {
+		return resourceRegistry.findEntry(querySpec.getResourceClass()).getResourceInformation();
 	}
 
 	@Override
