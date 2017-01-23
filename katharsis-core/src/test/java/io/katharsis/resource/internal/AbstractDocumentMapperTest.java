@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.katharsis.core.internal.jackson.JsonApiModuleBuilder;
 import io.katharsis.core.internal.query.QuerySpecAdapter;
+import io.katharsis.core.internal.resource.AnnotationResourceInformationBuilder;
 import io.katharsis.core.internal.resource.DocumentMapper;
 import io.katharsis.legacy.internal.QueryParamsAdapter;
 import io.katharsis.legacy.locator.SampleJsonServiceLocator;
@@ -16,7 +17,6 @@ import io.katharsis.module.ModuleRegistry;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.repository.request.QueryAdapter;
 import io.katharsis.repository.response.JsonApiResponse;
-import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
 import io.katharsis.resource.information.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.mock.repository.MockRepositoryUtil;

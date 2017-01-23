@@ -16,17 +16,12 @@
  */
 package io.katharsis.servlet;
 
-import static net.javacrumbs.jsonunit.JsonAssert.assertJsonNodeAbsent;
 import static net.javacrumbs.jsonunit.JsonAssert.assertJsonNodePresent;
 import static net.javacrumbs.jsonunit.JsonAssert.assertJsonPartEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletResponse;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -34,6 +29,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletResponse;
 
 import org.junit.After;
 import org.junit.Before;
@@ -239,7 +239,7 @@ public class KatharsisServletTest {
 		MockHttpServletRequest request = new MockHttpServletRequest(servletContext);
 		request.setMethod("GET");
 		request.setServletPath("/api");
-		request.setPathInfo("/nodes");
+		request.setPathInfo("/nodes/1");
 		request.setRequestURI("/api/nodes/1");
 		request.setQueryString("include[nodes]=parent");
 		request.setContentType(JsonApiMediaType.APPLICATION_JSON_API);
@@ -251,7 +251,6 @@ public class KatharsisServletTest {
 		katharsisServlet.service(request, response);
 		String responseContent = response.getContentAsString();
 		assertTopLevelNodesCorrectWithChildren(responseContent);
-		assertJsonNodeAbsent(responseContent, "included");
 	}
 
 	@Test
@@ -270,7 +269,7 @@ public class KatharsisServletTest {
 		MockHttpServletRequest request = new MockHttpServletRequest(servletContext);
 		request.setMethod("GET");
 		request.setServletPath("/api");
-		request.setPathInfo("/nodes");
+		request.setPathInfo("/nodes/1");
 		request.setRequestURI("/api/nodes/1");
 		request.setQueryString("include[nodes]=children.nodeComments");
 		request.setContentType(JsonApiMediaType.APPLICATION_JSON_API);
@@ -311,16 +310,11 @@ public class KatharsisServletTest {
 	}
 
 	private void assertTopLevelNodesCorrectWithChildren(String responseContent) {
-//		assertJsonPartEquals("nodes", responseContent, "data[1].type");
-//		assertJsonPartEquals("\"2\"", responseContent, "data[1].id");
-		assertJsonNodePresent(responseContent, "data[0].relationships.children.data");
-		assertJsonPartEquals("nodes", responseContent, "data[0].type");
-		assertJsonPartEquals("\"1\"", responseContent, "data[0].id");
-		assertJsonNodePresent(responseContent, "data[1].relationships.children.data");
-		assertJsonPartEquals("\"2\"", responseContent, "data[0].relationships.children.data[0].id");
-		assertJsonPartEquals("\"3\"", responseContent, "data[0].relationships.children.data[1].id");
-		//		assertJsonPartEquals("nodes", responseContent, "data[2].type");
-		//		assertJsonPartEquals("\"3\"", responseContent, "data[2].id");
-		//		assertJsonNodePresent(responseContent, "data[2].relationships.children.data");
+		System.out.println(responseContent);
+		assertJsonNodePresent(responseContent, "data.relationships.children.data");
+		assertJsonPartEquals("nodes", responseContent, "data.type");
+		assertJsonPartEquals("\"1\"", responseContent, "data.id");
+		assertJsonPartEquals("\"2\"", responseContent, "data.relationships.children.data[0].id");
+		assertJsonPartEquals("\"3\"", responseContent, "data.relationships.children.data[1].id");
 	}
 }

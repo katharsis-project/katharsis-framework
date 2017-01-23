@@ -1,4 +1,4 @@
-package io.katharsis.resource.information;
+package io.katharsis.core.internal.resource;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -18,6 +18,7 @@ import io.katharsis.core.internal.utils.ClassUtils;
 import io.katharsis.core.internal.utils.PropertyUtils;
 import io.katharsis.errorhandling.exception.InvalidResourceException;
 import io.katharsis.errorhandling.exception.ResourceException;
+import io.katharsis.resource.information.ResourceField;
 import io.katharsis.utils.Optional;
 
 /**

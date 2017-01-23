@@ -1,4 +1,4 @@
-package io.katharsis.resource.information;
+package io.katharsis.core.internal.resource;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

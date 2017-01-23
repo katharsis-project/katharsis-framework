@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import io.katharsis.core.internal.jackson.JsonApiModuleBuilder;
+import io.katharsis.core.internal.resource.AnnotationResourceInformationBuilder;
 import io.katharsis.errorhandling.ErrorData;
 import io.katharsis.legacy.locator.SampleJsonServiceLocator;
 import io.katharsis.legacy.registry.ResourceRegistryBuilder;
@@ -25,7 +26,6 @@ import io.katharsis.resource.Document;
 import io.katharsis.resource.Relationship;
 import io.katharsis.resource.Resource;
 import io.katharsis.resource.ResourceIdentifier;
-import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
 import io.katharsis.resource.information.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ConstantServiceUrlProvider;

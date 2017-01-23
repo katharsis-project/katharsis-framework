@@ -10,11 +10,11 @@ import org.junit.Test;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import io.katharsis.core.internal.resource.AnnotationResourceInformationBuilder;
 import io.katharsis.resource.annotations.JsonApiIncludeByDefault;
 import io.katharsis.resource.annotations.JsonApiToMany;
-import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
 import io.katharsis.resource.information.ResourceField;
-import io.katharsis.resource.information.ResourceField.ResourceFieldType;
+import io.katharsis.resource.information.ResourceFieldType;
 
 public class ResourceFieldTest {
 

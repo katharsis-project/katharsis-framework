@@ -1,5 +1,6 @@
 package io.katharsis.resource.information;
 
+import io.katharsis.core.internal.resource.DefaultResourceInstanceBuilder;
 import io.katharsis.resource.Resource;
 
 /**

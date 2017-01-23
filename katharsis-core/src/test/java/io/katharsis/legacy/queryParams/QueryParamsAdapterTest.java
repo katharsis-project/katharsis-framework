@@ -4,10 +4,10 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import io.katharsis.core.internal.registry.ResourceRegistryImpl;
+import io.katharsis.core.internal.resource.AnnotationResourceInformationBuilder;
 import io.katharsis.legacy.internal.QueryParamsAdapter;
 import io.katharsis.legacy.registry.DefaultResourceInformationBuilderContext;
 import io.katharsis.module.ModuleRegistry;
-import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
 import io.katharsis.resource.information.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.mock.models.Task;

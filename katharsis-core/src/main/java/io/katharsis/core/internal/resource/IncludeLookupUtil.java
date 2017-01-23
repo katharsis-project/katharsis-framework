@@ -19,9 +19,9 @@ import io.katharsis.repository.request.QueryAdapter;
 import io.katharsis.resource.Relationship;
 import io.katharsis.resource.Resource;
 import io.katharsis.resource.ResourceIdentifier;
+import io.katharsis.resource.information.LookupIncludeBehavior;
 import io.katharsis.resource.information.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
-import io.katharsis.resource.information.ResourceField.LookupIncludeBehavior;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 

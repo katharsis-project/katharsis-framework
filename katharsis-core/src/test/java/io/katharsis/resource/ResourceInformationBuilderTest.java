@@ -12,6 +12,7 @@ import org.junit.rules.ExpectedException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+import io.katharsis.core.internal.resource.AnnotationResourceInformationBuilder;
 import io.katharsis.errorhandling.exception.MultipleJsonApiLinksInformationException;
 import io.katharsis.errorhandling.exception.MultipleJsonApiMetaInformationException;
 import io.katharsis.errorhandling.exception.RepositoryAnnotationNotFoundException;
@@ -23,7 +24,6 @@ import io.katharsis.resource.annotations.JsonApiLinksInformation;
 import io.katharsis.resource.annotations.JsonApiMetaInformation;
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.annotations.JsonApiToOne;
-import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
 import io.katharsis.resource.information.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.information.ResourceInformationBuilder;

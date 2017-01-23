@@ -1,7 +1,8 @@
-package io.katharsis.resource.information;
+package io.katharsis.core.internal.resource;
 
 import io.katharsis.core.internal.utils.ClassUtils;
 import io.katharsis.resource.Resource;
+import io.katharsis.resource.information.ResourceInstanceBuilder;
 
 /**
  * Default implementation for {@link ResourceInstanceBuilder}} that creates a new instance of the given class

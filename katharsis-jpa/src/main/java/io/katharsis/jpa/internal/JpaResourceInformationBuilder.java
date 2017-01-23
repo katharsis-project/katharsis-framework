@@ -18,6 +18,10 @@ import javax.persistence.OptimisticLockException;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import io.katharsis.core.internal.resource.AnnotationResourceInformationBuilder;
+import io.katharsis.core.internal.resource.AnnotationResourceInformationBuilder.AnnotatedResourceField;
+import io.katharsis.core.internal.resource.DefaultResourceInstanceBuilder;
+import io.katharsis.core.internal.resource.ResourceFieldImpl;
 import io.katharsis.core.internal.utils.StringUtils;
 import io.katharsis.jpa.annotations.JpaMergeRelations;
 import io.katharsis.jpa.annotations.JpaResource;
@@ -33,12 +37,9 @@ import io.katharsis.resource.Document;
 import io.katharsis.resource.Resource;
 import io.katharsis.resource.annotations.JsonApiLinksInformation;
 import io.katharsis.resource.annotations.JsonApiMetaInformation;
-import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
-import io.katharsis.resource.information.AnnotationResourceInformationBuilder.AnnotatedResourceField;
-import io.katharsis.resource.information.DefaultResourceInstanceBuilder;
+import io.katharsis.resource.information.LookupIncludeBehavior;
 import io.katharsis.resource.information.ResourceField;
-import io.katharsis.resource.information.ResourceField.LookupIncludeBehavior;
-import io.katharsis.resource.information.ResourceField.ResourceFieldType;
+import io.katharsis.resource.information.ResourceFieldType;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.information.ResourceInformationBuilderContext;
@@ -287,7 +288,7 @@ public class JpaResourceInformationBuilder implements ResourceInformationBuilder
 		// related repositories should lookup, we ignore the hibernate proxies
 		LookupIncludeBehavior lookupIncludeBehavior = AnnotatedResourceField.getLookupIncludeBehavior(annotations,
 				LookupIncludeBehavior.AUTOMATICALLY_ALWAYS);
-		return new ResourceField(jsonName, underlyingName, resourceFieldType, type, genericType, oppositeResourceType, oppositeName, lazy,
+		return new ResourceFieldImpl(jsonName, underlyingName, resourceFieldType, type, genericType, oppositeResourceType, oppositeName, lazy,
 				includeByDefault, lookupIncludeBehavior);
 	}
 

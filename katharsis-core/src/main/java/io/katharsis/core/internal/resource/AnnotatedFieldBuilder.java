@@ -1,4 +1,4 @@
-package io.katharsis.resource.information;
+package io.katharsis.core.internal.resource;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;

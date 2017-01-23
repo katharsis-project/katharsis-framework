@@ -8,9 +8,10 @@ import java.util.TreeSet;
 import org.junit.Before;
 import org.junit.Test;
 
+import io.katharsis.core.internal.resource.ResourceFieldImpl;
 import io.katharsis.core.internal.utils.FieldOrderedComparator;
 import io.katharsis.resource.information.ResourceField;
-import io.katharsis.resource.information.ResourceField.ResourceFieldType;
+import io.katharsis.resource.information.ResourceFieldType;
 
 public class FieldOrderedComparatorTest {
 
@@ -19,8 +20,8 @@ public class FieldOrderedComparatorTest {
 
     @Before
     public void setUp() throws Exception {
-        fieldA = new ResourceField("a", "a", ResourceFieldType.ATTRIBUTE, String.class, String.class, null);
-        fieldB = new ResourceField("b", "b", ResourceFieldType.ATTRIBUTE, String.class, String.class, null);
+        fieldA = new ResourceFieldImpl("a", "a", ResourceFieldType.ATTRIBUTE, String.class, String.class, null);
+        fieldB = new ResourceFieldImpl("b", "b", ResourceFieldType.ATTRIBUTE, String.class, String.class, null);
     }
 
     @Test

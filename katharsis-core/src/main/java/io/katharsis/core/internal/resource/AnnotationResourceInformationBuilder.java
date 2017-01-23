@@ -1,8 +1,7 @@
-package io.katharsis.resource.information;
+package io.katharsis.core.internal.resource;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
@@ -31,7 +30,12 @@ import io.katharsis.resource.annotations.JsonApiMetaInformation;
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.annotations.JsonApiToMany;
 import io.katharsis.resource.annotations.JsonApiToOne;
-import io.katharsis.resource.information.ResourceField.ResourceFieldType;
+import io.katharsis.resource.information.LookupIncludeBehavior;
+import io.katharsis.resource.information.ResourceFieldNameTransformer;
+import io.katharsis.resource.information.ResourceFieldType;
+import io.katharsis.resource.information.ResourceInformation;
+import io.katharsis.resource.information.ResourceInformationBuilder;
+import io.katharsis.resource.information.ResourceInformationBuilderContext;
 import io.katharsis.utils.Optional;
 
 /**
@@ -234,7 +238,7 @@ public class AnnotationResourceInformationBuilder implements ResourceInformation
 		}
 	}
 
-	public static class AnnotatedResourceField extends ResourceField {
+	public static class AnnotatedResourceField extends ResourceFieldImpl {
 
 		private List<Annotation> annotations;
 

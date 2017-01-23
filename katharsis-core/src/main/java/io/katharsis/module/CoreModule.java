@@ -3,7 +3,7 @@ package io.katharsis.module;
 import io.katharsis.core.internal.exception.DefaultExceptionMapperLookup;
 import io.katharsis.core.internal.repository.information.DefaultRelationshipRepositoryInformationBuilder;
 import io.katharsis.core.internal.repository.information.DefaultResourceRepositoryInformationBuilder;
-import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
+import io.katharsis.core.internal.resource.AnnotationResourceInformationBuilder;
 import io.katharsis.resource.information.ResourceFieldNameTransformer;
 import io.katharsis.resource.registry.DefaultResourceLookup;
 

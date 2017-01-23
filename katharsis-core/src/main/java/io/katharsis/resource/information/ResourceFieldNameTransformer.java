@@ -12,6 +12,9 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedField;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.introspect.AnnotationMap;
 
+import io.katharsis.core.internal.resource.AnnotatedClassBuilder;
+import io.katharsis.core.internal.resource.AnnotatedFieldBuilder;
+import io.katharsis.core.internal.resource.AnnotatedMethodBuilder;
 import io.katharsis.core.internal.utils.ClassUtils;
 
 /**

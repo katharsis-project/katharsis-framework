@@ -14,6 +14,7 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 
+import io.katharsis.core.internal.resource.AnnotationResourceInformationBuilder;
 import io.katharsis.core.internal.utils.JsonApiUrlBuilder;
 import io.katharsis.legacy.locator.JsonServiceLocator;
 import io.katharsis.legacy.locator.SampleJsonServiceLocator;
@@ -22,7 +23,6 @@ import io.katharsis.legacy.queryParams.QueryParams;
 import io.katharsis.legacy.queryParams.QueryParamsBuilder;
 import io.katharsis.legacy.registry.ResourceRegistryBuilder;
 import io.katharsis.module.ModuleRegistry;
-import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
 import io.katharsis.resource.information.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.mock.models.Task;

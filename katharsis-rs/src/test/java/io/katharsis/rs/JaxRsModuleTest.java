@@ -16,13 +16,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import io.katharsis.core.internal.resource.AnnotationResourceInformationBuilder;
 import io.katharsis.legacy.registry.DefaultResourceInformationBuilderContext;
 import io.katharsis.repository.ResourceRepositoryV2;
 import io.katharsis.repository.information.RepositoryAction;
 import io.katharsis.repository.information.RepositoryAction.RepositoryActionType;
 import io.katharsis.repository.information.RepositoryInformationBuilderContext;
 import io.katharsis.repository.information.ResourceRepositoryInformation;
-import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
 import io.katharsis.resource.information.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.rs.internal.JaxrsModule;

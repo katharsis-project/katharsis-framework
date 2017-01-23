@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import io.katharsis.core.internal.resource.DefaultResourceInstanceBuilder;
+import io.katharsis.core.internal.resource.ResourceAttributesBridge;
 import io.katharsis.core.internal.utils.PropertyUtils;
 import io.katharsis.core.internal.utils.parser.TypeParser;
 import io.katharsis.errorhandling.exception.MultipleJsonApiLinksInformationException;
@@ -17,7 +19,6 @@ import io.katharsis.errorhandling.exception.ResourceDuplicateIdException;
 import io.katharsis.errorhandling.exception.ResourceIdNotFoundException;
 import io.katharsis.resource.Document;
 import io.katharsis.resource.annotations.JsonApiResource;
-import io.katharsis.resource.information.ResourceField.ResourceFieldType;
 
 /**
  * Holds information about the type of the resource.

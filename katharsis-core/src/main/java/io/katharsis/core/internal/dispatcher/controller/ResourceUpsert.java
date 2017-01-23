@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.katharsis.core.internal.repository.adapter.RelationshipRepositoryAdapter;
 import io.katharsis.core.internal.resource.DocumentMapper;
+import io.katharsis.core.internal.resource.ResourceAttributesBridge;
 import io.katharsis.core.internal.utils.Generics;
 import io.katharsis.core.internal.utils.PropertyUtils;
 import io.katharsis.core.internal.utils.parser.TypeParser;
@@ -23,7 +24,6 @@ import io.katharsis.repository.request.QueryAdapter;
 import io.katharsis.resource.Relationship;
 import io.katharsis.resource.Resource;
 import io.katharsis.resource.ResourceIdentifier;
-import io.katharsis.resource.information.ResourceAttributesBridge;
 import io.katharsis.resource.information.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.information.ResourceInstanceBuilder;
