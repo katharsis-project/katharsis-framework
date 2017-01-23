@@ -236,7 +236,7 @@ public class KatharsisClient {
 		ResourceInformationBuilder resourceInformationBuilder = moduleRegistry.getResourceInformationBuilder();
 		DefaultResourceInformationBuilderContext context = new DefaultResourceInformationBuilderContext(resourceInformationBuilder);
 
-		ResourceInformation resourceInformation =  resourceInformationBuilder.build(resourceClass);
+		ResourceInformation resourceInformation = resourceInformationBuilder.build(resourceClass);
 		final ResourceRepositoryStub<T, I> repositoryStub = new ResourceRepositoryStubImpl<>(this, resourceClass, resourceInformation, urlBuilder);
 
 		// create interface for it!
@@ -293,8 +293,16 @@ public class KatharsisClient {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
+	/**
+	 * @deprecated Make use of getRepositoryForInterface.
+	 */
+	@Deprecated
 	public <R extends ResourceRepositoryV2<?, ?>> R getResourceRepository(Class<R> repositoryInterfaceClass) {
+		return getRepositoryForInterface(repositoryInterfaceClass);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <R extends ResourceRepositoryV2<?, ?>> R getRepositoryForInterface(Class<R> repositoryInterfaceClass) {
 		RepositoryInformationBuilder informationBuilder = moduleRegistry.getRepositoryInformationBuilder();
 		PreconditionUtil.assertTrue("no a valid repository interface", informationBuilder.accept(repositoryInterfaceClass));
 		ResourceRepositoryInformation repositoryInformation = (ResourceRepositoryInformation) informationBuilder.build(repositoryInterfaceClass, newRepositoryInformationBuilderContext());
@@ -318,7 +326,11 @@ public class KatharsisClient {
 		};
 	}
 
-	public <R extends RelationshipRepositoryV2<?, ?, ?, ?>> R getRelationshipRepository(Class<R> repositoryInterfaceClass) {
+	/**
+	 * @deprecated make use of QuerySpec
+	 */
+	@Deprecated
+	public <R extends RelationshipRepositoryV2<?, ?, ?, ?>> R getQueryParamsRelationshipRepository(Class<R> repositoryInterfaceClass) {
 		return null;
 	}
 
@@ -326,9 +338,12 @@ public class KatharsisClient {
 	 * @param resourceClass
 	 *            resource class
 	 * @return stub for the given resourceClass
+	 * 
+	 * @deprecated make use of QuerySpec
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public <T, I extends Serializable> ResourceRepositoryStub<T, I> getRepository(Class<T> resourceClass) {
+	@Deprecated
+	public <T, I extends Serializable> ResourceRepositoryStub<T, I> getQueryParamsRepository(Class<T> resourceClass) {
 		init();
 
 		RegistryEntry entry = resourceRegistry.findEntry(resourceClass);
@@ -344,14 +359,21 @@ public class KatharsisClient {
 	 * @return stub for the given resourceClass
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public <T, I extends Serializable> ResourceRepositoryV2<T, I> getQuerySpecRepository(Class<T> resourceClass) {
+	public <T, I extends Serializable> ResourceRepositoryV2<T, I> getRepositoryForType(Class<T> resourceClass) {
 		init();
 
 		RegistryEntry entry = resourceRegistry.findEntry(resourceClass);
-
-		// TODO fix this in katharsis, should be able to get original resource
 		ResourceRepositoryAdapter repositoryAdapter = entry.getResourceRepository(null);
 		return (ResourceRepositoryV2<T, I>) repositoryAdapter.getResourceRepository();
+
+	}
+
+	/**
+	 * @deprecated make use of getRepositoryForType()
+	 */
+	@Deprecated
+	public <T, I extends Serializable> ResourceRepositoryV2<T, I> getQuerySpecRepository(Class<T> resourceClass) {
+		return getRepositoryForType(resourceClass);
 	}
 
 	/**
@@ -361,11 +383,14 @@ public class KatharsisClient {
 	 *            target class
 	 * @return stub for the relationship between the given source and target
 	 *         class
+	 * 
+	 * @deprecated make use of QuerySpec
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public <T, I extends Serializable, D, J extends Serializable> RelationshipRepositoryStub<T, I, D, J> getRepository(Class<T> sourceClass, Class<D> targetClass) {
+	public <T, I extends Serializable, D, J extends Serializable> RelationshipRepositoryStub<T, I, D, J> getQueryParamsRepository(Class<T> sourceClass, Class<D> targetClass) {
 		init();
 
+		
 		RegistryEntry entry = resourceRegistry.findEntry(sourceClass);
 
 		RelationshipRepositoryAdapter repositoryAdapter = entry.getRelationshipRepositoryForClass(targetClass, null);
@@ -381,13 +406,21 @@ public class KatharsisClient {
 	 *         class
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public <T, I extends Serializable, D, J extends Serializable> RelationshipRepositoryV2<T, I, D, J> getQuerySpecRepository(Class<T> sourceClass, Class<D> targetClass) {
+	public <T, I extends Serializable, D, J extends Serializable> RelationshipRepositoryV2<T, I, D, J> getRepositoryForType(Class<T> sourceClass, Class<D> targetClass) {
 		init();
 
 		RegistryEntry entry = resourceRegistry.findEntry(sourceClass);
 
 		RelationshipRepositoryAdapter repositoryAdapter = entry.getRelationshipRepositoryForClass(targetClass, null);
 		return (RelationshipRepositoryV2<T, I, D, J>) repositoryAdapter.getRelationshipRepository();
+	}
+
+	/**
+	 * @deprecated make use of getRepositoryForType()
+	 */
+	@Deprecated
+	public <T, I extends Serializable, D, J extends Serializable> RelationshipRepositoryV2<T, I, D, J> getQuerySpecRepository(Class<T> sourceClass, Class<D> targetClass) {
+		return getRepositoryForType(sourceClass, targetClass);
 	}
 
 	/**

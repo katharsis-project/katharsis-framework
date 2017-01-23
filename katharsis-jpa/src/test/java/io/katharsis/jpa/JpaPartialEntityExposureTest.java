@@ -29,7 +29,7 @@ public class JpaPartialEntityExposureTest extends AbstractJpaJerseyTest {
 	@Before
 	public void setup() {
 		super.setup();
-		testRepo = client.getRepository(TestEntity.class);
+		testRepo = client.getQueryParamsRepository(TestEntity.class);
 	}
 
 	@Override

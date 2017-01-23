@@ -336,7 +336,7 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 		test.setStringValue("test");
 		testRepo.create(test);
 
-		ResourceRepositoryStub<RelatedEntity, Long> relatedRepo = client.getRepository(RelatedEntity.class);
+		ResourceRepositoryStub<RelatedEntity, Long> relatedRepo = client.getQueryParamsRepository(RelatedEntity.class);
 		RelationshipRepositoryV2<TestEntity, Long, RelatedEntity, Long> relRepo = client
 				.getQuerySpecRepository(TestEntity.class, RelatedEntity.class);
 		for (long i = 0; i < 5; i++) {
@@ -444,7 +444,7 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 
 	@Test
 	public void testEagerOneRelation() {
-		ResourceRepositoryStub<RelatedEntity, Long> relatedRepo = client.getRepository(RelatedEntity.class);
+		ResourceRepositoryStub<RelatedEntity, Long> relatedRepo = client.getQueryParamsRepository(RelatedEntity.class);
 		RelatedEntity related = new RelatedEntity();
 		related.setId(1L);
 		related.setStringValue("project");

@@ -39,9 +39,9 @@ public abstract class AbstractValidationTest extends JerseyTest {
 	public void setup() {
 		client = new KatharsisClient(getBaseUri().toString());
 		client.addModule(ValidationModule.newInstance());
-		taskRepo = client.getRepository(Task.class);
-		projectRepo = client.getRepository(Project.class);
-		relRepo = client.getRepository(Task.class, Project.class);
+		taskRepo = client.getQueryParamsRepository(Task.class);
+		projectRepo = client.getQueryParamsRepository(Project.class);
+		relRepo = client.getQueryParamsRepository(Task.class, Project.class);
 		TaskRepository.map.clear();
 		
 		client.getHttpAdapter().setReceiveTimeout(1000000, TimeUnit.MILLISECONDS);

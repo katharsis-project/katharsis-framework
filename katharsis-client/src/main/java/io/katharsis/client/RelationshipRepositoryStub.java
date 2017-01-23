@@ -8,7 +8,10 @@ import io.katharsis.legacy.repository.RelationshipRepository;
 
 /**
  * Implemented by every {@link RelationshipRepository} stub.
+ * 
+ * @deprecated make use of QuerySpec
  */
+@Deprecated
 public interface RelationshipRepositoryStub<T, TID extends Serializable, D, DID extends Serializable>
 		extends RelationshipRepository<T, TID, D, DID> {
 

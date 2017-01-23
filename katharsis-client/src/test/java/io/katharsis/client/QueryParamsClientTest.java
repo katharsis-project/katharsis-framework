@@ -33,10 +33,10 @@ public class QueryParamsClientTest extends AbstractClientTest {
 	public void setup() {
 		super.setup();
 
-		scheduleRepo = client.getRepository(Schedule.class);
-		taskRepo = client.getRepository(Task.class);
-		projectRepo = client.getRepository(Project.class);
-		relRepo = client.getRepository(Task.class, Project.class);
+		scheduleRepo = client.getQueryParamsRepository(Schedule.class);
+		taskRepo = client.getQueryParamsRepository(Task.class);
+		projectRepo = client.getQueryParamsRepository(Project.class);
+		relRepo = client.getQueryParamsRepository(Task.class, Project.class);
 	}
 
 	@Test
