@@ -8,7 +8,6 @@ import io.katharsis.module.ModuleRegistry;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.repository.ResourceRepositoryV2;
 import io.katharsis.repository.filter.RepositoryFilterContext;
-import io.katharsis.repository.ResourceRepositoryV2;
 import io.katharsis.repository.request.HttpMethod;
 import io.katharsis.repository.request.QueryAdapter;
 import io.katharsis.repository.request.RepositoryRequestSpec;
@@ -195,5 +194,9 @@ public class ResourceRepositoryAdapter<T, I extends Serializable> extends Respon
 	@Override
 	protected ResourceInformation getResourceInformation(Object repository) {
 		return resourceInformation;
+	}
+
+	public Class<?> getResourceClass() {
+		return resourceInformation.getResourceClass();
 	}
 }

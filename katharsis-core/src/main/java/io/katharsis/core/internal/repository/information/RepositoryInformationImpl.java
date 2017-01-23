@@ -3,7 +3,7 @@ package io.katharsis.core.internal.repository.information;
 import io.katharsis.repository.information.RepositoryInformation;
 import io.katharsis.resource.information.ResourceInformation;
 
-abstract class RepositoryInformationImpl implements RepositoryInformation {
+public abstract class RepositoryInformationImpl implements RepositoryInformation {
 
 	private ResourceInformation resourceInformation;
 

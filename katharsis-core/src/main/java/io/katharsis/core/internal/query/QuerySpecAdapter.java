@@ -38,7 +38,7 @@ public class QuerySpecAdapter implements QueryAdapter {
 		if (!querySpec.getIncludedRelations().isEmpty()) {
 			return true;
 		}
-		for (QuerySpec relatedSpec : querySpec.getRelatedSpecs().values()) {
+		for (QuerySpec relatedSpec : querySpec.getNestedSpecs()) {
 			if (!relatedSpec.getIncludedRelations().isEmpty()) {
 				return true;
 			}
@@ -50,7 +50,7 @@ public class QuerySpecAdapter implements QueryAdapter {
 	public TypedParams<IncludedRelationsParams> getIncludedRelations() {
 		Map<String, IncludedRelationsParams> params = new HashMap<>();
 		addRelations(params, querySpec);
-		for (QuerySpec relatedSpec : querySpec.getRelatedSpecs().values()) {
+		for (QuerySpec relatedSpec : querySpec.getNestedSpecs()) {
 			addRelations(params, relatedSpec);
 		}
 		return new TypedParams<>(params);
@@ -76,7 +76,7 @@ public class QuerySpecAdapter implements QueryAdapter {
 	public TypedParams<IncludedFieldsParams> getIncludedFields() {
 		Map<String, IncludedFieldsParams> params = new HashMap<>();
 		addFields(params, querySpec);
-		for (QuerySpec relatedSpec : querySpec.getRelatedSpecs().values()) {
+		for (QuerySpec relatedSpec : querySpec.getNestedSpecs()) {
 			addFields(params, relatedSpec);
 		}
 		return new TypedParams<>(params);

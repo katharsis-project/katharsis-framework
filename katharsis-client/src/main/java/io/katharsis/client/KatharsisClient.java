@@ -47,6 +47,7 @@ import io.katharsis.repository.ResourceRepositoryV2;
 import io.katharsis.repository.information.RepositoryInformationBuilder;
 import io.katharsis.repository.information.RepositoryInformationBuilderContext;
 import io.katharsis.repository.information.ResourceRepositoryInformation;
+import io.katharsis.resource.Resource;
 import io.katharsis.resource.information.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.information.ResourceInformationBuilder;
@@ -365,8 +366,20 @@ public class KatharsisClient {
 		RegistryEntry entry = resourceRegistry.findEntry(resourceClass);
 		ResourceRepositoryAdapter repositoryAdapter = entry.getResourceRepository(null);
 		return (ResourceRepositoryV2<T, I>) repositoryAdapter.getResourceRepository();
-
 	}
+	
+	/**
+	 * Generic access without type information.
+	 * 
+	 * Experimental
+	 */
+	public ResourceRepositoryV2<Resource, String> getRepositoryForPath(String resourceType) {
+		init();
+		
+		ResourceInformation resourceInformation = new ResourceInformation(Resource.class, resourceType, null);
+		return new ResourceRepositoryStubImpl<>(this, Resource.class, resourceInformation, urlBuilder);
+	}
+	
 
 	/**
 	 * @deprecated make use of getRepositoryForType()

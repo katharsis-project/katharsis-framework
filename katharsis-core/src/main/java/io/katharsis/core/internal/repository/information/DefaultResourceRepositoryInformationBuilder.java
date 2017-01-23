@@ -5,7 +5,6 @@ import java.util.Map;
 
 import io.katharsis.core.internal.utils.ClassUtils;
 import io.katharsis.core.internal.utils.PreconditionUtil;
-import io.katharsis.legacy.registry.DefaultResourceInformationBuilderContext;
 import io.katharsis.legacy.repository.ResourceRepository;
 import io.katharsis.legacy.repository.annotations.JsonApiResourceRepository;
 import io.katharsis.repository.ResourceRepositoryV2;
@@ -13,6 +12,7 @@ import io.katharsis.repository.information.RepositoryAction;
 import io.katharsis.repository.information.RepositoryInformation;
 import io.katharsis.repository.information.RepositoryInformationBuilder;
 import io.katharsis.repository.information.RepositoryInformationBuilderContext;
+import io.katharsis.resource.Resource;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.utils.Optional;
@@ -31,7 +31,7 @@ public class DefaultResourceRepositoryInformationBuilder implements RepositoryIn
 		boolean legacyRepo = ResourceRepository.class.isAssignableFrom(repositoryClass);
 		boolean interfaceRepo = ResourceRepositoryV2.class.isAssignableFrom(repositoryClass);
 		boolean anontationRepo = ClassUtils.getAnnotation(repositoryClass, JsonApiResourceRepository.class).isPresent();
-		return legacyRepo || interfaceRepo || anontationRepo;
+		return (legacyRepo || interfaceRepo || anontationRepo) && repositoryClass != Resource.class;
 	}
 
 	@Override
@@ -47,7 +47,7 @@ public class DefaultResourceRepositoryInformationBuilder implements RepositoryIn
 	private RepositoryInformation build(Object repository, Class<? extends Object> repositoryClass,
 			RepositoryInformationBuilderContext context) {
 		Class<?> resourceClass = getResourceClass(repository, repositoryClass);
-
+		
 		ResourceInformationBuilder resourceInformationBuilder = context.getResourceInformationBuilder();
 		PreconditionUtil.assertTrue("cannot get ResourceInformation for " + resourceClass,
 				resourceInformationBuilder.accept(resourceClass));

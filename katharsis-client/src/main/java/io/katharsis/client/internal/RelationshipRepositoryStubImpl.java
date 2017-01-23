@@ -33,7 +33,7 @@ public class RelationshipRepositoryStubImpl<T, I extends Serializable, D, J exte
 	private RegistryEntry relationshipEntry;
 
 	public RelationshipRepositoryStubImpl(KatharsisClient client, Class<T> sourceClass, Class<D> targetClass, ResourceInformation sourceResourceInformation, JsonApiUrlBuilder urlBuilder, RegistryEntry relationshipEntry) {
-		super(client, urlBuilder);
+		super(client, urlBuilder, targetClass);
 		this.sourceClass = sourceClass;
 		this.targetClass = targetClass;
 		this.sourceResourceInformation = sourceResourceInformation;

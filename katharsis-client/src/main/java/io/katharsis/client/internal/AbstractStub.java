@@ -1,6 +1,7 @@
 package io.katharsis.client.internal;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,12 +13,16 @@ import io.katharsis.client.KatharsisClient;
 import io.katharsis.client.http.HttpAdapter;
 import io.katharsis.client.http.HttpAdapterRequest;
 import io.katharsis.client.http.HttpAdapterResponse;
+import io.katharsis.client.response.JsonLinksInformation;
+import io.katharsis.client.response.JsonMetaInformation;
 import io.katharsis.core.internal.exception.ExceptionMapperRegistry;
 import io.katharsis.core.internal.utils.JsonApiUrlBuilder;
 import io.katharsis.errorhandling.ErrorResponse;
 import io.katharsis.errorhandling.mapper.ExceptionMapper;
 import io.katharsis.repository.request.HttpMethod;
 import io.katharsis.resource.Document;
+import io.katharsis.resource.Resource;
+import io.katharsis.resource.list.DefaultResourceList;
 import io.katharsis.utils.Optional;
 
 public class AbstractStub {
@@ -30,9 +35,12 @@ public class AbstractStub {
 
 	protected JsonApiUrlBuilder urlBuilder;
 
-	public AbstractStub(KatharsisClient client, JsonApiUrlBuilder urlBuilder) {
+	protected Class<?> resourceClass;
+
+	public AbstractStub(KatharsisClient client, JsonApiUrlBuilder urlBuilder, Class<?> resourceClass) {
 		this.client = client;
 		this.urlBuilder = urlBuilder;
+		this.resourceClass = resourceClass;
 	}
 
 	protected Object executeGet(String requestUrl, ResponseType responseType) {
@@ -71,15 +79,35 @@ public class AbstractStub {
 			LOGGER.debug("response body: {}", body);
 			ObjectMapper objectMapper = client.getObjectMapper();
 
-			if (responseType != ResponseType.NONE) {
+			if (responseType != ResponseType.NONE && Resource.class.equals(resourceClass)) {
+				Document document = objectMapper.readValue(body, Document.class);
+				return toResourceResponse(document, objectMapper);
+			} else if (responseType != ResponseType.NONE) {
 				Document document = objectMapper.readValue(body, Document.class);
 
 				ClientDocumentMapper documentMapper = client.getDocumentMapper();
 				return documentMapper.fromDocument(document, responseType == ResponseType.RESOURCES);
-			} 
+			}
 			return null;
 		} catch (IOException e) {
 			throw new IllegalStateException(e);
+		}
+	}
+
+	private static Object toResourceResponse(Document document, ObjectMapper objectMapper) {
+		Object data = document.getData().get();
+		if (data instanceof List) {
+			DefaultResourceList<Resource> list = new DefaultResourceList<>();
+			list.addAll((List<Resource>) data);
+			if (document.getMeta() != null) {
+				list.setMeta(new JsonMetaInformation(document.getMeta(), objectMapper));
+			}
+			if (document.getLinks() != null) {
+				list.setLinks(new JsonLinksInformation(document.getMeta(), objectMapper));
+			}
+			return list;
+		} else {
+			return data;
 		}
 	}
 

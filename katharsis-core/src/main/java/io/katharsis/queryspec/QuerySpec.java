@@ -1,6 +1,8 @@
 package io.katharsis.queryspec;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -17,6 +19,8 @@ public class QuerySpec {
 
 	private Class<?> resourceClass;
 
+	private String resourceType;
+
 	private Long limit = null;
 
 	private long offset = 0;
@@ -29,10 +33,18 @@ public class QuerySpec {
 
 	private List<IncludeRelationSpec> includedRelations = new ArrayList<>();
 
-	private Map<Class<?>, QuerySpec> relatedSpecs = new HashMap<>();
+	private Map<Object, QuerySpec> relatedSpecs = new HashMap<>();
 
 	public QuerySpec(Class<?> resourceClass) {
 		this.resourceClass = resourceClass;
+	}
+
+	public QuerySpec(String resourceType) {
+		this.resourceType = resourceType;
+	}
+
+	public String getResourceType() {
+		return resourceType;
 	}
 
 	public Class<?> getResourceClass() {
@@ -153,12 +165,29 @@ public class QuerySpec {
 		this.includedRelations = includedRelations;
 	}
 
+	@Deprecated
 	public Map<Class<?>, QuerySpec> getRelatedSpecs() {
-		return relatedSpecs;
+		return (Map) relatedSpecs;
 	}
 
+	public Collection<QuerySpec> getNestedSpecs() {
+		return Collections.unmodifiableCollection(relatedSpecs.values());
+	}
+
+	public void setNestedSpecs(Collection<QuerySpec> specs) {
+		this.relatedSpecs.clear();
+		for (QuerySpec spec : specs) {
+			if (spec.getResourceClass() != null) {
+				relatedSpecs.put(spec.getResourceClass(), spec);
+			} else {
+				relatedSpecs.put(spec.getResourceType(), spec);
+			}
+		}
+	}
+
+	@Deprecated
 	public void setRelatedSpecs(Map<Class<?>, QuerySpec> relatedSpecs) {
-		this.relatedSpecs = relatedSpecs;
+		this.relatedSpecs = (Map) relatedSpecs;
 	}
 
 	public void addFilter(FilterSpec filterSpec) {
@@ -176,7 +205,22 @@ public class QuerySpec {
 	public void includeRelation(List<String> attrPath) {
 		this.includedRelations.add(new IncludeRelationSpec(attrPath));
 	}
+	
+	public QuerySpec getQuerySpec(String resourceType) {
+		if (resourceType.equals(this.resourceType))
+			return this;
+		return relatedSpecs.get(resourceType);
+	}
 
+	public QuerySpec getOrCreateQuerySpec(String resourceType) {
+		QuerySpec querySpec = getQuerySpec(resourceType);
+		if (querySpec == null) {
+			querySpec = new QuerySpec(resourceType);
+			relatedSpecs.put(resourceType, querySpec);
+		}
+		return querySpec;
+	}
+	
 	/**
 	 * @param resourceClass
 	 *            resource class
@@ -214,9 +258,9 @@ public class QuerySpec {
 		copy.sort.addAll(sort);
 		copy.filters.addAll(filters);
 
-		Iterator<Entry<Class<?>, QuerySpec>> iterator = relatedSpecs.entrySet().iterator();
+		Iterator<Entry<Object, QuerySpec>> iterator = relatedSpecs.entrySet().iterator();
 		while (iterator.hasNext()) {
-			Entry<Class<?>, QuerySpec> entry = iterator.next();
+			Entry<Object, QuerySpec> entry = iterator.next();
 			copy.relatedSpecs.put(entry.getKey(), entry.getValue().duplicate());
 		}
 		return copy;

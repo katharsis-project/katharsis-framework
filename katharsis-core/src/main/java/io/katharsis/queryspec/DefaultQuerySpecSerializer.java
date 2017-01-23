@@ -30,11 +30,14 @@ public class DefaultQuerySpecSerializer implements QuerySpecSerializer {
 	}
 
 	private void serialize(QuerySpec querySpec, Map<String, Set<String>> map) {
-		RegistryEntry entry = resourceRegistry.findEntry(querySpec.getResourceClass());
-		if (entry == null) {
-			throw new RepositoryNotFoundException(querySpec.getResourceClass());
+		String resourceType = querySpec.getResourceType();
+		if (resourceType == null) {
+			RegistryEntry entry = resourceRegistry.findEntry(querySpec.getResourceClass());
+			if (entry == null) {
+				throw new RepositoryNotFoundException(querySpec.getResourceClass());
+			}
+			resourceType = entry.getResourceInformation().getResourceType();
 		}
-		String resourceType = entry.getResourceInformation().getResourceType();
 
 		serializeFilters(querySpec, resourceType, map);
 		serializeSorting(querySpec, resourceType, map);
@@ -42,7 +45,7 @@ public class DefaultQuerySpecSerializer implements QuerySpecSerializer {
 		serializeIncludedRelations(querySpec, resourceType, map);
 		serializePagination(querySpec, resourceType, map);
 
-		for (QuerySpec relatedSpec : querySpec.getRelatedSpecs().values()) {
+		for (QuerySpec relatedSpec : querySpec.getNestedSpecs()) {
 			serialize(relatedSpec, map);
 		}
 	}
@@ -62,8 +65,7 @@ public class DefaultQuerySpecSerializer implements QuerySpecSerializer {
 					values.add(serializeValue(elem));
 				}
 				map.put(key, values);
-			}
-			else {
+			} else {
 				String value = serializeValue(filterSpec.getValue());
 				put(map, key, value);
 			}

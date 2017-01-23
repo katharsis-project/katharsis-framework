@@ -24,11 +24,9 @@ public class ResourceRepositoryStubImpl<T, I extends Serializable> extends Abstr
 
 	private ResourceInformation resourceInformation;
 
-	private Class<T> resourceClass;
 
 	public ResourceRepositoryStubImpl(KatharsisClient client, Class<T> resourceClass, ResourceInformation resourceInformation, JsonApiUrlBuilder urlBuilder) {
-		super(client, urlBuilder);
-		this.resourceClass = resourceClass;
+		super(client, urlBuilder, resourceClass);
 		this.resourceInformation = resourceInformation;
 	}
 
@@ -107,7 +105,7 @@ public class ResourceRepositoryStubImpl<T, I extends Serializable> extends Abstr
 
 	@Override
 	public Class<T> getResourceClass() {
-		return resourceClass;
+		return (Class<T>) resourceClass;
 	}
 
 	@Override

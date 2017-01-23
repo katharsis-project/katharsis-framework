@@ -94,7 +94,7 @@ class RepositoryRequestSpecImpl implements RepositoryRequestSpec {
 	private QueryParams convertToQueryParams(QuerySpec rootQuerySpec) {
 		Map<String, Set<String>> map = new HashMap<>();
 		List<QuerySpec> querySpecs = new ArrayList<>();
-		querySpecs.addAll(rootQuerySpec.getRelatedSpecs().values());
+		querySpecs.addAll(rootQuerySpec.getNestedSpecs());
 		querySpecs.add(rootQuerySpec);
 		for (QuerySpec spec : querySpecs) {
 			if (!spec.getFilters().isEmpty() || !spec.getSort().isEmpty() || spec.getLimit() != null || spec.getOffset() != 0) {
