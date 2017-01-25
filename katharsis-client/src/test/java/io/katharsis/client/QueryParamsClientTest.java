@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import io.katharsis.client.mock.models.LazyTask;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -26,6 +27,7 @@ public class QueryParamsClientTest extends AbstractClientTest {
 	protected ResourceRepositoryStub<Project, Long> projectRepo;
 
 	protected RelationshipRepositoryStub<Task, Long, Project, Long> relRepo;
+	protected RelationshipRepositoryStub<LazyTask, Long, Project, Long> relRepoLazy;
 
 	private ResourceRepositoryStub<Schedule, Serializable> scheduleRepo;
 
@@ -37,6 +39,7 @@ public class QueryParamsClientTest extends AbstractClientTest {
 		taskRepo = client.getRepository(Task.class);
 		projectRepo = client.getRepository(Project.class);
 		relRepo = client.getRepository(Task.class, Project.class);
+		relRepoLazy = client.getRepository(LazyTask.class, Project.class);
 	}
 
 	@Test
@@ -147,6 +150,11 @@ public class QueryParamsClientTest extends AbstractClientTest {
 		Project relProject = relRepo.findOneTarget(task.getId(), "project", new QueryParams());
 		Assert.assertNotNull(relProject);
 		Assert.assertEquals(project.getId(), relProject.getId());
+	}
+
+	@Test
+	public void testLazyRelation() {
+		relRepoLazy.findOneTarget(1L, "lazyProject", new QueryParams());
 	}
 
 	@Test
