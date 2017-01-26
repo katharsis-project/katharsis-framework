@@ -22,6 +22,8 @@ import io.katharsis.jpa.model.RelatedEntity;
 import io.katharsis.jpa.model.TestEmbeddedIdEntity;
 import io.katharsis.jpa.model.TestEntity;
 import io.katharsis.jpa.model.TestIdEmbeddable;
+import io.katharsis.jpa.model.TestMappedSuperclassWithPk;
+import io.katharsis.jpa.model.TestSubclassWithSuperclassPk;
 import io.katharsis.jpa.model.VersionedEntity;
 import io.katharsis.queryspec.FilterOperator;
 import io.katharsis.queryspec.FilterSpec;
@@ -149,6 +151,59 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 	}
 
 	@Test
+	public void testMappedSuperTypeWithPkOnSuperType() throws InstantiationException, IllegalAccessException {
+		QuerySpecResourceRepositoryStub<TestSubclassWithSuperclassPk, Serializable> repo = client.getQuerySpecRepository(TestSubclassWithSuperclassPk.class);
+		QuerySpecResourceRepositoryStub<RelatedEntity, Serializable> relatedRepo = client.getQuerySpecRepository(RelatedEntity.class);
+
+		RelatedEntity related = new RelatedEntity();
+		related.setId(23423L);
+		related.setStringValue("test");
+		relatedRepo.create(related);
+
+		TestSubclassWithSuperclassPk entity = new TestSubclassWithSuperclassPk();
+		entity.setId("test");
+		entity.setLongValue(12L);
+		entity.setSuperRelatedValue(related);
+		repo.create(entity);
+
+		QuerySpec querySpec = new QuerySpec(TestSubclassWithSuperclassPk.class);
+		querySpec.includeRelation(Arrays.asList(TestMappedSuperclassWithPk.ATTR_superRelatedValue));
+		List<TestSubclassWithSuperclassPk> list = repo.findAll(querySpec);
+
+		Assert.assertEquals(1, list.size());
+		TestSubclassWithSuperclassPk testEntity = list.get(0);
+
+		RelatedEntity superRelatedValue = testEntity.getSuperRelatedValue();
+		Assert.assertNotNull(superRelatedValue);
+	}
+
+	@Test
+	public void testMappedSuperTypeWithPkOnSubclass() throws InstantiationException, IllegalAccessException {
+		QuerySpecResourceRepositoryStub<RelatedEntity, Serializable> relatedRepo = client.getQuerySpecRepository(RelatedEntity.class);
+
+		RelatedEntity related = new RelatedEntity();
+		related.setId(23423L);
+		related.setStringValue("test");
+		relatedRepo.create(related);
+
+		TestEntity entity = new TestEntity();
+		entity.setId(345345L);
+		entity.setLongValue(12L);
+		entity.setSuperRelatedValue(related);
+		testRepo.create(entity);
+
+		QuerySpec querySpec = new QuerySpec(TestEntity.class);
+		querySpec.includeRelation(Arrays.asList(TestEntity.ATTR_superRelatedValue));
+		List<TestEntity> list = testRepo.findAll(querySpec);
+
+		Assert.assertEquals(1, list.size());
+		TestEntity testEntity = list.get(0);
+
+		RelatedEntity superRelatedValue = testEntity.getSuperRelatedValue();
+		Assert.assertNotNull(superRelatedValue);
+	}
+
+	@Test
 	public void testIncludeAndFilterManyRelations() throws InstantiationException, IllegalAccessException {
 		addTestWithManyRelations();
 
@@ -177,11 +232,9 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 		test.setStringValue("test");
 		testRepo.create(test);
 
-		QuerySpecRelationshipRepositoryStub<TestEntity, Serializable, RelatedEntity, Serializable> relRepo = client
-				.getQuerySpecRepository(TestEntity.class, RelatedEntity.class);
+		QuerySpecRelationshipRepositoryStub<TestEntity, Serializable, RelatedEntity, Serializable> relRepo = client.getQuerySpecRepository(TestEntity.class, RelatedEntity.class);
 
-		RelatedEntity related = relRepo.findOneTarget(test.getId(), TestEntity.ATTR_oneRelatedValue,
-				new QuerySpec(RelatedEntity.class));
+		RelatedEntity related = relRepo.findOneTarget(test.getId(), TestEntity.ATTR_oneRelatedValue, new QuerySpec(RelatedEntity.class));
 		Assert.assertNull(related);
 	}
 
@@ -189,11 +242,9 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 	public void testFindOneTarget() throws InstantiationException, IllegalAccessException {
 		TestEntity test = addTestWithOneRelation();
 
-		QuerySpecRelationshipRepositoryStub<TestEntity, Serializable, RelatedEntity, Serializable> relRepo = client
-				.getQuerySpecRepository(TestEntity.class, RelatedEntity.class);
+		QuerySpecRelationshipRepositoryStub<TestEntity, Serializable, RelatedEntity, Serializable> relRepo = client.getQuerySpecRepository(TestEntity.class, RelatedEntity.class);
 
-		RelatedEntity related = relRepo.findOneTarget(test.getId(), TestEntity.ATTR_oneRelatedValue,
-				new QuerySpec(RelatedEntity.class));
+		RelatedEntity related = relRepo.findOneTarget(test.getId(), TestEntity.ATTR_oneRelatedValue, new QuerySpec(RelatedEntity.class));
 		Assert.assertNotNull(related);
 	}
 
@@ -231,18 +282,15 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 		testRepo.create(test);
 
 		// query relation
-		QuerySpecRelationshipRepositoryStub<TestEntity, Long, RelatedEntity, Long> relRepo = client
-				.getQuerySpecRepository(TestEntity.class, RelatedEntity.class);
+		QuerySpecRelationshipRepositoryStub<TestEntity, Long, RelatedEntity, Long> relRepo = client.getQuerySpecRepository(TestEntity.class, RelatedEntity.class);
 		if (!onSave) {
 			relRepo.addRelations(test, Arrays.asList(1L, 2L), TestEntity.ATTR_manyRelatedValues);
 		}
-		List<RelatedEntity> related = relRepo.findManyTargets(test.getId(), TestEntity.ATTR_manyRelatedValues,
-				new QuerySpec(RelatedEntity.class));
+		List<RelatedEntity> related = relRepo.findManyTargets(test.getId(), TestEntity.ATTR_manyRelatedValues, new QuerySpec(RelatedEntity.class));
 		Assert.assertEquals(2, related.size());
 
 		// query relation in opposite direction
-		QuerySpecRelationshipRepositoryStub<RelatedEntity, Serializable, TestEntity, Serializable> backRelRepo = client
-				.getQuerySpecRepository(RelatedEntity.class, TestEntity.class);
+		QuerySpecRelationshipRepositoryStub<RelatedEntity, Serializable, TestEntity, Serializable> backRelRepo = client.getQuerySpecRepository(RelatedEntity.class, TestEntity.class);
 		test = backRelRepo.findOneTarget(2L, RelatedEntity.ATTR_testEntity, new QuerySpec(TestEntity.class));
 		Assert.assertNotNull(test);
 		Assert.assertEquals(3L, test.getId().longValue());
@@ -337,8 +385,7 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 		testRepo.create(test);
 
 		ResourceRepositoryStub<RelatedEntity, Long> relatedRepo = client.getRepository(RelatedEntity.class);
-		QuerySpecRelationshipRepositoryStub<TestEntity, Long, RelatedEntity, Long> relRepo = client
-				.getQuerySpecRepository(TestEntity.class, RelatedEntity.class);
+		QuerySpecRelationshipRepositoryStub<TestEntity, Long, RelatedEntity, Long> relRepo = client.getQuerySpecRepository(TestEntity.class, RelatedEntity.class);
 		for (long i = 0; i < 5; i++) {
 			RelatedEntity related1 = new RelatedEntity();
 			related1.setId(i);
@@ -363,20 +410,15 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 		Assert.assertNotNull(links);
 
 		String baseUri = getBaseUri().toString();
-		Assert.assertEquals(baseUri + "test/1/relationships/manyRelatedValues/?page[limit]=2",
-				links.asJsonNode().get("first").asText());
-		Assert.assertEquals(baseUri + "test/1/relationships/manyRelatedValues/?page[limit]=2&page[offset]=4",
-				links.asJsonNode().get("last").asText());
-		Assert.assertEquals(baseUri + "test/1/relationships/manyRelatedValues/?page[limit]=2",
-				links.asJsonNode().get("prev").asText());
-		Assert.assertEquals(baseUri + "test/1/relationships/manyRelatedValues/?page[limit]=2&page[offset]=4",
-				links.asJsonNode().get("next").asText());
+		Assert.assertEquals(baseUri + "test/1/relationships/manyRelatedValues/?page[limit]=2", links.asJsonNode().get("first").asText());
+		Assert.assertEquals(baseUri + "test/1/relationships/manyRelatedValues/?page[limit]=2&page[offset]=4", links.asJsonNode().get("last").asText());
+		Assert.assertEquals(baseUri + "test/1/relationships/manyRelatedValues/?page[limit]=2", links.asJsonNode().get("prev").asText());
+		Assert.assertEquals(baseUri + "test/1/relationships/manyRelatedValues/?page[limit]=2&page[offset]=4", links.asJsonNode().get("next").asText());
 	}
 
 	@Test
 	public void testOptimisticLocking() {
-		QuerySpecResourceRepositoryStub<VersionedEntity, Serializable> repo = client
-				.getQuerySpecRepository(VersionedEntity.class);
+		QuerySpecResourceRepositoryStub<VersionedEntity, Serializable> repo = client.getQuerySpecRepository(VersionedEntity.class);
 		VersionedEntity entity = new VersionedEntity();
 		entity.setId(1L);
 		entity.setLongValue(13L);
@@ -396,8 +438,7 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 		try {
 			saved = repo.save(saved);
 			Assert.fail();
-		}
-		catch (OptimisticLockException e) {
+		} catch (OptimisticLockException e) {
 			// ok
 		}
 
@@ -462,14 +503,14 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 		Assert.assertNull(savedTest.getOneRelatedValue());
 
 		// TOOD should @JsonApiIncludeByDefault trigger this?
-		//		Assert.assertNotNull(savedTest.getEagerRelatedValue());
-		//		Assert.assertEquals(1L, savedTest.getEagerRelatedValue().getId().longValue());
+		// Assert.assertNotNull(savedTest.getEagerRelatedValue());
+		// Assert.assertEquals(1L,
+		// savedTest.getEagerRelatedValue().getId().longValue());
 	}
 
 	@Test
 	public void testEmbeddableIds() throws InstantiationException, IllegalAccessException {
-		QuerySpecResourceRepositoryStub<TestEmbeddedIdEntity, Serializable> rep = client
-				.getQuerySpecRepository(TestEmbeddedIdEntity.class);
+		QuerySpecResourceRepositoryStub<TestEmbeddedIdEntity, Serializable> rep = client.getQuerySpecRepository(TestEmbeddedIdEntity.class);
 
 		// add
 		TestEmbeddedIdEntity entity = new TestEmbeddedIdEntity();
@@ -523,13 +564,10 @@ public class JpaQuerySpecEndToEndTest extends AbstractJpaJerseyTest {
 	}
 
 	private TestEntity addTestWithManyRelations() {
-		QuerySpecResourceRepositoryStub<OtherRelatedEntity, Long> otherRepo = client
-				.getQuerySpecRepository(OtherRelatedEntity.class);
+		QuerySpecResourceRepositoryStub<OtherRelatedEntity, Long> otherRepo = client.getQuerySpecRepository(OtherRelatedEntity.class);
 		QuerySpecResourceRepositoryStub<RelatedEntity, Long> relatedRepo = client.getQuerySpecRepository(RelatedEntity.class);
-		QuerySpecRelationshipRepositoryStub<TestEntity, Long, RelatedEntity, Long> relRepo = client
-				.getQuerySpecRepository(TestEntity.class, RelatedEntity.class);
-		QuerySpecRelationshipRepositoryStub<RelatedEntity, Long, OtherRelatedEntity, Long> otherRelRepo = client
-				.getQuerySpecRepository(RelatedEntity.class, OtherRelatedEntity.class);
+		QuerySpecRelationshipRepositoryStub<TestEntity, Long, RelatedEntity, Long> relRepo = client.getQuerySpecRepository(TestEntity.class, RelatedEntity.class);
+		QuerySpecRelationshipRepositoryStub<RelatedEntity, Long, OtherRelatedEntity, Long> otherRelRepo = client.getQuerySpecRepository(RelatedEntity.class, OtherRelatedEntity.class);
 
 		TestEntity test = new TestEntity();
 		test.setId(2L);

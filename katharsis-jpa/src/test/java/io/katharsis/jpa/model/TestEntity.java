@@ -35,17 +35,13 @@ public class TestEntity extends TestMappedSuperclass {
 
 	public static final String ATTR_embValue = "embValue";
 
-	public static final List<String> ATTR_embValue_intValue = Arrays.asList(TestEntity.ATTR_embValue,
-			TestEmbeddable.ATTR_embIntValue);
+	public static final List<String> ATTR_embValue_intValue = Arrays.asList(TestEntity.ATTR_embValue, TestEmbeddable.ATTR_embIntValue);
 
-	public static final List<String> ATTR_embValue_stringValue = Arrays.asList(TestEntity.ATTR_embValue,
-			TestEmbeddable.ATTR_embStringValue);
+	public static final List<String> ATTR_embValue_stringValue = Arrays.asList(TestEntity.ATTR_embValue, TestEmbeddable.ATTR_embStringValue);
 
-	public static final List<String> ATTR_embValue_anyValue = Arrays.asList(TestEntity.ATTR_embValue,
-			TestEmbeddable.ATTR_anyValue);
+	public static final List<String> ATTR_embValue_anyValue = Arrays.asList(TestEntity.ATTR_embValue, TestEmbeddable.ATTR_anyValue);
 
-	public static final List<String> ATTR_embValue_nestedValue_boolValue = Arrays.asList(TestEntity.ATTR_embValue,
-			TestEmbeddable.ATTR_nestedValue, TestNestedEmbeddable.ATTR_embBoolValue);
+	public static final List<String> ATTR_embValue_nestedValue_boolValue = Arrays.asList(TestEntity.ATTR_embValue, TestEmbeddable.ATTR_nestedValue, TestNestedEmbeddable.ATTR_embBoolValue);
 
 	@Id
 	private Long id;
