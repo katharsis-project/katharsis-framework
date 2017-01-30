@@ -12,21 +12,22 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import io.katharsis.queryParams.QueryParams;
+import io.katharsis.core.internal.query.QuerySpecAdapter;
+import io.katharsis.core.internal.repository.adapter.RelationshipRepositoryAdapter;
+import io.katharsis.core.internal.repository.adapter.ResourceRepositoryAdapter;
+import io.katharsis.legacy.internal.QueryParamsAdapter;
+import io.katharsis.legacy.queryParams.QueryParams;
 import io.katharsis.queryspec.AbstractQuerySpecTest;
 import io.katharsis.queryspec.QuerySpec;
-import io.katharsis.queryspec.internal.QueryAdapter;
-import io.katharsis.queryspec.internal.QueryParamsAdapter;
-import io.katharsis.queryspec.internal.QuerySpecAdapter;
+import io.katharsis.repository.request.QueryAdapter;
+import io.katharsis.repository.response.JsonApiResponse;
+import io.katharsis.resource.information.ResourceField;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Schedule;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.repository.ScheduleRepository;
 import io.katharsis.resource.mock.repository.ScheduleRepositoryImpl;
 import io.katharsis.resource.registry.RegistryEntry;
-import io.katharsis.resource.registry.repository.adapter.RelationshipRepositoryAdapter;
-import io.katharsis.resource.registry.repository.adapter.ResourceRepositoryAdapter;
-import io.katharsis.response.JsonApiResponse;
 
 public class QuerySpecRepositoryTest extends AbstractQuerySpecTest {
 
@@ -48,15 +49,13 @@ public class QuerySpecRepositoryTest extends AbstractQuerySpecTest {
 		ScheduleRepositoryImpl.clear();
 
 		super.setup();
-		RegistryEntry<Task> taskEntry = resourceRegistry.getEntry(Task.class);
-		RegistryEntry<Project> projectEntry = resourceRegistry.getEntry(Project.class);
-		RegistryEntry<Schedule> scheduleEntry = resourceRegistry.getEntry(Schedule.class);
-		TaskQuerySpecRepository repo = (TaskQuerySpecRepository) taskEntry.getResourceRepository(null)
-				.getResourceRepository();
+		RegistryEntry taskEntry = resourceRegistry.findEntry(Task.class);
+		RegistryEntry projectEntry = resourceRegistry.findEntry(Project.class);
+		RegistryEntry scheduleEntry = resourceRegistry.findEntry(Schedule.class);
+		TaskQuerySpecRepository repo = (TaskQuerySpecRepository) taskEntry.getResourceRepository(null).getResourceRepository();
 
 		repo = Mockito.spy(repo);
 
-		
 		scheduleAdapter = scheduleEntry.getResourceRepository(null);
 		projectAdapter = projectEntry.getResourceRepository(null);
 		taskAdapter = taskEntry.getResourceRepository(null);
@@ -73,7 +72,7 @@ public class QuerySpecRepositoryTest extends AbstractQuerySpecTest {
 		QueryParamsAdapter queryAdapter = new QueryParamsAdapter(queryParams);
 		checkCrud(queryAdapter);
 	}
-	
+
 	@Test
 	public void findAllWithResourceListResult() {
 		QuerySpec querySpec = new QuerySpec(Schedule.class);
@@ -114,47 +113,50 @@ public class QuerySpecRepositoryTest extends AbstractQuerySpecTest {
 		Assert.assertEquals(1, tasks.size());
 
 		// relation adapter
-		projectRelAdapter.setRelation(task, project.getId(), "project", queryAdapter);
+		ResourceField projectField = resourceRegistry.findEntry(Task.class).getResourceInformation().findRelationshipFieldByName("project");
+		ResourceField tasksField = resourceRegistry.findEntry(Project.class).getResourceInformation().findRelationshipFieldByName("tasks");
+		projectRelAdapter.setRelation(task, project.getId(), projectField, queryAdapter);
 		Assert.assertNotNull(task.getProject());
 		Assert.assertEquals(1, project.getTasks().size());
-		JsonApiResponse response = projectRelAdapter.findOneTarget(2L, "project", queryAdapter);
+		JsonApiResponse response = projectRelAdapter.findOneTarget(2L, projectField, queryAdapter);
 		Assert.assertEquals(project.getId(), ((Project) response.getEntity()).getId());
 
-		projectRelAdapter.setRelation(task, null, "project", queryAdapter);
-		response = projectRelAdapter.findOneTarget(2L, "project", queryAdapter);
+		projectRelAdapter.setRelation(task, null, projectField, queryAdapter);
+		response = projectRelAdapter.findOneTarget(2L, projectField, queryAdapter);
 		Assert.assertNull(task.getProject());
-		
-		// warning: bidirectionality not properly implemented here, would require changes to the model used in many other places
+
+		// warning: bidirectionality not properly implemented here, would
+		// require changes to the model used in many other places
 		task.setProject(null);
 		project.getTasks().clear();
 
-		tasksRelAdapter.addRelations(project, Arrays.asList(task.getId()), "tasks", queryAdapter);
+		tasksRelAdapter.addRelations(project, Arrays.asList(task.getId()), tasksField, queryAdapter);
 		Assert.assertEquals(project, task.getProject());
 		Assert.assertEquals(1, project.getTasks().size());
-		List<Project> projects = (List<Project>) tasksRelAdapter.findManyTargets(3L, "tasks", queryAdapter).getEntity();
+		List<Project> projects = (List<Project>) tasksRelAdapter.findManyTargets(3L, tasksField, queryAdapter).getEntity();
 		Assert.assertEquals(1, projects.size());
 
-		tasksRelAdapter.removeRelations(project, Arrays.asList(task.getId()), "tasks", queryAdapter);
+		tasksRelAdapter.removeRelations(project, Arrays.asList(task.getId()), tasksField, queryAdapter);
 		Assert.assertEquals(0, project.getTasks().size());
 		task.setProject(null); // fix bidirectionality
-		
-		projects = (List<Project>) tasksRelAdapter.findManyTargets(3L, "tasks", queryAdapter).getEntity();
+
+		projects = (List<Project>) tasksRelAdapter.findManyTargets(3L, tasksField, queryAdapter).getEntity();
 		Assert.assertEquals(0, projects.size());
 
-		tasksRelAdapter.setRelations(project, Arrays.asList(task.getId()), "tasks", queryAdapter);
+		tasksRelAdapter.setRelations(project, Arrays.asList(task.getId()), tasksField, queryAdapter);
 		Assert.assertEquals(project, task.getProject());
 		Assert.assertEquals(1, project.getTasks().size());
-		projects = (List<Project>) tasksRelAdapter.findManyTargets(3L, "tasks", queryAdapter).getEntity();
+		projects = (List<Project>) tasksRelAdapter.findManyTargets(3L, tasksField, queryAdapter).getEntity();
 		Assert.assertEquals(1, projects.size());
 
 		// check bulk find
-		Map<?, JsonApiResponse> bulkMap = tasksRelAdapter.findBulkManyTargets(Arrays.asList(3L), "tasks", queryAdapter);
+		Map<?, JsonApiResponse> bulkMap = tasksRelAdapter.findBulkManyTargets(Arrays.asList(3L), tasksField, queryAdapter);
 		Assert.assertEquals(1, bulkMap.size());
 		Assert.assertTrue(bulkMap.containsKey(3L));
 		projects = (List<Project>) bulkMap.get(3L).getEntity();
 		Assert.assertEquals(1, projects.size());
 
-		bulkMap = projectRelAdapter.findBulkOneTargets(Arrays.asList(2L), "project", queryAdapter);
+		bulkMap = projectRelAdapter.findBulkOneTargets(Arrays.asList(2L), projectField, queryAdapter);
 		Assert.assertEquals(1, bulkMap.size());
 		Assert.assertTrue(bulkMap.containsKey(2L));
 		Assert.assertNotNull(bulkMap.get(2L));

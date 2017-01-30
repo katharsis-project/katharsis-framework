@@ -2,7 +2,7 @@ package io.katharsis.jpa;
 
 import io.katharsis.jpa.query.JpaQuery;
 import io.katharsis.jpa.query.JpaQueryExecutor;
-import io.katharsis.queryParams.QueryParams;
+import io.katharsis.legacy.queryParams.QueryParams;
 
 public interface QueryParamsProcessor {
 

@@ -18,6 +18,11 @@ import javax.persistence.OptimisticLockException;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import io.katharsis.core.internal.resource.AnnotationResourceInformationBuilder;
+import io.katharsis.core.internal.resource.AnnotationResourceInformationBuilder.AnnotatedResourceField;
+import io.katharsis.core.internal.resource.DefaultResourceInstanceBuilder;
+import io.katharsis.core.internal.resource.ResourceFieldImpl;
+import io.katharsis.core.internal.utils.StringUtils;
 import io.katharsis.jpa.annotations.JpaMergeRelations;
 import io.katharsis.jpa.annotations.JpaResource;
 import io.katharsis.jpa.meta.MetaEntity;
@@ -32,15 +37,13 @@ import io.katharsis.resource.Document;
 import io.katharsis.resource.Resource;
 import io.katharsis.resource.annotations.JsonApiLinksInformation;
 import io.katharsis.resource.annotations.JsonApiMetaInformation;
-import io.katharsis.resource.field.ResourceField;
-import io.katharsis.resource.field.ResourceField.LookupIncludeBehavior;
-import io.katharsis.resource.field.ResourceField.ResourceFieldType;
-import io.katharsis.resource.information.AnnotationResourceInformationBuilder.AnnotatedResourceField;
-import io.katharsis.resource.information.DefaultResourceInstanceBuilder;
+import io.katharsis.resource.information.LookupIncludeBehavior;
+import io.katharsis.resource.information.ResourceField;
+import io.katharsis.resource.information.ResourceFieldType;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.information.ResourceInformationBuilder;
+import io.katharsis.resource.information.ResourceInformationBuilderContext;
 import io.katharsis.resource.information.ResourceInstanceBuilder;
-import io.katharsis.utils.StringUtils;
 
 /**
  * Extracts resource information from JPA and Katharsis annotations. Katharsis
@@ -51,6 +54,8 @@ public class JpaResourceInformationBuilder implements ResourceInformationBuilder
 	private static final String ENTITY_NAME_SUFFIX = "Entity";
 
 	private MetaLookup jpaMetaLookup;
+
+	private ResourceInformationBuilderContext context;
 
 	public JpaResourceInformationBuilder(MetaLookup jpaMetaLookup) {
 		this.jpaMetaLookup = jpaMetaLookup;
@@ -146,7 +151,8 @@ public class JpaResourceInformationBuilder implements ResourceInformationBuilder
 					Object requestVersion = versionAttr.getType().fromString(versionNode.asText());
 					Object currentVersion = versionAttr.getValue(entity);
 					if (!currentVersion.equals(requestVersion))
-						throw new OptimisticLockException(resource.getId() + " changed from version " + requestVersion + " to " + currentVersion);
+						throw new OptimisticLockException(
+								resource.getId() + " changed from version " + requestVersion + " to " + currentVersion);
 				}
 			}
 		}
@@ -187,7 +193,8 @@ public class JpaResourceInformationBuilder implements ResourceInformationBuilder
 		}
 	}
 
-	protected String getResourceType(Class<?> entityClass) {
+	@Override
+	public String getResourceType(Class<?> entityClass) {
 		JpaResource annotation = entityClass.getAnnotation(JpaResource.class);
 		if (annotation != null) {
 			return annotation.type();
@@ -276,9 +283,17 @@ public class JpaResourceInformationBuilder implements ResourceInformationBuilder
 		boolean metaInfo = attr.getAnnotation(JsonApiMetaInformation.class) != null;
 		boolean association = isAssociation(meta, attr);
 		ResourceFieldType resourceFieldType = ResourceFieldType.get(id, linksInfo, metaInfo, association);
+		String oppositeResourceType = association ? AnnotationResourceInformationBuilder.getResourceType(genericType, context) : null;
 
 		// related repositories should lookup, we ignore the hibernate proxies
-		LookupIncludeBehavior lookupIncludeBehavior = AnnotatedResourceField.getLookupIncludeBehavior(annotations, LookupIncludeBehavior.AUTOMATICALLY_ALWAYS);
-		return new ResourceField(jsonName, underlyingName, resourceFieldType, type, genericType, oppositeName, lazy, includeByDefault, lookupIncludeBehavior);
+		LookupIncludeBehavior lookupIncludeBehavior = AnnotatedResourceField.getLookupIncludeBehavior(annotations,
+				LookupIncludeBehavior.AUTOMATICALLY_ALWAYS);
+		return new ResourceFieldImpl(jsonName, underlyingName, resourceFieldType, type, genericType, oppositeResourceType, oppositeName, lazy,
+				includeByDefault, lookupIncludeBehavior);
+	}
+
+	@Override
+	public void init(ResourceInformationBuilderContext context) {
+		this.context = context;
 	}
 }

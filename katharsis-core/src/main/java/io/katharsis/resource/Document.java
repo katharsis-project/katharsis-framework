@@ -12,10 +12,10 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import io.katharsis.core.internal.resource.DocumentDataDeserializer;
+import io.katharsis.core.internal.resource.NullableSerializer;
 import io.katharsis.errorhandling.ErrorData;
-import io.katharsis.resource.internal.DocumentDataDeserializer;
-import io.katharsis.resource.internal.NullableSerializer;
-import io.katharsis.utils.java.Nullable;
+import io.katharsis.utils.Nullable;
 
 public class Document implements MetaContainer, LinksContainer {
 

@@ -7,13 +7,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import io.katharsis.client.mock.models.Project;
 import io.katharsis.client.mock.models.Project.ProjectLinks;
 import io.katharsis.client.mock.models.Project.ProjectMeta;
-import io.katharsis.queryParams.QueryParams;
-import io.katharsis.repository.LinksRepository;
-import io.katharsis.repository.MetaRepository;
-import io.katharsis.repository.ResourceRepository;
-import io.katharsis.resource.exception.ResourceNotFoundException;
-import io.katharsis.response.LinksInformation;
-import io.katharsis.response.MetaInformation;
+import io.katharsis.errorhandling.exception.ResourceNotFoundException;
+import io.katharsis.legacy.queryParams.QueryParams;
+import io.katharsis.legacy.repository.LinksRepository;
+import io.katharsis.legacy.repository.MetaRepository;
+import io.katharsis.legacy.repository.ResourceRepository;
+import io.katharsis.resource.links.LinksInformation;
+import io.katharsis.resource.meta.MetaInformation;
 
 public class ProjectRepository implements ResourceRepository<Project, Long>, MetaRepository<Project>, LinksRepository<Project> {
 

@@ -1,6 +1,6 @@
 package io.katharsis.repository.filter;
 
-import io.katharsis.response.MetaInformation;
+import io.katharsis.resource.meta.MetaInformation;
 
 /**
  * Manages the chain of repository filters to resolve meta information.

@@ -28,14 +28,14 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.katharsis.dispatcher.RequestDispatcher;
+import io.katharsis.core.internal.dispatcher.RequestDispatcher;
+import io.katharsis.core.internal.dispatcher.path.ActionPath;
+import io.katharsis.core.internal.dispatcher.path.JsonPath;
+import io.katharsis.core.internal.dispatcher.path.PathBuilder;
+import io.katharsis.core.internal.exception.KatharsisExceptionMapper;
+import io.katharsis.errorhandling.exception.JsonDeserializationException;
 import io.katharsis.errorhandling.exception.KatharsisMappableException;
 import io.katharsis.errorhandling.exception.KatharsisMatchingException;
-import io.katharsis.errorhandling.mapper.KatharsisExceptionMapper;
-import io.katharsis.jackson.exception.JsonDeserializationException;
-import io.katharsis.request.path.ActionPath;
-import io.katharsis.request.path.JsonPath;
-import io.katharsis.request.path.PathBuilder;
 import io.katharsis.resource.Document;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ServiceUrlProvider;
@@ -120,7 +120,7 @@ public class KatharsisFilter implements ContainerRequestFilter {
 
     private void dispatchRequest(ContainerRequestContext requestContext) throws Exception {
         UriInfo uriInfo = requestContext.getUriInfo();
-        io.katharsis.dispatcher.controller.Response katharsisResponse = null;
+        io.katharsis.repository.response.Response katharsisResponse = null;
         boolean passToMethodMatcher = false;
         ServiceUrlProvider serviceUrlProvider = resourceRegistry.getServiceUrlProvider();
         try {
@@ -190,7 +190,7 @@ public class KatharsisFilter implements ContainerRequestFilter {
         }
     }
 
-    private void abortWithResponse(ContainerRequestContext requestContext, io.katharsis.dispatcher.controller.Response katharsisResponse)
+    private void abortWithResponse(ContainerRequestContext requestContext, io.katharsis.repository.response.Response katharsisResponse)
         throws IOException {
         Response response;
         if (katharsisResponse != null) {

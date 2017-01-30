@@ -1,11 +1,11 @@
 package io.katharsis.vertx;
 
-import io.katharsis.queryParams.QueryParams;
-import io.katharsis.queryParams.params.FilterParams;
-
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
+
+import io.katharsis.legacy.queryParams.QueryParams;
+import io.katharsis.legacy.queryParams.params.FilterParams;
 
 public class QueryParamsUtils {
 

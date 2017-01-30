@@ -1,7 +1,7 @@
 package io.katharsis.resource.mock.repository;
 
-import io.katharsis.repository.annotations.JsonApiFindOne;
-import io.katharsis.repository.annotations.JsonApiResourceRepository;
+import io.katharsis.legacy.repository.annotations.JsonApiFindOne;
+import io.katharsis.legacy.repository.annotations.JsonApiResourceRepository;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.TaskWithLookup;
 

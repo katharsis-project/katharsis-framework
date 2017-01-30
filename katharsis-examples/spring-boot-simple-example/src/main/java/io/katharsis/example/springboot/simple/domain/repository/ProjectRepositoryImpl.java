@@ -29,7 +29,7 @@ import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.repository.ResourceRepositoryBase;
 
 /**
- * QuerySpecResourceRepositoryBase-based example with the base class providing some base functionality.
+ * ResourceRepositoryBase-based example with the base class providing some base functionality.
  */
 @Component
 public class ProjectRepositoryImpl extends ResourceRepositoryBase<Project, Long> implements ProjectRepository {

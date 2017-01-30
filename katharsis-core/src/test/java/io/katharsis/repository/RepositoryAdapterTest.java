@@ -10,19 +10,20 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
-import io.katharsis.queryParams.QueryParams;
-import io.katharsis.queryspec.internal.QueryParamsAdapter;
-import io.katharsis.repository.annotated.AnnotatedRepositoryAdapter;
-import io.katharsis.repository.annotated.AnnotatedResourceRepositoryAdapter;
-import io.katharsis.repository.annotations.JsonApiLinks;
-import io.katharsis.repository.annotations.JsonApiMeta;
-import io.katharsis.repository.annotations.JsonApiResourceRepository;
-import io.katharsis.repository.exception.RepositoryAnnotationNotFoundException;
-import io.katharsis.repository.exception.RepositoryMethodException;
+import io.katharsis.errorhandling.exception.RepositoryAnnotationNotFoundException;
+import io.katharsis.errorhandling.exception.RepositoryMethodException;
+import io.katharsis.legacy.internal.AnnotatedRepositoryAdapter;
+import io.katharsis.legacy.internal.AnnotatedResourceRepositoryAdapter;
+import io.katharsis.legacy.internal.ParametersFactory;
+import io.katharsis.legacy.internal.QueryParamsAdapter;
+import io.katharsis.legacy.queryParams.QueryParams;
+import io.katharsis.legacy.repository.annotations.JsonApiLinks;
+import io.katharsis.legacy.repository.annotations.JsonApiMeta;
+import io.katharsis.legacy.repository.annotations.JsonApiResourceRepository;
 import io.katharsis.repository.mock.NewInstanceRepositoryMethodParameterProvider;
+import io.katharsis.resource.links.LinksInformation;
+import io.katharsis.resource.meta.MetaInformation;
 import io.katharsis.resource.mock.models.Project;
-import io.katharsis.response.LinksInformation;
-import io.katharsis.response.MetaInformation;
 
 public class RepositoryAdapterTest {
     private QueryParams queryParams;

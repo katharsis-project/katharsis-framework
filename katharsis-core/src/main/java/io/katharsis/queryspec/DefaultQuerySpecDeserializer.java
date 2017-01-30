@@ -10,14 +10,15 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import io.katharsis.core.internal.utils.PropertyException;
+import io.katharsis.core.internal.utils.PropertyUtils;
+import io.katharsis.core.internal.utils.parser.TypeParser;
 import io.katharsis.errorhandling.exception.BadRequestException;
-import io.katharsis.jackson.exception.ParametersDeserializationException;
+import io.katharsis.errorhandling.exception.ParametersDeserializationException;
 import io.katharsis.resource.RestrictedQueryParamsMembers;
+import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.utils.PropertyException;
-import io.katharsis.utils.PropertyUtils;
-import io.katharsis.utils.parser.TypeParser;
 
 /**
  * Maps url parameters to QuerySpec.
@@ -126,15 +127,15 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 	}
 
 	@Override
-	public QuerySpec deserialize(Class<?> rootResourceClass, Map<String, Set<String>> parameterMap) {
-		QuerySpec rootQuerySpec = new QuerySpec(rootResourceClass);
+	public QuerySpec deserialize(ResourceInformation resourceInformation, Map<String, Set<String>> parameterMap) {
+		QuerySpec rootQuerySpec = new QuerySpec(resourceInformation.getResourceClass());
 		setupDefaults(rootQuerySpec);
 
-		List<Parameter> parameters = parseParameters(parameterMap, rootResourceClass);
+		List<Parameter> parameters = parseParameters(parameterMap, resourceInformation);
 		for (Parameter parameter : parameters) {
-			QuerySpec querySpec = rootQuerySpec.getQuerySpec(parameter.resourceClass);
+			QuerySpec querySpec = rootQuerySpec.getQuerySpec(parameter.resourceInformation);
 			if (querySpec == null) {
-				querySpec = rootQuerySpec.getOrCreateQuerySpec(parameter.resourceClass);
+				querySpec = rootQuerySpec.getOrCreateQuerySpec(parameter.resourceInformation);
 				setupDefaults(querySpec);
 			}
 			switch (parameter.paramType) {
@@ -281,7 +282,7 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 		}
 	}
 
-	private List<Parameter> parseParameters(Map<String, Set<String>> params, Class<?> rootResourceClass) {
+	private List<Parameter> parseParameters(Map<String, Set<String>> params, ResourceInformation rootResourceInformation) {
 		List<Parameter> list = new ArrayList<>();
 		Set<Entry<String, Set<String>>> entrySet = params.entrySet();
 		for (Entry<String, Set<String>> entry : entrySet) {
@@ -295,7 +296,7 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 			String strParamType = m.group(1);
 			String resourceType = m.group(3);
 			String path = m.group(4);
-			RegistryEntry<?> registryEntry = resourceType != null ? resourceRegistry.getEntry(resourceType) : null;
+			RegistryEntry registryEntry = resourceType != null ? resourceRegistry.getEntry(resourceType) : null;
 
 			Parameter param = new Parameter();
 			param.fullKey = entry.getKey();
@@ -303,7 +304,7 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 			param.values = entry.getValue();
 			if (registryEntry == null) {
 				// first parameter is not the resourceType => JSON API spec
-				param.resourceClass = rootResourceClass;
+				param.resourceInformation = rootResourceInformation;
 				String attrName = resourceType;
 				if (attrName != null) {
 					param.name = "[" + attrName + "]" + nullToEmpty(path);
@@ -313,7 +314,7 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 				}
 			}
 			else {
-				param.resourceClass = registryEntry.getResourceInformation().getResourceClass();
+				param.resourceInformation = registryEntry.getResourceInformation();
 				param.name = emptyToNull(path);
 			}
 			list.add(param);
@@ -335,7 +336,7 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 
 		RestrictedQueryParamsMembers paramType;
 
-		Class<?> resourceClass;
+		ResourceInformation resourceInformation;
 
 		String name;
 

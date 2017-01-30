@@ -9,9 +9,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import io.katharsis.resource.list.ResourceList;
+import io.katharsis.resource.meta.PagedMetaInformation;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
-import io.katharsis.response.paging.PagedMetaInformation;
 
 public class InMemoryEvaluatorTest {
 

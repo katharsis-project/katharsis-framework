@@ -12,8 +12,8 @@ import io.katharsis.resource.annotations.JsonApiMetaInformation;
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.annotations.JsonApiToMany;
 import io.katharsis.resource.annotations.JsonApiToOne;
-import io.katharsis.response.LinksInformation;
-import io.katharsis.response.MetaInformation;
+import io.katharsis.resource.links.LinksInformation;
+import io.katharsis.resource.meta.MetaInformation;
 import io.katharsis.validation.mock.ComplexValid;
 
 @JsonApiResource(type = "tasks")

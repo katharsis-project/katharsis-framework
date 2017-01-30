@@ -11,8 +11,8 @@ import org.springframework.context.annotation.Import;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.katharsis.dispatcher.RequestDispatcher;
-import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
+import io.katharsis.core.internal.dispatcher.RequestDispatcher;
+import io.katharsis.core.internal.exception.ExceptionMapperRegistry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.spring.ErrorHandlerFilter;
 import io.katharsis.spring.KatharsisFilterV2;

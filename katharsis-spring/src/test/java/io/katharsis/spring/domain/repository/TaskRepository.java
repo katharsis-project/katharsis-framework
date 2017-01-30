@@ -9,7 +9,7 @@ import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.repository.ResourceRepositoryBase;
 import io.katharsis.resource.list.DefaultResourceList;
 import io.katharsis.resource.list.ResourceList;
-import io.katharsis.response.MetaInformation;
+import io.katharsis.resource.meta.MetaInformation;
 import io.katharsis.spring.domain.model.Task;
 
 @Component

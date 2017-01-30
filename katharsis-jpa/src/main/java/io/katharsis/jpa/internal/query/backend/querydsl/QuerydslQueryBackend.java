@@ -33,20 +33,20 @@ import com.querydsl.jpa.JPAQueryBase;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
+import io.katharsis.core.internal.utils.PreconditionUtil;
 import io.katharsis.jpa.internal.query.ComputedAttributeRegistryImpl;
 import io.katharsis.jpa.internal.query.JoinRegistry;
 import io.katharsis.jpa.internal.query.MetaComputedAttribute;
 import io.katharsis.jpa.internal.query.QueryUtil;
 import io.katharsis.jpa.internal.query.backend.JpaQueryBackend;
-import io.katharsis.jpa.meta.MetaEntity;
 import io.katharsis.jpa.query.querydsl.QuerydslExpressionFactory;
 import io.katharsis.jpa.query.querydsl.QuerydslTranslationContext;
 import io.katharsis.meta.model.MetaAttribute;
 import io.katharsis.meta.model.MetaAttributePath;
+import io.katharsis.meta.model.MetaDataObject;
 import io.katharsis.meta.model.MetaKey;
 import io.katharsis.queryspec.Direction;
 import io.katharsis.queryspec.FilterOperator;
-import io.katharsis.utils.PreconditionUtil;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class QuerydslQueryBackend<T>
@@ -64,14 +64,14 @@ public class QuerydslQueryBackend<T>
 
 	private List<OrderSpecifier<?>> orderList = new ArrayList<>();
 
-	public QuerydslQueryBackend(QuerydslQueryImpl<T> queryImpl, Class<T> clazz, Class<?> parentEntityClass,
+	public QuerydslQueryBackend(QuerydslQueryImpl<T> queryImpl, Class<T> clazz, MetaDataObject parentMeta,
 			MetaAttribute parentAttr, boolean addParentSelection) {
 		this.queryImpl = queryImpl;
 
 		JPAQueryFactory queryFactory = queryImpl.getQueryFactory();
 
-		if (parentEntityClass != null) {
-			parentFrom = QuerydslUtils.getEntityPath(parentEntityClass);
+		if (parentMeta != null) {
+			parentFrom = QuerydslUtils.getEntityPath(parentMeta.getImplementationClass());
 			root = QuerydslUtils.getEntityPath(clazz);
 
 			Path joinPath = (Path) QuerydslUtils.get(parentFrom, parentAttr.getName());
@@ -80,7 +80,7 @@ public class QuerydslQueryBackend<T>
 			joinHelper.putJoin(new MetaAttributePath(), root);
 
 			if (addParentSelection) {
-				Expression<Object> parentIdExpr = getParentIdExpression(parentAttr);
+				Expression<Object> parentIdExpr = getParentIdExpression(parentMeta, parentAttr);
 				querydslQuery = queryFactory.select(parentIdExpr, root);
 			}
 			else {
@@ -104,9 +104,11 @@ public class QuerydslQueryBackend<T>
 		}
 	}
 
-	private Expression<Object> getParentIdExpression(MetaAttribute parentAttr) {
-		MetaEntity parentEntity = (MetaEntity) parentAttr.getParent();
-		MetaKey primaryKey = parentEntity.getPrimaryKey();
+	private Expression<Object> getParentIdExpression(MetaDataObject parentMeta, MetaAttribute parentAttr) {
+		MetaKey primaryKey = parentMeta.getPrimaryKey();
+		if(primaryKey == null){
+			throw new IllegalStateException("no primary key specified for parentAttribute " + parentAttr.getId());
+		}
 		List<MetaAttribute> elements = primaryKey.getElements();
 		PreconditionUtil.assertEquals("composite primary keys not supported yet", 1, elements.size());
 		MetaAttribute primaryKeyAttr = elements.get(0);

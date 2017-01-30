@@ -18,6 +18,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Version;
 
+import io.katharsis.core.internal.utils.ClassUtils;
 import io.katharsis.jpa.meta.MetaEntityAttribute;
 import io.katharsis.jpa.meta.MetaJpaDataObject;
 import io.katharsis.meta.model.MetaAttribute;
@@ -25,7 +26,6 @@ import io.katharsis.meta.model.MetaDataObject;
 import io.katharsis.meta.model.MetaElement;
 import io.katharsis.meta.model.MetaKey;
 import io.katharsis.meta.provider.MetaProviderContext;
-import io.katharsis.utils.ClassUtils;
 
 public abstract class AbstractEntityMetaProvider<T extends MetaJpaDataObject> extends AbstractJpaDataObjectProvider<T> {
 

@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import io.katharsis.jpa.internal.query.backend.JpaQueryBackend;
-import io.katharsis.jpa.meta.MetaEntity;
 import io.katharsis.meta.model.MetaAttribute;
 import io.katharsis.meta.model.MetaAttributeFinder;
 import io.katharsis.meta.model.MetaAttributePath;
@@ -124,8 +123,11 @@ public class QueryBuilder<T, F, O, P, E> {
 
 		MetaAttribute parentAttr = query.getParentAttr();
 		if (parentAttr != null) {
-			MetaEntity parentEntity = (MetaEntity) parentAttr.getParent();
-			MetaKey primaryKey = parentEntity.getPrimaryKey();
+			MetaDataObject parentMeta = query.getParentMeta();
+			MetaKey primaryKey = parentMeta.getPrimaryKey();
+			if(primaryKey == null){
+				throw new IllegalStateException("primary key not found for " + parentAttr.getId());
+			}
 			MetaAttribute primaryKeyAttr = primaryKey.getUniqueElement();
 
 			backend.addParentPredicate(primaryKeyAttr);

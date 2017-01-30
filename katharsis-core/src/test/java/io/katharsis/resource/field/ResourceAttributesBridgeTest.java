@@ -14,9 +14,12 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.katharsis.resource.exception.ResourceException;
-import io.katharsis.resource.exception.init.InvalidResourceException;
-import io.katharsis.resource.field.ResourceField.ResourceFieldType;
+import io.katharsis.core.internal.resource.ResourceAttributesBridge;
+import io.katharsis.core.internal.resource.ResourceFieldImpl;
+import io.katharsis.errorhandling.exception.InvalidResourceException;
+import io.katharsis.errorhandling.exception.ResourceException;
+import io.katharsis.resource.information.ResourceField;
+import io.katharsis.resource.information.ResourceFieldType;
 import io.katharsis.resource.mock.models.Task;
 
 public class ResourceAttributesBridgeTest {
@@ -44,7 +47,7 @@ public class ResourceAttributesBridgeTest {
     @Test
     public void onSimpleAttributesShouldPutInstanceValues() throws Exception {
         // GIVEN
-        ResourceField field = new ResourceField("name", "name", ResourceFieldType.ATTRIBUTE, String.class, String.class);
+        ResourceField field = new ResourceFieldImpl("name", "name", ResourceFieldType.ATTRIBUTE, String.class, String.class, null);
         ResourceAttributesBridge<Task> sut =
             new ResourceAttributesBridge<>(Collections.singletonList(field), Task.class);
         HashMap<String, JsonNode> attributes = new HashMap<String, JsonNode>();

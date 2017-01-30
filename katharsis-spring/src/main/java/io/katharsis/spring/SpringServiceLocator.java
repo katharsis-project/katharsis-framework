@@ -1,10 +1,11 @@
 package io.katharsis.spring;
 
-import io.katharsis.locator.JsonServiceLocator;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+
+import io.katharsis.legacy.locator.JsonServiceLocator;
 
 public class SpringServiceLocator implements BeanFactoryAware, JsonServiceLocator {
 

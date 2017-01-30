@@ -1,6 +1,6 @@
 package io.katharsis.repository.filter;
 
-import io.katharsis.response.LinksInformation;
+import io.katharsis.resource.links.LinksInformation;
 
 /**
  * Manages the chain of repository filters to resolve links.

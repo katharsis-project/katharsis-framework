@@ -9,7 +9,7 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.Test;
 
-import io.katharsis.queryParams.QueryParams;
+import io.katharsis.legacy.queryParams.QueryParams;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
 

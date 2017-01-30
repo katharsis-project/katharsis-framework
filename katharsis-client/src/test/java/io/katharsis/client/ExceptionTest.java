@@ -16,7 +16,7 @@ public class ExceptionTest extends AbstractClientTest {
 	@Before
 	public void setup() {
 		super.setup();
-		taskRepo = client.getRepository(Task.class);
+		taskRepo = client.getQueryParamsRepository(Task.class);
 	}
 
 	@Test

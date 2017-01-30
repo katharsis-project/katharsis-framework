@@ -7,6 +7,8 @@ import java.util.Arrays;
 import java.util.Deque;
 import java.util.Set;
 
+import io.katharsis.core.internal.utils.PreconditionUtil;
+import io.katharsis.core.internal.utils.PropertyUtils;
 import io.katharsis.jpa.annotations.JpaMergeRelations;
 import io.katharsis.jpa.meta.MetaJpaDataObject;
 import io.katharsis.jpa.query.JpaQuery;
@@ -19,8 +21,6 @@ import io.katharsis.queryspec.FilterSpec;
 import io.katharsis.queryspec.IncludeSpec;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.SortSpec;
-import io.katharsis.utils.PreconditionUtil;
-import io.katharsis.utils.PropertyUtils;
 
 public class JpaRepositoryUtils {
 

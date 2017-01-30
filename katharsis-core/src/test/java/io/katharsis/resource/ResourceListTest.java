@@ -5,12 +5,12 @@ import java.util.LinkedList;
 import org.junit.Assert;
 import org.junit.Test;
 
-import io.katharsis.internal.utils.CastableInformation;
+import io.katharsis.core.internal.utils.CastableInformation;
+import io.katharsis.resource.links.LinksInformation;
 import io.katharsis.resource.list.DefaultResourceList;
 import io.katharsis.resource.list.ResourceListBase;
+import io.katharsis.resource.meta.MetaInformation;
 import io.katharsis.resource.mock.models.Task;
-import io.katharsis.response.LinksInformation;
-import io.katharsis.response.MetaInformation;
 
 public class ResourceListTest {
 

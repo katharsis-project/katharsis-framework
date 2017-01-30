@@ -1,7 +1,7 @@
 package io.katharsis.resource.list;
 
-import io.katharsis.response.LinksInformation;
-import io.katharsis.response.MetaInformation;
+import io.katharsis.resource.links.LinksInformation;
+import io.katharsis.resource.meta.MetaInformation;
 
 /**
  * Helper implementation that can be used as base class for custom {@link ResourceList} implementation. It carries

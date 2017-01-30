@@ -6,6 +6,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import io.katharsis.core.internal.resource.AnnotationResourceInformationBuilder;
+import io.katharsis.core.internal.utils.ClassUtils;
+import io.katharsis.core.internal.utils.PreconditionUtil;
+import io.katharsis.core.internal.utils.PropertyUtils;
+import io.katharsis.legacy.registry.DefaultResourceInformationBuilderContext;
 import io.katharsis.meta.model.MetaAttribute;
 import io.katharsis.meta.model.MetaDataObject;
 import io.katharsis.meta.model.MetaElement;
@@ -16,17 +21,13 @@ import io.katharsis.meta.model.resource.MetaResourceField;
 import io.katharsis.meta.provider.MetaProviderBase;
 import io.katharsis.meta.provider.MetaProviderContext;
 import io.katharsis.resource.annotations.JsonApiResource;
-import io.katharsis.resource.field.ResourceField;
-import io.katharsis.resource.field.ResourceField.ResourceFieldType;
-import io.katharsis.resource.field.ResourceFieldNameTransformer;
-import io.katharsis.resource.information.AnnotationResourceInformationBuilder;
+import io.katharsis.resource.information.ResourceField;
+import io.katharsis.resource.information.ResourceFieldNameTransformer;
+import io.katharsis.resource.information.ResourceFieldType;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryAware;
-import io.katharsis.utils.ClassUtils;
-import io.katharsis.utils.PreconditionUtil;
-import io.katharsis.utils.PropertyUtils;
 
 public class ResourceMetaProviderImpl extends MetaProviderBase implements ResourceRegistryAware {
 
@@ -46,7 +47,7 @@ public class ResourceMetaProviderImpl extends MetaProviderBase implements Resour
 		// information builder, so only accept if a MetaResource was explicitly requested
 		if (resourceRegistry != null && (metaClass == MetaResource.class || metaClass == MetaJsonObject.class)) {
 			Class<?> clazz = ClassUtils.getRawType(type);
-			if (resourceRegistry.getEntryForClass(clazz) != null) {
+			if (resourceRegistry.hasEntry(clazz)) {
 				return true;
 			}
 		}
@@ -103,7 +104,7 @@ public class ResourceMetaProviderImpl extends MetaProviderBase implements Resour
 	public void discoverElements(MetaProviderContext context) {
 		if (resourceRegistry != null) {
 			// enforce setup of meta data
-			for (RegistryEntry<?> entry : resourceRegistry.getResources().values()) {
+			for (RegistryEntry entry : resourceRegistry.getResources()) {
 				ResourceInformation information = entry.getResourceInformation();
 				context.getLookup().getMeta(information.getResourceClass(), MetaResource.class);
 			}
@@ -155,13 +156,14 @@ public class ResourceMetaProviderImpl extends MetaProviderBase implements Resour
 
 	private ResourceInformation getResourceInformation(Class<?> resourceClass) {
 		if (resourceRegistry != null) {
-			RegistryEntry<?> entry = resourceRegistry.getEntryForClass(resourceClass);
+			RegistryEntry entry = resourceRegistry.getEntryForClass(resourceClass);
 			PreconditionUtil.assertNotNull(resourceClass.getName(), entry);
 			return entry.getResourceInformation();
 		}
 		else {
 			AnnotationResourceInformationBuilder infoBuilder = new AnnotationResourceInformationBuilder(
 					new ResourceFieldNameTransformer());
+			infoBuilder.init(new DefaultResourceInformationBuilderContext(infoBuilder));
 			return infoBuilder.build(resourceClass);
 		}
 	}

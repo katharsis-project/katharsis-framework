@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.katharsis.module.CoreModule;
 import io.katharsis.module.ModuleRegistry;
-import io.katharsis.resource.field.ResourceFieldNameTransformer;
+import io.katharsis.resource.information.ResourceFieldNameTransformer;
 
 @Configuration
 public class ModuleConfiguration {

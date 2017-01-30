@@ -6,7 +6,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import io.katharsis.resource.exception.ResourceException;
+import io.katharsis.errorhandling.exception.ResourceException;
 
 /**
  * Indicates additional resources that should be included by default with every primary resource.

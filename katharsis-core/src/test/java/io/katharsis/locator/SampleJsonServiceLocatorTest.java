@@ -7,6 +7,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import io.katharsis.legacy.locator.SampleJsonServiceLocator;
+
 public class SampleJsonServiceLocatorTest {
 
     @Rule

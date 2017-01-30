@@ -1,9 +1,10 @@
 package io.katharsis.example.jersey;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.katharsis.locator.JsonServiceLocator;
-import io.katharsis.queryParams.DefaultQueryParamsParser;
-import io.katharsis.queryParams.QueryParamsBuilder;
+
+import io.katharsis.legacy.locator.JsonServiceLocator;
+import io.katharsis.legacy.queryParams.DefaultQueryParamsParser;
+import io.katharsis.legacy.queryParams.QueryParamsBuilder;
 import io.katharsis.rs.KatharsisFeature;
 import org.glassfish.hk2.api.ServiceLocator;
 

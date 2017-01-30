@@ -2,8 +2,8 @@ package io.katharsis.example.jersey.domain.repository;
 
 import io.katharsis.example.jersey.domain.model.Project;
 import io.katharsis.example.jersey.domain.model.Task;
-import io.katharsis.queryParams.QueryParams;
-import io.katharsis.repository.annotations.*;
+import io.katharsis.legacy.queryParams.QueryParams;
+import io.katharsis.legacy.repository.annotations.*;
 
 @JsonApiRelationshipRepository(source = Task.class, target = Project.class)
 public class TaskToProjectRepository {

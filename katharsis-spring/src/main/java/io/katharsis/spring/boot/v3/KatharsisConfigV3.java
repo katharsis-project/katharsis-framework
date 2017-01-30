@@ -10,9 +10,9 @@ import org.springframework.context.annotation.Configuration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
-import io.katharsis.dispatcher.RequestDispatcher;
-import io.katharsis.internal.boot.KatharsisBoot;
-import io.katharsis.jackson.JsonApiModuleBuilder;
+import io.katharsis.core.internal.boot.KatharsisBoot;
+import io.katharsis.core.internal.dispatcher.RequestDispatcher;
+import io.katharsis.core.internal.jackson.JsonApiModuleBuilder;
 import io.katharsis.module.ModuleRegistry;
 import io.katharsis.resource.registry.ConstantServiceUrlProvider;
 import io.katharsis.resource.registry.ResourceRegistry;

@@ -10,9 +10,9 @@ import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.inject.spi.CDI;
 
+import io.katharsis.core.internal.utils.ClassUtils;
 import io.katharsis.module.ServiceDiscovery;
-import io.katharsis.utils.ClassUtils;
-import io.katharsis.utils.java.Optional;
+import io.katharsis.utils.Optional;
 
 /**
  * CDI-based discovery of services.

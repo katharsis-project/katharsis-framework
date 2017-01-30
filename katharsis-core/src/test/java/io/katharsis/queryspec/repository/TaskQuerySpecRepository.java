@@ -5,16 +5,17 @@ import java.util.Iterator;
 import java.util.Set;
 
 import io.katharsis.queryspec.QuerySpec;
-import io.katharsis.queryspec.QuerySpecLinksRepository;
-import io.katharsis.queryspec.QuerySpecMetaRepository;
-import io.katharsis.queryspec.QuerySpecResourceRepositoryBase;
+import io.katharsis.repository.LinksRepositoryV2;
+import io.katharsis.repository.MetaRepositoryV2;
+import io.katharsis.repository.ResourceRepositoryBase;
+import io.katharsis.resource.links.LinksInformation;
+import io.katharsis.resource.list.ResourceList;
+import io.katharsis.resource.meta.MetaInformation;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
-import io.katharsis.response.LinksInformation;
-import io.katharsis.response.MetaInformation;
 
-public class TaskQuerySpecRepository extends QuerySpecResourceRepositoryBase<Task, Long>
-		implements QuerySpecMetaRepository<Task>, QuerySpecLinksRepository<Task> {
+public class TaskQuerySpecRepository extends ResourceRepositoryBase<Task, Long>
+		implements MetaRepositoryV2<Task>, LinksRepositoryV2<Task> {
 
 	private static Set<Task> tasks = new HashSet<>();
 
@@ -23,7 +24,7 @@ public class TaskQuerySpecRepository extends QuerySpecResourceRepositoryBase<Tas
 	}
 
 	@Override
-	public Iterable<Task> findAll(QuerySpec querySpec) {
+	public ResourceList<Task> findAll(QuerySpec querySpec) {
 		return querySpec.apply(tasks);
 	}
 

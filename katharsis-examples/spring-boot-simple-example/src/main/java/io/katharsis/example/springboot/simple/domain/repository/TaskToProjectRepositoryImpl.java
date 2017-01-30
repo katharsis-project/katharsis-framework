@@ -23,7 +23,7 @@ import io.katharsis.example.springboot.simple.domain.model.Task;
 import io.katharsis.repository.RelationshipRepositoryBase;
 
 /**
- * Example based on QuerySpecRelationshipRepositoryBase which by default accesses the repositories on both sides.
+ * Example based on RelationshipRepositoryBase which by default accesses the repositories on both sides.
  */
 @Component
 public class TaskToProjectRepositoryImpl extends RelationshipRepositoryBase<Task, Long, Project, Long> {

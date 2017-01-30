@@ -14,8 +14,6 @@ import com.querydsl.core.types.Expression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 
-import io.katharsis.client.QuerySpecRelationshipRepositoryStub;
-import io.katharsis.client.QuerySpecResourceRepositoryStub;
 import io.katharsis.jpa.AbstractJpaJerseyTest;
 import io.katharsis.jpa.JpaModule;
 import io.katharsis.jpa.JpaRepositoryConfig;
@@ -31,6 +29,8 @@ import io.katharsis.jpa.query.querydsl.QuerydslQueryFactory;
 import io.katharsis.queryspec.FilterOperator;
 import io.katharsis.queryspec.FilterSpec;
 import io.katharsis.queryspec.QuerySpec;
+import io.katharsis.repository.RelationshipRepositoryV2;
+import io.katharsis.repository.ResourceRepositoryV2;
 import io.katharsis.resource.list.ResourceList;
 
 /**
@@ -38,7 +38,7 @@ import io.katharsis.resource.list.ResourceList;
  */
 public class DtoMappingTest extends AbstractJpaJerseyTest {
 
-	private QuerySpecResourceRepositoryStub<TestEntity, Long> testRepo;
+	private ResourceRepositoryV2<TestEntity, Long> testRepo;
 
 	@Override
 	@Before
@@ -104,7 +104,7 @@ public class DtoMappingTest extends AbstractJpaJerseyTest {
 		Assert.assertEquals(1, list.size());
 
 		// query the mapped DTO
-		QuerySpecResourceRepositoryStub<TestDTO, Serializable> dtoRepo = client.getQuerySpecRepository(TestDTO.class);
+		ResourceRepositoryV2<TestDTO, Serializable> dtoRepo = client.getQuerySpecRepository(TestDTO.class);
 		List<TestDTO> dtos = dtoRepo.findAll(new QuerySpec(TestDTO.class));
 		Assert.assertEquals(1, dtos.size());
 		TestDTO dto = dtos.get(0);
@@ -126,9 +126,9 @@ public class DtoMappingTest extends AbstractJpaJerseyTest {
 
 	@Test
 	public void testMappedOneRelation() {
-		QuerySpecResourceRepositoryStub<TestDTO, Serializable> testRepo = client.getQuerySpecRepository(TestDTO.class);
-		QuerySpecResourceRepositoryStub<RelatedDTO, Serializable> relatedRepo = client.getQuerySpecRepository(RelatedDTO.class);
-		QuerySpecRelationshipRepositoryStub<TestDTO, Serializable, RelatedDTO, Serializable> relRepo = client
+		ResourceRepositoryV2<TestDTO, Serializable> testRepo = client.getQuerySpecRepository(TestDTO.class);
+		ResourceRepositoryV2<RelatedDTO, Serializable> relatedRepo = client.getQuerySpecRepository(RelatedDTO.class);
+		RelationshipRepositoryV2<TestDTO, Serializable, RelatedDTO, Serializable> relRepo = client
 				.getQuerySpecRepository(TestDTO.class, RelatedDTO.class);
 
 		TestDTO test = new TestDTO();
@@ -162,9 +162,9 @@ public class DtoMappingTest extends AbstractJpaJerseyTest {
 
 	@Test
 	public void testMappedManyRelation() {
-		QuerySpecResourceRepositoryStub<TestDTO, Serializable> testRepo = client.getQuerySpecRepository(TestDTO.class);
-		QuerySpecResourceRepositoryStub<RelatedDTO, Serializable> relatedRepo = client.getQuerySpecRepository(RelatedDTO.class);
-		QuerySpecRelationshipRepositoryStub<TestDTO, Long, RelatedDTO, Long> relRepo = client
+		ResourceRepositoryV2<TestDTO, Serializable> testRepo = client.getQuerySpecRepository(TestDTO.class);
+		ResourceRepositoryV2<RelatedDTO, Serializable> relatedRepo = client.getQuerySpecRepository(RelatedDTO.class);
+		RelationshipRepositoryV2<TestDTO, Long, RelatedDTO, Long> relRepo = client
 				.getQuerySpecRepository(TestDTO.class, RelatedDTO.class);
 
 		TestDTO test = new TestDTO();
@@ -214,7 +214,7 @@ public class DtoMappingTest extends AbstractJpaJerseyTest {
 
 	@Test
 	public void testInsertDeleteDto() {
-		QuerySpecResourceRepositoryStub<TestDTO, Serializable> dtoRepo = client.getQuerySpecRepository(TestDTO.class);
+		ResourceRepositoryV2<TestDTO, Serializable> dtoRepo = client.getQuerySpecRepository(TestDTO.class);
 
 		// create a entity with a DTO and check properly saved
 		TestDTO dto = new TestDTO();
@@ -239,7 +239,7 @@ public class DtoMappingTest extends AbstractJpaJerseyTest {
 
 	@Test
 	public void testSubQueryComputation() {
-		QuerySpecResourceRepositoryStub<TestDTO, Serializable> dtoRepo = client.getQuerySpecRepository(TestDTO.class);
+		ResourceRepositoryV2<TestDTO, Serializable> dtoRepo = client.getQuerySpecRepository(TestDTO.class);
 
 		int n = 5;
 		for (long i = 0; i < n; i++) {

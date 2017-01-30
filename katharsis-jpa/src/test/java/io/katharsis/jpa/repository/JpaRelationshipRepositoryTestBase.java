@@ -20,7 +20,7 @@ import io.katharsis.queryspec.FilterOperator;
 import io.katharsis.queryspec.FilterSpec;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.resource.list.ResourceList;
-import io.katharsis.response.paging.PagedMetaInformation;
+import io.katharsis.resource.meta.PagedMetaInformation;
 
 @Transactional
 public abstract class JpaRelationshipRepositoryTestBase extends AbstractJpaTest {

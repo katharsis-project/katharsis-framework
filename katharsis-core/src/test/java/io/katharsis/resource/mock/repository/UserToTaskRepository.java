@@ -1,20 +1,20 @@
 package io.katharsis.resource.mock.repository;
 
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import io.katharsis.core.internal.utils.MultivaluedMap;
+import io.katharsis.legacy.repository.annotations.JsonApiFindManyTargets;
 import io.katharsis.queryspec.QuerySpec;
-import io.katharsis.queryspec.QuerySpecBulkRelationshipRepository;
-import io.katharsis.repository.annotations.JsonApiFindManyTargets;
+import io.katharsis.repository.BulkRelationshipRepositoryV2;
+import io.katharsis.resource.list.DefaultResourceList;
+import io.katharsis.resource.list.ResourceList;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.models.User;
 import io.katharsis.resource.mock.repository.util.Relation;
-import io.katharsis.utils.MultivaluedMap;
 
-public class UserToTaskRepository implements QuerySpecBulkRelationshipRepository<User, Long, Task, Long> {
+public class UserToTaskRepository implements BulkRelationshipRepositoryV2<User, Long, Task, Long> {
 
 	private static final ConcurrentMap<Relation<User>, Integer> THREAD_LOCAL_REPOSITORY = new ConcurrentHashMap<>();
 
@@ -88,8 +88,8 @@ public class UserToTaskRepository implements QuerySpecBulkRelationshipRepository
 	}
 
 	@JsonApiFindManyTargets
-	public Iterable<Task> findManyTargets(Long sourceId, String fieldName, QuerySpec querySpec) {
-		List<Task> projects = new LinkedList<>();
+	public ResourceList<Task> findManyTargets(Long sourceId, String fieldName, QuerySpec querySpec) {
+		ResourceList<Task> projects = new DefaultResourceList<>();
 		for (Relation<User> relation : THREAD_LOCAL_REPOSITORY.keySet()) {
 			if (relation.getSource().getId().equals(sourceId) && relation.getFieldName().equals(fieldName)) {
 				Task project = new Task();

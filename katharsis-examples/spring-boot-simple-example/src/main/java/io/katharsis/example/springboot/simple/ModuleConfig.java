@@ -17,9 +17,9 @@ import com.github.kristofa.brave.InheritableServerClientAndLocalSpanState;
 import com.twitter.zipkin.gen.Endpoint;
 
 import io.katharsis.brave.BraveModule;
+import io.katharsis.core.internal.boot.TransactionRunner;
 import io.katharsis.example.springboot.simple.domain.model.ScheduleDto;
 import io.katharsis.example.springboot.simple.domain.model.ScheduleEntity;
-import io.katharsis.internal.boot.TransactionRunner;
 import io.katharsis.jpa.JpaModule;
 import io.katharsis.jpa.JpaRepositoryConfig;
 import io.katharsis.jpa.mapping.JpaMapper;

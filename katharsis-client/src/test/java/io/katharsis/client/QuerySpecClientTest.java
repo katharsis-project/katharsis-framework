@@ -20,10 +20,12 @@ import io.katharsis.client.mock.repository.ScheduleRepository;
 import io.katharsis.client.mock.repository.ScheduleRepository.ScheduleList;
 import io.katharsis.client.mock.repository.ScheduleRepository.ScheduleListLinks;
 import io.katharsis.client.mock.repository.ScheduleRepository.ScheduleListMeta;
+import io.katharsis.errorhandling.exception.ResourceNotFoundException;
 import io.katharsis.queryspec.Direction;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.SortSpec;
-import io.katharsis.resource.exception.ResourceNotFoundException;
+import io.katharsis.repository.RelationshipRepositoryV2;
+import io.katharsis.repository.ResourceRepositoryV2;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient.Builder;
 import okhttp3.Request;
@@ -31,17 +33,17 @@ import okhttp3.Response;
 
 public class QuerySpecClientTest extends AbstractClientTest {
 
-	protected QuerySpecResourceRepositoryStub<Task, Long> taskRepo;
+	protected ResourceRepositoryV2<Task, Long> taskRepo;
 
-	protected QuerySpecResourceRepositoryStub<Project, Long> projectRepo;
+	protected ResourceRepositoryV2<Project, Long> projectRepo;
 
-	protected QuerySpecResourceRepositoryStub<Schedule, Long> scheduleRepo;
+	protected ResourceRepositoryV2<Schedule, Long> scheduleRepo;
 
-	protected QuerySpecRelationshipRepositoryStub<Task, Long, Project, Long> relRepo;
+	protected RelationshipRepositoryV2<Task, Long, Project, Long> relRepo;
 
-	protected QuerySpecRelationshipRepositoryStub<Schedule, Long, Task, Long> scheduleTaskRepo;
+	protected RelationshipRepositoryV2<Schedule, Long, Task, Long> scheduleTaskRepo;
 
-	protected QuerySpecRelationshipRepositoryStub<Task, Long, Schedule, Long> taskScheduleRepo;
+	protected RelationshipRepositoryV2<Task, Long, Schedule, Long> taskScheduleRepo;
 
 	@Before
 	public void setup() {

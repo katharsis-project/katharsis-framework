@@ -9,11 +9,11 @@ import java.util.Set;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.katharsis.dispatcher.RequestDispatcher;
-import io.katharsis.dispatcher.controller.Response;
-import io.katharsis.repository.RepositoryMethodParameterProvider;
-import io.katharsis.request.path.JsonPath;
-import io.katharsis.request.path.PathBuilder;
+import io.katharsis.core.internal.dispatcher.RequestDispatcher;
+import io.katharsis.core.internal.dispatcher.path.JsonPath;
+import io.katharsis.core.internal.dispatcher.path.PathBuilder;
+import io.katharsis.legacy.internal.RepositoryMethodParameterProvider;
+import io.katharsis.repository.response.Response;
 import io.katharsis.resource.Document;
 import io.netty.handler.codec.http.QueryStringDecoder;
 import io.vertx.core.Handler;

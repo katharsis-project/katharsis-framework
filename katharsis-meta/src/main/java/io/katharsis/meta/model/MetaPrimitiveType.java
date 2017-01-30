@@ -4,8 +4,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.UUID;
 
+import io.katharsis.core.internal.utils.parser.TypeParser;
 import io.katharsis.resource.annotations.JsonApiResource;
-import io.katharsis.utils.parser.TypeParser;
 
 @JsonApiResource(type = "meta/primitiveType")
 public class MetaPrimitiveType extends MetaType {

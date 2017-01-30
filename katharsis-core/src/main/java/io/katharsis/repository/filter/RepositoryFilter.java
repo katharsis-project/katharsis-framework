@@ -2,9 +2,9 @@ package io.katharsis.repository.filter;
 
 import java.util.Map;
 
-import io.katharsis.response.JsonApiResponse;
-import io.katharsis.response.LinksInformation;
-import io.katharsis.response.MetaInformation;
+import io.katharsis.repository.response.JsonApiResponse;
+import io.katharsis.resource.links.LinksInformation;
+import io.katharsis.resource.meta.MetaInformation;
 
 /**
  * Allows to intercept calls to repositories by modules and make changes.

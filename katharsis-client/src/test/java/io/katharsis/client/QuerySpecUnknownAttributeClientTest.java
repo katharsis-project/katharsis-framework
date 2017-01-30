@@ -19,14 +19,17 @@ import io.katharsis.queryspec.FilterOperator;
 import io.katharsis.queryspec.FilterSpec;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.queryspec.SortSpec;
+import io.katharsis.repository.RelationshipRepositoryV2;
+import io.katharsis.repository.ResourceRepositoryV2;
+import io.katharsis.resource.information.ResourceInformation;
 
 public class QuerySpecUnknownAttributeClientTest extends AbstractClientTest {
 
-	protected QuerySpecResourceRepositoryStub<Task, Long> taskRepo;
+	protected ResourceRepositoryV2<Task, Long> taskRepo;
 
-	protected QuerySpecResourceRepositoryStub<Project, Long> projectRepo;
+	protected ResourceRepositoryV2<Project, Long> projectRepo;
 
-	protected QuerySpecRelationshipRepositoryStub<Task, Long, Project, Long> relRepo;
+	protected RelationshipRepositoryV2<Task, Long, Project, Long> relRepo;
 
 	private DefaultQuerySpecDeserializer deserializer;
 
@@ -61,7 +64,8 @@ public class QuerySpecUnknownAttributeClientTest extends AbstractClientTest {
 		Map<String, Set<String>> parameterMap = new HashMap<>();
 		parameterMap.put("filter[unknownAttr]", Collections.singleton("test"));
 		parameterMap.put("sort", Collections.singleton("-unknownAttr"));
-		QuerySpec querySpec = deserializer.deserialize(Task.class, parameterMap);
+		ResourceInformation taskInformation = client.getRegistry().getEntryForClass(Task.class).getResourceInformation();
+		QuerySpec querySpec = deserializer.deserialize(taskInformation, parameterMap);
 		Assert.assertEquals(1, querySpec.getFilters().size());
 		FilterSpec filterSpec = querySpec.getFilters().get(0);
 		Assert.assertEquals("unknownAttr", filterSpec.getAttributePath().get(0));

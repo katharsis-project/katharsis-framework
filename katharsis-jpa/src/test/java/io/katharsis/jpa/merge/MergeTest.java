@@ -11,13 +11,13 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import io.katharsis.client.QuerySpecResourceRepositoryStub;
 import io.katharsis.jpa.AbstractJpaJerseyTest;
 import io.katharsis.jpa.JpaModule;
 import io.katharsis.jpa.JpaRepositoryConfig;
 import io.katharsis.jpa.model.RelatedEntity;
 import io.katharsis.jpa.model.TestEntity;
 import io.katharsis.jpa.util.SpringTransactionRunner;
+import io.katharsis.repository.ResourceRepositoryV2;
 
 /**
  * Example of how to merge an entity with several related entities into a single
@@ -26,7 +26,7 @@ import io.katharsis.jpa.util.SpringTransactionRunner;
 @Ignore // not supported, use dtp maping, to be replaced by configuration
 public class MergeTest extends AbstractJpaJerseyTest {
 
-	private QuerySpecResourceRepositoryStub<MergedResource, Long> repo;
+	private ResourceRepositoryV2<MergedResource, Long> repo;
 
 	private EntityManager entityManager;
 

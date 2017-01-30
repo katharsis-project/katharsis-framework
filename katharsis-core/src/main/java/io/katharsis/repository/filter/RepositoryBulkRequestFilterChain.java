@@ -2,7 +2,7 @@ package io.katharsis.repository.filter;
 
 import java.util.Map;
 
-import io.katharsis.response.JsonApiResponse;
+import io.katharsis.repository.response.JsonApiResponse;
 
 /**
  * Manages the chain of repository filters to perform a bulk request.

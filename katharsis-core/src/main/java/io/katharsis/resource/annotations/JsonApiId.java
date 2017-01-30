@@ -1,12 +1,12 @@
 package io.katharsis.resource.annotations;
 
-import io.katharsis.utils.parser.TypeParser;
-
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import io.katharsis.core.internal.utils.parser.TypeParser;
 
 /**
  * Defines a field which will be used as an identifier of a resource. It must be assigned to a field which implements

@@ -23,17 +23,17 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import io.katharsis.core.internal.utils.PropertyUtils;
 import io.katharsis.example.springboot.simple.domain.model.Project;
 import io.katharsis.example.springboot.simple.domain.model.Task;
+import io.katharsis.legacy.repository.annotations.JsonApiAddRelations;
+import io.katharsis.legacy.repository.annotations.JsonApiFindManyTargets;
+import io.katharsis.legacy.repository.annotations.JsonApiFindOneTarget;
+import io.katharsis.legacy.repository.annotations.JsonApiRelationshipRepository;
+import io.katharsis.legacy.repository.annotations.JsonApiRemoveRelations;
+import io.katharsis.legacy.repository.annotations.JsonApiSetRelation;
+import io.katharsis.legacy.repository.annotations.JsonApiSetRelations;
 import io.katharsis.queryspec.QuerySpec;
-import io.katharsis.repository.annotations.JsonApiAddRelations;
-import io.katharsis.repository.annotations.JsonApiFindManyTargets;
-import io.katharsis.repository.annotations.JsonApiFindOneTarget;
-import io.katharsis.repository.annotations.JsonApiRelationshipRepository;
-import io.katharsis.repository.annotations.JsonApiRemoveRelations;
-import io.katharsis.repository.annotations.JsonApiSetRelation;
-import io.katharsis.repository.annotations.JsonApiSetRelations;
-import io.katharsis.utils.PropertyUtils;
 
 /**
  * Manually-written, annotation-based relationship repository example.

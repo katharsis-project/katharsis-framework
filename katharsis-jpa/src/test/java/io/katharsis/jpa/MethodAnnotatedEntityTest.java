@@ -6,7 +6,6 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-import io.katharsis.client.QuerySpecResourceRepositoryStub;
 import io.katharsis.jpa.meta.JpaMetaProvider;
 import io.katharsis.jpa.meta.MetaEntity;
 import io.katharsis.jpa.model.MethodAnnotatedEntity;
@@ -14,6 +13,7 @@ import io.katharsis.meta.MetaLookup;
 import io.katharsis.meta.model.MetaAttribute;
 import io.katharsis.meta.model.MetaKey;
 import io.katharsis.queryspec.QuerySpec;
+import io.katharsis.repository.ResourceRepositoryV2;
 
 public class MethodAnnotatedEntityTest extends AbstractJpaJerseyTest {
 
@@ -45,7 +45,7 @@ public class MethodAnnotatedEntityTest extends AbstractJpaJerseyTest {
 	@Test
 	public void testMethodAnnotatedFields() {
 		// tests whether JPA annotations on methods are supported as well
-		QuerySpecResourceRepositoryStub<MethodAnnotatedEntity, Long> methodRepo = client.getQuerySpecRepository(MethodAnnotatedEntity.class);
+		ResourceRepositoryV2<MethodAnnotatedEntity, Long> methodRepo = client.getQuerySpecRepository(MethodAnnotatedEntity.class);
 
 		MethodAnnotatedEntity task = new MethodAnnotatedEntity();
 		task.setId(1L);

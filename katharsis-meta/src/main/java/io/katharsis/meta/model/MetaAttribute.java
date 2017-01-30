@@ -13,10 +13,10 @@ import org.apache.commons.beanutils.PropertyUtilsBean;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import io.katharsis.core.internal.utils.ClassUtils;
+import io.katharsis.core.internal.utils.PreconditionUtil;
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.annotations.JsonApiToOne;
-import io.katharsis.utils.ClassUtils;
-import io.katharsis.utils.PreconditionUtil;
 
 @JsonApiResource(type = "meta/attribute")
 public class MetaAttribute extends MetaElement {
