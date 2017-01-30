@@ -58,7 +58,7 @@ public class JpaResourceInformationBuilderTest {
 
 		ArrayList<ResourceField> relFields = new ArrayList<ResourceField>(info.getRelationshipFields());
 		Collections.sort(relFields, ResourceFieldComparator.INSTANCE);
-		assertEquals(3, relFields.size());
+		assertEquals(4, relFields.size());
 		boolean found = false;
 		for (ResourceField relField : relFields) {
 			if (relField.getUnderlyingName().equals(TestEntity.ATTR_oneRelatedValue)) {

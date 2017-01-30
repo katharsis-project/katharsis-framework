@@ -44,7 +44,7 @@ public class QuerydslQueryImpl<T> extends AbstractJpaQueryImpl<T, QuerydslQueryB
 
 	@Override
 	protected QuerydslQueryBackend<T> newBackend() {
-		return new QuerydslQueryBackend<>(this, clazz, parentEntityClass, parentAttr, parentIdSelection);
+		return new QuerydslQueryBackend<>(this, clazz, parentMeta, parentAttr, parentIdSelection);
 	}
 
 	@Override

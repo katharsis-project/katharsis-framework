@@ -48,7 +48,7 @@ public abstract class AbstractJpaQueryImpl<T, B extends JpaQueryBackend<?, ?, ?,
 
 	protected boolean ensureTotalOrder = true;
 
-	protected Class<?> parentEntityClass;
+	protected MetaDataObject parentMeta;
 
 	protected List<?> parentIds;
 
@@ -82,7 +82,7 @@ public abstract class AbstractJpaQueryImpl<T, B extends JpaQueryBackend<?, ?, ?,
 		this.em = em;
 		this.computedAttrs = virtualAttrs;
 
-		MetaDataObject parentMeta = metaLookup.getMeta(entityClass, MetaJpaDataObject.class);
+		this.parentMeta = metaLookup.getMeta(entityClass, MetaJpaDataObject.class);
 		MetaAttribute attrMeta = parentMeta.getAttribute(attrName);
 		if (attrMeta.getType().isCollection()) {
 			this.meta = (MetaDataObject) attrMeta.getType().asCollection().getElementType();
@@ -92,7 +92,6 @@ public abstract class AbstractJpaQueryImpl<T, B extends JpaQueryBackend<?, ?, ?,
 		}
 		this.clazz = (Class<T>) meta.getImplementationClass();
 
-		this.parentEntityClass = entityClass;
 		this.parentAttr = attrMeta;
 		this.parentIds = entityIds;
 	}
@@ -229,6 +228,10 @@ public abstract class AbstractJpaQueryImpl<T, B extends JpaQueryBackend<?, ?, ?,
 
 	public MetaAttribute getParentAttr() {
 		return parentAttr;
+	}
+
+	public MetaDataObject getParentMeta() {
+		return parentMeta;
 	}
 
 }
