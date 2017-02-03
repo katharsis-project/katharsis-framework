@@ -1,7 +1,7 @@
 package io.katharsis.errorhandling.exception;
 
 import io.katharsis.errorhandling.ErrorData;
-import io.katharsis.response.HttpStatus;
+import io.katharsis.repository.response.HttpStatus;
 
 public class BadRequestException extends KatharsisMappableException {
 

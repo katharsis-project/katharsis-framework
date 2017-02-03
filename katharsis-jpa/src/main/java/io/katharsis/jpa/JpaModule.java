@@ -16,11 +16,8 @@ import javax.persistence.metamodel.ManagedType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.katharsis.dispatcher.controller.Response;
-import io.katharsis.dispatcher.filter.AbstractFilter;
-import io.katharsis.dispatcher.filter.FilterChain;
-import io.katharsis.dispatcher.filter.FilterRequestContext;
-import io.katharsis.internal.boot.TransactionRunner;
+import io.katharsis.core.internal.boot.TransactionRunner;
+import io.katharsis.core.internal.utils.PreconditionUtil;
 import io.katharsis.jpa.internal.JpaRequestContext;
 import io.katharsis.jpa.internal.JpaResourceInformationBuilder;
 import io.katharsis.jpa.internal.OptimisticLockExceptionMapper;
@@ -46,15 +43,18 @@ import io.katharsis.meta.model.resource.MetaResource;
 import io.katharsis.meta.provider.resource.ResourceMetaProvider;
 import io.katharsis.module.Module;
 import io.katharsis.queryspec.QuerySpec;
-import io.katharsis.queryspec.QuerySpecRelationshipRepository;
-import io.katharsis.queryspec.QuerySpecResourceRepository;
+import io.katharsis.repository.RelationshipRepositoryV2;
+import io.katharsis.repository.ResourceRepositoryV2;
 import io.katharsis.repository.RelationshipRepositoryV2;
 import io.katharsis.repository.ResourceRepositoryV2;
 import io.katharsis.repository.decorate.RelationshipRepositoryDecorator;
 import io.katharsis.repository.decorate.RepositoryDecoratorFactory;
 import io.katharsis.repository.decorate.ResourceRepositoryDecorator;
+import io.katharsis.repository.filter.AbstractDocumentFilter;
+import io.katharsis.repository.filter.DocumentFilterChain;
+import io.katharsis.repository.filter.DocumentFilterContext;
+import io.katharsis.repository.response.Response;
 import io.katharsis.resource.information.ResourceInformationBuilder;
-import io.katharsis.utils.PreconditionUtil;
 
 /**
  * Katharsis module that adds support to expose JPA entities as repositories. It
@@ -357,10 +357,10 @@ public class JpaModule implements Module {
 	}
 
 	protected void setupTransactionMgmt() {
-		context.addFilter(new AbstractFilter() {
+		context.addFilter(new AbstractDocumentFilter() {
 
 			@Override
-			public Response filter(final FilterRequestContext context, final FilterChain chain) {
+			public Response filter(final DocumentFilterContext context, final DocumentFilterChain chain) {
 				return transactionRunner.doInTransaction(new Callable<Response>() {
 
 					@Override
@@ -384,14 +384,14 @@ public class JpaModule implements Module {
 		if (isValidEntity(metaEntity)) {
 			JpaEntityRepository<?, Serializable> jpaRepository = repositoryFactory.createEntityRepository(this, config);
 
-			QuerySpecResourceRepository<?, ?> repository = filterResourceCreation(resourceClass, jpaRepository);
+			ResourceRepositoryV2<?, ?> repository = filterResourceCreation(resourceClass, jpaRepository);
 
 			context.addRepository(repository);
 			setupRelationshipRepositories(resourceClass, config.getResourceClass() != config.getEntityClass());
 		}
 	}
 
-	private QuerySpecResourceRepository<?, ?> filterResourceCreation(Class<?> resourceClass, JpaEntityRepository<?, ?> repository) {
+	private ResourceRepositoryV2<?, ?> filterResourceCreation(Class<?> resourceClass, JpaEntityRepository<?, ?> repository) {
 		JpaEntityRepository<?, ?> filteredRepository = repository;
 		for (JpaRepositoryFilter filter : filters) {
 			if (filter.accept(resourceClass)) {
@@ -401,7 +401,7 @@ public class JpaModule implements Module {
 		return filteredRepository;
 	}
 
-	private QuerySpecRelationshipRepository<?, ?, ?, ?> filterRelationshipCreation(Class<?> resourceClass, JpaRelationshipRepository<?, ?, ?, ?> repository) {
+	private RelationshipRepositoryV2<?, ?, ?, ?> filterRelationshipCreation(Class<?> resourceClass, JpaRelationshipRepository<?, ?, ?, ?> repository) {
 		JpaRelationshipRepository<?, ?, ?, ?> filteredRepository = repository;
 		for (JpaRepositoryFilter filter : filters) {
 			if (filter.accept(resourceClass)) {
@@ -432,7 +432,7 @@ public class JpaModule implements Module {
 
 				// only include relations that are exposed as repositories
 				if (attrConfig != null) {
-					QuerySpecRelationshipRepository<?, ?, ?, ?> relationshipRepository = filterRelationshipCreation(attrImplClass, repositoryFactory.createRelationshipRepository(this, resourceClass, attrConfig));
+					RelationshipRepositoryV2<?, ?, ?, ?> relationshipRepository = filterRelationshipCreation(attrImplClass, repositoryFactory.createRelationshipRepository(this, resourceClass, attrConfig));
 					context.addRepository(relationshipRepository);
 				}
 			} else if (attrType instanceof MetaResource) {
@@ -444,7 +444,7 @@ public class JpaModule implements Module {
 				JpaRepositoryConfig<?> targetConfig = getRepositoryConfig(attrImplClass);
 				Class<?> targetResourceClass = targetConfig.getResourceClass();
 
-				QuerySpecRelationshipRepository<?, ?, ?, ?> relationshipRepository = filterRelationshipCreation(targetResourceClass, repositoryFactory.createRelationshipRepository(this, resourceClass, attrConfig));
+				RelationshipRepositoryV2<?, ?, ?, ?> relationshipRepository = filterRelationshipCreation(targetResourceClass, repositoryFactory.createRelationshipRepository(this, resourceClass, attrConfig));
 				context.addRepository(relationshipRepository);
 			} else {
 				throw new IllegalStateException("unable to process relation: " + attr.getId() + ", neither a entity nor a mapped entity is referenced");

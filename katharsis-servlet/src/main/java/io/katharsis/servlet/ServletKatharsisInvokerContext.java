@@ -17,7 +17,7 @@
 package io.katharsis.servlet;
 
 import io.katharsis.invoker.KatharsisInvokerContext;
-import io.katharsis.repository.RepositoryMethodParameterProvider;
+import io.katharsis.legacy.internal.RepositoryMethodParameterProvider;
 
 import java.io.IOException;
 import java.io.InputStream;

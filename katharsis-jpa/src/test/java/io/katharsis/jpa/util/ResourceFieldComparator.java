@@ -2,7 +2,7 @@ package io.katharsis.jpa.util;
 
 import java.util.Comparator;
 
-import io.katharsis.resource.field.ResourceField;
+import io.katharsis.resource.information.ResourceField;
 
 public class ResourceFieldComparator implements Comparator<ResourceField> {
 

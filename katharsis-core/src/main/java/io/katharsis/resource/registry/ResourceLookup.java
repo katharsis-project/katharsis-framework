@@ -1,9 +1,9 @@
 package io.katharsis.resource.registry;
 
-import io.katharsis.repository.RelationshipRepository;
-import io.katharsis.repository.ResourceRepository;
-
 import java.util.Set;
+
+import io.katharsis.legacy.repository.RelationshipRepository;
+import io.katharsis.legacy.repository.ResourceRepository;
 
 public interface ResourceLookup {
 	

@@ -16,11 +16,11 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.katharsis.core.internal.exception.ExceptionMapperRegistry;
 import io.katharsis.errorhandling.ErrorResponse;
-import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
 import io.katharsis.invoker.KatharsisInvokerException;
-import io.katharsis.utils.java.Optional;
+import io.katharsis.utils.Optional;
 
 @Priority(10)
 public class ErrorHandlerFilter extends OncePerRequestFilter {

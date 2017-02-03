@@ -2,8 +2,8 @@ package io.katharsis.resource.list;
 
 import java.util.List;
 
-import io.katharsis.response.LinksInformation;
-import io.katharsis.response.MetaInformation;
+import io.katharsis.resource.links.LinksInformation;
+import io.katharsis.resource.meta.MetaInformation;
 
 /**
  * Holds links and meta information next to the actual list. Can be returned by findAll and findTargets repository operation.	

@@ -1,19 +1,21 @@
 package io.katharsis.spring.boot;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.katharsis.dispatcher.RequestDispatcher;
-import io.katharsis.dispatcher.registry.ControllerRegistry;
-import io.katharsis.dispatcher.registry.ControllerRegistryBuilder;
-import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
-import io.katharsis.internal.boot.EmptyPropertiesProvider;
+
+import io.katharsis.core.internal.boot.EmptyPropertiesProvider;
+import io.katharsis.core.internal.dispatcher.ControllerRegistry;
+import io.katharsis.core.internal.dispatcher.ControllerRegistryBuilder;
+import io.katharsis.core.internal.dispatcher.RequestDispatcher;
+import io.katharsis.core.internal.exception.ExceptionMapperRegistry;
+import io.katharsis.core.internal.query.QueryAdapterBuilder;
+import io.katharsis.core.internal.query.QuerySpecAdapterBuilder;
+import io.katharsis.core.internal.utils.parser.TypeParser;
+import io.katharsis.legacy.internal.QueryParamsAdapterBuilder;
+import io.katharsis.legacy.queryParams.QueryParamsBuilder;
 import io.katharsis.module.ModuleRegistry;
-import io.katharsis.queryParams.QueryParamsBuilder;
 import io.katharsis.queryspec.QuerySpecDeserializer;
-import io.katharsis.queryspec.internal.QueryAdapterBuilder;
-import io.katharsis.queryspec.internal.QueryParamsAdapterBuilder;
-import io.katharsis.queryspec.internal.QuerySpecAdapterBuilder;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.utils.parser.TypeParser;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

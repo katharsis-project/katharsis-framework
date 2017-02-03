@@ -8,23 +8,23 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.katharsis.client.KatharsisClient;
-import io.katharsis.client.QuerySpecResourceRepositoryStub;
 import io.katharsis.client.action.ActionStubFactory;
+import io.katharsis.core.internal.utils.ClassUtils;
+import io.katharsis.repository.ResourceRepositoryV2;
 import io.katharsis.resource.list.DefaultResourceList;
 import io.katharsis.resource.list.ResourceListBase;
-import io.katharsis.utils.ClassUtils;
 import net.jodah.typetools.TypeResolver;
 
 public class ClientStubInvocationHandler implements InvocationHandler {
 
-	private QuerySpecResourceRepositoryStub<?, Serializable> repositoryStub;
+	private ResourceRepositoryV2<?, Serializable> repositoryStub;
 
 	private Object actionStub;
 
 	private Map<Method, Method> interfaceStubMethodMap = new HashMap<>();
 
 	public ClientStubInvocationHandler(Class<?> repositoryInterface,
-			QuerySpecResourceRepositoryStub<?, Serializable> repositoryStub, Object actionStub) {
+			ResourceRepositoryV2<?, Serializable> repositoryStub, Object actionStub) {
 		this.repositoryStub = repositoryStub;
 		this.actionStub = actionStub;
 		setupRepositoryMethods(repositoryInterface);
@@ -33,7 +33,7 @@ public class ClientStubInvocationHandler implements InvocationHandler {
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 		try {
-			if (method.getDeclaringClass().isAssignableFrom(QuerySpecResourceRepositoryStub.class)) {
+			if (method.getDeclaringClass().isAssignableFrom(ResourceRepositoryV2.class)) {
 				// execute repository method
 				return method.invoke(repositoryStub, args);
 			}
@@ -88,7 +88,7 @@ public class ClientStubInvocationHandler implements InvocationHandler {
 
 	private void setupRepositoryMethods(Class<?> repositoryInterface) {
 		Map<String, Method> stubMethods = new HashMap<>();
-		for (Method method : QuerySpecResourceRepositoryStub.class.getMethods()) {
+		for (Method method : ResourceRepositoryV2.class.getMethods()) {
 			stubMethods.put(getMethodId(method), method);
 		}
 

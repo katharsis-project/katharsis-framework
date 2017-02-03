@@ -6,10 +6,10 @@ import java.util.Set;
 
 import javax.persistence.Entity;
 
+import io.katharsis.core.internal.utils.ClassUtils;
 import io.katharsis.jpa.meta.MetaEntity;
 import io.katharsis.jpa.meta.MetaJpaDataObject;
 import io.katharsis.meta.model.MetaElement;
-import io.katharsis.utils.ClassUtils;
 
 public class EntityMetaProvider extends AbstractEntityMetaProvider<MetaEntity> {
 

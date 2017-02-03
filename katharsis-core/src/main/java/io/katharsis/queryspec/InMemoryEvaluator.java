@@ -7,10 +7,10 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
+import io.katharsis.core.internal.utils.PropertyUtils;
 import io.katharsis.resource.list.ResourceList;
-import io.katharsis.response.MetaInformation;
-import io.katharsis.response.paging.PagedMetaInformation;
-import io.katharsis.utils.PropertyUtils;
+import io.katharsis.resource.meta.MetaInformation;
+import io.katharsis.resource.meta.PagedMetaInformation;
 
 /**
  * Applies the given QuerySpec to the provided list in memory. Result available

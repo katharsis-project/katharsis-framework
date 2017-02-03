@@ -10,9 +10,9 @@ import io.katharsis.example.dropwizard.domain.repository.ProjectRepository;
 import io.katharsis.example.dropwizard.domain.repository.TaskRepository;
 import io.katharsis.example.dropwizard.domain.repository.TaskToProjectRepository;
 import io.katharsis.example.dropwizard.managed.MongoManaged;
-import io.katharsis.locator.JsonServiceLocator;
-import io.katharsis.queryParams.DefaultQueryParamsParser;
-import io.katharsis.queryParams.QueryParamsBuilder;
+import io.katharsis.legacy.locator.JsonServiceLocator;
+import io.katharsis.legacy.queryParams.DefaultQueryParamsParser;
+import io.katharsis.legacy.queryParams.QueryParamsBuilder;
 import io.katharsis.rs.KatharsisFeature;
 
 import static io.katharsis.rs.KatharsisProperties.RESOURCE_DEFAULT_DOMAIN;

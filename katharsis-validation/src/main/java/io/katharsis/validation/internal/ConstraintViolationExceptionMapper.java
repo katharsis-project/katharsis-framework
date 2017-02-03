@@ -18,16 +18,16 @@ import javax.validation.Path.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.katharsis.core.internal.utils.PropertyUtils;
 import io.katharsis.errorhandling.ErrorData;
 import io.katharsis.errorhandling.ErrorDataBuilder;
 import io.katharsis.errorhandling.ErrorResponse;
 import io.katharsis.errorhandling.mapper.ExceptionMapper;
 import io.katharsis.module.Module.ModuleContext;
-import io.katharsis.resource.field.ResourceField;
+import io.katharsis.resource.information.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.utils.PropertyUtils;
 
 public class ConstraintViolationExceptionMapper implements ExceptionMapper<ConstraintViolationException> {
 
@@ -341,7 +341,7 @@ public class ConstraintViolationExceptionMapper implements ExceptionMapper<Const
 
 		private boolean isPrimaryKey(Class<? extends Object> clazz, String name) {
 			ResourceRegistry resourceRegistry = context.getResourceRegistry();
-			RegistryEntry<?> entry = resourceRegistry.getEntry(clazz);
+			RegistryEntry entry = resourceRegistry.findEntry(clazz);
 			if (entry != null) {
 				ResourceInformation resourceInformation = entry.getResourceInformation();
 				ResourceField idField = resourceInformation.getIdField();
@@ -354,7 +354,7 @@ public class ConstraintViolationExceptionMapper implements ExceptionMapper<Const
 
 		private boolean isAssociation(Class<? extends Object> clazz, String name) {
 			ResourceRegistry resourceRegistry = context.getResourceRegistry();
-			RegistryEntry<?> entry = resourceRegistry.getEntry(clazz);
+			RegistryEntry entry = resourceRegistry.findEntry(clazz);
 			if (entry != null) {
 				ResourceInformation resourceInformation = entry.getResourceInformation();
 				ResourceField relationshipField = resourceInformation.findRelationshipFieldByName(name);
@@ -404,7 +404,7 @@ public class ConstraintViolationExceptionMapper implements ExceptionMapper<Const
 	 */
 	protected String getResourceId(Object resource) {
 		ResourceRegistry resourceRegistry = context.getResourceRegistry();
-		RegistryEntry<?> entry = resourceRegistry.getEntry(resource.getClass());
+		RegistryEntry entry = resourceRegistry.findEntry(resource.getClass());
 		ResourceInformation resourceInformation = entry.getResourceInformation();
 		ResourceField idField = resourceInformation.getIdField();
 		Object id = PropertyUtils.getProperty(resource, idField.getUnderlyingName());
@@ -416,7 +416,7 @@ public class ConstraintViolationExceptionMapper implements ExceptionMapper<Const
 
 	protected String getResourceType(Object resource) {
 		ResourceRegistry resourceRegistry = context.getResourceRegistry();
-		RegistryEntry<?> entry = resourceRegistry.getEntry(resource.getClass());
+		RegistryEntry entry = resourceRegistry.findEntry(resource.getClass());
 		ResourceInformation resourceInformation = entry.getResourceInformation();
 		return resourceInformation.getResourceType();
 	}

@@ -11,16 +11,17 @@ import org.mockito.Mockito;
 
 import com.fasterxml.jackson.databind.Module;
 
-import io.katharsis.dispatcher.filter.Filter;
-import io.katharsis.dispatcher.filter.TestFilter;
-import io.katharsis.dispatcher.filter.TestRepositoryDecorator;
+import io.katharsis.core.internal.dispatcher.filter.TestFilter;
+import io.katharsis.core.internal.dispatcher.filter.TestRepositoryDecorator;
+import io.katharsis.core.internal.exception.ExceptionMapperLookup;
+import io.katharsis.core.internal.exception.ExceptionMapperRegistryTest.IllegalStateExceptionMapper;
+import io.katharsis.core.internal.exception.KatharsisExceptionMapper;
+import io.katharsis.core.internal.registry.ResourceRegistryImpl;
 import io.katharsis.errorhandling.mapper.ExceptionMapper;
-import io.katharsis.errorhandling.mapper.ExceptionMapperLookup;
-import io.katharsis.errorhandling.mapper.ExceptionMapperRegistryTest.IllegalStateExceptionMapper;
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
-import io.katharsis.errorhandling.mapper.KatharsisExceptionMapper;
 import io.katharsis.module.Module.ModuleContext;
 import io.katharsis.repository.decorate.RepositoryDecoratorFactory;
+import io.katharsis.repository.filter.DocumentFilter;
 import io.katharsis.repository.filter.RepositoryFilter;
 import io.katharsis.repository.information.RepositoryInformationBuilder;
 import io.katharsis.resource.information.ResourceInformationBuilder;
@@ -232,13 +233,13 @@ public class SimpleModuleTest {
 		}
 
 		@Override
-		public void addFilter(Filter filter) {
+		public void addFilter(DocumentFilter filter) {
 			numFilters++;
 		}
 
 		@Override
 		public ResourceRegistry getResourceRegistry() {
-			return new ResourceRegistry(null, null);
+			return new ResourceRegistryImpl(null, null);
 		}
 
 		@Override

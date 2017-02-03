@@ -1,6 +1,6 @@
 package io.katharsis.rs;
 
-import io.katharsis.internal.boot.KatharsisBootProperties;
+import io.katharsis.core.internal.boot.KatharsisBootProperties;
 
 /**
  * Katharsis configuration properties.

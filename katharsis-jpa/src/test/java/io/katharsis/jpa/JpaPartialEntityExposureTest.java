@@ -14,8 +14,8 @@ import io.katharsis.client.ResourceRepositoryStub;
 import io.katharsis.jpa.internal.JpaResourceInformationBuilder;
 import io.katharsis.jpa.model.RelatedEntity;
 import io.katharsis.jpa.model.TestEntity;
-import io.katharsis.queryParams.QueryParams;
-import io.katharsis.resource.field.ResourceField;
+import io.katharsis.legacy.queryParams.QueryParams;
+import io.katharsis.resource.information.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
 
 @Ignore
@@ -29,7 +29,7 @@ public class JpaPartialEntityExposureTest extends AbstractJpaJerseyTest {
 	@Before
 	public void setup() {
 		super.setup();
-		testRepo = client.getRepository(TestEntity.class);
+		testRepo = client.getQueryParamsRepository(TestEntity.class);
 	}
 
 	@Override

@@ -16,8 +16,8 @@ import org.junit.Test;
 import io.katharsis.client.mock.models.Project;
 import io.katharsis.client.mock.models.Schedule;
 import io.katharsis.client.mock.models.Task;
-import io.katharsis.queryParams.QueryParams;
-import io.katharsis.resource.exception.ResourceNotFoundException;
+import io.katharsis.errorhandling.exception.ResourceNotFoundException;
+import io.katharsis.legacy.queryParams.QueryParams;
 
 public class QueryParamsClientTest extends AbstractClientTest {
 
@@ -33,10 +33,10 @@ public class QueryParamsClientTest extends AbstractClientTest {
 	public void setup() {
 		super.setup();
 
-		scheduleRepo = client.getRepository(Schedule.class);
-		taskRepo = client.getRepository(Task.class);
-		projectRepo = client.getRepository(Project.class);
-		relRepo = client.getRepository(Task.class, Project.class);
+		scheduleRepo = client.getQueryParamsRepository(Schedule.class);
+		taskRepo = client.getQueryParamsRepository(Task.class);
+		projectRepo = client.getQueryParamsRepository(Project.class);
+		relRepo = client.getQueryParamsRepository(Task.class, Project.class);
 	}
 
 	@Test

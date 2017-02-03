@@ -1,10 +1,11 @@
 package io.katharsis.servlet;
 
-import io.katharsis.repository.RepositoryMethodParameterProvider;
-
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import io.katharsis.legacy.internal.RepositoryMethodParameterProvider;
+
 import java.lang.reflect.Method;
 
 public class ServletParametersProvider implements RepositoryMethodParameterProvider {

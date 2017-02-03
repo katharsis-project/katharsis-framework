@@ -5,19 +5,19 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.katharsis.core.internal.utils.ClassUtils;
 import io.katharsis.jpa.mapping.IdentityMapper;
 import io.katharsis.jpa.mapping.JpaMapper;
 import io.katharsis.queryspec.QuerySpec;
-import io.katharsis.queryspec.QuerySpecResourceRepository;
+import io.katharsis.repository.ResourceRepositoryV2;
 import io.katharsis.repository.decorate.RelationshipRepositoryDecorator;
 import io.katharsis.repository.decorate.ResourceRepositoryDecorator;
+import io.katharsis.resource.links.DefaultPagedLinksInformation;
+import io.katharsis.resource.links.LinksInformation;
 import io.katharsis.resource.list.DefaultResourceList;
 import io.katharsis.resource.list.ResourceListBase;
-import io.katharsis.response.LinksInformation;
-import io.katharsis.response.MetaInformation;
-import io.katharsis.response.paging.DefaultPagedLinksInformation;
-import io.katharsis.response.paging.DefaultPagedMetaInformation;
-import io.katharsis.utils.ClassUtils;
+import io.katharsis.resource.meta.DefaultPagedMetaInformation;
+import io.katharsis.resource.meta.MetaInformation;
 import net.jodah.typetools.TypeResolver;
 
 /**
@@ -85,7 +85,7 @@ public class JpaRepositoryConfig<T> {
 		 * @return this builder
 		 */
 		@SuppressWarnings("unchecked")
-		public Builder<T> setInterfaceClass(Class<? extends QuerySpecResourceRepository<T, ?>> interfaceClass) {
+		public Builder<T> setInterfaceClass(Class<? extends ResourceRepositoryV2<T, ?>> interfaceClass) {
 
 			try {
 				Method findMethod = interfaceClass.getDeclaredMethod("findAll", QuerySpec.class);

@@ -7,17 +7,17 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import io.katharsis.client.QuerySpecResourceRepositoryStub;
 import io.katharsis.meta.model.MetaAttribute;
 import io.katharsis.meta.model.MetaElement;
 import io.katharsis.meta.model.MetaPrimitiveType;
 import io.katharsis.meta.model.resource.MetaResource;
 import io.katharsis.queryspec.QuerySpec;
+import io.katharsis.repository.ResourceRepositoryV2;
 import io.katharsis.resource.list.ResourceList;
 
 public class MetaModuleTest extends AbstractMetaJerseyTest {
 
-	private QuerySpecResourceRepositoryStub<MetaElement, Serializable> repository;
+	private ResourceRepositoryV2<MetaElement, Serializable> repository;
 
 	@Before
 	@Override

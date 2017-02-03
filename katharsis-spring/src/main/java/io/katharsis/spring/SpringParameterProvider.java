@@ -1,6 +1,5 @@
 package io.katharsis.spring;
 
-import io.katharsis.repository.RepositoryMethodParameterProvider;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
@@ -17,6 +16,8 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.HandlerMethodArgumentResolverComposite;
 import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.servlet.mvc.method.annotation.*;
+
+import io.katharsis.legacy.internal.RepositoryMethodParameterProvider;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;

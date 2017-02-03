@@ -4,9 +4,9 @@ import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import io.katharsis.core.internal.utils.ClassUtils;
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.annotations.JsonApiToOne;
-import io.katharsis.utils.ClassUtils;
 
 @JsonApiResource(type = "meta/type")
 public class MetaType extends MetaElement {

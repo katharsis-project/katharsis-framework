@@ -7,6 +7,7 @@ import java.util.Set;
 
 import javax.persistence.Embeddable;
 
+import io.katharsis.core.internal.utils.ClassUtils;
 import io.katharsis.jpa.meta.MetaEmbeddable;
 import io.katharsis.jpa.meta.MetaEmbeddableAttribute;
 import io.katharsis.jpa.meta.MetaJpaDataObject;
@@ -14,7 +15,6 @@ import io.katharsis.meta.model.MetaAttribute;
 import io.katharsis.meta.model.MetaDataObject;
 import io.katharsis.meta.model.MetaElement;
 import io.katharsis.meta.provider.MetaProviderContext;
-import io.katharsis.utils.ClassUtils;
 
 public class EmbeddableMetaProvider extends AbstractJpaDataObjectProvider<MetaEmbeddable> {
 

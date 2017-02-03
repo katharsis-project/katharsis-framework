@@ -1,9 +1,9 @@
 package io.katharsis.module;
 
-import io.katharsis.dispatcher.filter.Filter;
+import io.katharsis.core.internal.exception.ExceptionMapperLookup;
 import io.katharsis.errorhandling.mapper.ExceptionMapper;
-import io.katharsis.errorhandling.mapper.ExceptionMapperLookup;
 import io.katharsis.repository.decorate.RepositoryDecoratorFactory;
+import io.katharsis.repository.filter.DocumentFilter;
 import io.katharsis.repository.filter.RepositoryFilter;
 import io.katharsis.repository.information.RepositoryInformationBuilder;
 import io.katharsis.resource.information.ResourceInformationBuilder;
@@ -127,7 +127,7 @@ public interface Module {
 		 * @param filter
 		 *            filter
 		 */
-		void addFilter(Filter filter);
+		void addFilter(DocumentFilter filter);
 
 		/**
 		 * Adds a repository filter to intercept repository calls.

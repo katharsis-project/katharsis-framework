@@ -1,7 +1,7 @@
 package io.katharsis.rs.controller;
 
-import io.katharsis.request.path.PathBuilder;
-import io.katharsis.response.HttpStatus;
+import io.katharsis.core.internal.dispatcher.path.PathBuilder;
+import io.katharsis.repository.response.HttpStatus;
 import io.katharsis.rs.resource.exception.ExampleException;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Assert;

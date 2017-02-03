@@ -1,7 +1,7 @@
 package io.katharsis.rs.resource.repository;
 
-import io.katharsis.queryParams.QueryParams;
-import io.katharsis.repository.RelationshipRepository;
+import io.katharsis.legacy.queryParams.QueryParams;
+import io.katharsis.legacy.repository.RelationshipRepository;
 import io.katharsis.rs.resource.model.Project;
 import io.katharsis.rs.resource.model.Task;
 

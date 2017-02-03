@@ -27,13 +27,13 @@ import io.katharsis.brave.mock.models.Task;
 import io.katharsis.brave.mock.repository.ProjectRepository;
 import io.katharsis.brave.mock.repository.TaskRepository;
 import io.katharsis.client.KatharsisClient;
-import io.katharsis.client.QuerySpecRelationshipRepositoryStub;
-import io.katharsis.client.QuerySpecResourceRepositoryStub;
 import io.katharsis.client.http.HttpAdapter;
 import io.katharsis.client.http.okhttp.OkHttpAdapter;
 import io.katharsis.queryspec.FilterOperator;
 import io.katharsis.queryspec.FilterSpec;
 import io.katharsis.queryspec.QuerySpec;
+import io.katharsis.repository.RelationshipRepositoryV2;
+import io.katharsis.repository.ResourceRepositoryV2;
 import io.katharsis.rs.KatharsisFeature;
 import io.katharsis.rs.KatharsisProperties;
 import zipkin.BinaryAnnotation;
@@ -44,7 +44,7 @@ public abstract class AbstractBraveModuleTest extends JerseyTest {
 
 	protected KatharsisClient client;
 
-	protected QuerySpecResourceRepositoryStub<Task, Long> taskRepo;
+	protected ResourceRepositoryV2<Task, Long> taskRepo;
 
 	private Reporter<Span> clientReporter;
 
@@ -54,7 +54,7 @@ public abstract class AbstractBraveModuleTest extends JerseyTest {
 
 	private boolean isOkHttp;
 
-	private QuerySpecResourceRepositoryStub<Project, Serializable> projectRepo;
+	private ResourceRepositoryV2<Project, Serializable> projectRepo;
 
 	public AbstractBraveModuleTest(HttpAdapter httpAdapter) {
 		this.httpAdapter = httpAdapter;
@@ -193,7 +193,7 @@ public abstract class AbstractBraveModuleTest extends JerseyTest {
 
 	@Test
 	public void testFindTargets() {
-		QuerySpecRelationshipRepositoryStub<Project, Serializable, Task, Serializable> relRepo = client
+		RelationshipRepositoryV2<Project, Serializable, Task, Serializable> relRepo = client
 				.getQuerySpecRepository(Project.class, Task.class);
 		relRepo.findManyTargets(123L, "tasks", new QuerySpec(Task.class));
 

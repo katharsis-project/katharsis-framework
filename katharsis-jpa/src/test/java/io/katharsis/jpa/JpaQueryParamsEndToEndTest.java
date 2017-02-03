@@ -20,7 +20,7 @@ import io.katharsis.jpa.model.TestEmbeddedIdEntity;
 import io.katharsis.jpa.model.TestEntity;
 import io.katharsis.jpa.model.TestIdEmbeddable;
 import io.katharsis.jpa.model.VersionedEntity;
-import io.katharsis.queryParams.QueryParams;
+import io.katharsis.legacy.queryParams.QueryParams;
 
 public class JpaQueryParamsEndToEndTest extends AbstractJpaJerseyTest {
 
@@ -30,7 +30,7 @@ public class JpaQueryParamsEndToEndTest extends AbstractJpaJerseyTest {
 	@Before
 	public void setup() {
 		super.setup();
-		testRepo = client.getRepository(TestEntity.class);
+		testRepo = client.getQueryParamsRepository(TestEntity.class);
 	}
 
 	@Test
@@ -97,7 +97,7 @@ public class JpaQueryParamsEndToEndTest extends AbstractJpaJerseyTest {
 
 	@Test
 	public void testOptimisticLocking() {
-		ResourceRepositoryStub<VersionedEntity, Serializable> repo = client.getRepository(VersionedEntity.class);
+		ResourceRepositoryStub<VersionedEntity, Serializable> repo = client.getQueryParamsRepository(VersionedEntity.class);
 		VersionedEntity entity = new VersionedEntity();
 		entity.setId(1L);
 		entity.setLongValue(13L);
@@ -160,7 +160,7 @@ public class JpaQueryParamsEndToEndTest extends AbstractJpaJerseyTest {
 
 	@Test
 	public void testEagerOneRelation() {
-		ResourceRepositoryStub<RelatedEntity, Long> relatedRepo = client.getRepository(RelatedEntity.class);
+		ResourceRepositoryStub<RelatedEntity, Long> relatedRepo = client.getQueryParamsRepository(RelatedEntity.class);
 		RelatedEntity related = new RelatedEntity();
 		related.setId(1L);
 		related.setStringValue("project");
@@ -184,7 +184,7 @@ public class JpaQueryParamsEndToEndTest extends AbstractJpaJerseyTest {
 
 	@Test
 	public void testEmbeddableIds() throws InstantiationException, IllegalAccessException {
-		ResourceRepositoryStub<TestEmbeddedIdEntity, Serializable> rep = client.getRepository(TestEmbeddedIdEntity.class);
+		ResourceRepositoryStub<TestEmbeddedIdEntity, Serializable> rep = client.getQueryParamsRepository(TestEmbeddedIdEntity.class);
 
 		// add
 		TestEmbeddedIdEntity entity = new TestEmbeddedIdEntity();
@@ -215,7 +215,7 @@ public class JpaQueryParamsEndToEndTest extends AbstractJpaJerseyTest {
 	}
 
 	private TestEntity addTestWithOneRelation() {
-		ResourceRepositoryStub<RelatedEntity, Long> relatedRepo = client.getRepository(RelatedEntity.class);
+		ResourceRepositoryStub<RelatedEntity, Long> relatedRepo = client.getQueryParamsRepository(RelatedEntity.class);
 		RelatedEntity related = new RelatedEntity();
 		related.setId(1L);
 		related.setStringValue("project");

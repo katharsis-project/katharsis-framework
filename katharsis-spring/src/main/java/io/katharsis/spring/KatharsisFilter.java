@@ -2,8 +2,8 @@ package io.katharsis.spring;
 
 import io.katharsis.invoker.KatharsisInvokerBuilder;
 import io.katharsis.invoker.KatharsisInvokerContext;
-import io.katharsis.locator.JsonServiceLocator;
-import io.katharsis.repository.RepositoryMethodParameterProvider;
+import io.katharsis.legacy.internal.RepositoryMethodParameterProvider;
+import io.katharsis.legacy.locator.JsonServiceLocator;
 import io.katharsis.servlet.SampleKatharsisFilter;
 import io.katharsis.servlet.ServletKatharsisInvokerContext;
 import org.springframework.beans.BeansException;

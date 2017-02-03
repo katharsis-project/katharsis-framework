@@ -1,9 +1,10 @@
 package io.katharsis.module;
 
 import io.katharsis.queryspec.QuerySpec;
-import io.katharsis.queryspec.QuerySpecResourceRepository;
+import io.katharsis.repository.ResourceRepositoryV2;
+import io.katharsis.resource.list.ResourceList;
 
-class TestRepository implements QuerySpecResourceRepository<TestResource, Integer> {
+class TestRepository implements ResourceRepositoryV2<TestResource, Integer> {
 
 	@Override
 	public <S extends TestResource> S save(S entity) {
@@ -25,12 +26,17 @@ class TestRepository implements QuerySpecResourceRepository<TestResource, Intege
 	}
 
 	@Override
-	public Iterable<TestResource> findAll(QuerySpec querySpec) {
+	public ResourceList<TestResource> findAll(QuerySpec querySpec) {
 		return null;
 	}
 
 	@Override
-	public Iterable<TestResource> findAll(Iterable<Integer> ids, QuerySpec querySpec) {
+	public ResourceList<TestResource> findAll(Iterable<Integer> ids, QuerySpec querySpec) {
+		return null;
+	}
+
+	@Override
+	public <S extends TestResource> S create(S entity) {
 		return null;
 	}
 }

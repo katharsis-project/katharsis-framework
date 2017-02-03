@@ -2,10 +2,9 @@ package io.katharsis.repository;
 
 import java.io.Serializable;
 
-import io.katharsis.queryParams.QueryParams;
+import io.katharsis.errorhandling.exception.ResourceNotFoundException;
+import io.katharsis.legacy.queryParams.QueryParams;
 import io.katharsis.queryspec.QuerySpec;
-import io.katharsis.queryspec.QuerySpecResourceRepository;
-import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.list.ResourceList;
 
 /**
@@ -16,12 +15,11 @@ import io.katharsis.resource.list.ResourceList;
  * @param <I> Type of Identifier of an entity
  * @param <L> List type
  */
-public interface ResourceRepositoryV2<T, I extends Serializable> extends Repository, QuerySpecResourceRepository<T, I> {
+public interface ResourceRepositoryV2<T, I extends Serializable> extends Repository {
 
 	/**
 	 * @return the class returned by this repository
 	 */
-	@Override
 	Class<T> getResourceClass();
 
 	/**
@@ -32,7 +30,6 @@ public interface ResourceRepositoryV2<T, I extends Serializable> extends Reposit
 	* @param querySpec querySpec sent along with the request as parameters
 	* @return an instance of the resource
 	*/
-	@Override
 	T findOne(I id, QuerySpec querySpec);
 
 	/**
@@ -42,7 +39,6 @@ public interface ResourceRepositoryV2<T, I extends Serializable> extends Reposit
 	 * @param querySpec querySpec sent along with the request as parameters
 	 * @return a list of found resources
 	 */
-	@Override
 	ResourceList<T> findAll(QuerySpec querySpec);
 
 	/**
@@ -53,7 +49,6 @@ public interface ResourceRepositoryV2<T, I extends Serializable> extends Reposit
 	 * @param querySpec querySpec sent along with the request as parameters
 	 * @return a list of found resources
 	 */
-	@Override
 	ResourceList<T> findAll(Iterable<I> ids, QuerySpec querySpec);
 
 	/**
@@ -63,7 +58,6 @@ public interface ResourceRepositoryV2<T, I extends Serializable> extends Reposit
 	 * @param <S> type of the resource
 	 * @return saved resource. Must include set identifier.
 	 */
-	@Override
 	<S extends T> S save(S entity);
 	
 	/**
@@ -80,7 +74,6 @@ public interface ResourceRepositoryV2<T, I extends Serializable> extends Reposit
 	 *
 	 * @param id identified of the resource to be removed
 	 */
-	@Override
 	void delete(I id);
 
 }

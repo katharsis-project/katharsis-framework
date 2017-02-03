@@ -1,6 +1,6 @@
 package io.katharsis.repository.filter;
 
-import io.katharsis.response.JsonApiResponse;
+import io.katharsis.repository.response.JsonApiResponse;
 
 /**
  * Manages the chain of filters and their application to a request.

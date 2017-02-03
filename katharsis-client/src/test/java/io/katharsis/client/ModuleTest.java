@@ -16,11 +16,12 @@ import io.katharsis.client.module.HttpAdapterAware;
 import io.katharsis.module.Module;
 import io.katharsis.module.Module.ModuleContext;
 import io.katharsis.queryspec.QuerySpec;
+import io.katharsis.repository.ResourceRepositoryV2;
 import okhttp3.OkHttpClient.Builder;
 
 public class ModuleTest extends AbstractClientTest {
 
-	protected QuerySpecResourceRepositoryStub<Task, Long> taskRepo;
+	protected ResourceRepositoryV2<Task, Long> taskRepo;
 
 	private TestOkHttpAdapterListener adapterListener = Mockito.spy(new TestOkHttpAdapterListener());
 

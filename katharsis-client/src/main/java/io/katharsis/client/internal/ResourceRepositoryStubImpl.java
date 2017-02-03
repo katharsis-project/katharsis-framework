@@ -7,20 +7,20 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.katharsis.client.KatharsisClient;
-import io.katharsis.client.QuerySpecResourceRepositoryStub;
 import io.katharsis.client.ResourceRepositoryStub;
-import io.katharsis.dispatcher.controller.HttpMethod;
-import io.katharsis.queryParams.QueryParams;
+import io.katharsis.core.internal.utils.JsonApiUrlBuilder;
+import io.katharsis.core.internal.utils.PropertyUtils;
+import io.katharsis.legacy.queryParams.QueryParams;
 import io.katharsis.queryspec.QuerySpec;
+import io.katharsis.repository.ResourceRepositoryV2;
+import io.katharsis.repository.request.HttpMethod;
+import io.katharsis.repository.response.JsonApiResponse;
 import io.katharsis.resource.Document;
-import io.katharsis.resource.field.ResourceField;
+import io.katharsis.resource.information.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.list.DefaultResourceList;
-import io.katharsis.response.JsonApiResponse;
-import io.katharsis.utils.JsonApiUrlBuilder;
-import io.katharsis.utils.PropertyUtils;
 
-public class ResourceRepositoryStubImpl<T, I extends Serializable> extends AbstractStub implements ResourceRepositoryStub<T, I>, QuerySpecResourceRepositoryStub<T, I> {
+public class ResourceRepositoryStubImpl<T, I extends Serializable> extends AbstractStub implements ResourceRepositoryV2<T, I>, ResourceRepositoryStub<T, I> {
 
 	private ResourceInformation resourceInformation;
 
@@ -54,19 +54,19 @@ public class ResourceRepositoryStubImpl<T, I extends Serializable> extends Abstr
 
 	@Override
 	public T findOne(I id, QueryParams queryParams) {
-		String url = urlBuilder.buildUrl(resourceClass, id, queryParams);
+		String url = urlBuilder.buildUrl(resourceInformation, id, queryParams);
 		return findOne(url);
 	}
 
 	@Override
 	public List<T> findAll(QueryParams queryParams) {
-		String url = urlBuilder.buildUrl(resourceClass, null, queryParams);
+		String url = urlBuilder.buildUrl(resourceInformation, null, queryParams);
 		return findAll(url);
 	}
 
 	@Override
 	public List<T> findAll(Iterable<I> ids, QueryParams queryParams) {
-		String url = urlBuilder.buildUrl(resourceClass, ids, queryParams);
+		String url = urlBuilder.buildUrl(resourceInformation, ids, queryParams);
 		return findAll(url);
 	}
 
@@ -78,7 +78,7 @@ public class ResourceRepositoryStubImpl<T, I extends Serializable> extends Abstr
 	@SuppressWarnings("unchecked")
 	private <S extends T> S modify(S entity, boolean create) {
 		Object id = getId(entity, create);
-		String url = urlBuilder.buildUrl(resourceClass, id, (QuerySpec) null);
+		String url = urlBuilder.buildUrl(resourceInformation, id, (QuerySpec) null);
 		return (S) executeUpdate(url, entity, create);
 	}
 
@@ -101,7 +101,7 @@ public class ResourceRepositoryStubImpl<T, I extends Serializable> extends Abstr
 
 	@Override
 	public void delete(I id) {
-		String url = urlBuilder.buildUrl(resourceClass, id, (QuerySpec) null);
+		String url = urlBuilder.buildUrl(resourceInformation, id, (QuerySpec) null);
 		executeDelete(url);
 	}
 
@@ -112,19 +112,19 @@ public class ResourceRepositoryStubImpl<T, I extends Serializable> extends Abstr
 
 	@Override
 	public T findOne(I id, QuerySpec querySpec) {
-		String url = urlBuilder.buildUrl(resourceClass, id, querySpec);
+		String url = urlBuilder.buildUrl(resourceInformation, id, querySpec);
 		return findOne(url);
 	}
 
 	@Override
 	public DefaultResourceList<T> findAll(QuerySpec querySpec) {
-		String url = urlBuilder.buildUrl(resourceClass, null, querySpec);
+		String url = urlBuilder.buildUrl(resourceInformation, null, querySpec);
 		return findAll(url);
 	}
 
 	@Override
 	public DefaultResourceList<T> findAll(Iterable<I> ids, QuerySpec queryPaquerySpecrams) {
-		String url = urlBuilder.buildUrl(resourceClass, ids, queryPaquerySpecrams);
+		String url = urlBuilder.buildUrl(resourceInformation, ids, queryPaquerySpecrams);
 		return findAll(url);
 	}
 

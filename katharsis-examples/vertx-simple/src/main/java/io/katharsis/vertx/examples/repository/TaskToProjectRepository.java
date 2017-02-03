@@ -1,7 +1,7 @@
 package io.katharsis.vertx.examples.repository;
 
-import io.katharsis.queryParams.QueryParams;
-import io.katharsis.repository.RelationshipRepository;
+import io.katharsis.legacy.queryParams.QueryParams;
+import io.katharsis.legacy.repository.RelationshipRepository;
 import io.katharsis.vertx.examples.domain.Project;
 import io.katharsis.vertx.examples.domain.Task;
 import lombok.extern.slf4j.Slf4j;

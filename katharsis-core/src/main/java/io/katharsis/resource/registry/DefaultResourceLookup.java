@@ -7,17 +7,15 @@ import java.util.Set;
 
 import org.reflections.Reflections;
 
-import io.katharsis.queryspec.QuerySpecBulkRelationshipRepository;
-import io.katharsis.queryspec.QuerySpecRelationshipRepository;
-import io.katharsis.queryspec.QuerySpecRelationshipRepositoryBase;
-import io.katharsis.queryspec.QuerySpecResourceRepository;
-import io.katharsis.queryspec.QuerySpecResourceRepositoryBase;
-import io.katharsis.repository.RelationshipRepository;
+import io.katharsis.legacy.repository.RelationshipRepository;
+import io.katharsis.legacy.repository.ResourceRepository;
+import io.katharsis.legacy.repository.annotations.JsonApiRelationshipRepository;
+import io.katharsis.legacy.repository.annotations.JsonApiResourceRepository;
+import io.katharsis.repository.BulkRelationshipRepositoryV2;
 import io.katharsis.repository.RelationshipRepositoryBase;
-import io.katharsis.repository.ResourceRepository;
+import io.katharsis.repository.RelationshipRepositoryV2;
 import io.katharsis.repository.ResourceRepositoryBase;
-import io.katharsis.repository.annotations.JsonApiRelationshipRepository;
-import io.katharsis.repository.annotations.JsonApiResourceRepository;
+import io.katharsis.repository.ResourceRepositoryV2;
 import io.katharsis.resource.annotations.JsonApiResource;
 
 /**
@@ -50,10 +48,10 @@ public class DefaultResourceLookup implements ResourceLookup {
 		Set<Class<? extends ResourceRepository>> resourceRepositories = reflections.getSubTypesOf(ResourceRepository.class);
 		Set<Class<? extends RelationshipRepository>> relationshipRepositories = reflections
 				.getSubTypesOf(RelationshipRepository.class);
-		Set<Class<? extends QuerySpecResourceRepository>> querySpecResourceRepositories = reflections
-				.getSubTypesOf(QuerySpecResourceRepository.class);
-		Set<Class<? extends QuerySpecRelationshipRepository>> querySpecRelationshipRepositories = reflections
-				.getSubTypesOf(QuerySpecRelationshipRepository.class);
+		Set<Class<? extends ResourceRepositoryV2>> querySpecResourceRepositories = reflections
+				.getSubTypesOf(ResourceRepositoryV2.class);
+		Set<Class<? extends RelationshipRepositoryV2>> querySpecRelationshipRepositories = reflections
+				.getSubTypesOf(RelationshipRepositoryV2.class);
 
 		Set<Class<?>> result = new HashSet<>();
 		result.addAll(annotatedResourceRepositories);
@@ -62,9 +60,9 @@ public class DefaultResourceLookup implements ResourceLookup {
 		result.addAll(relationshipRepositories);
 		result.addAll(querySpecResourceRepositories);
 		result.addAll(querySpecRelationshipRepositories);
-		result.addAll(reflections.getSubTypesOf(QuerySpecBulkRelationshipRepository.class));
-		result.addAll(reflections.getSubTypesOf(QuerySpecResourceRepositoryBase.class));
-		result.addAll(reflections.getSubTypesOf(QuerySpecRelationshipRepositoryBase.class));
+		result.addAll(reflections.getSubTypesOf(BulkRelationshipRepositoryV2.class));
+		result.addAll(reflections.getSubTypesOf(ResourceRepositoryBase.class));
+		result.addAll(reflections.getSubTypesOf(RelationshipRepositoryBase.class));
 		result.addAll(reflections.getSubTypesOf(RelationshipRepositoryBase.class));
 		result.addAll(reflections.getSubTypesOf(ResourceRepositoryBase.class));
 		

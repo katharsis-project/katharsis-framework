@@ -9,7 +9,7 @@ import javax.persistence.OptimisticLockException;
 import io.katharsis.errorhandling.ErrorData;
 import io.katharsis.errorhandling.ErrorResponse;
 import io.katharsis.errorhandling.mapper.ExceptionMapper;
-import io.katharsis.response.HttpStatus;
+import io.katharsis.repository.response.HttpStatus;
 
 public class OptimisticLockExceptionMapper implements ExceptionMapper<OptimisticLockException> {
 

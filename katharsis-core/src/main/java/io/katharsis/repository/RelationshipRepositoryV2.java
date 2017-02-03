@@ -3,7 +3,6 @@ package io.katharsis.repository;
 import java.io.Serializable;
 
 import io.katharsis.queryspec.QuerySpec;
-import io.katharsis.queryspec.QuerySpecRelationshipRepository;
 import io.katharsis.resource.list.ResourceList;
 
 /**
@@ -35,18 +34,16 @@ import io.katharsis.resource.list.ResourceList;
  * @param <J> D class id type
  */
 public interface RelationshipRepositoryV2<T, I extends Serializable, D, J extends Serializable>
-		extends Repository, QuerySpecRelationshipRepository<T, I, D, J> {
+		extends Repository{
 
 	/**
 	 * @return the class that specifies the relation.
 	 */
-	@Override
 	Class<T> getSourceResourceClass();
 
 	/**
 	 * @return the related resource class returned by this repository
 	 */
-	@Override
 	Class<D> getTargetResourceClass();
 
 	/**
@@ -57,7 +54,6 @@ public interface RelationshipRepositoryV2<T, I extends Serializable, D, J extend
 	 * @param targetId id of a target resource
 	 * @param fieldName name of target's filed
 	 */
-	@Override
 	void setRelation(T source, J targetId, String fieldName);
 
 	/**
@@ -68,7 +64,6 @@ public interface RelationshipRepositoryV2<T, I extends Serializable, D, J extend
 	 * @param targetIds ids of a target resource
 	 * @param fieldName name of target's filed
 	 */
-	@Override
 	void setRelations(T source, Iterable<J> targetIds, String fieldName);
 
 	/**
@@ -79,7 +74,6 @@ public interface RelationshipRepositoryV2<T, I extends Serializable, D, J extend
 	 * @param targetIds  ids of the target resource
 	 * @param fieldName name of target's field
 	 */
-	@Override
 	void addRelations(T source, Iterable<J> targetIds, String fieldName);
 
 	/**
@@ -89,7 +83,6 @@ public interface RelationshipRepositoryV2<T, I extends Serializable, D, J extend
 	 * @param targetIds  ids of the target resource
 	 * @param fieldName name of target's field
 	 */
-	@Override
 	void removeRelations(T source, Iterable<J> targetIds, String fieldName);
 
 	/**
@@ -100,7 +93,6 @@ public interface RelationshipRepositoryV2<T, I extends Serializable, D, J extend
 	 * @param querySpec querySpec sent along with the request as parameters
 	 * @return an identifier of a target of a relation
 	 */
-	@Override
 	D findOneTarget(I sourceId, String fieldName, QuerySpec querySpec);
 
 	/**
@@ -111,7 +103,6 @@ public interface RelationshipRepositoryV2<T, I extends Serializable, D, J extend
 	 * @param querySpec querySpec sent along with the request as parameters
 	 * @return identifiers of targets of a relation
 	 */
-	@Override
 	ResourceList<D> findManyTargets(I sourceId, String fieldName, QuerySpec querySpec);
 
 }

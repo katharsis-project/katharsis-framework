@@ -11,13 +11,14 @@ import io.katharsis.client.mock.models.Task;
 import io.katharsis.client.mock.repository.ProjectRepository.ProjectsLinksInformation;
 import io.katharsis.client.mock.repository.ProjectRepository.ProjectsMetaInformation;
 import io.katharsis.queryspec.QuerySpec;
+import io.katharsis.repository.ResourceRepositoryV2;
 import io.katharsis.resource.list.ResourceList;
 
 public class InformationClientTest extends AbstractClientTest {
 
-	protected QuerySpecResourceRepositoryStub<Task, Long> taskRepo;
+	protected ResourceRepositoryV2<Task, Long> taskRepo;
 
-	protected QuerySpecResourceRepositoryStub<Project, Long> projectRepo;
+	protected ResourceRepositoryV2<Project, Long> projectRepo;
 
 	@Before
 	public void setup() {

@@ -4,12 +4,12 @@ import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.Set;
 
+import io.katharsis.core.internal.utils.ClassUtils;
+import io.katharsis.core.internal.utils.PropertyUtils;
 import io.katharsis.meta.model.MetaAttribute;
 import io.katharsis.meta.model.MetaDataObject;
 import io.katharsis.meta.model.MetaElement;
 import io.katharsis.meta.provider.MetaProviderContext;
-import io.katharsis.utils.ClassUtils;
-import io.katharsis.utils.PropertyUtils;
 
 public abstract class MetaDataObjectProvider extends MetaDataObjectProviderBase<MetaDataObject> {
 

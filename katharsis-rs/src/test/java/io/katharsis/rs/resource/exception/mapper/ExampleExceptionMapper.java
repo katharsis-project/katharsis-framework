@@ -2,9 +2,9 @@ package io.katharsis.rs.resource.exception.mapper;
 
 import io.katharsis.errorhandling.ErrorData;
 import io.katharsis.errorhandling.ErrorResponse;
-import io.katharsis.errorhandling.mapper.ExceptionMapperProvider;
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
-import io.katharsis.response.HttpStatus;
+import io.katharsis.legacy.queryParams.errorhandling.ExceptionMapperProvider;
+import io.katharsis.repository.response.HttpStatus;
 import io.katharsis.rs.resource.exception.ExampleException;
 
 @ExceptionMapperProvider

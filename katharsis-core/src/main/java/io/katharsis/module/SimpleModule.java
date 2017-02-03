@@ -7,10 +7,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import io.katharsis.dispatcher.filter.Filter;
-import io.katharsis.errorhandling.mapper.ExceptionMapperLookup;
+import io.katharsis.core.internal.exception.ExceptionMapperLookup;
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
 import io.katharsis.repository.decorate.RepositoryDecoratorFactory;
+import io.katharsis.repository.filter.DocumentFilter;
 import io.katharsis.repository.filter.RepositoryFilter;
 import io.katharsis.repository.information.RepositoryInformationBuilder;
 import io.katharsis.resource.information.ResourceInformationBuilder;
@@ -26,7 +26,7 @@ public class SimpleModule implements Module {
 
 	private List<RepositoryInformationBuilder> repositoryInformationBuilders = new ArrayList<>();
 
-	private List<Filter> filters = new ArrayList<>();
+	private List<DocumentFilter> filters = new ArrayList<>();
 
 	private List<RepositoryFilter> repositoryFilters = new ArrayList<>();
 
@@ -67,7 +67,7 @@ public class SimpleModule implements Module {
 		for (ResourceLookup resourceLookup : resourceLookups) {
 			context.addResourceLookup(resourceLookup);
 		}
-		for (Filter filter : filters) {
+		for (DocumentFilter filter : filters) {
 			context.addFilter(filter);
 		}
 		for (RepositoryFilter filter : repositoryFilters) {
@@ -134,7 +134,7 @@ public class SimpleModule implements Module {
 		return Collections.unmodifiableList(repositoryInformationBuilders);
 	}
 
-	public void addFilter(Filter filter) {
+	public void addFilter(DocumentFilter filter) {
 		checkInitialized();
 		filters.add(filter);
 	}
@@ -149,7 +149,7 @@ public class SimpleModule implements Module {
 		repositoryDecoratorFactories.add(decorator);
 	}
 
-	protected List<Filter> getFilters() {
+	protected List<DocumentFilter> getFilters() {
 		checkInitialized();
 		return Collections.unmodifiableList(filters);
 	}

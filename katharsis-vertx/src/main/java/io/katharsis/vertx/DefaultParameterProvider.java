@@ -1,7 +1,8 @@
 package io.katharsis.vertx;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.katharsis.repository.RepositoryMethodParameterProvider;
+
+import io.katharsis.legacy.internal.RepositoryMethodParameterProvider;
 import io.vertx.ext.web.RoutingContext;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;

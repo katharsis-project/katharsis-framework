@@ -3,10 +3,10 @@ package io.katharsis.resource.list;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.katharsis.internal.utils.CastableInformation;
-import io.katharsis.response.LinksInformation;
-import io.katharsis.response.MetaInformation;
-import io.katharsis.utils.WrappedList;
+import io.katharsis.core.internal.utils.CastableInformation;
+import io.katharsis.core.internal.utils.WrappedList;
+import io.katharsis.resource.links.LinksInformation;
+import io.katharsis.resource.meta.MetaInformation;
 
 /**
  * Default implementation for {@link ResourceList}

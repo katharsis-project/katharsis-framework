@@ -6,10 +6,10 @@ import java.util.Set;
 
 import javax.persistence.MappedSuperclass;
 
+import io.katharsis.core.internal.utils.ClassUtils;
 import io.katharsis.jpa.meta.MetaJpaDataObject;
 import io.katharsis.jpa.meta.MetaMappedSuperclass;
 import io.katharsis.meta.model.MetaElement;
-import io.katharsis.utils.ClassUtils;
 
 public class MappedSuperclassMetaProvider extends AbstractEntityMetaProvider<MetaMappedSuperclass> {
 

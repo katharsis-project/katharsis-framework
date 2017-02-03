@@ -3,11 +3,11 @@ package io.katharsis.meta.internal;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import io.katharsis.errorhandling.exception.ResourceNotFoundException;
 import io.katharsis.meta.MetaLookup;
 import io.katharsis.meta.model.MetaElement;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.repository.ResourceRepositoryBase;
-import io.katharsis.resource.exception.ResourceNotFoundException;
 import io.katharsis.resource.list.ResourceList;
 
 public class MetaResourceRepository<T> extends ResourceRepositoryBase<T, String> {

@@ -8,13 +8,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import io.katharsis.core.internal.registry.ResourceRegistryImpl;
+import io.katharsis.core.internal.repository.information.ResourceRepositoryInformationImpl;
+import io.katharsis.errorhandling.exception.ResourceNotFoundInitializationException;
 import io.katharsis.module.ModuleRegistry;
-import io.katharsis.repository.information.internal.ResourceRepositoryInformationImpl;
 import io.katharsis.resource.annotations.JsonApiResource;
-import io.katharsis.resource.exception.init.ResourceNotFoundInitializationException;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.mock.models.Task;
-import io.katharsis.utils.java.Optional;
 
 public class ResourceRegistryTest {
 
@@ -27,20 +27,18 @@ public class ResourceRegistryTest {
 
 	@Before
 	public void resetResourceRegistry() {
-		resourceRegistry = new ResourceRegistry(new ModuleRegistry(), new ConstantServiceUrlProvider(TEST_MODELS_URL));
+		resourceRegistry = new ResourceRegistryImpl(new ModuleRegistry(), new ConstantServiceUrlProvider(TEST_MODELS_URL));
 	}
 
 	@Test
 	public void onExistingTypeShouldReturnEntry() {
 		resourceRegistry.addEntry(Task.class, newRegistryEntry(Task.class, "tasks"));
-		RegistryEntry<Task> tasksEntry = resourceRegistry.getEntry("tasks");
+		RegistryEntry tasksEntry = resourceRegistry.getEntry("tasks");
 		assertThat(tasksEntry).isNotNull();
 	}
 
-	private <T> RegistryEntry<T> newRegistryEntry(Class<T> repositoryClass, String path) {
-		return new RegistryEntry<>(
-				new ResourceRepositoryInformationImpl(null, path, new ResourceInformation(Task.class, path, null)),
-				null, null);
+	private <T> RegistryEntry newRegistryEntry(Class<T> repositoryClass, String path) {
+		return new RegistryEntry(new ResourceRepositoryInformationImpl(null, path, new ResourceInformation(Task.class, path, null)), null, null);
 	}
 
 	@Test
@@ -50,20 +48,20 @@ public class ResourceRegistryTest {
 
 	@Test
 	public void testGetServiceUrl() {
-		assertThat(resourceRegistry.getServiceUrl()).isEqualTo(TEST_MODELS_URL);
+		assertThat(resourceRegistry.getServiceUrlProvider().getUrl()).isEqualTo(TEST_MODELS_URL);
 	}
 
 	@Test
 	public void onExistingClassShouldReturnEntry() {
 		resourceRegistry.addEntry(Task.class, newRegistryEntry(Task.class, "tasks"));
-		RegistryEntry<Task> tasksEntry = resourceRegistry.getEntry(Task.class);
+		RegistryEntry tasksEntry = resourceRegistry.findEntry(Task.class);
 		assertThat(tasksEntry).isNotNull();
 	}
 
 	@Test
 	public void onExistingTypeShouldReturnUrl() {
-		resourceRegistry.addEntry(Task.class, newRegistryEntry(Task.class, "tasks"));
-		String resourceUrl = resourceRegistry.getResourceUrl(Task.class);
+		RegistryEntry entry = resourceRegistry.addEntry(Task.class, newRegistryEntry(Task.class, "tasks"));
+		String resourceUrl = resourceRegistry.getResourceUrl(entry.getResourceInformation());
 		assertThat(resourceUrl).isEqualTo(TEST_MODELS_URL + "/tasks");
 	}
 
@@ -76,13 +74,12 @@ public class ResourceRegistryTest {
 	@Test
 	public void onNonExistingClassShouldThrowException() {
 		expectedException.expect(ResourceNotFoundInitializationException.class);
-		resourceRegistry.getEntry(Long.class);
+		resourceRegistry.findEntry(Long.class);
 	}
 
-	@Test
+	@Test(expected = ResourceNotFoundInitializationException.class)
 	public void onNonExistingClassShouldReturnNull() {
-		String result = resourceRegistry.getResourceType(Long.class);
-		assertThat(result).isNull();
+		resourceRegistry.findEntry(Long.class);
 	}
 
 	@Test
@@ -90,7 +87,7 @@ public class ResourceRegistryTest {
 		resourceRegistry.addEntry(Task.class, newRegistryEntry(Task.class, "tasks"));
 
 		// WHEN
-		Class<?> clazz = resourceRegistry.getResourceClass(Task$Proxy.class).get();
+		Class<?> clazz = resourceRegistry.findEntry(Task$Proxy.class).getResourceInformation().getResourceClass();
 
 		// THEN
 		assertThat(clazz).isNotNull();
@@ -104,7 +101,7 @@ public class ResourceRegistryTest {
 		Task$Proxy resource = new Task$Proxy();
 
 		// WHEN
-		Class<?> clazz = resourceRegistry.getResourceClass(resource).get();
+		Class<?> clazz = resourceRegistry.findEntry(resource.getClass()).getResourceInformation().getResourceClass();
 
 		// THEN
 		assertThat(clazz).isEqualTo(Task.class);
@@ -116,22 +113,18 @@ public class ResourceRegistryTest {
 		Task resource = new Task();
 
 		// WHEN
-		Class<?> clazz = resourceRegistry.getResourceClass(resource).get();
+		Class<?> clazz = resourceRegistry.findEntry(resource.getClass()).getResourceInformation().getResourceClass();
 
 		// THEN
 		assertThat(clazz).isEqualTo(Task.class);
 	}
 
-	@Test
+	@Test(expected = ResourceNotFoundInitializationException.class)
 	public void onResourceClassReturnNoInstanceClass() {
 		resourceRegistry.addEntry(Task.class, newRegistryEntry(Task.class, "tasks"));
-		Object resource = new Object();
 
 		// WHEN
-		Optional<Class<?>> clazz = resourceRegistry.getResourceClass(resource);
-
-		// THEN
-		assertThat(clazz.isPresent()).isFalse();
+		resourceRegistry.findEntry(Object.class);
 	}
 
 	@Test
@@ -140,14 +133,14 @@ public class ResourceRegistryTest {
 		resourceRegistry.addEntry(Task.class, newRegistryEntry(Task.class, taskType));
 
 		// WHEN
-		RegistryEntry<Task> registryEntry = resourceRegistry.getEntry(taskType, Task.class);
+		RegistryEntry registryEntry = resourceRegistry.findEntry(Task.class);
 
 		// THEN
 		assertNotNull(registryEntry);
 		assertNotNull(registryEntry.getResourceInformation().getResourceType(), taskType);
 
 		// WHEN
-		registryEntry = resourceRegistry.getEntry("N/A", Task.class);
+		registryEntry = resourceRegistry.findEntry(Task.class);
 
 		// THEN
 		assertNotNull(registryEntry);

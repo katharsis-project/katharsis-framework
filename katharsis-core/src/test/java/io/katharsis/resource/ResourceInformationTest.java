@@ -7,8 +7,9 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
-import io.katharsis.resource.field.ResourceField;
-import io.katharsis.resource.field.ResourceField.ResourceFieldType;
+import io.katharsis.core.internal.resource.ResourceFieldImpl;
+import io.katharsis.resource.information.ResourceField;
+import io.katharsis.resource.information.ResourceFieldType;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.mock.models.Task;
 
@@ -18,8 +19,8 @@ public class ResourceInformationTest {
     public void onRelationshipFieldSearchShouldReturnExistingField() throws NoSuchFieldException {
         // GIVEN
         Field field = String.class.getDeclaredField("value");
-        ResourceField idField = new ResourceField("id", "id", ResourceFieldType.ID, field.getType(), field.getGenericType());
-        ResourceField resourceField = new ResourceField("value", "value", ResourceFieldType.RELATIONSHIP, field.getType(), field.getGenericType());
+        ResourceField idField = new ResourceFieldImpl("id", "id", ResourceFieldType.ID, field.getType(), field.getGenericType(), null);
+        ResourceField resourceField = new ResourceFieldImpl("value", "value", ResourceFieldType.RELATIONSHIP, field.getType(), field.getGenericType(), "projects");
 		ResourceInformation sut = new ResourceInformation(Task.class, "tasks", Arrays.asList(idField, resourceField));
 
         // WHEN

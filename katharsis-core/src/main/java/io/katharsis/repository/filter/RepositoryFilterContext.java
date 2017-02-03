@@ -1,6 +1,6 @@
 package io.katharsis.repository.filter;
 
-import io.katharsis.request.repository.RepositoryRequestSpec;
+import io.katharsis.repository.request.RepositoryRequestSpec;
 
 /**
  * Provides context information about Katharsis and the current request for

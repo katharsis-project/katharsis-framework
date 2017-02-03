@@ -5,8 +5,8 @@ import java.io.IOException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.katharsis.internal.utils.CastableInformation;
-import io.katharsis.response.MetaInformation;
+import io.katharsis.core.internal.utils.CastableInformation;
+import io.katharsis.resource.meta.MetaInformation;
 
 public class JsonMetaInformation implements MetaInformation, CastableInformation<MetaInformation> {
 

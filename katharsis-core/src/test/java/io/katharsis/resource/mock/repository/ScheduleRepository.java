@@ -2,11 +2,11 @@ package io.katharsis.resource.mock.repository;
 
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.repository.ResourceRepositoryV2;
+import io.katharsis.resource.links.DefaultPagedLinksInformation;
+import io.katharsis.resource.links.LinksInformation;
 import io.katharsis.resource.list.ResourceListBase;
+import io.katharsis.resource.meta.MetaInformation;
 import io.katharsis.resource.mock.models.Schedule;
-import io.katharsis.response.LinksInformation;
-import io.katharsis.response.MetaInformation;
-import io.katharsis.response.paging.DefaultPagedLinksInformation;
 
 public interface ScheduleRepository extends ResourceRepositoryV2<Schedule, Long> {
 

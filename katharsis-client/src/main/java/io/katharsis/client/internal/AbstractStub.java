@@ -12,13 +12,13 @@ import io.katharsis.client.KatharsisClient;
 import io.katharsis.client.http.HttpAdapter;
 import io.katharsis.client.http.HttpAdapterRequest;
 import io.katharsis.client.http.HttpAdapterResponse;
-import io.katharsis.dispatcher.controller.HttpMethod;
+import io.katharsis.core.internal.exception.ExceptionMapperRegistry;
+import io.katharsis.core.internal.utils.JsonApiUrlBuilder;
 import io.katharsis.errorhandling.ErrorResponse;
 import io.katharsis.errorhandling.mapper.ExceptionMapper;
-import io.katharsis.errorhandling.mapper.ExceptionMapperRegistry;
+import io.katharsis.repository.request.HttpMethod;
 import io.katharsis.resource.Document;
-import io.katharsis.utils.JsonApiUrlBuilder;
-import io.katharsis.utils.java.Optional;
+import io.katharsis.utils.Optional;
 
 public class AbstractStub {
 

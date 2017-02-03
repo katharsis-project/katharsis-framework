@@ -2,6 +2,7 @@ package io.katharsis.repository;
 
 import org.junit.Test;
 
+import io.katharsis.legacy.repository.AbstractSimpleRepository;
 import io.katharsis.resource.mock.models.Task;
 
 public class AbstractSimpleRepositoryTest {
