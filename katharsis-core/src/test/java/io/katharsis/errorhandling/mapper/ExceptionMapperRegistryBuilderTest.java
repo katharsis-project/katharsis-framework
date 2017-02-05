@@ -1,6 +1,7 @@
 package io.katharsis.errorhandling.mapper;
 
 import io.katharsis.errorhandling.exception.KatharsisMappableException;
+import io.katharsis.errorhandling.handlers.ExtendedExceptionMapper;
 import io.katharsis.errorhandling.handlers.NoAnnotationExceptionMapper;
 import io.katharsis.errorhandling.handlers.SomeExceptionMapper;
 import io.katharsis.resource.exception.init.InvalidResourceException;
@@ -39,6 +40,15 @@ public class ExceptionMapperRegistryBuilderTest {
                 .isNotNull()
                 .extracting("exceptionClass")
                 .contains(SomeExceptionMapper.SomeException.class);
+    }
+
+    @Test
+    public void shouldContainScannedExtendedExceptionMapper() throws Exception {
+        ExceptionMapperRegistry registry = builder.build("io.katharsis.errorhandling.handlers");
+        assertThat(registry.getExceptionMappers())
+                .isNotNull()
+                .extracting("exceptionClass")
+                .contains(ExtendedExceptionMapper.SomeException.class);
     }
 
     @Test
