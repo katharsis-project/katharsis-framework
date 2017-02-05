@@ -7,6 +7,9 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.katharsis.spring.legacy.KatharsisConfig;
+import io.katharsis.spring.legacy.KatharsisConfigV2;
+
 @RestController
 @SpringBootApplication
 @ComponentScan(value = "io.katharsis.spring",

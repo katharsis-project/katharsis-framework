@@ -1,20 +1,20 @@
 package io.katharsis.servlet.util;
 
-import org.junit.Before;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+
+import javax.servlet.ServletInputStream;
+import javax.servlet.http.HttpServletRequest;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.Scanner;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import io.katharsis.servlet.internal.BufferedRequestWrapper;
 
 @RunWith(MockitoJUnitRunner.class)
 public class BufferedRequestWrapperTest {
@@ -27,7 +27,8 @@ public class BufferedRequestWrapperTest {
         // GIVEN
         final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream("hello".getBytes());
         when(request.getInputStream()).thenReturn(new ServletInputStream() {
-            public int read () throws IOException {
+            @Override
+			public int read () throws IOException {
                 return byteArrayInputStream.read();
             }
         });

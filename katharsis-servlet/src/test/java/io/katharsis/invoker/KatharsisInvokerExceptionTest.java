@@ -25,6 +25,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Test;
 
+import io.katharsis.invoker.internal.KatharsisInvokerException;
+
 public class KatharsisInvokerExceptionTest {
 
     @Test

@@ -20,7 +20,9 @@ import static net.javacrumbs.jsonunit.JsonAssert.assertJsonPartEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import io.katharsis.invoker.JsonApiMediaType;
+
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterConfig;
@@ -38,163 +40,162 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockServletContext;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
+import io.katharsis.core.properties.KatharsisProperties;
+import io.katharsis.invoker.internal.JsonApiMediaType;
+import io.katharsis.servlet.legacy.AbstractKatharsisFilter;
 
 /**
  * Test for {@link AbstractKatharsisFilter}.
  */
 public class KatharsisFilterTest {
 
-    private static final String FIRST_TASK_ATTRIBUTES = "{\"name\":\"First task\"}";
+	private static final String FIRST_TASK_ATTRIBUTES = "{\"name\":\"First task\"}";
 
-    private static final String SOME_TASK_ATTRIBUTES = "{\"name\":\"Some task\"}";
+	private static final String SOME_TASK_ATTRIBUTES = "{\"name\":\"Some task\"}";
 
-    private static final String FIRST_TASK_LINKS = "{\"self\":\"http://localhost:8080/api/v1/tasks/1\"}";
+	private static final String FIRST_TASK_LINKS = "{\"self\":\"http://localhost:8080/api/tasks/1\"}";
 
-    private static final String PROJECT1_RELATIONSHIP_LINKS = "{\"self\":\"http://localhost:8080/api/v1/tasks/1/relationships/project\",\"related\":\"http://localhost:8080/api/v1/tasks/1/project\"}";
+	private static final String PROJECT1_RELATIONSHIP_LINKS = "{\"self\":\"http://localhost:8080/api/tasks/1/relationships/project\",\"related\":\"http://localhost:8080/api/tasks/1/project\"}";
 
-    private static Logger log = LoggerFactory.getLogger(KatharsisFilterTest.class);
+	private static Logger log = LoggerFactory.getLogger(KatharsisFilterTest.class);
 
-    private static final String RESOURCE_SEARCH_PACKAGE = "io.katharsis.servlet.resource";
+	private static final String RESOURCE_SEARCH_PACKAGE = "io.katharsis.servlet.resource";
 
-    private static final String RESOURCE_DEFAULT_DOMAIN = "http://localhost:8080/api/v1";
+	private static final String RESOURCE_DEFAULT_DOMAIN = "http://localhost:8080/api";
 
-    private ServletContext servletContext;
+	private ServletContext servletContext;
 
-    private FilterConfig filterConfig;
+	private FilterConfig filterConfig;
 
-    private Filter katharsisFilter;
+	private Filter katharsisFilter;
 
-    @Before
-    public void before() throws Exception {
-        katharsisFilter = new SampleKatharsisFilter();
+	@Before
+	public void before() throws Exception {
+		katharsisFilter = new KatharsisFilter();
 
-        servletContext = new MockServletContext();
-        ((MockServletContext) servletContext).setContextPath("");
-        filterConfig = new MockFilterConfig(servletContext);
-        ((MockFilterConfig) filterConfig).addInitParameter(KatharsisProperties.WEB_PATH_PREFIX, "/api");
-        ((MockFilterConfig) filterConfig).addInitParameter(KatharsisProperties.RESOURCE_SEARCH_PACKAGE,
-                                                           RESOURCE_SEARCH_PACKAGE);
-        ((MockFilterConfig) filterConfig).addInitParameter(KatharsisProperties.RESOURCE_DEFAULT_DOMAIN,
-                                                           RESOURCE_DEFAULT_DOMAIN);
+		servletContext = new MockServletContext();
+		((MockServletContext) servletContext).setContextPath("");
+		filterConfig = new MockFilterConfig(servletContext);
+		((MockFilterConfig) filterConfig).addInitParameter(KatharsisProperties.WEB_PATH_PREFIX, "/api");
+		((MockFilterConfig) filterConfig).addInitParameter(KatharsisProperties.RESOURCE_SEARCH_PACKAGE, RESOURCE_SEARCH_PACKAGE);
+		((MockFilterConfig) filterConfig).addInitParameter(KatharsisProperties.RESOURCE_DEFAULT_DOMAIN, RESOURCE_DEFAULT_DOMAIN);
 
-        katharsisFilter.init(filterConfig);
-    }
+		katharsisFilter.init(filterConfig);
+	}
 
-    @After
-    public void after() throws Exception {
-        katharsisFilter.destroy();
-    }
+	@After
+	public void after() throws Exception {
+		katharsisFilter.destroy();
+	}
 
-    @Test
-    public void onSimpleCollectionGetShouldReturnCollectionOfResources() throws Exception {
-        MockFilterChain filterChain = new MockFilterChain();
+	@Test
+	public void onSimpleCollectionGetShouldReturnCollectionOfResources() throws Exception {
+		MockFilterChain filterChain = new MockFilterChain();
 
-        MockHttpServletRequest request = new MockHttpServletRequest(servletContext);
-        request.setMethod("GET");
-        request.setContextPath("");
-        request.setServletPath(null);
-        request.setPathInfo(null);
-        request.setRequestURI("/api/tasks/");
-        request.setContentType(JsonApiMediaType.APPLICATION_JSON_API);
-        request.addHeader("Accept", "*/*");
+		MockHttpServletRequest request = new MockHttpServletRequest(servletContext);
+		request.setMethod("GET");
+		request.setContextPath("");
+		request.setServletPath(null);
+		request.setPathInfo(null);
+		request.setRequestURI("/api/tasks/");
+		request.setContentType(JsonApiMediaType.APPLICATION_JSON_API);
+		request.addHeader("Accept", "*/*");
 
-        MockHttpServletResponse response = new MockHttpServletResponse();
+		MockHttpServletResponse response = new MockHttpServletResponse();
 
-        katharsisFilter.doFilter(request, response, filterChain);
+		katharsisFilter.doFilter(request, response, filterChain);
 
-        String responseContent = response.getContentAsString();
+		String responseContent = response.getContentAsString();
 
-        log.debug("responseContent: {}", responseContent);
-        assertNotNull(responseContent);
+		log.debug("responseContent: {}", responseContent);
+		assertNotNull(responseContent);
 
-        assertJsonPartEquals("tasks", responseContent, "data[0].type");
-        assertJsonPartEquals("\"1\"", responseContent, "data[0].id");
-        assertJsonPartEquals(FIRST_TASK_ATTRIBUTES, responseContent, "data[0].attributes");
-        assertJsonPartEquals(FIRST_TASK_LINKS, responseContent, "data[0].links");
-        assertJsonPartEquals(PROJECT1_RELATIONSHIP_LINKS, responseContent, "data[0].relationships.project.links");
-    }
+		assertJsonPartEquals("tasks", responseContent, "data[0].type");
+		assertJsonPartEquals("\"1\"", responseContent, "data[0].id");
+		assertJsonPartEquals(FIRST_TASK_ATTRIBUTES, responseContent, "data[0].attributes");
+		assertJsonPartEquals(FIRST_TASK_LINKS, responseContent, "data[0].links");
+		assertJsonPartEquals(PROJECT1_RELATIONSHIP_LINKS, responseContent, "data[0].relationships.project.links");
+	}
 
-    @Test
-    public void onSimpleResourceGetShouldReturnOneResource() throws Exception {
-        MockFilterChain filterChain = new MockFilterChain();
+	@Test
+	public void onSimpleResourceGetShouldReturnOneResource() throws Exception {
+		MockFilterChain filterChain = new MockFilterChain();
 
-        MockHttpServletRequest request = new MockHttpServletRequest(servletContext);
-        request.setMethod("GET");
-        request.setContextPath("");
-        request.setServletPath(null);
-        request.setPathInfo(null);
-        request.setRequestURI("/api/tasks/1");
-        request.setContentType(JsonApiMediaType.APPLICATION_JSON_API);
-        request.addHeader("Accept", "*/*");
+		MockHttpServletRequest request = new MockHttpServletRequest(servletContext);
+		request.setMethod("GET");
+		request.setContextPath("");
+		request.setServletPath(null);
+		request.setPathInfo(null);
+		request.setRequestURI("/api/tasks/1");
+		request.setContentType(JsonApiMediaType.APPLICATION_JSON_API);
+		request.addHeader("Accept", "*/*");
 
-        MockHttpServletResponse response = new MockHttpServletResponse();
+		MockHttpServletResponse response = new MockHttpServletResponse();
 
-        katharsisFilter.doFilter(request, response, filterChain);
+		katharsisFilter.doFilter(request, response, filterChain);
 
-        String responseContent = response.getContentAsString();
+		String responseContent = response.getContentAsString();
 
-        log.debug("responseContent: {}", responseContent);
-        assertNotNull(responseContent);
+		log.debug("responseContent: {}", responseContent);
+		assertNotNull(responseContent);
 
-        assertJsonPartEquals("tasks", responseContent, "data.type");
-        assertJsonPartEquals("\"1\"", responseContent, "data.id");
-        assertJsonPartEquals(SOME_TASK_ATTRIBUTES, responseContent, "data.attributes");
-        assertJsonPartEquals(FIRST_TASK_LINKS, responseContent, "data.links");
-        assertJsonPartEquals(PROJECT1_RELATIONSHIP_LINKS, responseContent, "data.relationships.project.links");
-    }
+		assertJsonPartEquals("tasks", responseContent, "data.type");
+		assertJsonPartEquals("\"1\"", responseContent, "data.id");
+		assertJsonPartEquals(SOME_TASK_ATTRIBUTES, responseContent, "data.attributes");
+		assertJsonPartEquals(FIRST_TASK_LINKS, responseContent, "data.links");
+		assertJsonPartEquals(PROJECT1_RELATIONSHIP_LINKS, responseContent, "data.relationships.project.links");
+	}
 
-    @Test
-    public void onCollectionRequestWithParamsGetShouldReturnCollection() throws Exception {
-        MockFilterChain filterChain = new MockFilterChain();
+	@Test
+	public void onCollectionRequestWithParamsGetShouldReturnCollection() throws Exception {
+		MockFilterChain filterChain = new MockFilterChain();
 
-        MockHttpServletRequest request = new MockHttpServletRequest(servletContext);
-        request.setMethod("GET");
-        request.setContextPath("");
-        request.setServletPath(null);
-        request.setPathInfo(null);
-        request.setRequestURI("/api/tasks");
-        request.setContentType(JsonApiMediaType.APPLICATION_JSON_API);
-        request.addHeader("Accept", "*/*");
-        request.addParameter("filter[Task][name]", "John");
-        request.setQueryString(URLEncoder.encode("filter[Task][name]", StandardCharsets.UTF_8.name()) + "=John");
+		MockHttpServletRequest request = new MockHttpServletRequest(servletContext);
+		request.setMethod("GET");
+		request.setContextPath("");
+		request.setServletPath(null);
+		request.setPathInfo(null);
+		request.setRequestURI("/api/tasks");
+		request.setContentType(JsonApiMediaType.APPLICATION_JSON_API);
+		request.addHeader("Accept", "*/*");
+		request.addParameter("filter[name]", "John");
+		request.setQueryString(URLEncoder.encode("filter[name]", StandardCharsets.UTF_8.name()) + "=John");
 
-        MockHttpServletResponse response = new MockHttpServletResponse();
+		MockHttpServletResponse response = new MockHttpServletResponse();
 
-        katharsisFilter.doFilter(request, response, filterChain);
+		katharsisFilter.doFilter(request, response, filterChain);
 
-        String responseContent = response.getContentAsString();
+		String responseContent = response.getContentAsString();
 
-        log.debug("responseContent: {}", responseContent);
-        assertNotNull(responseContent);
+		log.debug("responseContent: {}", responseContent);
+		assertNotNull(responseContent);
 
-        assertJsonPartEquals("tasks", responseContent, "data[0].type");
-        assertJsonPartEquals("\"1\"", responseContent, "data[0].id");
-        assertJsonPartEquals(FIRST_TASK_ATTRIBUTES, responseContent, "data[0].attributes");
-        assertJsonPartEquals(FIRST_TASK_LINKS, responseContent, "data[0].links");
-        assertJsonPartEquals(PROJECT1_RELATIONSHIP_LINKS, responseContent, "data[0].relationships.project.links");
-    }
+		assertJsonPartEquals("tasks", responseContent, "data[0].type");
+		assertJsonPartEquals("\"1\"", responseContent, "data[0].id");
+		assertJsonPartEquals(FIRST_TASK_ATTRIBUTES, responseContent, "data[0].attributes");
+		assertJsonPartEquals(FIRST_TASK_LINKS, responseContent, "data[0].links");
+		assertJsonPartEquals(PROJECT1_RELATIONSHIP_LINKS, responseContent, "data[0].relationships.project.links");
+	}
 
-    @Test
-    public void testUnacceptableRequestContentType() throws Exception {
-        MockFilterChain filterChain = new MockFilterChain();
+	@Test
+	public void testUnacceptableRequestContentType() throws Exception {
+		MockFilterChain filterChain = new MockFilterChain();
 
-        MockHttpServletRequest request = new MockHttpServletRequest(servletContext);
-        request.setMethod("GET");
-        request.setContextPath("");
-        request.setServletPath(null);
-        request.setPathInfo(null);
-        request.setRequestURI("/api/tasks/");
-        request.setContentType(JsonApiMediaType.APPLICATION_JSON_API);
-        request.addHeader("Accept", "application/xml");
+		MockHttpServletRequest request = new MockHttpServletRequest(servletContext);
+		request.setMethod("GET");
+		request.setContextPath("");
+		request.setServletPath(null);
+		request.setPathInfo(null);
+		request.setRequestURI("/api/tasks/");
+		request.setContentType(JsonApiMediaType.APPLICATION_JSON_API);
+		request.addHeader("Accept", "application/xml");
 
-        MockHttpServletResponse response = new MockHttpServletResponse();
+		MockHttpServletResponse response = new MockHttpServletResponse();
 
-        katharsisFilter.doFilter(request, response, filterChain);
+		katharsisFilter.doFilter(request, response, filterChain);
 
-        assertEquals(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE, response.getStatus());
-        String responseContent = response.getContentAsString();
-        assertTrue(responseContent == null || "".equals(responseContent.trim()));
-    }
+		assertEquals(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE, response.getStatus());
+		String responseContent = response.getContentAsString();
+		assertTrue(responseContent == null || "".equals(responseContent.trim()));
+	}
 }

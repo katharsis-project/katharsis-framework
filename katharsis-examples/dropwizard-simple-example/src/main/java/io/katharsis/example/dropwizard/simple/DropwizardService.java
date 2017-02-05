@@ -1,9 +1,8 @@
 package io.katharsis.example.dropwizard.simple;
 
-import static io.katharsis.rs.KatharsisProperties.RESOURCE_SEARCH_PACKAGE;
-
 import io.dropwizard.Application;
 import io.dropwizard.setup.Environment;
+import io.katharsis.core.properties.KatharsisProperties;
 import io.katharsis.legacy.locator.SampleJsonServiceLocator;
 import io.katharsis.queryspec.DefaultQuerySpecDeserializer;
 import io.katharsis.rs.KatharsisFeature;
@@ -14,7 +13,7 @@ public class DropwizardService extends Application<DropwizardConfiguration> {
     public void run(DropwizardConfiguration dropwizardConfiguration, Environment environment) throws Exception {
 
 
-        environment.jersey().property(RESOURCE_SEARCH_PACKAGE, dropwizardConfiguration.katharsis.searchPackage);
+        environment.jersey().property(KatharsisProperties.RESOURCE_SEARCH_PACKAGE, dropwizardConfiguration.katharsis.searchPackage);
 
         KatharsisFeature katharsisFeature = new KatharsisFeature(environment.getObjectMapper(),
                 new DefaultQuerySpecDeserializer(),

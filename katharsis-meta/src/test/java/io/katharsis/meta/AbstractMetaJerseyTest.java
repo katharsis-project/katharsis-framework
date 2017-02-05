@@ -12,10 +12,10 @@ import org.junit.Before;
 import io.katharsis.client.KatharsisClient;
 import io.katharsis.client.http.okhttp.OkHttpAdapter;
 import io.katharsis.client.http.okhttp.OkHttpAdapterListenerBase;
+import io.katharsis.core.properties.KatharsisProperties;
 import io.katharsis.meta.mock.model.Schedule;
 import io.katharsis.meta.provider.resource.ResourceMetaProvider;
 import io.katharsis.rs.KatharsisFeature;
-import io.katharsis.rs.KatharsisProperties;
 import okhttp3.OkHttpClient.Builder;
 
 public abstract class AbstractMetaJerseyTest extends JerseyTest {

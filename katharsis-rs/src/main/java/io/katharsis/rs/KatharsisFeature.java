@@ -160,4 +160,8 @@ public class KatharsisFeature implements Feature {
 	public QuerySpecDeserializer getQuerySpecDeserializer() {
 		return boot.getQuerySpecDeserializer();
 	}
+	
+	public KatharsisBoot getBoot(){
+	  return boot;
+	}
 }

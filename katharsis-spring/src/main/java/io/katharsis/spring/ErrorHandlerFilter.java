@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.core.internal.exception.ExceptionMapperRegistry;
 import io.katharsis.errorhandling.ErrorResponse;
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
-import io.katharsis.invoker.KatharsisInvokerException;
+import io.katharsis.invoker.internal.KatharsisInvokerException;
 import io.katharsis.utils.Optional;
 
 @Priority(10)

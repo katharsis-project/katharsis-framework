@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import io.katharsis.core.internal.boot.KatharsisBootProperties;
 import io.katharsis.core.internal.boot.PropertiesProvider;
 import io.katharsis.core.internal.query.QuerySpecAdapter;
+import io.katharsis.core.properties.KatharsisProperties;
 import io.katharsis.legacy.queryParams.include.Inclusion;
 import io.katharsis.legacy.queryParams.params.IncludedRelationsParams;
 import io.katharsis.queryspec.IncludeRelationSpec;
@@ -38,9 +38,9 @@ public class IncludeLookupUtil {
 			return LookupIncludeBehavior.NONE;
 		}
 		// determine system property for include look up
-		String includeAutomaticallyString = propertiesProvider.getProperty(KatharsisBootProperties.INCLUDE_AUTOMATICALLY);
+		String includeAutomaticallyString = propertiesProvider.getProperty(KatharsisProperties.INCLUDE_AUTOMATICALLY);
 		boolean includeAutomatically = Boolean.parseBoolean(includeAutomaticallyString);
-		String includeAutomaticallyOverwriteString = propertiesProvider.getProperty(KatharsisBootProperties.INCLUDE_AUTOMATICALLY_OVERWRITE);
+		String includeAutomaticallyOverwriteString = propertiesProvider.getProperty(KatharsisProperties.INCLUDE_AUTOMATICALLY_OVERWRITE);
 		boolean includeAutomaticallyOverwrite = Boolean.parseBoolean(includeAutomaticallyOverwriteString);
 		if (includeAutomatically) {
 			if (includeAutomaticallyOverwrite)

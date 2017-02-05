@@ -1,5 +1,6 @@
 package io.katharsis.core.internal.boot;
 
+import io.katharsis.core.properties.KatharsisProperties;
 import io.katharsis.legacy.locator.JsonServiceLocator;
 import io.katharsis.module.ServiceDiscovery;
 import io.katharsis.module.ServiceDiscoveryFactory;
@@ -25,7 +26,7 @@ public class FallbackServiceDiscoveryFactory implements ServiceDiscoveryFactory 
 		if (instance != null) {
 			return instance;
 		}
-		String resourceSearchPackage = propertiesProvider.getProperty(KatharsisBootProperties.RESOURCE_SEARCH_PACKAGE);
+		String resourceSearchPackage = propertiesProvider.getProperty(KatharsisProperties.RESOURCE_SEARCH_PACKAGE);
 		return new ReflectionsServiceDiscovery(resourceSearchPackage, serviceLocator);
 	}
 

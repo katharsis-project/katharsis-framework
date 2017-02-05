@@ -21,6 +21,7 @@ import io.katharsis.core.internal.resource.AnnotationResourceInformationBuilder;
 import io.katharsis.core.internal.utils.ClassUtils;
 import io.katharsis.core.internal.utils.PreconditionUtil;
 import io.katharsis.core.internal.utils.parser.TypeParser;
+import io.katharsis.core.properties.KatharsisProperties;
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
 import io.katharsis.legacy.internal.QueryParamsAdapterBuilder;
 import io.katharsis.legacy.locator.JsonServiceLocator;
@@ -48,7 +49,8 @@ import io.katharsis.resource.registry.ServiceUrlProvider;
 import net.jodah.typetools.TypeResolver;
 
 /**
- * Facilitates the startup of Katharsis in various environments (Spring, CDI, JAX-RS, etc.).
+ * Facilitates the startup of Katharsis in various environments (Spring, CDI,
+ * JAX-RS, etc.).
  */
 @SuppressWarnings("deprecation")
 public class KatharsisBoot {
@@ -108,27 +110,33 @@ public class KatharsisBoot {
 	}
 
 	/**
-	 * Sets a JsonServiceLocator.  No longer necessary if a ServiceDiscovery implementation is in place.
+	 * Sets a JsonServiceLocator. No longer necessary if a ServiceDiscovery
+	 * implementation is in place.
 	 *
-	 * @param serviceLocator Ask Remmo
+	 * @param serviceLocator
+	 *            Ask Remmo
 	 */
 	public void setServiceLocator(JsonServiceLocator serviceLocator) {
 		this.serviceLocator = serviceLocator;
 	}
 
 	/**
-	 * Adds a module. No longer necessary if a ServiceDiscovery implementation is in place.
+	 * Adds a module. No longer necessary if a ServiceDiscovery implementation
+	 * is in place.
 	 *
-	 * @param module Ask Remmo
+	 * @param module
+	 *            Ask Remmo
 	 */
 	public void addModule(Module module) {
 		moduleRegistry.addModule(module);
 	}
 
 	/**
-	 * Sets a ServiceUrlProvider.  No longer necessary if a ServiceDiscovery implementation is in place.
+	 * Sets a ServiceUrlProvider. No longer necessary if a ServiceDiscovery
+	 * implementation is in place.
 	 *
-	 * @param serviceUrlProvider Ask Remmo
+	 * @param serviceUrlProvider
+	 *            Ask Remmo
 	 */
 	public void setServiceUrlProvider(ServiceUrlProvider serviceUrlProvider) {
 		checkNotConfiguredYet();
@@ -154,9 +162,9 @@ public class KatharsisBoot {
 
 	private void setupServiceDiscovery() {
 		if (serviceDiscovery == null) {
-			// revert to reflection-based approach if no ServiceDiscovery is found
-			FallbackServiceDiscoveryFactory fallback = new FallbackServiceDiscoveryFactory(serviceDiscoveryFactory,
-					serviceLocator, propertiesProvider);
+			// revert to reflection-based approach if no ServiceDiscovery is
+			// found
+			FallbackServiceDiscoveryFactory fallback = new FallbackServiceDiscoveryFactory(serviceDiscoveryFactory, serviceLocator, propertiesProvider);
 			setServiceDiscovery(fallback.getInstance());
 		}
 	}
@@ -192,15 +200,13 @@ public class KatharsisBoot {
 
 	private RequestDispatcher createRequestDispatcher(ExceptionMapperRegistry exceptionMapperRegistry) {
 		TypeParser typeParser = new TypeParser();
-		ControllerRegistryBuilder controllerRegistryBuilder = new ControllerRegistryBuilder(resourceRegistry, typeParser,
-				objectMapper, propertiesProvider);
+		ControllerRegistryBuilder controllerRegistryBuilder = new ControllerRegistryBuilder(resourceRegistry, typeParser, objectMapper, propertiesProvider);
 		ControllerRegistry controllerRegistry = controllerRegistryBuilder.build();
 
 		QueryAdapterBuilder queryAdapterBuilder;
 		if (queryParamsBuilder != null) {
 			queryAdapterBuilder = new QueryParamsAdapterBuilder(queryParamsBuilder, resourceRegistry);
-		}
-		else {
+		} else {
 			queryAdapterBuilder = new QuerySpecAdapterBuilder(querySpecDeserializer, resourceRegistry);
 		}
 
@@ -218,8 +224,10 @@ public class KatharsisBoot {
 			resourceFieldNameTransformer = new ResourceFieldNameTransformer(objectMapper.getSerializationConfig());
 		}
 
-		// not that the provided default implementation here are added last and as a consequence,
-		// can be overriden by other modules, like the JaxrsResourceRepositoryInformationBuilder.
+		// not that the provided default implementation here are added last and
+		// as a consequence,
+		// can be overriden by other modules, like the
+		// JaxrsResourceRepositoryInformationBuilder.
 		SimpleModule module = new SimpleModule("discovery");
 		module.addRepositoryInformationBuilder(new DefaultResourceRepositoryInformationBuilder());
 		module.addRepositoryInformationBuilder(new DefaultRelationshipRepositoryInformationBuilder());
@@ -236,14 +244,12 @@ public class KatharsisBoot {
 			setupRepository(module, repository);
 		}
 		for (Object repository : serviceDiscovery.getInstancesByAnnotation(JsonApiResourceRepository.class)) {
-			JsonApiResourceRepository annotation = ClassUtils
-					.getAnnotation(repository.getClass(), JsonApiResourceRepository.class).get();
+			JsonApiResourceRepository annotation = ClassUtils.getAnnotation(repository.getClass(), JsonApiResourceRepository.class).get();
 			Class<?> resourceClass = annotation.value();
 			module.addRepository(resourceClass, repository);
 		}
 		for (Object repository : serviceDiscovery.getInstancesByAnnotation(JsonApiRelationshipRepository.class)) {
-			JsonApiRelationshipRepository annotation = ClassUtils
-					.getAnnotation(repository.getClass(), JsonApiRelationshipRepository.class).get();
+			JsonApiRelationshipRepository annotation = ClassUtils.getAnnotation(repository.getClass(), JsonApiRelationshipRepository.class).get();
 			module.addRepository(annotation.source(), annotation.target(), repository);
 		}
 		moduleRegistry.addModule(module);
@@ -255,23 +261,19 @@ public class KatharsisBoot {
 			Class<?>[] typeArgs = TypeResolver.resolveRawArguments(ResourceRepository.class, resRepository.getClass());
 			Class resourceClass = typeArgs[0];
 			module.addRepository(resourceClass, resRepository);
-		}
-		else if (repository instanceof RelationshipRepository) {
+		} else if (repository instanceof RelationshipRepository) {
 			RelationshipRepository relRepository = (RelationshipRepository) repository;
 			Class<?>[] typeArgs = TypeResolver.resolveRawArguments(RelationshipRepository.class, relRepository.getClass());
 			Class sourceResourceClass = typeArgs[0];
 			Class targetResourceClass = typeArgs[2];
 			module.addRepository(sourceResourceClass, targetResourceClass, relRepository);
-		}
-		else if (repository instanceof ResourceRepositoryV2) {
+		} else if (repository instanceof ResourceRepositoryV2) {
 			ResourceRepositoryV2<?, ?> resRepository = (ResourceRepositoryV2<?, ?>) repository;
 			module.addRepository(resRepository.getResourceClass(), resRepository);
-		}
-		else if (repository instanceof RelationshipRepositoryV2) {
+		} else if (repository instanceof RelationshipRepositoryV2) {
 			RelationshipRepositoryV2<?, ?, ?, ?> relRepository = (RelationshipRepositoryV2<?, ?, ?, ?>) repository;
 			module.addRepository(relRepository.getSourceResourceClass(), relRepository.getTargetResourceClass(), relRepository);
-		}
-		else {
+		} else {
 			throw new IllegalStateException(repository.toString());
 		}
 	}
@@ -285,14 +287,13 @@ public class KatharsisBoot {
 	}
 
 	private void setupServiceUrlProvider() {
+		String resourceDefaultDomain = getProperty(KatharsisProperties.RESOURCE_DEFAULT_DOMAIN);
 		if (serviceUrlProvider == null) {
-			String resourceDefaultDomain = getProperty(KatharsisBootProperties.RESOURCE_DEFAULT_DOMAIN);
 			String webPathPrefix = getWebPathPrefix();
 			if (resourceDefaultDomain != null) {
 				String serviceUrl = buildServiceUrl(resourceDefaultDomain, webPathPrefix);
 				serviceUrlProvider = new ConstantServiceUrlProvider(serviceUrl);
-			}
-			else {
+			} else {
 				// serviceUrl is obtained from incoming request context
 				serviceUrlProvider = defaultServiceUrlProvider;
 			}
@@ -307,7 +308,9 @@ public class KatharsisBoot {
 	}
 
 	private static String buildServiceUrl(String resourceDefaultDomain, String webPathPrefix) {
-		return resourceDefaultDomain + (webPathPrefix != null ? webPathPrefix : "");
+		if (webPathPrefix != null && !resourceDefaultDomain.endsWith(webPathPrefix))
+			return resourceDefaultDomain + webPathPrefix;
+		return resourceDefaultDomain;
 	}
 
 	public RequestDispatcher getRequestDispatcher() {
@@ -339,7 +342,7 @@ public class KatharsisBoot {
 	}
 
 	public String getWebPathPrefix() {
-		return getProperty(KatharsisBootProperties.WEB_PATH_PREFIX);
+		return getProperty(KatharsisProperties.WEB_PATH_PREFIX);
 	}
 
 	public ServiceDiscovery getServiceDiscovery() {

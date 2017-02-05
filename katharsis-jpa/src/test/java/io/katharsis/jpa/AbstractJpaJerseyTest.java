@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.katharsis.client.KatharsisClient;
 import io.katharsis.client.http.okhttp.OkHttpAdapter;
 import io.katharsis.client.http.okhttp.OkHttpAdapterListenerBase;
+import io.katharsis.core.properties.KatharsisProperties;
 import io.katharsis.jpa.query.AbstractJpaTest;
 import io.katharsis.jpa.query.querydsl.QuerydslQueryFactory;
 import io.katharsis.jpa.util.EntityManagerProducer;
@@ -30,7 +31,6 @@ import io.katharsis.legacy.queryParams.DefaultQueryParamsParser;
 import io.katharsis.legacy.queryParams.QueryParamsBuilder;
 import io.katharsis.queryspec.DefaultQuerySpecDeserializer;
 import io.katharsis.rs.KatharsisFeature;
-import io.katharsis.rs.KatharsisProperties;
 import okhttp3.OkHttpClient.Builder;
 
 public abstract class AbstractJpaJerseyTest extends JerseyTest {
