@@ -1,5 +1,8 @@
 package io.katharsis.meta;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.junit.Assert;
@@ -7,13 +10,21 @@ import org.junit.Before;
 import org.junit.Test;
 
 import io.katharsis.meta.mock.model.Schedule;
+import io.katharsis.meta.mock.model.ScheduleRepository.ScheduleListLinks;
+import io.katharsis.meta.mock.model.ScheduleRepository.ScheduleListMeta;
 import io.katharsis.meta.mock.model.Task;
 import io.katharsis.meta.mock.model.Task.TaskLinksInformation;
 import io.katharsis.meta.mock.model.Task.TaskMetaInformation;
+import io.katharsis.meta.model.MetaElement;
 import io.katharsis.meta.model.MetaKey;
 import io.katharsis.meta.model.resource.MetaResource;
+import io.katharsis.meta.model.resource.MetaResourceAction;
+import io.katharsis.meta.model.resource.MetaResourceAction.MetaRepositoryActionType;
 import io.katharsis.meta.model.resource.MetaResourceField;
+import io.katharsis.meta.model.resource.MetaResourceRepository;
+import io.katharsis.meta.provider.MetaProvider;
 import io.katharsis.meta.provider.resource.ResourceMetaProvider;
+import io.katharsis.resource.registry.ResourceRegistryAware;
 
 public class ResourceMetaProviderTest extends AbstractMetaTest {
 
@@ -24,11 +35,17 @@ public class ResourceMetaProviderTest extends AbstractMetaTest {
 		super.setup();
 
 		ResourceMetaProvider provider = new ResourceMetaProvider();
-	//	provider.setResourceRegistry(boot.getResourceRegistry());
 
 		lookup = new MetaLookup();
 		lookup.addProvider(provider);
 		lookup.putIdMapping("io.katharsis.meta.mock.model", "app");
+
+		for (MetaProvider p : lookup.getProviders()) {
+			if (p instanceof ResourceRegistryAware) {
+				((ResourceRegistryAware) p).setResourceRegistry(boot.getResourceRegistry());
+			}
+		}
+
 		lookup.initialize();
 	}
 
@@ -117,6 +134,35 @@ public class ResourceMetaProviderTest extends AbstractMetaTest {
 		Assert.assertNotNull("tasks", attr.getOppositeAttribute().getName());
 		Assert.assertEquals(List.class, attr.getType().getImplementationClass());
 		Assert.assertEquals(Task.class, attr.getType().getElementType().getImplementationClass());
+	}
+
+	@Test
+	public void testRepository() {
+		MetaResource resourceMeta = lookup.getMeta(Schedule.class, MetaResource.class);
+		MetaResourceRepository meta = (MetaResourceRepository) lookup.getMetaById().get(resourceMeta.getId() + "Repository");
+		Assert.assertEquals(resourceMeta, meta.getResourceType());
+		Assert.assertNotNull(meta.getListLinksType());
+		Assert.assertNotNull(meta.getListMetaType());
+		Assert.assertEquals(ScheduleListLinks.class, meta.getListLinksType().getImplementationClass());
+		Assert.assertEquals(ScheduleListMeta.class, meta.getListMetaType().getImplementationClass());
+
+		List<MetaElement> children = new ArrayList<>(meta.getChildren());
+		Collections.sort(children, new Comparator<MetaElement>() {
+
+			@Override
+			public int compare(MetaElement o1, MetaElement o2) {
+				return o1.getName().compareTo(o2.getName());
+			}
+		});
+		Assert.assertEquals(2, children.size());
+
+		MetaResourceAction repositoryActionMeta = (MetaResourceAction) children.get(0);
+		Assert.assertEquals("repositoryAction", repositoryActionMeta.getName());
+		Assert.assertEquals(MetaRepositoryActionType.REPOSITORY, repositoryActionMeta.getActionType());
+		MetaResourceAction resourceActionMeta = (MetaResourceAction) children.get(1);
+		Assert.assertEquals("resourceAction", resourceActionMeta.getName());
+		Assert.assertEquals(MetaRepositoryActionType.RESOURCE, resourceActionMeta.getActionType());
+
 	}
 
 }
