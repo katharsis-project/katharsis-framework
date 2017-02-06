@@ -64,12 +64,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.16.10</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>io.katharsis</groupId>
             <artifactId>katharsis-core</artifactId>
             <version>${project.version}</version>
