@@ -42,7 +42,9 @@ public class MetaModuleTest extends AbstractMetaJerseyTest {
 			}
 			else {
 				Assert.assertTrue(elem.getId(), elem.getId().startsWith("app.resources.")
-						|| elem.getId().startsWith("io.katharsis.meta.") || elem.getId().startsWith("io.katharsis.jpa."));
+						|| elem.getId().startsWith("io.katharsis.meta.")
+						|| elem.getId().startsWith("io.katharsis.resource.")
+						|| elem.getId().startsWith("io.katharsis.jpa."));
 			}
 		}
 	}

@@ -10,11 +10,11 @@ import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.repository.ResourceRepositoryBase;
 import io.katharsis.resource.list.ResourceList;
 
-public class MetaResourceRepository<T> extends ResourceRepositoryBase<T, String> {
+public class MetaResourceRepositoryImpl<T> extends ResourceRepositoryBase<T, String> {
 
 	private MetaLookup lookup;
 
-	public MetaResourceRepository(MetaLookup lookup, Class<T> resourceClass) {
+	public MetaResourceRepositoryImpl(MetaLookup lookup, Class<T> resourceClass) {
 		super(resourceClass);
 		this.lookup = lookup;
 	}
