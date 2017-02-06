@@ -1,16 +1,6 @@
 package io.katharsis.rs.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import io.katharsis.legacy.locator.SampleJsonServiceLocator;
-import io.katharsis.legacy.queryParams.DefaultQueryParamsParser;
-import io.katharsis.legacy.queryParams.QueryParamsBuilder;
-import io.katharsis.rs.KatharsisFeature;
-import io.katharsis.rs.KatharsisProperties;
-import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.jetty.JettyTestContainerFactory;
-import org.glassfish.jersey.test.spi.TestContainerFactory;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.client.Entity;
@@ -18,7 +8,18 @@ import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.test.jetty.JettyTestContainerFactory;
+import org.glassfish.jersey.test.spi.TestContainerFactory;
+import org.junit.Test;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.katharsis.core.properties.KatharsisProperties;
+import io.katharsis.legacy.locator.SampleJsonServiceLocator;
+import io.katharsis.legacy.queryParams.DefaultQueryParamsParser;
+import io.katharsis.legacy.queryParams.QueryParamsBuilder;
+import io.katharsis.rs.KatharsisFeature;
 
 public class KatharsisControllerWithoutPrefixTest extends KatharsisControllerTest {
 

@@ -46,7 +46,9 @@ import org.springframework.mock.web.MockServletConfig;
 import org.springframework.mock.web.MockServletContext;
 
 import io.katharsis.core.internal.utils.StringUtils;
-import io.katharsis.invoker.JsonApiMediaType;
+import io.katharsis.core.properties.KatharsisProperties;
+import io.katharsis.invoker.internal.JsonApiMediaType;
+import io.katharsis.servlet.legacy.AbstractKatharsisServlet;
 import io.katharsis.servlet.resource.model.Locale;
 import io.katharsis.servlet.resource.model.Node;
 import io.katharsis.servlet.resource.model.NodeComment;
@@ -61,15 +63,15 @@ public class KatharsisServletTest {
 
 	private static final String SOME_TASK_ATTRIBUTES = "{\"name\":\"Some task\"}";
 
-	private static final String FIRST_TASK_LINKS = "{\"self\":\"http://localhost:8080/api/v1/tasks/1\"}";
+	private static final String FIRST_TASK_LINKS = "{\"self\":\"http://localhost:8080/api/tasks/1\"}";
 
-	private static final String PROJECT1_RELATIONSHIP_LINKS = "{\"self\":\"http://localhost:8080/api/v1/tasks/1/relationships/project\",\"related\":\"http://localhost:8080/api/v1/tasks/1/project\"}";
+	private static final String PROJECT1_RELATIONSHIP_LINKS = "{\"self\":\"http://localhost:8080/api/tasks/1/relationships/project\",\"related\":\"http://localhost:8080/api/tasks/1/project\"}";
 
 	private static Logger log = LoggerFactory.getLogger(KatharsisServletTest.class);
 
 	private static final String RESOURCE_SEARCH_PACKAGE = "io.katharsis.servlet.resource";
 
-	private static final String RESOURCE_DEFAULT_DOMAIN = "http://localhost:8080/api/v1";
+	private static final String RESOURCE_DEFAULT_DOMAIN = "http://localhost:8080/api";
 
 	private ServletContext servletContext;
 
@@ -81,15 +83,13 @@ public class KatharsisServletTest {
 
 	@Before
 	public void before() throws Exception {
-		katharsisServlet = new SampleKatharsisServlet();
+		katharsisServlet = new KatharsisServlet();
 
 		servletContext = new MockServletContext();
 		((MockServletContext) servletContext).setContextPath("");
 		servletConfig = new MockServletConfig(servletContext);
-		((MockServletConfig) servletConfig).addInitParameter(KatharsisProperties.RESOURCE_SEARCH_PACKAGE,
-				RESOURCE_SEARCH_PACKAGE);
-		((MockServletConfig) servletConfig).addInitParameter(KatharsisProperties.RESOURCE_DEFAULT_DOMAIN,
-				RESOURCE_DEFAULT_DOMAIN);
+		((MockServletConfig) servletConfig).addInitParameter(KatharsisProperties.RESOURCE_SEARCH_PACKAGE, RESOURCE_SEARCH_PACKAGE);
+		((MockServletConfig) servletConfig).addInitParameter(KatharsisProperties.RESOURCE_DEFAULT_DOMAIN, RESOURCE_DEFAULT_DOMAIN);
 
 		katharsisServlet.init(servletConfig);
 		nodeRepository = new NodeRepository();
@@ -165,8 +165,8 @@ public class KatharsisServletTest {
 		request.setRequestURI("/api/tasks");
 		request.setContentType(JsonApiMediaType.APPLICATION_JSON_API);
 		request.addHeader("Accept", "*/*");
-		request.addParameter("filter[Task][name]", "John");
-		request.setQueryString(URLEncoder.encode("filter[Task][name]", StandardCharsets.UTF_8.name()) + "=John");
+		request.addParameter("filter[name]", "John");
+		request.setQueryString(URLEncoder.encode("filter[name]", StandardCharsets.UTF_8.name()) + "=John");
 
 		MockHttpServletResponse response = new MockHttpServletResponse();
 
@@ -224,7 +224,6 @@ public class KatharsisServletTest {
 		assertEquals(404, response.getStatus());
 
 	}
-
 
 	@Test
 	public void testKatharsisInclude() throws Exception {
@@ -286,7 +285,8 @@ public class KatharsisServletTest {
 	@Test
 	public void testKatharsisIncludeWithNullIterableRelationshipCall() throws Exception {
 		Node root = new Node(1L, null, null);
-		// by making the setting children null and requesting them in the include statement should cause a serialization error
+		// by making the setting children null and requesting them in the
+		// include statement should cause a serialization error
 		Node child1 = new Node(2L, root, null);
 		Node child2 = new Node(3L, root, null);
 		root.setChildren(new LinkedHashSet<>(Arrays.asList(child1, child2)));

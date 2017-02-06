@@ -13,11 +13,11 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import io.katharsis.core.internal.boot.EmptyPropertiesProvider;
-import io.katharsis.core.internal.boot.KatharsisBootProperties;
 import io.katharsis.core.internal.boot.PropertiesProvider;
 import io.katharsis.core.internal.repository.adapter.RelationshipRepositoryAdapter;
 import io.katharsis.core.internal.repository.adapter.ResourceRepositoryAdapter;
 import io.katharsis.core.internal.resource.DocumentMapper;
+import io.katharsis.core.properties.KatharsisProperties;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.resource.Document;
 import io.katharsis.resource.Relationship;
@@ -164,7 +164,7 @@ public class IncludeLookupSetterTest extends AbstractDocumentMapperTest {
 
 			@Override
 			public String getProperty(String key) {
-				if (key.equalsIgnoreCase(KatharsisBootProperties.INCLUDE_AUTOMATICALLY_OVERWRITE)) {
+				if (key.equalsIgnoreCase(KatharsisProperties.INCLUDE_AUTOMATICALLY_OVERWRITE)) {
 					return "true";
 				}
 				return "true";
@@ -191,7 +191,7 @@ public class IncludeLookupSetterTest extends AbstractDocumentMapperTest {
 
 			@Override
 			public String getProperty(String key) {
-				if (key.equalsIgnoreCase(KatharsisBootProperties.INCLUDE_AUTOMATICALLY_OVERWRITE)) {
+				if (key.equalsIgnoreCase(KatharsisProperties.INCLUDE_AUTOMATICALLY_OVERWRITE)) {
 					return "false";
 				}
 				return "true";

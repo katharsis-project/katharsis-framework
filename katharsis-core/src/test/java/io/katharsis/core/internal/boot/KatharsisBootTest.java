@@ -12,12 +12,12 @@ import org.mockito.Mockito;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.katharsis.core.internal.boot.KatharsisBoot;
-import io.katharsis.core.internal.boot.KatharsisBootProperties;
 import io.katharsis.core.internal.boot.PropertiesProvider;
 import io.katharsis.core.internal.dispatcher.RequestDispatcher;
 import io.katharsis.core.internal.query.QueryAdapterBuilder;
 import io.katharsis.core.internal.query.QuerySpecAdapterBuilder;
 import io.katharsis.core.internal.repository.adapter.ResourceRepositoryAdapter;
+import io.katharsis.core.properties.KatharsisProperties;
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
 import io.katharsis.legacy.internal.QueryParamsAdapter;
 import io.katharsis.legacy.internal.QueryParamsAdapterBuilder;
@@ -155,7 +155,7 @@ public class KatharsisBootTest {
 		KatharsisBoot boot = new KatharsisBoot();
 		boot.setServiceDiscoveryFactory(serviceDiscoveryFactory);
 		final Properties properties = new Properties();
-		properties.put(KatharsisBootProperties.RESOURCE_DEFAULT_DOMAIN, "http://something");
+		properties.put(KatharsisProperties.RESOURCE_DEFAULT_DOMAIN, "http://something");
 		PropertiesProvider propertiesProvider = new PropertiesProvider() {
 
 			@Override
@@ -187,7 +187,7 @@ public class KatharsisBootTest {
 				objectMapper.getSerializationConfig());
 
 		final Properties properties = new Properties();
-		properties.put(KatharsisBootProperties.RESOURCE_SEARCH_PACKAGE, "io.katharsis.resource.mock");
+		properties.put(KatharsisProperties.RESOURCE_SEARCH_PACKAGE, "io.katharsis.resource.mock");
 		PropertiesProvider propertiesProvider = new PropertiesProvider() {
 
 			@Override

@@ -16,11 +16,17 @@
  */
 package io.katharsis.servlet.resource.repository;
 
-import io.katharsis.legacy.repository.annotations.*;
-import io.katharsis.servlet.resource.model.Task;
+import java.util.Collections;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Collections;
+
+import io.katharsis.legacy.repository.annotations.JsonApiDelete;
+import io.katharsis.legacy.repository.annotations.JsonApiFindAll;
+import io.katharsis.legacy.repository.annotations.JsonApiFindAllWithIds;
+import io.katharsis.legacy.repository.annotations.JsonApiFindOne;
+import io.katharsis.legacy.repository.annotations.JsonApiResourceRepository;
+import io.katharsis.legacy.repository.annotations.JsonApiSave;
+import io.katharsis.servlet.resource.model.Task;
 
 @JsonApiResourceRepository(Task.class)
 public class TaskRepository {

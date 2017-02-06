@@ -23,6 +23,8 @@ import org.junit.Test;
 
 import com.google.common.net.MediaType;
 
+import io.katharsis.invoker.internal.JsonApiMediaType;
+
 public class JsonApiMediaTypeTest {
 
     @Test

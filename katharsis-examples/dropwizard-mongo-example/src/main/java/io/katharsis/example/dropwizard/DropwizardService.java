@@ -3,9 +3,11 @@ package io.katharsis.example.dropwizard;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.hubspot.dropwizard.guice.GuiceBundle;
+
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import io.katharsis.core.properties.KatharsisProperties;
 import io.katharsis.example.dropwizard.domain.repository.ProjectRepository;
 import io.katharsis.example.dropwizard.domain.repository.TaskRepository;
 import io.katharsis.example.dropwizard.domain.repository.TaskToProjectRepository;
@@ -15,8 +17,6 @@ import io.katharsis.legacy.queryParams.DefaultQueryParamsParser;
 import io.katharsis.legacy.queryParams.QueryParamsBuilder;
 import io.katharsis.rs.KatharsisFeature;
 
-import static io.katharsis.rs.KatharsisProperties.RESOURCE_DEFAULT_DOMAIN;
-import static io.katharsis.rs.KatharsisProperties.RESOURCE_SEARCH_PACKAGE;
 
 public class DropwizardService extends Application<DropwizardConfiguration> {
 
@@ -51,8 +51,8 @@ public class DropwizardService extends Application<DropwizardConfiguration> {
         environment.lifecycle().manage(guiceBundle.getInjector().getInstance(MongoManaged.class));
 
 
-        environment.jersey().property(RESOURCE_SEARCH_PACKAGE, "io.katharsis.example.dropwizard.domain");
-        environment.jersey().property(RESOURCE_DEFAULT_DOMAIN, "http://localhost:8080");
+        environment.jersey().property(KatharsisProperties.RESOURCE_SEARCH_PACKAGE, "io.katharsis.example.dropwizard.domain");
+        environment.jersey().property(KatharsisProperties.RESOURCE_DEFAULT_DOMAIN, "http://localhost:8080");
 
         KatharsisFeature katharsisFeature = new KatharsisFeature(environment.getObjectMapper(),
                 new QueryParamsBuilder(new DefaultQueryParamsParser()),

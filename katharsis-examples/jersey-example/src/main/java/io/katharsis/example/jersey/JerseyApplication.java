@@ -1,16 +1,18 @@
 package io.katharsis.example.jersey;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.katharsis.example.jersey.domain.repository.ProjectRepository;
-import io.katharsis.example.jersey.domain.repository.TaskRepository;
-import io.katharsis.example.jersey.domain.repository.TaskToProjectRepository;
-import io.katharsis.rs.KatharsisProperties;
+import javax.inject.Singleton;
+import javax.ws.rs.ApplicationPath;
+
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.glassfish.jersey.server.ResourceConfig;
 
-import javax.inject.Singleton;
-import javax.ws.rs.ApplicationPath;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.katharsis.core.properties.KatharsisProperties;
+import io.katharsis.example.jersey.domain.repository.ProjectRepository;
+import io.katharsis.example.jersey.domain.repository.TaskRepository;
+import io.katharsis.example.jersey.domain.repository.TaskToProjectRepository;
 
 @ApplicationPath("/")
 public class JerseyApplication extends ResourceConfig {

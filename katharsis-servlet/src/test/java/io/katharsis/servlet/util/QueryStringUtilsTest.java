@@ -1,19 +1,25 @@
 package io.katharsis.servlet.util;
 
-import io.katharsis.invoker.KatharsisInvokerContext;
-import io.katharsis.servlet.ServletKatharsisInvokerContext;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import java.util.Map;
+import java.util.Set;
+
+import javax.servlet.ServletContext;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockServletContext;
 
-import javax.servlet.ServletContext;
-import java.util.Map;
-import java.util.Set;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
+import io.katharsis.invoker.internal.KatharsisInvokerContext;
+import io.katharsis.servlet.internal.QueryStringUtils;
+import io.katharsis.servlet.internal.ServletKatharsisInvokerContext;
 
 public class QueryStringUtilsTest {
 

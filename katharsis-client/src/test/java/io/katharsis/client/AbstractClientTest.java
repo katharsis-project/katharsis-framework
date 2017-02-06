@@ -18,12 +18,12 @@ import io.katharsis.client.mock.repository.ProjectRepository;
 import io.katharsis.client.mock.repository.ScheduleRepositoryImpl;
 import io.katharsis.client.mock.repository.TaskRepository;
 import io.katharsis.client.mock.repository.TaskToProjectRepository;
+import io.katharsis.core.properties.KatharsisProperties;
 import io.katharsis.legacy.locator.SampleJsonServiceLocator;
 import io.katharsis.legacy.queryParams.DefaultQueryParamsParser;
 import io.katharsis.legacy.queryParams.QueryParamsBuilder;
 import io.katharsis.queryspec.DefaultQuerySpecDeserializer;
 import io.katharsis.rs.KatharsisFeature;
-import io.katharsis.rs.KatharsisProperties;
 
 public abstract class AbstractClientTest extends JerseyTest {
 

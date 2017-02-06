@@ -38,13 +38,13 @@ import io.katharsis.core.internal.exception.KatharsisExceptionMapper;
 import io.katharsis.errorhandling.exception.JsonDeserializationException;
 import io.katharsis.errorhandling.exception.KatharsisMappableException;
 import io.katharsis.errorhandling.exception.KatharsisMatchingException;
-import io.katharsis.invoker.JsonApiMediaType;
-import io.katharsis.invoker.KatharsisInvokerException;
+import io.katharsis.invoker.internal.JsonApiMediaType;
+import io.katharsis.invoker.internal.KatharsisInvokerException;
 import io.katharsis.legacy.internal.RepositoryMethodParameterProvider;
 import io.katharsis.repository.response.Response;
 import io.katharsis.resource.Document;
 import io.katharsis.resource.registry.ResourceRegistry;
-import io.katharsis.servlet.util.BufferedRequestWrapper;
+import io.katharsis.servlet.internal.BufferedRequestWrapper;
 
 @Priority(20)
 public class KatharsisFilterV2 implements Filter, BeanFactoryAware {
