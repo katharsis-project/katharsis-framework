@@ -337,11 +337,11 @@ public class AnnotationResourceInformationBuilder implements ResourceInformation
 			}
 			if (jsonApiRelation != null) {
 				switch (jsonApiRelation.serialize()) {
-					case EAGER:
-						return false;
 					case LAZY:
 						return true;
 					case ONLY_ID:
+						return false;
+					case EAGER:
 						return false;
 					default:
 						throw new UnsupportedOperationException("Unknown serialize type " + jsonApiRelation.serialize());

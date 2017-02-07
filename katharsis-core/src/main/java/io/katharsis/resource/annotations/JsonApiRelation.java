@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
  * Indicates an association to either a single value or collection which needs to be handled by a separate
  * relationship repository.
  *
- * @since 3.1
+ * @since 3.0
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
