@@ -2,15 +2,15 @@ package io.katharsis.resource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Collection;
 import java.util.concurrent.Future;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import io.katharsis.core.internal.resource.AnnotationResourceInformationBuilder;
 import io.katharsis.errorhandling.exception.MultipleJsonApiLinksInformationException;
@@ -22,9 +22,13 @@ import io.katharsis.legacy.registry.DefaultResourceInformationBuilderContext;
 import io.katharsis.resource.annotations.JsonApiId;
 import io.katharsis.resource.annotations.JsonApiLinksInformation;
 import io.katharsis.resource.annotations.JsonApiMetaInformation;
+import io.katharsis.resource.annotations.JsonApiRelation;
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.annotations.JsonApiToOne;
+import io.katharsis.resource.annotations.LookupIncludeBehavior;
+import io.katharsis.resource.annotations.SerializeType;
 import io.katharsis.resource.information.ResourceFieldNameTransformer;
+import io.katharsis.resource.information.ResourceFieldType;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.information.ResourceInformationBuilderContext;
@@ -41,9 +45,9 @@ public class ResourceInformationBuilderTest {
 	private final ResourceInformationBuilder resourceInformationBuilder = new AnnotationResourceInformationBuilder(new ResourceFieldNameTransformer());
 
 	private final ResourceInformationBuilderContext context = new DefaultResourceInformationBuilderContext(resourceInformationBuilder);
-	
+
 	@Before
-	public void setup(){
+	public void setup() {
 		resourceInformationBuilder.init(context);
 	}
 
@@ -144,6 +148,28 @@ public class ResourceInformationBuilderTest {
 		ResourceInformation resourceInformation = resourceInformationBuilder.build(DifferentTypes.class);
 
 		assertThat(resourceInformation.getRelationshipFields()).isNotNull().hasSize(1).extracting("type").contains(String.class);
+	}
+
+	@Test
+	public void shouldRecognizeJsonAPIRelationTypeWithDefaults() throws Exception {
+		ResourceInformation resourceInformation = resourceInformationBuilder.build(JsonApiRelationType.class);
+
+		assertThat(resourceInformation.getRelationshipFields()).isNotEmpty().hasSize(2).extracting("type").contains(Future.class).contains(Collection.class);
+		assertThat(resourceInformation.getRelationshipFields()).extracting("lazy").contains(true, true);
+		assertThat(resourceInformation.getRelationshipFields()).extracting("includeByDefault").contains(false, false);
+		assertThat(resourceInformation.getRelationshipFields()).extracting("lookupIncludeBehavior").contains(LookupIncludeBehavior.NONE, LookupIncludeBehavior.NONE);
+		assertThat(resourceInformation.getRelationshipFields()).extracting("resourceFieldType").contains(ResourceFieldType.RELATIONSHIP, ResourceFieldType.RELATIONSHIP);
+	}
+
+	@Test
+	public void shouldRecognizeJsonAPIRelationTypeWithNonDefaults() throws Exception {
+		ResourceInformation resourceInformation = resourceInformationBuilder.build(JsonApiRelationTypeNonDefaults.class);
+
+		assertThat(resourceInformation.getRelationshipFields()).isNotEmpty().hasSize(2).extracting("type").contains(Future.class).contains(Collection.class);
+		assertThat(resourceInformation.getRelationshipFields()).extracting("lazy").contains(false, false);
+		assertThat(resourceInformation.getRelationshipFields()).extracting("includeByDefault").contains(false, true);
+		assertThat(resourceInformation.getRelationshipFields()).extracting("lookupIncludeBehavior").contains(LookupIncludeBehavior.AUTOMATICALLY_ALWAYS, LookupIncludeBehavior.AUTOMATICALLY_WHEN_NULL);
+		assertThat(resourceInformation.getRelationshipFields()).extracting("resourceFieldType").contains(ResourceFieldType.RELATIONSHIP, ResourceFieldType.RELATIONSHIP);
 	}
 
 	@JsonApiResource(type = "duplicatedIdAnnotationResources")
@@ -259,7 +285,7 @@ public class ResourceInformationBuilderTest {
 		}
 	}
 
-	@JsonPropertyOrder({ "b", "a", "c" })
+	@JsonPropertyOrder({"b", "a", "c"})
 	@JsonApiResource(type = "orderedResource")
 	private static class OrderedResource {
 		@JsonApiId
@@ -325,6 +351,39 @@ public class ResourceInformationBuilderTest {
 
 		@JsonApiToOne
 		public Future<String> field;
+
+		public String getField() {
+			return null;
+		}
+	}
+
+
+	@JsonApiResource(type = "jsonAPIRelationType")
+	private static class JsonApiRelationType {
+		@JsonApiId
+		private Long id;
+
+		@JsonApiRelation
+		public Future<String> field;
+
+		@JsonApiRelation
+		public Collection<Future<String>> fields;
+
+		public String getField() {
+			return null;
+		}
+	}
+
+	@JsonApiResource(type = "jsonAPIRelationType")
+	private static class JsonApiRelationTypeNonDefaults {
+		@JsonApiId
+		private Long id;
+
+		@JsonApiRelation(lookUp = LookupIncludeBehavior.AUTOMATICALLY_ALWAYS, serialize = SerializeType.EAGER)
+		public Future<String> field;
+
+		@JsonApiRelation(lookUp = LookupIncludeBehavior.AUTOMATICALLY_WHEN_NULL, serialize = SerializeType.ONLY_ID)
+		public Collection<Future<String>> fields;
 
 		public String getField() {
 			return null;
