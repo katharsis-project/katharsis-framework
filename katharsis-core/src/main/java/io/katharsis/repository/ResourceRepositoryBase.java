@@ -20,7 +20,7 @@ import io.katharsis.resource.registry.ResourceRegistryAware;
  * {@link ResourceRepositoryBase} will be removed in the near future.
  * 
  * Base implements for {@link ResourceRepositoryV2} implementing most of the
- * methods. Unless {@link #save(Object)} and {@link #delete(Object)} get
+ * methods. Unless {@link #save(T)} and {@link #delete(I)} get
  * overridden, this repository is read-only. Only {@link #findAll(QuerySpec)}
  * needs to be implemented to have a working repository.
  *
