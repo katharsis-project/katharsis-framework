@@ -26,11 +26,6 @@ public abstract class MetaCollectionType extends MetaType {
 		this.elementType = elementType;
 	}
 
-	@Override
-	public Object fromString(String values) {
-		throw new UnsupportedOperationException("no yet implemented");
-	}
-
 	@JsonIgnore
 	public <T> Collection<T> newInstance() {
 		if (getImplementationClass() == Set.class)

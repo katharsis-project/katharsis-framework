@@ -5,7 +5,6 @@ import java.io.Serializable;
 import io.katharsis.core.internal.dispatcher.path.JsonPath;
 import io.katharsis.core.internal.dispatcher.path.PathIds;
 import io.katharsis.core.internal.dispatcher.path.ResourcePath;
-import io.katharsis.core.internal.utils.parser.TypeParser;
 import io.katharsis.errorhandling.exception.ResourceNotFoundException;
 import io.katharsis.legacy.internal.RepositoryMethodParameterProvider;
 import io.katharsis.repository.request.HttpMethod;
@@ -14,6 +13,7 @@ import io.katharsis.repository.response.Response;
 import io.katharsis.resource.Document;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.utils.parser.TypeParser;
 
 public class ResourceDelete extends BaseController {
 

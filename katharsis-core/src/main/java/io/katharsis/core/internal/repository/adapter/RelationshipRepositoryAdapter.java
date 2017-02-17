@@ -60,7 +60,7 @@ public class RelationshipRepositoryAdapter<T, I extends Serializable, D, J exten
 		        return new JsonApiResponse();
 			}
 		};
-		RepositoryRequestSpec requestSpec = RepositoryRequestSpecImpl.forRelation(moduleRegistry.getResourceRegistry(), HttpMethod.PATCH, source, queryAdapter, Arrays.asList(targetId), field);
+		RepositoryRequestSpec requestSpec = RepositoryRequestSpecImpl.forRelation(moduleRegistry, HttpMethod.PATCH, source, queryAdapter, Arrays.asList(targetId), field);
 		return chain.doFilter(newRepositoryFilterContext(requestSpec));
     }
 
@@ -86,7 +86,7 @@ public class RelationshipRepositoryAdapter<T, I extends Serializable, D, J exten
 		        return new JsonApiResponse();
 			}
 		};
-		RepositoryRequestSpec requestSpec = RepositoryRequestSpecImpl.forRelation(moduleRegistry.getResourceRegistry(), HttpMethod.PATCH, source, queryAdapter, targetIds, field);
+		RepositoryRequestSpec requestSpec = RepositoryRequestSpecImpl.forRelation(moduleRegistry, HttpMethod.PATCH, source, queryAdapter, targetIds, field);
 		return chain.doFilter(newRepositoryFilterContext(requestSpec));
     }
 
@@ -112,7 +112,7 @@ public class RelationshipRepositoryAdapter<T, I extends Serializable, D, J exten
 		        return new JsonApiResponse();
 			}
 		};
-		RepositoryRequestSpec requestSpec = RepositoryRequestSpecImpl.forRelation(moduleRegistry.getResourceRegistry(), HttpMethod.POST, source, queryAdapter, targetIds, field);
+		RepositoryRequestSpec requestSpec = RepositoryRequestSpecImpl.forRelation(moduleRegistry, HttpMethod.POST, source, queryAdapter, targetIds, field);
 		return chain.doFilter(newRepositoryFilterContext(requestSpec));
     }
 
@@ -138,7 +138,7 @@ public class RelationshipRepositoryAdapter<T, I extends Serializable, D, J exten
 		        return new JsonApiResponse();
 			}
 		};
-		RepositoryRequestSpec requestSpec = RepositoryRequestSpecImpl.forRelation(moduleRegistry.getResourceRegistry(), HttpMethod.DELETE, source, queryAdapter, targetIds, field);
+		RepositoryRequestSpec requestSpec = RepositoryRequestSpecImpl.forRelation(moduleRegistry, HttpMethod.DELETE, source, queryAdapter, targetIds, field);
 		return chain.doFilter(newRepositoryFilterContext(requestSpec));
     }
 
@@ -169,7 +169,7 @@ public class RelationshipRepositoryAdapter<T, I extends Serializable, D, J exten
 		        return getResponse(relationshipRepository, resource, request);
 			};
     	};
-    	RepositoryRequestSpec requestSpec = RepositoryRequestSpecImpl.forFindTarget(moduleRegistry.getResourceRegistry(), queryAdapter, Arrays.asList(sourceId), field);
+    	RepositoryRequestSpec requestSpec = RepositoryRequestSpecImpl.forFindTarget(moduleRegistry, queryAdapter, Arrays.asList(sourceId), field);
 		return chain.doFilter(newRepositoryFilterContext(requestSpec));
     }
 
@@ -200,7 +200,7 @@ public class RelationshipRepositoryAdapter<T, I extends Serializable, D, J exten
 		        return getResponse(relationshipRepository, resources, request);
 			}
 		};
-		RepositoryRequestSpec requestSpec = RepositoryRequestSpecImpl.forFindTarget(moduleRegistry.getResourceRegistry(), queryAdapter, Arrays.asList(sourceId), field);
+		RepositoryRequestSpec requestSpec = RepositoryRequestSpecImpl.forFindTarget(moduleRegistry, queryAdapter, Arrays.asList(sourceId), field);
 		return chain.doFilter(newRepositoryFilterContext(requestSpec));
     }
 	
@@ -224,7 +224,7 @@ public class RelationshipRepositoryAdapter<T, I extends Serializable, D, J exten
 					return toResponses(targetsMap, true, queryAdapter, field, HttpMethod.GET);
 				}
 			};
-			RepositoryRequestSpec requestSpec = RepositoryRequestSpecImpl.forFindTarget(moduleRegistry.getResourceRegistry(), queryAdapter, sourceIds, field);
+			RepositoryRequestSpec requestSpec = RepositoryRequestSpecImpl.forFindTarget(moduleRegistry, queryAdapter, sourceIds, field);
 			return chain.doFilter(newRepositoryFilterContext(requestSpec));
 		}else{
 			// fallback to non-bulk operation
@@ -258,7 +258,7 @@ public class RelationshipRepositoryAdapter<T, I extends Serializable, D, J exten
 					return toResponses(targetsMap, false, queryAdapter, field, HttpMethod.GET);
 				}
 			};
-			RepositoryRequestSpec requestSpec = RepositoryRequestSpecImpl.forFindTarget(moduleRegistry.getResourceRegistry(), queryAdapter, sourceIds, field);
+			RepositoryRequestSpec requestSpec = RepositoryRequestSpecImpl.forFindTarget(moduleRegistry, queryAdapter, sourceIds, field);
 			return chain.doFilter(newRepositoryFilterContext(requestSpec));
 		}else{
 			// fallback to non-bulk operation
@@ -276,7 +276,7 @@ public class RelationshipRepositoryAdapter<T, I extends Serializable, D, J exten
 		Map<I, JsonApiResponse> responseMap = new HashMap<>();
 		for(I sourceId : targetsMap.keySet()){
 			Object targets = isMany ? targetsMap.getList(sourceId) : targetsMap.getUnique(sourceId);
-			RepositoryRequestSpec requestSpec = RepositoryRequestSpecImpl.forRelation(moduleRegistry.getResourceRegistry(), method, null, queryAdapter, Collections.singleton(sourceId), field);
+			RepositoryRequestSpec requestSpec = RepositoryRequestSpecImpl.forRelation(moduleRegistry, method, null, queryAdapter, Collections.singleton(sourceId), field);
 			JsonApiResponse response = getResponse(relationshipRepository, targets, requestSpec);
 			responseMap.put(sourceId, response);
 		}

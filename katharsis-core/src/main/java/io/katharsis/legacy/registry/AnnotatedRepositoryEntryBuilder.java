@@ -9,6 +9,7 @@ import io.katharsis.core.internal.utils.Predicate1;
 import io.katharsis.legacy.locator.JsonServiceLocator;
 import io.katharsis.legacy.repository.annotations.JsonApiRelationshipRepository;
 import io.katharsis.legacy.repository.annotations.JsonApiResourceRepository;
+import io.katharsis.module.ModuleRegistry;
 import io.katharsis.resource.registry.ResourceEntry;
 import io.katharsis.resource.registry.ResourceLookup;
 import io.katharsis.resource.registry.ResponseRelationshipEntry;
@@ -19,8 +20,11 @@ import io.katharsis.resource.registry.ResponseRelationshipEntry;
 public class AnnotatedRepositoryEntryBuilder implements RepositoryEntryBuilder {
 
     private final JsonServiceLocator jsonServiceLocator;
+    
+	private ModuleRegistry moduleRegistry;
 
-    public AnnotatedRepositoryEntryBuilder(JsonServiceLocator jsonServiceLocator) {
+    public AnnotatedRepositoryEntryBuilder(ModuleRegistry moduleRegistry, JsonServiceLocator jsonServiceLocator) {
+    	this.moduleRegistry = moduleRegistry;
         this.jsonServiceLocator = jsonServiceLocator;
     }
 
@@ -37,7 +41,7 @@ public class AnnotatedRepositoryEntryBuilder implements RepositoryEntryBuilder {
         if (repositoryClasses.isEmpty()) {
             return null;
         } else {
-            return new AnnotatedResourceEntry<>(new RepositoryInstanceBuilder<>(jsonServiceLocator, repositoryClasses.get(0)));
+            return new AnnotatedResourceEntry<>(moduleRegistry, new RepositoryInstanceBuilder<>(jsonServiceLocator, repositoryClasses.get(0)));
         }
     }
 
@@ -54,7 +58,7 @@ public class AnnotatedRepositoryEntryBuilder implements RepositoryEntryBuilder {
         List<Class<?>> repositoryClasses = findRepositoryClasses(lookup, classPredicate, JsonApiRelationshipRepository.class);
         List<ResponseRelationshipEntry> relationshipEntries = new ArrayList<>(repositoryClasses.size());
         for (Class<?> repositoryClass : repositoryClasses) {
-            relationshipEntries.add(new AnnotatedRelationshipEntryBuilder(new RepositoryInstanceBuilder<>(jsonServiceLocator, repositoryClass)));
+            relationshipEntries.add(new AnnotatedRelationshipEntryBuilder(moduleRegistry, new RepositoryInstanceBuilder<>(jsonServiceLocator, repositoryClass)));
         }
 
         return relationshipEntries;

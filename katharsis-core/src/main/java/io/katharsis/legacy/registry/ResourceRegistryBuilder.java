@@ -21,21 +21,23 @@ import io.katharsis.resource.registry.ResourceLookup;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResponseRelationshipEntry;
 import io.katharsis.resource.registry.ServiceUrlProvider;
+import io.katharsis.utils.parser.TypeParser;
 
 /**
  * Builder responsible for building an instance of ResourceRegistry.
  */
+@Deprecated
 public class ResourceRegistryBuilder {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ResourceRegistryBuilder.class);
 
 	private final ResourceInformationBuilder resourceInformationBuilder;
 	private final RepositoryEntryBuilderFacade repositoryEntryBuilder;
 
-	public ResourceRegistryBuilder(JsonServiceLocator jsonServiceLocator, ResourceInformationBuilder resourceInformationBuilder) {
+	public ResourceRegistryBuilder(ModuleRegistry moduleRegistry, JsonServiceLocator jsonServiceLocator, ResourceInformationBuilder resourceInformationBuilder) {
 		this.resourceInformationBuilder = resourceInformationBuilder;
-		this.repositoryEntryBuilder = new RepositoryEntryBuilderFacade(jsonServiceLocator);
+		this.repositoryEntryBuilder = new RepositoryEntryBuilderFacade(moduleRegistry, jsonServiceLocator);
 		
-		DefaultResourceInformationBuilderContext context = new DefaultResourceInformationBuilderContext(resourceInformationBuilder);		
+		DefaultResourceInformationBuilderContext context = new DefaultResourceInformationBuilderContext(resourceInformationBuilder, moduleRegistry.getTypeParser());		
 		resourceInformationBuilder.init(context);
 	}
 

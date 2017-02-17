@@ -49,11 +49,14 @@ import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryAware;
 import io.katharsis.resource.registry.ResponseRelationshipEntry;
 import io.katharsis.security.SecurityProvider;
+import io.katharsis.utils.parser.TypeParser;
 
 /**
  * Container for setting up and holding {@link Module} instances;
  */
 public class ModuleRegistry {
+
+	private TypeParser typeParser = new TypeParser();
 
 	private ObjectMapper objectMapper;
 
@@ -197,6 +200,11 @@ public class ModuleRegistry {
 		public boolean isServer() {
 			return isServer;
 		}
+
+		@Override
+		public TypeParser getTypeParser() {
+			return typeParser;
+		}
 	}
 
 	/**
@@ -225,7 +233,7 @@ public class ModuleRegistry {
 	 */
 	public ResourceInformationBuilder getResourceInformationBuilder() {
 		CombinedResourceInformationBuilder resourceInformationBuilder = new CombinedResourceInformationBuilder(aggregatedModule.getResourceInformationBuilders());
-		DefaultResourceInformationBuilderContext context = new DefaultResourceInformationBuilderContext(resourceInformationBuilder);
+		DefaultResourceInformationBuilderContext context = new DefaultResourceInformationBuilderContext(resourceInformationBuilder, typeParser);
 		resourceInformationBuilder.init(context);
 		return resourceInformationBuilder;
 	}
@@ -440,6 +448,11 @@ public class ModuleRegistry {
 			public ResourceInformationBuilder getResourceInformationBuilder() {
 				return ModuleRegistry.this.getResourceInformationBuilder();
 			}
+
+			@Override
+			public TypeParser getTypeParser() {
+				return typeParser;
+			}
 		};
 
 		MultivaluedMap<Class<?>, RepositoryInformation> repositoryMap = new MultivaluedMap<>();
@@ -480,7 +493,7 @@ public class ModuleRegistry {
 			if (resourceRepositoryInformation == null) {
 
 				ResourceInformationBuilder resourceInformationBuilder = getResourceInformationBuilder();
-				DefaultResourceInformationBuilderContext context = new DefaultResourceInformationBuilderContext(resourceInformationBuilder);
+				DefaultResourceInformationBuilderContext context = new DefaultResourceInformationBuilderContext(resourceInformationBuilder, typeParser);
 
 				ResourceInformation resourceInformation = resourceInformationBuilder.build(resourceClass);
 				resourceRepositoryInformation = new ResourceRepositoryInformationImpl(resourceClass, resourceInformation.getResourceType(), resourceInformation);
@@ -503,7 +516,7 @@ public class ModuleRegistry {
 		};
 
 		if (ClassUtils.getAnnotation(decoratedRepository.getClass(), JsonApiResourceRepository.class).isPresent()) {
-			return new AnnotatedResourceEntry(repositoryInstanceBuilder);
+			return new AnnotatedResourceEntry(this, repositoryInstanceBuilder);
 		} else {
 			return new DirectResponseResourceEntry(repositoryInstanceBuilder);
 		}
@@ -549,7 +562,7 @@ public class ModuleRegistry {
 		};
 
 		if (ClassUtils.getAnnotation(relRepository.getClass(), JsonApiRelationshipRepository.class).isPresent()) {
-			relationshipEntries.add(new AnnotatedRelationshipEntryBuilder(relationshipInstanceBuilder));
+			relationshipEntries.add(new AnnotatedRelationshipEntryBuilder(this, relationshipInstanceBuilder));
 		} else {
 			ResponseRelationshipEntry relationshipEntry = new DirectResponseRelationshipEntry(relationshipInstanceBuilder) {
 
@@ -596,5 +609,9 @@ public class ModuleRegistry {
 
 	public void setResourceRegistry(ResourceRegistry resourceRegistry) {
 		this.resourceRegistry = resourceRegistry;
+	}
+
+	public TypeParser getTypeParser() {
+		return typeParser;
 	}
 }

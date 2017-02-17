@@ -5,19 +5,23 @@ import java.io.Serializable;
 import io.katharsis.legacy.internal.AnnotatedResourceRepositoryAdapter;
 import io.katharsis.legacy.internal.ParametersFactory;
 import io.katharsis.legacy.internal.RepositoryMethodParameterProvider;
+import io.katharsis.module.ModuleRegistry;
 import io.katharsis.resource.registry.ResourceEntry;
-import io.katharsis.resource.registry.ResourceRegistry;
 
 public class AnnotatedResourceEntry<T, ID extends Serializable> implements ResourceEntry {
     private final RepositoryInstanceBuilder repositoryInstanceBuilder;
+    
+    @Deprecated
+	private ModuleRegistry moduleRegistry;
 
-    public AnnotatedResourceEntry(RepositoryInstanceBuilder RepositoryInstanceBuilder) {
+    public AnnotatedResourceEntry(ModuleRegistry moduleRegistry, RepositoryInstanceBuilder RepositoryInstanceBuilder) {
+		this.moduleRegistry= moduleRegistry;
         this.repositoryInstanceBuilder = RepositoryInstanceBuilder;
     }
 
     public AnnotatedResourceRepositoryAdapter build(RepositoryMethodParameterProvider parameterProvider) {
         return new AnnotatedResourceRepositoryAdapter<>(repositoryInstanceBuilder.buildRepository(),
-            new ParametersFactory(parameterProvider));
+            new ParametersFactory(moduleRegistry, parameterProvider));
     }
 
     @Override

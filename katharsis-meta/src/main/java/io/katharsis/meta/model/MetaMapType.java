@@ -20,11 +20,6 @@ public class MetaMapType extends MetaType {
 		return valueType;
 	}
 
-	@Override
-	public Object fromString(String values) {
-		throw new UnsupportedOperationException("no yet implemented");
-	}
-
 	public void setKeyType(MetaType keyType) {
 		this.keyType = keyType;
 	}

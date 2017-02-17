@@ -27,6 +27,7 @@ import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.utils.parser.TypeParser;
 
 public class DefaultQuerySpecDeserializerTest extends AbstractQuerySpecTest {
 
@@ -46,6 +47,11 @@ public class DefaultQuerySpecDeserializerTest extends AbstractQuerySpecTest {
 			@Override
 			public ResourceRegistry getResourceRegistry() {
 				return resourceRegistry;
+			}
+
+			@Override
+			public TypeParser getTypeParser() {
+				return moduleRegistry.getTypeParser();
 			}
 		});
 		taskInformation = resourceRegistry.getEntryForClass(Task.class).getResourceInformation();
@@ -158,7 +164,7 @@ public class DefaultQuerySpecDeserializerTest extends AbstractQuerySpecTest {
 		QuerySpec actualSpec = deserializer.deserialize(taskInformation, params);
 		Assert.assertEquals(expectedSpec, actualSpec);
 	}
-	
+
 	@Test
 	public void testFilterWithDotNotationMultipleElements() throws InstantiationException, IllegalAccessException {
 		QuerySpec expectedSpec = new QuerySpec(Task.class);
@@ -213,8 +219,7 @@ public class DefaultQuerySpecDeserializerTest extends AbstractQuerySpecTest {
 	@Test
 	public void testFilterByMany() throws InstantiationException, IllegalAccessException {
 		QuerySpec expectedSpec = new QuerySpec(Task.class);
-		expectedSpec.addFilter(
-				new FilterSpec(Arrays.asList("name"), FilterOperator.EQ, new HashSet<>(Arrays.asList("value1", "value2"))));
+		expectedSpec.addFilter(new FilterSpec(Arrays.asList("name"), FilterOperator.EQ, new HashSet<>(Arrays.asList("value1", "value2"))));
 
 		Map<String, Set<String>> params = new HashMap<>();
 		params.put("filter[tasks][name][EQ]", new HashSet<>(Arrays.asList("value1", "value2")));

@@ -32,10 +32,11 @@ public class ControllerRegistryTest {
     public void prepare() {
         ResourceInformationBuilder resourceInformationBuilder = new AnnotationResourceInformationBuilder(
             new ResourceFieldNameTransformer());
-        ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonServiceLocator(),
+        ModuleRegistry moduleRegistry = new ModuleRegistry();
+        ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(moduleRegistry, new SampleJsonServiceLocator(),
             resourceInformationBuilder);
         resourceRegistry = registryBuilder
-            .build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, new ModuleRegistry(), new ConstantServiceUrlProvider(TEST_MODELS_URL));
+            .build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE,  moduleRegistry, new ConstantServiceUrlProvider(TEST_MODELS_URL));
     }
 
     @Test

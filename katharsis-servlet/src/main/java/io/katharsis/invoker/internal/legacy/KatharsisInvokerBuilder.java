@@ -28,7 +28,6 @@ import io.katharsis.core.internal.exception.ExceptionMapperRegistryBuilder;
 import io.katharsis.core.internal.jackson.JsonApiModuleBuilder;
 import io.katharsis.core.internal.query.QueryAdapterBuilder;
 import io.katharsis.core.internal.query.QuerySpecAdapterBuilder;
-import io.katharsis.core.internal.utils.parser.TypeParser;
 import io.katharsis.legacy.internal.QueryParamsAdapterBuilder;
 import io.katharsis.legacy.locator.JsonServiceLocator;
 import io.katharsis.legacy.queryParams.DefaultQueryParamsParser;
@@ -40,6 +39,7 @@ import io.katharsis.queryspec.QuerySpecDeserializer;
 import io.katharsis.resource.information.ResourceFieldNameTransformer;
 import io.katharsis.resource.registry.ConstantServiceUrlProvider;
 import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.utils.parser.TypeParser;
 
 /**
  * KatharsisInvoker builder.
@@ -150,7 +150,7 @@ public class KatharsisInvokerBuilder {
                 exceptionMapperRegistry = buildExceptionMapperRegistry(resourceSearchPackage);
             }
 
-            requestDispatcher = createRequestDispatcher(resourceRegistry, objectMapper, exceptionMapperRegistry);
+            requestDispatcher = createRequestDispatcher(moduleRegistry, objectMapper, exceptionMapperRegistry);
         }
 
         return new KatharsisInvoker(objectMapper, resourceRegistry, requestDispatcher, propertiesProvider);
@@ -177,22 +177,21 @@ public class KatharsisInvokerBuilder {
 
     protected ResourceRegistry buildResourceRegistry(JsonServiceLocator jsonServiceLocator, String resourceSearchPackage, String resourceDefaultDomain) {
         ResourceRegistryBuilder registryBuilder =
-                new ResourceRegistryBuilder(jsonServiceLocator, moduleRegistry.getResourceInformationBuilder());
+                new ResourceRegistryBuilder(moduleRegistry, jsonServiceLocator, moduleRegistry.getResourceInformationBuilder());
 
         return registryBuilder.build(resourceSearchPackage, moduleRegistry, new ConstantServiceUrlProvider(resourceDefaultDomain));
     }
 
-    protected RequestDispatcher createRequestDispatcher(ResourceRegistry resourceRegistry,
+    protected RequestDispatcher createRequestDispatcher(ModuleRegistry moduleRegistry,
                                                         ObjectMapper objectMapper,
                                                         ExceptionMapperRegistry exceptionMapperRegistry) throws Exception {
-
-        TypeParser typeParser = new TypeParser();
+        TypeParser typeParser = moduleRegistry.getTypeParser();
         ControllerRegistryBuilder controllerRegistryBuilder = new ControllerRegistryBuilder(resourceRegistry, typeParser, objectMapper, propertiesProvider);
         ControllerRegistry controllerRegistry = controllerRegistryBuilder.build();
 
         QueryAdapterBuilder queryAdapterBuilder;
         if (querySpecDeserializer != null) {
-            queryAdapterBuilder = new QuerySpecAdapterBuilder(querySpecDeserializer, resourceRegistry);
+            queryAdapterBuilder = new QuerySpecAdapterBuilder(querySpecDeserializer, moduleRegistry);
         } else {
             if (queryParamsBuilder == null) {
                 queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
