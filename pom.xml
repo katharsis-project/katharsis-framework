@@ -265,7 +265,6 @@
 				<module>katharsis-servlet</module>
 				<module>katharsis-cdi</module>
 				<module>katharsis-spring</module>
-				<module>katharsis-vertx</module>
 				<module>katharsis-client</module>
 				<module>katharsis-meta</module>
 				<module>katharsis-jpa</module>
