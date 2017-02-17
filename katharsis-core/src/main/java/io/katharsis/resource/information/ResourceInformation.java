@@ -12,13 +12,13 @@ import java.util.Set;
 import io.katharsis.core.internal.resource.DefaultResourceInstanceBuilder;
 import io.katharsis.core.internal.resource.ResourceAttributesBridge;
 import io.katharsis.core.internal.utils.PropertyUtils;
-import io.katharsis.core.internal.utils.parser.TypeParser;
 import io.katharsis.errorhandling.exception.MultipleJsonApiLinksInformationException;
 import io.katharsis.errorhandling.exception.MultipleJsonApiMetaInformationException;
 import io.katharsis.errorhandling.exception.ResourceDuplicateIdException;
 import io.katharsis.errorhandling.exception.ResourceIdNotFoundException;
 import io.katharsis.resource.Document;
 import io.katharsis.resource.annotations.JsonApiResource;
+import io.katharsis.utils.parser.TypeParser;
 
 /**
  * Holds information about the type of the resource.
@@ -28,12 +28,14 @@ public class ResourceInformation {
 	private final Class<?> resourceClass;
 
 	/**
-	 * Type name of the resource. Corresponds to {@link JsonApiResource.type} for annotated resources.
+	 * Type name of the resource. Corresponds to {@link JsonApiResource.type}
+	 * for annotated resources.
 	 */
 	private String resourceType;
 
 	/**
-	 * Found field of the id. Each resource has to contain a field marked by JsonApiId annotation.
+	 * Found field of the id. Each resource has to contain a field marked by
+	 * JsonApiId annotation.
 	 */
 	private final ResourceField idField;
 
@@ -43,17 +45,20 @@ public class ResourceInformation {
 	private final ResourceAttributesBridge attributeFields;
 
 	/**
-	 * A set of fields that contains non-standard Java types (List, Set, custom classes, ...).
+	 * A set of fields that contains non-standard Java types (List, Set, custom
+	 * classes, ...).
 	 */
 	private final List<ResourceField> relationshipFields;
 
 	/**
-	 * An underlying field's name which contains meta information about for a resource
+	 * An underlying field's name which contains meta information about for a
+	 * resource
 	 */
 	private final ResourceField metaField;
 
 	/**
-	 * An underlying field's name which contain links information about for a resource
+	 * An underlying field's name which contain links information about for a
+	 * resource
 	 */
 	private final ResourceField linksField;
 
@@ -62,13 +67,15 @@ public class ResourceInformation {
 	 */
 	private ResourceInstanceBuilder<?> instanceBuilder;
 
-	public ResourceInformation(Class<?> resourceClass, String resourceType, List<ResourceField> fields) {
-		this(resourceClass, resourceType, null, fields);
+	private TypeParser parser;
+
+	public ResourceInformation(TypeParser parser, Class<?> resourceClass, String resourceType, List<ResourceField> fields) {
+		this(parser, resourceClass, resourceType, null, fields);
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public ResourceInformation(Class<?> resourceClass, String resourceType, ResourceInstanceBuilder<?> instanceBuilder,
-			List<ResourceField> fields) {
+	public ResourceInformation(TypeParser parser, Class<?> resourceClass, String resourceType, ResourceInstanceBuilder<?> instanceBuilder, List<ResourceField> fields) {
+		this.parser = parser;
 		this.resourceClass = resourceClass;
 		this.resourceType = resourceType;
 		this.instanceBuilder = instanceBuilder;
@@ -89,12 +96,11 @@ public class ResourceInformation {
 
 			this.metaField = getMetaField(resourceClass, fields);
 			this.linksField = getLinksField(resourceClass, fields);
-			
-			for(ResourceField resourceField : fields){
+
+			for (ResourceField resourceField : fields) {
 				resourceField.setResourceInformation(this);
 			}
-		}
-		else {
+		} else {
 			this.relationshipFields = Collections.emptyList();
 			this.attributeFields = new ResourceAttributesBridge(Collections.emptyList(), resourceClass);
 			this.metaField = null;
@@ -116,8 +122,7 @@ public class ResourceInformation {
 
 		if (metaFields.isEmpty()) {
 			return null;
-		}
-		else if (metaFields.size() > 1) {
+		} else if (metaFields.size() > 1) {
 			throw new MultipleJsonApiMetaInformationException(resourceClass.getCanonicalName());
 		}
 		return metaFields.get(0);
@@ -133,8 +138,7 @@ public class ResourceInformation {
 
 		if (linksFields.isEmpty()) {
 			return null;
-		}
-		else if (linksFields.size() > 1) {
+		} else if (linksFields.size() > 1) {
 			throw new MultipleJsonApiLinksInformationException(resourceClass.getCanonicalName());
 		}
 		return linksFields.get(0);
@@ -192,7 +196,8 @@ public class ResourceInformation {
 	}
 
 	/**
-	 * Returns a set of field names which are not basic fields (resource attributes)
+	 * Returns a set of field names which are not basic fields (resource
+	 * attributes)
 	 *
 	 * @return not basic attribute names
 	 */
@@ -218,22 +223,20 @@ public class ResourceInformation {
 		if (o == null || getClass() != o.getClass())
 			return false;
 		ResourceInformation that = (ResourceInformation) o;
-		return Objects.equals(resourceClass, that.resourceClass) && Objects.equals(resourceType, that.resourceType)
-				&& Objects.equals(idField, that.idField) && Objects.equals(attributeFields, that.attributeFields)
-				&& Objects.equals(relationshipFields, that.relationshipFields)
-				&& Objects.equals(metaField, that.metaField) && Objects.equals(linksField, that.linksField);
+		return Objects.equals(resourceClass, that.resourceClass) && Objects.equals(resourceType, that.resourceType) && Objects.equals(idField, that.idField) && Objects.equals(attributeFields, that.attributeFields)
+				&& Objects.equals(relationshipFields, that.relationshipFields) && Objects.equals(metaField, that.metaField) && Objects.equals(linksField, that.linksField);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(resourceClass, resourceType, idField, attributeFields, relationshipFields, metaField,
-				linksField);
+		return Objects.hash(resourceClass, resourceType, idField, attributeFields, relationshipFields, metaField, linksField);
 	}
 
 	/**
 	 * Converts the given id to a string.
 	 *
-	 * @param id id
+	 * @param id
+	 *            id
 	 * @return stringified id
 	 */
 	public String toIdString(Object id) {
@@ -245,12 +248,12 @@ public class ResourceInformation {
 	/**
 	 * Converts the given id string into its object representation.
 	 *
-	 * @param id stringified id
+	 * @param id
+	 *            stringified id
 	 * @return id
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Serializable parseIdString(String id) {
-		TypeParser parser = new TypeParser();
 		Class idType = getIdField().getType();
 		return parser.parse(id, idType);
 	}
@@ -264,10 +267,11 @@ public class ResourceInformation {
 	}
 
 	public void setId(Object resource, Object id) {
-		PropertyUtils.setProperty(resource, idField.getUnderlyingName(), id);		
+		PropertyUtils.setProperty(resource, idField.getUnderlyingName(), id);
 	}
 
-	@Deprecated // Temporary method until proper versioning/locking/timestamping is implemented, used by JPA module
+	@Deprecated // Temporary method until proper versioning/locking/timestamping
+				// is implemented, used by JPA module
 	public void verify(Object resource, Document requestDocument) {
 	}
 

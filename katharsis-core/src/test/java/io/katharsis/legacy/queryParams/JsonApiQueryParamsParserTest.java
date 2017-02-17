@@ -14,6 +14,8 @@ import io.katharsis.legacy.queryParams.context.SimpleQueryParamsParserContext;
 import io.katharsis.legacy.queryParams.include.Inclusion;
 import io.katharsis.module.TestResource;
 import io.katharsis.module.TestResourceInformationBuilder;
+import io.katharsis.resource.information.ResourceInformationBuilderContext;
+import io.katharsis.utils.parser.TypeParser;
 
 public class JsonApiQueryParamsParserTest {
 
@@ -70,6 +72,24 @@ public class JsonApiQueryParamsParserTest {
 	}
 
 	private QueryParams parseQueryParams() {
-		return parser.parse(new SimpleQueryParamsParserContext(queryParams, new TestResourceInformationBuilder().build(TestResource.class)));
+		TestResourceInformationBuilder infoBuilder = new TestResourceInformationBuilder();
+		infoBuilder.init(new ResourceInformationBuilderContext() {
+
+			@Override
+			public String getResourceType(Class<?> clazz) {
+				throw new UnsupportedOperationException();
+			}
+
+			@Override
+			public boolean accept(Class<?> type) {
+				throw new UnsupportedOperationException();
+			}
+
+			@Override
+			public TypeParser getTypeParser() {
+				return new TypeParser();
+			}
+		});
+		return parser.parse(new SimpleQueryParamsParserContext(queryParams, infoBuilder.build(TestResource.class)));
 	}
 }

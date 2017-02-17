@@ -28,6 +28,7 @@ import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryAware;
+import io.katharsis.utils.parser.TypeParser;
 
 public class ResourceMetaProviderImpl extends MetaProviderBase implements ResourceRegistryAware {
 
@@ -163,7 +164,7 @@ public class ResourceMetaProviderImpl extends MetaProviderBase implements Resour
 		else {
 			AnnotationResourceInformationBuilder infoBuilder = new AnnotationResourceInformationBuilder(
 					new ResourceFieldNameTransformer());
-			infoBuilder.init(new DefaultResourceInformationBuilderContext(infoBuilder));
+			infoBuilder.init(new DefaultResourceInformationBuilderContext(infoBuilder, new TypeParser()));
 			return infoBuilder.build(resourceClass);
 		}
 	}

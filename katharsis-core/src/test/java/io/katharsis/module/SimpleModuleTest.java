@@ -28,6 +28,7 @@ import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ResourceLookup;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.security.SecurityProvider;
+import io.katharsis.utils.parser.TypeParser;
 
 public class SimpleModuleTest {
 
@@ -290,6 +291,11 @@ public class SimpleModuleTest {
 		@Override
 		public boolean isServer() {
 			return true;
+		}
+
+		@Override
+		public TypeParser getTypeParser() {
+			return null;
 		}
 	}
 }

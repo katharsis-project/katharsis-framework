@@ -18,7 +18,6 @@ import io.katharsis.core.internal.dispatcher.controller.ResourceUpsert;
 import io.katharsis.core.internal.dispatcher.path.JsonPath;
 import io.katharsis.core.internal.resource.DocumentMapper;
 import io.katharsis.core.internal.utils.PropertyUtils;
-import io.katharsis.core.internal.utils.parser.TypeParser;
 import io.katharsis.errorhandling.exception.RepositoryNotFoundException;
 import io.katharsis.legacy.internal.RepositoryMethodParameterProvider;
 import io.katharsis.repository.request.QueryAdapter;
@@ -31,6 +30,7 @@ import io.katharsis.resource.information.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.utils.parser.TypeParser;
 
 class ClientResourceUpsert extends ResourceUpsert {
 

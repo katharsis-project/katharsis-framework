@@ -3,8 +3,8 @@ package io.katharsis.core.internal.dispatcher.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.katharsis.core.internal.resource.DocumentMapper;
-import io.katharsis.core.internal.utils.parser.TypeParser;
 import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.utils.parser.TypeParser;
 
 /**
  * Created by zachncst on 10/14/15.

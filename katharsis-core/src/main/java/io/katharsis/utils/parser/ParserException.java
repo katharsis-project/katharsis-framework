@@ -1,4 +1,4 @@
-package io.katharsis.core.internal.utils.parser;
+package io.katharsis.utils.parser;
 
 import io.katharsis.errorhandling.exception.KatharsisMatchingException;
 

@@ -24,6 +24,7 @@ import io.katharsis.resource.registry.ResourceRegistry;
 
 public class DefaultQuerySpecSerializerTest {
 
+	private ModuleRegistry moduleRegistry = new ModuleRegistry();
 	private JsonApiUrlBuilder urlBuilder;
 
 	private DefaultResourceLookup resourceLookup;
@@ -35,27 +36,23 @@ public class DefaultQuerySpecSerializerTest {
 	@Before
 	public void setup() {
 		JsonServiceLocator jsonServiceLocator = new SampleJsonServiceLocator();
-		ResourceInformationBuilder resourceInformationBuilder = new AnnotationResourceInformationBuilder(
-				new ResourceFieldNameTransformer());
-		resourceRegistryBuilder = new ResourceRegistryBuilder(jsonServiceLocator, resourceInformationBuilder);
+		ResourceInformationBuilder resourceInformationBuilder = new AnnotationResourceInformationBuilder(new ResourceFieldNameTransformer());
+		resourceRegistryBuilder = new ResourceRegistryBuilder(moduleRegistry, jsonServiceLocator, resourceInformationBuilder);
 		resourceLookup = new DefaultResourceLookup("io.katharsis.resource.mock");
-		 resourceRegistry = resourceRegistryBuilder.build(resourceLookup, new ModuleRegistry(),
-				new ConstantServiceUrlProvider("http://127.0.0.1"));
+		resourceRegistry = resourceRegistryBuilder.build(resourceLookup, moduleRegistry, new ConstantServiceUrlProvider("http://127.0.0.1"));
 		urlBuilder = new JsonApiUrlBuilder(resourceRegistry);
 	}
 
 	@Test
 	public void testHttpsSchema() {
-		ResourceRegistry resourceRegistry = resourceRegistryBuilder.build(resourceLookup, new ModuleRegistry(),
-				new ConstantServiceUrlProvider("https://127.0.0.1"));
+		ResourceRegistry resourceRegistry = resourceRegistryBuilder.build(resourceLookup, moduleRegistry, new ConstantServiceUrlProvider("https://127.0.0.1"));
 		urlBuilder = new JsonApiUrlBuilder(resourceRegistry);
 		check("https://127.0.0.1/tasks/", null, new QuerySpec(Task.class));
 	}
 
 	@Test
 	public void testPort() {
-		ResourceRegistry resourceRegistry = resourceRegistryBuilder.build(resourceLookup, new ModuleRegistry(),
-				new ConstantServiceUrlProvider("https://127.0.0.1:1234"));
+		ResourceRegistry resourceRegistry = resourceRegistryBuilder.build(resourceLookup, moduleRegistry, new ConstantServiceUrlProvider("https://127.0.0.1:1234"));
 		urlBuilder = new JsonApiUrlBuilder(resourceRegistry);
 		check("https://127.0.0.1:1234/tasks/", null, new QuerySpec(Task.class));
 	}
@@ -100,12 +97,12 @@ public class DefaultQuerySpecSerializerTest {
 	public void testFilterByMany() throws InstantiationException, IllegalAccessException {
 		QuerySpec querySpec = new QuerySpec(Task.class);
 		querySpec.addFilter(new FilterSpec(Arrays.asList("name"), FilterOperator.EQ, Arrays.asList("value1", "value2")));
-		
+
 		RegistryEntry entry = resourceRegistry.findEntry(Task.class);
 		String actualUrl = urlBuilder.buildUrl(entry.getResourceInformation(), null, querySpec);
 		String expectedUrl0 = "http://127.0.0.1/tasks/?filter[tasks][name][EQ]=value2&filter[tasks][name][EQ]=value1";
 		String expectedUrl1 = "http://127.0.0.1/tasks/?filter[tasks][name][EQ]=value1&filter[tasks][name][EQ]=value2";
-		
+
 		Assert.assertTrue(expectedUrl0.equals(actualUrl) || expectedUrl1.equals(actualUrl));
 	}
 
@@ -137,12 +134,12 @@ public class DefaultQuerySpecSerializerTest {
 		QuerySpec querySpec = new QuerySpec(Task.class);
 		querySpec.setLimit(2L);
 		querySpec.setOffset(1L);
-		
+
 		RegistryEntry entry = resourceRegistry.findEntry(Task.class);
 		String actualUrl = urlBuilder.buildUrl(entry.getResourceInformation(), 1L, querySpec, "projects");
 		assertEquals("http://127.0.0.1/tasks/1/relationships/projects/?page[limit]=2&page[offset]=1", actualUrl);
 	}
-	
+
 	@Test
 	public void testIncludeRelations() throws InstantiationException, IllegalAccessException {
 		QuerySpec querySpec = new QuerySpec(Task.class);

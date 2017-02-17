@@ -1,20 +1,23 @@
 package io.katharsis.legacy.internal;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+
 import io.katharsis.core.internal.query.QuerySpecAdapter;
 import io.katharsis.errorhandling.exception.RepositoryMethodException;
 import io.katharsis.legacy.queryParams.QueryParams;
+import io.katharsis.module.ModuleRegistry;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.repository.request.QueryAdapter;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 
 public class ParametersFactory {
 
     private final RepositoryMethodParameterProvider parameterProvider;
+	private ModuleRegistry moduleRegistry;
 
-    public ParametersFactory(RepositoryMethodParameterProvider parameterProvider) {
+    public ParametersFactory(ModuleRegistry moduleRegistry, RepositoryMethodParameterProvider parameterProvider) {
         this.parameterProvider = parameterProvider;
+		this.moduleRegistry = moduleRegistry;
     }
 
     /**
@@ -56,7 +59,7 @@ public class ParametersFactory {
 			return ((QuerySpecAdapter) queryAdapter).getQuerySpec();
 		}
 		QueryParams queryParams = toQueryParams(queryAdapter);
-		DefaultQuerySpecConverter converter = new DefaultQuerySpecConverter(((QueryParamsAdapter)queryAdapter).getResourceRegistry());
+		DefaultQuerySpecConverter converter = new DefaultQuerySpecConverter(moduleRegistry);
 		return converter.fromParams(queryAdapter.getResourceInformation().getResourceClass(), queryParams);
 	}
 

@@ -28,6 +28,7 @@ import io.katharsis.resource.mock.models.Thing;
 import io.katharsis.resource.mock.models.User;
 import io.katharsis.resource.mock.repository.TaskRepository;
 import io.katharsis.resource.mock.repository.TaskToProjectRepository;
+import io.katharsis.utils.parser.TypeParser;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
 
@@ -40,14 +41,12 @@ public class RegistryEntryTest {
 	@Test
 	public void onValidRelationshipClassShouldReturnRelationshipRepository() throws Exception {
 		// GIVEN
-		RegistryEntry sut = new RegistryEntry(new ResourceRepositoryInformationImpl(null, null, null),
-				new AnnotatedResourceEntry(new RepositoryInstanceBuilder(new SampleJsonServiceLocator(), TaskRepository.class)),
-				(List)Collections.singletonList(new DirectResponseRelationshipEntry(
-						new RepositoryInstanceBuilder(new SampleJsonServiceLocator(), TaskToProjectRepository.class))));
+		ModuleRegistry moduleRegistry = new ModuleRegistry();
+		RegistryEntry sut = new RegistryEntry(new ResourceRepositoryInformationImpl(null, null, null), new AnnotatedResourceEntry(moduleRegistry, new RepositoryInstanceBuilder(new SampleJsonServiceLocator(), TaskRepository.class)),
+				(List) Collections.singletonList(new DirectResponseRelationshipEntry(new RepositoryInstanceBuilder(new SampleJsonServiceLocator(), TaskToProjectRepository.class))));
 
 		// WHEN
-		RelationshipRepositoryAdapter<Task, ?, ?, ?> relationshipRepository = sut.getRelationshipRepositoryForClass(Project.class,
-				null);
+		RelationshipRepositoryAdapter<Task, ?, ?, ?> relationshipRepository = sut.getRelationshipRepositoryForClass(Project.class, null);
 
 		// THEN
 		assertThat(relationshipRepository).isExactlyInstanceOf(RelationshipRepositoryAdapter.class);
@@ -57,9 +56,8 @@ public class RegistryEntryTest {
 	public void onInvalidRelationshipClassShouldThrowException() throws Exception {
 		// GIVEN
 		ResourceRepositoryInformation resourceInformation = newRepositoryInformation(Task.class, "tasks");
-		RegistryEntry sut = new RegistryEntry(resourceInformation, null, (List)
-				Collections.singletonList(new DirectResponseRelationshipEntry(
-						new RepositoryInstanceBuilder(new SampleJsonServiceLocator(), TaskToProjectRepository.class))));
+		RegistryEntry sut = new RegistryEntry(resourceInformation, null,
+				(List) Collections.singletonList(new DirectResponseRelationshipEntry(new RepositoryInstanceBuilder(new SampleJsonServiceLocator(), TaskToProjectRepository.class))));
 
 		// THEN
 		expectedException.expect(RelationshipRepositoryNotFoundException.class);
@@ -69,7 +67,9 @@ public class RegistryEntryTest {
 	}
 
 	private <T> ResourceRepositoryInformation newRepositoryInformation(Class<T> repositoryClass, String path) {
-		return new ResourceRepositoryInformationImpl(null, path, new ResourceInformation(Task.class, path, null));
+		ModuleRegistry moduleRegistry = new ModuleRegistry();
+		TypeParser typeParser = moduleRegistry.getTypeParser();
+		return new ResourceRepositoryInformationImpl(null, path, new ResourceInformation(typeParser, Task.class, path, null));
 	}
 
 	@Test
@@ -78,8 +78,7 @@ public class RegistryEntryTest {
 		RegistryEntry thing = new RegistryEntry(newRepositoryInformation(Thing.class, "things"), null);
 		RegistryEntry document = new RegistryEntry(newRepositoryInformation(Document.class, "documents"), null);
 		document.setParentRegistryEntry(thing);
-		RegistryEntry memorandum = new RegistryEntry(newRepositoryInformation(Memorandum.class, "memorandum"),
-				null);
+		RegistryEntry memorandum = new RegistryEntry(newRepositoryInformation(Memorandum.class, "memorandum"), null);
 		memorandum.setParentRegistryEntry(document);
 
 		// WHEN
@@ -107,11 +106,10 @@ public class RegistryEntryTest {
 		ModuleRegistry moduleRegistry = new ModuleRegistry();
 		RegistryEntry blue = new RegistryEntry(newRepositoryInformation(String.class, "strings"), null);
 		RegistryEntry red = new RegistryEntry(newRepositoryInformation(Long.class, "longs"), null);
+		TypeParser typeParser = moduleRegistry.getTypeParser();
 		EqualsVerifier.forClass(RegistryEntry.class).withPrefabValues(RegistryEntry.class, blue, red)
-				.withPrefabValues(ResourceInformation.class, new ResourceInformation(String.class, null, null),
-						new ResourceInformation(Long.class, null, null))
-				.withPrefabValues(Field.class, String.class.getDeclaredField("value"), String.class.getDeclaredField("hash"))
-				.withPrefabValues(ModuleRegistry.class, new ModuleRegistry(), new ModuleRegistry())
+				.withPrefabValues(ResourceInformation.class, new ResourceInformation(typeParser, String.class, null, null), new ResourceInformation(typeParser, Long.class, null, null))
+				.withPrefabValues(Field.class, String.class.getDeclaredField("value"), String.class.getDeclaredField("hash")).withPrefabValues(ModuleRegistry.class, new ModuleRegistry(), new ModuleRegistry())
 				.suppress(Warning.NONFINAL_FIELDS).suppress(Warning.STRICT_INHERITANCE).verify();
 	}
 }

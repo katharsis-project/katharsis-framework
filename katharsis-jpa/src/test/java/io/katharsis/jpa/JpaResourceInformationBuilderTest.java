@@ -24,6 +24,7 @@ import io.katharsis.meta.MetaLookup;
 import io.katharsis.meta.provider.resource.ResourceMetaProvider;
 import io.katharsis.resource.information.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
+import io.katharsis.utils.parser.TypeParser;
 
 public class JpaResourceInformationBuilderTest {
 
@@ -35,11 +36,12 @@ public class JpaResourceInformationBuilderTest {
 		lookup.addProvider(new JpaMetaProvider());
 		lookup.addProvider(new ResourceMetaProvider());
 		builder = new JpaResourceInformationBuilder(lookup);
-		builder.init(new DefaultResourceInformationBuilderContext(builder));
+		builder.init(new DefaultResourceInformationBuilderContext(builder, new TypeParser()));
 	}
 
 	@Test
-	public void test() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
+	public void test()
+			throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
 
 		ResourceInformation info = builder.build(TestEntity.class);
 		ResourceField idField = info.getIdField();

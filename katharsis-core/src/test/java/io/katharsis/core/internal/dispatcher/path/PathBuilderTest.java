@@ -46,12 +46,14 @@ public class PathBuilderTest {
 
     @Before
     public void prepare() {
+    	ModuleRegistry moduleRegistry = new ModuleRegistry();
+    	
         ResourceInformationBuilder resourceInformationBuilder = new AnnotationResourceInformationBuilder(
             new ResourceFieldNameTransformer());
-        ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonServiceLocator(),
+        ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(moduleRegistry, new SampleJsonServiceLocator(),
             resourceInformationBuilder);
         ResourceRegistry resourceRegistry = registryBuilder
-            .build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, new ModuleRegistry(), new ConstantServiceUrlProvider(ResourceRegistryTest.TEST_MODELS_URL));
+            .build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, moduleRegistry, new ConstantServiceUrlProvider(ResourceRegistryTest.TEST_MODELS_URL));
 
         pathBuilder = new PathBuilder(resourceRegistry);
         

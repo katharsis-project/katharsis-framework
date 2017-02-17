@@ -1,4 +1,4 @@
-package io.katharsis.core.internal.utils.parser;
+package io.katharsis.core.utils.parser;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -13,8 +13,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import io.katharsis.core.internal.utils.parser.ParserException;
-import io.katharsis.core.internal.utils.parser.TypeParser;
+import io.katharsis.utils.parser.ParserException;
+import io.katharsis.utils.parser.TypeParser;
 
 public class TypeParserTest {
 

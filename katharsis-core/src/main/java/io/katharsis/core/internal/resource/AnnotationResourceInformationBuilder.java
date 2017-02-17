@@ -71,7 +71,7 @@ public class AnnotationResourceInformationBuilder implements ResourceInformation
 
 		DefaultResourceInstanceBuilder<?> instanceBuilder = new DefaultResourceInstanceBuilder(resourceClass);
 
-		return new ResourceInformation(resourceClass, resourceType, instanceBuilder, (List) resourceFields);
+		return new ResourceInformation(context.getTypeParser(), resourceClass, resourceType, instanceBuilder, (List) resourceFields);
 	}
 
 	@Override
