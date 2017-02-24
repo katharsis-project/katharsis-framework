@@ -1,15 +1,11 @@
 package io.katharsis.spring.boot;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * Configuration properties for katharsis-jpa
  */
 @ConfigurationProperties("katharsis.jpa")
-@Getter
-@Setter
 public class KatharsisJpaProperties {
 
     /**
@@ -32,4 +28,20 @@ public class KatharsisJpaProperties {
          */
         QUERYDSL,
     }
+	
+	public JpaQueryFactoryType getQueryFactory() {
+		return queryFactory;
+	}
+
+	public void setQueryFactory(JpaQueryFactoryType queryFactory) {
+		this.queryFactory = queryFactory;
+	}
+	
+	public Boolean getEnabled() {
+		return enabled;
+	}
+	
+	public void setEnabled(Boolean enabled) {
+		this.enabled = enabled;
+	}
 }

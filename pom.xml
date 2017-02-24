@@ -55,11 +55,6 @@
 				<version>${reflections.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>org.projectlombok</groupId>
-				<artifactId>lombok</artifactId>
-				<version>1.16.8</version>
-			</dependency>
-			<dependency>
 				<groupId>net.jodah</groupId>
 				<artifactId>typetools</artifactId>
 				<version>${typetools.version}</version>
