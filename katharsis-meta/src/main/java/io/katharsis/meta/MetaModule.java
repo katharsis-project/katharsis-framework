@@ -8,7 +8,7 @@ import io.katharsis.core.internal.resource.AnnotationResourceInformationBuilder;
 import io.katharsis.core.internal.utils.PreconditionUtil;
 import io.katharsis.legacy.registry.DefaultResourceInformationBuilderContext;
 import io.katharsis.meta.internal.MetaRelationshipRepository;
-import io.katharsis.meta.internal.MetaResourceRepository;
+import io.katharsis.meta.internal.MetaResourceRepositoryImpl;
 import io.katharsis.meta.model.MetaAttribute;
 import io.katharsis.meta.model.MetaCollectionType;
 import io.katharsis.meta.model.MetaDataObject;
@@ -79,7 +79,7 @@ public class MetaModule implements Module, InitializingModule {
 
 		for (Class<? extends MetaElement> metaClass : metaClasses) {
 			if (context.isServer()) {
-				context.addRepository(new MetaResourceRepository<>(lookup, metaClass));
+				context.addRepository(new MetaResourceRepositoryImpl<>(lookup, metaClass));
 
 				HashSet<Class<? extends MetaElement>> targetResourceClasses = new HashSet<>();
 				ResourceInformation information = informationBuilder.build(metaClass);
