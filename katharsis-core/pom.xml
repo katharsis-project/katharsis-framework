@@ -69,7 +69,7 @@
                 <artifactId>maven-bundle-plugin</artifactId>
                 <configuration>
                     <instructions>
-                        <Export-Package>io.katharsis.dispatcher.*,io.katharsis.errorhandling.*,io.katharsis.jackson.*,io.katharsis.locator.*,io.katharsis.module.*,io.katharsis.queryParams.*,io.katharsis.repository.*,io.katharsis.request.*,io.katharsis.resource.*,io.katharsis.response.*,io.katharsis.utils.*,io.katharsis.queryspec.*</Export-Package>
+                        <Export-Package>io.katharsis.*</Export-Package>
                     </instructions>
                 </configuration>
             </plugin>
