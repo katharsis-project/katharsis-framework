@@ -5,7 +5,7 @@ import java.lang.reflect.Type;
 import java.util.Objects;
 
 import io.katharsis.core.internal.utils.PreconditionUtil;
-import io.katharsis.resource.information.LookupIncludeBehavior;
+import io.katharsis.resource.annotations.LookupIncludeBehavior;
 import io.katharsis.resource.information.ResourceField;
 import io.katharsis.resource.information.ResourceFieldType;
 import io.katharsis.resource.information.ResourceInformation;

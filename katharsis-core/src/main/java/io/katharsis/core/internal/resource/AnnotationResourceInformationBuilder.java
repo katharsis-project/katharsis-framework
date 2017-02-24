@@ -27,10 +27,12 @@ import io.katharsis.resource.annotations.JsonApiIncludeByDefault;
 import io.katharsis.resource.annotations.JsonApiLinksInformation;
 import io.katharsis.resource.annotations.JsonApiLookupIncludeAutomatically;
 import io.katharsis.resource.annotations.JsonApiMetaInformation;
+import io.katharsis.resource.annotations.JsonApiRelation;
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.annotations.JsonApiToMany;
 import io.katharsis.resource.annotations.JsonApiToOne;
-import io.katharsis.resource.information.LookupIncludeBehavior;
+import io.katharsis.resource.annotations.LookupIncludeBehavior;
+import io.katharsis.resource.annotations.SerializeType;
 import io.katharsis.resource.information.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.ResourceFieldType;
 import io.katharsis.resource.information.ResourceInformation;
@@ -57,7 +59,7 @@ public class AnnotationResourceInformationBuilder implements ResourceInformation
 		return resourceClass.getAnnotation(JsonApiResource.class) != null;
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	public ResourceInformation build(Class<?> resourceClass) {
 		List<AnnotatedResourceField> resourceFields = getResourceFields(resourceClass);
 
@@ -212,7 +214,10 @@ public class AnnotationResourceInformationBuilder implements ResourceInformation
 
 	private static boolean hasKatharsisAnnotation(List<Annotation> annotations) {
 		for (Annotation annotation : annotations) {
-			if (annotation.annotationType() == JsonApiId.class || annotation.annotationType() == JsonApiToOne.class || annotation.annotationType() == JsonApiToMany.class
+			if (annotation.annotationType() == JsonApiId.class
+					|| annotation.annotationType() == JsonApiRelation.class
+					|| annotation.annotationType() == JsonApiToOne.class
+					|| annotation.annotationType() == JsonApiToMany.class
 					|| annotation.annotationType() == JsonApiMetaInformation.class || annotation.annotationType() == JsonApiLinksInformation.class) {
 				return true;
 			}
@@ -256,12 +261,19 @@ public class AnnotationResourceInformationBuilder implements ResourceInformation
 				if (annotation instanceof JsonApiToOne) {
 					return StringUtils.emptyToNull(((JsonApiToOne) annotation).opposite());
 				}
+				if (annotation instanceof JsonApiRelation) {
+					return StringUtils.emptyToNull(((JsonApiRelation) annotation).opposite());
+				}
 			}
 			return null;
 		}
 
 		public static boolean getIncludeByDefault(Collection<Annotation> annotations) {
 			for (Annotation annotation : annotations) {
+				if (annotation instanceof JsonApiRelation) {
+					JsonApiRelation jsonApiRelation = (JsonApiRelation) annotation;
+					return jsonApiRelation.serialize() == SerializeType.EAGER;
+				}
 				if (annotation instanceof JsonApiIncludeByDefault) {
 					return true;
 				}
@@ -275,6 +287,10 @@ public class AnnotationResourceInformationBuilder implements ResourceInformation
 
 		public static LookupIncludeBehavior getLookupIncludeBehavior(Collection<Annotation> annotations, LookupIncludeBehavior defaultBehavior) {
 			for (Annotation annotation : annotations) {
+				if (annotation instanceof JsonApiRelation) {
+					JsonApiRelation jsonApiRelation = (JsonApiRelation) annotation;
+					return jsonApiRelation.lookUp();
+				}
 				if (annotation instanceof JsonApiLookupIncludeAutomatically) {
 					JsonApiLookupIncludeAutomatically includeAnnotation = (JsonApiLookupIncludeAutomatically) annotation;
 					if (includeAnnotation.overwrite())
@@ -294,17 +310,21 @@ public class AnnotationResourceInformationBuilder implements ResourceInformation
 		 * Returns a flag which indicate if a field should not be serialized
 		 * automatically.
 		 *
-		 * @param annotations
-		 *            attribute annotations
-		 * @param defaultValue
-		 *            default value if it cannot be determined
+		 * @param annotations  attribute annotations
+		 * @param defaultValue default value if it cannot be determined
 		 * @return is lazy
 		 */
 		public static boolean isLazy(Collection<Annotation> annotations, boolean defaultValue) {
+			JsonApiRelation jsonApiRelation = null;
 			JsonApiIncludeByDefault includeByDefaultAnnotation = null;
 			JsonApiToMany toManyAnnotation = null;
 			JsonApiToOne toOneAnnotation = null;
 			for (Annotation annotation : annotations) {
+
+				if (annotation instanceof JsonApiRelation) {
+					jsonApiRelation = (JsonApiRelation) annotation;
+					break;
+				}
 				if (annotation.annotationType().equals(JsonApiIncludeByDefault.class)) {
 					includeByDefaultAnnotation = (JsonApiIncludeByDefault) annotation;
 				}
@@ -315,7 +335,18 @@ public class AnnotationResourceInformationBuilder implements ResourceInformation
 					toOneAnnotation = (JsonApiToOne) annotation;
 				}
 			}
-			if (includeByDefaultAnnotation != null) {
+			if (jsonApiRelation != null) {
+				switch (jsonApiRelation.serialize()) {
+					case LAZY:
+						return true;
+					case ONLY_ID:
+						return false;
+					case EAGER:
+						return false;
+					default:
+						throw new UnsupportedOperationException("Unknown serialize type " + jsonApiRelation.serialize());
+				}
+			} else if (includeByDefaultAnnotation != null) {
 				return false;
 			} else if (toManyAnnotation != null) {
 				return toManyAnnotation.lazy();
@@ -329,7 +360,7 @@ public class AnnotationResourceInformationBuilder implements ResourceInformation
 			for (Annotation annotation : annotations) {
 				if (annotation instanceof JsonApiId) {
 					return ResourceFieldType.ID;
-				} else if (annotation instanceof JsonApiToOne || annotation instanceof JsonApiToMany) {
+				} else if (annotation instanceof JsonApiToOne || annotation instanceof JsonApiToMany || annotation instanceof JsonApiRelation) {
 					return ResourceFieldType.RELATIONSHIP;
 				} else if (annotation instanceof JsonApiMetaInformation) {
 					return ResourceFieldType.META_INFORMATION;
