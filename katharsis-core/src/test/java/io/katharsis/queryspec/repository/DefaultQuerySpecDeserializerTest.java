@@ -26,6 +26,7 @@ import io.katharsis.queryspec.SortSpec;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
+import io.katharsis.resource.mock.models.TaskWithLookup;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.utils.parser.TypeParser;
 
@@ -363,6 +364,20 @@ public class DefaultQuerySpecDeserializerTest extends AbstractQuerySpecTest {
 		add(params, "fields", "name");
 
 		QuerySpec actualSpec = deserializer.deserialize(taskInformation, params);
+		Assert.assertEquals(expectedSpec, actualSpec);
+	}
+
+	@Test
+	public void testHyphenIsAllowedInResourceName(){
+
+		QuerySpec expectedSpec = new QuerySpec(Task.class);
+		expectedSpec.addSort(new SortSpec(Arrays.asList("id"), Direction.ASC));
+
+		Map<String, Set<String>> params = new HashMap<>();
+		add(params, "sort[task-with-lookup]", "id");
+
+		ResourceInformation taskWithLookUpInformation = resourceRegistry.getEntryForClass(TaskWithLookup.class).getResourceInformation();
+		QuerySpec actualSpec = deserializer.deserialize(taskWithLookUpInformation, params);
 		Assert.assertEquals(expectedSpec, actualSpec);
 	}
 
