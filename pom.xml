@@ -270,6 +270,7 @@
 				<module>katharsis-jpa</module>
 				<module>katharsis-validation</module>
 				<module>katharsis-brave</module>
+				<module>katharsis-security</module>
 				<module>katharsis-examples</module>
 				<module>katharsis-ui</module>
 			</modules>

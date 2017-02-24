@@ -12,4 +12,6 @@ public interface HttpAdapterResponse {
 
 	String message();
 
+	String getResponseHeader(String name);
+
 }
