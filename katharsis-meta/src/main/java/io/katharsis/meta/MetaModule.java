@@ -75,7 +75,7 @@ public class MetaModule implements Module, InitializingModule {
 
 		AnnotationResourceInformationBuilder informationBuilder = new AnnotationResourceInformationBuilder(
 				new ResourceFieldNameTransformer());
-		informationBuilder.init(new DefaultResourceInformationBuilderContext(informationBuilder));
+		informationBuilder.init(new DefaultResourceInformationBuilderContext(informationBuilder, context.getTypeParser()));
 
 		for (Class<? extends MetaElement> metaClass : metaClasses) {
 			if (context.isServer()) {

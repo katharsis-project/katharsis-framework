@@ -18,8 +18,8 @@ import io.katharsis.core.internal.dispatcher.controller.ResourceGet;
 import io.katharsis.core.internal.dispatcher.controller.ResourcePatch;
 import io.katharsis.core.internal.dispatcher.controller.ResourcePost;
 import io.katharsis.core.internal.resource.DocumentMapper;
-import io.katharsis.core.internal.utils.parser.TypeParser;
 import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.utils.parser.TypeParser;
 
 /**
  * This lookup gets all predefined Katharsis controllers.

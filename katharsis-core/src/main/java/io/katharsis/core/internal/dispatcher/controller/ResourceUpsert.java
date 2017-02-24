@@ -16,7 +16,6 @@ import io.katharsis.core.internal.resource.DocumentMapper;
 import io.katharsis.core.internal.resource.ResourceAttributesBridge;
 import io.katharsis.core.internal.utils.Generics;
 import io.katharsis.core.internal.utils.PropertyUtils;
-import io.katharsis.core.internal.utils.parser.TypeParser;
 import io.katharsis.errorhandling.exception.ResourceException;
 import io.katharsis.errorhandling.exception.ResourceNotFoundException;
 import io.katharsis.legacy.internal.RepositoryMethodParameterProvider;
@@ -29,6 +28,7 @@ import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.information.ResourceInstanceBuilder;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.utils.parser.TypeParser;
 
 public abstract class ResourceUpsert extends BaseController {
 	protected final ResourceRegistry resourceRegistry;

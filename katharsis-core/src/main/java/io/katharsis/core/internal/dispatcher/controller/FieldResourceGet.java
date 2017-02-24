@@ -10,7 +10,6 @@ import io.katharsis.core.internal.dispatcher.path.PathIds;
 import io.katharsis.core.internal.repository.adapter.RelationshipRepositoryAdapter;
 import io.katharsis.core.internal.resource.DocumentMapper;
 import io.katharsis.core.internal.utils.Generics;
-import io.katharsis.core.internal.utils.parser.TypeParser;
 import io.katharsis.errorhandling.exception.ResourceFieldNotFoundException;
 import io.katharsis.legacy.internal.RepositoryMethodParameterProvider;
 import io.katharsis.repository.request.HttpMethod;
@@ -21,6 +20,7 @@ import io.katharsis.resource.Document;
 import io.katharsis.resource.information.ResourceField;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.utils.parser.TypeParser;
 
 public class FieldResourceGet extends ResourceIncludeField {
 

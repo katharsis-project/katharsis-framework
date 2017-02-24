@@ -12,7 +12,6 @@ import io.katharsis.core.internal.repository.adapter.RelationshipRepositoryAdapt
 import io.katharsis.core.internal.repository.adapter.ResourceRepositoryAdapter;
 import io.katharsis.core.internal.resource.DocumentMapper;
 import io.katharsis.core.internal.utils.Generics;
-import io.katharsis.core.internal.utils.parser.TypeParser;
 import io.katharsis.errorhandling.exception.RequestBodyException;
 import io.katharsis.errorhandling.exception.RequestBodyNotFoundException;
 import io.katharsis.errorhandling.exception.ResourceFieldNotFoundException;
@@ -28,6 +27,7 @@ import io.katharsis.resource.Resource;
 import io.katharsis.resource.information.ResourceField;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.utils.parser.TypeParser;
 
 /**
  * Creates a new post in a similar manner as in {@link ResourcePost}, but additionally adds a relation to a field.

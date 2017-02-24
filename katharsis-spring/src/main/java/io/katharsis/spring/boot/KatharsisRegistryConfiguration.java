@@ -38,7 +38,7 @@ public class KatharsisRegistryConfiguration {
     @Bean
     public ResourceRegistry resourceRegistry(ServiceUrlProvider serviceUrlProvider) {
         ResourceRegistryBuilder registryBuilder =
-                new ResourceRegistryBuilder(serviceLocator, moduleRegistry.getResourceInformationBuilder());
+                new ResourceRegistryBuilder(moduleRegistry, serviceLocator, moduleRegistry.getResourceInformationBuilder());
 
         ResourceRegistry resourceRegistry = registryBuilder.build(properties.getResourcePackage(), moduleRegistry, serviceUrlProvider);
 

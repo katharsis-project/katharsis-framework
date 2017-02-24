@@ -5,12 +5,12 @@ import java.util.LinkedList;
 import java.util.List;
 
 import io.katharsis.core.internal.repository.adapter.RelationshipRepositoryAdapter;
-import io.katharsis.core.internal.utils.parser.TypeParser;
 import io.katharsis.repository.request.HttpMethod;
 import io.katharsis.repository.request.QueryAdapter;
 import io.katharsis.resource.ResourceIdentifier;
 import io.katharsis.resource.information.ResourceField;
 import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.utils.parser.TypeParser;
 
 public class RelationshipsResourcePost extends RelationshipsResourceUpsert {
 

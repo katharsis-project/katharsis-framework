@@ -23,6 +23,7 @@ import io.katharsis.legacy.repository.annotations.JsonApiFindAllWithIds;
 import io.katharsis.legacy.repository.annotations.JsonApiFindOne;
 import io.katharsis.legacy.repository.annotations.JsonApiResourceRepository;
 import io.katharsis.legacy.repository.annotations.JsonApiSave;
+import io.katharsis.module.ModuleRegistry;
 import io.katharsis.repository.mock.NewInstanceRepositoryMethodParameterProvider;
 import io.katharsis.resource.mock.models.Project;
 
@@ -35,7 +36,7 @@ public class AnnotatedResourceRepositoryAdapterTest {
     public void setUp() throws Exception {
         queryParams = new QueryParams();
         queryAdapter = new QueryParamsAdapter(queryParams);
-        parameterProvider = new ParametersFactory(new NewInstanceRepositoryMethodParameterProvider());
+        parameterProvider = new ParametersFactory(new ModuleRegistry(), new NewInstanceRepositoryMethodParameterProvider());
     }
 
     @Test(expected = RepositoryAnnotationNotFoundException.class)

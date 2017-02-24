@@ -19,6 +19,7 @@ import io.katharsis.legacy.internal.QueryParamsAdapter;
 import io.katharsis.legacy.queryParams.DefaultQueryParamsParser;
 import io.katharsis.legacy.queryParams.QueryParams;
 import io.katharsis.legacy.queryParams.QueryParamsBuilder;
+import io.katharsis.module.ModuleRegistry;
 import io.katharsis.queryspec.IncludeFieldSpec;
 import io.katharsis.queryspec.IncludeRelationSpec;
 import io.katharsis.queryspec.QuerySpec;
@@ -27,7 +28,6 @@ import io.katharsis.repository.request.QueryAdapter;
 import io.katharsis.repository.request.RepositoryRequestSpec;
 import io.katharsis.resource.information.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
-import io.katharsis.resource.registry.ResourceRegistry;
 
 /**
  * Add some point maybe a more prominent api is necessary for this. But i likely
@@ -43,12 +43,13 @@ class RepositoryRequestSpecImpl implements RepositoryRequestSpec {
 
 	private Object entity;
 
-	private ResourceRegistry resourceRegistry;
+	private ModuleRegistry moduleRegistry;
 
 	private HttpMethod method;
 
-	private RepositoryRequestSpecImpl(ResourceRegistry resourceRegistry) {
-		this.resourceRegistry = resourceRegistry;
+	private RepositoryRequestSpecImpl(ModuleRegistry moduleRegistry) {
+		this.moduleRegistry = moduleRegistry;
+
 	}
 
 	@Override
@@ -76,7 +77,7 @@ class RepositoryRequestSpecImpl implements RepositoryRequestSpec {
 			return querySpec.getOrCreateQuerySpec(targetResourceClass);
 		}
 		QueryParams queryParams = getQueryParams();
-		DefaultQuerySpecConverter converter = new DefaultQuerySpecConverter(resourceRegistry);
+		DefaultQuerySpecConverter converter = new DefaultQuerySpecConverter(moduleRegistry);
 		return converter.fromParams(targetResourceClass, queryParams);
 	}
 
@@ -102,7 +103,7 @@ class RepositoryRequestSpecImpl implements RepositoryRequestSpec {
 															// implemented
 			}
 
-			String resourceType = resourceRegistry.findEntry(spec.getResourceClass()).getResourceInformation().getResourceType();
+			String resourceType = moduleRegistry.getResourceRegistry().findEntry(spec.getResourceClass()).getResourceInformation().getResourceType();
 			if (!spec.getIncludedFields().isEmpty()) {
 				Set<String> fieldNames = new HashSet<>();
 				for (IncludeFieldSpec field : spec.getIncludedFields()) {
@@ -151,47 +152,47 @@ class RepositoryRequestSpecImpl implements RepositoryRequestSpec {
 		return entity;
 	}
 
-	public static RepositoryRequestSpec forDelete(ResourceRegistry resourceRegistry, QueryAdapter queryAdapter, Serializable id) {
-		RepositoryRequestSpecImpl spec = new RepositoryRequestSpecImpl(resourceRegistry);
+	public static RepositoryRequestSpec forDelete(ModuleRegistry moduleRegistry, QueryAdapter queryAdapter, Serializable id) {
+		RepositoryRequestSpecImpl spec = new RepositoryRequestSpecImpl(moduleRegistry);
 		spec.queryAdapter = queryAdapter;
 		spec.ids = Arrays.asList(id);
 		spec.method = HttpMethod.DELETE;
 		return spec;
 	}
 
-	public static RepositoryRequestSpec forSave(ResourceRegistry resourceRegistry, HttpMethod method, QueryAdapter queryAdapter, Object entity) {
-		RepositoryRequestSpecImpl spec = new RepositoryRequestSpecImpl(resourceRegistry);
+	public static RepositoryRequestSpec forSave(ModuleRegistry moduleRegistry, HttpMethod method, QueryAdapter queryAdapter, Object entity) {
+		RepositoryRequestSpecImpl spec = new RepositoryRequestSpecImpl(moduleRegistry);
 		spec.queryAdapter = queryAdapter;
 		spec.entity = entity;
 		spec.method = method;
 		return spec;
 	}
 
-	public static RepositoryRequestSpec forFindIds(ResourceRegistry resourceRegistry, QueryAdapter queryAdapter, Iterable<?> ids) {
-		RepositoryRequestSpecImpl spec = new RepositoryRequestSpecImpl(resourceRegistry);
+	public static RepositoryRequestSpec forFindIds(ModuleRegistry moduleRegistry, QueryAdapter queryAdapter, Iterable<?> ids) {
+		RepositoryRequestSpecImpl spec = new RepositoryRequestSpecImpl(moduleRegistry);
 		spec.queryAdapter = queryAdapter;
 		spec.ids = ids;
 		spec.method = HttpMethod.GET;
 		return spec;
 	}
 
-	public static RepositoryRequestSpec forFindAll(ResourceRegistry resourceRegistry, QueryAdapter queryAdapter) {
-		RepositoryRequestSpecImpl spec = new RepositoryRequestSpecImpl(resourceRegistry);
+	public static RepositoryRequestSpec forFindAll(ModuleRegistry moduleRegistry, QueryAdapter queryAdapter) {
+		RepositoryRequestSpecImpl spec = new RepositoryRequestSpecImpl(moduleRegistry);
 		spec.queryAdapter = queryAdapter;
 		spec.method = HttpMethod.GET;
 		return spec;
 	}
 
-	public static RepositoryRequestSpec forFindId(ResourceRegistry resourceRegistry, QueryAdapter queryAdapter, Serializable id) {
-		RepositoryRequestSpecImpl spec = new RepositoryRequestSpecImpl(resourceRegistry);
+	public static RepositoryRequestSpec forFindId(ModuleRegistry moduleRegistry, QueryAdapter queryAdapter, Serializable id) {
+		RepositoryRequestSpecImpl spec = new RepositoryRequestSpecImpl(moduleRegistry);
 		spec.queryAdapter = queryAdapter;
 		spec.ids = Collections.singleton(id);
 		spec.method = HttpMethod.GET;
 		return spec;
 	}
 
-	public static RepositoryRequestSpec forFindTarget(ResourceRegistry resourceRegistry, QueryAdapter queryAdapter, List<?> ids, ResourceField relationshipField) {
-		RepositoryRequestSpecImpl spec = new RepositoryRequestSpecImpl(resourceRegistry);
+	public static RepositoryRequestSpec forFindTarget(ModuleRegistry moduleRegistry, QueryAdapter queryAdapter, List<?> ids, ResourceField relationshipField) {
+		RepositoryRequestSpecImpl spec = new RepositoryRequestSpecImpl(moduleRegistry);
 		spec.queryAdapter = queryAdapter;
 		spec.ids = ids;
 		spec.relationshipField = relationshipField;
@@ -200,8 +201,8 @@ class RepositoryRequestSpecImpl implements RepositoryRequestSpec {
 		return spec;
 	}
 
-	public static RepositoryRequestSpecImpl forRelation(ResourceRegistry resourceRegistry, HttpMethod method, Object entity, QueryAdapter queryAdapter, Iterable<?> ids, ResourceField relationshipField) {
-		RepositoryRequestSpecImpl spec = new RepositoryRequestSpecImpl(resourceRegistry);
+	public static RepositoryRequestSpecImpl forRelation(ModuleRegistry moduleRegistry, HttpMethod method, Object entity, QueryAdapter queryAdapter, Iterable<?> ids, ResourceField relationshipField) {
+		RepositoryRequestSpecImpl spec = new RepositoryRequestSpecImpl(moduleRegistry);
 		spec.entity = entity;
 		spec.queryAdapter = queryAdapter;
 		spec.ids = ids;

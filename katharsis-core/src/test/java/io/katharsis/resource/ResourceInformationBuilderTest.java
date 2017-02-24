@@ -30,6 +30,7 @@ import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.information.ResourceInformationBuilderContext;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.models.UnAnnotatedTask;
+import io.katharsis.utils.parser.TypeParser;
 
 public class ResourceInformationBuilderTest {
 
@@ -40,7 +41,7 @@ public class ResourceInformationBuilderTest {
 
 	private final ResourceInformationBuilder resourceInformationBuilder = new AnnotationResourceInformationBuilder(new ResourceFieldNameTransformer());
 
-	private final ResourceInformationBuilderContext context = new DefaultResourceInformationBuilderContext(resourceInformationBuilder);
+	private final ResourceInformationBuilderContext context = new DefaultResourceInformationBuilderContext(resourceInformationBuilder, new TypeParser());
 	
 	@Before
 	public void setup(){

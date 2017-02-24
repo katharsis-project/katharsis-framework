@@ -8,7 +8,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import io.katharsis.core.internal.utils.PropertyUtils;
-import io.katharsis.core.internal.utils.parser.TypeParser;
 import io.katharsis.legacy.queryParams.QueryParams;
 import io.katharsis.legacy.queryParams.RestrictedPaginationKeys;
 import io.katharsis.legacy.queryParams.RestrictedSortingValues;
@@ -18,6 +17,7 @@ import io.katharsis.legacy.queryParams.params.IncludedFieldsParams;
 import io.katharsis.legacy.queryParams.params.IncludedRelationsParams;
 import io.katharsis.legacy.queryParams.params.SortingParams;
 import io.katharsis.legacy.queryParams.params.TypedParams;
+import io.katharsis.module.ModuleRegistry;
 import io.katharsis.queryspec.DefaultQuerySpecDeserializer;
 import io.katharsis.queryspec.Direction;
 import io.katharsis.queryspec.FilterOperator;
@@ -28,18 +28,19 @@ import io.katharsis.queryspec.SortSpec;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.utils.parser.TypeParser;
 
 public class DefaultQuerySpecConverter implements QuerySpecConverter {
 
 	private ResourceRegistry resourceRegistry;
 
-	private TypeParser typeParser = new TypeParser();
+	private TypeParser typeParser;
 
 	private DefaultQuerySpecDeserializer deserializer;
 
-
-	public DefaultQuerySpecConverter(ResourceRegistry resourceRegistry) {
-		this.resourceRegistry = resourceRegistry;
+	public DefaultQuerySpecConverter(ModuleRegistry moduleRegistry) {
+		this.resourceRegistry = moduleRegistry.getResourceRegistry();
+		this.typeParser = moduleRegistry.getTypeParser();
 		this.deserializer = new DefaultQuerySpecDeserializer();
 	}
 

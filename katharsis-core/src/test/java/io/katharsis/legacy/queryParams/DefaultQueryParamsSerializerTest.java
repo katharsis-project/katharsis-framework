@@ -44,9 +44,10 @@ public class DefaultQueryParamsSerializerTest {
 		JsonServiceLocator jsonServiceLocator = new SampleJsonServiceLocator();
 		ResourceInformationBuilder resourceInformationBuilder = new AnnotationResourceInformationBuilder(
 				new ResourceFieldNameTransformer());
-		resourceRegistryBuilder = new ResourceRegistryBuilder(jsonServiceLocator, resourceInformationBuilder);
+		ModuleRegistry moduleRegistry = new ModuleRegistry();
+		resourceRegistryBuilder = new ResourceRegistryBuilder(moduleRegistry, jsonServiceLocator, resourceInformationBuilder);
 		resourceLookup = new DefaultResourceLookup("io.katharsis.resource.mock");
-		resourceRegistry = resourceRegistryBuilder.build(resourceLookup, new ModuleRegistry(), new ConstantServiceUrlProvider("http://127.0.0.1"));
+		resourceRegistry = resourceRegistryBuilder.build(resourceLookup, moduleRegistry, new ConstantServiceUrlProvider("http://127.0.0.1"));
 		urlBuilder = new JsonApiUrlBuilder(resourceRegistry);
 	}
 

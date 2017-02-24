@@ -18,11 +18,12 @@ public class QueryParamsAdapterTest {
 
 	@Test
 	public void test() {
-		ResourceRegistry resourceRegistry = new ResourceRegistryImpl(new ModuleRegistry(), new ConstantServiceUrlProvider("http://localhost"));
+		ModuleRegistry moduleRegistry = new ModuleRegistry();
+		ResourceRegistry resourceRegistry = new ResourceRegistryImpl(moduleRegistry, new ConstantServiceUrlProvider("http://localhost"));
 		QueryParams params = new QueryParams();
 		
 		AnnotationResourceInformationBuilder builder = new AnnotationResourceInformationBuilder(new ResourceFieldNameTransformer());
-		builder.init(new DefaultResourceInformationBuilderContext(builder));
+		builder.init(new DefaultResourceInformationBuilderContext(builder, moduleRegistry.getTypeParser()));
 		ResourceInformation info = builder.build(Task.class);
 		
 		QueryParamsAdapter adapter = new QueryParamsAdapter(info, params, resourceRegistry);
