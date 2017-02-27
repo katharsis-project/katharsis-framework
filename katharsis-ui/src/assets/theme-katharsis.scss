@@ -26,6 +26,21 @@ body {
   }
 
 
+  .ui-selectbutton{
+
+    .ui-state-default{
+      background-color: #ffffff;
+      color: #000000;
+    }
+
+    .ui-state-active{
+      background-color:$primaryColor;
+      color: #FFFFFF;
+    }
+
+  }
+
+
   .ui-treetable{
 
 

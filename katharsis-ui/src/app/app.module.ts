@@ -21,6 +21,8 @@ import {
 import { LocalStorageModule } from 'angular-2-local-storage';
 
 import {ROUTES} from './app.routes';
+import {SelectButtonModule} from "primeng/components/selectbutton/selectbutton";
+import {ToggleButtonModule} from "primeng/components/togglebutton/togglebutton";
 
 
 @NgModule({
@@ -40,6 +42,7 @@ import {ROUTES} from './app.routes';
         }),
 
         // primeng
+        DropdownModule, SelectButtonModule, ToggleButtonModule,
         InputTextModule, InputTextareaModule, DataTableModule, SharedModule, AutoCompleteModule,
         DataGridModule, DataListModule, DataScrollerModule, DataTableModule,
         DropdownModule, ButtonModule,
