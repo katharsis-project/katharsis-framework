@@ -253,6 +253,7 @@
 				<activeByDefault>true</activeByDefault>
 			</activation>
 			<modules>
+				<module>katharsis-ui</module>
 				<module>katharsis-parent</module>
 				<module>katharsis-core</module>
 				<module>katharsis-test</module>
@@ -267,7 +268,6 @@
 				<module>katharsis-brave</module>
 				<module>katharsis-security</module>
 				<module>katharsis-examples</module>
-				<module>katharsis-ui</module>
 			</modules>
 		</profile>
 		<profile>

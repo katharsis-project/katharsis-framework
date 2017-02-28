@@ -9,15 +9,56 @@
     </parent>
 
     <artifactId>katharsis-ui</artifactId>
-    <packaging>jar</packaging>
+  	<packaging>war</packaging>
     <name>katharsis-ui</name>
 
     <properties>
 
     </properties>
 
-    <build>
+    <build>	
         <plugins>
+	        <plugin>
+	            <groupId>org.codehaus.mojo</groupId>
+	            <artifactId>exec-maven-plugin</artifactId>
+	            <executions>
+	            
+	               <!--  install angular cli locally -->
+	            
+	                <execution>	
+	                    <id>exec-npm-install</id>
+	                    <phase>generate-sources</phase>
+	                    <configuration>
+	                        <workingDirectory>${project.basedir}</workingDirectory>
+	                        <executable>npm.cmd</executable>
+	                        <arguments>
+	                            <argument>install</argument>
+	                        </arguments>
+	                    </configuration>
+	                    <goals>
+	                        <goal>exec</goal>
+	                    </goals>
+	                </execution>
+	                <execution>
+	                    <id>exec-npm-ng-build</id>
+	                    <phase>generate-sources</phase>
+	                    <configuration>
+	                        <workingDirectory>${project.basedir}</workingDirectory>
+	                        <executable>ng.cmd</executable>
+	                        <arguments>
+	                            <argument>build</argument>
+	                            <argument>-prod</argument>                                 
+	                            <argument>--progress</argument>                                 
+	                            <argument>false</argument>                                 
+	                            <argument>--output-path=${project.basedir}/src/main/webapp</argument>
+	                        </arguments>
+	                    </configuration>
+	                    <goals>
+	                        <goal>exec</goal>
+	                    </goals>
+	                </execution>
+	            </executions>
+			</plugin>
         </plugins>
     </build>
 

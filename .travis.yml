@@ -4,11 +4,11 @@ language: java
 jdk:
   - oraclejdk7
 
-sudo: required
 
-before_install:
-- sudo apt-get update -qq
-- sudo apt-get install -qq nodejs
+addons:
+apt:
+  packages:
+    - nodejs
 
 
 script: mvn clean install
