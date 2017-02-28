@@ -1,6 +1,13 @@
 #!/bin/bash
 set -ev
 
+
+cd katharsis-ui
+npm install
+ng build
+cd..
+
+
 mvn clean install jacoco:report coveralls:report -Dmaven.javadoc.skip=true -B
 if [ "${TRAVIS_PULL_REQUEST}" != "true" ] && [ "$(git status | head -1)" != "HEAD detached at FETCH_HEAD" ] ; then
 
@@ -13,8 +20,3 @@ if [ "${TRAVIS_PULL_REQUEST}" != "true" ] && [ "$(git status | head -1)" != "HEA
       mvn clean install -DskipTests=true --settings settings.xml
     fi
 fi
-
-cd katharsis-ui
-npm install
-ng build
-cd..
