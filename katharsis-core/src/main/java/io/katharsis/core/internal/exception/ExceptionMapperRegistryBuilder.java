@@ -1,8 +1,10 @@
 package io.katharsis.core.internal.exception;
 
+import io.katharsis.core.internal.utils.ClassUtils;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import io.katharsis.errorhandling.mapper.ExceptionMapper;
@@ -33,7 +35,8 @@ public final class ExceptionMapperRegistryBuilder {
     }
 
     private Class<? extends Throwable> getGenericType(Class<? extends JsonApiExceptionMapper> mapper) {
-        Type[] types = mapper.getGenericInterfaces();
+        List<Class<?>> types = ClassUtils.getAllInterfaces(mapper);
+
         for (Type type : types) {
         	if (type instanceof ParameterizedType && (((ParameterizedType)type).getRawType() == JsonApiExceptionMapper.class || ((ParameterizedType)type).getRawType() == ExceptionMapper.class)) {
                 //noinspection unchecked
