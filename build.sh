@@ -8,7 +8,7 @@ ng build
 cd..
 
 
-mvn clean install -Pui jacoco:report coveralls:report -Dmaven.javadoc.skip=true -B
+mvn clean install -P ui jacoco:report coveralls:report -Dmaven.javadoc.skip=true -B
 if [ "${TRAVIS_PULL_REQUEST}" != "true" ] && [ "$(git status | head -1)" != "HEAD detached at FETCH_HEAD" ] ; then
 
     if [[ $TRAVIS_BRANCH == 'master' ]]; then
