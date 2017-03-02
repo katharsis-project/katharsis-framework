@@ -11,7 +11,7 @@ apt:
     - nodejs
 
 
-script: mvn clean install
+script: mvn clean install -Pui
 
 notifications:
   webhooks:
