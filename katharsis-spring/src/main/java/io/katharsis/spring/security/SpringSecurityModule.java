@@ -1,15 +1,16 @@
-package io.katharsis.spring.internal;
+package io.katharsis.spring.security;
 
 import io.katharsis.module.Module;
+import io.katharsis.spring.internal.AccessDeniedExceptionMapper;
 
 /**
  * Module to register the Spring exception mappers with Katharsis.
  */
-public class SpringModule implements Module {
+public class SpringSecurityModule implements Module {
 
 	@Override
 	public String getModuleName() {
-		return "spring";
+		return "springSecurity";
 	}
 
 	@Override
