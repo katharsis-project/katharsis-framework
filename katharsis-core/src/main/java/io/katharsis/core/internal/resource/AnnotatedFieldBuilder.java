@@ -1,14 +1,13 @@
 package io.katharsis.core.internal.resource;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.AnnotatedField;
 import com.fasterxml.jackson.databind.introspect.AnnotationMap;
-
 import io.katharsis.errorhandling.exception.InternalException;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * Since <a href="https://github.com/FasterXML/jackson-databind/commit/0e4249a2b6cd4ce71a2980b50dcd9765ad03324c">a

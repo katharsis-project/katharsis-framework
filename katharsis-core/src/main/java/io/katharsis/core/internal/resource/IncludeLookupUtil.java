@@ -1,13 +1,5 @@
 package io.katharsis.core.internal.resource;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import io.katharsis.core.internal.boot.PropertiesProvider;
 import io.katharsis.core.internal.query.QuerySpecAdapter;
 import io.katharsis.core.properties.KatharsisProperties;
@@ -24,6 +16,8 @@ import io.katharsis.resource.information.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
+
+import java.util.*;
 
 public class IncludeLookupUtil {
 
@@ -141,7 +135,7 @@ public class IncludeLookupUtil {
 					return true;
 				}
 				// FIXME subtyping 
-				if (querySpec != null && contains(querySpec, path)) {
+				if (contains(querySpec, path)) {
 					return true;
 				}
 			}
