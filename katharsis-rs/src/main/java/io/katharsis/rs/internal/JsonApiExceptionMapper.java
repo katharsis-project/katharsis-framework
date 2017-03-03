@@ -5,6 +5,7 @@ import javax.ws.rs.ext.ExceptionMapper;
 
 import io.katharsis.core.internal.exception.ExceptionMapperRegistry;
 import io.katharsis.errorhandling.ExceptionMapperHelper;
+import io.katharsis.rs.type.JsonApiMediaType;
 import io.katharsis.utils.Optional;
 
 /**
@@ -38,7 +39,7 @@ public class JsonApiExceptionMapper implements ExceptionMapper<Throwable> {
 		}
 
 		return Response.status(errorResponse.getHttpStatus()).entity(errorResponse.getDocument())
-				.header("Content-Type", "application/json").build();
+				.header("Content-Type", JsonApiMediaType.APPLICATION_JSON_API).build();
 	}
 
 }
