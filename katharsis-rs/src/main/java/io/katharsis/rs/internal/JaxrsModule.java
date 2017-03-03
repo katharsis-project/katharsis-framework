@@ -35,6 +35,7 @@ public class JaxrsModule implements Module {
 		//		context.addExceptionMapper(new JaxrsForbiddenExceptionMapper());
 
 		context.addRepositoryInformationBuilder(new JaxrsResourceRepositoryInformationBuilder());
+		context.addExceptionMapper(new WebApplicationExceptionMapper());
 
 		if (securityContext != null) {
 			context.addSecurityProvider(new JaxrsSecurityProvider(securityContext));

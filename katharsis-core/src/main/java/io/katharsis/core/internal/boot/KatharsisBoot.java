@@ -18,6 +18,7 @@ import io.katharsis.core.internal.registry.ResourceRegistryImpl;
 import io.katharsis.core.internal.repository.information.DefaultRelationshipRepositoryInformationBuilder;
 import io.katharsis.core.internal.repository.information.DefaultResourceRepositoryInformationBuilder;
 import io.katharsis.core.internal.resource.AnnotationResourceInformationBuilder;
+import io.katharsis.core.internal.resource.DocumentMapper;
 import io.katharsis.core.internal.utils.ClassUtils;
 import io.katharsis.core.internal.utils.PreconditionUtil;
 import io.katharsis.core.properties.KatharsisProperties;
@@ -83,6 +84,8 @@ public class KatharsisBoot {
 	private ServiceDiscovery serviceDiscovery;
 
 	private ExceptionMapperRegistry exceptionMapperRegistry;
+
+	private DocumentMapper documentMapper;
 
 	public void setObjectMapper(ObjectMapper objectMapper) {
 		PreconditionUtil.assertNull("ObjectMapper already set", this.objectMapper);
@@ -200,6 +203,7 @@ public class KatharsisBoot {
 	private RequestDispatcher createRequestDispatcher(ExceptionMapperRegistry exceptionMapperRegistry) {
 		ControllerRegistryBuilder controllerRegistryBuilder = new ControllerRegistryBuilder(resourceRegistry, moduleRegistry.getTypeParser(), objectMapper, propertiesProvider);
 		ControllerRegistry controllerRegistry = controllerRegistryBuilder.build();
+		this.documentMapper = controllerRegistryBuilder.getDocumentMapper();
 
 		QueryAdapterBuilder queryAdapterBuilder;
 		if (queryParamsBuilder != null) {
@@ -209,6 +213,10 @@ public class KatharsisBoot {
 		}
 
 		return new RequestDispatcher(moduleRegistry, controllerRegistry, exceptionMapperRegistry, queryAdapterBuilder);
+	}
+	
+	public DocumentMapper getDocumentMapper(){
+		return documentMapper;
 	}
 
 	private ExceptionMapperRegistry buildExceptionMapperRegistry() {

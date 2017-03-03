@@ -28,8 +28,8 @@ import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ServiceUrlProvider;
 import io.katharsis.rs.internal.JaxrsModule;
-import io.katharsis.rs.parameterProvider.RequestContextParameterProviderRegistry;
-import io.katharsis.rs.parameterProvider.RequestContextParameterProviderRegistryBuilder;
+import io.katharsis.rs.internal.parameterProvider.RequestContextParameterProviderRegistry;
+import io.katharsis.rs.internal.parameterProvider.RequestContextParameterProviderRegistryBuilder;
 import io.katharsis.rs.resource.registry.UriInfoServiceUrlProvider;
 
 /**

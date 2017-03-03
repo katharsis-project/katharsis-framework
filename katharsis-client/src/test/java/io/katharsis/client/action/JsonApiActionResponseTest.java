@@ -1,12 +1,16 @@
-package io.katharsis.client;
+package io.katharsis.client.action;
 
+import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
+import io.katharsis.client.AbstractClientTest;
+import io.katharsis.client.KatharsisTestFeature;
 import io.katharsis.client.mock.models.Schedule;
 import io.katharsis.client.mock.repository.ScheduleRepository;
 import io.katharsis.core.internal.dispatcher.path.ActionPath;
@@ -16,8 +20,9 @@ import io.katharsis.repository.filter.DocumentFilter;
 import io.katharsis.repository.filter.DocumentFilterChain;
 import io.katharsis.repository.filter.DocumentFilterContext;
 import io.katharsis.repository.response.Response;
+import io.restassured.RestAssured;
 
-public class ActionTest extends AbstractClientTest {
+public class JsonApiActionResponseTest extends AbstractClientTest {
 
 	protected ScheduleRepository scheduleRepo;
 
@@ -27,7 +32,7 @@ public class ActionTest extends AbstractClientTest {
 	public void setup() {
 		SLF4JBridgeHandler.install();
 		super.setup();
-		scheduleRepo = client.getResourceRepository(ScheduleRepository.class);
+		scheduleRepo = client.getRepositoryForInterface(ScheduleRepository.class);
 	}
 
 	@Override
@@ -46,7 +51,7 @@ public class ActionTest extends AbstractClientTest {
 
 	@Override
 	protected TestApplication configure() {
-		return new TestApplication(true);
+		return new TestApplication(true, true);
 	}
 
 	@Test
@@ -69,6 +74,40 @@ public class ActionTest extends AbstractClientTest {
 	public void testInvokeRepositoryAction() {
 		String result = scheduleRepo.repositoryAction("hello");
 		Assert.assertEquals("repository action: hello", result);
+
+		// check filters
+		ArgumentCaptor<DocumentFilterContext> contexts = ArgumentCaptor.forClass(DocumentFilterContext.class);
+		Mockito.verify(filter, Mockito.times(1)).filter(contexts.capture(), Mockito.any(DocumentFilterChain.class));
+		DocumentFilterContext actionContext = contexts.getAllValues().get(0);
+		Assert.assertEquals("GET", actionContext.getMethod());
+		Assert.assertTrue(actionContext.getJsonPath() instanceof ActionPath);
+	}
+
+	@Test
+	public void testInvokeRepositoryActionWithResourceResult() {
+		// resources should be received in json api format
+		String url = getBaseUri() + "schedules/repositoryActionWithResourceResult?msg=hello";
+		io.restassured.response.Response response = RestAssured.get(url);
+		Assert.assertEquals(200, response.getStatusCode());
+		response.then().assertThat().body("data.attributes.name", Matchers.equalTo("hello"));
+
+		// check filters
+		ArgumentCaptor<DocumentFilterContext> contexts = ArgumentCaptor.forClass(DocumentFilterContext.class);
+		Mockito.verify(filter, Mockito.times(1)).filter(contexts.capture(), Mockito.any(DocumentFilterChain.class));
+		DocumentFilterContext actionContext = contexts.getAllValues().get(0);
+		Assert.assertEquals("GET", actionContext.getMethod());
+		Assert.assertTrue(actionContext.getJsonPath() instanceof ActionPath);
+	}
+
+	@Test
+	public void testInvokeRepositoryActionWithException() {
+		// resources should be received in json api format
+		String url = getBaseUri() + "schedules/repositoryActionWithException?msg=hello";
+		io.restassured.response.Response response = RestAssured.get(url);
+		Assert.assertEquals(403, response.getStatusCode());
+		System.out.println("body: " + response.body().asString());
+
+		response.then().assertThat().body("errors[0].status", Matchers.equalTo("403"));
 
 		// check filters
 		ArgumentCaptor<DocumentFilterContext> contexts = ArgumentCaptor.forClass(DocumentFilterContext.class);

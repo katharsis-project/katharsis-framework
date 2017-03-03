@@ -1,15 +1,15 @@
-package io.katharsis.rs.parameterProvider;
+package io.katharsis.rs.internal.parameterProvider;
 
 import java.util.HashSet;
 import java.util.Set;
 
 import io.katharsis.module.ServiceDiscovery;
-import io.katharsis.rs.parameterProvider.provider.ContainerRequestContextProvider;
-import io.katharsis.rs.parameterProvider.provider.CookieParamProvider;
-import io.katharsis.rs.parameterProvider.provider.HeaderParamProvider;
-import io.katharsis.rs.parameterProvider.provider.QueryParamProvider;
-import io.katharsis.rs.parameterProvider.provider.RequestContextParameterProvider;
-import io.katharsis.rs.parameterProvider.provider.SecurityContextProvider;
+import io.katharsis.rs.internal.parameterProvider.provider.ContainerRequestContextProvider;
+import io.katharsis.rs.internal.parameterProvider.provider.CookieParamProvider;
+import io.katharsis.rs.internal.parameterProvider.provider.HeaderParamProvider;
+import io.katharsis.rs.internal.parameterProvider.provider.QueryParamProvider;
+import io.katharsis.rs.internal.parameterProvider.provider.RequestContextParameterProvider;
+import io.katharsis.rs.internal.parameterProvider.provider.SecurityContextProvider;
 
 public class RequestContextParameterProviderRegistryBuilder {
 
