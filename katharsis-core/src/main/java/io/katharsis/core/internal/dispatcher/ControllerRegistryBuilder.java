@@ -51,4 +51,8 @@ public class ControllerRegistryBuilder {
         controllers.addAll(lookup.getControllers());
         return new ControllerRegistry(controllers);
     }
+
+	public DocumentMapper getDocumentMapper() {
+		return documentMapper;
+	}
 }

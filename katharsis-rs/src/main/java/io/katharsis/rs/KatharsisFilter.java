@@ -39,8 +39,8 @@ import io.katharsis.errorhandling.exception.KatharsisMatchingException;
 import io.katharsis.resource.Document;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ServiceUrlProvider;
-import io.katharsis.rs.parameterProvider.JaxRsParameterProvider;
-import io.katharsis.rs.parameterProvider.RequestContextParameterProviderRegistry;
+import io.katharsis.rs.internal.parameterProvider.JaxRsParameterProvider;
+import io.katharsis.rs.internal.parameterProvider.RequestContextParameterProviderRegistry;
 import io.katharsis.rs.resource.registry.UriInfoServiceUrlProvider;
 import io.katharsis.rs.type.JsonApiMediaType;
 

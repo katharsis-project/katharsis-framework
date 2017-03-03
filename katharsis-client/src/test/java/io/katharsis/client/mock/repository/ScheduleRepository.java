@@ -19,11 +19,19 @@ public interface ScheduleRepository extends ResourceRepositoryV2<Schedule, Long>
 	@GET
 	@Path("repositoryAction")
 	public String repositoryAction(@QueryParam(value = "msg") String msg);
+	
+	@GET
+	@Path("repositoryActionWithResourceResult")
+	public Schedule repositoryActionWithResourceResult(@QueryParam(value = "msg") String msg);
+	
+	@GET
+	@Path("repositoryActionWithException")
+	public Schedule repositoryActionWithException(@QueryParam(value = "msg") String msg);
 
 	@GET
 	@Path("{id}/resourceAction")
 	public String resourceAction(@PathParam("id") long id, @QueryParam(value = "msg") String msg);
-
+	
 	@Override
 	public ScheduleList findAll(QuerySpec querySpec);
 
