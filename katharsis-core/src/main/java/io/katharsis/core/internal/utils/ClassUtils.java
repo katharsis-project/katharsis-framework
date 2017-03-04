@@ -283,35 +283,6 @@ public class ClassUtils {
 		}
 	}
 
-	/**
-	 * Taken from org.apache.commons.lang3.ClassUtils
-	 */
-	public static List<Class<?>> getAllInterfaces(final Class<?> cls) {
-		if (cls == null) {
-			return null;
-		}
 
-		final LinkedHashSet<Class<?>> interfacesFound = new LinkedHashSet<>();
-		getAllInterfaces(cls, interfacesFound);
-
-		return new ArrayList<>(interfacesFound);
-	}
-
-	/**
-	 * Taken from org.apache.commons.lang3.ClassUtils
-	 */
-	private static void getAllInterfaces(Class<?> cls, final HashSet<Class<?>> interfacesFound) {
-		while (cls != null) {
-			final Class<?>[] interfaces = cls.getInterfaces();
-
-			for (final Class<?> i : interfaces) {
-				if (interfacesFound.add(i)) {
-					getAllInterfaces(i, interfacesFound);
-				}
-			}
-
-			cls = cls.getSuperclass();
-		}
-	}
 
 }
