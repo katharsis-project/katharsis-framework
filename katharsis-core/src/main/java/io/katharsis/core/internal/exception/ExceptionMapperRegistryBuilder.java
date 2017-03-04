@@ -1,14 +1,12 @@
 package io.katharsis.core.internal.exception;
 
-import io.katharsis.core.internal.utils.ClassUtils;
+import io.katharsis.errorhandling.mapper.ExceptionMapper;
+import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-
-import io.katharsis.errorhandling.mapper.ExceptionMapper;
-import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
+import org.apache.commons.lang3.reflect.TypeUtils;
 
 public final class ExceptionMapperRegistryBuilder {
     private final Set<ExceptionMapperType> exceptionMappers = new HashSet<>();
@@ -35,16 +33,20 @@ public final class ExceptionMapperRegistryBuilder {
     }
 
     private Class<? extends Throwable> getGenericType(Class<? extends JsonApiExceptionMapper> mapper) {
-        List<Class<?>> types = ClassUtils.getAllInterfaces(mapper);
+      Type[] types = mapper.getGenericInterfaces();
+      if (null == types || 0 == types.length ){
+        types = new Type[]{mapper.getGenericSuperclass()};
+      }
 
-        for (Type type : types) {
-        	if (type instanceof ParameterizedType && (((ParameterizedType)type).getRawType() == JsonApiExceptionMapper.class || ((ParameterizedType)type).getRawType() == ExceptionMapper.class)) {
-                //noinspection unchecked
-                return (Class<? extends Throwable>)((ParameterizedType)type).getActualTypeArguments()[0];
-            }
+      for (Type type : types) {
+        if (type instanceof ParameterizedType && (TypeUtils.isAssignable(((ParameterizedType) type).getRawType(),JsonApiExceptionMapper.class)
+            || TypeUtils.isAssignable(((ParameterizedType) type).getRawType(),ExceptionMapper.class))) {
+          //noinspection unchecked
+          return (Class<? extends Throwable>) ((ParameterizedType) type).getActualTypeArguments()[0];
         }
-        //Won't get in here
-        return null;
+      }
+      //Won't get in here
+      return null;
     }
 
 }

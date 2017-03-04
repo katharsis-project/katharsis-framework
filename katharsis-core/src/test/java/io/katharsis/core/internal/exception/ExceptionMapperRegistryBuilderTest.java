@@ -2,6 +2,7 @@ package io.katharsis.core.internal.exception;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import io.katharsis.core.internal.exception.ExceptionMapperRegistryTest.IllegalStateExceptionMapper;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -30,27 +31,30 @@ public class ExceptionMapperRegistryBuilderTest {
     public void shouldContainDefaultKatharsisExceptionMapper() throws Exception {
         ExceptionMapperRegistry registry = builder.build("io.katharsis.errorhandling.handlers");
         assertThat(registry.getExceptionMappers())
-                .isNotNull()
-                .extracting("exceptionClass")
-            .contains(KatharsisMappableException.class);
+            .isNotNull()
+            .extracting("exceptionClass")
+            .contains(KatharsisMappableException.class)
+            .contains(SomeExceptionMapper.SomeException.class)
+            .contains(IllegalArgumentException.class);
     }
 
     @Test
     public void shouldContainScannedExceptionMapper() throws Exception {
         ExceptionMapperRegistry registry = builder.build("io.katharsis.errorhandling.handlers");
         assertThat(registry.getExceptionMappers())
-                .isNotNull()
-                .extracting("exceptionClass")
-                .contains(SomeExceptionMapper.SomeException.class);
+            .isNotNull()
+            .extracting("exceptionClass")
+            .contains(SomeExceptionMapper.SomeException.class)
+            .contains(IllegalArgumentException.class);
     }
 
     @Test
     public void shouldNotContainNotAnnotatedExceptionMapper() throws Exception {
         ExceptionMapperRegistry registry = builder.build("io.katharsis.errorhandling.handlers");
         assertThat(registry.getExceptionMappers())
-                .isNotNull()
-                .extracting("exceptionClass")
-                .doesNotContain(NoAnnotationExceptionMapper.ShouldNotAppearException.class);
+            .isNotNull()
+            .extracting("exceptionClass")
+            .doesNotContain(NoAnnotationExceptionMapper.ShouldNotAppearException.class);
     }
 
 
@@ -58,9 +62,10 @@ public class ExceptionMapperRegistryBuilderTest {
     public void shouldContainScannedExceptionMapperWhenMultiplePaths() throws Exception {
         ExceptionMapperRegistry registry = builder.build("io.katharsis.errorhandling.handlers,io.katharsis.errorhandling.handlers");
         assertThat(registry.getExceptionMappers())
-                .isNotNull()
-                .extracting("exceptionClass")
-                .contains(SomeExceptionMapper.SomeException.class);
+            .isNotNull()
+            .extracting("exceptionClass")
+            .contains(SomeExceptionMapper.SomeException.class)
+            .contains(IllegalArgumentException.class);
     }
 
 }
