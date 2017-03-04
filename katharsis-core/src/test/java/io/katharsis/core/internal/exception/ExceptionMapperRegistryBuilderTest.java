@@ -2,13 +2,10 @@ package io.katharsis.core.internal.exception;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import io.katharsis.core.internal.exception.ExceptionMapperRegistryTest.IllegalStateExceptionMapper;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import io.katharsis.core.internal.exception.ExceptionMapperRegistry;
-import io.katharsis.core.internal.exception.ExceptionMapperRegistryBuilder;
 import io.katharsis.errorhandling.exception.InvalidResourceException;
 import io.katharsis.errorhandling.exception.KatharsisMappableException;
 import io.katharsis.errorhandling.handlers.NoAnnotationExceptionMapper;
