@@ -9,18 +9,99 @@
     </parent>
 
     <artifactId>katharsis-ui</artifactId>
-    <packaging>jar</packaging>
+  	<packaging>war</packaging>
     <name>katharsis-ui</name>
 
     <properties>
-
+		<npm.command.name>npm</npm.command.name>
+		<ng.command.name>ng</ng.command.name>
     </properties>
 
-    <build>
+    <build>	
         <plugins>
+	        <plugin>
+	            <groupId>org.codehaus.mojo</groupId>
+	            <artifactId>exec-maven-plugin</artifactId>
+	            <executions>
+	            
+	               <!--  install angular cli locally -->
+	            
+	                 <execution>	
+	                    <id>exec-npm-install</id>
+	                    <phase>generate-sources</phase>
+	                    <configuration>
+	                        <workingDirectory>${project.basedir}</workingDirectory>
+	                        <executable>${npm.command.name}</executable>
+	                        <arguments>
+	                            <argument>install</argument>
+	                        </arguments>
+	                    </configuration>
+	                    <goals>
+	                        <goal>exec</goal>
+	                    </goals>
+	                </execution> 
+	                <execution>
+	                    <id>exec-npm-ng-build</id>
+	                    <phase>generate-sources</phase>
+	                    <configuration>
+	                        <workingDirectory>${project.basedir}</workingDirectory>
+	                       <executable>${ng.command.name}</executable>
+	                        <arguments>
+	                            <argument>build</argument>
+	                            <argument>-prod</argument>                                 
+	                            <argument>--progress</argument>                                 
+	                            <argument>false</argument>                                 
+	                            <argument>--output-path=${project.basedir}/dist/webapp</argument>
+	                        </arguments>
+	                    </configuration>
+	                    <goals>
+	                        <goal>exec</goal>
+	                    </goals>
+	                </execution>
+	            </executions>
+			</plugin>
+			
+			 <plugin>
+		        <artifactId>maven-resources-plugin</artifactId>
+		        <version>2.6</version>
+		        <executions>
+		          <execution>
+		            <id>copy-resources</id>
+		            <!-- here the phase you need -->
+		            <phase>generate-sources</phase>
+		            <goals>
+		              <goal>copy-resources</goal>
+		            </goals>
+		            <configuration>
+		              <outputDirectory>${project.basedir}/src/main/webapp</outputDirectory>
+		              <resources>          
+		                <resource>
+		                  <directory>${project.basedir}/dist/webapp</directory>
+		                  <filtering>true</filtering>
+		                </resource>
+		              </resources>              
+		            </configuration>            
+		          </execution>
+		        </executions>
+		      </plugin>
+				
         </plugins>
     </build>
 
+	<profiles>
+	  <profile>
+	    <activation>
+	      <os>
+	        <family>Windows</family>
+	      </os>
+	    </activation>
+	    
+	    <properties>
+			<npm.command.name>npm.cmd</npm.command.name>
+			<ng.command.name>ng.cmd</ng.command.name>
+	    </properties>
+ 	 </profile>
+  </profiles>
 
     <dependencies>
 
