@@ -11,6 +11,7 @@ dist: trusty
 
 before_install:
 - curl -sL https://deb.nodesource.com/setup_7.x | sudo -E bash -
+- sudo apt-get install -qq nodejs
 - sudo apt-get install build-essential
 - rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm && git checkout `git describe --abbrev=0 --tags`) 
 - source ~/.nvm/nvm.sh
