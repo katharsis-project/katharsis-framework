@@ -1,4 +1,4 @@
-package io.katharsis.rs.parameterProvider.provider;
+package io.katharsis.rs.internal.parameterProvider.provider;
 
 import java.io.IOException;
 import java.util.List;

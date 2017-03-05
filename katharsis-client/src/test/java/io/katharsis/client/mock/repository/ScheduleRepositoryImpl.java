@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import io.katharsis.client.mock.models.Schedule;
 import io.katharsis.client.mock.models.Task;
 import io.katharsis.client.module.TestException;
+import io.katharsis.errorhandling.exception.ForbiddenException;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.repository.ResourceRepositoryBase;
 
@@ -31,6 +32,15 @@ public class ScheduleRepositoryImpl extends ResourceRepositoryBase<Schedule, Lon
 		return "resource action: " + msg + "@" + schedule.getName();
 	}
 
+
+	@Override
+	public Schedule repositoryActionWithResourceResult(String msg) {
+		Schedule schedule = new Schedule();
+		schedule.setId(1L);
+		schedule.setName(msg);
+		return schedule;
+	}
+	
 	@Override
 	public ScheduleList findAll(QuerySpec querySpec) {
 		ScheduleList list = new ScheduleList();
@@ -72,5 +82,10 @@ public class ScheduleRepositoryImpl extends ResourceRepositoryBase<Schedule, Lon
 
 	public static void clear() {
 		schedules.clear();
+	}
+
+	@Override
+	public Schedule repositoryActionWithException(String msg) {
+		throw new ForbiddenException(msg);
 	}
 }
