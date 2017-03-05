@@ -181,6 +181,7 @@
                     <systemPropertyVariables>
                         <java.util.logging.config.file>logging.properties</java.util.logging.config.file>
                     </systemPropertyVariables>
+                    <runOrder>alphabetical</runOrder>
                 </configuration>
             </plugin>
             <plugin>

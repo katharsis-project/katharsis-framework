@@ -45,6 +45,7 @@
 					<systemPropertyVariables>
 						<java.util.logging.config.file>logging.properties</java.util.logging.config.file>
 					</systemPropertyVariables>
+					<runOrder>alphabetical</runOrder>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -57,9 +58,6 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-source-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<artifactId>maven-javadoc-plugin</artifactId>
 			</plugin>
 			<plugin>
 				<artifactId>maven-deploy-plugin</artifactId>
