@@ -51,7 +51,7 @@ public class JpaResourceInformationBuilderTest {
 		assertEquals(Long.class, idField.getType());
 		assertEquals(Long.class, idField.getGenericType());
 
-		List<ResourceField> attrFields = new ArrayList<>(info.getAttributeFields().getFields());
+		List<ResourceField> attrFields = new ArrayList<ResourceField>(info.getAttributeFields().getFields());
 		Collections.sort(attrFields, ResourceFieldComparator.INSTANCE);
 		assertEquals(5, attrFields.size());
 		ResourceField embField = attrFields.get(1);

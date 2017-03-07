@@ -415,7 +415,7 @@ public class JpaModule implements Module {
 	 */
 	private void setupRelationshipRepositories(Class<?> resourceClass, boolean mapped) {
 		MetaLookup metaLookup = mapped ? resourceMetaLookup : jpaMetaLookup;
-		
+
 		Class<? extends MetaDataObject> metaClass = mapped ? MetaJsonObject.class : MetaJpaDataObject.class;
 		MetaDataObject meta = metaLookup.getMeta(resourceClass, metaClass);
 

@@ -8,9 +8,7 @@
         <relativePath>../katharsis-parent</relativePath>
     </parent>
 
-    <groupId>io.katharsis</groupId>
     <artifactId>katharsis-rs</artifactId>
-    <version>3.0.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
     <name>katharsis-rs</name>
