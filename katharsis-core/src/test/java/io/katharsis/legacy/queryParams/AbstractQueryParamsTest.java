@@ -20,6 +20,7 @@ import io.katharsis.resource.registry.ResourceRegistry;
 
 public abstract class AbstractQueryParamsTest {
 
+	protected DefaultQueryParamsConverter converter;
 	protected DefaultQuerySpecConverter paramsToSpecConverter;
 
 	protected QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
@@ -36,6 +37,7 @@ public abstract class AbstractQueryParamsTest {
 		DefaultResourceLookup resourceLookup = newResourceLookup();
 		resourceRegistry = resourceRegistryBuilder.build(resourceLookup, new ModuleRegistry(),
 				new ConstantServiceUrlProvider("http://127.0.0.1"));
+		converter = new DefaultQueryParamsConverter(resourceRegistry);
 		paramsToSpecConverter = new DefaultQuerySpecConverter(resourceRegistry);
 	}
 
