@@ -27,18 +27,19 @@ public abstract class AbstractQueryParamsTest {
 
 	protected ResourceRegistry resourceRegistry;
 
+	protected ModuleRegistry moduleRegistry;
+
 	@Before
 	public void setup() {
-		JsonServiceLocator jsonServiceLocator = new SampleJsonServiceLocator();
-		ResourceInformationBuilder resourceInformationBuilder = new AnnotationResourceInformationBuilder(
-				new ResourceFieldNameTransformer());
-		ResourceRegistryBuilder resourceRegistryBuilder = new ResourceRegistryBuilder(jsonServiceLocator,
-				resourceInformationBuilder);
+				JsonServiceLocator jsonServiceLocator = new SampleJsonServiceLocator();
+		ResourceInformationBuilder resourceInformationBuilder = new AnnotationResourceInformationBuilder(new ResourceFieldNameTransformer());
+		moduleRegistry = new ModuleRegistry();
+		ResourceRegistryBuilder resourceRegistryBuilder = new ResourceRegistryBuilder(moduleRegistry, jsonServiceLocator, resourceInformationBuilder);
 		DefaultResourceLookup resourceLookup = newResourceLookup();
-		resourceRegistry = resourceRegistryBuilder.build(resourceLookup, new ModuleRegistry(),
-				new ConstantServiceUrlProvider("http://127.0.0.1"));
+		resourceRegistry = resourceRegistryBuilder.build(resourceLookup, moduleRegistry, new ConstantServiceUrlProvider("http://127.0.0.1"));
+		moduleRegistry.setResourceRegistry(resourceRegistry);
 		converter = new DefaultQueryParamsConverter(resourceRegistry);
-		paramsToSpecConverter = new DefaultQuerySpecConverter(resourceRegistry);
+		paramsToSpecConverter = new DefaultQuerySpecConverter(moduleRegistry);
 	}
 
 	protected DefaultResourceLookup newResourceLookup() {

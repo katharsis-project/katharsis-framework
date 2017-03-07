@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 import io.katharsis.core.internal.utils.StringUtils;
+import io.katharsis.legacy.queryParams.QueryParams;
 import io.katharsis.legacy.queryParams.include.Inclusion;
 import io.katharsis.legacy.queryParams.params.IncludedFieldsParams;
 import io.katharsis.legacy.queryParams.params.IncludedRelationsParams;
@@ -120,5 +121,15 @@ public class QuerySpecAdapter implements QueryAdapter {
 	@Override
 	public void setOffset(long offset) {
 		querySpec.setOffset(offset);
+	}
+
+	@Override
+	public QueryParams toQueryParams() {
+		throw new IllegalStateException("consider rewriting your repository to use QuerySpec instead of QueryParams, or disable QuerySpec parsing");
+	}
+
+	@Override
+	public QuerySpec toQuerySpec() {
+	    return getQuerySpec();
 	}
 }
