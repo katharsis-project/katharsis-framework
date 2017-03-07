@@ -27,6 +27,11 @@ public class ScheduleRepositoryImpl extends ResourceRepositoryBase<Schedule, Lon
 	}
 
 	@Override
+	public String jsonApiAction(String msg) {
+		return "jsonApiAction: " + msg;
+	}
+
+	@Override
 	public String resourceAction(long id, String msg) {
 		Schedule schedule = findOne(id, new QuerySpec(Schedule.class));
 		return "resource action: " + msg + "@" + schedule.getName();

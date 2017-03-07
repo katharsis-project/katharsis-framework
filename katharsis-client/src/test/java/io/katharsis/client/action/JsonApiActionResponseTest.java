@@ -1,14 +1,5 @@
 package io.katharsis.client.action;
 
-import org.hamcrest.Matchers;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
-import org.slf4j.bridge.SLF4JBridgeHandler;
-
 import io.katharsis.client.AbstractClientTest;
 import io.katharsis.client.KatharsisTestFeature;
 import io.katharsis.client.mock.models.Schedule;
@@ -21,6 +12,13 @@ import io.katharsis.repository.filter.DocumentFilterChain;
 import io.katharsis.repository.filter.DocumentFilterContext;
 import io.katharsis.repository.response.Response;
 import io.restassured.RestAssured;
+import org.hamcrest.Matchers;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 public class JsonApiActionResponseTest extends AbstractClientTest {
 
@@ -131,6 +129,22 @@ public class JsonApiActionResponseTest extends AbstractClientTest {
 		ArgumentCaptor<DocumentFilterContext> contexts = ArgumentCaptor.forClass(DocumentFilterContext.class);
 		Mockito.verify(filter, Mockito.times(2)).filter(contexts.capture(), Mockito.any(DocumentFilterChain.class));
 		DocumentFilterContext actionContext = contexts.getAllValues().get(1);
+		Assert.assertEquals("GET", actionContext.getMethod());
+		Assert.assertTrue(actionContext.getJsonPath() instanceof ActionPath);
+	}
+
+	@Test
+	public void testInvokeJsonApiAction() {
+		// response should be received in json api format
+		String url = getBaseUri() + "schedules/jsonApiAction?msg=hello";
+		io.restassured.response.Response response = RestAssured.get(url);
+		Assert.assertEquals(200, response.getStatusCode());
+		response.then().assertThat().body("data", Matchers.equalTo("jsonApiAction: hello"));
+
+		// check filters
+		ArgumentCaptor<DocumentFilterContext> contexts = ArgumentCaptor.forClass(DocumentFilterContext.class);
+		Mockito.verify(filter, Mockito.times(1)).filter(contexts.capture(), Mockito.any(DocumentFilterChain.class));
+		DocumentFilterContext actionContext = contexts.getAllValues().get(0);
 		Assert.assertEquals("GET", actionContext.getMethod());
 		Assert.assertTrue(actionContext.getJsonPath() instanceof ActionPath);
 	}

@@ -97,4 +97,17 @@ public class BasicActionTest extends AbstractClientTest {
 		Assert.assertEquals("GET", actionContext.getMethod());
 		Assert.assertTrue(actionContext.getJsonPath() instanceof ActionPath);
 	}
+
+	@Test
+	public void testInvokeJsonApiAction() {
+		String result = scheduleRepo.jsonApiAction("hello");
+		Assert.assertEquals("jsonApiAction: hello", result);
+
+		// check filters
+		ArgumentCaptor<DocumentFilterContext> contexts = ArgumentCaptor.forClass(DocumentFilterContext.class);
+		Mockito.verify(filter, Mockito.times(1)).filter(contexts.capture(), Mockito.any(DocumentFilterChain.class));
+		DocumentFilterContext actionContext = contexts.getAllValues().get(0);
+		Assert.assertEquals("GET", actionContext.getMethod());
+		Assert.assertTrue(actionContext.getJsonPath() instanceof ActionPath);
+	}
 }

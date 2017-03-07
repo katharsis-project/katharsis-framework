@@ -3,6 +3,7 @@ package io.katharsis.client.mock.repository;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 
 import io.katharsis.client.mock.models.Schedule;
@@ -12,6 +13,7 @@ import io.katharsis.resource.links.DefaultPagedLinksInformation;
 import io.katharsis.resource.links.LinksInformation;
 import io.katharsis.resource.list.ResourceListBase;
 import io.katharsis.resource.meta.MetaInformation;
+import io.katharsis.rs.type.JsonApiMediaType;
 
 @Path("schedules")
 public interface ScheduleRepository extends ResourceRepositoryV2<Schedule, Long> {
@@ -31,7 +33,12 @@ public interface ScheduleRepository extends ResourceRepositoryV2<Schedule, Long>
 	@GET
 	@Path("{id}/resourceAction")
 	public String resourceAction(@PathParam("id") long id, @QueryParam(value = "msg") String msg);
-	
+
+	@GET
+	@Path("jsonApiAction")
+	@Produces(JsonApiMediaType.APPLICATION_JSON_API)
+	public String jsonApiAction(@QueryParam(value = "msg") String msg);
+
 	@Override
 	public ScheduleList findAll(QuerySpec querySpec);
 
