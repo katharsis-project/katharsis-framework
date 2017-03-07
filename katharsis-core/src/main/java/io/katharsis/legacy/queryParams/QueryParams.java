@@ -2,6 +2,7 @@ package io.katharsis.legacy.queryParams;
 
 import java.util.Map;
 
+import io.katharsis.core.internal.utils.CompareUtils;
 import io.katharsis.legacy.queryParams.params.*;
 
 /**
@@ -58,6 +59,32 @@ public class QueryParams {
     }
     void setIncludedRelations(TypedParams<IncludedRelationsParams> includedRelations) {
         this.includedRelations = includedRelations;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = filters != null ? filters.hashCode() : 0;
+        result = 31 * result + (sorting != null ? sorting.hashCode() : 0);
+        result = 31 * result + (grouping != null ? grouping.hashCode() : 0);
+        result = 31 * result + (includedFields != null ? includedFields.hashCode() : 0);
+        result = 31 * result + (includedRelations != null ? includedRelations.hashCode() : 0);
+        result = 31 * result + (pagination != null ? pagination.hashCode() : 0);
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null || getClass() != obj.getClass())
+            return false;
+        QueryParams other = (QueryParams) obj;
+        return CompareUtils.isEquals(filters, other.filters)
+                && CompareUtils.isEquals(sorting, other.sorting)
+                && CompareUtils.isEquals(grouping, other.grouping)
+                && CompareUtils.isEquals(includedFields, other.includedFields)
+                && CompareUtils.isEquals(includedRelations, other.includedRelations)
+                && CompareUtils.isEquals(pagination, other.pagination);
     }
 
     @Override
