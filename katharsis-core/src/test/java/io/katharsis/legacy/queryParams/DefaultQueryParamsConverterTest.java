@@ -2,7 +2,6 @@ package io.katharsis.legacy.queryParams;
 
 import java.util.*;
 
-import com.google.common.collect.Sets;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -52,14 +51,16 @@ public class DefaultQueryParamsConverterTest extends AbstractQueryParamsTest {
     private void testFindAllOrder(boolean asc) throws InstantiationException, IllegalAccessException {
         Map<String, Set<String>> params = new HashMap<>();
         addParams(params, "sort[tasks][name]", asc ? "asc" : "desc");
-        QueryParams expected = defaultQueryParamsWithOffset0(params);
+        QueryParams expectedParams = defaultQueryParamsWithOffset0(params);
 
         QuerySpec inputSpec = new QuerySpec(Task.class);
         Direction dir = asc ? Direction.ASC : Direction.DESC;
         inputSpec.addSort(new SortSpec(Collections.singletonList("name"), dir));
 
+        transitivityCheckTask(inputSpec, expectedParams);
+
         QueryParams actualParams = converter.fromParams(Task.class, inputSpec);
-        Assert.assertEquals(expected.getSorting(), actualParams.getSorting());
+        Assert.assertEquals(expectedParams.getSorting(), actualParams.getSorting());
 
         Map<String, SortingParams> sortingParams = actualParams.getSorting().getParams();
         RestrictedSortingValues expectedDir = asc ? RestrictedSortingValues.asc : RestrictedSortingValues.desc;
@@ -83,12 +84,7 @@ public class DefaultQueryParamsConverterTest extends AbstractQueryParamsTest {
         QuerySpec inputSpec = new QuerySpec(Task.class);
         inputSpec.addFilter(new FilterSpec(Collections.singletonList("name"), FilterOperator.EQ, "test1"));
 
-        // sanity
-        List<FilterSpec> filters = inputSpec.getFilters();
-        Assert.assertEquals(1, filters.size());
-        FilterSpec filter = filters.get(0);
-        Assert.assertEquals(Collections.singletonList("name"), filter.getAttributePath());
-        Assert.assertEquals("test1", filter.getValue());
+        transitivityCheckTask(inputSpec, expectedParams);
 
         QueryParams actualParams = converter.fromParams(Task.class, inputSpec);
         Assert.assertEquals("expected params must be the same as the result", expectedParams, actualParams);
@@ -104,6 +100,8 @@ public class DefaultQueryParamsConverterTest extends AbstractQueryParamsTest {
         QuerySpec inputSpec = new QuerySpec(Task.class);
         inputSpec.addFilter(new FilterSpec(Collections.singletonList("id"), FilterOperator.EQ, 12L));
 
+        transitivityCheckTask(inputSpec, expectedParams);
+
         QueryParams actualParams = converter.fromParams(Task.class, inputSpec);
         Assert.assertTrue("expected filter value exists", actualParams.getFilters().getParams().get("tasks").getParams()
                 .get("id").contains("12"));
@@ -118,7 +116,7 @@ public class DefaultQueryParamsConverterTest extends AbstractQueryParamsTest {
         QueryParams expectedParams = defaultQueryParamsWithOffset0(params);
 
         QuerySpec inputSpec = new QuerySpec(Task.class);
-        inputSpec.addFilter(new FilterSpec(Collections.singletonList("id"), FilterOperator.EQ, Sets.newHashSet(12L, 20L)));
+        inputSpec.addFilter(new FilterSpec(Collections.singletonList("id"), FilterOperator.EQ, setParam(12L, 20L)));
 
         transitivityCheckTask(inputSpec, expectedParams);
 
@@ -140,8 +138,8 @@ public class DefaultQueryParamsConverterTest extends AbstractQueryParamsTest {
         QueryParams expectedParams = defaultQueryParamsWithOffset0(params);
 
         QuerySpec inputSpec = new QuerySpec(Task.class);
-        inputSpec.addFilter(new FilterSpec(Collections.singletonList("id"), FilterOperator.EQ, Sets.newHashSet(12L, 20L)));
-        inputSpec.addFilter(new FilterSpec(Collections.singletonList("name"), FilterOperator.EQ, Sets.newHashSet("foo", "bar")));
+        inputSpec.addFilter(new FilterSpec(Collections.singletonList("id"), FilterOperator.EQ, setParam(12L, 20L)));
+        inputSpec.addFilter(new FilterSpec(Collections.singletonList("name"), FilterOperator.EQ, setParam("foo", "bar")));
 
         transitivityCheckTask(inputSpec, expectedParams);
 
@@ -162,7 +160,7 @@ public class DefaultQueryParamsConverterTest extends AbstractQueryParamsTest {
     @Test(expected = IllegalArgumentException.class)
     public void testFilterUnknownResource() throws InstantiationException, IllegalAccessException {
         QuerySpec inputSpec = new QuerySpec(String.class);
-        inputSpec.addFilter(new FilterSpec(Collections.singletonList("id"), FilterOperator.EQ, Sets.newHashSet(12L, 20L)));
+        inputSpec.addFilter(new FilterSpec(Collections.singletonList("id"), FilterOperator.EQ, setParam(12L, 20L)));
         converter.fromParams(Task.class, inputSpec);
     }
 
@@ -174,6 +172,7 @@ public class DefaultQueryParamsConverterTest extends AbstractQueryParamsTest {
 
         QuerySpec inputSpec = new QuerySpec(Task.class);
         inputSpec.addFilter(new FilterSpec(Arrays.asList("project", "name"), FilterOperator.EQ, "myProject"));
+
         transitivityCheckTask(inputSpec, expectedParams);
 
         QueryParams actualParams = converter.fromParams(Task.class, inputSpec);
@@ -190,8 +189,9 @@ public class DefaultQueryParamsConverterTest extends AbstractQueryParamsTest {
         QueryParams expectedParams = defaultQueryParamsWithOffset0(params);
 
         QuerySpec inputSpec = new QuerySpec(Task.class);
-        inputSpec.addFilter(new FilterSpec(Arrays.asList("project", "name"), FilterOperator.EQ, Sets
-                .newHashSet("myProject", "otherProject")));
+        inputSpec.addFilter(new FilterSpec(Arrays.asList("project", "name"), FilterOperator.EQ, setParam("myProject",
+                "otherProject")));
+
         transitivityCheckTask(inputSpec, expectedParams);
 
         QueryParams actualParams = converter.fromParams(Task.class, inputSpec);
@@ -211,9 +211,10 @@ public class DefaultQueryParamsConverterTest extends AbstractQueryParamsTest {
         QueryParams expectedParams = defaultQueryParamsWithOffset0(params);
 
         QuerySpec inputSpec = new QuerySpec(Task.class);
-        inputSpec.addFilter(new FilterSpec(Arrays.asList("project", "name"), FilterOperator.EQ, Sets
-                .newHashSet("myProject", "otherProject")));
+        inputSpec.addFilter(new FilterSpec(Arrays.asList("project", "name"), FilterOperator.EQ, setParam("myProject",
+                "otherProject")));
         inputSpec.addFilter(new FilterSpec(Arrays.asList("includedProject", "name"), FilterOperator.EQ, "includedName"));
+
         transitivityCheckTask(inputSpec, expectedParams);
 
         QueryParams actualParams = converter.fromParams(Task.class, inputSpec);
@@ -225,11 +226,7 @@ public class DefaultQueryParamsConverterTest extends AbstractQueryParamsTest {
                 .get("includedProject.name").contains("includedName"));
         Assert.assertEquals("expected params must be the same as the result", expectedParams, actualParams);
 
-        // in this case we don't run the full transitivity test
-        // because the order of the FilterSpecs is not preserved by the DefaultQuerySpecConverter
-        QuerySpec actualSpec = paramsToSpecConverter.fromParams(Task.class, actualParams);
-        Assert.assertEquals(inputSpec.getFilters().get(0), actualSpec.getFilters().get(1));
-        Assert.assertEquals(inputSpec.getFilters().get(1), actualSpec.getFilters().get(0));
+        transitivityCheckTask(inputSpec, actualParams);
     }
 
     @Test
@@ -242,6 +239,7 @@ public class DefaultQueryParamsConverterTest extends AbstractQueryParamsTest {
         inputSpec.addFilter(new FilterSpec(Arrays.asList("data", "data"), FilterOperator.EQ, "myData"));
 
         transitivityCheckProject(inputSpec, expectedParams);
+
         QueryParams actualParams = converter.fromParams(Project.class, inputSpec);
 
         Assert.assertTrue("params has the nested data keys", actualParams.getFilters().getParams().get("projects")
@@ -326,6 +324,8 @@ public class DefaultQueryParamsConverterTest extends AbstractQueryParamsTest {
         inputSpec.includeField(Collections.singletonList("category"));
         inputSpec.includeField(Collections.singletonList("name"));
 
+        transitivityCheckTask(inputSpec, expectedParams);
+
         QueryParams actualParams = converter.fromParams(Task.class, inputSpec);
         Map<String, IncludedFieldsParams> includedFields = actualParams.getIncludedFields().getParams();
 
@@ -369,8 +369,10 @@ public class DefaultQueryParamsConverterTest extends AbstractQueryParamsTest {
         QueryParams expectedParams = defaultQueryParamsWithOffset0(params);
 
         QuerySpec inputSpec = new QuerySpec(Task.class);
-        inputSpec.includeRelation(Collections.singletonList("project"));
         inputSpec.includeRelation(Collections.singletonList("projects"));
+        inputSpec.includeRelation(Collections.singletonList("project"));
+
+        transitivityCheckTask(inputSpec, expectedParams);
 
         QueryParams actualParams = converter.fromParams(Task.class, inputSpec);
         Map<String, IncludedRelationsParams> includedRelations = actualParams.getIncludedRelations().getParams();
@@ -422,12 +424,7 @@ public class DefaultQueryParamsConverterTest extends AbstractQueryParamsTest {
         QuerySpec inputSpec = new QuerySpec(Task.class);
         inputSpec.addSort(new SortSpec(Arrays.asList("project", "name"), Direction.ASC));
 
-        // sanity
-        List<SortSpec> sorts = inputSpec.getSort();
-        Assert.assertEquals(1, sorts.size());
-        SortSpec sort = sorts.get(0);
-        Assert.assertEquals(Arrays.asList("project", "name"), sort.getAttributePath());
-        Assert.assertEquals(Direction.ASC, sort.getDirection());
+        transitivityCheckTask(inputSpec, expectedParams);
 
         QueryParams actualParams = converter.fromParams(Task.class, inputSpec);
 
@@ -451,5 +448,11 @@ public class DefaultQueryParamsConverterTest extends AbstractQueryParamsTest {
     private void transitivityCheckTask(QuerySpec expected, QueryParams base) {
         QuerySpec actual = paramsToSpecConverter.fromParams(Task.class, base);
         Assert.assertEquals("transitivity check", actual, expected);
+    }
+
+    private <T> Set<T> setParam(T... vars) {
+        Set<T> set = new LinkedHashSet<>();
+        Collections.addAll(set, vars);
+        return set;
     }
 }

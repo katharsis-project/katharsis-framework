@@ -47,13 +47,13 @@ public class DefaultQueryParamsConverter implements QueryParamsConverter {
         Map<String, FilterParams> decodedFiltersMap = new LinkedHashMap<>();
         if (filters != null && !filters.isEmpty()) {
             String resourceType = getResourceType(spec.getResourceClass());
-            HashMap<String, Set<String>> map = new HashMap<>();
+            Map<String, Set<String>> map = new LinkedHashMap<>();
             for (FilterSpec filter : filters) {
                 String key = joinPath(filter.getAttributePath());
                 if (filter.getOperator() != null && filter.getOperator() != FilterOperator.EQ)
                     key += "." + filter.getOperator().name();
 
-                Set<String> valueSet = new HashSet<>();
+                Set<String> valueSet = new LinkedHashSet<>();
                 if (filter.getValue() instanceof Set) {
                     for (Object value : (Set<?>) filter.getValue()) {
                         valueSet.add(value.toString());
@@ -77,7 +77,7 @@ public class DefaultQueryParamsConverter implements QueryParamsConverter {
         Map<String, IncludedFieldsParams> decodedSparseMap = new LinkedHashMap<>();
         if (includedFields != null && !includedFields.isEmpty()) {
             String resourceType = getResourceType(spec.getResourceClass());
-            Set<String> pathSet = new TreeSet<>();
+            Set<String> pathSet = new LinkedHashSet<>();
             for (IncludeFieldSpec includedField : includedFields) {
                 String path = joinPath(includedField.getAttributePath());
                 pathSet.add(path);
@@ -93,7 +93,7 @@ public class DefaultQueryParamsConverter implements QueryParamsConverter {
         Map<String, IncludedRelationsParams> decodedSparseMap = new LinkedHashMap<>();
         if (includedRelations != null && !includedRelations.isEmpty()) {
             String resourceType = getResourceType(spec.getResourceClass());
-            Set<Inclusion> inclusions = new TreeSet<>();
+            Set<Inclusion> inclusions = new LinkedHashSet<>();
             for (IncludeRelationSpec relationSpec : includedRelations) {
                 for (String attrPath : relationSpec.getAttributePath()) {
                     Inclusion inclusion = new Inclusion(attrPath);
