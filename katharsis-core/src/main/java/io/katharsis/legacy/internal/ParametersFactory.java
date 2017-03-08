@@ -1,13 +1,12 @@
 package io.katharsis.legacy.internal;
 
-import io.katharsis.core.internal.query.QuerySpecAdapter;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+
 import io.katharsis.errorhandling.exception.RepositoryMethodException;
 import io.katharsis.legacy.queryParams.QueryParams;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.repository.request.QueryAdapter;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 
 public class ParametersFactory {
 
@@ -37,36 +36,26 @@ public class ParametersFactory {
         Object[] additionalParameters = new Object[parametersToResolve];
         for (int i = firstParameters.length; i < parametersLength; i++) {
             Class<?> parameterType = method.getParameterTypes()[i];
-            if (QueryParams.class.equals(parameterType)) {
-                additionalParameters[i - firstParameters.length] = toQueryParams(queryAdapter);
-            } else if(QuerySpec.class.equals(parameterType)) {
-                additionalParameters[i - firstParameters.length] = toQuerySpec(queryAdapter);
+            if (isQueryType(parameterType)) {
+                additionalParameters[i - firstParameters.length] = toQueryObject(queryAdapter, parameterType);
             } else {
                 additionalParameters[i - firstParameters.length] = parameterProvider.provide(method, i);
             }
         }
-
         return concatenate(firstParameters, additionalParameters);
     }
-    
-    protected QuerySpec toQuerySpec(QueryAdapter queryAdapter) {
-    	if (queryAdapter == null)
-			return null;
-		if (queryAdapter instanceof QuerySpecAdapter) {
-			return ((QuerySpecAdapter) queryAdapter).getQuerySpec();
-		}
-		QueryParams queryParams = toQueryParams(queryAdapter);
-		DefaultQuerySpecConverter converter = new DefaultQuerySpecConverter(((QueryParamsAdapter)queryAdapter).getResourceRegistry());
-		return converter.fromParams(queryAdapter.getResourceInformation().getResourceClass(), queryParams);
-	}
 
-	protected QueryParams toQueryParams(QueryAdapter queryAdapter) {
-		if (queryAdapter == null)
-			return null;
-		if(!(queryAdapter instanceof QueryParamsAdapter))
-			throw new IllegalStateException("consider rewriting your repository to use QuerySpec instead of QueryParams, or disable QuerySpec parsing");
-		return ((QueryParamsAdapter) queryAdapter).getQueryParams();
-	}
+    public boolean isQueryType(Class<?> parameterType) {
+        return QueryParams.class.equals(parameterType) || QuerySpec.class.equals(parameterType);
+    }
+
+    public Object toQueryObject(QueryAdapter queryAdapter, Class<?> parameterType) {
+        if (queryAdapter == null || !isQueryType(parameterType))
+            return null;
+        if (QueryParams.class.equals(parameterType))
+            return queryAdapter.toQueryParams();
+        return queryAdapter.toQuerySpec();
+    }
 
     /**
      * Build a list of parameters that can be provided to a method.

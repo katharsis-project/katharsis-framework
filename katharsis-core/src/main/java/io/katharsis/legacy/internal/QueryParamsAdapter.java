@@ -4,6 +4,7 @@ import io.katharsis.legacy.queryParams.QueryParams;
 import io.katharsis.legacy.queryParams.params.IncludedFieldsParams;
 import io.katharsis.legacy.queryParams.params.IncludedRelationsParams;
 import io.katharsis.legacy.queryParams.params.TypedParams;
+import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.repository.request.QueryAdapter;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -83,5 +84,16 @@ public class QueryParamsAdapter implements QueryAdapter {
 	@Override
 	public void setOffset(long offset) {
 		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public QueryParams toQueryParams() {
+		return getQueryParams();
+	}
+
+	@Override
+	public QuerySpec toQuerySpec() {
+		DefaultQuerySpecConverter converter = new DefaultQuerySpecConverter(getResourceRegistry());
+		return converter.fromParams(getResourceInformation().getResourceClass(), getQueryParams());
 	}
 }
