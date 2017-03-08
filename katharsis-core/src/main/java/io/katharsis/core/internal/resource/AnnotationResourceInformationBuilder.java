@@ -110,11 +110,11 @@ public class AnnotationResourceInformationBuilder implements ResourceInformation
 			ResourceFieldType resourceFieldType = AnnotatedResourceField.getResourceFieldType(annotations);
 			String oppositeResourceType = resourceFieldType == ResourceFieldType.RELATIONSHIP ? getResourceType(field.getGenericType(), context) : null;
 			AnnotatedResourceField resourceField = new AnnotatedResourceField(jsonName, underlyingName, field.getType(), field.getGenericType(), oppositeResourceType, annotations);
-			if (Modifier.isTransient(field.getModifiers()) || Modifier.isStatic(field.getModifiers())) {
-				fieldWrappers.add(new ResourceFieldWrapper(resourceField, true));
-			} else {
-				fieldWrappers.add(new ResourceFieldWrapper(resourceField, false));
-			}
+
+			boolean shouldBeDiscarded = Modifier.isTransient(field.getModifiers())
+					|| Modifier.isStatic(field.getModifiers())
+					|| resourceField.isAnnotationPresent(JsonIgnore.class);
+			fieldWrappers.add(new ResourceFieldWrapper(resourceField, shouldBeDiscarded));
 		}
 		return fieldWrappers;
 	}
@@ -137,11 +137,8 @@ public class AnnotationResourceInformationBuilder implements ResourceInformation
 			ResourceFieldType resourceFieldType = AnnotatedResourceField.getResourceFieldType(annotations);
 			String oppositeResourceType = resourceFieldType == ResourceFieldType.RELATIONSHIP ? getResourceType(getter.getGenericReturnType(), context) : null;
 			AnnotatedResourceField resourceField = new AnnotatedResourceField(jsonName, underlyingName, getter.getReturnType(), getter.getGenericReturnType(), oppositeResourceType, annotations);
-			if (Modifier.isStatic(getter.getModifiers())) {
-				fieldWrappers.add(new ResourceFieldWrapper(resourceField, true));
-			} else {
-				fieldWrappers.add(new ResourceFieldWrapper(resourceField, false));
-			}
+			boolean shouldBeDiscarded = Modifier.isStatic(getter.getModifiers()) || resourceField.isAnnotationPresent(JsonIgnore.class);
+			fieldWrappers.add(new ResourceFieldWrapper(resourceField, shouldBeDiscarded));
 		}
 		return fieldWrappers;
 	}
