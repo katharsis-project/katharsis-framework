@@ -1,6 +1,6 @@
 package io.katharsis.resource;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.Collection;
 import java.util.concurrent.Future;
@@ -13,18 +13,10 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import io.katharsis.core.internal.resource.AnnotationResourceInformationBuilder;
-import io.katharsis.errorhandling.exception.MultipleJsonApiLinksInformationException;
-import io.katharsis.errorhandling.exception.MultipleJsonApiMetaInformationException;
-import io.katharsis.errorhandling.exception.RepositoryAnnotationNotFoundException;
-import io.katharsis.errorhandling.exception.ResourceDuplicateIdException;
-import io.katharsis.errorhandling.exception.ResourceIdNotFoundException;
+import io.katharsis.errorhandling.exception.*;
 import io.katharsis.legacy.registry.DefaultResourceInformationBuilderContext;
-import io.katharsis.resource.annotations.JsonApiId;
-import io.katharsis.resource.annotations.JsonApiLinksInformation;
-import io.katharsis.resource.annotations.JsonApiMetaInformation;
+import io.katharsis.resource.annotations.*;
 import io.katharsis.resource.annotations.JsonApiRelation;
-import io.katharsis.resource.annotations.JsonApiResource;
-import io.katharsis.resource.annotations.JsonApiToOne;
 import io.katharsis.resource.annotations.LookupIncludeBehavior;
 import io.katharsis.resource.annotations.SerializeType;
 import io.katharsis.resource.information.ResourceFieldNameTransformer;
@@ -32,6 +24,7 @@ import io.katharsis.resource.information.ResourceFieldType;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.information.ResourceInformationBuilderContext;
+import io.katharsis.resource.mock.models.ShapeResource;
 import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.models.UnAnnotatedTask;
 import io.katharsis.utils.parser.TypeParser;
@@ -149,6 +142,21 @@ public class ResourceInformationBuilderTest {
 		ResourceInformation resourceInformation = resourceInformationBuilder.build(DifferentTypes.class);
 
 		assertThat(resourceInformation.getRelationshipFields()).isNotNull().hasSize(1).extracting("type").contains(String.class);
+	}
+
+
+	// github issue #350
+	@Test
+	public void shouldDiscardParametrizedTypeWithJsonIgnore() throws Exception {
+		ResourceInformation resourceInformation = resourceInformationBuilder.build(ShapeResource.class);
+
+		// if we get this far, that is good, it means parsing the class didn't trigger the
+		// IllegalStateException when calling ClassUtils#getRawType on a parameterized type T
+
+		assertThat(resourceInformation.findAttributeFieldByName("type")).isNotNull();
+		// This assert fails, because JsonIgnore is on the getter not the field itself
+		// assertThat(resourceInformation.findAttributeFieldByName("delegate")).isNull();
+		assertThat(resourceInformation.getIdField().getUnderlyingName()).isNotNull().isEqualTo("id");
 	}
 
 	@Test
