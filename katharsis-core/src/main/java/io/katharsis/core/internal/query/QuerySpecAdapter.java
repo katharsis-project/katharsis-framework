@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 import io.katharsis.core.internal.utils.StringUtils;
+import io.katharsis.legacy.queryParams.DefaultQueryParamsConverter;
 import io.katharsis.legacy.queryParams.QueryParams;
 import io.katharsis.legacy.queryParams.include.Inclusion;
 import io.katharsis.legacy.queryParams.params.IncludedFieldsParams;
@@ -125,7 +126,8 @@ public class QuerySpecAdapter implements QueryAdapter {
 
 	@Override
 	public QueryParams toQueryParams() {
-		throw new IllegalStateException("consider rewriting your repository to use QuerySpec instead of QueryParams, or disable QuerySpec parsing");
+		DefaultQueryParamsConverter converter = new DefaultQueryParamsConverter(resourceRegistry);
+		return converter.fromParams(getResourceInformation().getResourceClass(), getQuerySpec());
 	}
 
 	@Override
