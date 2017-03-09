@@ -162,7 +162,7 @@ public class ResourcePatch extends ResourceUpsert {
             if (updatedValue instanceof Map) {
 
                 // source may lack the whole entry yet
-                if (!source.containsKey(fieldName)) {
+                if (source.get(fieldName) == null) {
                     source.put(fieldName, new HashMap<>());
                 }
 
