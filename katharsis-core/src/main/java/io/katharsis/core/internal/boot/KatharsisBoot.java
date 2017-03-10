@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-
 import io.katharsis.core.internal.dispatcher.ControllerRegistry;
 import io.katharsis.core.internal.dispatcher.ControllerRegistryBuilder;
 import io.katharsis.core.internal.dispatcher.RequestDispatcher;
@@ -347,6 +346,10 @@ public class KatharsisBoot {
 
 	public String getWebPathPrefix() {
 		return getProperty(KatharsisProperties.WEB_PATH_PREFIX);
+	}
+
+	public boolean isNullDataResponseEnabled() {
+		return Boolean.parseBoolean(getProperty(KatharsisProperties.NULL_DATA_RESPONSE_ENABLED));
 	}
 
 	public ServiceDiscovery getServiceDiscovery() {

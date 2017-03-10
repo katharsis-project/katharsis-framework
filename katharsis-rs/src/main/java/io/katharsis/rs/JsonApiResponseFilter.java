@@ -6,6 +6,7 @@ import java.util.Arrays;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import io.katharsis.core.internal.boot.KatharsisBoot;
@@ -39,6 +40,13 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 	public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) throws IOException {
 		Object response = responseContext.getEntity();
 		if (response == null) {
+			if (feature.getBoot().isNullDataResponseEnabled()) {
+				Document document = new Document();
+				document.setData(Nullable.nullValue());
+				responseContext.setEntity(document);
+				responseContext.setStatus(Response.Status.OK.getStatusCode());
+				responseContext.getHeaders().put("Content-Type", Arrays.asList((Object) JsonApiMediaType.APPLICATION_JSON_API));
+			}
 			return;
 		}
 		
@@ -47,7 +55,7 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 			KatharsisBoot boot = feature.getBoot();
 			ResourceRegistry resourceRegistry = boot.getResourceRegistry();
 			DocumentMapper documentMapper = boot.getDocumentMapper();
-			
+
 			ServiceUrlProvider serviceUrlProvider = resourceRegistry.getServiceUrlProvider();
 			try {
 				UriInfo uriInfo = requestContext.getUriInfo();
