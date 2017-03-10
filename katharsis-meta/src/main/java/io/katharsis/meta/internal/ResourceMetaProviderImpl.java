@@ -1,11 +1,15 @@
 package io.katharsis.meta.internal;
 
+import java.io.Serializable;
+import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import io.katharsis.core.internal.repository.adapter.ResourceRepositoryAdapter;
 import io.katharsis.core.internal.resource.AnnotationResourceInformationBuilder;
 import io.katharsis.core.internal.utils.ClassUtils;
 import io.katharsis.core.internal.utils.PreconditionUtil;
@@ -17,17 +21,28 @@ import io.katharsis.meta.model.MetaElement;
 import io.katharsis.meta.model.MetaKey;
 import io.katharsis.meta.model.resource.MetaJsonObject;
 import io.katharsis.meta.model.resource.MetaResource;
+import io.katharsis.meta.model.resource.MetaResourceAction;
+import io.katharsis.meta.model.resource.MetaResourceAction.MetaRepositoryActionType;
 import io.katharsis.meta.model.resource.MetaResourceField;
+import io.katharsis.meta.model.resource.MetaResourceRepository;
 import io.katharsis.meta.provider.MetaProviderBase;
 import io.katharsis.meta.provider.MetaProviderContext;
+import io.katharsis.queryspec.QuerySpec;
+import io.katharsis.repository.ResourceRepositoryV2;
+import io.katharsis.repository.information.RepositoryAction;
+import io.katharsis.repository.information.ResourceRepositoryInformation;
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.information.ResourceField;
 import io.katharsis.resource.information.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.ResourceFieldType;
 import io.katharsis.resource.information.ResourceInformation;
+import io.katharsis.resource.links.LinksInformation;
+import io.katharsis.resource.list.ResourceListBase;
+import io.katharsis.resource.meta.MetaInformation;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryAware;
+import io.katharsis.utils.parser.TypeParser;
 
 public class ResourceMetaProviderImpl extends MetaProviderBase implements ResourceRegistryAware {
 
@@ -47,7 +62,7 @@ public class ResourceMetaProviderImpl extends MetaProviderBase implements Resour
 		// information builder, so only accept if a MetaResource was explicitly requested
 		if (resourceRegistry != null && (metaClass == MetaResource.class || metaClass == MetaJsonObject.class)) {
 			Class<?> clazz = ClassUtils.getRawType(type);
-			if (resourceRegistry.hasEntry(clazz)) {
+			if (resourceRegistry.getEntryForClass(clazz) != null) {
 				return true;
 			}
 		}
@@ -106,8 +121,68 @@ public class ResourceMetaProviderImpl extends MetaProviderBase implements Resour
 			// enforce setup of meta data
 			for (RegistryEntry entry : resourceRegistry.getResources()) {
 				ResourceInformation information = entry.getResourceInformation();
-				context.getLookup().getMeta(information.getResourceClass(), MetaResource.class);
+				MetaResource metaResource = context.getLookup().getMeta(information.getResourceClass(), MetaResource.class);
+
+				ResourceRepositoryInformation repositoryInformation = entry.getRepositoryInformation();
+
+				ResourceRepositoryAdapter<?, Serializable> resourceRepository = entry.getResourceRepository(null);
+				if (resourceRepository != null) {
+					MetaResourceRepository repository = discoverRepository(repositoryInformation, metaResource,
+							resourceRepository, context);
+					context.add(repository);
+				}
 			}
+		}
+	}
+
+	private MetaResourceRepository discoverRepository(ResourceRepositoryInformation repositoryInformation,
+			MetaResource metaResource, ResourceRepositoryAdapter<?, Serializable> resourceRepository,
+			MetaProviderContext context) {
+
+		MetaResourceRepository meta = new MetaResourceRepository();
+		meta.setResourceType(metaResource);
+		meta.setName(metaResource.getName() + "Repository");
+		meta.setId(metaResource.getId() + "Repository");
+
+		for (RepositoryAction action : repositoryInformation.getActions().values()) {
+			MetaResourceAction metaAction = new MetaResourceAction();
+			metaAction.setName(action.getName());
+			metaAction.setActionType(MetaRepositoryActionType.valueOf(action.getActionType().toString()));
+			metaAction.setParent(meta);
+		}
+
+		// TODO avoid use of ResourceRepositoryAdapter by enriching ResourceRepositoryInformation
+		Object repository = resourceRepository.getResourceRepository();
+		if (repository instanceof ResourceRepositoryV2) {
+			setListInformationTypes(repository, context, meta);
+		}
+		return meta;
+	}
+
+	private void setListInformationTypes(Object repository, MetaProviderContext context, MetaResourceRepository meta) {
+
+		try {
+			Method findMethod = repository.getClass().getMethod("findAll", QuerySpec.class);
+			Class<?> listType = findMethod.getReturnType();
+
+			if (ResourceListBase.class.equals(listType.getSuperclass())
+					&& listType.getGenericSuperclass() instanceof ParameterizedType) {
+				ParameterizedType genericSuperclass = (ParameterizedType) listType.getGenericSuperclass();
+
+				Class<?> metaType = ClassUtils.getRawType(genericSuperclass.getActualTypeArguments()[1]);
+				Class<?> linksType = ClassUtils.getRawType(genericSuperclass.getActualTypeArguments()[2]);
+				if (!metaType.equals(MetaInformation.class)) {
+					MetaDataObject listMetaType = context.getLookup().getMeta(metaType, MetaJsonObject.class);
+					meta.setListMetaType(listMetaType);
+				}
+				if (!linksType.equals(LinksInformation.class)) {
+					MetaDataObject listLinksType = context.getLookup().getMeta(linksType, MetaJsonObject.class);
+					meta.setListLinksType(listLinksType);
+				}
+			}
+		}
+		catch (SecurityException | NoSuchMethodException e) {
+			throw new IllegalStateException(e);
 		}
 	}
 
@@ -163,7 +238,7 @@ public class ResourceMetaProviderImpl extends MetaProviderBase implements Resour
 		else {
 			AnnotationResourceInformationBuilder infoBuilder = new AnnotationResourceInformationBuilder(
 					new ResourceFieldNameTransformer());
-			infoBuilder.init(new DefaultResourceInformationBuilderContext(infoBuilder));
+			infoBuilder.init(new DefaultResourceInformationBuilderContext(infoBuilder, new TypeParser()));
 			return infoBuilder.build(resourceClass);
 		}
 	}

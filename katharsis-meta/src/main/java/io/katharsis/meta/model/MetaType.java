@@ -29,9 +29,9 @@ public class MetaType extends MetaElement {
 		return implementationType;
 	}
 
-	public Object fromString(String value) {
-		throw new UnsupportedOperationException();
-	}
+//	public Object fromString(String value) {
+//		throw new UnsupportedOperationException();
+//	}
 
 	@JsonIgnore
 	public boolean isCollection() {

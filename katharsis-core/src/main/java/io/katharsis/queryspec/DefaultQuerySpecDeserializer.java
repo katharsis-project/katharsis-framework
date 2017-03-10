@@ -12,13 +12,13 @@ import java.util.regex.Pattern;
 
 import io.katharsis.core.internal.utils.PropertyException;
 import io.katharsis.core.internal.utils.PropertyUtils;
-import io.katharsis.core.internal.utils.parser.TypeParser;
 import io.katharsis.errorhandling.exception.BadRequestException;
 import io.katharsis.errorhandling.exception.ParametersDeserializationException;
 import io.katharsis.resource.RestrictedQueryParamsMembers;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.utils.parser.TypeParser;
 
 /**
  * Maps url parameters to QuerySpec.
@@ -31,9 +31,7 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 
 	private static final Pattern PARAMETER_PATTERN = Pattern.compile("(\\w+)(\\[([^\\]]+)\\])?([\\w\\[\\]]*)");
 
-	
-	
-	private TypeParser typeParser = new TypeParser();
+	private TypeParser typeParser;
 
 	private FilterOperator defaultOperator = FilterOperator.EQ;
 
@@ -99,6 +97,7 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 
 	/**
 	 * Sets the maximum page limit.
+	 * 
 	 * @param maxPageLimit
 	 */
 	public void setMaxPageLimit(Long maxPageLimit) {
@@ -124,6 +123,7 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 	@Override
 	public void init(QuerySpecDeserializerContext ctx) {
 		this.resourceRegistry = ctx.getResourceRegistry();
+		this.typeParser = ctx.getTypeParser();
 	}
 
 	@Override
@@ -139,23 +139,23 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 				setupDefaults(querySpec);
 			}
 			switch (parameter.paramType) {
-				case sort:
-					deserializeSort(querySpec, parameter);
-					break;
-				case filter:
-					deserializeFilter(querySpec, parameter);
-					break;
-				case include:
-					deserializeIncludes(querySpec, parameter);
-					break;
-				case fields:
-					deserializeFields(querySpec, parameter);
-					break;
-				case page:
-					deserializePage(querySpec, parameter);
-					break;
-				default:
-					throw new IllegalStateException(parameter.paramType.toString());
+			case sort:
+				deserializeSort(querySpec, parameter);
+				break;
+			case filter:
+				deserializeFilter(querySpec, parameter);
+				break;
+			case include:
+				deserializeIncludes(querySpec, parameter);
+				break;
+			case fields:
+				deserializeFields(querySpec, parameter);
+				break;
+			case page:
+				deserializePage(querySpec, parameter);
+				break;
+			default:
+				throw new IllegalStateException(parameter.paramType.toString());
 			}
 
 		}
@@ -207,17 +207,14 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 		String name = parameter.name.substring(1, parameter.name.length() - 1);
 		if (OFFSET_PARAMETER.equalsIgnoreCase(name)) {
 			querySpec.setOffset(parameter.getLongValue());
-		}
-		else if (LIMIT_PARAMETER.equalsIgnoreCase(name)) {
+		} else if (LIMIT_PARAMETER.equalsIgnoreCase(name)) {
 			Long limit = parameter.getLongValue();
-			if(getMaxPageLimit() != null && limit != null && limit > getMaxPageLimit()) {
-				String error = String.format("%s parameter value %d is larger than the maximum allowed of " +
-						"of %d", LIMIT_PARAMETER, limit, getMaxPageLimit());
+			if (getMaxPageLimit() != null && limit != null && limit > getMaxPageLimit()) {
+				String error = String.format("%s parameter value %d is larger than the maximum allowed of " + "of %d", LIMIT_PARAMETER, limit, getMaxPageLimit());
 				throw new BadRequestException(error);
 			}
 			querySpec.setLimit(limit);
-		}
-		else {
+		} else {
 			throw new ParametersDeserializationException(parameter.toString());
 		}
 	}
@@ -255,12 +252,10 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 	private Class<?> getAttributeType(QuerySpec querySpec, List<String> attributePath) {
 		try {
 			return PropertyUtils.getPropertyClass(querySpec.getResourceClass(), attributePath);
-		}
-		catch (PropertyException e) {
+		} catch (PropertyException e) {
 			if (allowUnknownAttributes) {
 				return String.class;
-			}
-			else {
+			} else {
 				throw e;
 			}
 		}
@@ -308,12 +303,10 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 				String attrName = resourceType;
 				if (attrName != null) {
 					param.name = "[" + attrName + "]" + nullToEmpty(path);
-				}
-				else {
+				} else {
 					param.name = emptyToNull(path);
 				}
-			}
-			else {
+			} else {
 				param.resourceInformation = registryEntry.getResourceInformation();
 				param.name = emptyToNull(path);
 			}
@@ -348,8 +341,7 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 			}
 			try {
 				return Long.parseLong(values.iterator().next());
-			}
-			catch (NumberFormatException e) {
+			} catch (NumberFormatException e) {
 				throw new ParametersDeserializationException("expected a Long for " + toString());
 			}
 		}
@@ -367,7 +359,7 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 		String temp = pathString.substring(1, pathString.length() - 1);
 		String[] elements = temp.split("\\]\\[");
 		List<String> results = new ArrayList<>();
-		for(String element : elements){
+		for (String element : elements) {
 			results.addAll(Arrays.asList(element.split("\\.")));
 		}
 		return results;

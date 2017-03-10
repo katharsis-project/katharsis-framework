@@ -60,6 +60,7 @@ import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceLookup;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.security.SecurityProvider;
+import io.katharsis.utils.parser.TypeParser;
 
 public class ModuleTest {
 
@@ -116,8 +117,7 @@ public class ModuleTest {
 	public void buildResourceRepositoryInformationFromClass() {
 		RepositoryInformationBuilder builder = moduleRegistry.getRepositoryInformationBuilder();
 
-		ResourceRepositoryInformation info = (ResourceRepositoryInformation) builder.build(TaskRepository.class,
-				newRepositoryInformationBuilderContext());
+		ResourceRepositoryInformation info = (ResourceRepositoryInformation) builder.build(TaskRepository.class, newRepositoryInformationBuilderContext());
 		Assert.assertEquals(TaskRepository.class, info.getRepositoryClass());
 		Assert.assertEquals(Task.class, info.getResourceInformation().getResourceClass());
 		Assert.assertEquals("tasks", info.getPath());
@@ -127,8 +127,7 @@ public class ModuleTest {
 	public void buildResourceRepositoryInformationFromInstance() {
 		RepositoryInformationBuilder builder = moduleRegistry.getRepositoryInformationBuilder();
 
-		ResourceRepositoryInformation info = (ResourceRepositoryInformation) builder.build(new TaskRepository(),
-				newRepositoryInformationBuilderContext());
+		ResourceRepositoryInformation info = (ResourceRepositoryInformation) builder.build(new TaskRepository(), newRepositoryInformationBuilderContext());
 		Assert.assertEquals(TaskRepository.class, info.getRepositoryClass());
 		Assert.assertEquals(Task.class, info.getResourceInformation().getResourceClass());
 		Assert.assertEquals("tasks", info.getPath());
@@ -138,8 +137,7 @@ public class ModuleTest {
 	public void buildRelationshipRepositoryInformationFromClass() {
 		RepositoryInformationBuilder builder = moduleRegistry.getRepositoryInformationBuilder();
 
-		RelationshipRepositoryInformation info = (RelationshipRepositoryInformation) builder.build(TaskToProjectRepository.class,
-				newRepositoryInformationBuilderContext());
+		RelationshipRepositoryInformation info = (RelationshipRepositoryInformation) builder.build(TaskToProjectRepository.class, newRepositoryInformationBuilderContext());
 		Assert.assertEquals(TaskToProjectRepository.class, info.getRepositoryClass());
 		Assert.assertEquals(Project.class, info.getResourceInformation().getResourceClass());
 		Assert.assertEquals(Task.class, info.getSourceResourceInformation().getResourceClass());
@@ -149,8 +147,7 @@ public class ModuleTest {
 	public void buildRelationshipRepositoryInformationFromInstance() {
 		RepositoryInformationBuilder builder = moduleRegistry.getRepositoryInformationBuilder();
 
-		RelationshipRepositoryInformation info = (RelationshipRepositoryInformation) builder.build(new TaskToProjectRepository(),
-				newRepositoryInformationBuilderContext());
+		RelationshipRepositoryInformation info = (RelationshipRepositoryInformation) builder.build(new TaskToProjectRepository(), newRepositoryInformationBuilderContext());
 		Assert.assertEquals(TaskToProjectRepository.class, info.getRepositoryClass());
 		Assert.assertEquals(Project.class, info.getResourceInformation().getResourceClass());
 		Assert.assertEquals(Task.class, info.getSourceResourceInformation().getResourceClass());
@@ -162,6 +159,11 @@ public class ModuleTest {
 			@Override
 			public ResourceInformationBuilder getResourceInformationBuilder() {
 				return moduleRegistry.getResourceInformationBuilder();
+			}
+
+			@Override
+			public TypeParser getTypeParser() {
+				return moduleRegistry.getTypeParser();
 			}
 		};
 	}
@@ -247,13 +249,12 @@ public class ModuleTest {
 		try {
 			informationBuilder.build(Object.class);
 			Assert.fail();
-		}
-		catch (UnsupportedOperationException e) {
+		} catch (UnsupportedOperationException e) {
 			// ok
 		}
 
-		DefaultResourceInformationBuilderContext context = new DefaultResourceInformationBuilderContext(informationBuilder);
-		
+		DefaultResourceInformationBuilderContext context = new DefaultResourceInformationBuilderContext(informationBuilder, moduleRegistry.getTypeParser());
+
 		ResourceInformation userInfo = informationBuilder.build(User.class);
 		Assert.assertEquals("id", userInfo.getIdField().getUnderlyingName());
 
@@ -317,8 +318,7 @@ public class ModuleTest {
 		Assert.assertNotNull(entry.getResourceRepository(null));
 		List<?> relationshipEntries = entry.getRelationshipEntries();
 		Assert.assertEquals(1, relationshipEntries.size());
-		DirectResponseRelationshipEntry responseRelationshipEntry = (DirectResponseRelationshipEntry) relationshipEntries
-				.get(0);
+		DirectResponseRelationshipEntry responseRelationshipEntry = (DirectResponseRelationshipEntry) relationshipEntries.get(0);
 		Assert.assertNotNull(responseRelationshipEntry);
 	}
 

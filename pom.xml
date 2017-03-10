@@ -55,12 +55,6 @@
 				<version>${reflections.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>org.projectlombok</groupId>
-				<artifactId>lombok</artifactId>
-				<version>1.16.8</version>
-				<scope>compile</scope>
-			</dependency>
-			<dependency>
 				<groupId>net.jodah</groupId>
 				<artifactId>typetools</artifactId>
 				<version>${typetools.version}</version>
@@ -147,18 +141,6 @@
 							<id>attach-sources</id>
 							<goals>
 								<goal>jar-no-fork</goal>
-							</goals>
-						</execution>
-					</executions>
-				</plugin>
-				<plugin>
-					<artifactId>maven-javadoc-plugin</artifactId>
-					<version>${maven-javadoc-plugin.version}</version>
-					<executions>
-						<execution>
-							<id>attach-javadocs</id>
-							<goals>
-								<goal>jar</goal>
 							</goals>
 						</execution>
 					</executions>
@@ -271,6 +253,28 @@
 				<module>katharsis-jpa</module>
 				<module>katharsis-validation</module>
 				<module>katharsis-brave</module>
+				<module>katharsis-security</module>
+				<module>katharsis-examples</module>
+			</modules>
+		</profile>
+		<profile>
+			<!-- compiles katharsis with katharsis-ui, requiring a NPM/angular stack -->
+			<id>ui</id>
+			<modules>
+				<module>katharsis-ui</module>
+				<module>katharsis-parent</module>
+				<module>katharsis-core</module>
+				<module>katharsis-test</module>
+				<module>katharsis-rs</module>
+				<module>katharsis-servlet</module>
+				<module>katharsis-cdi</module>
+				<module>katharsis-spring</module>
+				<module>katharsis-client</module>
+				<module>katharsis-meta</module>
+				<module>katharsis-jpa</module>
+				<module>katharsis-validation</module>
+				<module>katharsis-brave</module>
+				<module>katharsis-security</module>
 				<module>katharsis-examples</module>
 			</modules>
 		</profile>

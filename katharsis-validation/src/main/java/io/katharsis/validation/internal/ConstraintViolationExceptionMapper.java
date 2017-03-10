@@ -15,6 +15,7 @@ import javax.validation.ConstraintViolationException;
 import javax.validation.ElementKind;
 import javax.validation.Path.Node;
 
+import io.katharsis.errorhandling.ExceptionMapperHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +44,7 @@ public class ConstraintViolationExceptionMapper implements ExceptionMapper<Const
 
 	protected static final String META_TYPE_KEY = "type";
 
-	protected static final Object META_TYPE_VALUE = "ConstraintViolation";
+	protected static final String META_TYPE_VALUE = "ConstraintViolation";
 
 	protected static final String META_MESSAGE_TEMPLATE = "messageTemplate";
 
@@ -127,16 +128,7 @@ public class ConstraintViolationExceptionMapper implements ExceptionMapper<Const
 
 	@Override
 	public boolean accepts(ErrorResponse errorResponse) {
-		if (errorResponse.getHttpStatus() != UNPROCESSABLE_ENTITY_422) {
-			return false;
-		}
-		Iterator<ErrorData> errors = errorResponse.getErrors().iterator();
-		if (!errors.hasNext()) {
-			return false;
-		}
-		ErrorData error = errors.next();
-		Map<String, Object> meta = error.getMeta();
-		return meta != null && META_TYPE_VALUE.equals(meta.get(META_TYPE_KEY));
+		return ExceptionMapperHelper.accepts(errorResponse, UNPROCESSABLE_ENTITY_422, META_TYPE_VALUE);
 	}
 
 	/**

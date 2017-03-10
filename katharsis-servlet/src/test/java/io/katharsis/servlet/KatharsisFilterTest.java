@@ -61,7 +61,7 @@ public class KatharsisFilterTest {
 
 	private static final String RESOURCE_SEARCH_PACKAGE = "io.katharsis.servlet.resource";
 
-	private static final String RESOURCE_DEFAULT_DOMAIN = "http://localhost:8080/api";
+	private static final String RESOURCE_DEFAULT_DOMAIN = "http://localhost:8080";
 
 	private ServletContext servletContext;
 

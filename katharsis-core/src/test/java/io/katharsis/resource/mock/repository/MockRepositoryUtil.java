@@ -16,17 +16,16 @@ public class MockRepositoryUtil {
 	public static void clear() {
 		TaskRepository.clear();
 		ProjectRepository.clear();
-		TaskToProjectRepository.clear();		
+		TaskToProjectRepository.clear();
 	}
 
-	public static ResourceRegistry setupResourceRegistry(){
+	public static ResourceRegistry setupResourceRegistry() {
 		JsonServiceLocator jsonServiceLocator = new SampleJsonServiceLocator();
-		ResourceInformationBuilder resourceInformationBuilder = new AnnotationResourceInformationBuilder(
-				new ResourceFieldNameTransformer());
-		ResourceRegistryBuilder resourceRegistryBuilder = new ResourceRegistryBuilder(jsonServiceLocator,
-				resourceInformationBuilder);
+		ResourceInformationBuilder resourceInformationBuilder = new AnnotationResourceInformationBuilder(new ResourceFieldNameTransformer());
+		ModuleRegistry moduleRegistry = new ModuleRegistry();
+		ResourceRegistryBuilder resourceRegistryBuilder = new ResourceRegistryBuilder(moduleRegistry, jsonServiceLocator, resourceInformationBuilder);
 		DefaultResourceLookup resourceLookup = newResourceLookup();
-		return resourceRegistryBuilder.build(resourceLookup, new ModuleRegistry(), new ConstantServiceUrlProvider("http://127.0.0.1"));
+		return resourceRegistryBuilder.build(resourceLookup, moduleRegistry, new ConstantServiceUrlProvider("http://127.0.0.1"));
 	}
 
 	public static DefaultResourceLookup newResourceLookup() {

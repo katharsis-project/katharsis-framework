@@ -5,14 +5,17 @@ import io.katharsis.legacy.internal.AnnotatedRelationshipRepositoryAdapter;
 import io.katharsis.legacy.internal.ParametersFactory;
 import io.katharsis.legacy.internal.RepositoryMethodParameterProvider;
 import io.katharsis.legacy.repository.annotations.JsonApiRelationshipRepository;
+import io.katharsis.module.ModuleRegistry;
 import io.katharsis.resource.registry.ResponseRelationshipEntry;
 import io.katharsis.utils.Optional;
 
 public class AnnotatedRelationshipEntryBuilder implements ResponseRelationshipEntry {
 
     private RepositoryInstanceBuilder repositoryInstanceBuilder;
+	private ModuleRegistry moduleRegistry;
 
-    public AnnotatedRelationshipEntryBuilder(RepositoryInstanceBuilder repositoryInstanceBuilder) {
+    public AnnotatedRelationshipEntryBuilder(ModuleRegistry moduleRegistry, RepositoryInstanceBuilder repositoryInstanceBuilder) {
+    	this.moduleRegistry = moduleRegistry;
         this.repositoryInstanceBuilder = repositoryInstanceBuilder;
     }
 
@@ -38,7 +41,7 @@ public class AnnotatedRelationshipEntryBuilder implements ResponseRelationshipEn
 
     public AnnotatedRelationshipRepositoryAdapter build(RepositoryMethodParameterProvider parameterProvider) {
         return new AnnotatedRelationshipRepositoryAdapter<>(repositoryInstanceBuilder.buildRepository(),
-            new ParametersFactory(parameterProvider));
+            new ParametersFactory(moduleRegistry, parameterProvider));
     }
 
     @Override

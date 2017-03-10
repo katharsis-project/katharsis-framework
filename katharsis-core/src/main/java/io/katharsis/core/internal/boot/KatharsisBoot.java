@@ -18,9 +18,9 @@ import io.katharsis.core.internal.registry.ResourceRegistryImpl;
 import io.katharsis.core.internal.repository.information.DefaultRelationshipRepositoryInformationBuilder;
 import io.katharsis.core.internal.repository.information.DefaultResourceRepositoryInformationBuilder;
 import io.katharsis.core.internal.resource.AnnotationResourceInformationBuilder;
+import io.katharsis.core.internal.resource.DocumentMapper;
 import io.katharsis.core.internal.utils.ClassUtils;
 import io.katharsis.core.internal.utils.PreconditionUtil;
-import io.katharsis.core.internal.utils.parser.TypeParser;
 import io.katharsis.core.properties.KatharsisProperties;
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
 import io.katharsis.legacy.internal.QueryParamsAdapterBuilder;
@@ -84,6 +84,8 @@ public class KatharsisBoot {
 	private ServiceDiscovery serviceDiscovery;
 
 	private ExceptionMapperRegistry exceptionMapperRegistry;
+
+	private DocumentMapper documentMapper;
 
 	public void setObjectMapper(ObjectMapper objectMapper) {
 		PreconditionUtil.assertNull("ObjectMapper already set", this.objectMapper);
@@ -199,18 +201,22 @@ public class KatharsisBoot {
 	}
 
 	private RequestDispatcher createRequestDispatcher(ExceptionMapperRegistry exceptionMapperRegistry) {
-		TypeParser typeParser = new TypeParser();
-		ControllerRegistryBuilder controllerRegistryBuilder = new ControllerRegistryBuilder(resourceRegistry, typeParser, objectMapper, propertiesProvider);
+		ControllerRegistryBuilder controllerRegistryBuilder = new ControllerRegistryBuilder(resourceRegistry, moduleRegistry.getTypeParser(), objectMapper, propertiesProvider);
 		ControllerRegistry controllerRegistry = controllerRegistryBuilder.build();
+		this.documentMapper = controllerRegistryBuilder.getDocumentMapper();
 
 		QueryAdapterBuilder queryAdapterBuilder;
 		if (queryParamsBuilder != null) {
 			queryAdapterBuilder = new QueryParamsAdapterBuilder(queryParamsBuilder, resourceRegistry);
 		} else {
-			queryAdapterBuilder = new QuerySpecAdapterBuilder(querySpecDeserializer, resourceRegistry);
+			queryAdapterBuilder = new QuerySpecAdapterBuilder(querySpecDeserializer, moduleRegistry);
 		}
 
 		return new RequestDispatcher(moduleRegistry, controllerRegistry, exceptionMapperRegistry, queryAdapterBuilder);
+	}
+	
+	public DocumentMapper getDocumentMapper(){
+		return documentMapper;
 	}
 
 	private ExceptionMapperRegistry buildExceptionMapperRegistry() {
@@ -287,8 +293,8 @@ public class KatharsisBoot {
 	}
 
 	private void setupServiceUrlProvider() {
-		String resourceDefaultDomain = getProperty(KatharsisProperties.RESOURCE_DEFAULT_DOMAIN);
 		if (serviceUrlProvider == null) {
+			String resourceDefaultDomain = getProperty(KatharsisProperties.RESOURCE_DEFAULT_DOMAIN);
 			String webPathPrefix = getWebPathPrefix();
 			if (resourceDefaultDomain != null) {
 				String serviceUrl = buildServiceUrl(resourceDefaultDomain, webPathPrefix);
@@ -308,9 +314,7 @@ public class KatharsisBoot {
 	}
 
 	private static String buildServiceUrl(String resourceDefaultDomain, String webPathPrefix) {
-		if (webPathPrefix != null && !resourceDefaultDomain.endsWith(webPathPrefix))
-			return resourceDefaultDomain + webPathPrefix;
-		return resourceDefaultDomain;
+		return resourceDefaultDomain + (webPathPrefix != null ? webPathPrefix : "");
 	}
 
 	public RequestDispatcher getRequestDispatcher() {

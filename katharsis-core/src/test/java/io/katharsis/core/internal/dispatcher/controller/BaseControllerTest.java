@@ -16,7 +16,6 @@ import io.katharsis.core.internal.dispatcher.path.PathBuilder;
 import io.katharsis.core.internal.jackson.JsonApiModuleBuilder;
 import io.katharsis.core.internal.resource.AnnotationResourceInformationBuilder;
 import io.katharsis.core.internal.resource.DocumentMapper;
-import io.katharsis.core.internal.utils.parser.TypeParser;
 import io.katharsis.legacy.locator.SampleJsonServiceLocator;
 import io.katharsis.legacy.queryParams.DefaultQueryParamsParser;
 import io.katharsis.legacy.queryParams.QueryParams;
@@ -36,6 +35,7 @@ import io.katharsis.resource.registry.ConstantServiceUrlProvider;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryBuilderTest;
 import io.katharsis.resource.registry.ResourceRegistryTest;
+import io.katharsis.utils.parser.TypeParser;
 
 public abstract class BaseControllerTest {
 
@@ -56,11 +56,12 @@ public abstract class BaseControllerTest {
 
 	@Before
 	public void prepare() {
+		ModuleRegistry moduleRegistry = new ModuleRegistry();
 		ResourceInformationBuilder resourceInformationBuilder = new AnnotationResourceInformationBuilder(new ResourceFieldNameTransformer());
-		ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonServiceLocator(), resourceInformationBuilder);
-		resourceRegistry = registryBuilder.build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, new ModuleRegistry(), new ConstantServiceUrlProvider(ResourceRegistryTest.TEST_MODELS_URL));
+		ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(moduleRegistry, new SampleJsonServiceLocator(), resourceInformationBuilder);
+		resourceRegistry = registryBuilder.build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, moduleRegistry, new ConstantServiceUrlProvider(ResourceRegistryTest.TEST_MODELS_URL));
 		pathBuilder = new PathBuilder(resourceRegistry);
-		typeParser = new TypeParser();
+		typeParser = moduleRegistry.getTypeParser();
 		objectMapper = new ObjectMapper();
 		objectMapper.registerModule(new JsonApiModuleBuilder().build(resourceRegistry, false));
 		documentMapper = new DocumentMapper(resourceRegistry, objectMapper, new EmptyPropertiesProvider());
@@ -85,7 +86,7 @@ public abstract class BaseControllerTest {
 		}
 		return data;
 	}
-	
+
 	public Resource createUser() {
 		Resource data = new Resource();
 		data.setType("users");
@@ -102,7 +103,7 @@ public abstract class BaseControllerTest {
 	public Resource createProject() {
 		return createProject(Long.toString(PROJECT_ID));
 	}
-	
+
 	public Resource createProject(String id) {
 		Resource data = new Resource();
 		data.setType("projects");

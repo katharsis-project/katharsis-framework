@@ -9,8 +9,8 @@ import io.katharsis.core.internal.boot.PropertiesProvider;
 import io.katharsis.core.internal.dispatcher.controller.BaseController;
 import io.katharsis.core.internal.exception.DefaultExceptionMapperLookup;
 import io.katharsis.core.internal.resource.DocumentMapper;
-import io.katharsis.core.internal.utils.parser.TypeParser;
 import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.utils.parser.TypeParser;
 
 /**
  * A builder class which holds all of the Katharsis controllers, which must be placed in
@@ -51,4 +51,8 @@ public class ControllerRegistryBuilder {
         controllers.addAll(lookup.getControllers());
         return new ControllerRegistry(controllers);
     }
+
+	public DocumentMapper getDocumentMapper() {
+		return documentMapper;
+	}
 }

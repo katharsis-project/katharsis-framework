@@ -17,9 +17,4 @@ public class MetaArrayType extends MetaType {
 	public MetaType getElementType() {
 		return elementType;
 	}
-
-	@Override
-	public Object fromString(String values) {
-		throw new UnsupportedOperationException("no yet implemented");
-	}
 }

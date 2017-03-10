@@ -76,7 +76,7 @@ public class AbstractStub {
 
 				ClientDocumentMapper documentMapper = client.getDocumentMapper();
 				return documentMapper.fromDocument(document, responseType == ResponseType.RESOURCES);
-			} 
+			}
 			return null;
 		} catch (IOException e) {
 			throw new IllegalStateException(e);
@@ -86,7 +86,9 @@ public class AbstractStub {
 	private RuntimeException handleError(HttpAdapterResponse response) throws IOException {
 		ErrorResponse errorResponse = null;
 		String body = response.body();
-		if (body.length() > 0) {
+		String contentType = response.getResponseHeader("content-type");
+		if (body.length() > 0 && CONTENT_TYPE.equalsIgnoreCase(contentType)) {
+
 			ObjectMapper objectMapper = client.getObjectMapper();
 			Document document = objectMapper.readValue(body, Document.class);
 			if (document.getErrors() != null && !document.getErrors().isEmpty()) {

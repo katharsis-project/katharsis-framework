@@ -3,6 +3,8 @@ package io.katharsis.meta.model;
 import java.lang.annotation.Annotation;
 import java.util.Collection;
 
+import io.katharsis.utils.parser.TypeParser;
+
 @Deprecated
 public class MetaMapAttribute extends MetaAttribute {
 
@@ -39,7 +41,8 @@ public class MetaMapAttribute extends MetaAttribute {
 
 	public Object getKey() {
 		MetaType keyType = mapType.getKeyType();
-		return keyType.fromString(keyString);
+		TypeParser typeParser = new TypeParser();
+		return typeParser.parse(keyString, (Class) keyType.getImplementationClass());
 	}
 
 	public MetaAttribute getMapAttribute() {
