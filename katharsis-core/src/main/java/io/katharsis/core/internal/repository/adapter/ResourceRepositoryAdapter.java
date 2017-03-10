@@ -1,19 +1,18 @@
 package io.katharsis.core.internal.repository.adapter;
 
-import java.io.Serializable;
-
 import io.katharsis.legacy.internal.AnnotatedResourceRepositoryAdapter;
 import io.katharsis.legacy.repository.ResourceRepository;
 import io.katharsis.module.ModuleRegistry;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.repository.ResourceRepositoryV2;
 import io.katharsis.repository.filter.RepositoryFilterContext;
-import io.katharsis.repository.ResourceRepositoryV2;
 import io.katharsis.repository.request.HttpMethod;
 import io.katharsis.repository.request.QueryAdapter;
 import io.katharsis.repository.request.RepositoryRequestSpec;
 import io.katharsis.repository.response.JsonApiResponse;
 import io.katharsis.resource.information.ResourceInformation;
+
+import java.io.Serializable;
 
 /**
  * A repository adapter for resource repository.
@@ -132,8 +131,6 @@ public class ResourceRepositoryAdapter<T, I extends Serializable> extends Respon
 					} else {
 						resource = ((ResourceRepositoryV2) resourceRepository).save(entity);
 					}
-				} else if (resourceRepository instanceof ResourceRepositoryV2) {
-					resource = ((ResourceRepositoryV2) resourceRepository).save(entity);
 				} else {
 					resource = ((ResourceRepository) resourceRepository).save(entity);
 				}
