@@ -73,7 +73,10 @@ public class AnnotationResourceInformationBuilder implements ResourceInformation
 
 		DefaultResourceInstanceBuilder<?> instanceBuilder = new DefaultResourceInstanceBuilder(resourceClass);
 
-		return new ResourceInformation(context.getTypeParser(), resourceClass, resourceType, instanceBuilder, (List) resourceFields);
+		Class<?> superclass = resourceClass.getSuperclass();
+		String superResourceType = superclass != Object.class ? context.getResourceType(superclass) : null;
+		
+		return new ResourceInformation(context.getTypeParser(), resourceClass, resourceType, superResourceType, instanceBuilder, (List) resourceFields);
 	}
 
 	@Override

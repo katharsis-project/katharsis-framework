@@ -1,11 +1,5 @@
 package io.katharsis.jpa.internal;
 
-import javax.persistence.ElementCollection;
-import javax.persistence.FetchType;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OptimisticLockException;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
@@ -14,6 +8,14 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import javax.persistence.ElementCollection;
+import javax.persistence.FetchType;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.MappedSuperclass;
+import javax.persistence.OneToMany;
+import javax.persistence.OptimisticLockException;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -101,9 +103,12 @@ public class JpaResourceInformationBuilder implements ResourceInformationBuilder
 
 		List<ResourceField> fields = getFields(meta);
 		Set<String> ignoredFields = getIgnoredFields(meta);
+		
+		Class<?> superclass = resourceClass.getSuperclass();
+		String superResourceType = superclass != Object.class && superclass.getAnnotation(MappedSuperclass.class) == null ? context.getResourceType(superclass) : null;
 
 		TypeParser typeParser = context.getTypeParser();
-		return new JpaResourceInformation(typeParser, meta, resourceClass, resourceType, instanceBuilder, fields,
+		return new JpaResourceInformation(typeParser, meta, resourceClass, resourceType, superResourceType, instanceBuilder, fields,
 				ignoredFields);
 	}
 
@@ -134,9 +139,9 @@ public class JpaResourceInformationBuilder implements ResourceInformationBuilder
 		private Set<String> ignoredFields;
 
 		public JpaResourceInformation(TypeParser typeParser, MetaDataObject meta, Class<?> resourceClass,
-				String resourceType, // NOSONAR
+				String resourceType, String superResourceType,// NOSONAR
 				ResourceInstanceBuilder<?> instanceBuilder, List<ResourceField> fields, Set<String> ignoredFields) {
-			super(typeParser, resourceClass, resourceType, instanceBuilder, fields);
+			super(typeParser, resourceClass, resourceType, superResourceType, instanceBuilder, fields);
 			this.meta = meta;
 			this.ignoredFields = ignoredFields;
 		}

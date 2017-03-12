@@ -241,19 +241,16 @@ public abstract class ResourceUpsert extends BaseController {
 	                .findRelationshipFieldByName(propertyName);
 	        Class<?> relationshipFieldClass = Generics.getResourceClass(relationshipField.getGenericType(),
 	                relationshipField.getType());
-	        RegistryEntry entry = null;
 	        Class idFieldType = null;
 	        List relationships = new LinkedList<>();
 	        boolean first = true;
 	        
 	        for (ResourceIdentifier resourceId : relationship.getCollectionData().get()) {
-	            if (first) {
-	                entry = resourceRegistry.findEntry(resourceId.getType(), relationshipFieldClass);
+	        	RegistryEntry entry = resourceRegistry.findEntry(resourceId.getType(), relationshipFieldClass);
 	                idFieldType = entry.getResourceInformation()
 	                        .getIdField()
 	                        .getType();
 	                first = false;
-	            }
 	            Serializable castedRelationshipId = typeParser.parse(resourceId.getId(), idFieldType);
 	            
 	            Object relationObject = fetchRelatedObject(entry, castedRelationshipId, parameterProvider, queryAdapter);
@@ -291,7 +288,6 @@ public abstract class ResourceUpsert extends BaseController {
 	        } else {
 	            relationObject = null;
 	        }
-	
 	        PropertyUtils.setProperty(newResource, relationshipFieldByName.getUnderlyingName(), relationObject);
     	}
     }

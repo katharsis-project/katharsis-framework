@@ -69,15 +69,21 @@ public class ResourceInformation {
 
 	private TypeParser parser;
 
-	public ResourceInformation(TypeParser parser, Class<?> resourceClass, String resourceType, List<ResourceField> fields) {
-		this(parser, resourceClass, resourceType, null, fields);
+	/**
+	 * Resource type of the super type.
+	 */
+	private String superResourceType;
+
+	public ResourceInformation(TypeParser parser, Class<?> resourceClass, String resourceType, String superResourceType, List<ResourceField> fields) {
+		this(parser, resourceClass, resourceType, superResourceType, null, fields);
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public ResourceInformation(TypeParser parser, Class<?> resourceClass, String resourceType, ResourceInstanceBuilder<?> instanceBuilder, List<ResourceField> fields) {
+	public ResourceInformation(TypeParser parser, Class<?> resourceClass, String resourceType, String superResourceType, ResourceInstanceBuilder<?> instanceBuilder, List<ResourceField> fields) {
 		this.parser = parser;
 		this.resourceClass = resourceClass;
 		this.resourceType = resourceType;
+		this.superResourceType = superResourceType;
 		this.instanceBuilder = instanceBuilder;
 
 		if (fields != null) {
@@ -146,6 +152,10 @@ public class ResourceInformation {
 
 	public String getResourceType() {
 		return resourceType;
+	}
+	
+	public String getSuperResourceType(){
+		return superResourceType;
 	}
 
 	public ResourceInstanceBuilder<?> getInstanceBuilder() {
