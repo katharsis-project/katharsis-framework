@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.katharsis.client.action.JerseyActionStubFactory;
 import io.katharsis.client.mock.repository.ProjectRepository;
+import io.katharsis.client.mock.repository.ProjectToTaskRepository;
 import io.katharsis.client.mock.repository.ScheduleRepositoryImpl;
 import io.katharsis.client.mock.repository.TaskRepository;
 import io.katharsis.client.mock.repository.TaskToProjectRepository;
@@ -47,6 +48,7 @@ public abstract class AbstractClientTest extends JerseyTest {
 		TaskRepository.clear();
 		ProjectRepository.clear();
 		TaskToProjectRepository.clear();
+		ProjectToTaskRepository.clear();
 		ScheduleRepositoryImpl.clear();
 
 		Assert.assertNotNull(client.getActionStubFactory());
