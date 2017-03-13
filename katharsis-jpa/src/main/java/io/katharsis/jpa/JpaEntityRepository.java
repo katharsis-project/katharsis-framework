@@ -102,8 +102,6 @@ public class JpaEntityRepository<T, I extends Serializable> extends JpaRepositor
 
 	@SuppressWarnings("unchecked")
 	private <S extends T> S saveInternal(S resource) {
-		I id = (I) PropertyUtils.getProperty(resource, primaryKeyAttr.getName());
-
 		JpaMapper<Object, T> mapper = repositoryConfig.getMapper();
 		Object entity = mapper.unmap(resource);
 
@@ -111,6 +109,8 @@ public class JpaEntityRepository<T, I extends Serializable> extends JpaRepositor
 		// save since reads do a detach
 		EntityManager em = module.getEntityManager();
 		em.persist(entity);
+		
+		I id = (I) PropertyUtils.getProperty(resource, primaryKeyAttr.getName());
 
 		// fetch again since we may have to fetch tuple data and do DTO mapping
 		QuerySpec querySpec = new QuerySpec(repositoryConfig.getResourceClass());
