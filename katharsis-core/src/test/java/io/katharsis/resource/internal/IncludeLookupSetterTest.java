@@ -1,8 +1,10 @@
 package io.katharsis.resource.internal;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -25,15 +27,19 @@ import io.katharsis.resource.Resource;
 import io.katharsis.resource.ResourceIdentifier;
 import io.katharsis.resource.information.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
+import io.katharsis.resource.mock.models.HierarchicalTask;
 import io.katharsis.resource.mock.models.Project;
 import io.katharsis.resource.mock.models.Task;
-import io.katharsis.resource.mock.models.User;
-import io.katharsis.resource.registry.RegistryEntry;
 
 @RunWith(MockitoJUnitRunner.class)
 public class IncludeLookupSetterTest extends AbstractDocumentMapperTest {
 
-	@SuppressWarnings({"rawtypes", "unchecked"})
+	private HierarchicalTask h;
+	private HierarchicalTask h0;
+	private HierarchicalTask h1;
+	private HierarchicalTask h11;
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Before
 	public void setup() {
 		super.setup();
@@ -43,17 +49,17 @@ public class IncludeLookupSetterTest extends AbstractDocumentMapperTest {
 		RelationshipRepositoryAdapter relRepositoryTaskToProject = resourceRegistry.findEntry(Task.class).getRelationshipRepositoryForClass(Project.class, null);
 		RelationshipRepositoryAdapter relRepositoryProjectToTask = resourceRegistry.findEntry(Project.class).getRelationshipRepositoryForClass(Task.class, null);
 		ResourceRepositoryAdapter projectRepository = resourceRegistry.findEntry(Project.class).getResourceRepository(null);
+		ResourceRepositoryAdapter hierarchicalTaskRepository = resourceRegistry.findEntry(HierarchicalTask.class).getResourceRepository(null);
 
 		// setup test data
-		
+
 		ResourceInformation taskInfo = resourceRegistry.findEntry(Task.class).getResourceInformation();
 		ResourceInformation projectInfo = resourceRegistry.findEntry(Project.class).getResourceInformation();
 		ResourceField includedTaskField = projectInfo.findRelationshipFieldByName("includedTask");
 		ResourceField includedProjectField = taskInfo.findRelationshipFieldByName("includedProject");
 		ResourceField includedProjectsField = taskInfo.findRelationshipFieldByName("includedProjects");
 		ResourceField projectField = taskInfo.findRelationshipFieldByName("project");
-		
-		
+
 		Project project = new Project();
 		project.setId(2L);
 		projectRepository.create(project, null);
@@ -74,6 +80,37 @@ public class IncludeLookupSetterTest extends AbstractDocumentMapperTest {
 		projectRepository.create(project, null);
 		relRepositoryTaskToProject.setRelation(includedTask, deepIncludedProject.getId(), includedProjectField, null);
 		relRepositoryTaskToProject.addRelations(includedTask, Collections.singletonList(project.getId()), includedProjectsField, null);
+
+		// setup hierarchy of resources
+		h = new HierarchicalTask();
+		h.setId(1L);
+		h.setName("");
+
+		h0 = new HierarchicalTask();
+		h0.setId(2L);
+		h0.setName("0");
+		h0.setParent(h);
+
+		h1 = new HierarchicalTask();
+		h1.setId(3L);
+		h1.setName("1");
+		h1.setParent(h);
+
+		h11 = new HierarchicalTask();
+		h11.setId(4L);
+		h11.setName("11");
+		h11.setParent(h1);
+
+		h.setChildren(Arrays.asList(h0, h1));
+		h0.setChildren(new ArrayList<HierarchicalTask>());
+		h1.setChildren(Arrays.asList(h11));
+		h11.setChildren(new ArrayList<HierarchicalTask>());
+
+		hierarchicalTaskRepository.create(h, null);
+		hierarchicalTaskRepository.create(h0, null);
+		hierarchicalTaskRepository.create(h1, null);
+		hierarchicalTaskRepository.create(h11, null);
+
 	}
 
 	@Test
@@ -167,7 +204,7 @@ public class IncludeLookupSetterTest extends AbstractDocumentMapperTest {
 				if (key.equalsIgnoreCase(KatharsisProperties.INCLUDE_AUTOMATICALLY_OVERWRITE)) {
 					return "true";
 				}
-				return "true";
+				return null;
 			}
 		};
 		mapper = new DocumentMapper(resourceRegistry, objectMapper, propertiesProvider);
@@ -194,7 +231,7 @@ public class IncludeLookupSetterTest extends AbstractDocumentMapperTest {
 				if (key.equalsIgnoreCase(KatharsisProperties.INCLUDE_AUTOMATICALLY_OVERWRITE)) {
 					return "false";
 				}
-				return "true";
+				return null;
 			}
 		};
 		mapper = new DocumentMapper(resourceRegistry, objectMapper, propertiesProvider);
@@ -227,7 +264,6 @@ public class IncludeLookupSetterTest extends AbstractDocumentMapperTest {
 
 		Project projectDefault = new Project().setId(3L);
 		task.setProject(projectDefault);
-
 
 		mapper = new DocumentMapper(resourceRegistry, objectMapper, new EmptyPropertiesProvider());
 

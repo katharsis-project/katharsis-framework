@@ -17,6 +17,8 @@ public class MockRepositoryUtil {
 		TaskRepository.clear();
 		ProjectRepository.clear();
 		TaskToProjectRepository.clear();
+		HierarchicalTaskRepository.clear();
+		ScheduleRepositoryImpl.clear();
 	}
 
 	public static ResourceRegistry setupResourceRegistry() {

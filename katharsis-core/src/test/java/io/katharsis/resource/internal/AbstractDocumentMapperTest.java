@@ -5,6 +5,7 @@ import org.junit.Before;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.katharsis.core.internal.boot.PropertiesProvider;
 import io.katharsis.core.internal.jackson.JsonApiModuleBuilder;
 import io.katharsis.core.internal.query.QuerySpecAdapter;
 import io.katharsis.core.internal.resource.AnnotationResourceInformationBuilder;
@@ -43,7 +44,11 @@ public class AbstractDocumentMapperTest {
 		objectMapper = new ObjectMapper();
 		objectMapper.registerModule(new JsonApiModuleBuilder().build(resourceRegistry, false));
 
-		mapper = new DocumentMapper(resourceRegistry, objectMapper, null);
+		mapper = new DocumentMapper(resourceRegistry, objectMapper, getPropertiesProvider());
+	}
+
+	protected PropertiesProvider getPropertiesProvider() {
+		return null;
 	}
 
 	@After
