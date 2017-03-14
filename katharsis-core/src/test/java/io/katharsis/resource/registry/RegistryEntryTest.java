@@ -69,7 +69,7 @@ public class RegistryEntryTest {
 	private <T> ResourceRepositoryInformation newRepositoryInformation(Class<T> repositoryClass, String path) {
 		ModuleRegistry moduleRegistry = new ModuleRegistry();
 		TypeParser typeParser = moduleRegistry.getTypeParser();
-		return new ResourceRepositoryInformationImpl(null, path, new ResourceInformation(typeParser, Task.class, path, null));
+		return new ResourceRepositoryInformationImpl(null, path, new ResourceInformation(typeParser, Task.class, path, null, null));
 	}
 
 	@Test
@@ -108,7 +108,7 @@ public class RegistryEntryTest {
 		RegistryEntry red = new RegistryEntry(newRepositoryInformation(Long.class, "longs"), null);
 		TypeParser typeParser = moduleRegistry.getTypeParser();
 		EqualsVerifier.forClass(RegistryEntry.class).withPrefabValues(RegistryEntry.class, blue, red)
-				.withPrefabValues(ResourceInformation.class, new ResourceInformation(typeParser, String.class, null, null), new ResourceInformation(typeParser, Long.class, null, null))
+				.withPrefabValues(ResourceInformation.class, new ResourceInformation(typeParser, String.class, null, null, null), new ResourceInformation(typeParser, Long.class, null, null, null, null))
 				.withPrefabValues(Field.class, String.class.getDeclaredField("value"), String.class.getDeclaredField("hash")).withPrefabValues(ModuleRegistry.class, new ModuleRegistry(), new ModuleRegistry())
 				.suppress(Warning.NONFINAL_FIELDS).suppress(Warning.STRICT_INHERITANCE).verify();
 	}

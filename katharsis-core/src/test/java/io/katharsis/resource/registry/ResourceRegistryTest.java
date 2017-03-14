@@ -41,7 +41,7 @@ public class ResourceRegistryTest {
 	}
 
 	private <T> RegistryEntry newRegistryEntry(Class<T> repositoryClass, String path) {
-		return new RegistryEntry(new ResourceRepositoryInformationImpl(null, path, new ResourceInformation(moduleRegistry.getTypeParser(), Task.class, path, null)), null, null);
+		return new RegistryEntry(new ResourceRepositoryInformationImpl(null, path, new ResourceInformation(moduleRegistry.getTypeParser(), Task.class, path, null, null)), null, null);
 	}
 
 	@Test

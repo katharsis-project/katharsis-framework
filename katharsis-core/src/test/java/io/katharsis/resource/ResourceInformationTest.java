@@ -23,7 +23,7 @@ public class ResourceInformationTest {
 		ResourceField idField = new ResourceFieldImpl("id", "id", ResourceFieldType.ID, field.getType(), field.getGenericType(), null);
 		ResourceField resourceField = new ResourceFieldImpl("value", "value", ResourceFieldType.RELATIONSHIP, field.getType(), field.getGenericType(), "projects");
 		TypeParser typeParser = new TypeParser();
-		ResourceInformation sut = new ResourceInformation(typeParser, Task.class, "tasks", Arrays.asList(idField, resourceField));
+		ResourceInformation sut = new ResourceInformation(typeParser, Task.class, "tasks", null, Arrays.asList(idField, resourceField));
 
 		// WHEN
 		ResourceField result = sut.findRelationshipFieldByName("value");

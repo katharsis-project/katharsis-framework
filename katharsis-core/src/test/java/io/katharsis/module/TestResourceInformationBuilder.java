@@ -25,7 +25,7 @@ public class TestResourceInformationBuilder implements ResourceInformationBuilde
 		ResourceField idField = new ResourceFieldImpl("testId", "id", ResourceFieldType.ID, Integer.class, null, null);
 		List<ResourceField> fields = Arrays.asList(idField);
 		TypeParser typeParser = context.getTypeParser();
-		ResourceInformation info = new ResourceInformation(typeParser, resourceClass, resourceClass.getSimpleName(), fields);
+		ResourceInformation info = new ResourceInformation(typeParser, resourceClass, resourceClass.getSimpleName(), null, fields);
 		return info;
 	}
 

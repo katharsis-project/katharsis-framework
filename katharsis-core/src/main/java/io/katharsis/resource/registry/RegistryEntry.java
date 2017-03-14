@@ -34,6 +34,7 @@ public class RegistryEntry {
 
 	private final List<ResponseRelationshipEntry> relationshipEntries;
 
+	@Deprecated
 	private RegistryEntry parentRegistryEntry = null;
 
 	private ModuleRegistry moduleRegistry;
@@ -111,6 +112,11 @@ public class RegistryEntry {
 	}
 
 	public RegistryEntry getParentRegistryEntry() {
+		String superResourceType = resourceInformation.getSuperResourceType();		
+		if(superResourceType != null){
+			ResourceRegistry resourceRegistry = moduleRegistry.getResourceRegistry();
+			return resourceRegistry.getEntry(superResourceType);
+		}
 		return parentRegistryEntry;
 	}
 
@@ -120,6 +126,7 @@ public class RegistryEntry {
 	 * @param parentRegistryEntry
 	 *            parent resource
 	 */
+	@Deprecated
 	public void setParentRegistryEntry(RegistryEntry parentRegistryEntry) {
 		this.parentRegistryEntry = parentRegistryEntry;
 	}

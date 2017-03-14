@@ -320,7 +320,7 @@ public class ModuleRegistry {
 					return builder.getResourceType(resourceClass);
 				}
 			}
-			throw new UnsupportedOperationException("no ResourceInformationBuilder for " + resourceClass.getName() + " available");
+			return null;
 		}
 
 		@Override
