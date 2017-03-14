@@ -82,4 +82,15 @@ public class KatharsisProperties {
      * @since 2.8.2
      */
     public static final String INCLUDE_AUTOMATICALLY_OVERWRITE = "katharsis.config.include.automatically.overwrite";
+
+    /**
+     * <p>
+     *     Set a boolean whether Katharsis should return a JSON API response with data field set to {@code null}
+     *     if an action returns a {@code null} value.
+     * </p>
+     * <p>
+     *     JAX-RS default default is to return a 204 response.
+     * </p>
+     */
+    public static final String NULL_DATA_RESPONSE_ENABLED = "katharsis.config.null.data.response.enabled";
 }
