@@ -41,6 +41,7 @@ public class JpaMetaProvider extends MetaProviderBase {
 		set.add(MetaMappedSuperclass.class);
 		set.add(MetaEntityAttribute.class);
 		set.add(MetaEmbeddableAttribute.class);
+		set.add(MetaJpaDataObject.class);
 		return set;
 	}
 

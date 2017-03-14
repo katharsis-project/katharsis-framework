@@ -18,7 +18,7 @@ import io.katharsis.legacy.registry.DefaultResourceInformationBuilderContext;
 import io.katharsis.meta.model.MetaAttribute;
 import io.katharsis.meta.model.MetaDataObject;
 import io.katharsis.meta.model.MetaElement;
-import io.katharsis.meta.model.MetaKey;
+import io.katharsis.meta.model.MetaPrimaryKey;
 import io.katharsis.meta.model.resource.MetaJsonObject;
 import io.katharsis.meta.model.resource.MetaResource;
 import io.katharsis.meta.model.resource.MetaResourceAction;
@@ -85,8 +85,12 @@ public class ResourceMetaProviderImpl extends MetaProviderBase implements Resour
 		}
 
 		MetaResource resource = new MetaResource();
+		resource.setElementType(resource);
 		resource.setImplementationType(resourceClass);
 		resource.setSuperType(superMeta);
+		if (superMeta != null) {
+			((MetaDataObject) superMeta).addSubType(resource);
+		}
 		resource.setName(resourceClass.getSimpleName());
 		resource.setResourceType(information.getResourceType());
 
@@ -148,7 +152,7 @@ public class ResourceMetaProviderImpl extends MetaProviderBase implements Resour
 			MetaResourceAction metaAction = new MetaResourceAction();
 			metaAction.setName(action.getName());
 			metaAction.setActionType(MetaRepositoryActionType.valueOf(action.getActionType().toString()));
-			metaAction.setParent(meta);
+			metaAction.setParent(meta, true);
 		}
 
 		// TODO avoid use of ResourceRepositoryAdapter by enriching ResourceRepositoryInformation
@@ -207,12 +211,13 @@ public class ResourceMetaProviderImpl extends MetaProviderBase implements Resour
 			MetaAttribute idAttr = metaResource.getAttribute(information.getIdField().getUnderlyingName());
 
 			if (metaResource.getSuperType() == null || metaResource.getSuperType().getPrimaryKey() == null) {
-				MetaKey primaryKey = new MetaKey();
+				MetaPrimaryKey primaryKey = new MetaPrimaryKey();
 				primaryKey.setName(metaResource.getName() + "$primaryKey");
 				primaryKey.setName(metaResource.getId() + "$primaryKey");
 				primaryKey.setElements(Arrays.asList(idAttr));
 				primaryKey.setUnique(true);
-				primaryKey.setParent(metaResource);
+				primaryKey.setParent(metaResource, true);
+				primaryKey.setGenerated(false);
 				metaResource.setPrimaryKey(primaryKey);
 				context.add(primaryKey);
 			}
@@ -250,7 +255,7 @@ public class ResourceMetaProviderImpl extends MetaProviderBase implements Resour
 
 		MetaResourceField attr = new MetaResourceField();
 
-		attr.setParent(resource);
+		attr.setParent(resource, true);
 		attr.setName(field.getUnderlyingName());
 		attr.setAssociation(field.getResourceFieldType() == ResourceFieldType.RELATIONSHIP);
 		attr.setMeta(field.getResourceFieldType() == ResourceFieldType.META_INFORMATION);
@@ -258,6 +263,8 @@ public class ResourceMetaProviderImpl extends MetaProviderBase implements Resour
 		attr.setVersion(false); // TODO
 		attr.setDerived(false);
 		attr.setLazy(field.isLazy());
+		attr.setSortable(true);
+		attr.setFilterable(true);
 
 		PreconditionUtil.assertFalse(attr.getName(),
 				!attr.isAssociation() && MetaElement.class.isAssignableFrom(field.getElementType()));

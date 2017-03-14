@@ -28,7 +28,9 @@ public abstract class MetaDataObjectProviderBase<T extends MetaDataObject> exten
 	protected MetaAttribute createAttribute(T metaDataObject, PropertyDescriptor desc) {
 		MetaAttribute attr = new MetaAttribute();
 		attr.setName(desc.getName());
-		attr.setParent(metaDataObject);
+		attr.setParent(metaDataObject, true);
+		attr.setFilterable(true);
+		attr.setSortable(true);
 		return attr;
 	}
 }

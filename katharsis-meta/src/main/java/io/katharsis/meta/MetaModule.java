@@ -17,6 +17,7 @@ import io.katharsis.meta.model.MetaInterface;
 import io.katharsis.meta.model.MetaKey;
 import io.katharsis.meta.model.MetaListType;
 import io.katharsis.meta.model.MetaMapType;
+import io.katharsis.meta.model.MetaPrimaryKey;
 import io.katharsis.meta.model.MetaPrimitiveType;
 import io.katharsis.meta.model.MetaSetType;
 import io.katharsis.meta.model.MetaType;
@@ -69,6 +70,7 @@ public class MetaModule implements Module, InitializingModule {
 		metaClasses.add(MetaSetType.class);
 		metaClasses.add(MetaType.class);
 		metaClasses.add(MetaInterface.class);
+		metaClasses.add(MetaPrimaryKey.class);
 		for (MetaProvider provider : lookup.getProviders()) {
 			metaClasses.addAll(provider.getMetaTypes());
 		}
