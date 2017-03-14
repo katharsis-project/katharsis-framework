@@ -13,9 +13,10 @@ import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import io.katharsis.core.internal.utils.PreconditionUtil;
+import io.katharsis.resource.annotations.JsonApiRelation;
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.annotations.JsonApiToMany;
-import io.katharsis.resource.annotations.JsonApiToOne;
+import io.katharsis.resource.annotations.SerializeType;
 
 @JsonApiResource(type = "meta/dataObject")
 public abstract class MetaDataObject extends MetaType {
@@ -35,11 +36,11 @@ public abstract class MetaDataObject extends MetaType {
 			return meta.findAttribute(name, true);
 		}
 	};
-	
+
 	@JsonApiToMany(opposite = "superType")
 	private Set<MetaDataObject> subTypes = new HashSet<>();
 
-	@JsonApiToOne(opposite = "subTypes")
+	@JsonApiRelation(serialize=SerializeType.LAZY,opposite = "subTypes")
 	private MetaDataObject superType;
 
 	@JsonIgnore
@@ -55,8 +56,8 @@ public abstract class MetaDataObject extends MetaType {
 	@JsonIgnore
 	private List<MetaDataObject>[] subTypesCache = new List[4];
 
-	@JsonApiToOne
-	private MetaKey primaryKey;
+	@JsonApiRelation(serialize=SerializeType.LAZY)
+	private MetaPrimaryKey primaryKey;
 
 	@JsonApiToMany
 	private Set<MetaKey> declaredKeys = new HashSet<>();
@@ -75,20 +76,28 @@ public abstract class MetaDataObject extends MetaType {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void clearCache() {
+	private void clearSubtypeCache() {
 		subTypesCache = new List[4];
+	}
+
+	private void clearCache() {
+		clearSubtypeCache();
 		attributes = null;
 		declaredAttributes = null;
 		attrMap = null;
 	}
 
 	public List<? extends MetaAttribute> getAttributes() {
-		setupCache();
+		if (attributes == null) {
+			setupCache();
+		}
 		return attributes;
 	}
 
 	public List<? extends MetaAttribute> getDeclaredAttributes() {
-		setupCache();
+		if (declaredAttributes == null) {
+			setupCache();
+		}
 		return declaredAttributes;
 	}
 
@@ -128,9 +137,10 @@ public abstract class MetaDataObject extends MetaType {
 				MetaMapAttribute keyAttr = new MetaMapAttribute(mapType, pathElement, keyString);
 				list.add(keyAttr);
 				i++;
-				MetaType valueType = mapType.getValueType();
+				MetaType valueType = mapType.getElementType();
 				currentMdo = nextPathElement(valueType, i, attrPath);
-			} else {
+			}
+			else {
 				list.add(pathElement);
 				currentMdo = nextPathElement(pathElement.getType(), i, attrPath);
 			}
@@ -143,7 +153,8 @@ public abstract class MetaDataObject extends MetaType {
 	private MetaDataObject nextPathElement(MetaType pathElementType, int i, List<String> pathElements) {
 		if (i == pathElements.size() - 1) {
 			return null;
-		} else {
+		}
+		else {
 			if (!(pathElementType instanceof MetaDataObject)) {
 				throw new IllegalArgumentException("failed to resolve path " + pathElements);
 			}
@@ -169,7 +180,9 @@ public abstract class MetaDataObject extends MetaType {
 	}
 
 	public boolean hasAttribute(String name) {
-		setupCache();
+		if (attrMap == null) {
+			setupCache();
+		}
 		return attrMap.containsKey(name);
 	}
 
@@ -183,7 +196,8 @@ public abstract class MetaDataObject extends MetaType {
 		List<MetaDataObject> cached = subTypesCache[cacheIndex];
 		if (cached != null) {
 			return cached;
-		} else {
+		}
+		else {
 			ArrayList<MetaDataObject> types = computeSubTypes(transitive, self);
 			List<MetaDataObject> unmodifiableList = Collections.unmodifiableList(types);
 			subTypesCache[cacheIndex] = unmodifiableList;
@@ -224,7 +238,7 @@ public abstract class MetaDataObject extends MetaType {
 		this.interfaces = interfaces;
 	}
 
-	public MetaKey getPrimaryKey() {
+	public MetaPrimaryKey getPrimaryKey() {
 		if (primaryKey == null && superType != null) {
 			return superType.getPrimaryKey();
 		}
@@ -251,7 +265,7 @@ public abstract class MetaDataObject extends MetaType {
 		this.subTypes = subTypes;
 	}
 
-	public void setPrimaryKey(MetaKey key) {
+	public void setPrimaryKey(MetaPrimaryKey key) {
 		this.primaryKey = key;
 		addDeclaredKey(key);
 	}
@@ -262,14 +276,11 @@ public abstract class MetaDataObject extends MetaType {
 
 	public void addSubType(MetaDataObject subType) {
 		this.subTypes.add(subType);
-		this.clearCache();
+		this.clearSubtypeCache();
 	}
 
 	public void setSuperType(MetaDataObject superType) {
 		this.superType = superType;
-		if (superType != null) {
-			superType.addSubType(this);
-		}
 	}
 
 	private void setupCache() {
@@ -296,6 +307,7 @@ public abstract class MetaDataObject extends MetaType {
 		if (this.attrMap == null) {
 			HashMap<String, MetaAttribute> newAttrMap = new HashMap<>();
 			if (superType != null) {
+				superType.setupCache();
 				newAttrMap.putAll(superType.attrMap);
 			}
 			for (MetaAttribute attr : declaredAttributes) {

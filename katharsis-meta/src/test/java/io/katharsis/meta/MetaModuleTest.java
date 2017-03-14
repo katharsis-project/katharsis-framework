@@ -2,14 +2,19 @@ package io.katharsis.meta;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import io.katharsis.client.internal.proxy.ObjectProxy;
 import io.katharsis.meta.model.MetaAttribute;
+import io.katharsis.meta.model.MetaDataObject;
 import io.katharsis.meta.model.MetaElement;
 import io.katharsis.meta.model.MetaPrimitiveType;
+import io.katharsis.meta.model.MetaType;
 import io.katharsis.meta.model.resource.MetaResource;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.repository.ResourceRepositoryV2;
@@ -41,10 +46,10 @@ public class MetaModuleTest extends AbstractMetaJerseyTest {
 				Assert.assertTrue(elem.getId(), elem.getId().startsWith("base."));
 			}
 			else {
-				Assert.assertTrue(elem.getId(), elem.getId().startsWith("app.resources.")
-						|| elem.getId().startsWith("io.katharsis.meta.")
-						|| elem.getId().startsWith("io.katharsis.resource.")
-						|| elem.getId().startsWith("io.katharsis.jpa."));
+				Assert.assertTrue(elem.getId(),
+						elem.getId().startsWith("app.resources.") || elem.getId().startsWith("io.katharsis.meta.")
+								|| elem.getId().startsWith("io.katharsis.resource.")
+								|| elem.getId().startsWith("io.katharsis.jpa."));
 			}
 		}
 	}
@@ -70,6 +75,75 @@ public class MetaModuleTest extends AbstractMetaJerseyTest {
 			Assert.assertNotNull(elem.getType());
 			Assert.assertNotNull(elem.getType().getElementType());
 		}
+	}
+
+	@Test
+	public void testFetchResourcesWithAttributesAndType() {
+		QuerySpec querySpec = new QuerySpec(MetaResource.class);
+		querySpec.includeRelation(Arrays.asList("attributes", "type"));
+		ResourceList<MetaResource> list = client.getRepositoryForType(MetaResource.class).findAll(querySpec);
+		Assert.assertFalse(list.isEmpty());
+		for (MetaResource elem : list) {
+			List<? extends MetaAttribute> attributes = elem.getAttributes();
+			Assert.assertTrue(isLoaded(attributes));
+			for (MetaAttribute attr : attributes) {
+				Assert.assertTrue(isLoaded(attr));
+				MetaType attrType = attr.getType();
+				Assert.assertTrue(isLoaded(attrType));
+			}
+		}
+	}
+
+	@Test
+	public void testFetchResourcesWithNestedAttributesAndTypes() {
+		QuerySpec querySpec = new QuerySpec(MetaResource.class);
+
+		QuerySpec dataObjectSpec = querySpec.getOrCreateQuerySpec(MetaDataObject.class);
+		dataObjectSpec.includeRelation(Arrays.asList("attributes"));
+		QuerySpec attrSpec = querySpec.getOrCreateQuerySpec(MetaAttribute.class);
+		attrSpec.includeRelation(Arrays.asList("type"));
+		QuerySpec typeSpec = querySpec.getOrCreateQuerySpec(MetaType.class);
+		typeSpec.includeRelation(Arrays.asList("attributes", "type", "elementType", "attributes"));
+		typeSpec.includeRelation(Arrays.asList("elementType"));
+		typeSpec.includeRelation(Arrays.asList("superType"));
+
+		ResourceList<MetaResource> list = client.getRepositoryForType(MetaResource.class).findAll(querySpec);
+		Assert.assertFalse(list.isEmpty());
+		for (MetaResource elem : list) {
+			checkDataObjectLoaded(elem, new HashSet<String>());
+		}
+	}
+
+	private void checkDataObjectLoaded(MetaDataObject elem, HashSet<String> checked) {
+		if (checked.contains(elem.getId()))
+			return;
+		checked.add(elem.getId());
+		System.out.println(elem.getId());
+
+		List<? extends MetaAttribute> attributes = elem.getAttributes();
+		Assert.assertTrue(isLoaded(attributes));
+		for (MetaAttribute attr : attributes) {
+			Assert.assertTrue(isLoaded(attr));
+			MetaType attrType = attr.getType();
+			Assert.assertTrue(isLoaded(attrType));
+			MetaType attrElementType = attrType.getElementType();
+			Assert.assertTrue(isLoaded(attrElementType));
+			if (attrElementType instanceof MetaDataObject) {
+				checkDataObjectLoaded(attrElementType.asDataObject(), checked);
+			}
+		}
+
+	}
+
+	private boolean isLoaded(Object object) {
+		if (object == null)
+			return false;
+		if (object instanceof MetaElement && ((MetaElement) object).getName() == null)
+			return false;
+		if (!(object instanceof ObjectProxy))
+			return true;
+		ObjectProxy proxy = (ObjectProxy) object;
+		return proxy.isLoaded();
 	}
 
 	@Test

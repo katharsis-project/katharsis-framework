@@ -11,6 +11,7 @@ import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.EmbeddedId;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
@@ -24,7 +25,7 @@ import io.katharsis.jpa.meta.MetaJpaDataObject;
 import io.katharsis.meta.model.MetaAttribute;
 import io.katharsis.meta.model.MetaDataObject;
 import io.katharsis.meta.model.MetaElement;
-import io.katharsis.meta.model.MetaKey;
+import io.katharsis.meta.model.MetaPrimaryKey;
 import io.katharsis.meta.provider.MetaProviderContext;
 
 public abstract class AbstractEntityMetaProvider<T extends MetaJpaDataObject> extends AbstractJpaDataObjectProvider<T> {
@@ -38,9 +39,13 @@ public abstract class AbstractEntityMetaProvider<T extends MetaJpaDataObject> ex
 			superMeta = context.getLookup().getMeta(superClazz, MetaJpaDataObject.class);
 		}
 		T meta = newDataObject();
+		meta.setElementType(meta);
 		meta.setName(rawClazz.getSimpleName());
 		meta.setImplementationType(type);
 		meta.setSuperType((MetaDataObject) superMeta);
+		if (superMeta != null) {
+			((MetaDataObject) superMeta).addSubType(meta);
+		}
 		createAttributes(meta);
 
 		setKey(meta);
@@ -50,18 +55,28 @@ public abstract class AbstractEntityMetaProvider<T extends MetaJpaDataObject> ex
 
 	private void setKey(T meta) {
 		if (meta.getPrimaryKey() == null) {
+			boolean generated = false;
 			ArrayList<MetaAttribute> pkElements = new ArrayList<>();
 			for (MetaAttribute attr : meta.getAttributes()) {
 				if (attr.getAnnotation(Id.class) != null || attr.getAnnotation(EmbeddedId.class) != null) {
 					pkElements.add(attr);
+
+					boolean attrGenerated = attr.getAnnotation(GeneratedValue.class) != null;
+					if (pkElements.size() == 1) {
+						generated = attrGenerated;
+					} else if (generated != attrGenerated) {
+						throw new IllegalStateException(
+								"cannot mix generated and not-generated primary key elements for " + meta.getId());
+					}
 				}
 			}
 			if (!pkElements.isEmpty()) {
-				MetaKey primaryKey = new MetaKey();
+				MetaPrimaryKey primaryKey = new MetaPrimaryKey();
 				primaryKey.setName(meta.getName() + "$primaryKey");
 				primaryKey.setElements(pkElements);
 				primaryKey.setUnique(true);
-				primaryKey.setParent(meta);
+				primaryKey.setParent(meta, true);
+				primaryKey.setGenerated(generated);
 				meta.setPrimaryKey(primaryKey);
 			}
 		}
@@ -73,7 +88,7 @@ public abstract class AbstractEntityMetaProvider<T extends MetaJpaDataObject> ex
 	protected MetaAttribute createAttribute(T metaDataObject, PropertyDescriptor desc) {
 		MetaEntityAttribute attr = new MetaEntityAttribute();
 		attr.setName(desc.getName());
-		attr.setParent(metaDataObject);
+		attr.setParent(metaDataObject, true);
 		if (hasJpaAnnotations(attr)) {
 			ManyToMany manyManyAnnotation = attr.getAnnotation(ManyToMany.class);
 			ManyToOne manyOneAnnotation = attr.getAnnotation(ManyToOne.class);
@@ -95,22 +110,29 @@ public abstract class AbstractEntityMetaProvider<T extends MetaJpaDataObject> ex
 				fetchType = oneOneAnnotation.fetch();
 			}
 
-			attr.setAssociation(manyManyAnnotation != null || manyOneAnnotation != null || oneManyAnnotation != null || oneOneAnnotation != null);
+			attr.setAssociation(manyManyAnnotation != null || manyOneAnnotation != null || oneManyAnnotation != null
+					|| oneOneAnnotation != null);
 
-			boolean lazyCollection = elemCollectionAnnotation != null && elemCollectionAnnotation.fetch() != FetchType.EAGER;
+			boolean lazyCollection = elemCollectionAnnotation != null
+					&& elemCollectionAnnotation.fetch() != FetchType.EAGER;
 			boolean lazyAssociation = attr.isAssociation() && (fetchType == null || fetchType == FetchType.LAZY);
 
 			attr.setLazy(lazyCollection || lazyAssociation);
 		} else {
 			attr.setDerived(true);
 		}
+
+		attr.setSortable(true);
+		attr.setFilterable(true);
+
 		return attr;
 	}
 
 	@Override
 	public void onInitialized(MetaProviderContext context, MetaElement element) {
 		super.onInitialized(context, element);
-		if (element.getParent() instanceof MetaJpaDataObject && element instanceof MetaAttribute && ((MetaAttribute) element).getOppositeAttribute() == null) {
+		if (element.getParent() instanceof MetaJpaDataObject && element instanceof MetaAttribute
+				&& ((MetaAttribute) element).getOppositeAttribute() == null) {
 			MetaAttribute attr = (MetaAttribute) element;
 			String mappedBy = getMappedBy(attr);
 			if (mappedBy != null) {
@@ -147,7 +169,8 @@ public abstract class AbstractEntityMetaProvider<T extends MetaJpaDataObject> ex
 	}
 
 	private boolean hasJpaAnnotations(MetaAttribute attribute) {
-		List<Class<? extends Annotation>> annotationClasses = Arrays.asList(Id.class, EmbeddedId.class, Column.class, ManyToMany.class, ManyToOne.class, OneToMany.class, OneToOne.class, Version.class,
+		List<Class<? extends Annotation>> annotationClasses = Arrays.asList(Id.class, EmbeddedId.class, Column.class,
+				ManyToMany.class, ManyToOne.class, OneToMany.class, OneToOne.class, Version.class,
 				ElementCollection.class);
 		for (Class<? extends Annotation> annotationClass : annotationClasses) {
 			if (attribute.getAnnotation(annotationClass) != null) {

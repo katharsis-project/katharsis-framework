@@ -210,12 +210,13 @@ public class MetaLookup {
 		Class<?> clazz = (Class<?>) type;
 		if (clazz.isEnum()) {
 			MetaEnumType enumType = new MetaEnumType();
+			enumType.setElementType(enumType);
 			enumType.setImplementationType(type);
 			enumType.setName(clazz.getSimpleName());
 			for (Object literalObj : clazz.getEnumConstants()) {
 				MetaLiteral literal = new MetaLiteral();
 				literal.setName(literalObj.toString());
-				literal.setParent(enumType);
+				literal.setParent(enumType, true);
 			}
 			return enumType;
 		}
@@ -226,6 +227,7 @@ public class MetaLookup {
 			MetaPrimitiveType primitiveType = (MetaPrimitiveType) idElementMap.get(id);
 			if (primitiveType == null) {
 				primitiveType = new MetaPrimitiveType();
+				primitiveType.setElementType(primitiveType);
 				primitiveType.setImplementationType(type);
 				primitiveType.setName(clazz.getSimpleName().toLowerCase());
 				primitiveType.setId(id);
@@ -275,7 +277,7 @@ public class MetaLookup {
 
 			mapMeta.setImplementationType(paramType);
 			mapMeta.setKeyType(keyType);
-			mapMeta.setValueType(valueType);
+			mapMeta.setElementType(valueType);
 			return mapMeta;
 		}
 		else if (paramType.getRawType() instanceof Class

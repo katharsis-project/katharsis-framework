@@ -28,7 +28,8 @@ public class EmbeddableMetaProvider extends AbstractJpaDataObjectProvider<MetaEm
 	@Override
 	public boolean accept(Type type, Class<? extends MetaElement> metaClass) {
 		boolean hasAnnotation = ClassUtils.getRawType(type).getAnnotation(Embeddable.class) != null;
-		boolean hasType = metaClass == MetaElement.class || metaClass == MetaEmbeddable.class || metaClass == MetaJpaDataObject.class;
+		boolean hasType = metaClass == MetaElement.class || metaClass == MetaEmbeddable.class
+				|| metaClass == MetaJpaDataObject.class;
 		return hasAnnotation && hasType;
 	}
 
@@ -41,9 +42,13 @@ public class EmbeddableMetaProvider extends AbstractJpaDataObjectProvider<MetaEm
 			superMeta = context.getLookup().getMeta(superClazz, MetaJpaDataObject.class);
 		}
 		MetaEmbeddable meta = new MetaEmbeddable();
+		meta.setElementType(meta);
 		meta.setName(rawClazz.getSimpleName());
 		meta.setImplementationType(type);
 		meta.setSuperType((MetaDataObject) superMeta);
+		if (superMeta != null) {
+			((MetaDataObject) superMeta).addSubType(meta);
+		}
 		createAttributes(meta);
 		return meta;
 	}
@@ -51,8 +56,10 @@ public class EmbeddableMetaProvider extends AbstractJpaDataObjectProvider<MetaEm
 	@Override
 	protected MetaAttribute createAttribute(MetaEmbeddable metaDataObject, PropertyDescriptor desc) {
 		MetaEmbeddableAttribute attr = new MetaEmbeddableAttribute();
-		attr.setParent(metaDataObject);
+		attr.setParent(metaDataObject, true);
 		attr.setName(desc.getName());
+		attr.setFilterable(true);
+		attr.setSortable(true);
 		return attr;
 	}
 }

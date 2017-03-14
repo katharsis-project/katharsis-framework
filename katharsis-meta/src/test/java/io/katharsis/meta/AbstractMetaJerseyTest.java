@@ -9,6 +9,9 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Before;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
 import io.katharsis.client.KatharsisClient;
 import io.katharsis.client.http.okhttp.OkHttpAdapter;
 import io.katharsis.client.http.okhttp.OkHttpAdapterListenerBase;
@@ -52,6 +55,8 @@ public abstract class AbstractMetaJerseyTest extends JerseyTest {
 		public TestApplication() {
 			property(KatharsisProperties.RESOURCE_SEARCH_PACKAGE, "io.katharsis.meta.mock.model");
 			KatharsisFeature feature = new KatharsisFeature();
+			ObjectMapper objectMapper = feature.getObjectMapper();
+			objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
 			feature.addModule(createModule());
 			register(feature);
 		}

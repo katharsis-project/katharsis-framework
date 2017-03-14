@@ -46,7 +46,7 @@ public class MetaAttributeImplTest {
 		MetaMapType mapType = attr.getType().asMap();
 		Assert.assertTrue(mapType.isMap());
 		Assert.assertEquals(String.class, mapType.getKeyType().getImplementationClass());
-		Assert.assertEquals(String.class, mapType.getValueType().getImplementationClass());
+		Assert.assertEquals(String.class, mapType.getElementType().getImplementationClass());
 		Assert.assertEquals(String.class, attr.getType().getElementType().getImplementationClass());
 	}
 

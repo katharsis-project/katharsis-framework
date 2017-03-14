@@ -22,9 +22,13 @@ public abstract class MetaDataObjectProvider extends MetaDataObjectProviderBase<
 			superMeta = context.getLookup().getMeta(superClazz, getMetaClass());
 		}
 		MetaDataObject meta = newDataObject();
+		meta.setElementType(meta);
 		meta.setName(rawClazz.getSimpleName());
 		meta.setImplementationType(type);
 		meta.setSuperType((MetaDataObject) superMeta);
+		if (superMeta != null) {
+			((MetaDataObject) superMeta).addSubType(meta);
+		}
 		createAttributes(meta);
 		return meta;
 	}
@@ -38,8 +42,8 @@ public abstract class MetaDataObjectProvider extends MetaDataObjectProviderBase<
 			MetaDataObject parent = attr.getParent();
 			Type implementationType = PropertyUtils.getPropertyType(parent.getImplementationClass(), attr.getName());
 			MetaElement metaType = context.getLookup().getMeta(implementationType, getMetaClass(), true);
-			if(metaType == null){
-				 metaType = context.getLookup().getMeta(implementationType);
+			if (metaType == null) {
+				metaType = context.getLookup().getMeta(implementationType);
 			}
 			attr.setType(metaType.asType());
 		}

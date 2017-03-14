@@ -16,7 +16,7 @@ public class MetaLookupTest {
 	public void testObjectArrayMeta() {
 		MetaLookup lookup = new MetaLookup();
 		lookup.addProvider(new JpaMetaProvider());
-		
+
 		MetaArrayType meta = lookup.getArrayMeta(TestEntity[].class, MetaEntity.class);
 		MetaType elementType = meta.getElementType();
 		Assert.assertTrue(elementType instanceof MetaDataObject);

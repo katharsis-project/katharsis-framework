@@ -111,7 +111,7 @@ public final class QueryFilterBuilder<P, F> {
 
 		MetaType valueType = attr.getType();
 		if (valueType instanceof MetaMapType) {
-			valueType = ((MetaMapType) valueType).getValueType();
+			valueType = ((MetaMapType) valueType).getElementType();
 		}
 
 		boolean anyType = AnyTypeObject.class.isAssignableFrom(valueType.getImplementationClass());

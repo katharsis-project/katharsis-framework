@@ -83,6 +83,7 @@ public class TestMultipleMetaForSameType extends AbstractMetaTest {
 			Class<?> rawType = ClassUtils.getRawType(type);
 			MetaDummyDataObject dummy = new MetaDummyDataObject();
 			dummy.setName(rawType.getSimpleName());
+			dummy.setElementType(dummy);
 			dummy.setImplementationType(type);
 			return dummy;
 		}
