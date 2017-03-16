@@ -3,6 +3,9 @@ package io.katharsis.meta.model.resource;
 import io.katharsis.meta.model.MetaAttribute;
 import io.katharsis.resource.annotations.JsonApiResource;
 
+/**
+ * Field of a JSON API resource.
+ */
 @JsonApiResource(type = "meta/resourceField")
 public class MetaResourceField extends MetaAttribute {
 

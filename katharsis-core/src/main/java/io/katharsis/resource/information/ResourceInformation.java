@@ -88,14 +88,14 @@ public class ResourceInformation {
 
 		if (fields != null) {
 			List<ResourceField> idFields = ResourceFieldType.ID.filter(fields);
-			if (idFields.isEmpty()) {
+			if (resourceType != null && idFields.isEmpty()) {
 				throw new ResourceIdNotFoundException(resourceClass.getCanonicalName());
 			}
 			if (idFields.size() > 1) {
 				throw new ResourceDuplicateIdException(resourceClass.getCanonicalName());
 			}
 
-			this.idField = idFields.get(0);
+			this.idField = idFields.isEmpty() ? null : idFields.get(0);
 
 			this.attributeFields = new ResourceAttributesBridge(ResourceFieldType.ATTRIBUTE.filter(fields), resourceClass);
 			this.relationshipFields = ResourceFieldType.RELATIONSHIP.filter(fields);

@@ -22,7 +22,7 @@ import io.katharsis.resource.annotations.SerializeType;
 @JsonApiResource(type = "meta/attribute")
 public class MetaAttribute extends MetaElement {
 
-	@JsonApiRelation(serialize=SerializeType.LAZY)
+	@JsonApiRelation(serialize = SerializeType.LAZY)
 	private MetaType type;
 
 	private boolean association;
@@ -48,7 +48,11 @@ public class MetaAttribute extends MetaElement {
 
 	private boolean filterable;
 
-	@JsonApiRelation(serialize=SerializeType.LAZY)
+	private boolean insertable;
+
+	private boolean updatable;
+
+	@JsonApiRelation(serialize = SerializeType.LAZY)
 	private MetaAttribute oppositeAttribute;
 
 	private void initAccessors() {
@@ -209,4 +213,21 @@ public class MetaAttribute extends MetaElement {
 	public void setFilterable(boolean filterable) {
 		this.filterable = filterable;
 	}
+
+	public boolean isInsertable() {
+		return insertable;
+	}
+
+	public void setInsertable(boolean insertable) {
+		this.insertable = insertable;
+	}
+
+	public boolean isUpdatable() {
+		return updatable;
+	}
+
+	public void setUpdatable(boolean updatable) {
+		this.updatable = updatable;
+	}
+
 }

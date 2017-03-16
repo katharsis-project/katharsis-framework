@@ -38,8 +38,8 @@ import io.katharsis.meta.model.MetaAttribute;
 import io.katharsis.meta.model.MetaDataObject;
 import io.katharsis.meta.model.MetaElement;
 import io.katharsis.meta.model.MetaType;
-import io.katharsis.meta.model.resource.MetaJsonObject;
 import io.katharsis.meta.model.resource.MetaResource;
+import io.katharsis.meta.model.resource.MetaResourceBase;
 import io.katharsis.meta.provider.resource.ResourceMetaProvider;
 import io.katharsis.module.Module;
 import io.katharsis.queryspec.QuerySpec;
@@ -416,7 +416,7 @@ public class JpaModule implements Module {
 	private void setupRelationshipRepositories(Class<?> resourceClass, boolean mapped) {
 		MetaLookup metaLookup = mapped ? resourceMetaLookup : jpaMetaLookup;
 
-		Class<? extends MetaDataObject> metaClass = mapped ? MetaJsonObject.class : MetaJpaDataObject.class;
+		Class<? extends MetaDataObject> metaClass = mapped ? MetaResourceBase.class : MetaJpaDataObject.class;
 		MetaDataObject meta = metaLookup.getMeta(resourceClass, metaClass);
 
 		for (MetaAttribute attr : meta.getAttributes()) {

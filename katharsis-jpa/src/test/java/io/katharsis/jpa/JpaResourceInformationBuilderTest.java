@@ -15,6 +15,7 @@ import org.junit.Test;
 import io.katharsis.jpa.internal.JpaResourceInformationBuilder;
 import io.katharsis.jpa.merge.MergedResource;
 import io.katharsis.jpa.meta.JpaMetaProvider;
+import io.katharsis.jpa.model.AnnotationTestEntity;
 import io.katharsis.jpa.model.RelatedEntity;
 import io.katharsis.jpa.model.TestEmbeddable;
 import io.katharsis.jpa.model.TestEntity;
@@ -40,8 +41,7 @@ public class JpaResourceInformationBuilderTest {
 	}
 
 	@Test
-	public void test()
-			throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
+	public void test() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
 
 		ResourceInformation info = builder.build(TestEntity.class);
 		ResourceField idField = info.getIdField();
@@ -50,6 +50,10 @@ public class JpaResourceInformationBuilderTest {
 		assertEquals("id", idField.getUnderlyingName());
 		assertEquals(Long.class, idField.getType());
 		assertEquals(Long.class, idField.getGenericType());
+		Assert.assertTrue(idField.isPostable());
+		Assert.assertFalse(idField.isPatchable());
+		Assert.assertTrue(idField.isSortable());
+		Assert.assertTrue(idField.isFilterable());
 
 		List<ResourceField> attrFields = new ArrayList<ResourceField>(info.getAttributeFields().getFields());
 		Collections.sort(attrFields, ResourceFieldComparator.INSTANCE);
@@ -59,6 +63,10 @@ public class JpaResourceInformationBuilderTest {
 		assertEquals(TestEntity.ATTR_embValue, embField.getUnderlyingName());
 		assertEquals(TestEmbeddable.class, embField.getType());
 		assertEquals(TestEmbeddable.class, embField.getGenericType());
+		Assert.assertTrue(embField.isPostable());
+		Assert.assertTrue(embField.isPatchable());
+		Assert.assertTrue(embField.isSortable());
+		Assert.assertTrue(embField.isFilterable());
 
 		ArrayList<ResourceField> relFields = new ArrayList<ResourceField>(info.getRelationshipFields());
 		Collections.sort(relFields, ResourceFieldComparator.INSTANCE);
@@ -73,6 +81,30 @@ public class JpaResourceInformationBuilderTest {
 			}
 		}
 		Assert.assertTrue(found);
+	}
+
+	@Test
+	public void testAttributeAnnotations() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
+		ResourceInformation info = builder.build(AnnotationTestEntity.class);
+
+		ResourceField lobField = info.findAttributeFieldByName("lobValue");
+		ResourceField fieldAnnotatedField = info.findAttributeFieldByName("fieldAnnotatedValue");
+		ResourceField columnAnnotatedField = info.findAttributeFieldByName("columnAnnotatedValue");
+
+		Assert.assertFalse(lobField.isSortable());
+		Assert.assertFalse(lobField.isFilterable());
+		Assert.assertTrue(lobField.isPostable());
+		Assert.assertTrue(lobField.isPatchable());
+
+		Assert.assertFalse(fieldAnnotatedField.isSortable());
+		Assert.assertFalse(fieldAnnotatedField.isFilterable());
+		Assert.assertTrue(fieldAnnotatedField.isPostable());
+		Assert.assertFalse(fieldAnnotatedField.isPatchable());
+
+		Assert.assertTrue(columnAnnotatedField.isSortable());
+		Assert.assertTrue(columnAnnotatedField.isFilterable());
+		Assert.assertFalse(columnAnnotatedField.isPostable());
+		Assert.assertTrue(columnAnnotatedField.isPatchable());
 	}
 
 	@Test

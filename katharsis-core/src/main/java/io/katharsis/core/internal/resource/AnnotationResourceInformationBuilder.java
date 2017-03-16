@@ -2,6 +2,7 @@ package io.katharsis.core.internal.resource;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
@@ -22,6 +23,7 @@ import io.katharsis.core.internal.utils.ClassUtils;
 import io.katharsis.core.internal.utils.FieldOrderedComparator;
 import io.katharsis.core.internal.utils.StringUtils;
 import io.katharsis.errorhandling.exception.RepositoryAnnotationNotFoundException;
+import io.katharsis.resource.annotations.JsonApiField;
 import io.katharsis.resource.annotations.JsonApiId;
 import io.katharsis.resource.annotations.JsonApiIncludeByDefault;
 import io.katharsis.resource.annotations.JsonApiLinksInformation;
@@ -61,9 +63,13 @@ public class AnnotationResourceInformationBuilder implements ResourceInformation
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	public ResourceInformation build(Class<?> resourceClass) {
+		return build(resourceClass, true);
+	}
+	
+	public ResourceInformation build(Class<?> resourceClass, boolean allowNonResourceBaseClass) {
 		List<AnnotatedResourceField> resourceFields = getResourceFields(resourceClass);
 
-		String resourceType = getResourceType(resourceClass);
+		String resourceType = getResourceType(resourceClass, allowNonResourceBaseClass);
 
 		Optional<JsonPropertyOrder> propertyOrder = ClassUtils.getAnnotation(resourceClass, JsonPropertyOrder.class);
 		if (propertyOrder.isPresent()) {
@@ -81,6 +87,10 @@ public class AnnotationResourceInformationBuilder implements ResourceInformation
 
 	@Override
 	public String getResourceType(Class<?> resourceClass) {
+		return getResourceType(resourceClass, true);
+	}
+	
+	private String getResourceType(Class<?> resourceClass, boolean allowNonResourceBaseClass) {
 		Annotation[] annotations = resourceClass.getAnnotations();
 		for (Annotation annotation : annotations) {
 			if (annotation instanceof JsonApiResource) {
@@ -88,8 +98,11 @@ public class AnnotationResourceInformationBuilder implements ResourceInformation
 				return apiResource.type();
 			}
 		}
-		// won't reach this
-		throw new RepositoryAnnotationNotFoundException(resourceClass.getName());
+		if(allowNonResourceBaseClass){
+			throw new RepositoryAnnotationNotFoundException(resourceClass.getName());
+		}else{
+			return null;
+		}
 	}
 
 	private List<AnnotatedResourceField> getResourceFields(Class<?> resourceClass) {
@@ -106,17 +119,45 @@ public class AnnotationResourceInformationBuilder implements ResourceInformation
 		for (Field field : classFields) {
 			String jsonName = resourceFieldNameTransformer.getName(field);
 			String underlyingName = field.getName();
-			List<Annotation> annotations = Arrays.asList(field.getAnnotations());
-			ResourceFieldType resourceFieldType = AnnotatedResourceField.getResourceFieldType(annotations);
-			String oppositeResourceType = resourceFieldType == ResourceFieldType.RELATIONSHIP ? getResourceType(field.getGenericType(), context) : null;
-			AnnotatedResourceField resourceField = new AnnotatedResourceField(jsonName, underlyingName, field.getType(), field.getGenericType(), oppositeResourceType, annotations);
-			if (Modifier.isTransient(field.getModifiers()) || Modifier.isStatic(field.getModifiers())) {
-				fieldWrappers.add(new ResourceFieldWrapper(resourceField, true));
-			} else {
-				fieldWrappers.add(new ResourceFieldWrapper(resourceField, false));
-			}
+			fieldWrappers.add(getResourceField(field, underlyingName, jsonName, field.getType(), field.getGenericType(), Arrays.asList(field.getAnnotations())));
 		}
 		return fieldWrappers;
+	}
+	
+	private List<ResourceFieldWrapper> getGetterResourceFields(List<Method> classGetters) {
+		List<ResourceFieldWrapper> fieldWrappers = new ArrayList<>(classGetters.size());
+		for (Method getter : classGetters) {
+			String jsonName = resourceFieldNameTransformer.getName(getter);
+			String underlyingName = resourceFieldNameTransformer.getMethodName(getter);
+			fieldWrappers.add(getResourceField(getter, jsonName, underlyingName, getter.getReturnType(), getter.getGenericReturnType(), Arrays.asList(getter.getAnnotations())));
+		}
+		return fieldWrappers;
+	}
+	
+	private ResourceFieldWrapper getResourceField(Member member, String underlyingName, String jsonName, Class<?> type, Type genericType, List<Annotation> annotations) {
+		ResourceFieldType resourceFieldType = AnnotatedResourceField.getResourceFieldType(annotations);
+		String oppositeResourceType = resourceFieldType == ResourceFieldType.RELATIONSHIP ? getResourceType(genericType, context) : null;
+		
+		boolean sortable = true;
+		boolean filterable = true;
+		boolean postable = true;
+		boolean patchable = resourceFieldType != ResourceFieldType.ID;
+		
+		JsonApiField fieldAnnotation = AnnotatedResourceField.getFieldAnnotation(annotations);
+		if(fieldAnnotation != null){
+			sortable = fieldAnnotation.sortable();
+			filterable = fieldAnnotation.filterable();
+			postable = fieldAnnotation.postable();
+			patchable = fieldAnnotation.patchable();
+		}
+		
+		AnnotatedResourceField resourceField = new AnnotatedResourceField(jsonName, underlyingName, type, genericType, oppositeResourceType,
+			annotations, sortable, filterable, postable, patchable);
+		if (Modifier.isTransient(member.getModifiers()) || Modifier.isStatic(member.getModifiers())) {
+			return new ResourceFieldWrapper(resourceField, true);
+		} else {
+			return new ResourceFieldWrapper(resourceField, false);
+		}
 	}
 
 	public static String getResourceType(Type genericType, ResourceInformationBuilderContext context) {
@@ -126,24 +167,6 @@ public class AnnotationResourceInformationBuilder implements ResourceInformation
 		}
 		Class<?> rawType = ClassUtils.getRawType(elementType);
 		return context.accept(rawType) ? context.getResourceType(rawType) : null;
-	}
-
-	private List<ResourceFieldWrapper> getGetterResourceFields(List<Method> classGetters) {
-		List<ResourceFieldWrapper> fieldWrappers = new ArrayList<>(classGetters.size());
-		for (Method getter : classGetters) {
-			String jsonName = resourceFieldNameTransformer.getName(getter);
-			String underlyingName = resourceFieldNameTransformer.getMethodName(getter);
-			List<Annotation> annotations = Arrays.asList(getter.getAnnotations());
-			ResourceFieldType resourceFieldType = AnnotatedResourceField.getResourceFieldType(annotations);
-			String oppositeResourceType = resourceFieldType == ResourceFieldType.RELATIONSHIP ? getResourceType(getter.getGenericReturnType(), context) : null;
-			AnnotatedResourceField resourceField = new AnnotatedResourceField(jsonName, underlyingName, getter.getReturnType(), getter.getGenericReturnType(), oppositeResourceType, annotations);
-			if (Modifier.isStatic(getter.getModifiers())) {
-				fieldWrappers.add(new ResourceFieldWrapper(resourceField, true));
-			} else {
-				fieldWrappers.add(new ResourceFieldWrapper(resourceField, false));
-			}
-		}
-		return fieldWrappers;
 	}
 
 	private List<AnnotatedResourceField> getResourceFields(List<ResourceFieldWrapper> resourceClassFields, List<ResourceFieldWrapper> resourceGetterFields) {
@@ -196,7 +219,12 @@ public class AnnotationResourceInformationBuilder implements ResourceInformation
 		Class<?> fieldType = mergeFieldType(fromField, fromMethod);
 		Type fieldGenericType = mergeGenericType(fromField, fromMethod);
 		String oppositeResourceType = getResourceType(fieldGenericType, context);
-		return new AnnotatedResourceField(fromField.getJsonName(), fromField.getUnderlyingName(), fieldType, fieldGenericType, oppositeResourceType, annotations);
+		boolean sortable = fromField.isSortable() && fromMethod.isSortable();
+		boolean filterable = fromField.isFilterable() && fromMethod.isFilterable();
+		boolean postable = fromField.isPostable() && fromMethod.isPostable();
+		boolean patchable = fromField.isPatchable() && fromMethod.isPatchable();
+		return new AnnotatedResourceField(fromField.getJsonName(), fromField.getUnderlyingName(), fieldType, fieldGenericType, oppositeResourceType, annotations,
+				sortable, filterable, postable, patchable);
 	}
 
 	private static Class<?> mergeFieldType(AnnotatedResourceField fromField, AnnotatedResourceField fromMethod) {
@@ -250,9 +278,9 @@ public class AnnotationResourceInformationBuilder implements ResourceInformation
 
 		private List<Annotation> annotations;
 
-		public AnnotatedResourceField(String jsonName, String underlyingName, Class<?> type, Type genericType, String oppositeResourceType, List<Annotation> annotations) {
+		public AnnotatedResourceField(String jsonName, String underlyingName, Class<?> type, Type genericType, String oppositeResourceType, List<Annotation> annotations, boolean sortable, boolean filterable, boolean postable, boolean patchable) {
 			super(jsonName, underlyingName, getResourceFieldType(annotations), type, genericType, oppositeResourceType, getOppositeName(annotations), isLazy(annotations), getIncludeByDefault(annotations),
-					getLookupIncludeBehavior(annotations));
+					getLookupIncludeBehavior(annotations), sortable, filterable, postable, patchable);
 			this.annotations = annotations;
 		}
 
@@ -282,6 +310,15 @@ public class AnnotationResourceInformationBuilder implements ResourceInformation
 				}
 			}
 			return false;
+		}
+
+		public static JsonApiField getFieldAnnotation(Collection<Annotation> annotations) {
+			for (Annotation annotation : annotations) {
+				if (annotation instanceof JsonApiField) {
+					return (JsonApiField) annotation;
+				}
+			}
+			return null;
 		}
 
 		public static LookupIncludeBehavior getLookupIncludeBehavior(Collection<Annotation> annotations) {

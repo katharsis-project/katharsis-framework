@@ -221,15 +221,14 @@ public class MetaLookup {
 			return enumType;
 		}
 		if (isPrimitiveType(clazz)) {
-			// FIXME should long + Long really be merged???
-			String id = BASE_ID_PREFIX + clazz.getSimpleName().toLowerCase();
+			String id = BASE_ID_PREFIX + firstToLower(clazz.getSimpleName());
 
 			MetaPrimitiveType primitiveType = (MetaPrimitiveType) idElementMap.get(id);
 			if (primitiveType == null) {
 				primitiveType = new MetaPrimitiveType();
 				primitiveType.setElementType(primitiveType);
 				primitiveType.setImplementationType(type);
-				primitiveType.setName(clazz.getSimpleName().toLowerCase());
+				primitiveType.setName(firstToLower(clazz.getSimpleName()));
 				primitiveType.setId(id);
 			}
 			return primitiveType;
@@ -245,6 +244,10 @@ public class MetaLookup {
 			return arrayType;
 		}
 		return null;
+	}
+
+	private static String firstToLower(String name) {
+		return Character.toLowerCase(name.charAt(0)) + name.substring(1);
 	}
 
 	private <T extends MetaElement> T allocateMetaFromFactory(Type type, Class<? extends MetaElement> metaClass) {

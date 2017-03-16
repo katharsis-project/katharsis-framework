@@ -23,6 +23,7 @@ import io.katharsis.meta.model.resource.MetaJsonObject;
 import io.katharsis.meta.model.resource.MetaResource;
 import io.katharsis.meta.model.resource.MetaResourceAction;
 import io.katharsis.meta.model.resource.MetaResourceAction.MetaRepositoryActionType;
+import io.katharsis.meta.model.resource.MetaResourceBase;
 import io.katharsis.meta.model.resource.MetaResourceField;
 import io.katharsis.meta.model.resource.MetaResourceRepository;
 import io.katharsis.meta.provider.MetaProviderBase;
@@ -50,17 +51,19 @@ public class ResourceMetaProviderImpl extends MetaProviderBase implements Resour
 
 	@Override
 	public Set<Class<? extends MetaElement>> getMetaTypes() {
-		return new HashSet<>(Arrays.asList(MetaResource.class, MetaJsonObject.class, MetaResourceField.class));
+		return new HashSet<>(
+				Arrays.asList(MetaResource.class, MetaJsonObject.class, MetaResourceBase.class, MetaResourceField.class));
 	}
 
 	@Override
 	public boolean accept(Type type, Class<? extends MetaElement> metaClass) {
-		if (metaClass != MetaResource.class && metaClass != MetaElement.class && metaClass != MetaJsonObject.class)
+		if (metaClass != MetaResource.class && metaClass != MetaElement.class && metaClass != MetaResourceBase.class && metaClass != MetaJsonObject.class){
 			return false;
+		}
 
 		// note that the resourceRegistry might also contain none JSON API objects with a custom
 		// information builder, so only accept if a MetaResource was explicitly requested
-		if (resourceRegistry != null && (metaClass == MetaResource.class || metaClass == MetaJsonObject.class)) {
+		if (resourceRegistry != null && (metaClass == MetaResource.class)) {
 			Class<?> clazz = ClassUtils.getRawType(type);
 			if (resourceRegistry.getEntryForClass(clazz) != null) {
 				return true;
@@ -68,23 +71,26 @@ public class ResourceMetaProviderImpl extends MetaProviderBase implements Resour
 		}
 
 		// always accept if json api annotations are found
-		return ClassUtils.getRawType(type).getAnnotation(JsonApiResource.class) != null;
+		return metaClass == MetaResourceBase.class
+				|| ClassUtils.getRawType(type).getAnnotation(JsonApiResource.class) != null;
 	}
 
 	@Override
 	public MetaElement createElement(Type type, MetaProviderContext context) {
-		ResourceInformation information = getResourceInformation(ClassUtils.getRawType(type));
+		boolean enforceResourceType = type == MetaResource.class;
+		ResourceInformation information = getResourceInformation(ClassUtils.getRawType(type), enforceResourceType);
 
 		Class<?> resourceClass = information.getResourceClass();
 
 		Class<?> superClass = resourceClass.getSuperclass();
 		MetaDataObject superMeta = null;
 		if (superClass != Object.class) {
-			// super type is either MetaResource or MetaDataObject
-			superMeta = context.getLookup().getMeta(superClass, MetaJsonObject.class);
+			// super type is either MetaResource or MetaResourceBase
+			superMeta = context.getLookup().getMeta(superClass, MetaResourceBase.class);
 		}
 
-		MetaResource resource = new MetaResource();
+		String resourceType = information.getResourceType();
+		MetaResourceBase resource = resourceType != null ? new MetaResource() : new MetaResourceBase();
 		resource.setElementType(resource);
 		resource.setImplementationType(resourceClass);
 		resource.setSuperType(superMeta);
@@ -92,10 +98,15 @@ public class ResourceMetaProviderImpl extends MetaProviderBase implements Resour
 			((MetaDataObject) superMeta).addSubType(resource);
 		}
 		resource.setName(resourceClass.getSimpleName());
-		resource.setResourceType(information.getResourceType());
+
+		if (resourceType != null) {
+			((MetaResource) resource).setResourceType(resourceType);
+		}
 
 		ResourceField idField = information.getIdField();
-		addAttribute(resource, idField);
+		if (idField != null) {
+			addAttribute(resource, idField);
+		}
 
 		ResourceField metaField = information.getMetaField();
 		if (metaField != null) {
@@ -126,9 +137,7 @@ public class ResourceMetaProviderImpl extends MetaProviderBase implements Resour
 			for (RegistryEntry entry : resourceRegistry.getResources()) {
 				ResourceInformation information = entry.getResourceInformation();
 				MetaResource metaResource = context.getLookup().getMeta(information.getResourceClass(), MetaResource.class);
-
 				ResourceRepositoryInformation repositoryInformation = entry.getRepositoryInformation();
-
 				ResourceRepositoryAdapter<?, Serializable> resourceRepository = entry.getResourceRepository(null);
 				if (resourceRepository != null) {
 					MetaResourceRepository repository = discoverRepository(repositoryInformation, metaResource,
@@ -192,10 +201,10 @@ public class ResourceMetaProviderImpl extends MetaProviderBase implements Resour
 
 	@Override
 	public void onInitialized(MetaProviderContext context, MetaElement element) {
-		if (element instanceof MetaResource) {
-			MetaResource metaResource = (MetaResource) element;
+		if (element instanceof MetaResourceBase) {
+			MetaResourceBase metaResource = (MetaResourceBase) element;
 
-			ResourceInformation information = getResourceInformation(metaResource.getImplementationClass());
+			ResourceInformation information = getResourceInformation(metaResource.getImplementationClass(), false);
 			PreconditionUtil.assertNotNull(information.getResourceType(), metaResource);
 			for (ResourceField field : information.getRelationshipFields()) {
 				if (field.getOppositeName() != null) {
@@ -208,22 +217,25 @@ public class ResourceMetaProviderImpl extends MetaProviderBase implements Resour
 				}
 			}
 
-			MetaAttribute idAttr = metaResource.getAttribute(information.getIdField().getUnderlyingName());
+			ResourceField idField = information.getIdField();
+			if (idField != null) {
+				MetaAttribute idAttr = metaResource.getAttribute(idField.getUnderlyingName());
 
-			if (metaResource.getSuperType() == null || metaResource.getSuperType().getPrimaryKey() == null) {
-				MetaPrimaryKey primaryKey = new MetaPrimaryKey();
-				primaryKey.setName(metaResource.getName() + "$primaryKey");
-				primaryKey.setName(metaResource.getId() + "$primaryKey");
-				primaryKey.setElements(Arrays.asList(idAttr));
-				primaryKey.setUnique(true);
-				primaryKey.setParent(metaResource, true);
-				primaryKey.setGenerated(false);
-				metaResource.setPrimaryKey(primaryKey);
-				context.add(primaryKey);
+				if (metaResource.getSuperType() == null || metaResource.getSuperType().getPrimaryKey() == null) {
+					MetaPrimaryKey primaryKey = new MetaPrimaryKey();
+					primaryKey.setName(metaResource.getName() + "$primaryKey");
+					primaryKey.setName(metaResource.getId() + "$primaryKey");
+					primaryKey.setElements(Arrays.asList(idAttr));
+					primaryKey.setUnique(true);
+					primaryKey.setParent(metaResource, true);
+					primaryKey.setGenerated(false);
+					metaResource.setPrimaryKey(primaryKey);
+					context.add(primaryKey);
+				}
 			}
 		}
 
-		if (element instanceof MetaAttribute && element.getParent() instanceof MetaResource) {
+		if (element instanceof MetaAttribute && element.getParent() instanceof MetaResourceBase) {
 			MetaAttribute attr = (MetaAttribute) element;
 			MetaDataObject parent = attr.getParent();
 			Type implementationType = PropertyUtils.getPropertyType(parent.getImplementationClass(), attr.getName());
@@ -234,21 +246,21 @@ public class ResourceMetaProviderImpl extends MetaProviderBase implements Resour
 
 	}
 
-	private ResourceInformation getResourceInformation(Class<?> resourceClass) {
+	private ResourceInformation getResourceInformation(Class<?> resourceClass, boolean enforceResourceType) {
 		if (resourceRegistry != null) {
 			RegistryEntry entry = resourceRegistry.getEntryForClass(resourceClass);
-			PreconditionUtil.assertNotNull(resourceClass.getName(), entry);
-			return entry.getResourceInformation();
+			if (entry != null) {
+				PreconditionUtil.assertNotNull(resourceClass.getName(), entry);
+				return entry.getResourceInformation();
+			}
 		}
-		else {
-			AnnotationResourceInformationBuilder infoBuilder = new AnnotationResourceInformationBuilder(
-					new ResourceFieldNameTransformer());
-			infoBuilder.init(new DefaultResourceInformationBuilderContext(infoBuilder, new TypeParser()));
-			return infoBuilder.build(resourceClass);
-		}
+		AnnotationResourceInformationBuilder infoBuilder = new AnnotationResourceInformationBuilder(
+				new ResourceFieldNameTransformer());
+		infoBuilder.init(new DefaultResourceInformationBuilderContext(infoBuilder, new TypeParser()));
+		return infoBuilder.build(resourceClass, enforceResourceType);
 	}
 
-	private void addAttribute(MetaResource resource, ResourceField field) {
+	private void addAttribute(MetaResourceBase resource, ResourceField field) {
 		if (resource.getSuperType() != null && resource.getSuperType().hasAttribute(field.getUnderlyingName())) {
 			return; // nothing to do
 		}
@@ -263,8 +275,10 @@ public class ResourceMetaProviderImpl extends MetaProviderBase implements Resour
 		attr.setVersion(false); // TODO
 		attr.setDerived(false);
 		attr.setLazy(field.isLazy());
-		attr.setSortable(true);
-		attr.setFilterable(true);
+		attr.setSortable(field.isSortable());
+		attr.setFilterable(field.isFilterable());
+		attr.setInsertable(field.isPostable());
+		attr.setUpdatable(field.isPatchable());
 
 		PreconditionUtil.assertFalse(attr.getName(),
 				!attr.isAssociation() && MetaElement.class.isAssignableFrom(field.getElementType()));

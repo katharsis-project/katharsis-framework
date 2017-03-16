@@ -34,10 +34,12 @@ import io.katharsis.meta.model.MetaAttribute;
 import io.katharsis.meta.model.MetaDataObject;
 import io.katharsis.meta.model.MetaElement;
 import io.katharsis.meta.model.MetaKey;
+import io.katharsis.meta.model.MetaPrimaryKey;
 import io.katharsis.meta.model.MetaType;
 import io.katharsis.meta.model.resource.MetaJsonObject;
 import io.katharsis.resource.Document;
 import io.katharsis.resource.Resource;
+import io.katharsis.resource.annotations.JsonApiField;
 import io.katharsis.resource.annotations.JsonApiLinksInformation;
 import io.katharsis.resource.annotations.JsonApiMetaInformation;
 import io.katharsis.resource.annotations.LookupIncludeBehavior;
@@ -103,13 +105,12 @@ public class JpaResourceInformationBuilder implements ResourceInformationBuilder
 
 		List<ResourceField> fields = getFields(meta);
 		Set<String> ignoredFields = getIgnoredFields(meta);
-		
+
 		Class<?> superclass = resourceClass.getSuperclass();
 		String superResourceType = superclass != Object.class && superclass.getAnnotation(MappedSuperclass.class) == null ? context.getResourceType(superclass) : null;
 
 		TypeParser typeParser = context.getTypeParser();
-		return new JpaResourceInformation(typeParser, meta, resourceClass, resourceType, superResourceType, instanceBuilder, fields,
-				ignoredFields);
+		return new JpaResourceInformation(typeParser, meta, resourceClass, resourceType, superResourceType, instanceBuilder, fields, ignoredFields);
 	}
 
 	class JpaResourceInstanceBuilder<T> extends DefaultResourceInstanceBuilder<T> {
@@ -138,8 +139,7 @@ public class JpaResourceInformationBuilder implements ResourceInformationBuilder
 
 		private Set<String> ignoredFields;
 
-		public JpaResourceInformation(TypeParser typeParser, MetaDataObject meta, Class<?> resourceClass,
-				String resourceType, String superResourceType,// NOSONAR
+		public JpaResourceInformation(TypeParser typeParser, MetaDataObject meta, Class<?> resourceClass, String resourceType, String superResourceType, // NOSONAR
 				ResourceInstanceBuilder<?> instanceBuilder, List<ResourceField> fields, Set<String> ignoredFields) {
 			super(typeParser, resourceClass, resourceType, superResourceType, instanceBuilder, fields);
 			this.meta = meta;
@@ -158,12 +158,10 @@ public class JpaResourceInformationBuilder implements ResourceInformationBuilder
 			if (versionAttr != null) {
 				JsonNode versionNode = resource.getAttributes().get(versionAttr.getName());
 				if (versionNode != null) {
-					Object requestVersion = context.getTypeParser().parse(versionNode.asText(),
-							(Class) versionAttr.getType().getImplementationClass());
+					Object requestVersion = context.getTypeParser().parse(versionNode.asText(), (Class) versionAttr.getType().getImplementationClass());
 					Object currentVersion = versionAttr.getValue(entity);
 					if (!currentVersion.equals(requestVersion))
-						throw new OptimisticLockException(
-								resource.getId() + " changed from version " + requestVersion + " to " + currentVersion);
+						throw new OptimisticLockException(resource.getId() + " changed from version " + requestVersion + " to " + currentVersion);
 				}
 			}
 		}
@@ -292,6 +290,32 @@ public class JpaResourceInformationBuilder implements ResourceInformationBuilder
 		return false;
 	}
 
+	public static boolean isJpaLazy(Collection<Annotation> annotations) {
+		for (Annotation annotation : annotations) {
+			if (annotation instanceof ElementCollection) {
+				return ((ElementCollection) annotation).fetch() == FetchType.LAZY;
+			} else if (annotation instanceof ManyToOne) {
+				return ((ManyToOne) annotation).fetch() == FetchType.LAZY;
+			} else if (annotation instanceof OneToMany) {
+				return ((OneToMany) annotation).fetch() == FetchType.LAZY;
+			} else if (annotation instanceof ManyToMany) {
+				return ((ManyToMany) annotation).fetch() == FetchType.LAZY;
+			}
+		}
+		return false;
+	}
+
+	public static String getJpaOppositeName(Collection<Annotation> annotations) {
+		for (Annotation annotation : annotations) {
+			if (annotation instanceof OneToMany) {
+				return StringUtils.emptyToNull(((OneToMany) annotation).mappedBy());
+			} else if (annotation instanceof ManyToMany) {
+				return StringUtils.emptyToNull(((ManyToMany) annotation).mappedBy());
+			}
+		}
+		return null;
+	}
+
 	protected ResourceField toField(MetaDataObject meta, MetaAttribute attr) {
 		String jsonName = attr.getName();
 		String underlyingName = attr.getName();
@@ -301,40 +325,43 @@ public class JpaResourceInformationBuilder implements ResourceInformationBuilder
 		Collection<Annotation> annotations = attr.getAnnotations();
 
 		// use JPA annotations as default
-		String oppositeName = null;
-		boolean lazyDefault = false;
-		for (Annotation annotation : annotations) {
-			if (annotation instanceof ElementCollection) {
-				lazyDefault = ((ElementCollection) annotation).fetch() == FetchType.LAZY;
-			} else if (annotation instanceof ManyToOne) {
-				lazyDefault = ((ManyToOne) annotation).fetch() == FetchType.LAZY;
-			} else if (annotation instanceof OneToMany) {
-				lazyDefault = ((OneToMany) annotation).fetch() == FetchType.LAZY;
-				oppositeName = StringUtils.emptyToNull(((OneToMany) annotation).mappedBy());
-			} else if (annotation instanceof ManyToMany) {
-				lazyDefault = ((ManyToMany) annotation).fetch() == FetchType.LAZY;
-				oppositeName = StringUtils.emptyToNull(((ManyToMany) annotation).mappedBy());
-			}
-		}
+		String oppositeName = getJpaOppositeName(annotations);
+		boolean lazyDefault = isJpaLazy(annotations);
 
 		// read Katharsis annotations
 		boolean lazy = AnnotatedResourceField.isLazy(annotations, lazyDefault);
 		boolean includeByDefault = AnnotatedResourceField.getIncludeByDefault(annotations);
 
-		MetaKey primaryKey = meta.getPrimaryKey();
+		MetaPrimaryKey primaryKey = meta.getPrimaryKey();
 		boolean id = primaryKey.getElements().contains(attr);
 		boolean linksInfo = attr.getAnnotation(JsonApiLinksInformation.class) != null;
 		boolean metaInfo = attr.getAnnotation(JsonApiMetaInformation.class) != null;
 		boolean association = isAssociation(meta, attr);
 		ResourceFieldType resourceFieldType = ResourceFieldType.get(id, linksInfo, metaInfo, association);
-		String oppositeResourceType = association
-				? AnnotationResourceInformationBuilder.getResourceType(genericType, context) : null;
+		String oppositeResourceType = association ? AnnotationResourceInformationBuilder.getResourceType(genericType, context) : null;
+
+		boolean sortable;
+		boolean filterable;
+		boolean postable;
+		boolean patchable;
+
+		JsonApiField fieldAnnotation = AnnotatedResourceField.getFieldAnnotation(annotations);
+		if (fieldAnnotation != null) {
+			sortable = fieldAnnotation.sortable();
+			filterable = fieldAnnotation.filterable();
+			postable = fieldAnnotation.postable();
+			patchable = fieldAnnotation.patchable();
+		} else {
+			sortable = attr.isSortable();
+			filterable = attr.isFilterable();
+			postable = attr.isInsertable();
+			patchable = attr.isUpdatable();
+		}
 
 		// related repositories should lookup, we ignore the hibernate proxies
-		LookupIncludeBehavior lookupIncludeBehavior = AnnotatedResourceField.getLookupIncludeBehavior(annotations,
-				LookupIncludeBehavior.AUTOMATICALLY_ALWAYS);
-		return new ResourceFieldImpl(jsonName, underlyingName, resourceFieldType, type, genericType,
-				oppositeResourceType, oppositeName, lazy, includeByDefault, lookupIncludeBehavior);
+		LookupIncludeBehavior lookupIncludeBehavior = AnnotatedResourceField.getLookupIncludeBehavior(annotations, LookupIncludeBehavior.AUTOMATICALLY_ALWAYS);
+		return new ResourceFieldImpl(jsonName, underlyingName, resourceFieldType, type, genericType, oppositeResourceType, oppositeName, lazy, includeByDefault, lookupIncludeBehavior, sortable, filterable, postable,
+				patchable);
 	}
 
 	@Override

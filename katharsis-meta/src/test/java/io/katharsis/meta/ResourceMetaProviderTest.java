@@ -9,17 +9,21 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import io.katharsis.meta.mock.model.ExtendsBaseResource;
 import io.katharsis.meta.mock.model.Schedule;
 import io.katharsis.meta.mock.model.ScheduleRepository.ScheduleListLinks;
 import io.katharsis.meta.mock.model.ScheduleRepository.ScheduleListMeta;
 import io.katharsis.meta.mock.model.Task;
 import io.katharsis.meta.mock.model.Task.TaskLinksInformation;
 import io.katharsis.meta.mock.model.Task.TaskMetaInformation;
+import io.katharsis.meta.model.MetaAttribute;
+import io.katharsis.meta.model.MetaDataObject;
 import io.katharsis.meta.model.MetaElement;
 import io.katharsis.meta.model.MetaKey;
 import io.katharsis.meta.model.resource.MetaResource;
 import io.katharsis.meta.model.resource.MetaResourceAction;
 import io.katharsis.meta.model.resource.MetaResourceAction.MetaRepositoryActionType;
+import io.katharsis.meta.model.resource.MetaResourceBase;
 import io.katharsis.meta.model.resource.MetaResourceField;
 import io.katharsis.meta.model.resource.MetaResourceRepository;
 import io.katharsis.meta.provider.MetaProvider;
@@ -59,6 +63,34 @@ public class ResourceMetaProviderTest extends AbstractMetaTest {
 		Assert.assertEquals("id", primaryKey.getElements().get(0).getName());
 		Assert.assertSame(primaryKey.getElements().get(0), meta.getAttribute("id"));
 		Assert.assertTrue(meta.getPrimaryKey().isUnique());
+
+		MetaAttribute idField = primaryKey.getElements().get(0);
+		Assert.assertTrue(idField.isSortable());
+		Assert.assertTrue(idField.isFilterable());
+		Assert.assertTrue(idField.isInsertable());
+		Assert.assertFalse(idField.isUpdatable());
+	}
+
+	@Test
+	public void testInheritance() {
+		MetaResource meta = lookup.getMeta(ExtendsBaseResource.class, MetaResource.class);
+
+		Assert.assertNotNull(meta.getAttribute("name"));
+		Assert.assertNotNull(meta.getAttribute("baseName"));
+		Assert.assertNotNull(meta.getAttribute("id"));
+
+		MetaDataObject superType = meta.getSuperType();
+		Assert.assertEquals(MetaResourceBase.class, superType.getClass());
+		Assert.assertNotNull(superType.getAttribute("baseName"));
+		Assert.assertNotNull(superType.getAttribute("id"));
+
+		MetaKey primaryKey = meta.getPrimaryKey();
+		Assert.assertNotNull("id", primaryKey.getName());
+		Assert.assertEquals(1, primaryKey.getElements().size());
+		Assert.assertEquals("id", primaryKey.getElements().get(0).getName());
+		Assert.assertSame(primaryKey.getElements().get(0), meta.getAttribute("id"));
+		Assert.assertTrue(meta.getPrimaryKey().isUnique());
+
 	}
 
 	@Test
@@ -104,6 +136,23 @@ public class ResourceMetaProviderTest extends AbstractMetaTest {
 	}
 
 	@Test
+	public void testSingleValuedAttribute() {
+		MetaResource meta = lookup.getMeta(Task.class, MetaResource.class);
+
+		MetaResourceField attr = (MetaResourceField) meta.getAttribute("name");
+		Assert.assertEquals("name", attr.getName());
+		Assert.assertFalse(attr.isLazy());
+		Assert.assertFalse(attr.isMeta());
+		Assert.assertFalse(attr.isLinks());
+		Assert.assertFalse(attr.isAssociation());
+
+		Assert.assertTrue(attr.isSortable());
+		Assert.assertTrue(attr.isFilterable());
+		Assert.assertTrue(attr.isInsertable());
+		Assert.assertTrue(attr.isUpdatable());
+	}
+
+	@Test
 	public void testSingleValuedRelation() {
 		MetaResource meta = lookup.getMeta(Task.class, MetaResource.class);
 
@@ -117,6 +166,11 @@ public class ResourceMetaProviderTest extends AbstractMetaTest {
 		Assert.assertNotNull(attr.getOppositeAttribute());
 		Assert.assertNotNull("tasks", attr.getOppositeAttribute().getName());
 		Assert.assertEquals(Schedule.class, attr.getType().getImplementationClass());
+
+		Assert.assertTrue(attr.isSortable());
+		Assert.assertTrue(attr.isFilterable());
+		Assert.assertTrue(attr.isInsertable());
+		Assert.assertTrue(attr.isUpdatable());
 	}
 
 	@Test

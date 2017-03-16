@@ -1,11 +1,12 @@
 package io.katharsis.meta.model.resource;
 
-import java.util.List;
-
 import io.katharsis.resource.annotations.JsonApiResource;
 
+/**
+ * A JSON API resource.
+ */
 @JsonApiResource(type = "meta/resource")
-public class MetaResource extends MetaJsonObject {
+public class MetaResource extends MetaResourceBase {
 
 	private String resourceType;
 
@@ -15,10 +16,5 @@ public class MetaResource extends MetaJsonObject {
 
 	public String getResourceType() {
 		return resourceType;
-	}
-
-	@Override
-	public List<MetaResourceField> getDeclaredAttributes() {
-		return (List<MetaResourceField>) super.getDeclaredAttributes();
 	}
 }

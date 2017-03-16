@@ -7,6 +7,8 @@ import java.util.concurrent.Future;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -27,6 +29,7 @@ import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.annotations.JsonApiToOne;
 import io.katharsis.resource.annotations.LookupIncludeBehavior;
 import io.katharsis.resource.annotations.SerializeType;
+import io.katharsis.resource.information.ResourceField;
 import io.katharsis.resource.information.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.ResourceFieldType;
 import io.katharsis.resource.information.ResourceInformation;
@@ -59,6 +62,36 @@ public class ResourceInformationBuilderTest {
 		assertThat(resourceInformation.getResourceClass()).isNotNull().isEqualTo(Task.class);
 	}
 
+	@Test
+	public void checkJsonApiAttributeAnnotation() throws Exception {
+		ResourceInformation resourceInformation = resourceInformationBuilder.build(Task.class);
+		ResourceField field = resourceInformation.findAttributeFieldByName("description");
+		Assert.assertFalse(field.isPatchable());
+		Assert.assertFalse(field.isPostable());
+		Assert.assertFalse(field.isFilterable());
+		Assert.assertFalse(field.isSortable());
+	}
+	
+	@Test
+	public void checkJsonApiAttributeAnnotationDefaults() throws Exception {
+		ResourceInformation resourceInformation = resourceInformationBuilder.build(Task.class);
+		ResourceField field = resourceInformation.findAttributeFieldByName("name");
+		Assert.assertTrue(field.isPatchable());
+		Assert.assertTrue(field.isPostable());
+		Assert.assertTrue(field.isFilterable());
+		Assert.assertTrue(field.isSortable());
+	}
+	
+	@Test
+	public void checkJsonApiAttributeAnnotationDefaultsForIds() throws Exception {
+		ResourceInformation resourceInformation = resourceInformationBuilder.build(Task.class);
+		ResourceField field = resourceInformation.getIdField();
+		Assert.assertFalse(field.isPatchable());
+		Assert.assertTrue(field.isPostable());
+		Assert.assertTrue(field.isFilterable());
+		Assert.assertTrue(field.isSortable());
+	}
+	
 	@Test
 	public void shouldHaveIdFieldInfoForValidResource() throws Exception {
 		ResourceInformation resourceInformation = resourceInformationBuilder.build(Task.class);
