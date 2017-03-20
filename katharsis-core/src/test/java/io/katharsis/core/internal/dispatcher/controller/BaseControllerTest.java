@@ -5,11 +5,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.ExpectedException;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.katharsis.core.internal.boot.EmptyPropertiesProvider;
 import io.katharsis.core.internal.dispatcher.path.PathBuilder;
@@ -25,11 +24,14 @@ import io.katharsis.module.ModuleRegistry;
 import io.katharsis.resource.Resource;
 import io.katharsis.resource.information.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.ResourceInformationBuilder;
+import io.katharsis.resource.mock.repository.GroupToMemoRepository;
+import io.katharsis.resource.mock.repository.GroupToProjectRepository;
 import io.katharsis.resource.mock.repository.ProjectRepository;
 import io.katharsis.resource.mock.repository.ProjectToTaskRepository;
 import io.katharsis.resource.mock.repository.TaskRepository;
 import io.katharsis.resource.mock.repository.TaskToProjectRepository;
 import io.katharsis.resource.mock.repository.UserRepository;
+import io.katharsis.resource.mock.repository.UserToGroupRepository;
 import io.katharsis.resource.mock.repository.UserToProjectRepository;
 import io.katharsis.resource.registry.ConstantServiceUrlProvider;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -69,8 +71,11 @@ public abstract class BaseControllerTest {
 		ProjectRepository.clear();
 		TaskRepository.clear();
 		UserToProjectRepository.clear();
+		UserToGroupRepository.clear();
 		TaskToProjectRepository.clear();
 		ProjectToTaskRepository.clear();
+		GroupToProjectRepository.clear();
+		GroupToMemoRepository.clear();
 	}
 
 	public Resource createTask() {

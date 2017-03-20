@@ -3,34 +3,43 @@ package io.katharsis.core.internal.dispatcher.controller.resource;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 import io.katharsis.core.internal.dispatcher.controller.BaseControllerTest;
 import io.katharsis.core.internal.dispatcher.controller.RelationshipsResourcePost;
 import io.katharsis.core.internal.dispatcher.controller.ResourceGet;
 import io.katharsis.core.internal.dispatcher.controller.ResourcePost;
 import io.katharsis.core.internal.dispatcher.path.JsonPath;
+import io.katharsis.core.internal.repository.adapter.RelationshipRepositoryAdapter;
+import io.katharsis.core.internal.repository.adapter.ResourceRepositoryAdapter;
 import io.katharsis.legacy.internal.QueryParamsAdapter;
 import io.katharsis.legacy.queryParams.DefaultQueryParamsParser;
 import io.katharsis.legacy.queryParams.QueryParams;
 import io.katharsis.legacy.queryParams.QueryParamsBuilder;
+import io.katharsis.repository.request.QueryAdapter;
 import io.katharsis.repository.response.Response;
 import io.katharsis.resource.Document;
 import io.katharsis.resource.Resource;
 import io.katharsis.resource.ResourceIdentifier;
 import io.katharsis.resource.RestrictedQueryParamsMembers;
+import io.katharsis.resource.information.ResourceField;
+import io.katharsis.resource.information.ResourceInformation;
+import io.katharsis.resource.mock.models.Group;
+import io.katharsis.resource.mock.models.Memorandum;
 import io.katharsis.resource.mock.models.Project;
+import io.katharsis.resource.mock.models.User;
 import io.katharsis.resource.mock.repository.TaskToProjectRepository;
 import io.katharsis.utils.Nullable;
 
@@ -191,4 +200,86 @@ public class ResourceGetTest extends BaseControllerTest {
 		assertThat(taskResponse.getDocument().getSingleData().get().getRelationships().get("project").getData().get()).isNull();
 	}
 
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testIncludeMultipleRelations() {
+		// get repositories
+		ResourceRepositoryAdapter userRepo = resourceRegistry.findEntry(User.class).getResourceRepository(null);
+		ResourceRepositoryAdapter projectRepo = resourceRegistry.findEntry(Project.class).getResourceRepository(null);
+		ResourceRepositoryAdapter memoRepo = resourceRegistry.findEntry(Memorandum.class).getResourceRepository(null);
+		ResourceRepositoryAdapter groupRepo = resourceRegistry.findEntry(Group.class).getResourceRepository(null);
+
+		RelationshipRepositoryAdapter relRepositoryUserToGroup = resourceRegistry.findEntry(User.class).getRelationshipRepositoryForClass(Group.class, null);
+		RelationshipRepositoryAdapter relRepositoryGroupToProject = resourceRegistry.findEntry(Group.class)
+				.getRelationshipRepositoryForClass(Project.class, null);
+
+		RelationshipRepositoryAdapter relRepositoryGroupToMemo = resourceRegistry.findEntry(Group.class)
+				.getRelationshipRepositoryForClass(Memorandum.class, null);
+
+		ResourceInformation groupInfo = resourceRegistry.findEntry(Group.class).getResourceInformation();
+		ResourceField groupProjectsField = groupInfo.findRelationshipFieldByName("projects");
+		ResourceField groupMemosField = groupInfo.findRelationshipFieldByName("memoranda");
+
+		ResourceInformation userInfo = resourceRegistry.findEntry(User.class).getResourceInformation();
+		ResourceField userGroupField = userInfo.findRelationshipFieldByName("group");
+
+		// setup test data
+		// a User with a group, and a group that has one memo and one document
+
+		// - a user
+		User user = new User();
+		user.setId(1L);
+		userRepo.create(user, null);
+
+		// - a group
+		Group group = new Group();
+		group.setId(1L);
+		groupRepo.create(group, null);
+
+		// - a project
+		Project project = new Project();
+		project.setId(1L);
+		project.setName("a project");
+		projectRepo.create(project, null);
+
+		// - a memo
+		Memorandum memo = new Memorandum();
+		memo.setId(1L);
+		memo.setTitle("TPS Report reminder");
+		memo.setBody("don't forget those tps reports");
+		memoRepo.create(memo, null);
+
+		// - add the user to the group
+		relRepositoryUserToGroup.setRelation(user, group.getId(), userGroupField, null);
+		// - add the project to the group
+		relRepositoryGroupToProject.setRelations(group, Collections.singleton(project.getId()), groupProjectsField, null);
+		// - add the memo to the group
+		relRepositoryGroupToMemo.setRelations(group, Collections.singleton(memo.getId()), groupMemosField, null);
+
+		Map<String, Set<String>> params = new HashMap<>();
+		addParams(params, "include[users]", "group");
+		addParams(params, "include[users]", "group.projects");
+		addParams(params, "include[users]", "group.memoranda");
+		QueryParams queryParams = queryParamsBuilder.buildQueryParams(params);
+		QueryAdapter queryAdapter = new QueryParamsAdapter(userInfo, queryParams, resourceRegistry);
+		JsonPath jsonPath = pathBuilder.buildPath("/users/1");
+		ResourceGet sut = new ResourceGet(resourceRegistry, objectMapper, typeParser, documentMapper);
+		Response response = sut.handle(jsonPath, queryAdapter, null, null);
+		Assert.assertNotNull(response);
+		Assert.assertNotNull(response.getDocument().getData());
+		List<Resource> included = response.getDocument().getIncluded();
+		List<String> expectedIncludeTypes = Arrays.asList("groups", "projects", "memoranda");
+
+		List<String> includedTypes = new ArrayList<>();
+		for (Resource resource : included) {
+			includedTypes.add(resource.toIdentifier().getType());
+		}
+
+		for (String expectedIncludeType : expectedIncludeTypes) {
+			Assert.assertTrue("included resources must contain type: " + expectedIncludeType +
+							" but contains only: " + includedTypes.toString(),
+					includedTypes.contains(expectedIncludeType));
+		}
+		Assert.assertEquals(3, included.size());
+	}
 }

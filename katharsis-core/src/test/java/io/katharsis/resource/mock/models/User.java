@@ -6,9 +6,11 @@ import java.util.List;
 import io.katharsis.resource.annotations.JsonApiId;
 import io.katharsis.resource.annotations.JsonApiIncludeByDefault;
 import io.katharsis.resource.annotations.JsonApiLinksInformation;
+import io.katharsis.resource.annotations.JsonApiLookupIncludeAutomatically;
 import io.katharsis.resource.annotations.JsonApiMetaInformation;
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.annotations.JsonApiToMany;
+import io.katharsis.resource.annotations.JsonApiToOne;
 import io.katharsis.resource.links.LinksInformation;
 import io.katharsis.resource.meta.MetaInformation;
 
@@ -19,6 +21,10 @@ public class User {
     private Long id;
 
     private String name;
+
+    @JsonApiToOne
+    @JsonApiLookupIncludeAutomatically
+    private Group group;
 
     @JsonApiToMany(lazy = false)
     @JsonApiIncludeByDefault
@@ -81,4 +87,12 @@ public class User {
 	public void setAssignedTasks(List<Project> assignedTasks) {
 		this.assignedTasks = assignedTasks;
 	}
+
+    public Group getGroup() {
+        return group;
+    }
+
+    public void setGroup(Group group) {
+        this.group = group;
+    }
 }
