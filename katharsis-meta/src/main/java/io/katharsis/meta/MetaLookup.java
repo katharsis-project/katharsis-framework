@@ -60,6 +60,12 @@ public class MetaLookup {
 		registerPrimitiveType(String.class);
 		registerPrimitiveType(Number.class);
 		registerPrimitiveType(Boolean.class);
+		registerPrimitiveType(Integer.class);
+		registerPrimitiveType(Short.class);
+		registerPrimitiveType(Byte.class);
+		registerPrimitiveType(Long.class);
+		registerPrimitiveType(Float.class);
+		registerPrimitiveType(Double.class);
 		registerPrimitiveType(UUID.class);
 		registerPrimitiveType(Date.class);
 		registerPrimitiveType(Timestamp.class);
@@ -221,6 +227,11 @@ public class MetaLookup {
 			return enumType;
 		}
 		if (isPrimitiveType(clazz)) {
+			if(clazz == int.class){
+				// all the others match lower/upper case
+				clazz = Integer.class;
+			}
+			
 			String id = BASE_ID_PREFIX + firstToLower(clazz.getSimpleName());
 
 			MetaPrimitiveType primitiveType = (MetaPrimitiveType) idElementMap.get(id);

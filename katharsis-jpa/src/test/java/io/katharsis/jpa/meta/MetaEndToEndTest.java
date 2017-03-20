@@ -64,6 +64,51 @@ public class MetaEndToEndTest extends AbstractJpaJerseyTest {
 	}
 
 	@Test
+	public void testAttributeInsertableUpdatable() {
+		MetaLookup lookup = metaModule.getLookup();
+		MetaResource versionMeta = lookup.getMeta(VersionedEntity.class, MetaResource.class);
+		MetaAttribute idAttr = versionMeta.getAttribute("id");
+		MetaAttribute versionAttr = versionMeta.getAttribute("version");
+		MetaAttribute valueAttr = versionMeta.getAttribute("longValue");
+		Assert.assertTrue(idAttr.isInsertable());
+		Assert.assertFalse(idAttr.isUpdatable());
+		Assert.assertFalse(versionAttr.isInsertable());
+		Assert.assertFalse(versionAttr.isUpdatable());
+		Assert.assertTrue(valueAttr.isInsertable());
+		Assert.assertTrue(valueAttr.isUpdatable());
+
+		MetaResourceBase annotationMeta = lookup.getMeta(AnnotationTestEntity.class, MetaResource.class);
+		MetaAttribute fieldAnnotatedAttr = annotationMeta.getAttribute("fieldAnnotatedValue");
+		MetaAttribute columnAnnotatedAttr = annotationMeta.getAttribute("columnAnnotatedValue");
+		Assert.assertTrue(fieldAnnotatedAttr.isInsertable());
+		Assert.assertFalse(fieldAnnotatedAttr.isUpdatable());
+		Assert.assertFalse(fieldAnnotatedAttr.isSortable());
+		Assert.assertFalse(fieldAnnotatedAttr.isFilterable());
+		Assert.assertFalse(columnAnnotatedAttr.isInsertable());
+		Assert.assertTrue(columnAnnotatedAttr.isUpdatable());
+		Assert.assertTrue(columnAnnotatedAttr.isSortable());
+		Assert.assertTrue(columnAnnotatedAttr.isFilterable());
+
+		MetaResourceBase superMeta = lookup.getMeta(AnnotationMappedSuperclassEntity.class, MetaResourceBase.class);
+		fieldAnnotatedAttr = superMeta.getAttribute("fieldAnnotatedValue");
+		columnAnnotatedAttr = superMeta.getAttribute("columnAnnotatedValue");
+		MetaAttribute lobAttr = superMeta.getAttribute("lobValue");
+		Assert.assertTrue(fieldAnnotatedAttr.isInsertable());
+		Assert.assertFalse(fieldAnnotatedAttr.isUpdatable());
+		Assert.assertFalse(fieldAnnotatedAttr.isSortable());
+		Assert.assertFalse(fieldAnnotatedAttr.isFilterable());
+		Assert.assertFalse(columnAnnotatedAttr.isInsertable());
+		Assert.assertTrue(columnAnnotatedAttr.isUpdatable());
+		Assert.assertTrue(columnAnnotatedAttr.isSortable());
+		Assert.assertTrue(columnAnnotatedAttr.isFilterable());
+		Assert.assertTrue(lobAttr.isInsertable());
+		Assert.assertTrue(lobAttr.isUpdatable());
+		Assert.assertFalse(lobAttr.isSortable());
+		Assert.assertFalse(lobAttr.isFilterable());
+		
+	}
+
+	@Test
 	public void testProjectedSequencePrimaryKey() {
 		MetaLookup lookup = metaModule.getLookup();
 		MetaResource metaResource = lookup.getMeta(SequenceEntity.class, MetaResource.class);

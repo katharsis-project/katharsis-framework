@@ -90,38 +90,31 @@ public abstract class AbstractEntityMetaProvider<T extends MetaJpaDataObject> ex
 		MetaEntityAttribute attr = new MetaEntityAttribute();
 		attr.setName(desc.getName());
 		attr.setParent(metaDataObject, true);
-		if (hasJpaAnnotations(attr)) {
-			Collection<Annotation> annotations = attr.getAnnotations();
-			ManyToMany manyManyAnnotation = attr.getAnnotation(ManyToMany.class);
-			ManyToOne manyOneAnnotation = attr.getAnnotation(ManyToOne.class);
-			OneToMany oneManyAnnotation = attr.getAnnotation(OneToMany.class);
-			OneToOne oneOneAnnotation = attr.getAnnotation(OneToOne.class);
-			Version versionAnnotation = attr.getAnnotation(Version.class);
-			Lob lobAnnotation = attr.getAnnotation(Lob.class);
-			Column columnAnnotation = attr.getAnnotation(Column.class);
 
-			boolean idAttr = attr.getAnnotation(Id.class) != null || attr.getAnnotation(EmbeddedId.class) != null;
-			boolean attrGenerated = attr.getAnnotation(GeneratedValue.class) != null;
+		Collection<Annotation> annotations = attr.getAnnotations();
+		ManyToMany manyManyAnnotation = attr.getAnnotation(ManyToMany.class);
+		ManyToOne manyOneAnnotation = attr.getAnnotation(ManyToOne.class);
+		OneToMany oneManyAnnotation = attr.getAnnotation(OneToMany.class);
+		OneToOne oneOneAnnotation = attr.getAnnotation(OneToOne.class);
+		Version versionAnnotation = attr.getAnnotation(Version.class);
+		Lob lobAnnotation = attr.getAnnotation(Lob.class);
+		Column columnAnnotation = attr.getAnnotation(Column.class);
 
-			attr.setVersion(versionAnnotation != null);
+		boolean idAttr = attr.getAnnotation(Id.class) != null || attr.getAnnotation(EmbeddedId.class) != null;
+		boolean attrGenerated = attr.getAnnotation(GeneratedValue.class) != null;
 
-			attr.setAssociation(manyManyAnnotation != null || manyOneAnnotation != null || oneManyAnnotation != null || oneOneAnnotation != null);
+		attr.setVersion(versionAnnotation != null);
 
-			attr.setLazy(JpaResourceInformationBuilder.isJpaLazy(annotations));
+		attr.setAssociation(manyManyAnnotation != null || manyOneAnnotation != null || oneManyAnnotation != null || oneOneAnnotation != null);
 
-			attr.setLob(lobAnnotation != null);;
-			attr.setFilterable(lobAnnotation == null);
-			attr.setSortable(lobAnnotation == null);
+		attr.setLazy(JpaResourceInformationBuilder.isJpaLazy(annotations));
 
-			attr.setInsertable((columnAnnotation == null || columnAnnotation.insertable()) && (!idAttr || !attrGenerated));
-			attr.setUpdatable((columnAnnotation == null || columnAnnotation.updatable()) && !idAttr);
+		attr.setLob(lobAnnotation != null);
+		attr.setFilterable(lobAnnotation == null);
+		attr.setSortable(lobAnnotation == null);
 
-		} else {
-			attr.setFilterable(true);
-			attr.setSortable(true);
-			attr.setDerived(true);
-		}
-
+		attr.setInsertable((columnAnnotation == null || columnAnnotation.insertable()) && !attrGenerated && versionAnnotation == null);
+		attr.setUpdatable((columnAnnotation == null || columnAnnotation.updatable()) && !idAttr && versionAnnotation == null);
 		return attr;
 	}
 
