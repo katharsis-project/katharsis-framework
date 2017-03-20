@@ -297,5 +297,10 @@ public class SimpleModuleTest {
 		public TypeParser getTypeParser() {
 			return null;
 		}
+
+		@Override
+		public ModuleRegistry getModuleRegistry() {
+			return null;
+		}
 	}
 }

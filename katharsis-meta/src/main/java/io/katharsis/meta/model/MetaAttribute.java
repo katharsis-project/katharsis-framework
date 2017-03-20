@@ -51,6 +51,8 @@ public class MetaAttribute extends MetaElement {
 	private boolean insertable;
 
 	private boolean updatable;
+	
+	private boolean lob;
 
 	@JsonApiRelation(serialize = SerializeType.LAZY)
 	private MetaAttribute oppositeAttribute;
@@ -229,5 +231,15 @@ public class MetaAttribute extends MetaElement {
 	public void setUpdatable(boolean updatable) {
 		this.updatable = updatable;
 	}
-
+	
+	/**
+	 * @return true if it is a potentially large object
+	 */
+	public boolean isLob() {
+		return lob;
+	}
+	
+	public void setLob(boolean blob) {
+		this.lob = blob;
+	}
 }

@@ -1,7 +1,7 @@
 package io.katharsis.resource.registry;
 
 /**
- * Can be used by repositories to obtain a ResourceRegistry instance.
+ * Can be used by repositories, filters, etc. to obtain a ResourceRegistry instance.
  */
 public interface ResourceRegistryAware {
 

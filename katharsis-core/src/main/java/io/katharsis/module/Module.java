@@ -176,5 +176,7 @@ public interface Module {
 
 		public TypeParser getTypeParser();
 
+		public ModuleRegistry getModuleRegistry();
+
 	}
 }

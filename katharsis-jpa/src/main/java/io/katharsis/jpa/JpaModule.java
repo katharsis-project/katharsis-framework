@@ -40,8 +40,10 @@ import io.katharsis.meta.model.MetaElement;
 import io.katharsis.meta.model.MetaType;
 import io.katharsis.meta.model.resource.MetaResource;
 import io.katharsis.meta.model.resource.MetaResourceBase;
+import io.katharsis.meta.provider.MetaProvider;
 import io.katharsis.meta.provider.resource.ResourceMetaProvider;
 import io.katharsis.module.Module;
+import io.katharsis.module.ModuleRegistryAware;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.repository.RelationshipRepositoryV2;
 import io.katharsis.repository.ResourceRepositoryV2;
@@ -200,7 +202,8 @@ public class JpaModule implements Module {
 	 *            to use
 	 * @return created module
 	 */
-	public static JpaModule newServerModule(EntityManagerFactory emFactory, EntityManager em, TransactionRunner transactionRunner) {
+	public static JpaModule newServerModule(EntityManagerFactory emFactory, EntityManager em,
+			TransactionRunner transactionRunner) {
 		return new JpaModule(emFactory, em, transactionRunner);
 	}
 
@@ -287,7 +290,8 @@ public class JpaModule implements Module {
 			}
 		}
 
-		private <T> void invokeFilter(JpaRepositoryFilter filter, JpaRequestContext requestContext, QuerydslTranslationContext<T> translationContext) {
+		private <T> void invokeFilter(JpaRepositoryFilter filter, JpaRequestContext requestContext,
+				QuerydslTranslationContext<T> translationContext) {
 			if (filter instanceof QuerydslRepositoryFilter) {
 				Object repository = requestContext.getRepository();
 				QuerySpec querySpec = requestContext.getQuerySpec();
@@ -321,7 +325,13 @@ public class JpaModule implements Module {
 		this.context = context;
 
 		this.jpaMetaLookup.initialize();
+
 		this.resourceMetaLookup.initialize();
+		for (MetaProvider provider : resourceMetaLookup.getProviders()) {
+			if (provider instanceof ModuleRegistryAware) {
+				((ModuleRegistryAware) provider).setModuleRegistry(context.getModuleRegistry());
+			}
+		}
 
 		context.addResourceInformationBuilder(getResourceInformationBuilder());
 		context.addExceptionMapper(new OptimisticLockExceptionMapper());
@@ -336,7 +346,8 @@ public class JpaModule implements Module {
 	class JpaRepositoryDecoratorFactory implements RepositoryDecoratorFactory {
 
 		@Override
-		public <T, I extends Serializable> ResourceRepositoryDecorator<T, I> decorateRepository(ResourceRepositoryV2<T, I> repository) {
+		public <T, I extends Serializable> ResourceRepositoryDecorator<T, I> decorateRepository(
+				ResourceRepositoryV2<T, I> repository) {
 			JpaRepositoryConfig<T> config = getRepositoryConfig(repository.getResourceClass());
 			if (config != null) {
 				return config.getRepositoryDecorator();
@@ -345,7 +356,8 @@ public class JpaModule implements Module {
 		}
 
 		@Override
-		public <T, I extends Serializable, D, J extends Serializable> RelationshipRepositoryDecorator<T, I, D, J> decorateRepository(RelationshipRepositoryV2<T, I, D, J> repository) {
+		public <T, I extends Serializable, D, J extends Serializable> RelationshipRepositoryDecorator<T, I, D, J> decorateRepository(
+				RelationshipRepositoryV2<T, I, D, J> repository) {
 			JpaRepositoryConfig<T> config = getRepositoryConfig(repository.getSourceResourceClass());
 			if (config != null) {
 				return config.getRepositoryDecorator(repository.getTargetResourceClass());
@@ -389,7 +401,8 @@ public class JpaModule implements Module {
 		}
 	}
 
-	private ResourceRepositoryV2<?, ?> filterResourceCreation(Class<?> resourceClass, JpaEntityRepository<?, ?> repository) {
+	private ResourceRepositoryV2<?, ?> filterResourceCreation(Class<?> resourceClass,
+			JpaEntityRepository<?, ?> repository) {
 		JpaEntityRepository<?, ?> filteredRepository = repository;
 		for (JpaRepositoryFilter filter : filters) {
 			if (filter.accept(resourceClass)) {
@@ -399,7 +412,8 @@ public class JpaModule implements Module {
 		return filteredRepository;
 	}
 
-	private RelationshipRepositoryV2<?, ?, ?, ?> filterRelationshipCreation(Class<?> resourceClass, JpaRelationshipRepository<?, ?, ?, ?> repository) {
+	private RelationshipRepositoryV2<?, ?, ?, ?> filterRelationshipCreation(Class<?> resourceClass,
+			JpaRelationshipRepository<?, ?, ?, ?> repository) {
 		JpaRelationshipRepository<?, ?, ?, ?> filteredRepository = repository;
 		for (JpaRepositoryFilter filter : filters) {
 			if (filter.accept(resourceClass)) {
@@ -432,22 +446,28 @@ public class JpaModule implements Module {
 
 				// only include relations that are exposed as repositories
 				if (attrConfig != null) {
-					RelationshipRepositoryV2<?, ?, ?, ?> relationshipRepository = filterRelationshipCreation(attrImplClass, repositoryFactory.createRelationshipRepository(this, resourceClass, attrConfig));
+					RelationshipRepositoryV2<?, ?, ?, ?> relationshipRepository = filterRelationshipCreation(
+							attrImplClass,
+							repositoryFactory.createRelationshipRepository(this, resourceClass, attrConfig));
 					context.addRepository(relationshipRepository);
 				}
 			} else if (attrType instanceof MetaResource) {
 				Class<?> attrImplClass = attrType.getImplementationClass();
 				JpaRepositoryConfig<?> attrConfig = getRepositoryConfig(attrImplClass);
 				if (attrConfig == null || attrConfig.getMapper() == null) {
-					throw new IllegalStateException("no mapped entity for " + attrType.getName() + " reference by " + attr.getId() + " registered");
+					throw new IllegalStateException("no mapped entity for " + attrType.getName() + " reference by "
+							+ attr.getId() + " registered");
 				}
 				JpaRepositoryConfig<?> targetConfig = getRepositoryConfig(attrImplClass);
 				Class<?> targetResourceClass = targetConfig.getResourceClass();
 
-				RelationshipRepositoryV2<?, ?, ?, ?> relationshipRepository = filterRelationshipCreation(targetResourceClass, repositoryFactory.createRelationshipRepository(this, resourceClass, attrConfig));
+				RelationshipRepositoryV2<?, ?, ?, ?> relationshipRepository = filterRelationshipCreation(
+						targetResourceClass,
+						repositoryFactory.createRelationshipRepository(this, resourceClass, attrConfig));
 				context.addRepository(relationshipRepository);
 			} else {
-				throw new IllegalStateException("unable to process relation: " + attr.getId() + ", neither a entity nor a mapped entity is referenced");
+				throw new IllegalStateException("unable to process relation: " + attr.getId()
+						+ ", neither a entity nor a mapped entity is referenced");
 			}
 		}
 	}

@@ -15,6 +15,7 @@ import io.katharsis.core.internal.utils.ClassUtils;
 import io.katharsis.core.internal.utils.PreconditionUtil;
 import io.katharsis.core.internal.utils.PropertyUtils;
 import io.katharsis.legacy.registry.DefaultResourceInformationBuilderContext;
+import io.katharsis.meta.information.MetaAwareInformation;
 import io.katharsis.meta.model.MetaAttribute;
 import io.katharsis.meta.model.MetaDataObject;
 import io.katharsis.meta.model.MetaElement;
@@ -28,6 +29,8 @@ import io.katharsis.meta.model.resource.MetaResourceField;
 import io.katharsis.meta.model.resource.MetaResourceRepository;
 import io.katharsis.meta.provider.MetaProviderBase;
 import io.katharsis.meta.provider.MetaProviderContext;
+import io.katharsis.module.ModuleRegistry;
+import io.katharsis.module.ModuleRegistryAware;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.repository.ResourceRepositoryV2;
 import io.katharsis.repository.information.RepositoryAction;
@@ -37,17 +40,20 @@ import io.katharsis.resource.information.ResourceField;
 import io.katharsis.resource.information.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.ResourceFieldType;
 import io.katharsis.resource.information.ResourceInformation;
+import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.links.LinksInformation;
 import io.katharsis.resource.list.ResourceListBase;
 import io.katharsis.resource.meta.MetaInformation;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryAware;
+import io.katharsis.utils.Optional;
 import io.katharsis.utils.parser.TypeParser;
 
-public class ResourceMetaProviderImpl extends MetaProviderBase implements ResourceRegistryAware {
+public class ResourceMetaProviderImpl extends MetaProviderBase implements ResourceRegistryAware, ModuleRegistryAware {
 
 	private ResourceRegistry resourceRegistry;
+	private ModuleRegistry moduleRegistry;
 
 	@Override
 	public Set<Class<? extends MetaElement>> getMetaTypes() {
@@ -57,7 +63,8 @@ public class ResourceMetaProviderImpl extends MetaProviderBase implements Resour
 
 	@Override
 	public boolean accept(Type type, Class<? extends MetaElement> metaClass) {
-		if (metaClass != MetaResource.class && metaClass != MetaElement.class && metaClass != MetaResourceBase.class && metaClass != MetaJsonObject.class){
+		if (metaClass != MetaResource.class && metaClass != MetaElement.class && metaClass != MetaResourceBase.class
+				&& metaClass != MetaJsonObject.class) {
 			return false;
 		}
 
@@ -71,14 +78,13 @@ public class ResourceMetaProviderImpl extends MetaProviderBase implements Resour
 		}
 
 		// always accept if json api annotations are found
-		return metaClass == MetaResourceBase.class
-				|| ClassUtils.getRawType(type).getAnnotation(JsonApiResource.class) != null;
+		return metaClass == MetaResourceBase.class || ClassUtils.getRawType(type).getAnnotation(JsonApiResource.class) != null;
 	}
 
 	@Override
 	public MetaElement createElement(Type type, MetaProviderContext context) {
-		boolean enforceResourceType = type == MetaResource.class;
-		ResourceInformation information = getResourceInformation(ClassUtils.getRawType(type), enforceResourceType);
+		boolean allowNonResourceBaseClass = type != MetaResource.class;
+		ResourceInformation information = getResourceInformation(ClassUtils.getRawType(type), allowNonResourceBaseClass);
 
 		Class<?> resourceClass = information.getResourceClass();
 
@@ -204,7 +210,7 @@ public class ResourceMetaProviderImpl extends MetaProviderBase implements Resour
 		if (element instanceof MetaResourceBase) {
 			MetaResourceBase metaResource = (MetaResourceBase) element;
 
-			ResourceInformation information = getResourceInformation(metaResource.getImplementationClass(), false);
+			ResourceInformation information = getResourceInformation(metaResource.getImplementationClass(), true);
 			PreconditionUtil.assertNotNull(information.getResourceType(), metaResource);
 			for (ResourceField field : information.getRelationshipFields()) {
 				if (field.getOppositeName() != null) {
@@ -228,11 +234,21 @@ public class ResourceMetaProviderImpl extends MetaProviderBase implements Resour
 					primaryKey.setElements(Arrays.asList(idAttr));
 					primaryKey.setUnique(true);
 					primaryKey.setParent(metaResource, true);
-					primaryKey.setGenerated(false);
 					metaResource.setPrimaryKey(primaryKey);
 					context.add(primaryKey);
 				}
 			}
+
+			// enrich with information from underlying meta model if available
+			if (information instanceof MetaAwareInformation
+					&& ((MetaAwareInformation<?>) information).getProjectedMetaElement().isPresent()) {
+				MetaDataObject projectedMeta = ((MetaAwareInformation<MetaDataObject>) information).getProjectedMetaElement()
+						.get();
+				if (metaResource.getPrimaryKey() != null && projectedMeta.getPrimaryKey() != null) {
+					metaResource.getPrimaryKey().setGenerated(projectedMeta.getPrimaryKey().isGenerated());
+				}
+			}
+
 		}
 
 		if (element instanceof MetaAttribute && element.getParent() instanceof MetaResourceBase) {
@@ -246,7 +262,7 @@ public class ResourceMetaProviderImpl extends MetaProviderBase implements Resour
 
 	}
 
-	private ResourceInformation getResourceInformation(Class<?> resourceClass, boolean enforceResourceType) {
+	private ResourceInformation getResourceInformation(Class<?> resourceClass, boolean allowNonResourceBaseClass) {
 		if (resourceRegistry != null) {
 			RegistryEntry entry = resourceRegistry.getEntryForClass(resourceClass);
 			if (entry != null) {
@@ -254,10 +270,17 @@ public class ResourceMetaProviderImpl extends MetaProviderBase implements Resour
 				return entry.getResourceInformation();
 			}
 		}
-		AnnotationResourceInformationBuilder infoBuilder = new AnnotationResourceInformationBuilder(
+
+		ResourceInformationBuilder infoBuilder = moduleRegistry.getResourceInformationBuilder();
+		if(infoBuilder.accept(resourceClass)){
+			return infoBuilder.build(resourceClass);
+		}
+		
+		// fallback TODO really needed?
+		AnnotationResourceInformationBuilder fallbackBuilder = new AnnotationResourceInformationBuilder(
 				new ResourceFieldNameTransformer());
-		infoBuilder.init(new DefaultResourceInformationBuilderContext(infoBuilder, new TypeParser()));
-		return infoBuilder.build(resourceClass, enforceResourceType);
+		fallbackBuilder.init(new DefaultResourceInformationBuilderContext(infoBuilder, new TypeParser()));
+		return fallbackBuilder.build(resourceClass, allowNonResourceBaseClass);
 	}
 
 	private void addAttribute(MetaResourceBase resource, ResourceField field) {
@@ -272,7 +295,6 @@ public class ResourceMetaProviderImpl extends MetaProviderBase implements Resour
 		attr.setAssociation(field.getResourceFieldType() == ResourceFieldType.RELATIONSHIP);
 		attr.setMeta(field.getResourceFieldType() == ResourceFieldType.META_INFORMATION);
 		attr.setLinks(field.getResourceFieldType() == ResourceFieldType.LINKS_INFORMATION);
-		attr.setVersion(false); // TODO
 		attr.setDerived(false);
 		attr.setLazy(field.isLazy());
 		attr.setSortable(field.isSortable());
@@ -283,15 +305,25 @@ public class ResourceMetaProviderImpl extends MetaProviderBase implements Resour
 		PreconditionUtil.assertFalse(attr.getName(),
 				!attr.isAssociation() && MetaElement.class.isAssignableFrom(field.getElementType()));
 
-		// FIXME
-		//		field.getJsonName()
-		//		field.getLookupIncludeAutomatically()
-		//		field.getOppositeName()
-		//		field.getIncludeByDefault()
+		// enrich with information not available in the katharsis information model
+		if (field instanceof MetaAwareInformation) {
+			MetaAwareInformation<MetaAttribute> metaField = (MetaAwareInformation<MetaAttribute>) field;
+			Optional<MetaAttribute> projectedElement = metaField.getProjectedMetaElement();
+			if (projectedElement.isPresent()) {
+				MetaAttribute projectedAttr = projectedElement.get();
+				attr.setLob(projectedAttr.isLob());
+				attr.setVersion(projectedAttr.isVersion()); // TODO support in katharsis information model
+			}
+		}
 	}
 
 	@Override
 	public void setResourceRegistry(ResourceRegistry resourceRegistry) {
 		this.resourceRegistry = resourceRegistry;
+	}
+
+	@Override
+	public void setModuleRegistry(ModuleRegistry moduleRegistry) {
+		this.moduleRegistry = moduleRegistry;
 	}
 }

@@ -11,9 +11,11 @@ import io.katharsis.meta.mock.model.Schedule;
 import io.katharsis.meta.model.MetaDataObject;
 import io.katharsis.meta.model.MetaElement;
 import io.katharsis.meta.model.resource.MetaResource;
+import io.katharsis.meta.provider.MetaProvider;
 import io.katharsis.meta.provider.MetaProviderBase;
 import io.katharsis.meta.provider.MetaProviderContext;
 import io.katharsis.meta.provider.resource.ResourceMetaProvider;
+import io.katharsis.module.ModuleRegistryAware;
 
 /**
  * e.g. an entity can be both a resource and a entity.
@@ -32,6 +34,12 @@ public class TestMultipleMetaForSameType extends AbstractMetaTest {
 		lookup = new MetaLookup();
 		lookup.addProvider(provider);
 		lookup.addProvider(new DummyMetaProvider());
+		for (MetaProvider p : lookup.getProviders()) {
+			if (p instanceof ModuleRegistryAware) {
+				((ModuleRegistryAware) p).setModuleRegistry(boot.getModuleRegistry());
+			}
+
+		}
 
 		// this will triger to avoid reading the JSON API annotations and treat it as a dummy POJO
 		lookup.putIdMapping("io.katharsis.meta.mock.model", MetaDummyDataObject.class, "app.dummy");

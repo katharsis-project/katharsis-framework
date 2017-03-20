@@ -5,10 +5,16 @@ import org.junit.Before;
 import org.junit.Test;
 
 import io.katharsis.jpa.AbstractJpaJerseyTest;
+import io.katharsis.jpa.model.AnnotationMappedSuperclassEntity;
+import io.katharsis.jpa.model.AnnotationTestEntity;
+import io.katharsis.jpa.model.SequenceEntity;
 import io.katharsis.jpa.model.TestEntity;
+import io.katharsis.jpa.model.VersionedEntity;
+import io.katharsis.jpa.model.dto.TestDTO;
 import io.katharsis.meta.MetaLookup;
 import io.katharsis.meta.model.MetaAttribute;
 import io.katharsis.meta.model.MetaDataObject;
+import io.katharsis.meta.model.MetaKey;
 import io.katharsis.meta.model.resource.MetaJsonObject;
 import io.katharsis.meta.model.resource.MetaResource;
 import io.katharsis.meta.model.resource.MetaResourceBase;
@@ -28,8 +34,53 @@ public class MetaEndToEndTest extends AbstractJpaJerseyTest {
 		Assert.assertNotNull(testMeta);
 		MetaDataObject superMeta = testMeta.getSuperType();
 		Assert.assertEquals(MetaResourceBase.class, superMeta.getClass());
-		
+
 		MetaAttribute embAttrMeta = testMeta.getAttribute(TestEntity.ATTR_embValue);
 		Assert.assertEquals(MetaJsonObject.class, embAttrMeta.getType().getClass());
 	}
+
+	@Test
+	public void testProjectedLob() {
+		MetaLookup lookup = metaModule.getLookup();
+		MetaResource metaResource = lookup.getMeta(AnnotationTestEntity.class, MetaResource.class);
+		MetaAttribute lobAttr = metaResource.getAttribute("lobValue");
+		Assert.assertTrue(lobAttr.isLob());
+	}
+
+	@Test
+	public void testProjectedLobOnMappedSuperclass() {
+		MetaLookup lookup = metaModule.getLookup();
+		MetaResourceBase metaResource = lookup.getMeta(AnnotationMappedSuperclassEntity.class, MetaResourceBase.class);
+		MetaAttribute lobAttr = metaResource.getAttribute("lobValue");
+		Assert.assertTrue(lobAttr.isLob());
+	}
+
+	@Test
+	public void testProjectedVersion() {
+		MetaLookup lookup = metaModule.getLookup();
+		MetaResource metaResource = lookup.getMeta(VersionedEntity.class, MetaResource.class);
+		MetaAttribute versionAttr = metaResource.getAttribute("version");
+		Assert.assertTrue(versionAttr.isVersion());
+	}
+
+	@Test
+	public void testProjectedSequencePrimaryKey() {
+		MetaLookup lookup = metaModule.getLookup();
+		MetaResource metaResource = lookup.getMeta(SequenceEntity.class, MetaResource.class);
+		Assert.assertTrue(metaResource.getPrimaryKey().isGenerated());
+	}
+
+	@Test
+	public void testDtoMeta() {
+		MetaLookup lookup = metaModule.getLookup();
+		MetaResource meta = lookup.getMeta(TestDTO.class, MetaResource.class);
+		MetaKey primaryKey = meta.getPrimaryKey();
+		Assert.assertNotNull(primaryKey);
+		Assert.assertEquals(1, primaryKey.getElements().size());
+		Assert.assertEquals("id", primaryKey.getElements().get(0).getName());
+
+		MetaAttribute oneRelatedAttr = meta.getAttribute("oneRelatedValue");
+		Assert.assertTrue(oneRelatedAttr.isAssociation());
+	}
+
 }

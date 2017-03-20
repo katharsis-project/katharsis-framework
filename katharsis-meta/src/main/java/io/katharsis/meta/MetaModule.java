@@ -24,6 +24,7 @@ import io.katharsis.meta.model.MetaType;
 import io.katharsis.meta.provider.MetaProvider;
 import io.katharsis.module.InitializingModule;
 import io.katharsis.module.Module;
+import io.katharsis.module.ModuleRegistryAware;
 import io.katharsis.resource.information.ResourceField;
 import io.katharsis.resource.information.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.ResourceInformation;
@@ -117,6 +118,9 @@ public class MetaModule implements Module, InitializingModule {
 		for (MetaProvider provider : lookup.getProviders()) {
 			if (provider instanceof ResourceRegistryAware) {
 				((ResourceRegistryAware) provider).setResourceRegistry(context.getResourceRegistry());
+			}
+			if (provider instanceof ModuleRegistryAware) {
+				((ModuleRegistryAware) provider).setModuleRegistry(context.getModuleRegistry());
 			}
 		}
 		lookup.initialize();

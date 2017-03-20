@@ -2,6 +2,8 @@ package io.katharsis.repository.decorate;
 
 import java.io.Serializable;
 
+import io.katharsis.module.ModuleRegistry;
+import io.katharsis.module.ModuleRegistryAware;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.repository.RelationshipRepositoryV2;
 import io.katharsis.resource.list.ResourceList;
@@ -9,7 +11,7 @@ import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResourceRegistryAware;
 
 public abstract class RelationshipRepositoryDecoratorBase<T, I extends Serializable, D, J extends Serializable>
-		implements RelationshipRepositoryDecorator<T, I, D, J>, ResourceRegistryAware {
+		implements RelationshipRepositoryDecorator<T, I, D, J>, ResourceRegistryAware, ModuleRegistryAware {
 
 	private RelationshipRepositoryV2<T, I, D, J> decoratedObject;
 
@@ -62,6 +64,13 @@ public abstract class RelationshipRepositoryDecoratorBase<T, I extends Serializa
 	public void setResourceRegistry(ResourceRegistry resourceRegistry) {
 		if (decoratedObject instanceof ResourceRegistryAware) {
 			((ResourceRegistryAware) decoratedObject).setResourceRegistry(resourceRegistry);
+		}
+	}
+	
+	@Override
+	public void setModuleRegistry(ModuleRegistry moduleRegistry) {
+		if (decoratedObject instanceof ModuleRegistryAware) {
+			((ModuleRegistryAware) decoratedObject).setModuleRegistry(moduleRegistry);
 		}
 	}
 }

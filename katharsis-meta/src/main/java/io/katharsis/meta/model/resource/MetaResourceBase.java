@@ -11,10 +11,6 @@ import io.katharsis.resource.annotations.JsonApiResource;
  */
 @JsonApiResource(type = "meta/resourceBase")
 public class MetaResourceBase extends MetaJsonObject {
-	
-	public MetaResourceBase(){
-		
-	}
 
 	@Override
 	public List<MetaResourceField> getDeclaredAttributes() {

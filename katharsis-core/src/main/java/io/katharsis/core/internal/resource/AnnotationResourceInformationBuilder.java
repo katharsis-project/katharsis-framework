@@ -23,6 +23,7 @@ import io.katharsis.core.internal.utils.ClassUtils;
 import io.katharsis.core.internal.utils.FieldOrderedComparator;
 import io.katharsis.core.internal.utils.StringUtils;
 import io.katharsis.errorhandling.exception.RepositoryAnnotationNotFoundException;
+import io.katharsis.errorhandling.exception.ResourceIdNotFoundException;
 import io.katharsis.resource.annotations.JsonApiField;
 import io.katharsis.resource.annotations.JsonApiId;
 import io.katharsis.resource.annotations.JsonApiIncludeByDefault;
@@ -63,7 +64,7 @@ public class AnnotationResourceInformationBuilder implements ResourceInformation
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	public ResourceInformation build(Class<?> resourceClass) {
-		return build(resourceClass, true);
+		return build(resourceClass, false);
 	}
 	
 	public ResourceInformation build(Class<?> resourceClass, boolean allowNonResourceBaseClass) {
@@ -82,7 +83,11 @@ public class AnnotationResourceInformationBuilder implements ResourceInformation
 		Class<?> superclass = resourceClass.getSuperclass();
 		String superResourceType = superclass != Object.class && context.accept(superclass) ? context.getResourceType(superclass) : null;
 		
-		return new ResourceInformation(context.getTypeParser(), resourceClass, resourceType, superResourceType, instanceBuilder, (List) resourceFields);
+		ResourceInformation information = new ResourceInformation(context.getTypeParser(), resourceClass, resourceType, superResourceType, instanceBuilder, (List) resourceFields);
+		if(!allowNonResourceBaseClass && information.getIdField() == null){
+			throw new ResourceIdNotFoundException(resourceClass.getCanonicalName());
+		}
+		return information;
 	}
 
 	@Override
@@ -99,9 +104,9 @@ public class AnnotationResourceInformationBuilder implements ResourceInformation
 			}
 		}
 		if(allowNonResourceBaseClass){
-			throw new RepositoryAnnotationNotFoundException(resourceClass.getName());
-		}else{
 			return null;
+		}else{
+			throw new RepositoryAnnotationNotFoundException(resourceClass.getName());
 		}
 	}
 

@@ -88,9 +88,6 @@ public class ResourceInformation {
 
 		if (fields != null) {
 			List<ResourceField> idFields = ResourceFieldType.ID.filter(fields);
-			if (resourceType != null && idFields.isEmpty()) {
-				throw new ResourceIdNotFoundException(resourceClass.getCanonicalName());
-			}
 			if (idFields.size() > 1) {
 				throw new ResourceDuplicateIdException(resourceClass.getCanonicalName());
 			}

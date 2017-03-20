@@ -109,6 +109,7 @@ public abstract class AbstractEntityMetaProvider<T extends MetaJpaDataObject> ex
 
 			attr.setLazy(JpaResourceInformationBuilder.isJpaLazy(annotations));
 
+			attr.setLob(lobAnnotation != null);;
 			attr.setFilterable(lobAnnotation == null);
 			attr.setSortable(lobAnnotation == null);
 

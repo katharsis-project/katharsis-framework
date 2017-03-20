@@ -15,6 +15,7 @@ import org.junit.Test;
 import io.katharsis.jpa.internal.JpaResourceInformationBuilder;
 import io.katharsis.jpa.merge.MergedResource;
 import io.katharsis.jpa.meta.JpaMetaProvider;
+import io.katharsis.jpa.model.AnnotationMappedSuperclassEntity;
 import io.katharsis.jpa.model.AnnotationTestEntity;
 import io.katharsis.jpa.model.RelatedEntity;
 import io.katharsis.jpa.model.TestEmbeddable;
@@ -22,6 +23,7 @@ import io.katharsis.jpa.model.TestEntity;
 import io.katharsis.jpa.util.ResourceFieldComparator;
 import io.katharsis.legacy.registry.DefaultResourceInformationBuilderContext;
 import io.katharsis.meta.MetaLookup;
+import io.katharsis.meta.model.MetaDataObject;
 import io.katharsis.meta.provider.resource.ResourceMetaProvider;
 import io.katharsis.resource.information.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
@@ -31,9 +33,11 @@ public class JpaResourceInformationBuilderTest {
 
 	private JpaResourceInformationBuilder builder;
 
+	private MetaLookup lookup;
+
 	@Before
 	public void setup() {
-		MetaLookup lookup = new MetaLookup();
+		lookup = new MetaLookup();
 		lookup.addProvider(new JpaMetaProvider());
 		lookup.addProvider(new ResourceMetaProvider());
 		builder = new JpaResourceInformationBuilder(lookup);
@@ -41,7 +45,8 @@ public class JpaResourceInformationBuilderTest {
 	}
 
 	@Test
-	public void test() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
+	public void test()
+			throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
 
 		ResourceInformation info = builder.build(TestEntity.class);
 		ResourceField idField = info.getIdField();
@@ -84,7 +89,8 @@ public class JpaResourceInformationBuilderTest {
 	}
 
 	@Test
-	public void testAttributeAnnotations() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
+	public void testAttributeAnnotations()
+			throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
 		ResourceInformation info = builder.build(AnnotationTestEntity.class);
 
 		ResourceField lobField = info.findAttributeFieldByName("lobValue");
@@ -105,6 +111,41 @@ public class JpaResourceInformationBuilderTest {
 		Assert.assertTrue(columnAnnotatedField.isFilterable());
 		Assert.assertFalse(columnAnnotatedField.isPostable());
 		Assert.assertTrue(columnAnnotatedField.isPatchable());
+
+		MetaDataObject meta = lookup.getMeta(AnnotationTestEntity.class).asDataObject();
+		Assert.assertTrue(meta.getAttribute("lobValue").isLob());
+		Assert.assertFalse(meta.getAttribute("fieldAnnotatedValue").isLob());
+	}
+
+	@Test
+	public void testMappedSuperclass()
+			throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
+		ResourceInformation info = builder.build(AnnotationMappedSuperclassEntity.class);
+		
+		Assert.assertNull(info.getResourceType());
+
+		ResourceField lobField = info.findAttributeFieldByName("lobValue");
+		ResourceField fieldAnnotatedField = info.findAttributeFieldByName("fieldAnnotatedValue");
+		ResourceField columnAnnotatedField = info.findAttributeFieldByName("columnAnnotatedValue");
+
+		Assert.assertFalse(lobField.isSortable());
+		Assert.assertFalse(lobField.isFilterable());
+		Assert.assertTrue(lobField.isPostable());
+		Assert.assertTrue(lobField.isPatchable());
+
+		Assert.assertFalse(fieldAnnotatedField.isSortable());
+		Assert.assertFalse(fieldAnnotatedField.isFilterable());
+		Assert.assertTrue(fieldAnnotatedField.isPostable());
+		Assert.assertFalse(fieldAnnotatedField.isPatchable());
+
+		Assert.assertTrue(columnAnnotatedField.isSortable());
+		Assert.assertTrue(columnAnnotatedField.isFilterable());
+		Assert.assertFalse(columnAnnotatedField.isPostable());
+		Assert.assertTrue(columnAnnotatedField.isPatchable());
+
+		MetaDataObject meta = lookup.getMeta(AnnotationMappedSuperclassEntity.class).asDataObject();
+		Assert.assertTrue(meta.getAttribute("lobValue").isLob());
+		Assert.assertFalse(meta.getAttribute("fieldAnnotatedValue").isLob());
 	}
 
 	@Test

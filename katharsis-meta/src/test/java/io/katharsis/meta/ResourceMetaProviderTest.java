@@ -28,6 +28,7 @@ import io.katharsis.meta.model.resource.MetaResourceField;
 import io.katharsis.meta.model.resource.MetaResourceRepository;
 import io.katharsis.meta.provider.MetaProvider;
 import io.katharsis.meta.provider.resource.ResourceMetaProvider;
+import io.katharsis.module.ModuleRegistryAware;
 import io.katharsis.resource.registry.ResourceRegistryAware;
 
 public class ResourceMetaProviderTest extends AbstractMetaTest {
@@ -47,6 +48,9 @@ public class ResourceMetaProviderTest extends AbstractMetaTest {
 		for (MetaProvider p : lookup.getProviders()) {
 			if (p instanceof ResourceRegistryAware) {
 				((ResourceRegistryAware) p).setResourceRegistry(boot.getResourceRegistry());
+			}
+			if (p instanceof ModuleRegistryAware) {
+				((ModuleRegistryAware) p).setModuleRegistry(boot.getModuleRegistry());
 			}
 		}
 

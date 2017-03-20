@@ -205,6 +205,11 @@ public class ModuleRegistry {
 		public TypeParser getTypeParser() {
 			return typeParser;
 		}
+
+		@Override
+		public ModuleRegistry getModuleRegistry() {
+			return ModuleRegistry.this;
+		}
 	}
 
 	/**
@@ -540,6 +545,9 @@ public class ModuleRegistry {
 		}
 		if (decoratedRepository instanceof ResourceRegistryAware) {
 			((ResourceRegistryAware) decoratedRepository).setResourceRegistry(resourceRegistry);
+		}
+		if (decoratedRepository instanceof ModuleRegistryAware) {
+			((ModuleRegistryAware) decoratedRepository).setModuleRegistry(this);
 		}
 		return decoratedRepository;
 	}
