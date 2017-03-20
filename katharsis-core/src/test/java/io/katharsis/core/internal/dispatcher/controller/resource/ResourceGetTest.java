@@ -257,9 +257,7 @@ public class ResourceGetTest extends BaseControllerTest {
 		relRepositoryGroupToMemo.setRelations(group, Collections.singleton(memo.getId()), groupMemosField, null);
 
 		Map<String, Set<String>> params = new HashMap<>();
-		addParams(params, "include[users]", "group");
-		addParams(params, "include[users]", "group.projects");
-		addParams(params, "include[users]", "group.memoranda");
+		params.put( "include[users]", new HashSet<>(Arrays.asList("group", "group.projects", "group.memoranda")));
 		QueryParams queryParams = queryParamsBuilder.buildQueryParams(params);
 		QueryAdapter queryAdapter = new QueryParamsAdapter(userInfo, queryParams, resourceRegistry);
 		JsonPath jsonPath = pathBuilder.buildPath("/users/1");
