@@ -11,6 +11,8 @@ import java.util.Map;
 public class TypedParams<T> {
     private Map<String, T> params = new HashMap<>();
 
+    public TypedParams() {}
+
     public TypedParams(Map<String, T> params) {
         this.params = params;
     }
