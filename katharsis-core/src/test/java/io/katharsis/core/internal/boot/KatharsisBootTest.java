@@ -4,15 +4,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import io.katharsis.core.internal.boot.KatharsisBoot;
-import io.katharsis.core.internal.boot.PropertiesProvider;
 import io.katharsis.core.internal.dispatcher.RequestDispatcher;
 import io.katharsis.core.internal.query.QueryAdapterBuilder;
 import io.katharsis.core.internal.query.QuerySpecAdapterBuilder;
@@ -107,6 +104,23 @@ public class KatharsisBootTest {
 		RequestDispatcher requestDispatcher = boot.getRequestDispatcher();
 		QueryAdapterBuilder queryAdapterBuilder = requestDispatcher.getQueryAdapterBuilder();
 		Assert.assertTrue(queryAdapterBuilder instanceof QueryParamsAdapterBuilder);
+	}
+
+
+	@Test(expected = IllegalStateException.class)
+	public void setQueryParamsBuilderErrorsWhenSettingMaxPage() {
+		KatharsisBoot boot = new KatharsisBoot();
+		QueryParamsBuilder deserializer = Mockito.mock(QueryParamsBuilder.class);
+		boot.setQueryParamsBuilds(deserializer);
+		boot.setMaxPageLimit(10L);
+	}
+
+	@Test(expected = IllegalStateException.class)
+	public void setQueryParamsBuilderErrorsWhenSettingDefaultPage() {
+		KatharsisBoot boot = new KatharsisBoot();
+		QueryParamsBuilder deserializer = Mockito.mock(QueryParamsBuilder.class);
+		boot.setQueryParamsBuilds(deserializer);
+		boot.setDefaultPageLimit(10L);
 	}
 
 	@Test
