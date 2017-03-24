@@ -41,6 +41,8 @@ public class AnyUtils {
 		}
 	}
 
+
+	
 	/**
 	 * Finds a matching attribute for a given value.
 	 * 
@@ -62,10 +64,18 @@ public class AnyUtils {
 				// "value" itself
 				continue;
 			}
+			
 			if (attr.getType().getImplementationClass().isAssignableFrom(value.getClass())) {
 				return attr;
 			}
+			
+//			Optional<Class<?>> primitiveValueClass = ClassUtils.getPrimitiveType(value.getClass());
+//			if(primitiveValueClass.isPresent() && attr.getType().getImplementationClass().isAssignableFrom(primitiveValueClass.get())){
+//				return attr;
+//			}
 		}
-		throw new IllegalArgumentException("cannot find anyType attribute for value '" + value + '\'');
+		String msg = "cannot find anyType attribute for value '" + value + "' of type '" + value.getClass() + "' in  '" + meta.getId() + "'";
+		new IllegalStateException(msg).printStackTrace();
+		throw new IllegalArgumentException(msg);
 	}
 }

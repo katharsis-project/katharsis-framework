@@ -98,6 +98,24 @@ public class ResourceInformationBuilderTest {
 
 		assertThat(resourceInformation.getIdField().getUnderlyingName()).isNotNull().isEqualTo("id");
 	}
+	
+	@Test
+	public void shouldNotBePostableOrPatchableWithoutSetter() throws Exception {
+		ResourceInformation resourceInformation = resourceInformationBuilder.build(Task.class);
+
+		ResourceField field = resourceInformation.findAttributeFieldByName("readOnlyValue");
+		Assert.assertFalse(field.isPostable());
+		Assert.assertFalse(field.isPatchable());
+	}
+	
+	@Test
+	public void shouldBePostableAndPatchableWithSetter() throws Exception {
+		ResourceInformation resourceInformation = resourceInformationBuilder.build(Task.class);
+
+		ResourceField field = resourceInformation.findAttributeFieldByName("name");
+		Assert.assertTrue(field.isPostable());
+		Assert.assertTrue(field.isPatchable());
+	}
 
 	@Test
 	public void shouldThrowExceptionWhenResourceWithNoAnnotation() {

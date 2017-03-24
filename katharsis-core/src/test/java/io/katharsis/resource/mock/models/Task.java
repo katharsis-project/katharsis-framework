@@ -56,7 +56,13 @@ public class Task {
 
 	@JsonApiField(sortable = false, filterable = false, patchable = false, postable = false)
 	private String description;
+	
+	private String readOnlyValue = "someReadOnlyValue";
 
+	public String getReadOnlyValue(){
+		return readOnlyValue;
+	}
+	
 	public List<Task> getOtherTasks() {
 		return otherTasks;
 	}

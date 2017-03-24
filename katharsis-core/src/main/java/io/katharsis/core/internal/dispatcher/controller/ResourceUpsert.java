@@ -70,7 +70,19 @@ public abstract class ResourceUpsert extends BaseController {
     
     protected void setAttributes(Resource dataBody, Object instance, ResourceInformation resourceInformation) {
         if (dataBody.getAttributes() != null) {
-            ResourceAttributesBridge resourceAttributesBridge = resourceInformation.getAttributeFields();
+        	
+        	ResourceAttributesBridge resourceAttributesBridge = resourceInformation.getAttributeFields();
+        	  
+        	Set<String> attributeNames = dataBody.getAttributes().keySet();
+        	for(String attributeName : attributeNames){
+        		ResourceField field = resourceInformation.findAttributeFieldByName(attributeName);
+        		if(field != null){
+        			// if null it might be a dynamic field
+        			verifyFieldAccess(resourceInformation, attributeName, field);
+        		}
+        	}
+        	
+          
             resourceAttributesBridge.setProperties(objectMapper, instance, dataBody.getAttributes());
         }
     }
@@ -123,12 +135,26 @@ public abstract class ResourceUpsert extends BaseController {
         RelationshipRepositoryAdapter relationshipRepository = registryEntry
                 .getRelationshipRepositoryForClass(relationshipClass, parameterProvider);
         ResourceField relationshipField = resourceInformation.findRelationshipFieldByName(property.getKey());
+        
+        verifyFieldAccess(resourceInformation, property.getKey(), relationshipField);
+        
+        
         //noinspection unchecked
         relationshipRepository.setRelations(savedResource, castedRelationIds,
                 relationshipField, queryAdapter);
     }
 
-    private static boolean allTypesTheSame(Iterable<ResourceIdentifier> linkages) {
+    /**
+     * Allows to check whether the given field can be written.
+     * 
+     * @param resourceInformation
+     * @param fieldName
+     * @param field from the information model or null if is a dynamic field (like JsonAny).
+     */
+    protected abstract void verifyFieldAccess(ResourceInformation resourceInformation, String fieldName, ResourceField field);
+		
+
+	private static boolean allTypesTheSame(Iterable<ResourceIdentifier> linkages) {
         String type = linkages.iterator()
                 .hasNext() ? linkages.iterator()
                 .next()

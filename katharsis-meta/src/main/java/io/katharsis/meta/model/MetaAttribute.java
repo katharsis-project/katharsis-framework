@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -72,6 +73,17 @@ public class MetaAttribute extends MetaElement {
 			writeMethod = ClassUtils.findSetter(beanClass, name, rawType);
 		}
 	}
+	
+	public Method getWriteMethod(){
+		this.initAccessors();
+		return writeMethod;
+	}
+	
+	public Method getReadMethod(){
+		this.initAccessors();
+		return readMethod;
+	}
+	
 
 	@Override
 	public MetaDataObject getParent() {

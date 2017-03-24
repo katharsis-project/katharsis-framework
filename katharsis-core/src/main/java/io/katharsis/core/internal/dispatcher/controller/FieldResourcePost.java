@@ -12,6 +12,7 @@ import io.katharsis.core.internal.repository.adapter.RelationshipRepositoryAdapt
 import io.katharsis.core.internal.repository.adapter.ResourceRepositoryAdapter;
 import io.katharsis.core.internal.resource.DocumentMapper;
 import io.katharsis.core.internal.utils.Generics;
+import io.katharsis.errorhandling.exception.BadRequestException;
 import io.katharsis.errorhandling.exception.RequestBodyException;
 import io.katharsis.errorhandling.exception.RequestBodyNotFoundException;
 import io.katharsis.errorhandling.exception.ResourceFieldNotFoundException;
@@ -25,6 +26,7 @@ import io.katharsis.repository.response.Response;
 import io.katharsis.resource.Document;
 import io.katharsis.resource.Resource;
 import io.katharsis.resource.information.ResourceField;
+import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.utils.parser.TypeParser;
@@ -113,4 +115,12 @@ public class FieldResourcePost extends ResourceUpsert {
             .getType();
         return typeParser.parse(resourceId, idClass);
     }
+
+	@Override
+	protected void verifyFieldAccess(ResourceInformation resourceInformation, String fieldName, ResourceField field) {
+		// allow dynamic field where field == null
+		if(field != null && !field.isPostable()){
+			throw new BadRequestException("not allowed to POST field '" + fieldName + "'");
+		}		
+	}
 }

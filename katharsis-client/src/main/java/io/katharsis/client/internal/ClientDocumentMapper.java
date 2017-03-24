@@ -48,6 +48,12 @@ public class ClientDocumentMapper extends DocumentMapper {
 		return new ResourceMapper(util, client, objectMapper) {
 
 			@Override
+			public boolean isIgnored(ResourceField field) {
+				// TODO differentiate between patch and post
+				return !field.isPatchable() && !field.isPostable();
+			}
+
+			@Override
 			protected void setRelationship(Resource resource, ResourceField field, Object entity, ResourceInformation resourceInformation, QueryAdapter queryAdapter) {
 				// we also include relationship data if it is not null and not a
 				// unloaded proxy

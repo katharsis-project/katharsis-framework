@@ -7,16 +7,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.persistence.EntityGraph;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
-import javax.persistence.Subgraph;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.katharsis.jpa.query.JpaQueryExecutor;
 import io.katharsis.meta.model.MetaAttributePath;
 import io.katharsis.meta.model.MetaDataObject;
 
 public abstract class AbstractQueryExecutorImpl<T> implements JpaQueryExecutor<T> {
+
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	protected int offset = 0;
 
@@ -34,8 +37,7 @@ public abstract class AbstractQueryExecutorImpl<T> implements JpaQueryExecutor<T
 
 	protected Map<String, Integer> selectionBindings;
 
-	public AbstractQueryExecutorImpl(EntityManager em, MetaDataObject meta, int numAutoSelections,
-			Map<String, Integer> selectionBindings) {
+	public AbstractQueryExecutorImpl(EntityManager em, MetaDataObject meta, int numAutoSelections, Map<String, Integer> selectionBindings) {
 		this.em = em;
 		this.meta = meta;
 		this.numAutoSelections = numAutoSelections;
@@ -95,8 +97,7 @@ public abstract class AbstractQueryExecutorImpl<T> implements JpaQueryExecutor<T
 				entityList.add((T) values[0]);
 			}
 			resultList = entityList;
-		}
-		else {
+		} else {
 			resultList = (List<T>) list;
 		}
 		return resultList;
@@ -175,25 +176,30 @@ public abstract class AbstractQueryExecutorImpl<T> implements JpaQueryExecutor<T
 	}
 
 	protected void applyFetchPaths(Query criteriaQuery) {
-		EntityGraph<T> graph = em.createEntityGraph(getEntityClass());
-		for (MetaAttributePath fetchPath : fetchPaths) {
-			applyFetchPaths(graph, fetchPath);
+		// EntityGraph<T> graph = em.createEntityGraph(getEntityClass());
+		// for (MetaAttributePath fetchPath : fetchPaths) {
+		// applyFetchPaths(graph, fetchPath);
+		// }
+		// criteriaQuery.setHint("javax.persistence.fetchgraph", graph);
+		if (!fetchPaths.isEmpty()) {
+			logger.error("fetch paths not yet properly implemented");
 		}
-		criteriaQuery.setHint("javax.persistence.fetchgraph", graph);
 	}
 
-	private Subgraph<Object> applyFetchPaths(EntityGraph<T> graph, MetaAttributePath fetchPath) {
-		if (fetchPath.length() >= 2) {
-			// ensure parent is fetched
-			MetaAttributePath parentPath = fetchPath.subPath(0, fetchPath.length() - 1);
-			Subgraph<Object> parentGraph = applyFetchPaths(graph, parentPath);
-			return parentGraph.addSubgraph(fetchPath.toString());
-		}
-		else {
-			return graph.addSubgraph(fetchPath.toString());
-		}
-	}
-	
+	// private Subgraph<Object> applyFetchPaths(EntityGraph<T> graph,
+	// MetaAttributePath fetchPath) {
+	// if (fetchPath.length() >= 2) {
+	// // ensure parent is fetched
+	// MetaAttributePath parentPath = fetchPath.subPath(0, fetchPath.length() -
+	// 1);
+	// Subgraph<Object> parentGraph = applyFetchPaths(graph, parentPath);
+	// return parentGraph.addSubgraph(fetchPath.toString());
+	// }
+	// else {
+	// return graph.addSubgraph(fetchPath.toString());
+	// }
+	// }
+
 	public abstract Query getTypedQuery();
 
 	protected Query setupQuery(Query typedQuery) {
@@ -215,7 +221,7 @@ public abstract class AbstractQueryExecutorImpl<T> implements JpaQueryExecutor<T
 	@SuppressWarnings("rawtypes")
 	public List<T> executeQuery() {
 		Query typedQuery = getTypedQuery();
-		
+
 		setupQuery(typedQuery);
 
 		// query execution

@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import io.katharsis.core.internal.utils.ClassUtils;
 import io.katharsis.core.internal.utils.FieldOrderedComparator;
+import io.katharsis.core.internal.utils.PropertyUtils;
 import io.katharsis.core.internal.utils.StringUtils;
 import io.katharsis.errorhandling.exception.RepositoryAnnotationNotFoundException;
 import io.katharsis.errorhandling.exception.ResourceIdNotFoundException;
@@ -114,39 +115,41 @@ public class AnnotationResourceInformationBuilder implements ResourceInformation
 		List<Field> classFields = ClassUtils.getClassFields(resourceClass);
 		List<Method> classGetters = ClassUtils.getClassGetters(resourceClass);
 
-		List<ResourceFieldWrapper> resourceClassFields = getFieldResourceFields(classFields);
-		List<ResourceFieldWrapper> resourceGetterFields = getGetterResourceFields(classGetters);
+		List<ResourceFieldWrapper> resourceClassFields = getFieldResourceFields(resourceClass, classFields);
+		List<ResourceFieldWrapper> resourceGetterFields = getGetterResourceFields(resourceClass, classGetters);
 		return getResourceFields(resourceClassFields, resourceGetterFields);
 	}
 
-	private List<ResourceFieldWrapper> getFieldResourceFields(List<Field> classFields) {
+	private List<ResourceFieldWrapper> getFieldResourceFields(Class<?> resourceClass, List<Field> classFields) {
 		List<ResourceFieldWrapper> fieldWrappers = new ArrayList<>(classFields.size());
 		for (Field field : classFields) {
 			String jsonName = resourceFieldNameTransformer.getName(field);
 			String underlyingName = field.getName();
-			fieldWrappers.add(getResourceField(field, underlyingName, jsonName, field.getType(), field.getGenericType(), Arrays.asList(field.getAnnotations())));
+			fieldWrappers.add(getResourceField(resourceClass, field, underlyingName, jsonName, field.getType(), field.getGenericType(), Arrays.asList(field.getAnnotations())));
 		}
 		return fieldWrappers;
 	}
 	
-	private List<ResourceFieldWrapper> getGetterResourceFields(List<Method> classGetters) {
+	private List<ResourceFieldWrapper> getGetterResourceFields(Class<?> resourceClass, List<Method> classGetters) {
 		List<ResourceFieldWrapper> fieldWrappers = new ArrayList<>(classGetters.size());
 		for (Method getter : classGetters) {
 			String jsonName = resourceFieldNameTransformer.getName(getter);
 			String underlyingName = resourceFieldNameTransformer.getMethodName(getter);
-			fieldWrappers.add(getResourceField(getter, jsonName, underlyingName, getter.getReturnType(), getter.getGenericReturnType(), Arrays.asList(getter.getAnnotations())));
+			fieldWrappers.add(getResourceField(resourceClass, getter, jsonName, underlyingName, getter.getReturnType(), getter.getGenericReturnType(), Arrays.asList(getter.getAnnotations())));
 		}
 		return fieldWrappers;
 	}
 	
-	private ResourceFieldWrapper getResourceField(Member member, String underlyingName, String jsonName, Class<?> type, Type genericType, List<Annotation> annotations) {
+	private ResourceFieldWrapper getResourceField(Class<?> resourceClass, Member member, String underlyingName, String jsonName, Class<?> type, Type genericType, List<Annotation> annotations) {
 		ResourceFieldType resourceFieldType = AnnotatedResourceField.getResourceFieldType(annotations);
 		String oppositeResourceType = resourceFieldType == ResourceFieldType.RELATIONSHIP ? getResourceType(genericType, context) : null;
 		
+		boolean hasSetter = ClassUtils.findSetter(resourceClass, underlyingName, type) != null;
+		
 		boolean sortable = true;
 		boolean filterable = true;
-		boolean postable = true;
-		boolean patchable = resourceFieldType != ResourceFieldType.ID;
+		boolean postable = hasSetter;
+		boolean patchable = hasSetter && resourceFieldType != ResourceFieldType.ID;
 		
 		JsonApiField fieldAnnotation = AnnotatedResourceField.getFieldAnnotation(annotations);
 		if(fieldAnnotation != null){

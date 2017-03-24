@@ -227,12 +227,14 @@ public class MetaLookup {
 			return enumType;
 		}
 		if (isPrimitiveType(clazz)) {
+			String id;
 			if(clazz == int.class){
 				// all the others match lower/upper case
-				clazz = Integer.class;
+				id = BASE_ID_PREFIX + firstToLower(Integer.class.getSimpleName());
+			}else{
+				id = BASE_ID_PREFIX + firstToLower(clazz.getSimpleName());
 			}
 			
-			String id = BASE_ID_PREFIX + firstToLower(clazz.getSimpleName());
 
 			MetaPrimitiveType primitiveType = (MetaPrimitiveType) idElementMap.get(id);
 			if (primitiveType == null) {

@@ -14,6 +14,7 @@ import io.katharsis.core.internal.dispatcher.controller.BaseControllerTest;
 import io.katharsis.core.internal.dispatcher.controller.ResourcePost;
 import io.katharsis.core.internal.dispatcher.path.JsonPath;
 import io.katharsis.core.internal.dispatcher.path.ResourcePath;
+import io.katharsis.errorhandling.exception.BadRequestException;
 import io.katharsis.errorhandling.exception.ResourceException;
 import io.katharsis.errorhandling.exception.ResourceNotFoundException;
 import io.katharsis.legacy.internal.QueryParamsAdapter;
@@ -154,6 +155,26 @@ public class ResourcePostTest extends BaseControllerTest {
 		TaskRepository taskRepository = new TaskRepository();
 		Task persistedTask = taskRepository.findOne(Long.parseLong(taskId), null);
 		assertThat(persistedTask.getProject().getId()).isEqualTo(projectId);
+	}
+	
+	@Test
+	public void onPostingReadOnlyFieldReturnBadRequest() throws Exception {
+		// GIVEN
+		Document requestDocument = new Document();
+		Resource data = createTask();
+		data.getAttributes().put("readOnlyValue",  objectMapper.readTree("\"newValue\""));
+		requestDocument.setData(Nullable.of((Object)data));
+
+		JsonPath path = pathBuilder.build("/tasks");
+		ResourcePost sut = new ResourcePost(resourceRegistry, typeParser, objectMapper, documentMapper);
+
+		// WHEN
+		try{
+			sut.handle(path, new QueryParamsAdapter(REQUEST_PARAMS), null, requestDocument);
+			Assert.fail("should not be allowed to update read-only field");
+		}catch(BadRequestException e){
+			Assert.assertEquals("not allowed to POST field 'readOnlyValue'", e.getMessage());
+		}
 	}
 
 	@Test

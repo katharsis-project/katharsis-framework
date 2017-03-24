@@ -15,6 +15,7 @@ import io.katharsis.core.internal.dispatcher.controller.ResourcePost;
 import io.katharsis.core.internal.dispatcher.path.JsonPath;
 import io.katharsis.core.internal.dispatcher.path.ResourcePath;
 import io.katharsis.core.internal.repository.adapter.ResourceRepositoryAdapter;
+import io.katharsis.errorhandling.exception.BadRequestException;
 import io.katharsis.errorhandling.exception.KatharsisException;
 import io.katharsis.legacy.internal.QueryParamsAdapter;
 import io.katharsis.repository.response.JsonApiResponse;
@@ -99,6 +100,30 @@ public class ResourcePatchTest extends BaseControllerTest {
 		Assert.assertNotNull(response);
 		assertThat(response.getDocument().getSingleData().get().getType()).isEqualTo("tasks");
 		assertThat(response.getDocument().getSingleData().get().getAttributes().get("name").asText()).isEqualTo("task updated");
+	}
+	
+	@Test
+	public void onPatchingReadOnlyFieldReturnBadRequest() throws Exception {
+		// GIVEN
+		Document requestDocument = new Document();
+		Resource data = createTask();
+		requestDocument.setData(Nullable.of((Object)data));
+
+		JsonPath postPath = pathBuilder.build("/tasks");
+		ResourcePost post = new ResourcePost(resourceRegistry, typeParser, objectMapper, documentMapper);
+		post.handle(postPath, new QueryParamsAdapter(REQUEST_PARAMS), null, requestDocument);
+		
+		ResourcePatch sut = new ResourcePatch(resourceRegistry, typeParser, objectMapper, documentMapper);
+		data.getAttributes().put("readOnlyValue",  objectMapper.readTree("\"newValue\""));
+
+		// WHEN
+		try{
+			JsonPath patchPath = pathBuilder.build("/tasks/" + data.getId());
+			sut.handle(patchPath, new QueryParamsAdapter(REQUEST_PARAMS), null, requestDocument);
+			Assert.fail("should not be allowed to update read-only field");
+		}catch(BadRequestException e){
+			Assert.assertEquals("not allowed to PATCH field 'readOnlyValue'", e.getMessage());
+		}
 	}
 
 	@Test

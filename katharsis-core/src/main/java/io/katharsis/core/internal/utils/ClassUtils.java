@@ -279,7 +279,27 @@ public class ClassUtils {
 			throw new IllegalStateException("unknown type: " + type);
 		}
 	}
+	
+	private static final Map<Class<?>, Class<?>> PRIMITIVE_CLASS_MAPPING = new HashMap<>();
+	
+	static{
+		PRIMITIVE_CLASS_MAPPING.put(Byte.class, byte.class);
+		PRIMITIVE_CLASS_MAPPING.put(Short.class, short.class);
+		PRIMITIVE_CLASS_MAPPING.put(Integer.class, int.class);
+		PRIMITIVE_CLASS_MAPPING.put(Long.class, long.class);
+		PRIMITIVE_CLASS_MAPPING.put(Float.class, float.class);
+		PRIMITIVE_CLASS_MAPPING.put(Double.class, double.class);
+		PRIMITIVE_CLASS_MAPPING.put(Boolean.class, boolean.class);
+	}
 
+	public static Optional<Class<?>> getPrimitiveType(Class<?> objectType){
+		Class<?> primitiveType = PRIMITIVE_CLASS_MAPPING.get(objectType);
+		if( primitiveType != null){
+			return (Optional) Optional.of(primitiveType);
+		}else{
+			return Optional.empty();
+		}
+	}
 
 
 }

@@ -23,6 +23,7 @@ import io.katharsis.jpa.model.TestEntity;
 import io.katharsis.jpa.util.ResourceFieldComparator;
 import io.katharsis.legacy.registry.DefaultResourceInformationBuilderContext;
 import io.katharsis.meta.MetaLookup;
+import io.katharsis.meta.model.MetaAttribute;
 import io.katharsis.meta.model.MetaDataObject;
 import io.katharsis.meta.provider.resource.ResourceMetaProvider;
 import io.katharsis.resource.information.ResourceField;
@@ -115,6 +116,24 @@ public class JpaResourceInformationBuilderTest {
 		MetaDataObject meta = lookup.getMeta(AnnotationTestEntity.class).asDataObject();
 		Assert.assertTrue(meta.getAttribute("lobValue").isLob());
 		Assert.assertFalse(meta.getAttribute("fieldAnnotatedValue").isLob());
+	}
+	
+	@Test
+	public void testReadOnlyField()
+			throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
+		ResourceInformation info = builder.build(AnnotationTestEntity.class);
+
+		ResourceField field = info.findAttributeFieldByName("readOnlyValue");
+
+		Assert.assertFalse(field.isPostable());
+		Assert.assertFalse(field.isPatchable());
+
+
+		MetaDataObject meta = lookup.getMeta(AnnotationTestEntity.class).asDataObject();
+		MetaAttribute attribute = meta.getAttribute("readOnlyValue");
+
+		Assert.assertFalse(attribute.isInsertable());
+		Assert.assertFalse(attribute.isUpdatable());
 	}
 
 	@Test

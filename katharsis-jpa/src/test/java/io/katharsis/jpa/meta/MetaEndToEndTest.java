@@ -68,12 +68,9 @@ public class MetaEndToEndTest extends AbstractJpaJerseyTest {
 		MetaLookup lookup = metaModule.getLookup();
 		MetaResource versionMeta = lookup.getMeta(VersionedEntity.class, MetaResource.class);
 		MetaAttribute idAttr = versionMeta.getAttribute("id");
-		MetaAttribute versionAttr = versionMeta.getAttribute("version");
 		MetaAttribute valueAttr = versionMeta.getAttribute("longValue");
 		Assert.assertTrue(idAttr.isInsertable());
 		Assert.assertFalse(idAttr.isUpdatable());
-		Assert.assertFalse(versionAttr.isInsertable());
-		Assert.assertFalse(versionAttr.isUpdatable());
 		Assert.assertTrue(valueAttr.isInsertable());
 		Assert.assertTrue(valueAttr.isUpdatable());
 

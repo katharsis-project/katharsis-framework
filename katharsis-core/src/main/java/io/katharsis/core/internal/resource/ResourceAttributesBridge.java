@@ -67,11 +67,12 @@ public class ResourceAttributesBridge<T> {
     }
     
     private void setProperty(ObjectMapper objectMapper, T instance, JsonNode valueNode, String propertyName) {
-        Optional<ResourceField> staticField = findStaticField(propertyName);
+        Optional<ResourceField> optStaticField = findStaticField(propertyName);
         try{
-	        if (staticField.isPresent()) {
-	            String underlyingName = staticField.get().getUnderlyingName();
-	            Type valueType = staticField.get().getGenericType();
+	        if (optStaticField.isPresent()) {
+	        	ResourceField staticField = optStaticField.get();
+	            String underlyingName = staticField.getUnderlyingName();
+	            Type valueType = staticField.getGenericType();
 		            Object value;
 		            if(valueNode != null){
 		            	JavaType jacksonValueType = objectMapper.getTypeFactory().constructType(valueType);

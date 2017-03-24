@@ -183,4 +183,11 @@ class ClientResourceUpsert extends ResourceUpsert {
 		}
 	}
 
+	@Override
+	protected void verifyFieldAccess(ResourceInformation resourceInformation, String fieldName, ResourceField field) {
+		// nothing to verify during deserialization on client-side
+		// there is only a need to check field access when receiving resources
+		// on the server-side client needs all the data he gets from the server
+	}
+
 }

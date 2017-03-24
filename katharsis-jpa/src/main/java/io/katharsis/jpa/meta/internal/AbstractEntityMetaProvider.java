@@ -11,11 +11,13 @@ import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.EmbeddedId;
+import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.MappedSuperclass;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Version;
@@ -37,7 +39,7 @@ public abstract class AbstractEntityMetaProvider<T extends MetaJpaDataObject> ex
 		Class<?> rawClazz = ClassUtils.getRawType(type);
 		Class<?> superClazz = rawClazz.getSuperclass();
 		MetaElement superMeta = null;
-		if (superClazz != Object.class) {
+		if (isJpaObject(superClazz)) {
 			superMeta = context.getLookup().getMeta(superClazz, MetaJpaDataObject.class);
 		}
 		T meta = newDataObject();
@@ -55,7 +57,11 @@ public abstract class AbstractEntityMetaProvider<T extends MetaJpaDataObject> ex
 		return meta;
 	}
 
-	private void setKey(T meta) {
+	protected boolean isJpaObject(Class<?> superClazz) {
+		return superClazz.getAnnotation(Entity.class) != null || superClazz.getAnnotation(MappedSuperclass.class) != null;
+	}
+
+	protected void setKey(T meta) {
 		if (meta.getPrimaryKey() == null) {
 			boolean generated = false;
 			ArrayList<MetaAttribute> pkElements = new ArrayList<>();
@@ -112,9 +118,10 @@ public abstract class AbstractEntityMetaProvider<T extends MetaJpaDataObject> ex
 		attr.setLob(lobAnnotation != null);
 		attr.setFilterable(lobAnnotation == null);
 		attr.setSortable(lobAnnotation == null);
-
-		attr.setInsertable((columnAnnotation == null || columnAnnotation.insertable()) && !attrGenerated && versionAnnotation == null);
-		attr.setUpdatable((columnAnnotation == null || columnAnnotation.updatable()) && !idAttr && versionAnnotation == null);
+		
+		boolean hasSetter = attr.getWriteMethod() != null;
+		attr.setInsertable(hasSetter && (columnAnnotation == null || columnAnnotation.insertable()) && !attrGenerated && versionAnnotation == null);
+		attr.setUpdatable(hasSetter && (columnAnnotation == null || columnAnnotation.updatable()) && !idAttr && versionAnnotation == null);
 		return attr;
 	}
 
