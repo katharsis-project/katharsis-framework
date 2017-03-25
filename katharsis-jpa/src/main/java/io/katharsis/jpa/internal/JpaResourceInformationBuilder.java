@@ -375,8 +375,10 @@ public class JpaResourceInformationBuilder implements ResourceInformationBuilder
 		} else {
 			sortable = attr.isSortable();
 			filterable = attr.isFilterable();
-			postable = attr.isInsertable();
-			patchable = attr.isUpdatable();
+			
+			// version must be postable/patchable for proper optimistic locking
+			postable = attr.isInsertable() || attr.isVersion();
+			patchable = attr.isUpdatable() || attr.isVersion();
 		}
 
 		// related repositories should lookup, we ignore the hibernate proxies

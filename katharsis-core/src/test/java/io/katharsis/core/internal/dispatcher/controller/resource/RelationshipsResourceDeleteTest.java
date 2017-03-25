@@ -7,6 +7,8 @@ import org.junit.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.katharsis.core.internal.boot.EmptyPropertiesProvider;
+import io.katharsis.core.internal.boot.PropertiesProvider;
 import io.katharsis.core.internal.dispatcher.controller.BaseControllerTest;
 import io.katharsis.core.internal.dispatcher.controller.RelationshipsResourceDelete;
 import io.katharsis.core.internal.dispatcher.controller.RelationshipsResourcePost;
@@ -34,7 +36,8 @@ public class RelationshipsResourceDeleteTest extends BaseControllerTest {
 	private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
 	private static final QueryParams REQUEST_PARAMS = new QueryParams();
-
+	
+			
 	@Test
 	public void onValidRequestShouldAcceptIt() {
 		// GIVEN
@@ -72,7 +75,7 @@ public class RelationshipsResourceDeleteTest extends BaseControllerTest {
 		data.setType("tasks");
 
 		JsonPath taskPath = pathBuilder.buildPath("/tasks");
-		ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER, documentMapper);
+		ResourcePost resourcePost = new ResourcePost(resourceRegistry, PROPERTIES_PROVIDER, typeParser	, OBJECT_MAPPER, documentMapper);
 
 		// WHEN -- adding a task
 		Response taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(new QueryParams()), null, newTaskBody);
@@ -145,7 +148,7 @@ public class RelationshipsResourceDeleteTest extends BaseControllerTest {
 		newUserDocument.setData(Nullable.of((Object) createUser()));
 
 		JsonPath taskPath = pathBuilder.buildPath("/users");
-		ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER, documentMapper);
+		ResourcePost resourcePost = new ResourcePost(resourceRegistry, PROPERTIES_PROVIDER, typeParser, OBJECT_MAPPER, documentMapper);
 
 		// WHEN -- adding a user
 		Response taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(new QueryParams()), null, newUserDocument);

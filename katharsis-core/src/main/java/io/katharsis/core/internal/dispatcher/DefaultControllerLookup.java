@@ -5,6 +5,7 @@ import java.util.Set;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.katharsis.core.internal.boot.PropertiesProvider;
 import io.katharsis.core.internal.dispatcher.controller.BaseController;
 import io.katharsis.core.internal.dispatcher.controller.CollectionGet;
 import io.katharsis.core.internal.dispatcher.controller.FieldResourceGet;
@@ -30,9 +31,11 @@ public class DefaultControllerLookup implements ControllerLookup {
     private TypeParser typeParser;
     private ObjectMapper objectMapper;
     private DocumentMapper documentMapper;
+	private PropertiesProvider propertiesProvider;
 
-    public DefaultControllerLookup(ResourceRegistry resourceRegistry, TypeParser typeParser, ObjectMapper objectMapper, DocumentMapper documentMapper) {
+    public DefaultControllerLookup(ResourceRegistry resourceRegistry, PropertiesProvider propertiesProvider, TypeParser typeParser, ObjectMapper objectMapper, DocumentMapper documentMapper) {
         this.resourceRegistry = resourceRegistry;
+        this.propertiesProvider = propertiesProvider;
         this.typeParser = typeParser;
         this.objectMapper = objectMapper;
         this.documentMapper = documentMapper;
@@ -49,9 +52,9 @@ public class DefaultControllerLookup implements ControllerLookup {
         controllers.add(new FieldResourceGet(resourceRegistry, objectMapper, typeParser, documentMapper));
         controllers.add(new RelationshipsResourceGet(resourceRegistry, objectMapper, typeParser, documentMapper));
         controllers.add(new ResourceGet(resourceRegistry, objectMapper, typeParser, documentMapper));
-        controllers.add(new FieldResourcePost(resourceRegistry, typeParser, objectMapper, documentMapper));
-        controllers.add(new ResourcePatch(resourceRegistry, typeParser, objectMapper, documentMapper));
-        controllers.add(new ResourcePost(resourceRegistry, typeParser, objectMapper, documentMapper));
+        controllers.add(new FieldResourcePost(resourceRegistry, propertiesProvider, typeParser, objectMapper, documentMapper));
+        controllers.add(new ResourcePatch(resourceRegistry, propertiesProvider, typeParser, objectMapper, documentMapper));
+        controllers.add(new ResourcePost(resourceRegistry, propertiesProvider, typeParser, objectMapper, documentMapper));
 
         return controllers;
     }

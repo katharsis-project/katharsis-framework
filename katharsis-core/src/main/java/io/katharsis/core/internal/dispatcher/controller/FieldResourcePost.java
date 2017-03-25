@@ -3,8 +3,12 @@ package io.katharsis.core.internal.dispatcher.controller;
 import java.io.Serializable;
 import java.util.Collections;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.katharsis.core.internal.boot.PropertiesProvider;
 import io.katharsis.core.internal.dispatcher.path.FieldPath;
 import io.katharsis.core.internal.dispatcher.path.JsonPath;
 import io.katharsis.core.internal.dispatcher.path.PathIds;
@@ -35,10 +39,12 @@ import io.katharsis.utils.parser.TypeParser;
  * Creates a new post in a similar manner as in {@link ResourcePost}, but additionally adds a relation to a field.
  */
 public class FieldResourcePost extends ResourceUpsert {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(Logger.class);
 
-    public FieldResourcePost(ResourceRegistry resourceRegistry, TypeParser typeParser, @SuppressWarnings
+    public FieldResourcePost(ResourceRegistry resourceRegistry, PropertiesProvider propertiesProvider, TypeParser typeParser, @SuppressWarnings
         ("SameParameterValue") ObjectMapper objectMapper, DocumentMapper documentMapper) {
-        super(resourceRegistry, typeParser, objectMapper, documentMapper);
+        super(resourceRegistry, propertiesProvider, typeParser, objectMapper, documentMapper);
     }
 
     @Override
@@ -117,10 +123,8 @@ public class FieldResourcePost extends ResourceUpsert {
     }
 
 	@Override
-	protected void verifyFieldAccess(ResourceInformation resourceInformation, String fieldName, ResourceField field) {
+	protected boolean canModifyField(ResourceInformation resourceInformation, String fieldName, ResourceField field) {
 		// allow dynamic field where field == null
-		if(field != null && !field.isPostable()){
-			throw new BadRequestException("not allowed to POST field '" + fieldName + "'");
-		}		
+		return field == null || field.isPostable();
 	}
 }

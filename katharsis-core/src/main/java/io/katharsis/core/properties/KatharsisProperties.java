@@ -82,4 +82,9 @@ public class KatharsisProperties {
      * @since 2.8.2
      */
     public static final String INCLUDE_AUTOMATICALLY_OVERWRITE = "katharsis.config.include.automatically.overwrite";
+    
+    /**
+     * 
+     */
+    public static final String RESOURCE_READ_ONLY_BEHAVIOR = "katharsis.config.resource.readOnly.behavior";
 }

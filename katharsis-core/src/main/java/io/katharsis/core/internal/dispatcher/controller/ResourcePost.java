@@ -3,13 +3,16 @@ package io.katharsis.core.internal.dispatcher.controller;
 import java.util.Collection;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.katharsis.core.internal.boot.PropertiesProvider;
 import io.katharsis.core.internal.dispatcher.path.JsonPath;
 import io.katharsis.core.internal.dispatcher.path.ResourcePath;
 import io.katharsis.core.internal.repository.adapter.ResourceRepositoryAdapter;
 import io.katharsis.core.internal.resource.DocumentMapper;
-import io.katharsis.errorhandling.exception.BadRequestException;
 import io.katharsis.errorhandling.exception.RequestBodyException;
 import io.katharsis.errorhandling.exception.RequestBodyNotFoundException;
 import io.katharsis.errorhandling.exception.ResourceNotFoundException;
@@ -29,8 +32,10 @@ import io.katharsis.utils.parser.TypeParser;
 
 public class ResourcePost extends ResourceUpsert {
 
-    public ResourcePost(ResourceRegistry resourceRegistry, TypeParser typeParser, ObjectMapper objectMapper, DocumentMapper documentMapper) {
-        super(resourceRegistry, typeParser, objectMapper, documentMapper);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ResourcePost.class);
+	
+    public ResourcePost(ResourceRegistry resourceRegistry, PropertiesProvider propertiesProvider, TypeParser typeParser, ObjectMapper objectMapper, DocumentMapper documentMapper) {
+        super(resourceRegistry, propertiesProvider, typeParser, objectMapper, documentMapper);
     }
 
     /**
@@ -85,10 +90,8 @@ public class ResourcePost extends ResourceUpsert {
     }
 
 	@Override
-	protected void verifyFieldAccess(ResourceInformation resourceInformation, String fieldName, ResourceField field) {
+	protected boolean canModifyField(ResourceInformation resourceInformation, String fieldName, ResourceField field) {
 		// allow dynamic field where field == null
-		if(field != null && !field.isPostable()){
-			throw new BadRequestException("not allowed to POST field '" + fieldName + "'");
-		}
+		return field == null || field.isPostable();
 	}
 }

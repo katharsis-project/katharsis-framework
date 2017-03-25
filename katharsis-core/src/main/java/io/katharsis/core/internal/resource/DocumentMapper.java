@@ -26,11 +26,14 @@ public class DocumentMapper {
 
 	private boolean client;
 
+	protected PropertiesProvider propertiesProvider;
+
 	public DocumentMapper(ResourceRegistry resourceRegistry, ObjectMapper objectMapper, PropertiesProvider propertiesProvider) {
 		this(resourceRegistry, objectMapper, propertiesProvider, false);
 	}
 
 	public DocumentMapper(ResourceRegistry resourceRegistry, ObjectMapper objectMapper, PropertiesProvider propertiesProvider, boolean client) {
+		this.propertiesProvider= propertiesProvider;
 		this.util = new DocumentMapperUtil(resourceRegistry, objectMapper);
 		this.resourceMapper = newResourceMapper(util, client, objectMapper);
 		this.includeLookupSetter = new IncludeLookupSetter(resourceRegistry, resourceMapper, propertiesProvider);

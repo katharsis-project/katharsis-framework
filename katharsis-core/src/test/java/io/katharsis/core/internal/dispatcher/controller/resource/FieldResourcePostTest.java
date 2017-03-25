@@ -23,13 +23,13 @@ import io.katharsis.utils.Nullable;
 
 public class FieldResourcePostTest extends BaseControllerTest {
     private static final String REQUEST_TYPE = HttpMethod.POST.name();
-
+    
     @Test
     public void onValidRequestShouldAcceptIt() {
         // GIVEN
         JsonPath jsonPath = pathBuilder.buildPath("tasks/1/project");
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-        FieldResourcePost sut = new FieldResourcePost(resourceRegistry, typeParser, objectMapper, documentMapper);
+        FieldResourcePost sut = new FieldResourcePost(resourceRegistry, PROPERTIES_PROVIDER, typeParser, objectMapper, documentMapper);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -43,7 +43,7 @@ public class FieldResourcePostTest extends BaseControllerTest {
         // GIVEN
         JsonPath jsonPath = new ResourcePath("tasks/1/relationships/project");
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-        FieldResourcePost sut = new FieldResourcePost(resourceRegistry, typeParser, objectMapper, documentMapper);
+        FieldResourcePost sut = new FieldResourcePost(resourceRegistry, PROPERTIES_PROVIDER , typeParser, objectMapper, documentMapper);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -57,7 +57,7 @@ public class FieldResourcePostTest extends BaseControllerTest {
         // GIVEN
         JsonPath jsonPath = new ResourcePath("tasks");
         ResourceRegistry resourceRegistry = mock(ResourceRegistry.class);
-        FieldResourcePost sut = new FieldResourcePost(resourceRegistry, typeParser, objectMapper, documentMapper);
+        FieldResourcePost sut = new FieldResourcePost(resourceRegistry, PROPERTIES_PROVIDER, typeParser, objectMapper, documentMapper);
 
         // WHEN
         boolean result = sut.isAcceptable(jsonPath, REQUEST_TYPE);
@@ -73,7 +73,7 @@ public class FieldResourcePostTest extends BaseControllerTest {
     	newTaskDocument.setData(Nullable.of((Object)createTask()));
 
         JsonPath taskPath = pathBuilder.buildPath("/tasks");
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper, documentMapper);
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, PROPERTIES_PROVIDER, typeParser, objectMapper, documentMapper);
 
         // WHEN
         Response taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(new QueryParams()), null, newTaskDocument);
@@ -90,7 +90,7 @@ public class FieldResourcePostTest extends BaseControllerTest {
         newProjectDocument.setData(Nullable.of((Object)createProject()));
 
         JsonPath projectPath = pathBuilder.buildPath("/tasks/" + taskId + "/project");
-        FieldResourcePost sut = new FieldResourcePost(resourceRegistry, typeParser, objectMapper, documentMapper);
+        FieldResourcePost sut = new FieldResourcePost(resourceRegistry, PROPERTIES_PROVIDER, typeParser, objectMapper, documentMapper);
 
         // WHEN
         Response projectResponse = sut.handle(projectPath, new QueryParamsAdapter(new QueryParams()), null, newProjectDocument);
@@ -115,7 +115,7 @@ public class FieldResourcePostTest extends BaseControllerTest {
     	newTaskDocument.setData(Nullable.of((Object)createTask()));
 
         JsonPath taskPath = pathBuilder.buildPath("/tasks");
-        ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper, documentMapper);
+        ResourcePost resourcePost = new ResourcePost(resourceRegistry, PROPERTIES_PROVIDER, typeParser, objectMapper, documentMapper);
 
         // WHEN
         Response taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(new QueryParams()), null, newTaskDocument);
@@ -132,7 +132,7 @@ public class FieldResourcePostTest extends BaseControllerTest {
         newProjectDocument.setData(Nullable.of((Object)createProject()));
 
         JsonPath projectPath = pathBuilder.buildPath("/tasks/" + taskId + "/projects");
-        FieldResourcePost sut = new FieldResourcePost(resourceRegistry, typeParser, objectMapper, documentMapper);
+        FieldResourcePost sut = new FieldResourcePost(resourceRegistry, PROPERTIES_PROVIDER, typeParser, objectMapper, documentMapper);
 
         // WHEN
         Response projectResponse = sut.handle(projectPath, new QueryParamsAdapter(new QueryParams()), null, newProjectDocument);

@@ -10,6 +10,8 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.Test;
 
+import io.katharsis.core.internal.boot.EmptyPropertiesProvider;
+import io.katharsis.core.internal.boot.PropertiesProvider;
 import io.katharsis.core.internal.dispatcher.controller.BaseControllerTest;
 import io.katharsis.core.internal.dispatcher.controller.CollectionGet;
 import io.katharsis.core.internal.dispatcher.controller.RelationshipsResourcePost;
@@ -32,6 +34,7 @@ import io.katharsis.utils.Nullable;
 public class CollectionGetTest extends BaseControllerTest {
 
 	private static final String REQUEST_TYPE = "GET";
+	
 
 	@Test
 	public void onGivenRequestCollectionGetShouldAcceptIt() {
@@ -98,7 +101,7 @@ public class CollectionGetTest extends BaseControllerTest {
 		data.setId(Long.toString(taskId));
 
 		JsonPath taskPath = pathBuilder.build("/tasks");
-		ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper, documentMapper);
+		ResourcePost resourcePost = new ResourcePost(resourceRegistry, PROPERTIES_PROVIDER, typeParser, objectMapper, documentMapper);
 
 		// WHEN -- adding a task
 		Response taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(new QueryParams()), null, Document);
@@ -116,7 +119,7 @@ public class CollectionGetTest extends BaseControllerTest {
 		Resource data = createTask();
 		newTaskBody.setData(Nullable.of((Object) data));
 		JsonPath taskPath = pathBuilder.build("/tasks");
-		ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper, documentMapper);
+		ResourcePost resourcePost = new ResourcePost(resourceRegistry, PROPERTIES_PROVIDER, typeParser, objectMapper, documentMapper);
 
 		// WHEN -- adding a task
 		Response taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(new QueryParams()), null, newTaskBody);
@@ -195,7 +198,7 @@ public class CollectionGetTest extends BaseControllerTest {
 		data.setType("tasks");
 
 		JsonPath taskPath = pathBuilder.build("/tasks");
-		ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper, documentMapper);
+		ResourcePost resourcePost = new ResourcePost(resourceRegistry, PROPERTIES_PROVIDER, typeParser, objectMapper, documentMapper);
 
 		// WHEN -- adding a task
 		Response taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(new QueryParams()), null, newTaskBody);

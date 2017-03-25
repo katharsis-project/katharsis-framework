@@ -95,7 +95,7 @@ public class RelationshipsResourcePatchTest extends BaseControllerTest {
 		data.setType("tasks");
 
 		JsonPath taskPath = pathBuilder.build("/tasks");
-		ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER, documentMapper);
+		ResourcePost resourcePost = new ResourcePost(resourceRegistry, PROPERTIES_PROVIDER, typeParser, OBJECT_MAPPER, documentMapper);
 
 		// WHEN -- adding a task
 		Response taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newTaskBody);
@@ -154,7 +154,7 @@ public class RelationshipsResourcePatchTest extends BaseControllerTest {
 		newUserBody.setData(Nullable.of((Object) data));
 
 		JsonPath taskPath = pathBuilder.build("/users");
-		ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER, documentMapper);
+		ResourcePost resourcePost = new ResourcePost(resourceRegistry, PROPERTIES_PROVIDER, typeParser, OBJECT_MAPPER, documentMapper);
 
 		// WHEN -- adding a user
 		Response taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newUserBody);
@@ -212,7 +212,7 @@ public class RelationshipsResourcePatchTest extends BaseControllerTest {
 		newTaskBody.setData(Nullable.of((Object) data));
 
 		JsonPath taskPath = pathBuilder.build("/tasks");
-		ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, OBJECT_MAPPER, documentMapper);
+		ResourcePost resourcePost = new ResourcePost(resourceRegistry, PROPERTIES_PROVIDER, typeParser, OBJECT_MAPPER, documentMapper);
 
 		// WHEN -- adding a task
 		Response taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newTaskBody);
@@ -252,7 +252,7 @@ public class RelationshipsResourcePatchTest extends BaseControllerTest {
 
 		JsonPath taskPath = pathBuilder.build("/tasks");
 
-		ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper, documentMapper);
+		ResourcePost resourcePost = new ResourcePost(resourceRegistry, PROPERTIES_PROVIDER, typeParser, objectMapper, documentMapper);
 		Response taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newTaskBody);
 		assertThat(taskResponse.getDocument().getSingleData().get().getType()).isEqualTo("tasks");
 		Long taskIdOne = Long.parseLong(taskResponse.getDocument().getSingleData().get().getId());
@@ -289,7 +289,7 @@ public class RelationshipsResourcePatchTest extends BaseControllerTest {
 		assertEquals(2, projectPolymorphicObj.getTasks().size());
 
 		projectPolymorphicTypePath = pathBuilder.build("/" + type + "/" + projectPolymorphic.getId());
-		ResourcePatch resourcePatch = new ResourcePatch(resourceRegistry, typeParser, objectMapper, documentMapper);
+		ResourcePatch resourcePatch = new ResourcePatch(resourceRegistry, PROPERTIES_PROVIDER, typeParser, objectMapper, documentMapper);
 		data = newProjectBody.getSingleData().get();
 		data.setId(projectId.toString());
 		projectPolymorphic.setId(Long.toString(projectId));

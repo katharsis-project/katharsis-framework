@@ -5,8 +5,6 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Version;
 
-import io.katharsis.resource.annotations.JsonApiField;
-
 @Entity
 public class VersionedEntity extends TestMappedSuperclass {
 
@@ -48,8 +46,6 @@ public class VersionedEntity extends TestMappedSuperclass {
 		return version;
 	}
 
-	// make it updateable for testing
-	@JsonApiField(patchable = true)
 	public void setVersion(int version) {
 		this.version = version;
 	}

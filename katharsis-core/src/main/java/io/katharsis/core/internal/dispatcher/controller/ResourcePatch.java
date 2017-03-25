@@ -5,20 +5,21 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.katharsis.core.internal.boot.PropertiesProvider;
 import io.katharsis.core.internal.dispatcher.path.JsonPath;
 import io.katharsis.core.internal.dispatcher.path.ResourcePath;
 import io.katharsis.core.internal.repository.adapter.ResourceRepositoryAdapter;
 import io.katharsis.core.internal.resource.DocumentMapper;
-import io.katharsis.errorhandling.exception.BadRequestException;
 import io.katharsis.errorhandling.exception.RepositoryNotFoundException;
 import io.katharsis.errorhandling.exception.RequestBodyException;
 import io.katharsis.errorhandling.exception.RequestBodyNotFoundException;
@@ -30,7 +31,6 @@ import io.katharsis.repository.request.QueryAdapter;
 import io.katharsis.repository.response.JsonApiResponse;
 import io.katharsis.repository.response.Response;
 import io.katharsis.resource.Document;
-import io.katharsis.resource.Relationship;
 import io.katharsis.resource.Resource;
 import io.katharsis.resource.information.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
@@ -39,9 +39,11 @@ import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.utils.parser.TypeParser;
 
 public class ResourcePatch extends ResourceUpsert {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(ResourcePatch.class);
 
-    public ResourcePatch(ResourceRegistry resourceRegistry, TypeParser typeParser, @SuppressWarnings("SameParameterValue") ObjectMapper objectMapper, DocumentMapper documentMapper) {
-        super(resourceRegistry, typeParser, objectMapper, documentMapper);
+    public ResourcePatch(ResourceRegistry resourceRegistry, PropertiesProvider propertiesProvider, TypeParser typeParser, @SuppressWarnings("SameParameterValue") ObjectMapper objectMapper, DocumentMapper documentMapper) {
+        super(resourceRegistry, propertiesProvider, typeParser, objectMapper, documentMapper);
     }
 
     @Override
@@ -179,11 +181,9 @@ public class ResourcePatch extends ResourceUpsert {
     }
 
 	@Override
-	protected void verifyFieldAccess(ResourceInformation resourceInformation, String fieldName, ResourceField field) {
+	protected boolean canModifyField(ResourceInformation resourceInformation, String fieldName, ResourceField field) {
 		// allow dynamic field where field == null
-		if(field != null && !field.isPostable()){
-			throw new BadRequestException("not allowed to PATCH field '" + fieldName + "'");
-		}		
+		return field == null || field.isPostable();
 	}
 
 }
