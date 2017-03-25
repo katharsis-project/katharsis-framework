@@ -82,4 +82,10 @@ public class KatharsisProperties {
      * @since 2.8.2
      */
     public static final String INCLUDE_AUTOMATICALLY_OVERWRITE = "katharsis.config.include.automatically.overwrite";
+    
+    /**
+     * See {@link ResourceFieldImmutableWriteBehavior}. By default
+     * {@value ResourceFieldImmutableWriteBehavior#IGNORE} is used.
+     */
+    public static final String RESOURCE_FIELD_IMMUTABLE_WRITE_BEHAVIOR = "katharsis.config.resource.immutableWrite";
 }

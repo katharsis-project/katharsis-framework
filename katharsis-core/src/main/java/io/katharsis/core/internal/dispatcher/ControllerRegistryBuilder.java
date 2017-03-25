@@ -22,11 +22,13 @@ public class ControllerRegistryBuilder {
     private final TypeParser typeParser;
     private final ObjectMapper objectMapper;
     private final DocumentMapper documentMapper;
+	private final PropertiesProvider propertiesProvider;
 
     public ControllerRegistryBuilder(@SuppressWarnings("SameParameterValue") ResourceRegistry resourceRegistry, @SuppressWarnings("SameParameterValue") TypeParser typeParser,
                                      @SuppressWarnings("SameParameterValue") ObjectMapper objectMapper, PropertiesProvider propertiesProvider) {
         this.resourceRegistry = resourceRegistry;
         this.typeParser = typeParser;
+        this.propertiesProvider = propertiesProvider;
         this.objectMapper = objectMapper;
         this.documentMapper = new DocumentMapper(resourceRegistry, objectMapper, propertiesProvider);
     }
@@ -37,7 +39,7 @@ public class ControllerRegistryBuilder {
      * @return an instance of {@link ControllerRegistry} with initialized controllers
      */
     public ControllerRegistry build() {
-        return build(new DefaultControllerLookup(resourceRegistry, typeParser, objectMapper, documentMapper));
+        return build(new DefaultControllerLookup(resourceRegistry, propertiesProvider, typeParser, objectMapper, documentMapper));
     }
 
     /**

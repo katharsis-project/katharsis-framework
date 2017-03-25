@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import io.katharsis.client.ResponseBodyException;
 import io.katharsis.client.internal.proxy.ClientProxyFactory;
+import io.katharsis.core.internal.boot.PropertiesProvider;
 import io.katharsis.core.internal.dispatcher.controller.ResourceUpsert;
 import io.katharsis.core.internal.dispatcher.path.JsonPath;
 import io.katharsis.core.internal.resource.DocumentMapper;
@@ -38,8 +39,8 @@ class ClientResourceUpsert extends ResourceUpsert {
 
 	private Map<String, Object> resourceMap = new HashMap<>();
 
-	public ClientResourceUpsert(ResourceRegistry resourceRegistry, TypeParser typeParser, ObjectMapper objectMapper, DocumentMapper documentMapper, ClientProxyFactory proxyFactory) {
-		super(resourceRegistry, typeParser, objectMapper, documentMapper);
+	public ClientResourceUpsert(ResourceRegistry resourceRegistry, PropertiesProvider propertiesProvider, TypeParser typeParser, ObjectMapper objectMapper, DocumentMapper documentMapper, ClientProxyFactory proxyFactory) {
+		super(resourceRegistry, propertiesProvider, typeParser, objectMapper, documentMapper);
 		this.proxyFactory = proxyFactory;
 	}
 
@@ -183,4 +184,11 @@ class ClientResourceUpsert extends ResourceUpsert {
 		}
 	}
 
+	@Override
+	protected boolean canModifyField(ResourceInformation resourceInformation, String fieldName, ResourceField field) {
+		// nothing to verify during deserialization on client-side
+		// there is only a need to check field access when receiving resources
+		// on the server-side client needs all the data he gets from the server
+		return true;
+	}
 }

@@ -42,6 +42,7 @@ import io.katharsis.resource.annotations.JsonApiLinksInformation;
 import io.katharsis.resource.annotations.JsonApiMetaInformation;
 import io.katharsis.resource.annotations.LookupIncludeBehavior;
 import io.katharsis.resource.information.ResourceField;
+import io.katharsis.resource.information.ResourceFieldAccess;
 import io.katharsis.resource.information.ResourceFieldType;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.information.ResourceInformationBuilder;
@@ -329,12 +330,16 @@ public class JpaResourceInformationBuilder implements ResourceInformationBuilder
 		ResourceFieldType resourceFieldType = ResourceFieldType.get(id, linksInfo, metaInfo, association);
 		String oppositeResourceType = association
 				? AnnotationResourceInformationBuilder.getResourceType(genericType, context) : null;
+		
+		boolean hasSetter = AnnotationResourceInformationBuilder.hasSetter(meta.getImplementationClass(), attr.getName());		
+		ResourceFieldAccess access = AnnotationResourceInformationBuilder.getResourceFieldAccess(resourceFieldType, hasSetter, annotations);
 
 		// related repositories should lookup, we ignore the hibernate proxies
 		LookupIncludeBehavior lookupIncludeBehavior = AnnotatedResourceField.getLookupIncludeBehavior(annotations,
 				LookupIncludeBehavior.AUTOMATICALLY_ALWAYS);
 		return new ResourceFieldImpl(jsonName, underlyingName, resourceFieldType, type, genericType,
-				oppositeResourceType, oppositeName, lazy, includeByDefault, lookupIncludeBehavior);
+				oppositeResourceType, oppositeName, lazy, includeByDefault, lookupIncludeBehavior, 
+				access);
 	}
 
 	@Override

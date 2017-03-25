@@ -79,7 +79,7 @@ public class ResourceGetTest extends BaseControllerTest {
 		JsonPath taskPath = pathBuilder.buildPath("/tasks");
 
 		// WHEN
-		ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper, documentMapper);
+		ResourcePost resourcePost = new ResourcePost(resourceRegistry, PROPERTIES_PROVIDER, typeParser, objectMapper, documentMapper);
 		Response taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newTaskBody);
 		assertThat(taskResponse.getDocument().getData().get()).isExactlyInstanceOf(Resource.class);
 		String taskId = ((Resource) taskResponse.getDocument().getData().get()).getId();
@@ -127,7 +127,7 @@ public class ResourceGetTest extends BaseControllerTest {
 		newTaskBody.setData(Nullable.of((Object) data));
 
 		JsonPath taskPath = pathBuilder.buildPath("/tasks");
-		ResourcePost resourcePost = new ResourcePost(resourceRegistry, typeParser, objectMapper, documentMapper);
+		ResourcePost resourcePost = new ResourcePost(resourceRegistry, PROPERTIES_PROVIDER, typeParser, objectMapper, documentMapper);
 
 		// WHEN -- adding a task
 		Response taskResponse = resourcePost.handle(taskPath, new QueryParamsAdapter(REQUEST_PARAMS), null, newTaskBody);

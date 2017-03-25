@@ -12,6 +12,7 @@ import org.junit.rules.ExpectedException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.katharsis.core.internal.boot.EmptyPropertiesProvider;
+import io.katharsis.core.internal.boot.PropertiesProvider;
 import io.katharsis.core.internal.dispatcher.path.PathBuilder;
 import io.katharsis.core.internal.jackson.JsonApiModuleBuilder;
 import io.katharsis.core.internal.resource.AnnotationResourceInformationBuilder;
@@ -43,6 +44,8 @@ public abstract class BaseControllerTest {
 	protected static final long PROJECT_ID = 2;
 
 	protected static final QueryParams REQUEST_PARAMS = new QueryParams();
+	
+	protected static final PropertiesProvider PROPERTIES_PROVIDER = new EmptyPropertiesProvider();
 
 	protected ObjectMapper objectMapper;
 	protected PathBuilder pathBuilder;

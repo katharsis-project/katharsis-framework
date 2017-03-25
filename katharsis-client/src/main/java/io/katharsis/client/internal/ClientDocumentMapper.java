@@ -79,7 +79,7 @@ public class ClientDocumentMapper extends DocumentMapper {
 	}
 
 	public Object fromDocument(Document document, boolean getList) {
-		ClientResourceUpsert upsert = new ClientResourceUpsert(resourceRegistry, typeParser, objectMapper, null, proxyFactory);
+		ClientResourceUpsert upsert = new ClientResourceUpsert(resourceRegistry, propertiesProvider, typeParser, objectMapper, null, proxyFactory);
 
 		if (document.getErrors() != null && !document.getErrors().isEmpty()) {
 			throw new IllegalStateException("document contains json api errors and cannot be processed");

@@ -84,16 +84,28 @@ public class ResourceMapper {
 
 		// serialize the individual attributes
 		for (ResourceField field : fields) {
-			Object value = PropertyUtils.getProperty(entity, field.getUnderlyingName());
-			JsonNode valueNode = objectMapper.valueToTree(value);
-			resource.getAttributes().put(field.getJsonName(), valueNode);
+			if (!isIgnored(field)) {
+				setAttribute(resource, field, entity);
+			}
 		}
+	}
+
+	protected boolean isIgnored(ResourceField field) {
+		return false;
+	}
+
+	protected void setAttribute(Resource resource, ResourceField field, Object entity) {
+		Object value = PropertyUtils.getProperty(entity, field.getUnderlyingName());
+		JsonNode valueNode = objectMapper.valueToTree(value);
+		resource.getAttributes().put(field.getJsonName(), valueNode);
 	}
 
 	protected void setRelationships(Resource resource, Object entity, ResourceInformation resourceInformation, QueryAdapter queryAdapter) {
 		List<ResourceField> fields = DocumentMapperUtil.getRequestedFields(resourceInformation, queryAdapter, resourceInformation.getRelationshipFields(), true);
 		for (ResourceField field : fields) {
-			setRelationship(resource, field, entity, resourceInformation, queryAdapter);
+			if (!isIgnored(field)) {
+				setRelationship(resource, field, entity, resourceInformation, queryAdapter);
+			}
 		}
 	}
 

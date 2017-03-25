@@ -18,6 +18,7 @@ import io.katharsis.jpa.meta.JpaMetaProvider;
 import io.katharsis.jpa.model.RelatedEntity;
 import io.katharsis.jpa.model.TestEmbeddable;
 import io.katharsis.jpa.model.TestEntity;
+import io.katharsis.jpa.model.VersionedEntity;
 import io.katharsis.jpa.util.ResourceFieldComparator;
 import io.katharsis.legacy.registry.DefaultResourceInformationBuilderContext;
 import io.katharsis.meta.MetaLookup;
@@ -50,7 +51,7 @@ public class JpaResourceInformationBuilderTest {
 		assertEquals("id", idField.getUnderlyingName());
 		assertEquals(Long.class, idField.getType());
 		assertEquals(Long.class, idField.getGenericType());
-
+		
 		List<ResourceField> attrFields = new ArrayList<ResourceField>(info.getAttributeFields().getFields());
 		Collections.sort(attrFields, ResourceFieldComparator.INSTANCE);
 		assertEquals(5, attrFields.size());
@@ -75,6 +76,39 @@ public class JpaResourceInformationBuilderTest {
 		Assert.assertTrue(found);
 	}
 
+	@Test
+	public void testIdAccess(){
+		ResourceInformation info = builder.build(TestEntity.class);
+		ResourceField idField = info.getIdField();
+		Assert.assertTrue(idField.getAccess().isPostable());
+		Assert.assertFalse(idField.getAccess().isPatchable());
+	}
+	
+	@Test
+	public void testStringAttributeAccess(){
+		ResourceInformation info = builder.build(TestEntity.class);
+		ResourceField field = info.findAttributeFieldByName("stringValue");
+		Assert.assertTrue(field.getAccess().isPostable());
+		Assert.assertTrue(field.getAccess().isPatchable());
+	}
+	
+	@Test
+	public void testLongAttributeAccess(){
+		ResourceInformation info = builder.build(VersionedEntity.class);
+		ResourceField field = info.findAttributeFieldByName("longValue");
+		Assert.assertTrue(field.getAccess().isPostable());
+		Assert.assertTrue(field.getAccess().isPatchable());
+	}
+	
+	@Test
+	public void testVersionAccess(){
+		ResourceInformation info = builder.build(VersionedEntity.class);
+		ResourceField field = info.findAttributeFieldByName("version");
+		// must not be immutable to support optimistic locking
+		Assert.assertTrue(field.getAccess().isPostable());
+		Assert.assertTrue(field.getAccess().isPatchable());
+	}
+	
 	@Test
 	@Ignore
 	public void mergeRelationsAnnotation() {

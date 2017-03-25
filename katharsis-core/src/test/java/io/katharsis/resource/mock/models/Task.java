@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+import io.katharsis.resource.annotations.JsonApiField;
 import io.katharsis.resource.annotations.JsonApiId;
 import io.katharsis.resource.annotations.JsonApiIncludeByDefault;
 import io.katharsis.resource.annotations.JsonApiLinksInformation;
@@ -20,129 +21,147 @@ import io.katharsis.resource.meta.MetaInformation;
 @JsonPropertyOrder(alphabetic = true)
 public class Task {
 
-    @JsonApiId
-    private Long id;
+	@JsonApiId
+	private Long id;
 
-    private String name;
+	private String name;
 
-    private String category;
+	private String category;
 
-    @JsonApiToOne(opposite = "tasks")
-    @JsonApiIncludeByDefault
-    private Project project;
+	@JsonApiToOne(opposite = "tasks")
+	@JsonApiIncludeByDefault
+	private Project project;
 
-    @JsonApiToMany
-    private List<Project> projectsInit = Collections.emptyList();
+	@JsonApiToMany
+	private List<Project> projectsInit = Collections.emptyList();
 
-    @JsonApiToMany(lazy = false)
-    private List<Project> projects = Collections.emptyList();
+	@JsonApiToMany(lazy = false)
+	private List<Project> projects = Collections.emptyList();
 
-    @JsonApiToOne
-    @JsonApiLookupIncludeAutomatically
-    private Project includedProject;
+	@JsonApiToOne
+	@JsonApiLookupIncludeAutomatically
+	private Project includedProject;
 
-    @JsonApiToMany
-    @JsonApiLookupIncludeAutomatically
-    private List<Project> includedProjects;
+	@JsonApiToMany
+	@JsonApiLookupIncludeAutomatically
+	private List<Project> includedProjects;
 
-    @JsonApiMetaInformation
-    private MetaInformation metaInformation;
+	@JsonApiMetaInformation
+	private MetaInformation metaInformation;
 
-    @JsonApiLinksInformation
-    private LinksInformation linksInformation;
+	@JsonApiLinksInformation
+	private LinksInformation linksInformation;
 
-    private List<Task> otherTasks;
+	private List<Task> otherTasks;
 
-    public List<Task> getOtherTasks() {
-        return otherTasks;
-    }
+	@JsonApiField(patchable = false, postable = false)
+	private String status;
+	
+	private String readOnlyValue = "someReadOnlyValue";
 
-    public Task setOtherTasks(List<Task> otherTasks) {
-        this.otherTasks = otherTasks;
-        return this;
-    }
+	public String getReadOnlyValue(){
+		return readOnlyValue;
+	}
+	
+	public List<Task> getOtherTasks() {
+		return otherTasks;
+	}
 
-    public Long getId() {
-        return id;
-    }
+	public Task setOtherTasks(List<Task> otherTasks) {
+		this.otherTasks = otherTasks;
+		return this;
+	}
 
-    public Task setId(Long id) {
-        this.id = id;
-        return this;
-    }
+	public Long getId() {
+		return id;
+	}
 
-    public String getName() {
-        return name;
-    }
+	public Task setId(Long id) {
+		this.id = id;
+		return this;
+	}
 
-    public void setName(@SuppressWarnings("SameParameterValue") String name) {
-        this.name = name;
-    }
+	public String getStatus() {
+		return status;
+	}
 
-    public String getCategory() {
-        return category;
-    }
+	public void setStatus(String status) {
+		this.status = status;
+	}
 
-    public void setCategory(String category) {
-    	if(category == null) throw new IllegalArgumentException("Category cannot be set to null!");
-        this.category = category;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public Project getProject() {
-        return project;
-    }
+	public void setName(@SuppressWarnings("SameParameterValue") String name) {
+		this.name = name;
+	}
 
-    public void setProject(Project project) {
-        this.project = project;
-    }
+	public String getCategory() {
+		return category;
+	}
 
-    public List<Project> getProjects() {
-        return projects;
-    }
+	public void setCategory(String category) {
+		if (category == null)
+			throw new IllegalArgumentException("Category cannot be set to null!");
+		this.category = category;
+	}
 
-    public void setProjects(List<Project> projects) {
-        this.projects = projects;
-    }
+	public Project getProject() {
+		return project;
+	}
 
-    public Project getIncludedProject() {
-        return includedProject;
-    }
+	public void setProject(Project project) {
+		this.project = project;
+	}
 
-    public void setIncludedProject(Project includedProject) {
-        this.includedProject = includedProject;
-    }
+	public List<Project> getProjects() {
+		return projects;
+	}
 
-    public List<Project> getIncludedProjects() {
-        return includedProjects;
-    }
+	public void setProjects(List<Project> projects) {
+		this.projects = projects;
+	}
 
-    public void setIncludedProjects(List<Project> includedProjects) {
-        this.includedProjects = includedProjects;
-    }
+	public Project getIncludedProject() {
+		return includedProject;
+	}
 
-    public MetaInformation getMetaInformation() {
-        return metaInformation;
-    }
+	public void setIncludedProject(Project includedProject) {
+		this.includedProject = includedProject;
+	}
 
-    public Task setMetaInformation(MetaInformation metaInformation) {
-        this.metaInformation = metaInformation;
-        return this;
-    }
+	public List<Project> getIncludedProjects() {
+		return includedProjects;
+	}
 
-    public LinksInformation getLinksInformation() {
-        return linksInformation;
-    }
+	public void setIncludedProjects(List<Project> includedProjects) {
+		this.includedProjects = includedProjects;
+	}
 
-    public Task setLinksInformation(LinksInformation linksInformation) {
-        this.linksInformation = linksInformation;
-        return this;
-    }
+	public MetaInformation getMetaInformation() {
+		return metaInformation;
+	}
 
-    public List<Project> getProjectsInit() {
-        return projectsInit;
-    }
+	public Task setMetaInformation(MetaInformation metaInformation) {
+		this.metaInformation = metaInformation;
+		return this;
+	}
 
-    public void setProjectsInit(List<Project> projectsInit) {
-        this.projectsInit = projectsInit;
-    }
+	public LinksInformation getLinksInformation() {
+		return linksInformation;
+	}
+
+	public Task setLinksInformation(LinksInformation linksInformation) {
+		this.linksInformation = linksInformation;
+		return this;
+	}
+
+	public List<Project> getProjectsInit() {
+		return projectsInit;
+	}
+
+	public void setProjectsInit(List<Project> projectsInit) {
+		this.projectsInit = projectsInit;
+	}
 }

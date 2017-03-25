@@ -5,12 +5,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Collection;
 import java.util.concurrent.Future;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import io.katharsis.core.internal.resource.AnnotationResourceInformationBuilder;
 import io.katharsis.errorhandling.exception.MultipleJsonApiLinksInformationException;
@@ -27,6 +30,7 @@ import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.annotations.JsonApiToOne;
 import io.katharsis.resource.annotations.LookupIncludeBehavior;
 import io.katharsis.resource.annotations.SerializeType;
+import io.katharsis.resource.information.ResourceField;
 import io.katharsis.resource.information.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.ResourceFieldType;
 import io.katharsis.resource.information.ResourceInformation;
@@ -36,7 +40,7 @@ import io.katharsis.resource.mock.models.Task;
 import io.katharsis.resource.mock.models.UnAnnotatedTask;
 import io.katharsis.utils.parser.TypeParser;
 
-public class ResourceInformationBuilderTest {
+public class AnnotationResourceInformationBuilderTest {
 
 	private static final String NAME_PROPERTY = "underlyingName";
 
@@ -60,10 +64,82 @@ public class ResourceInformationBuilderTest {
 	}
 
 	@Test
+	public void checkJsonApiAttributeAnnotation() throws Exception {
+		ResourceInformation resourceInformation = resourceInformationBuilder.build(Task.class);
+		ResourceField field = resourceInformation.findAttributeFieldByName("status");
+		Assert.assertFalse(field.getAccess().isPatchable());
+		Assert.assertFalse(field.getAccess().isPostable());
+	}
+
+	@Test
+	public void checkJsonPropertyAccessPolicy() throws Exception {
+		ResourceInformation resourceInformation = resourceInformationBuilder.build(JsonIngoreTestResource.class);
+		ResourceField defaultAttribute = resourceInformation.findAttributeFieldByName("defaultAttribute");
+		ResourceField readOnlyAttribute = resourceInformation.findAttributeFieldByName("readOnlyAttribute");
+		ResourceField readWriteAttribute = resourceInformation.findAttributeFieldByName("readWriteAttribute");
+		Assert.assertTrue(defaultAttribute.getAccess().isPatchable());
+		Assert.assertTrue(defaultAttribute.getAccess().isPostable());
+		Assert.assertFalse(readOnlyAttribute.getAccess().isPatchable());
+		Assert.assertFalse(readOnlyAttribute.getAccess().isPostable());
+		Assert.assertTrue(readWriteAttribute.getAccess().isPatchable());
+		Assert.assertTrue(readWriteAttribute.getAccess().isPostable());
+	}
+
+	@JsonApiResource(type = "tasks")
+	@JsonPropertyOrder(alphabetic = true)
+	public static class JsonIngoreTestResource {
+
+		@JsonApiId
+		public String id;
+		
+		public String defaultAttribute;
+
+		@JsonProperty(access = JsonProperty.Access.READ_ONLY)
+		public String readOnlyAttribute;
+		
+		@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+		public String readWriteAttribute;
+	}
+
+	@Test
+	public void checkJsonApiAttributeAnnotationDefaults() throws Exception {
+		ResourceInformation resourceInformation = resourceInformationBuilder.build(Task.class);
+		ResourceField field = resourceInformation.findAttributeFieldByName("name");
+		Assert.assertTrue(field.getAccess().isPatchable());
+		Assert.assertTrue(field.getAccess().isPostable());
+	}
+
+	@Test
+	public void checkJsonApiAttributeAnnotationDefaultsForIds() throws Exception {
+		ResourceInformation resourceInformation = resourceInformationBuilder.build(Task.class);
+		ResourceField field = resourceInformation.getIdField();
+		Assert.assertFalse(field.getAccess().isPatchable());
+		Assert.assertTrue(field.getAccess().isPostable());
+	}
+
+	@Test
 	public void shouldHaveIdFieldInfoForValidResource() throws Exception {
 		ResourceInformation resourceInformation = resourceInformationBuilder.build(Task.class);
 
 		assertThat(resourceInformation.getIdField().getUnderlyingName()).isNotNull().isEqualTo("id");
+	}
+
+	@Test
+	public void shouldNotBePostableOrPatchableWithoutSetter() throws Exception {
+		ResourceInformation resourceInformation = resourceInformationBuilder.build(Task.class);
+
+		ResourceField field = resourceInformation.findAttributeFieldByName("readOnlyValue");
+		Assert.assertFalse(field.getAccess().isPostable());
+		Assert.assertFalse(field.getAccess().isPatchable());
+	}
+
+	@Test
+	public void shouldBePostableAndPatchableWithSetter() throws Exception {
+		ResourceInformation resourceInformation = resourceInformationBuilder.build(Task.class);
+
+		ResourceField field = resourceInformation.findAttributeFieldByName("name");
+		Assert.assertTrue(field.getAccess().isPostable());
+		Assert.assertTrue(field.getAccess().isPatchable());
 	}
 
 	@Test
@@ -286,7 +362,7 @@ public class ResourceInformationBuilderTest {
 		}
 	}
 
-	@JsonPropertyOrder({"b", "a", "c"})
+	@JsonPropertyOrder({ "b", "a", "c" })
 	@JsonApiResource(type = "orderedResource")
 	private static class OrderedResource {
 		@JsonApiId
@@ -357,7 +433,6 @@ public class ResourceInformationBuilderTest {
 			return null;
 		}
 	}
-
 
 	@JsonApiResource(type = "jsonAPIRelationType")
 	private static class JsonApiRelationType {

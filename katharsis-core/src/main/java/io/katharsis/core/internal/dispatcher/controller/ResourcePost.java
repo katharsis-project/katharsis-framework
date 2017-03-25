@@ -5,6 +5,7 @@ import java.util.Set;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.katharsis.core.internal.boot.PropertiesProvider;
 import io.katharsis.core.internal.dispatcher.path.JsonPath;
 import io.katharsis.core.internal.dispatcher.path.ResourcePath;
 import io.katharsis.core.internal.repository.adapter.ResourceRepositoryAdapter;
@@ -20,14 +21,16 @@ import io.katharsis.repository.response.JsonApiResponse;
 import io.katharsis.repository.response.Response;
 import io.katharsis.resource.Document;
 import io.katharsis.resource.Resource;
+import io.katharsis.resource.information.ResourceField;
+import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.utils.parser.TypeParser;
 
 public class ResourcePost extends ResourceUpsert {
 
-    public ResourcePost(ResourceRegistry resourceRegistry, TypeParser typeParser, ObjectMapper objectMapper, DocumentMapper documentMapper) {
-        super(resourceRegistry, typeParser, objectMapper, documentMapper);
+    public ResourcePost(ResourceRegistry resourceRegistry, PropertiesProvider propertiesProvider, TypeParser typeParser, ObjectMapper objectMapper, DocumentMapper documentMapper) {
+        super(resourceRegistry, propertiesProvider, typeParser, objectMapper, documentMapper);
     }
 
     /**
@@ -80,4 +83,10 @@ public class ResourcePost extends ResourceUpsert {
 
         return new Response(responseDocument, HttpStatus.CREATED_201);
     }
+
+	@Override
+	protected boolean canModifyField(ResourceInformation resourceInformation, String fieldName, ResourceField field) {
+		// allow dynamic field where field == null
+		return field == null || field.getAccess().isPostable();
+	}
 }

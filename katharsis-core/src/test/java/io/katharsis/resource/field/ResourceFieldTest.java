@@ -14,6 +14,7 @@ import io.katharsis.core.internal.resource.AnnotationResourceInformationBuilder;
 import io.katharsis.resource.annotations.JsonApiIncludeByDefault;
 import io.katharsis.resource.annotations.JsonApiToMany;
 import io.katharsis.resource.information.ResourceField;
+import io.katharsis.resource.information.ResourceFieldAccess;
 import io.katharsis.resource.information.ResourceFieldType;
 
 public class ResourceFieldTest {
@@ -31,7 +32,7 @@ public class ResourceFieldTest {
 	public void onWithLazyFieldClassShouldReturnTrue() throws Exception {
 		// GIVEN
 		List<Annotation> annotations = Arrays.asList(WithLazyFieldClass.class.getDeclaredField("value").getAnnotations());
-		ResourceField sut = new AnnotationResourceInformationBuilder.AnnotatedResourceField("", "", String.class, String.class, null, annotations);
+		ResourceField sut = new AnnotationResourceInformationBuilder.AnnotatedResourceField("", "", String.class, String.class, null, annotations, new ResourceFieldAccess(true, true));
 
 		// WHEN
 		boolean result = sut.isLazy();
@@ -45,7 +46,7 @@ public class ResourceFieldTest {
 	public void onWithToManyEagerFieldClassShouldReturnFalse() throws Exception {
 		// GIVEN
 		List<Annotation> annotations = Arrays.asList(WithToManyEagerFieldClass.class.getDeclaredField("value").getAnnotations());
-		ResourceField sut = new AnnotationResourceInformationBuilder.AnnotatedResourceField("", "", String.class, String.class, null, annotations);
+		ResourceField sut = new AnnotationResourceInformationBuilder.AnnotatedResourceField("", "", String.class, String.class, null, annotations, new ResourceFieldAccess(true, true));
 
 		// WHEN
 		boolean result = sut.isLazy();
@@ -59,7 +60,7 @@ public class ResourceFieldTest {
 	public void onWithoutToManyFieldClassShouldReturnFalse() throws Exception {
 		// GIVEN
 		List<Annotation> annotations = Arrays.asList(WithoutToManyFieldClass.class.getDeclaredField("value").getAnnotations());
-		ResourceField sut = new AnnotationResourceInformationBuilder.AnnotatedResourceField("", "", String.class, String.class, null, annotations);
+		ResourceField sut = new AnnotationResourceInformationBuilder.AnnotatedResourceField("", "", String.class, String.class, null, annotations, new ResourceFieldAccess(true, true));
 
 		// WHEN
 		boolean result = sut.isLazy();
@@ -73,7 +74,7 @@ public class ResourceFieldTest {
 	public void onLazyRelationshipToManyAndInclusionByDefaultShouldReturnEagerFlag() throws Exception {
 		// GIVEN
 		List<Annotation> annotations = Arrays.asList(WithLazyFieldAndInclusionByDefaultClass.class.getDeclaredField("value").getAnnotations());
-		ResourceField sut = new AnnotationResourceInformationBuilder.AnnotatedResourceField("", "", String.class, String.class, null, annotations);
+		ResourceField sut = new AnnotationResourceInformationBuilder.AnnotatedResourceField("", "", String.class, String.class, null, annotations, new ResourceFieldAccess(true, true));
 
 		// WHEN
 		boolean result = sut.isLazy();

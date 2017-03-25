@@ -22,11 +22,20 @@ public interface ResourceField {
 	 */
 	public String getOppositeName();
 
+	/**
+	 * @return resourceType of the opposite resource in case of a relation.
+	 */
+	public String getOppositeResourceType();
+
+	/**
+	 * @return name used in Json
+	 */
 	public String getJsonName();
 
+	/**
+	 * @return name used in Java
+	 */
 	public String getUnderlyingName();
-
-	public String getOppositeResourceType();
 
 	public Class<?> getType();
 
@@ -43,16 +52,24 @@ public interface ResourceField {
 	public boolean getIncludeByDefault();
 
 	/**
-	 * Returns the non-collection type. Matches {@link #getType()} for
-	 * non-collections. Returns the type argument in case of a collection type.
-	 *
-	 * @return Ask Remmo
+	 * @return the non-collection type. Matches {@link #getType()} for
+	 *         non-collections. Returns the type argument in case of a
+	 *         collection type.
 	 */
 	public Class<?> getElementType();
 
+	/**
+	 * @return resourceInformation this field belongs to.
+	 */
 	public ResourceInformation getParentResourceInformation();
 
 	public void setResourceInformation(ResourceInformation resourceInformation);
 
 	public boolean isCollection();
+
+	/**
+	 * @return access information for this resource (postable, patchable)
+	 */
+	ResourceFieldAccess getAccess();
+
 }

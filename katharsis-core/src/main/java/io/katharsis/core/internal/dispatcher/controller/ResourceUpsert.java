@@ -5,17 +5,25 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
-import java.util.Map.Entry;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.katharsis.core.internal.boot.PropertiesProvider;
 import io.katharsis.core.internal.repository.adapter.RelationshipRepositoryAdapter;
 import io.katharsis.core.internal.resource.DocumentMapper;
 import io.katharsis.core.internal.resource.ResourceAttributesBridge;
 import io.katharsis.core.internal.utils.Generics;
 import io.katharsis.core.internal.utils.PropertyUtils;
+import io.katharsis.core.properties.KatharsisProperties;
+import io.katharsis.core.properties.ResourceFieldImmutableWriteBehavior;
+import io.katharsis.errorhandling.exception.BadRequestException;
 import io.katharsis.errorhandling.exception.ResourceException;
 import io.katharsis.errorhandling.exception.ResourceNotFoundException;
 import io.katharsis.legacy.internal.RepositoryMethodParameterProvider;
@@ -31,12 +39,18 @@ import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.utils.parser.TypeParser;
 
 public abstract class ResourceUpsert extends BaseController {
+	
+	private final Logger logger = LoggerFactory.getLogger(getClass());
+	
 	protected final ResourceRegistry resourceRegistry;
     final TypeParser typeParser;
     protected final ObjectMapper objectMapper;
 	protected DocumentMapper documentMapper;
+	
+	private PropertiesProvider propertiesProvider;
 
-    public ResourceUpsert(ResourceRegistry resourceRegistry, TypeParser typeParser, ObjectMapper objectMapper, DocumentMapper documentMapper) {
+    public ResourceUpsert(ResourceRegistry resourceRegistry, PropertiesProvider propertiesProvider, TypeParser typeParser, ObjectMapper objectMapper, DocumentMapper documentMapper) {
+    	this.propertiesProvider = propertiesProvider;
         this.resourceRegistry = resourceRegistry;
         this.typeParser = typeParser;
         this.objectMapper = objectMapper;
@@ -70,11 +84,23 @@ public abstract class ResourceUpsert extends BaseController {
     
     protected void setAttributes(Resource dataBody, Object instance, ResourceInformation resourceInformation) {
         if (dataBody.getAttributes() != null) {
-            ResourceAttributesBridge resourceAttributesBridge = resourceInformation.getAttributeFields();
-            resourceAttributesBridge.setProperties(objectMapper, instance, dataBody.getAttributes());
+        	
+        	ResourceAttributesBridge resourceAttributesBridge = resourceInformation.getAttributeFields();
+        	  
+        	 for(Map.Entry<String, JsonNode>  entry : dataBody.getAttributes().entrySet()){
+        		 String attributeName = entry.getKey();
+        		 
+        		ResourceField field = resourceInformation.findAttributeFieldByName(attributeName);
+        		if(canModifyField(resourceInformation, attributeName, field)){
+        			resourceAttributesBridge.setProperty(objectMapper, instance, entry.getValue(), entry.getKey());
+        		}else{
+                	handleImmutableField(resourceInformation, entry.getKey());
+                }
+        	}
+          
         }
     }
-
+    
     protected void saveRelations(QueryAdapter queryAdapter, Object savedResource, RegistryEntry registryEntry, Resource dataBody,
                                  RepositoryMethodParameterProvider parameterProvider) {
         if (dataBody.getRelationships() != null) {
@@ -123,12 +149,37 @@ public abstract class ResourceUpsert extends BaseController {
         RelationshipRepositoryAdapter relationshipRepository = registryEntry
                 .getRelationshipRepositoryForClass(relationshipClass, parameterProvider);
         ResourceField relationshipField = resourceInformation.findRelationshipFieldByName(property.getKey());
-        //noinspection unchecked
-        relationshipRepository.setRelations(savedResource, castedRelationIds,
-                relationshipField, queryAdapter);
+        
+        if(canModifyField(resourceInformation, property.getKey(), relationshipField)){
+        	 //noinspection unchecked
+            relationshipRepository.setRelations(savedResource, castedRelationIds,
+                    relationshipField, queryAdapter);
+        }else{
+        	handleImmutableField(resourceInformation, property.getKey());
+        }
     }
 
-    private static boolean allTypesTheSame(Iterable<ResourceIdentifier> linkages) {
+    private void handleImmutableField(ResourceInformation resourceInformation, String fieldName) {
+		String strBehavior = propertiesProvider.getProperty(KatharsisProperties.RESOURCE_FIELD_IMMUTABLE_WRITE_BEHAVIOR);
+		ResourceFieldImmutableWriteBehavior behavior = strBehavior != null ? ResourceFieldImmutableWriteBehavior.valueOf(strBehavior) : ResourceFieldImmutableWriteBehavior.IGNORE;
+		if(behavior == ResourceFieldImmutableWriteBehavior.IGNORE){
+			logger.debug("attribute '{}' is immutable", fieldName);
+		}else{
+			throw new BadRequestException("attribute '" + fieldName + "' is immutable");
+		}
+	}
+
+	/**
+     * Allows to check whether the given field can be written.
+     * 
+     * @param resourceInformation
+     * @param fieldName
+     * @param field from the information model or null if is a dynamic field (like JsonAny).
+     */
+    protected abstract boolean canModifyField(ResourceInformation resourceInformation, String fieldName, ResourceField field);
+		
+
+	private static boolean allTypesTheSame(Iterable<ResourceIdentifier> linkages) {
         String type = linkages.iterator()
                 .hasNext() ? linkages.iterator()
                 .next()

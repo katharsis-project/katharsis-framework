@@ -5,15 +5,14 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.katharsis.core.internal.boot.PropertiesProvider;
 import io.katharsis.core.internal.dispatcher.path.JsonPath;
 import io.katharsis.core.internal.dispatcher.path.ResourcePath;
 import io.katharsis.core.internal.repository.adapter.ResourceRepositoryAdapter;
@@ -29,17 +28,17 @@ import io.katharsis.repository.request.QueryAdapter;
 import io.katharsis.repository.response.JsonApiResponse;
 import io.katharsis.repository.response.Response;
 import io.katharsis.resource.Document;
-import io.katharsis.resource.Relationship;
 import io.katharsis.resource.Resource;
+import io.katharsis.resource.information.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.utils.parser.TypeParser;
 
 public class ResourcePatch extends ResourceUpsert {
-
-    public ResourcePatch(ResourceRegistry resourceRegistry, TypeParser typeParser, @SuppressWarnings("SameParameterValue") ObjectMapper objectMapper, DocumentMapper documentMapper) {
-        super(resourceRegistry, typeParser, objectMapper, documentMapper);
+	
+    public ResourcePatch(ResourceRegistry resourceRegistry, PropertiesProvider propertiesProvider, TypeParser typeParser, @SuppressWarnings("SameParameterValue") ObjectMapper objectMapper, DocumentMapper documentMapper) {
+        super(resourceRegistry, propertiesProvider, typeParser, objectMapper, documentMapper);
     }
 
     @Override
@@ -175,5 +174,11 @@ public class ResourcePatch extends ResourceUpsert {
             source.put(fieldName, updatedValue);
         }
     }
+
+	@Override
+	protected boolean canModifyField(ResourceInformation resourceInformation, String fieldName, ResourceField field) {
+		// allow dynamic field where field == null
+		return field == null || field.getAccess().isPostable();
+	}
 
 }

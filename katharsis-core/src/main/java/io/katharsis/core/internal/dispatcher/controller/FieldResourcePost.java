@@ -5,6 +5,7 @@ import java.util.Collections;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.katharsis.core.internal.boot.PropertiesProvider;
 import io.katharsis.core.internal.dispatcher.path.FieldPath;
 import io.katharsis.core.internal.dispatcher.path.JsonPath;
 import io.katharsis.core.internal.dispatcher.path.PathIds;
@@ -25,6 +26,7 @@ import io.katharsis.repository.response.Response;
 import io.katharsis.resource.Document;
 import io.katharsis.resource.Resource;
 import io.katharsis.resource.information.ResourceField;
+import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.utils.parser.TypeParser;
@@ -33,10 +35,10 @@ import io.katharsis.utils.parser.TypeParser;
  * Creates a new post in a similar manner as in {@link ResourcePost}, but additionally adds a relation to a field.
  */
 public class FieldResourcePost extends ResourceUpsert {
-
-    public FieldResourcePost(ResourceRegistry resourceRegistry, TypeParser typeParser, @SuppressWarnings
+	
+    public FieldResourcePost(ResourceRegistry resourceRegistry, PropertiesProvider propertiesProvider, TypeParser typeParser, @SuppressWarnings
         ("SameParameterValue") ObjectMapper objectMapper, DocumentMapper documentMapper) {
-        super(resourceRegistry, typeParser, objectMapper, documentMapper);
+        super(resourceRegistry, propertiesProvider, typeParser, objectMapper, documentMapper);
     }
 
     @Override
@@ -113,4 +115,10 @@ public class FieldResourcePost extends ResourceUpsert {
             .getType();
         return typeParser.parse(resourceId, idClass);
     }
+
+	@Override
+	protected boolean canModifyField(ResourceInformation resourceInformation, String fieldName, ResourceField field) {
+		// allow dynamic field where field == null
+		return field == null || field.getAccess().isPostable();
+	}
 }
