@@ -92,6 +92,13 @@ public class DefaultQuerySpecSerializerTest {
 		querySpec.addFilter(new FilterSpec(Arrays.asList("name"), FilterOperator.EQ, "value"));
 		check("http://127.0.0.1/tasks/?filter[tasks][name][EQ]=value", null, querySpec);
 	}
+	
+	@Test
+	public void testFilterByPath() throws InstantiationException, IllegalAccessException {
+		QuerySpec querySpec = new QuerySpec(Task.class);
+		querySpec.addFilter(new FilterSpec(Arrays.asList("project", "name"), FilterOperator.EQ, "value"));
+		check("http://127.0.0.1/tasks/?filter[tasks][project.name][EQ]=value", null, querySpec);
+	}
 
 	@Test
 	public void testFilterByMany() throws InstantiationException, IllegalAccessException {

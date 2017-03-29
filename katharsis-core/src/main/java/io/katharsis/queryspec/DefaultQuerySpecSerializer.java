@@ -132,7 +132,7 @@ public class DefaultQuerySpecSerializer implements QuerySpecSerializer {
 	}
 
 	private static String toKey(List<String> attributePath) {
-		return "[" + StringUtils.join("][", attributePath) + "]";
+		return "[" + StringUtils.join(".", attributePath) + "]";
 	}
 
 	private static String addResourceType(RestrictedQueryParamsMembers type, String key, String resourceType) {

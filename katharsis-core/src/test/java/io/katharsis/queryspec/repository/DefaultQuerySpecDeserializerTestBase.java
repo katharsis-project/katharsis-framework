@@ -30,14 +30,14 @@ import io.katharsis.resource.mock.models.TaskWithLookup;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.utils.parser.TypeParser;
 
-public class DefaultQuerySpecDeserializerTest extends AbstractQuerySpecTest {
+public abstract class DefaultQuerySpecDeserializerTestBase extends AbstractQuerySpecTest {
 
-	private DefaultQuerySpecDeserializer deserializer;
+	protected DefaultQuerySpecDeserializer deserializer;
 
 	@Rule
 	public ExpectedException expectedException = ExpectedException.none();
 
-	private ResourceInformation taskInformation;
+	protected ResourceInformation taskInformation;
 
 	@Before
 	public void setup() {
@@ -368,7 +368,7 @@ public class DefaultQuerySpecDeserializerTest extends AbstractQuerySpecTest {
 	}
 
 	@Test
-	public void testHyphenIsAllowedInResourceName(){
+	public void testHyphenIsAllowedInResourceName() {
 
 		QuerySpec expectedSpec = new QuerySpec(Task.class);
 		expectedSpec.addSort(new SortSpec(Arrays.asList("id"), Direction.ASC));
@@ -381,7 +381,27 @@ public class DefaultQuerySpecDeserializerTest extends AbstractQuerySpecTest {
 		Assert.assertEquals(expectedSpec, actualSpec);
 	}
 
-	private void add(Map<String, Set<String>> params, String key, String value) {
+	@Test
+	public void testIngoreParseException() throws InstantiationException, IllegalAccessException {
+		Map<String, Set<String>> params = new HashMap<>();
+		add(params, "filter[id]", "NotAnId");
+		deserializer.setIgnoreParseExceptions(true);
+		QuerySpec querySpec = deserializer.deserialize(taskInformation, params);
+		Assert.assertEquals(Task.class, querySpec.getResourceClass());
+		Assert.assertEquals(Arrays.asList("id"), querySpec.getFilters().get(0).getAttributePath());
+		Assert.assertEquals("NotAnId", querySpec.getFilters().get(0).getValue());
+		Assert.assertNull(querySpec.getRelatedSpecs().get(Project.class));
+	}
+
+	@Test(expected = ParametersDeserializationException.class)
+	public void testFailOnParseException() throws InstantiationException, IllegalAccessException {
+		Map<String, Set<String>> params = new HashMap<>();
+		add(params, "filter[id]", "NotAnId");
+		deserializer.setIgnoreParseExceptions(false);
+		deserializer.deserialize(taskInformation, params);
+	}
+
+	protected void add(Map<String, Set<String>> params, String key, String value) {
 		params.put(key, new HashSet<>(Arrays.asList(value)));
 	}
 }
