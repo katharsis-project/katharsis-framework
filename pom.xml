@@ -258,27 +258,6 @@
 			</modules>
 		</profile>
 		<profile>
-			<!-- compiles katharsis with katharsis-ui, requiring a NPM/angular stack -->
-			<id>ui</id>
-			<modules>
-				<module>katharsis-ui</module>
-				<module>katharsis-parent</module>
-				<module>katharsis-core</module>
-				<module>katharsis-test</module>
-				<module>katharsis-rs</module>
-				<module>katharsis-servlet</module>
-				<module>katharsis-cdi</module>
-				<module>katharsis-spring</module>
-				<module>katharsis-client</module>
-				<module>katharsis-meta</module>
-				<module>katharsis-jpa</module>
-				<module>katharsis-validation</module>
-				<module>katharsis-brave</module>
-				<module>katharsis-security</module>
-				<module>katharsis-examples</module>
-			</modules>
-		</profile>
-		<profile>
 			<id>repositories</id>
 			<activation>
 				<activeByDefault>true</activeByDefault>
