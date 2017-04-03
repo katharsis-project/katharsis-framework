@@ -13,12 +13,18 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import io.katharsis.core.internal.resource.AnnotationResourceInformationBuilder;
-import io.katharsis.errorhandling.exception.*;
+import io.katharsis.core.internal.resource.ResourceAttributesBridge;
+import io.katharsis.errorhandling.exception.MultipleJsonApiLinksInformationException;
+import io.katharsis.errorhandling.exception.MultipleJsonApiMetaInformationException;
+import io.katharsis.errorhandling.exception.RepositoryAnnotationNotFoundException;
+import io.katharsis.errorhandling.exception.ResourceDuplicateIdException;
+import io.katharsis.errorhandling.exception.ResourceIdNotFoundException;
 import io.katharsis.legacy.registry.DefaultResourceInformationBuilderContext;
 import io.katharsis.resource.annotations.*;
 import io.katharsis.resource.annotations.JsonApiRelation;
 import io.katharsis.resource.annotations.LookupIncludeBehavior;
 import io.katharsis.resource.annotations.SerializeType;
+import io.katharsis.resource.information.ResourceField;
 import io.katharsis.resource.information.ResourceFieldNameTransformer;
 import io.katharsis.resource.information.ResourceFieldType;
 import io.katharsis.resource.information.ResourceInformation;
@@ -157,6 +163,7 @@ public class ResourceInformationBuilderTest {
 		// This assert fails, because JsonIgnore is on the getter not the field itself
 		// assertThat(resourceInformation.findAttributeFieldByName("delegate")).isNull();
 		assertThat(resourceInformation.getIdField().getUnderlyingName()).isNotNull().isEqualTo("id");
+		assertThat(containsFieldWithName(resourceInformation, "delegate")).isFalse();
 	}
 
 	@Test
@@ -179,6 +186,47 @@ public class ResourceInformationBuilderTest {
 		assertThat(resourceInformation.getRelationshipFields()).extracting("includeByDefault").contains(false, true);
 		assertThat(resourceInformation.getRelationshipFields()).extracting("lookupIncludeBehavior").contains(LookupIncludeBehavior.AUTOMATICALLY_ALWAYS, LookupIncludeBehavior.AUTOMATICALLY_WHEN_NULL);
 		assertThat(resourceInformation.getRelationshipFields()).extracting("resourceFieldType").contains(ResourceFieldType.RELATIONSHIP, ResourceFieldType.RELATIONSHIP);
+	}
+
+	@Test
+	public void shouldHaveGetterBooleanWithGetPrefix() throws Exception {
+		ResourceInformation resourceInformation = resourceInformationBuilder.build(Task.class);
+		assertThat(containsFieldWithName(resourceInformation, "deleted")).isTrue();
+		assertThat(containsFieldWithName(resourceInformation, "tDeleted")).isFalse();
+	}
+
+	@Test
+	public void shouldHaveGetterBooleanWithIsPrefix() throws Exception {
+		ResourceInformation resourceInformation = resourceInformationBuilder.build(Task.class);
+		assertThat(containsFieldWithName(resourceInformation, "completed")).isTrue();
+	}
+
+	@Test
+	public void shouldNotHaveIgnoredField() throws Exception {
+		// GIVEN a field that has the JsonIgnore annotation, and a corresponding getter that does not
+		ResourceInformation resourceInformation = resourceInformationBuilder.build(Task.class);
+		// THEN we should not pick up the java bean property
+		assertThat(containsFieldWithName(resourceInformation, "ignoredField")).isFalse();
+	}
+
+	@Test
+	public void shouldHaveOneIdFieldOfTypeLong() {
+		/*
+			Task has a Long getId() field and a boolean hasId() which is ignored, only the former should have survived
+		 */
+		ResourceInformation resourceInformation = resourceInformationBuilder.build(Task.class);
+		assertThat(resourceInformation.getIdField()).isNotNull();
+		assertThat(resourceInformation.getIdField().getType()).isEqualTo(Long.class);
+		assertThat(containsFieldWithName(resourceInformation, "hasId")).isFalse();
+	}
+
+	private boolean containsFieldWithName(ResourceInformation resourceInformation, String name) {
+		ResourceAttributesBridge<?> attributeFields = resourceInformation.getAttributeFields();
+		for (ResourceField field : attributeFields.getFields()) {
+			if (field.getUnderlyingName().equals(name))
+				return true;
+		}
+		return false;
 	}
 
 	@JsonApiResource(type = "duplicatedIdAnnotationResources")

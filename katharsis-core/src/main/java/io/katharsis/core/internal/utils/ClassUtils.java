@@ -18,6 +18,9 @@ import io.katharsis.utils.Optional;
  */
 public class ClassUtils {
 
+    public static String PREFIX_GETTER_IS = "is";
+    public static String PREFIX_GETTER_GET = "get";
+
 	private ClassUtils() {
 	}
 
@@ -92,21 +95,16 @@ public class ClassUtils {
 	}
 
 	public static Method findGetter(Class<?> beanClass, String fieldName) {
-		String upperCaseName = fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
-		try {
-		    return beanClass.getMethod("get" + upperCaseName);
-		} catch (NoSuchMethodException e) {
-			try {
-				Method method = beanClass.getMethod("is" + upperCaseName);
-				Class<?> returnType = method.getReturnType();
-				if(returnType == Boolean.class || returnType == boolean.class){
-					return method;
-				}
-				return null;
-			} catch (NoSuchMethodException e1) {
-				return null;
-			}
+		for (Method method : beanClass.getMethods()) {
+			if (!isGetter(method))
+				continue;
+			String methodGetterName = getGetterFieldName(method);
+			if (StringUtils.isBlank(methodGetterName))
+				continue;
+			if (methodGetterName.equals(fieldName))
+				return method;
 		}
+		return null;
 	}
 	
 	public static Method findSetter(Class<?> beanClass, String fieldName, Class<?> fieldType) {
@@ -228,17 +226,13 @@ public class ClassUtils {
 
 	public static boolean isBooleanGetter(Method method) {
 
-		if (!method.getName().startsWith("is")) {
-			return false;
-		}
-		if (method.getName().length() < 3) {
-			return false;
-		}
-		if (method.getParameterTypes().length != 0) {
+		boolean startsWithValidPrefix = getPropertyGetterPrefixLength(method) > 0;
+
+		if (!startsWithValidPrefix || method.getParameterTypes().length != 0) {
 			return false;
 		}
 
-		return boolean.class.equals(method.getReturnType()) || Boolean.class.equals(method.getReturnType());
+		return isBoolean(method.getReturnType());
 	}
 
 	private static boolean isNonBooleanGetter(Method method) {
@@ -280,6 +274,44 @@ public class ClassUtils {
 		}
 	}
 
+	public static String getGetterFieldName(Method getter) {
+		int getterPrefixLength = getPropertyGetterPrefixLength(getter);
+		if (getterPrefixLength == 0) {
+			return null;
+		}
+		return StringUtils.decapitalize(getter.getName().substring(getterPrefixLength));
+	}
 
+	private static boolean isValidBeanGetter(Method getter) {
+		// property getters must have non-null return type and zero parameters
+		int parameterCount = getter.getParameterTypes().length;
+		Class returnType = getter.getReturnType();
+		return returnType != null && parameterCount == 0;
+	}
 
+	private static int getPropertyGetterPrefixLength(Method getter) {
+		if (!isValidBeanGetter(getter))
+			return 0;
+
+		String name = getter.getName();
+		boolean isBooleanReturnType = isBoolean(getter.getReturnType());
+
+		int prefixLength = 0;
+		if (isBooleanReturnType && name.startsWith(PREFIX_GETTER_IS)) {
+				prefixLength = 2;
+		}
+
+		if (name.startsWith(PREFIX_GETTER_GET))
+			prefixLength = 3;
+
+		// check for methods called "get" and "is", as these aren't valid getters
+		if (prefixLength == name.length())
+			prefixLength = 0;
+
+		return prefixLength;
+	}
+
+	private static boolean isBoolean(Class<?> returnType) {
+		return boolean.class.equals(returnType) || Boolean.class.equals(returnType);
+	}
 }

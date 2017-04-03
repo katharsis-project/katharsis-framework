@@ -14,9 +14,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import io.katharsis.core.internal.utils.PropertyException;
-import io.katharsis.core.internal.utils.PropertyUtils;
-
 public class PropertyUtilsTest {
 
     @Rule
@@ -476,10 +473,24 @@ public class PropertyUtilsTest {
         assertThat(result).isNull();
     }
 
+    @Test
+    public void onBooleanWithGetPrefix() throws Exception {
+        // GIVEN
+        Bean bean = new Bean();
+        bean.setBooleanWithGetPrefix(true);
+
+        // WHEN
+        Object result = PropertyUtils.getProperty(bean, "booleanWithGetPrefix");
+
+        // THEN
+        assertThat(result).isEqualTo(true);
+    }
+
     public static class Bean {
         private String privatePropertyWithMutators;
         private boolean booleanPrimitivePropertyWithMutators;
         private Boolean booleanPropertyWithMutators;
+        private boolean booleanWithGetPrefix;
         public String publicProperty;
         private Set<String> setProperty;
 
@@ -505,6 +516,14 @@ public class PropertyUtilsTest {
 
         public void setBooleanPrimitivePropertyWithMutators(@SuppressWarnings("SameParameterValue") boolean booleanPrimitivePropertyWithMutators) {
             this.booleanPrimitivePropertyWithMutators = booleanPrimitivePropertyWithMutators;
+        }
+
+        public boolean getBooleanWithGetPrefix() {
+            return booleanWithGetPrefix;
+        }
+
+        public void setBooleanWithGetPrefix(boolean booleanWithGetPrefix) {
+            this.booleanWithGetPrefix = booleanWithGetPrefix;
         }
 
         public Boolean getBooleanPropertyWithMutators() {
