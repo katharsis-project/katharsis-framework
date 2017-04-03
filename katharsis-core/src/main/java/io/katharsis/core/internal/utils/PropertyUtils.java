@@ -197,24 +197,12 @@ public class PropertyUtils {
         List<Method> classGetters = ClassUtils.getClassGetters(beanClass);
 
         for (Method getter : classGetters) {
-            String getterFieldName = getGetterFieldName(getter);
+            String getterFieldName = ClassUtils.getGetterFieldName(getter);
             if (getterFieldName.equals(fieldName)) {
                 return getter;
             }
         }
         return null;
-    }
-
-    private String getGetterFieldName(Method getter) {
-        if (isBoolean(getter.getReturnType())) {
-            return getter.getName().substring(2, 3).toLowerCase() + getter.getName().substring(3);
-        } else {
-            return getter.getName().substring(3, 4).toLowerCase() + getter.getName().substring(4);
-        }
-    }
-
-    private boolean isBoolean(Class<?> returnType) {
-        return boolean.class.equals(returnType) || Boolean.class.equals(returnType);
     }
 
     private Field findField(Class<?> beanClass, String fieldName) {
@@ -296,7 +284,7 @@ public class PropertyUtils {
                 String message = String.format("Cannot find a getter for %s.%s", bean.getClass().getCanonicalName(), fieldName);
                 throw new PropertyException(message, bean.getClass(), fieldName);
             }
-            String getterFieldName = getGetterFieldName(getter);
+            String getterFieldName = ClassUtils.getGetterFieldName(getter);
             Method setter = getSetter(bean, getterFieldName, getter.getReturnType());
             setter.invoke(bean, prepareValue(value, setter.getParameterTypes()[0]));
         }

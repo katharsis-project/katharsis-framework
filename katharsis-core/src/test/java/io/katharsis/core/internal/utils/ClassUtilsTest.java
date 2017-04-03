@@ -7,12 +7,10 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
 
-import org.junit.Test;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import org.junit.Test;
 
-import io.katharsis.core.internal.utils.ClassUtils;
 import io.katharsis.errorhandling.exception.ResourceException;
 import io.katharsis.legacy.repository.ResourceRepository;
 import io.katharsis.resource.annotations.JsonApiResource;
@@ -115,7 +113,7 @@ public class ClassUtilsTest {
 		List<Method> result = ClassUtils.getClassGetters(ChildClass.class);
 
 		// THEN
-		assertThat(result).hasSize(4);
+		assertThat(result).hasSize(5);
 	}
 
 	@Test
@@ -214,6 +212,12 @@ public class ClassUtilsTest {
 		Method method = ClassUtils.findGetter(ParentClass.class, "primitiveBooleanProperty");
 		assertThat(method.getName()).isEqualTo("isPrimitiveBooleanProperty");
 	}
+
+	@Test
+	public void onFindGetterShouldReturnBooleanPropertyWithGet() throws Exception {
+		Method method = ClassUtils.findGetter(ParentClass.class, "booleanPropertyWithGet");
+		assertThat(method.getName()).isEqualTo("getBooleanPropertyWithGet");
+	}
 	
 	@Test
 	public void onFindGetterShouldReturnBooleanMethod() throws Exception {
@@ -289,6 +293,10 @@ public class ClassUtilsTest {
 		}
 
 		public Boolean isBooleanProperty() {
+			return true;
+		}
+
+		public boolean getBooleanPropertyWithGet() {
 			return true;
 		}
 
