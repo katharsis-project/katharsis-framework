@@ -1,5 +1,7 @@
 package io.katharsis.meta.mock.model;
 
+import java.util.List;
+
 import io.katharsis.resource.annotations.JsonApiId;
 import io.katharsis.resource.annotations.JsonApiLinksInformation;
 import io.katharsis.resource.annotations.JsonApiMetaInformation;
@@ -24,6 +26,8 @@ public class Task {
 
 	@JsonApiLinksInformation
 	private TaskLinksInformation linksInformation;
+
+	private List<String> anotherStringList;
 
 	public static class TaskMetaInformation implements MetaInformation {
 
