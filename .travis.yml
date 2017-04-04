@@ -1,27 +1,10 @@
+sudo: false
 language: java
 
 jdk:
   - oraclejdk8
 
-env:
-  - TRAVIS_NODE_VERSION="6.10.0"
-
-sudo: required
-dist: trusty
-
-before_install:
-- curl -sL https://deb.nodesource.com/setup_7.x | sudo -E bash -
-- sudo apt-get install -qq nodejs
-- sudo apt-get install build-essential
-- rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm && git checkout `git describe --abbrev=0 --tags`) 
-- source ~/.nvm/nvm.sh
-- nvm install 6.10.0
-- nvm use 6.10.0
-- npm --version
-- node --version
-- sudo npm install -g @angular/cli@latest
-
-script: mvn clean install -Pui
+script: mvn clean install
 
 notifications:
   webhooks:
