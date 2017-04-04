@@ -4,12 +4,12 @@
     <parent>
         <groupId>io.katharsis</groupId>
         <artifactId>katharsis-parent</artifactId>
-        <version>3.0.1-SNAPSHOT</version>
+        <version>3.0.2-SNAPSHOT</version>
         <relativePath>../katharsis-parent</relativePath>
     </parent>
 
     <artifactId>katharsis-ui</artifactId>
-  	<packaging>war</packaging>
+  	<packaging>jar</packaging>
     <name>katharsis-ui</name>
 
     <properties>
