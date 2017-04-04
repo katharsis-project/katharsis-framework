@@ -15,7 +15,10 @@ import io.katharsis.legacy.queryParams.QueryParams;
  * Katharsis call either {@link io.katharsis.legacy.repository.RelationshipRepository#findOneTarget(Serializable, String, QueryParams)}
  * or {@link io.katharsis.legacy.repository.RelationshipRepository#findManyTargets(Serializable, String, QueryParams)}
  * depending on the multiplicity of the relationship.
+ *
+ * @deprecated It is recommended to to implement {@link JsonApiRelation}.
  */
+@Deprecated
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.METHOD})

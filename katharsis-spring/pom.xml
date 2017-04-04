@@ -1,16 +1,14 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>io.katharsis</groupId>
         <artifactId>katharsis-parent</artifactId>
-        <version>2.8.3-SNAPSHOT</version>
+        <version>3.0.2-SNAPSHOT</version>
         <relativePath>../katharsis-parent</relativePath>
     </parent>
 
     <artifactId>katharsis-spring</artifactId>
-    <version>2.8.3-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
     <name>katharsis-spring</name>
@@ -40,6 +38,7 @@
     <properties>
         <spring.version>4.3.4.RELEASE</spring.version>
         <spring-boot.version>1.4.2.RELEASE</spring-boot.version>
+        <spring-security.version>4.2.1.RELEASE</spring-security.version>
 
         <javax.servlet.version>3.0.1</javax.servlet.version>
         <json-unit-fluent.version>1.5.3</json-unit-fluent.version>
@@ -55,6 +54,7 @@
                     <systemPropertyVariables>
                         <java.util.logging.config.file>logging.properties</java.util.logging.config.file>
                     </systemPropertyVariables>
+                    <runOrder>alphabetical</runOrder>
                 </configuration>
             </plugin>
             <plugin>
@@ -131,6 +131,13 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-orm</artifactId>
             <version>${spring.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-core</artifactId>
+            <version>${spring-security.version}</version>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 </project>

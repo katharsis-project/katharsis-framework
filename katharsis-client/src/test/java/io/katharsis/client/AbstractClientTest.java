@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.MultivaluedMap;
 
+import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.Assert;
@@ -15,6 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.katharsis.client.action.JerseyActionStubFactory;
 import io.katharsis.client.mock.repository.ProjectRepository;
+import io.katharsis.client.mock.repository.ProjectToTaskRepository;
 import io.katharsis.client.mock.repository.ScheduleRepositoryImpl;
 import io.katharsis.client.mock.repository.TaskRepository;
 import io.katharsis.client.mock.repository.TaskToProjectRepository;
@@ -23,6 +25,8 @@ import io.katharsis.legacy.locator.SampleJsonServiceLocator;
 import io.katharsis.legacy.queryParams.DefaultQueryParamsParser;
 import io.katharsis.legacy.queryParams.QueryParamsBuilder;
 import io.katharsis.queryspec.DefaultQuerySpecDeserializer;
+import io.katharsis.rs.JsonApiResponseFilter;
+import io.katharsis.rs.JsonapiExceptionMapperBridge;
 import io.katharsis.rs.KatharsisFeature;
 
 public abstract class AbstractClientTest extends JerseyTest {
@@ -44,6 +48,7 @@ public abstract class AbstractClientTest extends JerseyTest {
 		TaskRepository.clear();
 		ProjectRepository.clear();
 		TaskToProjectRepository.clear();
+		ProjectToTaskRepository.clear();
 		ScheduleRepositoryImpl.clear();
 
 		Assert.assertNotNull(client.getActionStubFactory());
@@ -73,18 +78,25 @@ public abstract class AbstractClientTest extends JerseyTest {
 		private KatharsisTestFeature feature;
 
 		public TestApplication(boolean querySpec) {
+			this(querySpec, false);
+		}
+
+		public TestApplication(boolean querySpec, boolean jsonApiFilter) {
 			property(KatharsisProperties.RESOURCE_SEARCH_PACKAGE, "io.katharsis.client.mock");
 
 			if (!querySpec) {
-				feature = new KatharsisTestFeature(new ObjectMapper(), new QueryParamsBuilder(new DefaultQueryParamsParser()),
-						new SampleJsonServiceLocator());
-			}
-			else {
-				feature = new KatharsisTestFeature(new ObjectMapper(), new DefaultQuerySpecDeserializer(),
-						new SampleJsonServiceLocator());
+				feature = new KatharsisTestFeature(new ObjectMapper(), new QueryParamsBuilder(new DefaultQueryParamsParser()), new SampleJsonServiceLocator());
+			} else {
+				feature = new KatharsisTestFeature(new ObjectMapper(), new DefaultQuerySpecDeserializer(), new SampleJsonServiceLocator());
 			}
 
 			feature.addModule(new TestModule());
+
+			if (jsonApiFilter) {
+				register(new JsonApiResponseFilter(feature));
+				register(new JsonapiExceptionMapperBridge(feature));
+				register(new JacksonFeature());
+			}
 
 			setupFeature(feature);
 

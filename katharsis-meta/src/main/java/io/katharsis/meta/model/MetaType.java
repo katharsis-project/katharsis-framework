@@ -5,8 +5,9 @@ import java.lang.reflect.Type;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import io.katharsis.core.internal.utils.ClassUtils;
+import io.katharsis.resource.annotations.JsonApiRelation;
 import io.katharsis.resource.annotations.JsonApiResource;
-import io.katharsis.resource.annotations.JsonApiToOne;
+import io.katharsis.resource.annotations.SerializeType;
 
 @JsonApiResource(type = "meta/type")
 public class MetaType extends MetaElement {
@@ -14,7 +15,8 @@ public class MetaType extends MetaElement {
 	@JsonIgnore
 	private Type implementationType;
 
-	private MetaType elementType;
+	@JsonApiRelation(serialize=SerializeType.LAZY)
+    private MetaType elementType;
 
 	@JsonIgnore
 	public Class<?> getImplementationClass() {
@@ -29,9 +31,9 @@ public class MetaType extends MetaElement {
 		return implementationType;
 	}
 
-	public Object fromString(String value) {
-		throw new UnsupportedOperationException();
-	}
+//	public Object fromString(String value) {
+//		throw new UnsupportedOperationException();
+//	}
 
 	@JsonIgnore
 	public boolean isCollection() {
@@ -53,24 +55,17 @@ public class MetaType extends MetaElement {
 		return (MetaMapType) this;
 	}
 
-	@JsonApiToOne
 	public MetaType getElementType() {
-		// FIXME move out
 		if (elementType == null) {
-			if (isCollection()) {
-				return asCollection().getElementType();
-			}
-			else if (isMap()) {
-				return asMap().getValueType();
-			}
-			else {
-				return this;
-			}
+		  throw new IllegalStateException(getClass().getName());
 		}
 		return elementType;
 	}
 
 	public void setElementType(MetaType elementType) {
+		if(elementType == null){
+			throw new NullPointerException();
+		}
 		this.elementType = elementType;
 	}
 }

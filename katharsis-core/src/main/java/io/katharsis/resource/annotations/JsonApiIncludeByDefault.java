@@ -13,7 +13,9 @@ import io.katharsis.errorhandling.exception.ResourceException;
  * The field can be added to every relation defined by {@link JsonApiToOne} or {@link JsonApiToMany}. Otherwise,
  * {@link ResourceException} will be thrown at the initialization phrase.
  *
+ * @deprecated It is recommended to to implement {@link JsonApiRelation}.
  */
+@Deprecated
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD, ElementType.METHOD})

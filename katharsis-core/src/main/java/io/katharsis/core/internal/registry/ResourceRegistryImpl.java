@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -201,5 +202,25 @@ public class ResourceRegistryImpl implements ResourceRegistry {
 			url += "/";
 		}
 		return url + resourceInformation.getResourceType();
+	}
+
+	private ConcurrentHashMap<String, ResourceInformation> baseTypeCache = new ConcurrentHashMap<>();
+	
+	@Override
+	public ResourceInformation getBaseResourceInformation(String resourceType) {
+		ResourceInformation baseInformation = baseTypeCache.get(resourceType);
+		if(baseInformation != null){
+			return baseInformation;
+		}
+		
+		RegistryEntry entry = getEntry(resourceType);
+		baseInformation = entry.getResourceInformation();
+		while(baseInformation.getSuperResourceType() != null){
+			entry = getEntry(baseInformation.getSuperResourceType());
+			baseInformation = entry.getResourceInformation();
+		}
+		
+		baseTypeCache.put(resourceType, baseInformation);
+		return baseInformation;
 	}
 }

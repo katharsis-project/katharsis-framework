@@ -6,6 +6,7 @@ import java.util.List;
 import io.katharsis.core.internal.registry.DirectResponseResourceEntry;
 import io.katharsis.core.internal.repository.NotFoundRepository;
 import io.katharsis.legacy.locator.JsonServiceLocator;
+import io.katharsis.module.ModuleRegistry;
 import io.katharsis.resource.registry.ResourceEntry;
 import io.katharsis.resource.registry.ResourceLookup;
 import io.katharsis.resource.registry.ResponseRelationshipEntry;
@@ -19,9 +20,9 @@ public class RepositoryEntryBuilderFacade implements RepositoryEntryBuilder {
     private final DirectRepositoryEntryBuilder directRepositoryEntryBuilder;
     private final AnnotatedRepositoryEntryBuilder annotatedRepositoryEntryBuilder;
 
-    public RepositoryEntryBuilderFacade(JsonServiceLocator jsonServiceLocator) {
+    public RepositoryEntryBuilderFacade(ModuleRegistry moduleRegistry, JsonServiceLocator jsonServiceLocator) {
         this.directRepositoryEntryBuilder = new DirectRepositoryEntryBuilder(jsonServiceLocator);
-        this.annotatedRepositoryEntryBuilder = new AnnotatedRepositoryEntryBuilder(jsonServiceLocator);
+        this.annotatedRepositoryEntryBuilder = new AnnotatedRepositoryEntryBuilder(moduleRegistry, jsonServiceLocator);
     }
 
     @Override

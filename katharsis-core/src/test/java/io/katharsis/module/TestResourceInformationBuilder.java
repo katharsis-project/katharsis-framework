@@ -9,8 +9,11 @@ import io.katharsis.resource.information.ResourceFieldType;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.information.ResourceInformationBuilderContext;
+import io.katharsis.utils.parser.TypeParser;
 
 public class TestResourceInformationBuilder implements ResourceInformationBuilder {
+
+	private ResourceInformationBuilderContext context;
 
 	@Override
 	public boolean accept(Class<?> resourceClass) {
@@ -21,7 +24,8 @@ public class TestResourceInformationBuilder implements ResourceInformationBuilde
 	public ResourceInformation build(Class<?> resourceClass) {
 		ResourceField idField = new ResourceFieldImpl("testId", "id", ResourceFieldType.ID, Integer.class, null, null);
 		List<ResourceField> fields = Arrays.asList(idField);
-		ResourceInformation info = new ResourceInformation(resourceClass, resourceClass.getSimpleName(), fields);
+		TypeParser typeParser = context.getTypeParser();
+		ResourceInformation info = new ResourceInformation(typeParser, resourceClass, resourceClass.getSimpleName(), null, fields);
 		return info;
 	}
 
@@ -32,6 +36,7 @@ public class TestResourceInformationBuilder implements ResourceInformationBuilde
 
 	@Override
 	public void init(ResourceInformationBuilderContext context) {
+		this.context = context;
 	}
 
 }

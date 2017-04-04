@@ -8,7 +8,7 @@ import io.katharsis.core.internal.resource.AnnotationResourceInformationBuilder;
 import io.katharsis.core.internal.utils.PreconditionUtil;
 import io.katharsis.legacy.registry.DefaultResourceInformationBuilderContext;
 import io.katharsis.meta.internal.MetaRelationshipRepository;
-import io.katharsis.meta.internal.MetaResourceRepository;
+import io.katharsis.meta.internal.MetaResourceRepositoryImpl;
 import io.katharsis.meta.model.MetaAttribute;
 import io.katharsis.meta.model.MetaCollectionType;
 import io.katharsis.meta.model.MetaDataObject;
@@ -17,6 +17,7 @@ import io.katharsis.meta.model.MetaInterface;
 import io.katharsis.meta.model.MetaKey;
 import io.katharsis.meta.model.MetaListType;
 import io.katharsis.meta.model.MetaMapType;
+import io.katharsis.meta.model.MetaPrimaryKey;
 import io.katharsis.meta.model.MetaPrimitiveType;
 import io.katharsis.meta.model.MetaSetType;
 import io.katharsis.meta.model.MetaType;
@@ -69,17 +70,18 @@ public class MetaModule implements Module, InitializingModule {
 		metaClasses.add(MetaSetType.class);
 		metaClasses.add(MetaType.class);
 		metaClasses.add(MetaInterface.class);
+		metaClasses.add(MetaPrimaryKey.class);
 		for (MetaProvider provider : lookup.getProviders()) {
 			metaClasses.addAll(provider.getMetaTypes());
 		}
 
 		AnnotationResourceInformationBuilder informationBuilder = new AnnotationResourceInformationBuilder(
 				new ResourceFieldNameTransformer());
-		informationBuilder.init(new DefaultResourceInformationBuilderContext(informationBuilder));
+		informationBuilder.init(new DefaultResourceInformationBuilderContext(informationBuilder, context.getTypeParser()));
 
 		for (Class<? extends MetaElement> metaClass : metaClasses) {
 			if (context.isServer()) {
-				context.addRepository(new MetaResourceRepository<>(lookup, metaClass));
+				context.addRepository(new MetaResourceRepositoryImpl<>(lookup, metaClass));
 
 				HashSet<Class<? extends MetaElement>> targetResourceClasses = new HashSet<>();
 				ResourceInformation information = informationBuilder.build(metaClass);

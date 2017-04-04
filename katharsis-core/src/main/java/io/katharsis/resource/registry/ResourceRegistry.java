@@ -23,5 +23,11 @@ public interface ResourceRegistry {
 	public String getResourceUrl(ResourceInformation resourceInformation);
 
 	public RegistryEntry getEntryForClass(Class<?> resourceClass);
+	
+	/**
+	 * @param resourceType
+	 * @return ResourceInformation of the the top most super type of the provided resource.
+	 */
+	public ResourceInformation getBaseResourceInformation(String resourceType);
 
 }

@@ -19,7 +19,7 @@ import io.katharsis.repository.request.QueryAdapter;
 import io.katharsis.resource.Relationship;
 import io.katharsis.resource.Resource;
 import io.katharsis.resource.ResourceIdentifier;
-import io.katharsis.resource.information.LookupIncludeBehavior;
+import io.katharsis.resource.annotations.LookupIncludeBehavior;
 import io.katharsis.resource.information.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.RegistryEntry;
@@ -28,9 +28,12 @@ import io.katharsis.resource.registry.ResourceRegistry;
 public class IncludeLookupUtil {
 
 	private ResourceRegistry resourceRegistry;
+	
+	private IncludeBehavior includeBehavior;
 
-	public IncludeLookupUtil(ResourceRegistry resourceRegistry) {
+	public IncludeLookupUtil(ResourceRegistry resourceRegistry, IncludeBehavior includeBehavior) {
 		this.resourceRegistry = resourceRegistry;
+		this.includeBehavior = includeBehavior;
 	}
 
 	public static LookupIncludeBehavior getDefaultLookupIncludeBehavior(PropertiesProvider propertiesProvider) {
@@ -111,12 +114,12 @@ public class IncludeLookupUtil {
 		if (desiredResourceInformation.getResourceType().equals(resource.getType())) {
 			return true;
 		}
-		
+
 		// TODO proper ResourceInformation API
 		ResourceInformation actualResourceInformation = resourceRegistry.getEntry(resource.getType()).getResourceInformation();
 		ResourceInformation superInformation = actualResourceInformation;
-		while((superInformation = getSuperInformation(superInformation)) != null){
-			if(superInformation.equals(desiredResourceInformation)){
+		while ((superInformation = getSuperInformation(superInformation)) != null) {
+			if (superInformation.equals(desiredResourceInformation)) {
 				return true;
 			}
 		}
@@ -129,21 +132,21 @@ public class IncludeLookupUtil {
 		}
 
 		if (queryAdapter instanceof QuerySpecAdapter) {
-			// improvements regarding polymorphism
 			QuerySpec querySpec = ((QuerySpecAdapter) queryAdapter).getQuerySpec();
-			for (int i = fieldPath.size() - 1; i >= 0; i--) {
-				List<String> path = toPathList(fieldPath, i);
+			if(includeBehavior == IncludeBehavior.PER_ROOT_PATH){
+				return contains(querySpec, toPathList(fieldPath, 0));
+			}else{
+				for (int i = fieldPath.size() - 1; i >= 0; i--) {
+					List<String> path = toPathList(fieldPath, i);
 
-				ResourceInformation rootInformation = fieldPath.get(i).getParentResourceInformation();
-
-				QuerySpec rootQuerySpec = querySpec.getQuerySpec(rootInformation.getResourceClass());
-				if (rootQuerySpec != null && contains(rootQuerySpec, path)) {
-					return true;
+					// TODO subtyping not properly supported
+					ResourceInformation rootInformation = fieldPath.get(i).getParentResourceInformation();
+					QuerySpec rootQuerySpec = querySpec.getQuerySpec(rootInformation.getResourceClass());
+					if (rootQuerySpec != null && contains(rootQuerySpec, path)) {
+						return true;
+					}
 				}
-				// FIXME subtyping 
-				if (querySpec != null && contains(querySpec, path)) {
-					return true;
-				}
+				return contains(querySpec, toPathList(fieldPath, 0));
 			}
 		} else {
 			Map<String, IncludedRelationsParams> params = queryAdapter.getIncludedRelations().getParams();
@@ -258,5 +261,13 @@ public class IncludeLookupUtil {
 			}
 		}
 		return results;
+	}
+
+	public static IncludeBehavior getIncludeBehavior(PropertiesProvider propertiesProvider) {
+		 String property = propertiesProvider != null ? propertiesProvider.getProperty(KatharsisProperties.INCLUDE_BEHAVIOR) : null;
+		 if(property == null || property.isEmpty()){
+			 return IncludeBehavior.PER_TYPE;
+		 }
+		 return IncludeBehavior.valueOf(property.toUpperCase());
 	}
 }

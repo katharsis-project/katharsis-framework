@@ -5,6 +5,7 @@ import org.junit.Before;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.katharsis.core.internal.boot.PropertiesProvider;
 import io.katharsis.core.internal.jackson.JsonApiModuleBuilder;
 import io.katharsis.core.internal.query.QuerySpecAdapter;
 import io.katharsis.core.internal.resource.AnnotationResourceInformationBuilder;
@@ -36,13 +37,18 @@ public class AbstractDocumentMapperTest {
 		MockRepositoryUtil.clear();
 
 		ResourceInformationBuilder resourceInformationBuilder = new AnnotationResourceInformationBuilder(new ResourceFieldNameTransformer());
-		ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonServiceLocator(), resourceInformationBuilder);
-		resourceRegistry = registryBuilder.build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, new ModuleRegistry(), new ConstantServiceUrlProvider(ResourceRegistryTest.TEST_MODELS_URL));
+		ModuleRegistry moduleRegistry = new ModuleRegistry();
+		ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(moduleRegistry, new SampleJsonServiceLocator(), resourceInformationBuilder);
+		resourceRegistry = registryBuilder.build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, moduleRegistry, new ConstantServiceUrlProvider(ResourceRegistryTest.TEST_MODELS_URL));
 
 		objectMapper = new ObjectMapper();
 		objectMapper.registerModule(new JsonApiModuleBuilder().build(resourceRegistry, false));
 
-		mapper = new DocumentMapper(resourceRegistry, objectMapper, null);
+		mapper = new DocumentMapper(resourceRegistry, objectMapper, getPropertiesProvider());
+	}
+
+	protected PropertiesProvider getPropertiesProvider() {
+		return null;
 	}
 
 	@After

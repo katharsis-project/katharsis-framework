@@ -24,6 +24,7 @@ import io.katharsis.meta.MetaLookup;
 import io.katharsis.meta.provider.resource.ResourceMetaProvider;
 import io.katharsis.resource.information.ResourceField;
 import io.katharsis.resource.information.ResourceInformation;
+import io.katharsis.utils.parser.TypeParser;
 
 public class JpaResourceInformationBuilderTest {
 
@@ -35,11 +36,12 @@ public class JpaResourceInformationBuilderTest {
 		lookup.addProvider(new JpaMetaProvider());
 		lookup.addProvider(new ResourceMetaProvider());
 		builder = new JpaResourceInformationBuilder(lookup);
-		builder.init(new DefaultResourceInformationBuilderContext(builder));
+		builder.init(new DefaultResourceInformationBuilderContext(builder, new TypeParser()));
 	}
 
 	@Test
-	public void test() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
+	public void test()
+			throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
 
 		ResourceInformation info = builder.build(TestEntity.class);
 		ResourceField idField = info.getIdField();
@@ -49,7 +51,7 @@ public class JpaResourceInformationBuilderTest {
 		assertEquals(Long.class, idField.getType());
 		assertEquals(Long.class, idField.getGenericType());
 
-		List<ResourceField> attrFields = new ArrayList<>(info.getAttributeFields().getFields());
+		List<ResourceField> attrFields = new ArrayList<ResourceField>(info.getAttributeFields().getFields());
 		Collections.sort(attrFields, ResourceFieldComparator.INSTANCE);
 		assertEquals(5, attrFields.size());
 		ResourceField embField = attrFields.get(1);

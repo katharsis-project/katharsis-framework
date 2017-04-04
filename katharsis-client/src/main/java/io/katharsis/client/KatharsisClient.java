@@ -58,6 +58,7 @@ import io.katharsis.resource.registry.ResourceLookup;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ResponseRelationshipEntry;
 import io.katharsis.resource.registry.ServiceUrlProvider;
+import io.katharsis.utils.parser.TypeParser;
 
 /**
  * Client implementation giving access to JSON API repositories using stubs.
@@ -110,7 +111,7 @@ public class KatharsisClient {
 		SimpleModule jsonApiModule = moduleBuilder.build(resourceRegistry, true);
 		objectMapper.registerModule(jsonApiModule);
 
-		documentMapper = new ClientDocumentMapper(resourceRegistry, objectMapper, null);
+		documentMapper = new ClientDocumentMapper(moduleRegistry, objectMapper, null);
 		setProxyFactory(new BasicProxyFactory());
 	}
 
@@ -234,7 +235,7 @@ public class KatharsisClient {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private <T, I extends Serializable> RegistryEntry allocateRepository(Class<T> resourceClass, boolean allocateRelated) {
 		ResourceInformationBuilder resourceInformationBuilder = moduleRegistry.getResourceInformationBuilder();
-		DefaultResourceInformationBuilderContext context = new DefaultResourceInformationBuilderContext(resourceInformationBuilder);
+		DefaultResourceInformationBuilderContext context = new DefaultResourceInformationBuilderContext(resourceInformationBuilder, moduleRegistry.getTypeParser());
 
 		ResourceInformation resourceInformation = resourceInformationBuilder.build(resourceClass);
 		final ResourceRepositoryStub<T, I> repositoryStub = new ResourceRepositoryStubImpl<>(this, resourceClass, resourceInformation, urlBuilder);
@@ -300,7 +301,7 @@ public class KatharsisClient {
 	public <R extends ResourceRepositoryV2<?, ?>> R getResourceRepository(Class<R> repositoryInterfaceClass) {
 		return getRepositoryForInterface(repositoryInterfaceClass);
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public <R extends ResourceRepositoryV2<?, ?>> R getRepositoryForInterface(Class<R> repositoryInterfaceClass) {
 		RepositoryInformationBuilder informationBuilder = moduleRegistry.getRepositoryInformationBuilder();
@@ -322,6 +323,11 @@ public class KatharsisClient {
 			@Override
 			public ResourceInformationBuilder getResourceInformationBuilder() {
 				return moduleRegistry.getResourceInformationBuilder();
+			}
+
+			@Override
+			public TypeParser getTypeParser() {
+				return moduleRegistry.getTypeParser();
 			}
 		};
 	}
@@ -390,7 +396,6 @@ public class KatharsisClient {
 	public <T, I extends Serializable, D, J extends Serializable> RelationshipRepositoryStub<T, I, D, J> getQueryParamsRepository(Class<T> sourceClass, Class<D> targetClass) {
 		init();
 
-		
 		RegistryEntry entry = resourceRegistry.findEntry(sourceClass);
 
 		RelationshipRepositoryAdapter repositoryAdapter = entry.getRelationshipRepositoryForClass(targetClass, null);

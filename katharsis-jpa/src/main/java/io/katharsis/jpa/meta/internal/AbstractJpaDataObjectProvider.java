@@ -30,7 +30,8 @@ public abstract class AbstractJpaDataObjectProvider<T extends MetaJpaDataObject>
 
 			boolean jpaObject = attr.isAssociation() || elementType.getAnnotation(Embeddable.class) != null;
 
-			MetaType metaType = context.getLookup().getMeta(implementationType, jpaObject ? MetaJpaDataObject.class : MetaType.class);
+			Class<? extends MetaType> metaClass = jpaObject ? MetaJpaDataObject.class : MetaType.class;
+			MetaType metaType = context.getLookup().getMeta(implementationType, metaClass);
 			attr.setType(metaType);
 		}
 	}

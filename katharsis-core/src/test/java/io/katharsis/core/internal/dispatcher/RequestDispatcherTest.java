@@ -20,8 +20,6 @@ import org.junit.rules.ExpectedException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.katharsis.core.internal.dispatcher.ControllerRegistry;
-import io.katharsis.core.internal.dispatcher.RequestDispatcher;
 import io.katharsis.core.internal.dispatcher.controller.CollectionGet;
 import io.katharsis.core.internal.dispatcher.path.JsonPath;
 import io.katharsis.core.internal.dispatcher.path.PathBuilder;
@@ -55,13 +53,10 @@ public class RequestDispatcherTest {
 
 	@Before
 	public void prepare() {
-		ResourceInformationBuilder resourceInformationBuilder = new AnnotationResourceInformationBuilder(
-				new ResourceFieldNameTransformer());
-		ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(new SampleJsonServiceLocator(),
-				resourceInformationBuilder);
+		ResourceInformationBuilder resourceInformationBuilder = new AnnotationResourceInformationBuilder(new ResourceFieldNameTransformer());
 		moduleRegistry = new ModuleRegistry();
-		resourceRegistry = registryBuilder.build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, moduleRegistry,
-				new ConstantServiceUrlProvider(ResourceRegistryTest.TEST_MODELS_URL));
+		ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(moduleRegistry, new SampleJsonServiceLocator(), resourceInformationBuilder);
+		resourceRegistry = registryBuilder.build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, moduleRegistry, new ConstantServiceUrlProvider(ResourceRegistryTest.TEST_MODELS_URL));
 
 		moduleRegistry.init(new ObjectMapper());
 	}
@@ -76,8 +71,7 @@ public class RequestDispatcherTest {
 		ControllerRegistry controllerRegistry = new ControllerRegistry(null);
 		CollectionGet collectionGet = mock(CollectionGet.class);
 		controllerRegistry.addController(collectionGet);
-		QuerySpecAdapterBuilder queryAdapterBuilder = new QuerySpecAdapterBuilder(new DefaultQuerySpecDeserializer(),
-				resourceRegistry);
+		QuerySpecAdapterBuilder queryAdapterBuilder = new QuerySpecAdapterBuilder(new DefaultQuerySpecDeserializer(), moduleRegistry);
 		RequestDispatcher sut = new RequestDispatcher(moduleRegistry, controllerRegistry, null, queryAdapterBuilder);
 
 		// WHEN
@@ -87,21 +81,18 @@ public class RequestDispatcherTest {
 		sut.dispatchRequest(jsonPath, requestType, parameters, null, null);
 
 		// THEN
-		verify(collectionGet, times(1)).handle(any(JsonPath.class), any(QueryAdapter.class),
-				any(RepositoryMethodParameterProvider.class), any(Document.class));
+		verify(collectionGet, times(1)).handle(any(JsonPath.class), any(QueryAdapter.class), any(RepositoryMethodParameterProvider.class), any(Document.class));
 	}
 
 	@Test
 	public void shouldMapExceptionToErrorResponseIfMapperIsAvailable() throws Exception {
 
 		ControllerRegistry controllerRegistry = mock(ControllerRegistry.class);
-		//noinspection unchecked
+		// noinspection unchecked
 		when(controllerRegistry.getController(any(JsonPath.class), anyString())).thenThrow(IllegalStateException.class);
 
-		QuerySpecAdapterBuilder queryAdapterBuilder = new QuerySpecAdapterBuilder(new DefaultQuerySpecDeserializer(),
-				resourceRegistry);
-		RequestDispatcher requestDispatcher = new RequestDispatcher(moduleRegistry, controllerRegistry,
-				ExceptionMapperRegistryTest.exceptionMapperRegistry, queryAdapterBuilder);
+		QuerySpecAdapterBuilder queryAdapterBuilder = new QuerySpecAdapterBuilder(new DefaultQuerySpecDeserializer(), moduleRegistry);
+		RequestDispatcher requestDispatcher = new RequestDispatcher(moduleRegistry, controllerRegistry, ExceptionMapperRegistryTest.exceptionMapperRegistry, queryAdapterBuilder);
 
 		Response response = requestDispatcher.dispatchRequest(null, null, null, null, null);
 		assertThat(response).isNotNull();
@@ -113,13 +104,11 @@ public class RequestDispatcherTest {
 	@Test
 	public void shouldThrowExceptionAsIsIfMapperIsNotAvailable() throws Exception {
 		ControllerRegistry controllerRegistry = mock(ControllerRegistry.class);
-		//noinspection unchecked
+		// noinspection unchecked
 		when(controllerRegistry.getController(any(JsonPath.class), anyString())).thenThrow(ArithmeticException.class);
 
-		QuerySpecAdapterBuilder queryAdapterBuilder = new QuerySpecAdapterBuilder(new DefaultQuerySpecDeserializer(),
-				resourceRegistry);
-		RequestDispatcher requestDispatcher = new RequestDispatcher(moduleRegistry, controllerRegistry,
-				ExceptionMapperRegistryTest.exceptionMapperRegistry, queryAdapterBuilder);
+		QuerySpecAdapterBuilder queryAdapterBuilder = new QuerySpecAdapterBuilder(new DefaultQuerySpecDeserializer(), moduleRegistry);
+		RequestDispatcher requestDispatcher = new RequestDispatcher(moduleRegistry, controllerRegistry, ExceptionMapperRegistryTest.exceptionMapperRegistry, queryAdapterBuilder);
 
 		expectedException.expect(ArithmeticException.class);
 

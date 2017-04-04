@@ -29,6 +29,8 @@ import io.katharsis.jpa.util.TestConfig;
 import io.katharsis.legacy.locator.SampleJsonServiceLocator;
 import io.katharsis.legacy.queryParams.DefaultQueryParamsParser;
 import io.katharsis.legacy.queryParams.QueryParamsBuilder;
+import io.katharsis.meta.MetaModule;
+import io.katharsis.meta.provider.resource.ResourceMetaProvider;
 import io.katharsis.queryspec.DefaultQuerySpecDeserializer;
 import io.katharsis.rs.KatharsisFeature;
 import okhttp3.OkHttpClient.Builder;
@@ -51,6 +53,11 @@ public abstract class AbstractJpaJerseyTest extends JerseyTest {
 		JpaModule module = JpaModule.newClientModule();
 		setupModule(module, false);
 		client.addModule(module);
+		
+		MetaModule metaModule = MetaModule.create();
+		metaModule.addMetaProvider(new ResourceMetaProvider());
+		client.addModule(metaModule);
+		
 		setNetworkTimeout(client, 10000, TimeUnit.SECONDS);
 	}
 
@@ -121,6 +128,10 @@ public abstract class AbstractJpaJerseyTest extends JerseyTest {
 			module.setQueryFactory(QuerydslQueryFactory.newInstance());
 			setupModule(module, true);
 			feature.addModule(module);
+			
+			MetaModule metaModule = MetaModule.create();
+			metaModule.addMetaProvider(new ResourceMetaProvider());
+			feature.addModule(metaModule);
 
 			register(feature);
 

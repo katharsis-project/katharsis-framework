@@ -13,6 +13,7 @@ import javax.persistence.ElementCollection;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.MappedSuperclass;
 import javax.persistence.OneToMany;
 import javax.persistence.OptimisticLockException;
 
@@ -22,6 +23,7 @@ import io.katharsis.core.internal.resource.AnnotationResourceInformationBuilder;
 import io.katharsis.core.internal.resource.AnnotationResourceInformationBuilder.AnnotatedResourceField;
 import io.katharsis.core.internal.resource.DefaultResourceInstanceBuilder;
 import io.katharsis.core.internal.resource.ResourceFieldImpl;
+import io.katharsis.core.internal.utils.ClassUtils;
 import io.katharsis.core.internal.utils.StringUtils;
 import io.katharsis.jpa.annotations.JpaMergeRelations;
 import io.katharsis.jpa.annotations.JpaResource;
@@ -32,18 +34,20 @@ import io.katharsis.meta.model.MetaAttribute;
 import io.katharsis.meta.model.MetaDataObject;
 import io.katharsis.meta.model.MetaElement;
 import io.katharsis.meta.model.MetaKey;
+import io.katharsis.meta.model.MetaType;
 import io.katharsis.meta.model.resource.MetaJsonObject;
 import io.katharsis.resource.Document;
 import io.katharsis.resource.Resource;
 import io.katharsis.resource.annotations.JsonApiLinksInformation;
 import io.katharsis.resource.annotations.JsonApiMetaInformation;
-import io.katharsis.resource.information.LookupIncludeBehavior;
+import io.katharsis.resource.annotations.LookupIncludeBehavior;
 import io.katharsis.resource.information.ResourceField;
 import io.katharsis.resource.information.ResourceFieldType;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.information.ResourceInformationBuilderContext;
 import io.katharsis.resource.information.ResourceInstanceBuilder;
+import io.katharsis.utils.parser.TypeParser;
 
 /**
  * Extracts resource information from JPA and Katharsis annotations. Katharsis
@@ -99,8 +103,13 @@ public class JpaResourceInformationBuilder implements ResourceInformationBuilder
 
 		List<ResourceField> fields = getFields(meta);
 		Set<String> ignoredFields = getIgnoredFields(meta);
+		
+		Class<?> superclass = resourceClass.getSuperclass();
+		String superResourceType = superclass != Object.class && superclass.getAnnotation(MappedSuperclass.class) == null ? context.getResourceType(superclass) : null;
 
-		return new JpaResourceInformation(meta, resourceClass, resourceType, instanceBuilder, fields, ignoredFields);
+		TypeParser typeParser = context.getTypeParser();
+		return new JpaResourceInformation(typeParser, meta, resourceClass, resourceType, superResourceType, instanceBuilder, fields,
+				ignoredFields);
 	}
 
 	class JpaResourceInstanceBuilder<T> extends DefaultResourceInstanceBuilder<T> {
@@ -129,9 +138,10 @@ public class JpaResourceInformationBuilder implements ResourceInformationBuilder
 
 		private Set<String> ignoredFields;
 
-		public JpaResourceInformation(MetaDataObject meta, Class<?> resourceClass, String resourceType, // NOSONAR
+		public JpaResourceInformation(TypeParser typeParser, MetaDataObject meta, Class<?> resourceClass,
+				String resourceType, String superResourceType,// NOSONAR
 				ResourceInstanceBuilder<?> instanceBuilder, List<ResourceField> fields, Set<String> ignoredFields) {
-			super(resourceClass, resourceType, instanceBuilder, fields);
+			super(typeParser, resourceClass, resourceType, superResourceType, instanceBuilder, fields);
 			this.meta = meta;
 			this.ignoredFields = ignoredFields;
 		}
@@ -148,7 +158,8 @@ public class JpaResourceInformationBuilder implements ResourceInformationBuilder
 			if (versionAttr != null) {
 				JsonNode versionNode = resource.getAttributes().get(versionAttr.getName());
 				if (versionNode != null) {
-					Object requestVersion = versionAttr.getType().fromString(versionNode.asText());
+					Object requestVersion = context.getTypeParser().parse(versionNode.asText(),
+							(Class) versionAttr.getType().getImplementationClass());
 					Object currentVersion = versionAttr.getValue(entity);
 					if (!currentVersion.equals(requestVersion))
 						throw new OptimisticLockException(
@@ -163,7 +174,40 @@ public class JpaResourceInformationBuilder implements ResourceInformationBuilder
 		 */
 		@Override
 		public Serializable parseIdString(String id) {
-			return (Serializable) meta.getPrimaryKey().fromKeyString(id);
+			return fromKeyString(id);
+		}
+
+		private Serializable fromKeyString(String id) {
+
+			MetaKey primaryKey = meta.getPrimaryKey();
+			MetaAttribute attr = primaryKey.getUniqueElement();
+			return (Serializable) fromKeyString(attr.getType(), id);
+		}
+
+		private Object fromKeyString(MetaType type, String idString) {
+			// => support compound keys with unique ids
+			if (type instanceof MetaDataObject) {
+				return parseEmbeddableString((MetaDataObject) type, idString);
+			} else {
+				return context.getTypeParser().parse(idString, (Class) type.getImplementationClass());
+			}
+		}
+
+		private Object parseEmbeddableString(MetaDataObject embType, String idString) {
+			String[] keyElements = idString.split(MetaKey.ID_ELEMENT_SEPARATOR);
+
+			Object id = ClassUtils.newInstance(embType.getImplementationClass());
+
+			List<? extends MetaAttribute> embAttrs = embType.getAttributes();
+			if (keyElements.length != embAttrs.size()) {
+				throw new UnsupportedOperationException("failed to parse " + idString + " for " + embType.getId());
+			}
+			for (int i = 0; i < keyElements.length; i++) {
+				MetaAttribute embAttr = embAttrs.get(i);
+				Object idElement = fromKeyString(embAttr.getType(), keyElements[i]);
+				embAttr.setValue(id, idElement);
+			}
+			return id;
 		}
 
 		/**
@@ -283,13 +327,14 @@ public class JpaResourceInformationBuilder implements ResourceInformationBuilder
 		boolean metaInfo = attr.getAnnotation(JsonApiMetaInformation.class) != null;
 		boolean association = isAssociation(meta, attr);
 		ResourceFieldType resourceFieldType = ResourceFieldType.get(id, linksInfo, metaInfo, association);
-		String oppositeResourceType = association ? AnnotationResourceInformationBuilder.getResourceType(genericType, context) : null;
+		String oppositeResourceType = association
+				? AnnotationResourceInformationBuilder.getResourceType(genericType, context) : null;
 
 		// related repositories should lookup, we ignore the hibernate proxies
 		LookupIncludeBehavior lookupIncludeBehavior = AnnotatedResourceField.getLookupIncludeBehavior(annotations,
 				LookupIncludeBehavior.AUTOMATICALLY_ALWAYS);
-		return new ResourceFieldImpl(jsonName, underlyingName, resourceFieldType, type, genericType, oppositeResourceType, oppositeName, lazy,
-				includeByDefault, lookupIncludeBehavior);
+		return new ResourceFieldImpl(jsonName, underlyingName, resourceFieldType, type, genericType,
+				oppositeResourceType, oppositeName, lazy, includeByDefault, lookupIncludeBehavior);
 	}
 
 	@Override

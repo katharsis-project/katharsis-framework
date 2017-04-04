@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import io.katharsis.jpa.JpaEntityRepository;
 import io.katharsis.jpa.JpaRepositoryConfig;
 import io.katharsis.jpa.model.RelatedEntity;
+import io.katharsis.jpa.model.SequenceEntity;
 import io.katharsis.jpa.model.TestEntity;
 import io.katharsis.jpa.query.AbstractJpaTest;
 import io.katharsis.queryspec.Direction;
@@ -65,8 +66,7 @@ public abstract class JpaEntityRepositoryTestBase extends AbstractJpaTest {
 		for (int i = 0; i < numTestEntities; i++) {
 			if (asc) {
 				Assert.assertEquals(i, list.get(i).getLongValue());
-			}
-			else {
+			} else {
 				Assert.assertEquals(numTestEntities - 1 - i, list.get(i).getLongValue());
 			}
 		}
@@ -110,7 +110,8 @@ public abstract class JpaEntityRepositoryTestBase extends AbstractJpaTest {
 	@Test
 	public void testFilterBooleanTrue() throws InstantiationException, IllegalAccessException {
 		QuerySpec querySpec = new QuerySpec(TestEntity.class);
-		querySpec.addFilter(new FilterSpec(Arrays.asList("embValue", "nestedValue", "embBoolValue"), FilterOperator.EQ, true));
+		querySpec.addFilter(
+				new FilterSpec(Arrays.asList("embValue", "nestedValue", "embBoolValue"), FilterOperator.EQ, true));
 		List<TestEntity> list = repo.findAll(querySpec);
 
 		Assert.assertEquals(1, list.size());
@@ -121,7 +122,8 @@ public abstract class JpaEntityRepositoryTestBase extends AbstractJpaTest {
 	@Test
 	public void testFilterBooleanFalse() throws InstantiationException, IllegalAccessException {
 		QuerySpec querySpec = new QuerySpec(TestEntity.class);
-		querySpec.addFilter(new FilterSpec(Arrays.asList("embValue", "nestedValue", "embBoolValue"), FilterOperator.EQ, false));
+		querySpec.addFilter(
+				new FilterSpec(Arrays.asList("embValue", "nestedValue", "embBoolValue"), FilterOperator.EQ, false));
 		List<TestEntity> list = repo.findAll(querySpec);
 
 		Assert.assertEquals(numTestEntities - 1, list.size());
@@ -278,5 +280,25 @@ public abstract class JpaEntityRepositoryTestBase extends AbstractJpaTest {
 		QuerySpec querySpec = new QuerySpec(TestEntity.class);
 		querySpec.addSort(new SortSpec(Arrays.asList("test"), Direction.DESC));
 		repo.findAll(querySpec);
+	}
+
+	@Test
+	public void testSequencePrimaryKey() throws InstantiationException, IllegalAccessException {
+		JpaEntityRepository<SequenceEntity, Long> sequenceRepo = new JpaEntityRepository<>(module,
+				JpaRepositoryConfig.create(SequenceEntity.class));
+		QuerySpec querySpec = new QuerySpec(SequenceEntity.class);
+		List<SequenceEntity> list = sequenceRepo.findAll(querySpec);
+		Assert.assertEquals(0, list.size());
+
+		SequenceEntity entity = new SequenceEntity();
+		entity.setStringValue("someValue");
+		entity = sequenceRepo.create(entity);
+
+		Assert.assertNotNull(entity.getId());
+		Assert.assertNotEquals(0L, entity.getId().longValue());
+
+		entity.setStringValue("someUpdatedValue");
+		entity = sequenceRepo.save(entity);
+		Assert.assertEquals("someUpdatedValue", entity.getStringValue());
 	}
 }

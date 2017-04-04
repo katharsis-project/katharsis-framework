@@ -14,7 +14,7 @@ import io.katharsis.core.internal.resource.DocumentMapper;
 import io.katharsis.core.internal.resource.DocumentMapperUtil;
 import io.katharsis.core.internal.resource.ResourceMapper;
 import io.katharsis.core.internal.utils.PropertyUtils;
-import io.katharsis.core.internal.utils.parser.TypeParser;
+import io.katharsis.module.ModuleRegistry;
 import io.katharsis.repository.request.QueryAdapter;
 import io.katharsis.resource.Document;
 import io.katharsis.resource.Relationship;
@@ -24,6 +24,7 @@ import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.list.DefaultResourceList;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.utils.Nullable;
+import io.katharsis.utils.parser.TypeParser;
 
 public class ClientDocumentMapper extends DocumentMapper {
 
@@ -33,11 +34,12 @@ public class ClientDocumentMapper extends DocumentMapper {
 
 	private ResourceRegistry resourceRegistry;
 
-	private TypeParser typeParser = new TypeParser();
+	private TypeParser typeParser;
 
-	public ClientDocumentMapper(ResourceRegistry resourceRegistry, ObjectMapper objectMapper, PropertiesProvider propertiesProvider) {
-		super(resourceRegistry, objectMapper, propertiesProvider, true);
-		this.resourceRegistry = resourceRegistry;
+	public ClientDocumentMapper(ModuleRegistry moduleRegistry, ObjectMapper objectMapper, PropertiesProvider propertiesProvider) {
+		super(moduleRegistry.getResourceRegistry(), objectMapper, propertiesProvider, true);
+		this.resourceRegistry = moduleRegistry.getResourceRegistry();
+		this.typeParser = moduleRegistry.getTypeParser();
 		this.objectMapper = objectMapper;
 	}
 
@@ -54,18 +56,19 @@ public class ClientDocumentMapper extends DocumentMapper {
 				if (relationshipValue instanceof ObjectProxy) {
 					includeRelation = ((ObjectProxy) relationshipValue).isLoaded();
 				} else {
-					// TODO for fieldSets handling in the future the lazy handling must be different
+					// TODO for fieldSets handling in the future the lazy
+					// handling must be different
 					includeRelation = relationshipValue != null || !field.isLazy() && !field.isCollection();
 				}
 
-				if(includeRelation){
+				if (includeRelation) {
 					Relationship relationship = new Relationship();
-					if(relationshipValue instanceof Collection){
-						relationship.setData(Nullable.of((Object)util.toResourceIds((Collection<?>)relationshipValue)));
-					}else{
+					if (relationshipValue instanceof Collection) {
+						relationship.setData(Nullable.of((Object) util.toResourceIds((Collection<?>) relationshipValue)));
+					} else {
 						relationship.setData(Nullable.of((Object) util.toResourceId(relationshipValue)));
 					}
-					resource.getRelationships().put(field.getJsonName(), relationship);		
+					resource.getRelationships().put(field.getJsonName(), relationship);
 				}
 			}
 		};
@@ -110,10 +113,10 @@ public class ClientDocumentMapper extends DocumentMapper {
 			}
 			return resourceList;
 		} else {
-			if(dataObjects.isEmpty()){
+			if (dataObjects.isEmpty()) {
 				return null;
 			}
-			if(dataObjects.size() > 1){
+			if (dataObjects.size() > 1) {
 				throw new IllegalStateException("expected unique result " + dataObjects);
 			}
 			return dataObjects.get(0);

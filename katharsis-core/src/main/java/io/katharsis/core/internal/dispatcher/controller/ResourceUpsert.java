@@ -16,7 +16,6 @@ import io.katharsis.core.internal.resource.DocumentMapper;
 import io.katharsis.core.internal.resource.ResourceAttributesBridge;
 import io.katharsis.core.internal.utils.Generics;
 import io.katharsis.core.internal.utils.PropertyUtils;
-import io.katharsis.core.internal.utils.parser.TypeParser;
 import io.katharsis.errorhandling.exception.ResourceException;
 import io.katharsis.errorhandling.exception.ResourceNotFoundException;
 import io.katharsis.legacy.internal.RepositoryMethodParameterProvider;
@@ -29,6 +28,7 @@ import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.information.ResourceInstanceBuilder;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.utils.parser.TypeParser;
 
 public abstract class ResourceUpsert extends BaseController {
 	protected final ResourceRegistry resourceRegistry;
@@ -241,19 +241,16 @@ public abstract class ResourceUpsert extends BaseController {
 	                .findRelationshipFieldByName(propertyName);
 	        Class<?> relationshipFieldClass = Generics.getResourceClass(relationshipField.getGenericType(),
 	                relationshipField.getType());
-	        RegistryEntry entry = null;
 	        Class idFieldType = null;
 	        List relationships = new LinkedList<>();
 	        boolean first = true;
 	        
 	        for (ResourceIdentifier resourceId : relationship.getCollectionData().get()) {
-	            if (first) {
-	                entry = resourceRegistry.findEntry(resourceId.getType(), relationshipFieldClass);
+	        	RegistryEntry entry = resourceRegistry.findEntry(resourceId.getType(), relationshipFieldClass);
 	                idFieldType = entry.getResourceInformation()
 	                        .getIdField()
 	                        .getType();
 	                first = false;
-	            }
 	            Serializable castedRelationshipId = typeParser.parse(resourceId.getId(), idFieldType);
 	            
 	            Object relationObject = fetchRelatedObject(entry, castedRelationshipId, parameterProvider, queryAdapter);
@@ -291,7 +288,6 @@ public abstract class ResourceUpsert extends BaseController {
 	        } else {
 	            relationObject = null;
 	        }
-	
 	        PropertyUtils.setProperty(newResource, relationshipFieldByName.getUnderlyingName(), relationObject);
     	}
     }

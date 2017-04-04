@@ -18,6 +18,7 @@ import org.mockito.Mockito;
 
 import io.katharsis.core.internal.resource.AnnotationResourceInformationBuilder;
 import io.katharsis.legacy.registry.DefaultResourceInformationBuilderContext;
+import io.katharsis.module.ModuleRegistry;
 import io.katharsis.repository.ResourceRepositoryV2;
 import io.katharsis.repository.information.RepositoryAction;
 import io.katharsis.repository.information.RepositoryAction.RepositoryActionType;
@@ -28,6 +29,7 @@ import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.rs.internal.JaxrsModule;
 import io.katharsis.rs.internal.JaxrsModule.JaxrsResourceRepositoryInformationBuilder;
 import io.katharsis.rs.resource.model.Task;
+import io.katharsis.utils.parser.TypeParser;
 
 public class JaxRsModuleTest {
 
@@ -37,15 +39,21 @@ public class JaxRsModuleTest {
 
 	@Before
 	public void setup() {
+		final ModuleRegistry moduleRegistry = new ModuleRegistry();
 		builder = new JaxrsResourceRepositoryInformationBuilder();
 		final ResourceInformationBuilder resourceInformationBuilder = new AnnotationResourceInformationBuilder(
 				new ResourceFieldNameTransformer());
-		resourceInformationBuilder.init(new DefaultResourceInformationBuilderContext(resourceInformationBuilder));
+		resourceInformationBuilder.init(new DefaultResourceInformationBuilderContext(resourceInformationBuilder, moduleRegistry.getTypeParser()));
 		context = new RepositoryInformationBuilderContext() {
 
 			@Override
 			public ResourceInformationBuilder getResourceInformationBuilder() {
 				return resourceInformationBuilder;
+			}
+
+			@Override
+			public TypeParser getTypeParser() {
+				return moduleRegistry.getTypeParser();
 			}
 		};
 	}

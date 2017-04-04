@@ -23,6 +23,7 @@ import io.katharsis.legacy.repository.annotations.JsonApiRelationshipRepository;
 import io.katharsis.legacy.repository.annotations.JsonApiRemoveRelations;
 import io.katharsis.legacy.repository.annotations.JsonApiSetRelation;
 import io.katharsis.legacy.repository.annotations.JsonApiSetRelations;
+import io.katharsis.module.ModuleRegistry;
 import io.katharsis.repository.mock.NewInstanceRepositoryMethodParameterProvider;
 import io.katharsis.repository.request.QueryAdapter;
 import io.katharsis.resource.mock.models.Project;
@@ -37,7 +38,7 @@ public class AnnotatedRelationshipRepositoryAdapterTest {
     public void setUp() throws Exception {
     	queryParams = new QueryParams();
         queryAdapter = new QueryParamsAdapter(queryParams);
-        parameterProvider = new ParametersFactory(new NewInstanceRepositoryMethodParameterProvider());
+        parameterProvider = new ParametersFactory(new ModuleRegistry(), new NewInstanceRepositoryMethodParameterProvider());
     }
 
     @Test(expected = RepositoryAnnotationNotFoundException.class)

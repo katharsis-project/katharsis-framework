@@ -45,8 +45,6 @@ import io.katharsis.module.Module;
 import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.repository.RelationshipRepositoryV2;
 import io.katharsis.repository.ResourceRepositoryV2;
-import io.katharsis.repository.RelationshipRepositoryV2;
-import io.katharsis.repository.ResourceRepositoryV2;
 import io.katharsis.repository.decorate.RelationshipRepositoryDecorator;
 import io.katharsis.repository.decorate.RepositoryDecoratorFactory;
 import io.katharsis.repository.decorate.ResourceRepositoryDecorator;
@@ -417,7 +415,9 @@ public class JpaModule implements Module {
 	 */
 	private void setupRelationshipRepositories(Class<?> resourceClass, boolean mapped) {
 		MetaLookup metaLookup = mapped ? resourceMetaLookup : jpaMetaLookup;
-		MetaDataObject meta = metaLookup.getMeta(resourceClass, mapped ? MetaJsonObject.class : MetaJpaDataObject.class);
+
+		Class<? extends MetaDataObject> metaClass = mapped ? MetaJsonObject.class : MetaJpaDataObject.class;
+		MetaDataObject meta = metaLookup.getMeta(resourceClass, metaClass);
 
 		for (MetaAttribute attr : meta.getAttributes()) {
 			if (!attr.isAssociation()) {

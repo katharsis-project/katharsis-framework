@@ -10,6 +10,7 @@ import io.katharsis.resource.information.ResourceInformationBuilder;
 import io.katharsis.resource.registry.ResourceLookup;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.security.SecurityProvider;
+import io.katharsis.utils.parser.TypeParser;
 
 /**
  * Interface for extensions that can be registered to Katharsis to provide a
@@ -172,6 +173,8 @@ public interface Module {
 		 * @return if the module runs on the server-side
 		 */
 		public boolean isServer();
+
+		public TypeParser getTypeParser();
 
 	}
 }

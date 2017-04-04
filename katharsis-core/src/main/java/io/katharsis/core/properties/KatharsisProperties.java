@@ -53,6 +53,26 @@ public class KatharsisProperties {
      * @since 2.8.2
      */
     public static final String INCLUDE_AUTOMATICALLY = "katharsis.config.include.automatically";
+    
+    /**
+	 * There are two mechanisms in place to determine whether an inclusion was
+	 * requested.
+	 * 
+	 * <ul>
+	 * <li>include[tasks]=project.schedule</li> (BY_TYPE)
+	 * <li>include[tasks]=project&include[projects]=schedule</li> (BY_ROOT_PATH)
+	 * </ul>
+	 * 
+	 * For simple object structures they are semantically the same, but they do differ
+	 * for more complex ones, like when multiple attributes lead
+	 * to the same type or for cycle structures. In the later case BY_TYPE inclusions 
+	 * become recursive, while BY_ROOT_PATH do not. Note that the use of BY_TYPE
+	 * outmatches BY_ROOT_PATH, so BY_TYPE includes everything BY_ROOT_PATH does
+	 * and potentially more.
+	 * 
+	 * Possible values: BY_TYPE (default), BY_ROOT_PATH 
+	 */
+    public static final String INCLUDE_BEHAVIOR = "katharsis.config.include.behavior";
 
     /**
      * Set a boolean whether katharsis will try to overwrite a value previously assigned

@@ -15,13 +15,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import io.katharsis.core.internal.utils.ClassUtils;
 import io.katharsis.core.internal.utils.PreconditionUtil;
+import io.katharsis.resource.annotations.JsonApiRelation;
 import io.katharsis.resource.annotations.JsonApiResource;
-import io.katharsis.resource.annotations.JsonApiToOne;
+import io.katharsis.resource.annotations.SerializeType;
 
 @JsonApiResource(type = "meta/attribute")
 public class MetaAttribute extends MetaElement {
 
-	@JsonApiToOne
+	@JsonApiRelation(serialize=SerializeType.LAZY)
 	private MetaType type;
 
 	private boolean association;
@@ -41,7 +42,13 @@ public class MetaAttribute extends MetaElement {
 
 	private boolean version;
 
-	@JsonApiToOne
+	private boolean primaryKeyAttribute;
+
+	private boolean sortable;
+
+	private boolean filterable;
+
+	@JsonApiRelation(serialize=SerializeType.LAZY)
 	private MetaAttribute oppositeAttribute;
 
 	private void initAccessors() {
@@ -177,5 +184,29 @@ public class MetaAttribute extends MetaElement {
 
 	public void setType(MetaType type) {
 		this.type = type;
+	}
+
+	public boolean isPrimaryKeyAttribute() {
+		return primaryKeyAttribute;
+	}
+
+	public void setPrimaryKeyAttribute(boolean primaryKeyAttribute) {
+		this.primaryKeyAttribute = primaryKeyAttribute;
+	}
+
+	public boolean isSortable() {
+		return sortable;
+	}
+
+	public void setSortable(boolean sortable) {
+		this.sortable = sortable;
+	}
+
+	public boolean isFilterable() {
+		return filterable;
+	}
+
+	public void setFilterable(boolean filterable) {
+		this.filterable = filterable;
 	}
 }

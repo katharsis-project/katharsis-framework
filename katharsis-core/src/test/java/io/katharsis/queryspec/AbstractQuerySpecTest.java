@@ -31,17 +31,18 @@ public abstract class AbstractQuerySpecTest {
 
 	protected ResourceRegistry resourceRegistry;
 
+	protected ModuleRegistry moduleRegistry;
+
 	@Before
 	public void setup() {
 		JsonServiceLocator jsonServiceLocator = new SampleJsonServiceLocator();
-		ResourceInformationBuilder resourceInformationBuilder = new AnnotationResourceInformationBuilder(
-				new ResourceFieldNameTransformer());
-		ResourceRegistryBuilder resourceRegistryBuilder = new ResourceRegistryBuilder(jsonServiceLocator,
-				resourceInformationBuilder);
+		ResourceInformationBuilder resourceInformationBuilder = new AnnotationResourceInformationBuilder(new ResourceFieldNameTransformer());
+		moduleRegistry = new ModuleRegistry();
+		ResourceRegistryBuilder resourceRegistryBuilder = new ResourceRegistryBuilder(moduleRegistry, jsonServiceLocator, resourceInformationBuilder);
 		DefaultResourceLookup resourceLookup = newResourceLookup();
-		resourceRegistry = resourceRegistryBuilder.build(resourceLookup, new ModuleRegistry(),
-				new ConstantServiceUrlProvider("http://127.0.0.1"));
-		parser = new DefaultQuerySpecConverter(resourceRegistry);
+		resourceRegistry = resourceRegistryBuilder.build(resourceLookup, moduleRegistry, new ConstantServiceUrlProvider("http://127.0.0.1"));
+		moduleRegistry.setResourceRegistry(resourceRegistry);
+		parser = new DefaultQuerySpecConverter(moduleRegistry);
 	}
 
 	protected DefaultResourceLookup newResourceLookup() {
@@ -51,7 +52,9 @@ public abstract class AbstractQuerySpecTest {
 			public Set<Class<?>> getResourceRepositoryClasses() {
 				Set<Class<?>> set = new HashSet<>();
 				set.addAll(super.getResourceRepositoryClasses());
-				set.add(ScheduleRepositoryImpl.class); // not yet recognized by reflections for some reason
+				set.add(ScheduleRepositoryImpl.class); // not yet recognized by
+														// reflections for some
+														// reason
 				return set;
 			}
 		};

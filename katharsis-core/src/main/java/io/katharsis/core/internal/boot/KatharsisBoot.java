@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import net.jodah.typetools.TypeResolver;
 
 import io.katharsis.core.internal.dispatcher.ControllerRegistry;
 import io.katharsis.core.internal.dispatcher.ControllerRegistryBuilder;
@@ -18,9 +19,9 @@ import io.katharsis.core.internal.registry.ResourceRegistryImpl;
 import io.katharsis.core.internal.repository.information.DefaultRelationshipRepositoryInformationBuilder;
 import io.katharsis.core.internal.repository.information.DefaultResourceRepositoryInformationBuilder;
 import io.katharsis.core.internal.resource.AnnotationResourceInformationBuilder;
+import io.katharsis.core.internal.resource.DocumentMapper;
 import io.katharsis.core.internal.utils.ClassUtils;
 import io.katharsis.core.internal.utils.PreconditionUtil;
-import io.katharsis.core.internal.utils.parser.TypeParser;
 import io.katharsis.core.properties.KatharsisProperties;
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
 import io.katharsis.legacy.internal.QueryParamsAdapterBuilder;
@@ -46,7 +47,6 @@ import io.katharsis.resource.information.ResourceFieldNameTransformer;
 import io.katharsis.resource.registry.ConstantServiceUrlProvider;
 import io.katharsis.resource.registry.ResourceRegistry;
 import io.katharsis.resource.registry.ServiceUrlProvider;
-import net.jodah.typetools.TypeResolver;
 
 /**
  * Facilitates the startup of Katharsis in various environments (Spring, CDI,
@@ -85,6 +85,8 @@ public class KatharsisBoot {
 
 	private ExceptionMapperRegistry exceptionMapperRegistry;
 
+	private DocumentMapper documentMapper;
+
 	public void setObjectMapper(ObjectMapper objectMapper) {
 		PreconditionUtil.assertNull("ObjectMapper already set", this.objectMapper);
 		this.objectMapper = objectMapper;
@@ -99,12 +101,26 @@ public class KatharsisBoot {
 		moduleRegistry.setServiceDiscovery(serviceDiscovery);
 	}
 
+	/**
+	 * Set the {@link QueryParamsBuilder} to use to parse and handle query parameters.
+	 * When invoked, overwrites previous QueryParamsBuilders and {@link QuerySpecDeserializer}s.
+	 *
+	 * @param queryParamsBuilder
+	 */
 	public void setQueryParamsBuilds(QueryParamsBuilder queryParamsBuilder) {
+		PreconditionUtil.assertNotNull("A query params builder must be provided, but is null", queryParamsBuilder);
 		this.queryParamsBuilder = queryParamsBuilder;
 		this.querySpecDeserializer = null;
 	}
 
+	/**
+	 * Set the {@link QuerySpecDeserializer} to use to parse and handle query parameters.
+	 * When invoked, overwrites previous {@link QueryParamsBuilder}s and QuerySpecDeserializers.
+	 *
+	 * @param querySpecDeserializer
+	 */
 	public void setQuerySpecDeserializer(QuerySpecDeserializer querySpecDeserializer) {
+		PreconditionUtil.assertNotNull("A query spec deserializer must be provided, but is null", querySpecDeserializer);
 		this.querySpecDeserializer = querySpecDeserializer;
 		this.queryParamsBuilder = null;
 	}
@@ -199,18 +215,22 @@ public class KatharsisBoot {
 	}
 
 	private RequestDispatcher createRequestDispatcher(ExceptionMapperRegistry exceptionMapperRegistry) {
-		TypeParser typeParser = new TypeParser();
-		ControllerRegistryBuilder controllerRegistryBuilder = new ControllerRegistryBuilder(resourceRegistry, typeParser, objectMapper, propertiesProvider);
+		ControllerRegistryBuilder controllerRegistryBuilder = new ControllerRegistryBuilder(resourceRegistry, moduleRegistry.getTypeParser(), objectMapper, propertiesProvider);
 		ControllerRegistry controllerRegistry = controllerRegistryBuilder.build();
+		this.documentMapper = controllerRegistryBuilder.getDocumentMapper();
 
 		QueryAdapterBuilder queryAdapterBuilder;
 		if (queryParamsBuilder != null) {
 			queryAdapterBuilder = new QueryParamsAdapterBuilder(queryParamsBuilder, resourceRegistry);
 		} else {
-			queryAdapterBuilder = new QuerySpecAdapterBuilder(querySpecDeserializer, resourceRegistry);
+			queryAdapterBuilder = new QuerySpecAdapterBuilder(querySpecDeserializer, moduleRegistry);
 		}
 
 		return new RequestDispatcher(moduleRegistry, controllerRegistry, exceptionMapperRegistry, queryAdapterBuilder);
+	}
+	
+	public DocumentMapper getDocumentMapper(){
+		return documentMapper;
 	}
 
 	private ExceptionMapperRegistry buildExceptionMapperRegistry() {
@@ -287,8 +307,8 @@ public class KatharsisBoot {
 	}
 
 	private void setupServiceUrlProvider() {
-		String resourceDefaultDomain = getProperty(KatharsisProperties.RESOURCE_DEFAULT_DOMAIN);
 		if (serviceUrlProvider == null) {
+			String resourceDefaultDomain = getProperty(KatharsisProperties.RESOURCE_DEFAULT_DOMAIN);
 			String webPathPrefix = getWebPathPrefix();
 			if (resourceDefaultDomain != null) {
 				String serviceUrl = buildServiceUrl(resourceDefaultDomain, webPathPrefix);
@@ -308,9 +328,7 @@ public class KatharsisBoot {
 	}
 
 	private static String buildServiceUrl(String resourceDefaultDomain, String webPathPrefix) {
-		if (webPathPrefix != null && !resourceDefaultDomain.endsWith(webPathPrefix))
-			return resourceDefaultDomain + webPathPrefix;
-		return resourceDefaultDomain;
+		return resourceDefaultDomain + (webPathPrefix != null ? webPathPrefix : "");
 	}
 
 	public RequestDispatcher getRequestDispatcher() {
@@ -349,11 +367,36 @@ public class KatharsisBoot {
 		return moduleRegistry.getServiceDiscovery();
 	}
 
+	/**
+	 * Sets the default page limit for requests that return a collection of elements. If the api user does not
+	 * specify the page limit, then this default value will be used.
+	 * <p>
+	 * This is important to prevent denial of service attacks on the server.
+	 * <p>
+	 * NOTE: This using this feature requires a {@link QuerySpecDeserializer} and it does not work with the
+	 * deprecated {@link QueryParamsBuilder}.
+	 *
+	 * @param defaultPageLimit
+	 */
 	public void setDefaultPageLimit(Long defaultPageLimit) {
+		PreconditionUtil.assertNotNull("Setting the default page limit requires using the QuerySpecDeserializer, but " +
+				"it is null. Are you using QueryParams instead?", this.querySpecDeserializer);
 		((DefaultQuerySpecDeserializer) this.querySpecDeserializer).setDefaultLimit(defaultPageLimit);
 	}
 
+	/**
+	 * Sets the maximum page limit allowed for paginated requests.
+	 * <p>
+	 * This is important to prevent denial of service attacks on the server.
+	 * <p>
+	 * NOTE: This using this feature requires a {@link QuerySpecDeserializer} and it does not work with the
+	 * deprecated {@link QueryParamsBuilder}.
+	 *
+	 * @param maxPageLimit
+	 */
 	public void setMaxPageLimit(Long maxPageLimit) {
+		PreconditionUtil.assertNotNull("Setting the max page limit requires using the QuerySpecDeserializer, but " +
+				"it is null. Are you using QueryParams instead?", this.querySpecDeserializer);
 		((DefaultQuerySpecDeserializer) this.querySpecDeserializer).setMaxPageLimit(maxPageLimit);
 	}
 

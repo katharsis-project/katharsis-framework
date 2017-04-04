@@ -7,9 +7,10 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import io.katharsis.resource.annotations.JsonApiId;
+import io.katharsis.resource.annotations.JsonApiRelation;
 import io.katharsis.resource.annotations.JsonApiResource;
 import io.katharsis.resource.annotations.JsonApiToMany;
-import io.katharsis.resource.annotations.JsonApiToOne;
+import io.katharsis.resource.annotations.SerializeType;
 
 @JsonApiResource(type = "meta/element")
 public class MetaElement {
@@ -19,7 +20,7 @@ public class MetaElement {
 
 	private String name;
 
-	@JsonApiToOne(opposite = "children")
+	@JsonApiRelation(serialize=SerializeType.LAZY, opposite = "children")
 	private MetaElement parent;
 
 	@JsonApiToMany(opposite = "parent")
@@ -54,7 +55,7 @@ public class MetaElement {
 	}
 
 	public void setParent(MetaElement parent) {
-		setParent(parent, true);
+		this.parent = parent;
 	}
 
 	public void setParent(MetaElement parent, boolean attach) {

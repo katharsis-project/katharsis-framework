@@ -2,6 +2,8 @@ package io.katharsis.resource.information;
 
 import java.lang.reflect.Type;
 
+import io.katharsis.resource.annotations.LookupIncludeBehavior;
+
 public interface ResourceField {
 
 	public ResourceFieldType getResourceFieldType();
