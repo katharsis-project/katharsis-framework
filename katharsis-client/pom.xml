@@ -42,7 +42,8 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>2.19.1</version>
 				<configuration>
-					<systemPropertyVariables>
+					<argLine>-Xmx1024m</argLine>
+                    <systemPropertyVariables>
 						<java.util.logging.config.file>logging.properties</java.util.logging.config.file>
 					</systemPropertyVariables>
 					<runOrder>alphabetical</runOrder>

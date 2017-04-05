@@ -3,6 +3,7 @@ package io.katharsis.resource.mock.models;
 import java.util.Collections;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import io.katharsis.resource.annotations.JsonApiId;
@@ -27,6 +28,13 @@ public class Task {
 
     private String category;
 
+    private boolean completed;
+    
+    private boolean deleted;
+
+    @JsonIgnore
+    private boolean ignoredField;
+    
     @JsonApiToOne(opposite = "tasks")
     @JsonApiIncludeByDefault
     private Project project;
@@ -144,5 +152,29 @@ public class Task {
 
     public void setProjectsInit(List<Project> projectsInit) {
         this.projectsInit = projectsInit;
+    }
+
+    public boolean isCompleted() {
+        return completed;
+    }
+
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
+    }
+
+    public boolean getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+    }
+
+    public boolean isIgnoredField() {
+        return ignoredField;
+    }
+
+    public void setIgnoredField(boolean ignoredField) {
+        this.ignoredField = ignoredField;
     }
 }
