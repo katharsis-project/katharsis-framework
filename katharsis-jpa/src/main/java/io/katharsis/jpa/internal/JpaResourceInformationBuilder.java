@@ -10,10 +10,10 @@ import java.util.List;
 import java.util.Set;
 
 import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-import javax.persistence.MappedSuperclass;
 import javax.persistence.OneToMany;
 import javax.persistence.OptimisticLockException;
 
@@ -104,12 +104,23 @@ public class JpaResourceInformationBuilder implements ResourceInformationBuilder
 		List<ResourceField> fields = getFields(meta);
 		Set<String> ignoredFields = getIgnoredFields(meta);
 		
-		Class<?> superclass = resourceClass.getSuperclass();
-		String superResourceType = superclass != Object.class && superclass.getAnnotation(MappedSuperclass.class) == null ? context.getResourceType(superclass) : null;
+		Class<?> superclass = getEntitySuperclass(resourceClass);
+		String superResourceType = superclass != null ? context.getResourceType(superclass) : null;
 
 		TypeParser typeParser = context.getTypeParser();
 		return new JpaResourceInformation(typeParser, meta, resourceClass, resourceType, superResourceType, instanceBuilder, fields,
 				ignoredFields);
+	}
+
+	private Class<?> getEntitySuperclass(Class<?> resourceClass) {
+		Class<?> superclass = resourceClass.getSuperclass();
+		while(superclass != Object.class){
+			if(superclass.getAnnotation(Entity.class) != null){
+				return superclass;
+			}
+			superclass = superclass.getSuperclass();
+		}
+		return null;
 	}
 
 	class JpaResourceInstanceBuilder<T> extends DefaultResourceInstanceBuilder<T> {
