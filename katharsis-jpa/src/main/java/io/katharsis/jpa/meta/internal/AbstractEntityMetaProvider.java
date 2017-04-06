@@ -10,11 +10,13 @@ import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.EmbeddedId;
+import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.MappedSuperclass;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Version;
@@ -33,10 +35,10 @@ public abstract class AbstractEntityMetaProvider<T extends MetaJpaDataObject> ex
 	@Override
 	public MetaElement createElement(Type type, MetaProviderContext context) {
 		Class<?> rawClazz = ClassUtils.getRawType(type);
-		Class<?> superClazz = rawClazz.getSuperclass();
+		Class<?> jpaSuperclass = getJpaSuperclass(rawClazz);
 		MetaElement superMeta = null;
-		if (superClazz != Object.class) {
-			superMeta = context.getLookup().getMeta(superClazz, MetaJpaDataObject.class);
+		if (jpaSuperclass != null) {
+			superMeta = context.getLookup().getMeta(jpaSuperclass, MetaJpaDataObject.class);
 		}
 		T meta = newDataObject();
 		meta.setElementType(meta);
@@ -47,10 +49,19 @@ public abstract class AbstractEntityMetaProvider<T extends MetaJpaDataObject> ex
 			((MetaDataObject) superMeta).addSubType(meta);
 		}
 		createAttributes(meta);
-
 		setKey(meta);
-
 		return meta;
+	}
+	
+	private Class<?> getJpaSuperclass(Class<?> resourceClass) {
+		Class<?> superclass = resourceClass.getSuperclass();
+		while(superclass != Object.class){
+			if(superclass.getAnnotation(Entity.class) != null || superclass.getAnnotation(MappedSuperclass.class) != null){
+				return superclass;
+			}
+			superclass = superclass.getSuperclass();
+		}
+		return null;
 	}
 
 	private void setKey(T meta) {
