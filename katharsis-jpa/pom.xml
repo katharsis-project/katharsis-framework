@@ -126,7 +126,8 @@
 						<groupId>javax</groupId>
 						<artifactId>javaee-api</artifactId>
 						<version>${javaee-api.version}</version>
-						<scope>test</scope>
+						<scope>compile</scope>
+						<optional>true</optional>
 				</dependency>
 
 				<dependency>

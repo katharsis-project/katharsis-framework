@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.Module;
 import io.katharsis.core.internal.dispatcher.filter.TestFilter;
 import io.katharsis.core.internal.dispatcher.filter.TestRepositoryDecorator;
 import io.katharsis.core.internal.exception.ExceptionMapperLookup;
+import io.katharsis.core.internal.exception.ExceptionMapperRegistry;
 import io.katharsis.core.internal.exception.ExceptionMapperRegistryTest.IllegalStateExceptionMapper;
 import io.katharsis.core.internal.exception.KatharsisExceptionMapper;
 import io.katharsis.core.internal.registry.ResourceRegistryImpl;
@@ -296,6 +297,11 @@ public class SimpleModuleTest {
 		@Override
 		public TypeParser getTypeParser() {
 			return null;
+		}
+
+		@Override
+		public ExceptionMapperRegistry getExceptionMapperRegistry() {
+			throw new UnsupportedOperationException();
 		}
 	}
 }

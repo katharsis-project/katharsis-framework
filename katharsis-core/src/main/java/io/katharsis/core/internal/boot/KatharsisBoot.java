@@ -83,8 +83,6 @@ public class KatharsisBoot {
 
 	private ServiceDiscovery serviceDiscovery;
 
-	private ExceptionMapperRegistry exceptionMapperRegistry;
-
 	private DocumentMapper documentMapper;
 
 	public void setObjectMapper(ObjectMapper objectMapper) {
@@ -196,9 +194,7 @@ public class KatharsisBoot {
 		JsonApiModuleBuilder jsonApiModuleBuilder = new JsonApiModuleBuilder();
 		objectMapper.registerModule(jsonApiModuleBuilder.build(resourceRegistry, false));
 
-		exceptionMapperRegistry = buildExceptionMapperRegistry();
-
-		requestDispatcher = createRequestDispatcher(exceptionMapperRegistry);
+		requestDispatcher = createRequestDispatcher(moduleRegistry.getExceptionMapperRegistry());
 
 	}
 
@@ -211,7 +207,7 @@ public class KatharsisBoot {
 	}
 
 	public ExceptionMapperRegistry getExceptionMapperRegistry() {
-		return exceptionMapperRegistry;
+		return moduleRegistry.getExceptionMapperRegistry();
 	}
 
 	private RequestDispatcher createRequestDispatcher(ExceptionMapperRegistry exceptionMapperRegistry) {
@@ -231,12 +227,6 @@ public class KatharsisBoot {
 	
 	public DocumentMapper getDocumentMapper(){
 		return documentMapper;
-	}
-
-	private ExceptionMapperRegistry buildExceptionMapperRegistry() {
-		ExceptionMapperLookup exceptionMapperLookup = moduleRegistry.getExceptionMapperLookup();
-		ExceptionMapperRegistryBuilder mapperRegistryBuilder = new ExceptionMapperRegistryBuilder();
-		return mapperRegistryBuilder.build(exceptionMapperLookup);
 	}
 
 	private void setupComponents() {

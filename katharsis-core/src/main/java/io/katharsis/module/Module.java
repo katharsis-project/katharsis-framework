@@ -1,6 +1,7 @@
 package io.katharsis.module;
 
 import io.katharsis.core.internal.exception.ExceptionMapperLookup;
+import io.katharsis.core.internal.exception.ExceptionMapperRegistry;
 import io.katharsis.errorhandling.mapper.ExceptionMapper;
 import io.katharsis.repository.decorate.RepositoryDecoratorFactory;
 import io.katharsis.repository.filter.DocumentFilter;
@@ -175,6 +176,8 @@ public interface Module {
 		public boolean isServer();
 
 		public TypeParser getTypeParser();
+
+		public ExceptionMapperRegistry getExceptionMapperRegistry();
 
 	}
 }

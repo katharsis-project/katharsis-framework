@@ -11,6 +11,8 @@ import java.util.Set;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.katharsis.core.internal.exception.ExceptionMapperLookup;
+import io.katharsis.core.internal.exception.ExceptionMapperRegistry;
+import io.katharsis.core.internal.exception.ExceptionMapperRegistryBuilder;
 import io.katharsis.core.internal.registry.DirectResponseRelationshipEntry;
 import io.katharsis.core.internal.registry.DirectResponseResourceEntry;
 import io.katharsis.core.internal.repository.information.ResourceRepositoryInformationImpl;
@@ -26,6 +28,7 @@ import io.katharsis.legacy.registry.DefaultResourceInformationBuilderContext;
 import io.katharsis.legacy.registry.RepositoryInstanceBuilder;
 import io.katharsis.legacy.repository.annotations.JsonApiRelationshipRepository;
 import io.katharsis.legacy.repository.annotations.JsonApiResourceRepository;
+import io.katharsis.module.Module.ModuleContext;
 import io.katharsis.repository.RelationshipRepositoryV2;
 import io.katharsis.repository.ResourceRepositoryV2;
 import io.katharsis.repository.decorate.RelationshipRepositoryDecorator;
@@ -71,6 +74,8 @@ public class ModuleRegistry {
 	private ServiceDiscovery serviceDiscovery;
 
 	private boolean isServer = true;
+
+	private ExceptionMapperRegistry exceptionMapperRegistry;
 
 	public ModuleRegistry() {
 		this(true);
@@ -204,6 +209,11 @@ public class ModuleRegistry {
 		@Override
 		public TypeParser getTypeParser() {
 			return typeParser;
+		}
+
+		@Override
+		public ExceptionMapperRegistry getExceptionMapperRegistry() {
+			return ModuleRegistry.this.getExceptionMapperRegistry();
 		}
 	}
 
@@ -430,6 +440,10 @@ public class ModuleRegistry {
 					((InitializingModule) module).init();
 				}
 			}
+			
+			ExceptionMapperLookup exceptionMapperLookup = getExceptionMapperLookup();
+			ExceptionMapperRegistryBuilder mapperRegistryBuilder = new ExceptionMapperRegistryBuilder();
+			exceptionMapperRegistry = mapperRegistryBuilder.build(exceptionMapperLookup);
 		}
 	}
 
@@ -613,5 +627,12 @@ public class ModuleRegistry {
 
 	public TypeParser getTypeParser() {
 		return typeParser;
+	}
+
+	public ExceptionMapperRegistry getExceptionMapperRegistry() {
+		if(exceptionMapperRegistry == null){
+			throw new IllegalStateException();
+		}
+		return exceptionMapperRegistry;
 	}
 }
