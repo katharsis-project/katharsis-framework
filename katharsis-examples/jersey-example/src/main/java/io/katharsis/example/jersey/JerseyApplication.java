@@ -22,6 +22,8 @@ public class JerseyApplication extends ResourceConfig {
     public JerseyApplication() {
         property(KatharsisProperties.RESOURCE_SEARCH_PACKAGE, "io.katharsis.example.jersey.domain");
         property(KatharsisProperties.RESOURCE_DEFAULT_DOMAIN, APPLICATION_URL);
+        // if set to true, an empty JSON response will be returned instead of a 204 response without content
+        property(KatharsisProperties.NULL_DATA_RESPONSE_ENABLED, false);
         register(KatharsisDynamicFeature.class);
         register(new AbstractBinder() {
             @Override

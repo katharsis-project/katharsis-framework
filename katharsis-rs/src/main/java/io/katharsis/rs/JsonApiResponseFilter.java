@@ -3,6 +3,8 @@ package io.katharsis.rs;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
@@ -27,9 +29,15 @@ import io.katharsis.utils.Nullable;
  */
 public class JsonApiResponseFilter implements ContainerResponseFilter {
 
+	private static final Predicate<Object> shouldWrap =
+			Stream.<Predicate<Object>>of(
+					InputStream.class::isInstance,
+					Document.class::isInstance
+			).reduce(Predicate::or).orElse(x -> false);
+
 	private KatharsisFeature feature;
 
-    public JsonApiResponseFilter(KatharsisFeature feature) {
+	public JsonApiResponseFilter(KatharsisFeature feature) {
         this.feature = feature;
 	}
 
@@ -75,7 +83,7 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 				}
 			}
 		}
-		else if (wrapResponse(responseContext)) {
+		else if (isMediaTypeJsonApi(responseContext) && shouldWrap.test(responseContext.getEntity())) {
 			Document document = new Document();
 			document.setData(Nullable.of(response));
 			responseContext.setEntity(document);
@@ -98,18 +106,13 @@ public class JsonApiResponseFilter implements ContainerResponseFilter {
 	}
 
 	/**
-	 * Checks the media type of the response and the type of the response data to determine whether
-	 * the response should be wrapped with the necessary JSON API tags.
-	 * @param responseContext the context for the current response
-	 * @return <code>true</code>, if the media type is {@link JsonApiMediaType#APPLICATION_JSON_API} and the
-	 * 			response is not already in JSON API format,<br />
-	 * 			<code>false</code>, otherwise.
+	 * Checks the response's media type.
+	 * @param responseContext the response context
+	 * @return {@code true}, if media type is application/vnd.api+json,<br />
+	 * 			{@code false}, otherwise
 	 */
-	private boolean wrapResponse(ContainerResponseContext responseContext) {
-		boolean mediaTypeJsonApi = JsonApiMediaType.APPLICATION_JSON_API_TYPE.equals(responseContext.getMediaType());
-		Object response = responseContext.getEntity();
-		boolean alreadyJsonApi = response instanceof Document || response instanceof InputStream;
-		return mediaTypeJsonApi && !alreadyJsonApi;
+	private boolean isMediaTypeJsonApi(ContainerResponseContext responseContext) {
+		return JsonApiMediaType.APPLICATION_JSON_API_TYPE.equals(responseContext.getMediaType());
 	}
 
 }
