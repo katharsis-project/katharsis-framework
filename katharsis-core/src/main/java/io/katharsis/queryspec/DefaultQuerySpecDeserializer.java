@@ -240,9 +240,13 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 		Class<?> attributeType = getAttributeType(querySpec, attributePath);
 		Set<Object> typedValues = new HashSet<>();
 		for (String stringValue : parameter.values) {
-			@SuppressWarnings({ "unchecked", "rawtypes" })
-			Object value = typeParser.parse(stringValue, (Class) attributeType);
-			typedValues.add(value);
+			if (stringValue.toLowerCase().equals("null")) {
+				typedValues.add(null);
+			} else {
+				@SuppressWarnings({ "unchecked", "rawtypes" })
+				Object value = typeParser.parse(stringValue, (Class) attributeType);
+				typedValues.add(value);
+			}
 		}
 		Object value = typedValues.size() == 1 ? typedValues.iterator().next() : typedValues;
 
