@@ -1,11 +1,7 @@
 package io.katharsis.queryspec;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Stream;
 
 import io.katharsis.core.internal.utils.PropertyUtils;
 import io.katharsis.resource.list.ResourceList;
@@ -19,9 +15,9 @@ import io.katharsis.resource.meta.PagedMetaInformation;
 public class InMemoryEvaluator {
 
 	public <T> void eval(Iterable<T> resources, QuerySpec querySpec, ResourceList<T> resultList) {
-		Iterator<T> iterator = resources.iterator();
-		while (iterator.hasNext()) {
-			resultList.add(iterator.next());
+
+		for (T resource : resources) {
+			resultList.add(resource);
 		}
 
 		// filter
@@ -32,7 +28,7 @@ public class InMemoryEvaluator {
 		long totalCount = resultList.size();
 
 		// sort
-		applySorting(resultList, querySpec.getSort());
+		resultList.sort(new SortSpecComparator<T>(querySpec.getSort()));
 
 		// offset/limit
 		applyPaging(resultList, querySpec);
@@ -47,11 +43,6 @@ public class InMemoryEvaluator {
 		}
 	}
 
-	private <T> void applySorting(List<T> results, List<SortSpec> sortSpec) {
-		if (!sortSpec.isEmpty()) {
-			Collections.sort(results, new SortSpecComparator<>(sortSpec));
-		}
-	}
 
 	private <T> void applyPaging(List<T> results, QuerySpec querySpec) {
 		int offset = (int) Math.min(querySpec.getOffset(), Integer.MAX_VALUE);
@@ -65,15 +56,7 @@ public class InMemoryEvaluator {
 	}
 
 	private <T> void applyFilter(List<T> results, FilterSpec filterSpec) {
-		if (filterSpec != null) {
-			Iterator<T> iterator = results.iterator();
-			while (iterator.hasNext()) {
-				T next = iterator.next();
-				if (!matches(next, filterSpec)) {
-					iterator.remove();
-				}
-			}
-		}
+		Optional.ofNullable(filterSpec).ifPresent(fs -> results.removeIf(next ->  !matches(next,fs)));
 	}
 
 	public static boolean matches(Object object, FilterSpec filterSpec) {
@@ -81,14 +64,14 @@ public class InMemoryEvaluator {
 		if (expressions == null) {
 			return matchesPrimitiveOperator(object, filterSpec);
 		}
-		else if (filterSpec.getOperator() == FilterOperator.OR) {
-			return matchesOr(object, expressions);
+		if (filterSpec.getOperator() == FilterOperator.OR) {
+			return expressions.stream().anyMatch(e -> matches(object,e));
 		}
-		else if (filterSpec.getOperator() == FilterOperator.AND) {
-			return matchesAnd(object, expressions);
+		if (filterSpec.getOperator() == FilterOperator.AND) {
+			return expressions.stream().allMatch(e -> matches(object, e));
 		}
-		else if (filterSpec.getOperator() == FilterOperator.NOT) {
-			return !matches(object, FilterSpec.and(expressions));
+		if (filterSpec.getOperator() == FilterOperator.NOT) {
+			return expressions.stream().noneMatch(e -> matches(object, e));
 		}
 		throw new UnsupportedOperationException("not implemented " + filterSpec);
 	}
@@ -98,39 +81,14 @@ public class InMemoryEvaluator {
 		FilterOperator operator = filterSpec.getOperator();
 		Object filterValue = filterSpec.getValue();
 		boolean result = false;
-		if (filterValue != null ||  (filterValue == null && (operator.equals(FilterOperator.EQ) || operator.equals(FilterOperator.NEQ)))) {
-			result = value instanceof Collection ? matchesAny((Collection<?>) value, operator, filterValue) : operator.matches(value, filterValue);
+		// the ability to operate on a null value should be handled polymorphically by the operator itself
+		if (filterValue != null || ((operator.equals(FilterOperator.EQ) || operator.equals(FilterOperator.NEQ)))) {
+			result = (value instanceof Collection ? ((Collection<?>)value).stream() : Stream.of(value)).anyMatch(v -> operator.matches(v, filterValue));
 		}
+
 		return result;
 	}
 
-	private static boolean matchesAny(Collection<?> col, FilterOperator operator, Object filterValue) {
-		for (Object elem : col) {
-			boolean matches = operator.matches(elem, filterValue);
-			if (matches) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private static boolean matchesOr(Object object, List<FilterSpec> expressions) {
-		for (FilterSpec expr : expressions) {
-			if (matches(object, expr)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private static boolean matchesAnd(Object object, List<FilterSpec> expressions) {
-		for (FilterSpec expr : expressions) {
-			if (!matches(object, expr)) {
-				return false;
-			}
-		}
-		return true;
-	}
 
 	static class SortSpecComparator<T> implements Comparator<T> {
 
