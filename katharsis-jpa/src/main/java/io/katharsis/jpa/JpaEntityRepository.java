@@ -110,7 +110,7 @@ public class JpaEntityRepository<T, I extends Serializable> extends JpaRepositor
 		EntityManager em = module.getEntityManager();
 		em.persist(entity);
 		
-		I id = (I) PropertyUtils.getProperty(resource, primaryKeyAttr.getName());
+		I id = (I) em.getEntityManagerFactory().getPersistenceUnitUtil().getIdentifier(entity);
 
 		// fetch again since we may have to fetch tuple data and do DTO mapping
 		QuerySpec querySpec = new QuerySpec(repositoryConfig.getResourceClass());
