@@ -211,7 +211,7 @@
 				<configuration>
 					<mavenExecutorId>forked-path</mavenExecutorId>
 					<useReleaseProfile>false</useReleaseProfile>
-					<arguments>-Dgpg.passphrase=${gpg.passphrase} -Psonatype-oss-release</arguments>
+					<arguments>-Dgpg.passphrase=${gpg.passphrase} -DSONATYPE_USERNAME=${SONATYPE_USERNAME} -DSONATYPE_PASSWORD=${SONATYPE_PASSWORD} -Psonatype-oss-release</arguments>
 				</configuration>
 			</plugin>
 
