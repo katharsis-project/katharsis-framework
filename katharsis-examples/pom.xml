@@ -1,13 +1,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>io.katharsis</groupId>
-        <artifactId>katharsis-parent</artifactId>
-        <version>3.0.2-SNAPSHOT</version>
-        <relativePath>../katharsis-parent</relativePath>
-    </parent>
 
+    <groupId>io.katharsis</groupId>
     <artifactId>katharsis-examples</artifactId>
+    <version>3.0.2-SNAPSHOT</version>
     <modules>
         <module>dropwizard-mongo-example</module>
         <module>jersey-example</module>
@@ -48,7 +44,7 @@
 		    	</plugin>
                 <plugin>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.1</version>
+                    <version>3.2</version>
                     <configuration>
                         <source>${javaVersion}</source>
                         <target>${javaVersion}</target>
