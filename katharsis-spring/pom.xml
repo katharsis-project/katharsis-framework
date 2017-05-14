@@ -5,7 +5,7 @@
         <groupId>io.katharsis</groupId>
         <artifactId>katharsis-parent</artifactId>
         <version>3.0.4-SNAPSHOT</version>
-        <relativePath>../katharsis-parent</relativePath>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>katharsis-spring</artifactId>

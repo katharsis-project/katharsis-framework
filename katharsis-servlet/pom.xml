@@ -7,10 +7,9 @@
         <groupId>io.katharsis</groupId>
         <artifactId>katharsis-parent</artifactId>
         <version>3.0.4-SNAPSHOT</version>
-        <relativePath>../katharsis-parent</relativePath>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <groupId>io.katharsis</groupId>
     <artifactId>katharsis-servlet</artifactId>
     <packaging>bundle</packaging>
 
