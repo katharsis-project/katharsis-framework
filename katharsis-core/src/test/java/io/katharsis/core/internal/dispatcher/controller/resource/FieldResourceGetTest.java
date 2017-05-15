@@ -139,7 +139,7 @@ public class FieldResourceGetTest extends BaseControllerTest {
 		Map<String, Set<String>> params = new HashMap<String, Set<String>>();
 		addParams(params, "include[projects]", "includedTask");
 		QueryParams queryParams = queryParamsBuilder.buildQueryParams(params);
-		QueryAdapter queryAdapter = new QueryParamsAdapter(projectInfo, queryParams, resourceRegistry);
+		QueryAdapter queryAdapter = new QueryParamsAdapter(projectInfo, queryParams, moduleRegistry);
 		JsonPath jsonPath = pathBuilder.buildPath("/users/1/assignedProjects");
 		FieldResourceGet sut = new FieldResourceGet(resourceRegistry, objectMapper, typeParser, documentMapper);
 
