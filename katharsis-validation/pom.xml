@@ -67,6 +67,13 @@
         </dependency>
 
         <dependency>
+            <groupId>javax</groupId>
+            <artifactId>javaee-api</artifactId>
+            <version>${javaee-api.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>io.katharsis</groupId>
             <artifactId>katharsis-rs</artifactId>
             <version>${project.version}</version>

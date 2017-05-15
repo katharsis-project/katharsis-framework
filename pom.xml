@@ -277,7 +277,6 @@
             </activation>
             <modules>
                 <module>katharsis-core</module>
-                <module>katharsis-test</module>
                 <module>katharsis-rs</module>
                 <module>katharsis-servlet</module>
                 <module>katharsis-cdi</module>
