@@ -15,6 +15,8 @@ import org.junit.Test;
 import io.katharsis.jpa.internal.JpaResourceInformationBuilder;
 import io.katharsis.jpa.merge.MergedResource;
 import io.katharsis.jpa.meta.JpaMetaProvider;
+import io.katharsis.jpa.model.NonJpaBaseType;
+import io.katharsis.jpa.model.NonJpaChildEntity;
 import io.katharsis.jpa.model.RelatedEntity;
 import io.katharsis.jpa.model.TestEmbeddable;
 import io.katharsis.jpa.model.TestEntity;
@@ -87,5 +89,16 @@ public class JpaResourceInformationBuilderTest {
 		Assert.assertNull(info.findRelationshipFieldByName("manyRelatedValues"));
 		Assert.assertNotNull(info.findAttributeFieldByName("oneRelatedValue"));
 		Assert.assertNotNull(info.findAttributeFieldByName("manyRelatedValues"));
+	}
+
+	@Test
+	public void nonJpaSuperTypeMustBeIgnored() {
+		Assert.assertFalse(builder.accept(NonJpaBaseType.class));
+		Assert.assertTrue(builder.accept(NonJpaChildEntity.class));
+
+		ResourceInformation info = builder.build(NonJpaChildEntity.class);
+		Assert.assertNull(info.getSuperResourceType());
+		Assert.assertNotNull(info.findAttributeFieldByName("intValue"));
+		Assert.assertNull(info.findAttributeFieldByName("nonJpaValue"));
 	}
 }

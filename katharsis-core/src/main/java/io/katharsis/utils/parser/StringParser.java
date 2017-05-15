@@ -1,5 +1,5 @@
 package io.katharsis.utils.parser;
 
-interface StringParser<T> {
+public interface StringParser<T> {
     T parse(String input);
 }
