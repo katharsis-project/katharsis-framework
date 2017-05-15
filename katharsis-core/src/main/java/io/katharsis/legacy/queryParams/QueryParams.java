@@ -2,7 +2,12 @@ package io.katharsis.legacy.queryParams;
 
 import java.util.Map;
 
-import io.katharsis.legacy.queryParams.params.*;
+import io.katharsis.legacy.queryParams.params.FilterParams;
+import io.katharsis.legacy.queryParams.params.GroupingParams;
+import io.katharsis.legacy.queryParams.params.IncludedFieldsParams;
+import io.katharsis.legacy.queryParams.params.IncludedRelationsParams;
+import io.katharsis.legacy.queryParams.params.SortingParams;
+import io.katharsis.legacy.queryParams.params.TypedParams;
 
 /**
  * Contains a set of parameters passed along with the request.
@@ -58,6 +63,34 @@ public class QueryParams {
     }
     void setIncludedRelations(TypedParams<IncludedRelationsParams> includedRelations) {
         this.includedRelations = includedRelations;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = filters != null ? filters.hashCode() : 0;
+        result = 31 * result + (sorting != null ? sorting.hashCode() : 0);
+        result = 31 * result + (grouping != null ? grouping.hashCode() : 0);
+        result = 31 * result + (includedFields != null ? includedFields.hashCode() : 0);
+        result = 31 * result + (includedRelations != null ? includedRelations.hashCode() : 0);
+        result = 31 * result + (pagination != null ? pagination.hashCode() : 0);
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        QueryParams that = (QueryParams) o;
+
+        if (filters != null ? !filters.equals(that.filters) : that.filters != null) return false;
+        if (sorting != null ? !sorting.equals(that.sorting) : that.sorting != null) return false;
+        if (grouping != null ? !grouping.equals(that.grouping) : that.grouping != null) return false;
+        if (includedFields != null ? !includedFields.equals(that.includedFields) : that.includedFields != null)
+            return false;
+        if (includedRelations != null ? !includedRelations.equals(that.includedRelations) : that.includedRelations != null)
+            return false;
+        return pagination != null ? pagination.equals(that.pagination) : that.pagination == null;
     }
 
     @Override
