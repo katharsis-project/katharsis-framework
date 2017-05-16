@@ -2,7 +2,10 @@ package io.katharsis.legacy.queryParams;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import com.google.common.collect.ImmutableMap;
 import io.katharsis.core.internal.utils.StringUtils;
 import io.katharsis.legacy.queryParams.include.Inclusion;
 import io.katharsis.legacy.queryParams.params.*;
@@ -10,6 +13,8 @@ import io.katharsis.queryspec.*;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
+
+import static java.util.stream.Collectors.*;
 
 @SuppressWarnings({"deprecation"})
 public class DefaultQueryParamsConverter implements QueryParamsConverter {
@@ -40,6 +45,23 @@ public class DefaultQueryParamsConverter implements QueryParamsConverter {
         }
         ResourceInformation resourceInformation = registryEntry.getResourceInformation();
         return resourceInformation.getResourceType();
+    }
+
+    private void applyFilterFunctional(QuerySpec spec, QueryParams queryParams) {
+        TypedParams<FilterParams> result = Optional.ofNullable(spec.getFilters()).filter(filters -> !filters.isEmpty())
+                .map(filters ->
+                filters.stream().collect(collectingAndThen(toMap(this::toKey, this::normalize), FilterParams::new)))
+                .map(r -> ImmutableMap.of(getResourceType(spec.getResourceClass()), r)).map(TypedParams::new).orElseGet(TypedParams::new);
+        queryParams.setFilters(result);
+
+    }
+
+    private Set<String> normalize(Object v) {
+        return (v instanceof Collection ? ((Collection<?>) v).stream() : Stream.of(v)).map(Object::toString).collect(toCollection(LinkedHashSet::new));
+    }
+
+    private String toKey(FilterSpec filter) {
+        return joinPath(filter.getAttributePath()) + ((filter.getOperator() != null && filter.getOperator() != FilterOperator.EQ) ? "." + filter.getOperator().name() : "");
     }
 
     protected void applyFiltering(QuerySpec spec, QueryParams queryParams) {
