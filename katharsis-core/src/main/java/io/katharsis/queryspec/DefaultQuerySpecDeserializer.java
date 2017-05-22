@@ -7,8 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.katharsis.core.internal.utils.PropertyException;
 import io.katharsis.core.internal.utils.PropertyUtils;
@@ -18,18 +19,19 @@ import io.katharsis.resource.RestrictedQueryParamsMembers;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.RegistryEntry;
 import io.katharsis.resource.registry.ResourceRegistry;
+import io.katharsis.utils.parser.ParserException;
 import io.katharsis.utils.parser.TypeParser;
 
 /**
  * Maps url parameters to QuerySpec.
  */
 public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultQuerySpecDeserializer.class);
 
 	private static final String OFFSET_PARAMETER = "offset";
 
 	private static final String LIMIT_PARAMETER = "limit";
-
-	private static final Pattern PARAMETER_PATTERN = Pattern.compile("(\\w+)(\\[([^\\]]+)\\])?([\\w\\[\\]]*)");
 
 	private TypeParser typeParser;
 
@@ -47,6 +49,10 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 
 	private boolean allowUnknownAttributes = false;
 
+	private boolean enforceDotPathSeparator = false;
+
+	private boolean ignoreParseExceptions;
+
 	public DefaultQuerySpecDeserializer() {
 		supportedOperators.add(FilterOperator.LIKE);
 		supportedOperators.add(FilterOperator.EQ);
@@ -55,6 +61,19 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 		supportedOperators.add(FilterOperator.GE);
 		supportedOperators.add(FilterOperator.LT);
 		supportedOperators.add(FilterOperator.LE);
+	}
+
+	/**
+	 * @return true if attribute paths must be separated with ".". Ealier
+	 *         Katharsis versions did made use of brackets
+	 *         "[attribute1][attribute2]".
+	 */
+	public boolean getEnforceDotPathSeparator() {
+		return enforceDotPathSeparator;
+	}
+
+	public void setEnforceDotPathSeparator(boolean enforceDotPathSeparator) {
+		this.enforceDotPathSeparator = enforceDotPathSeparator;
 	}
 
 	public boolean getAllowUnknownAttributes() {
@@ -169,8 +188,6 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 	}
 
 	private void deserializeIncludes(QuerySpec querySpec, Parameter parameter) {
-		checkNoParameterName(parameter);
-
 		for (String values : parameter.values) {
 			for (String value : splitValues(values)) {
 				List<String> attributePath = splitAttributePath(value, parameter);
@@ -179,19 +196,11 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 		}
 	}
 
-	private void checkNoParameterName(Parameter parameter) {
-		if (parameter.name != null) {
-			throw new ParametersDeserializationException("invalid parameter " + parameter);
-		}
-	}
-
 	private String[] splitValues(String values) {
 		return values.split(",");
 	}
 
 	private void deserializeFields(QuerySpec querySpec, Parameter parameter) {
-		checkNoParameterName(parameter);
-
 		for (String values : parameter.values) {
 			for (String value : splitValues(values)) {
 				List<String> attributePath = splitAttributePath(value, parameter);
@@ -201,13 +210,9 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 	}
 
 	private void deserializePage(QuerySpec querySpec, Parameter parameter) {
-		if (!parameter.name.startsWith("[") || !parameter.name.endsWith("]")) {
-			throw new ParametersDeserializationException(parameter.toString());
-		}
-		String name = parameter.name.substring(1, parameter.name.length() - 1);
-		if (OFFSET_PARAMETER.equalsIgnoreCase(name)) {
+		if (OFFSET_PARAMETER.equalsIgnoreCase(parameter.pageParameter)) {
 			querySpec.setOffset(parameter.getLongValue());
-		} else if (LIMIT_PARAMETER.equalsIgnoreCase(name)) {
+		} else if (LIMIT_PARAMETER.equalsIgnoreCase(parameter.pageParameter)) {
 			Long limit = parameter.getLongValue();
 			if (getMaxPageLimit() != null && limit != null && limit > getMaxPageLimit()) {
 				String error = String.format("%s parameter value %d is larger than the maximum allowed of " + "of %d", LIMIT_PARAMETER, limit, getMaxPageLimit());
@@ -220,33 +225,25 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 	}
 
 	private void deserializeFilter(QuerySpec querySpec, Parameter parameter) {
-		List<String> attributePath = splitKeyPath(parameter.name, parameter);
-
-		String lastPathElement = attributePath.get(attributePath.size() - 1);
-
-		// find operation
-		FilterOperator filterOp = null;
-		for (FilterOperator op : supportedOperators) {
-			if (op.getName().equalsIgnoreCase(lastPathElement)) {
-				filterOp = op;
-				attributePath = attributePath.subList(0, attributePath.size() - 1);
-				break;
-			}
-		}
-		if (filterOp == null) {
-			filterOp = defaultOperator;
-		}
-
-		Class<?> attributeType = getAttributeType(querySpec, attributePath);
+		Class<?> attributeType = getAttributeType(querySpec, parameter.attributePath);
 		Set<Object> typedValues = new HashSet<>();
 		for (String stringValue : parameter.values) {
-			@SuppressWarnings({ "unchecked", "rawtypes" })
-			Object value = typeParser.parse(stringValue, (Class) attributeType);
-			typedValues.add(value);
+			try {
+				@SuppressWarnings({ "unchecked", "rawtypes" })
+				Object value = typeParser.parse(stringValue, (Class) attributeType);
+				typedValues.add(value);
+			} catch (ParserException e) {
+				if(ignoreParseExceptions){
+					typedValues.add(stringValue);
+					LOGGER.debug("failed to parse {}", parameter);
+				}else{
+					throw new ParametersDeserializationException(parameter.toString(), e);
+				}
+			}
 		}
 		Object value = typedValues.size() == 1 ? typedValues.iterator().next() : typedValues;
 
-		querySpec.addFilter(new FilterSpec(attributePath, filterOp, value));
+		querySpec.addFilter(new FilterSpec(parameter.attributePath, parameter.operator, value));
 	}
 
 	private Class<?> getAttributeType(QuerySpec querySpec, List<String> attributePath) {
@@ -262,8 +259,6 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 	}
 
 	private void deserializeSort(QuerySpec querySpec, Parameter parameter) {
-		checkNoParameterName(parameter);
-
 		for (String values : parameter.values) {
 			for (String value : splitValues(values)) {
 				boolean desc = value.startsWith("-");
@@ -281,49 +276,122 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 		List<Parameter> list = new ArrayList<>();
 		Set<Entry<String, Set<String>>> entrySet = params.entrySet();
 		for (Entry<String, Set<String>> entry : entrySet) {
-
-			Matcher m = PARAMETER_PATTERN.matcher(entry.getKey());
-			boolean accepted = m.matches();
-			if (!accepted) {
-				throw new ParametersDeserializationException("failed to parse parameter " + entry.getKey());
-			}
-
-			String strParamType = m.group(1);
-			String resourceType = m.group(3);
-			String path = m.group(4);
-			RegistryEntry registryEntry = resourceType != null ? resourceRegistry.getEntry(resourceType) : null;
-
-			Parameter param = new Parameter();
-			param.fullKey = entry.getKey();
-			param.paramType = RestrictedQueryParamsMembers.valueOf(strParamType.toLowerCase());
-			param.values = entry.getValue();
-			if (registryEntry == null) {
-				// first parameter is not the resourceType => JSON API spec
-				param.resourceInformation = rootResourceInformation;
-				String attrName = resourceType;
-				if (attrName != null) {
-					param.name = "[" + attrName + "]" + nullToEmpty(path);
-				} else {
-					param.name = emptyToNull(path);
-				}
-			} else {
-				param.resourceInformation = registryEntry.getResourceInformation();
-				param.name = emptyToNull(path);
-			}
-			list.add(param);
+			list.add(parseParameter(entry.getKey(), entry.getValue(), rootResourceInformation));
 		}
 		return list;
 	}
 
-	private static String emptyToNull(String value) {
-		return value.length() != 0 ? value : null;
+	private Parameter parseParameter(String parameterName, Set<String> values, ResourceInformation rootResourceInformation) {
+		int typeSep = parameterName.indexOf('[');
+		String strParamType = typeSep != -1 ? parameterName.substring(0, typeSep) : parameterName;
+		RestrictedQueryParamsMembers paramType = RestrictedQueryParamsMembers.valueOf(strParamType.toLowerCase());
+
+		List<String> elements = parseParameterNameArguments(parameterName, typeSep);
+
+		Parameter param = new Parameter();
+		param.fullKey = parameterName;
+		param.paramType = paramType;
+		param.values = values;
+
+		if (paramType == RestrictedQueryParamsMembers.filter && elements.size() >= 1) {
+			parseFilterParameterName(param, elements, rootResourceInformation);
+		} else if (paramType == RestrictedQueryParamsMembers.page && elements.size() == 1) {
+			param.resourceInformation = rootResourceInformation;
+			param.pageParameter = elements.get(0);
+		} else if (paramType == RestrictedQueryParamsMembers.page && elements.size() == 2) {
+			param.resourceInformation = getResourceInformation(elements.get(0), parameterName);
+			param.pageParameter = elements.get(1);
+		} else if (elements.size() == 1) {
+			param.resourceInformation = getResourceInformation(elements.get(0), parameterName);
+		} else {
+			param.resourceInformation = rootResourceInformation;
+		}
+		return param;
 	}
 
-	private static String nullToEmpty(String value) {
-		return value != null && value.length() > 0 ? value : "";
+	private List<String> parseParameterNameArguments(String parameterName, int typeSep) {
+		List<String> elements = new ArrayList<>();
+		if (typeSep != -1) {
+			String parameterNameSuffix = parameterName.substring(typeSep);
+			if (!parameterNameSuffix.startsWith("[") || !parameterNameSuffix.endsWith("]")) {
+				throw new ParametersDeserializationException("failed to parse parameter " + parameterName);
+			}
+			elements.addAll(Arrays.asList(parameterNameSuffix.substring(1, parameterNameSuffix.length() - 1).split("\\]\\[")));
+		}
+		return elements;
+	}
+
+	private void parseFilterParameterName(Parameter param, List<String> elements, ResourceInformation rootResourceInformation) {
+		// check whether last element is an operator
+		parseFilterOperator(param, elements);
+
+		if (elements.isEmpty()) {
+			throw new ParametersDeserializationException("failed to parse parameter " + param.fullKey + ", expected ([resourceType])[attr1.attr2]([operator])");
+		}
+		if (enforceDotPathSeparator && elements.size() > 2) {
+			throw new ParametersDeserializationException("failed to parse parameter " + param.fullKey + ", expected ([resourceType])[attr1.attr2]([operator])");
+		}
+		if (enforceDotPathSeparator && elements.size() == 2) {
+			param.resourceInformation = getResourceInformation(elements.get(0), param.fullKey);
+			param.attributePath = Arrays.asList(elements.get(1).split("\\."));
+		} else if (enforceDotPathSeparator && elements.size() == 1) {
+			param.resourceInformation = rootResourceInformation;
+			param.attributePath = Arrays.asList(elements.get(0).split("\\."));
+		} else {
+			legacyParseFilterParameterName(param, elements, rootResourceInformation);
+		}
+	}
+
+	private void legacyParseFilterParameterName(Parameter param, List<String> elements, ResourceInformation rootResourceInformation) {
+		// check whether first element is a type or attribute, this
+		// can cause problems if names clash, so use
+		// enforceDotPathSeparator!
+		if (isResourceType(elements.get(0))) {
+			param.resourceInformation = getResourceInformation(elements.get(0), param.fullKey);
+			elements.remove(0);
+		} else {
+			param.resourceInformation = rootResourceInformation;
+		}
+		param.attributePath = new ArrayList<>();
+		for (String element : elements) {
+			param.attributePath.addAll(Arrays.asList(element.split("\\.")));
+		}
+	}
+
+	private void parseFilterOperator(Parameter param, List<String> elements) {
+		String lastElement = elements.get(elements.size() - 1);
+		param.operator = findOperator(lastElement);
+		if (param.operator != null) {
+			elements.remove(elements.size() - 1);
+		} else {
+			param.operator = defaultOperator;
+		}
+	}
+
+	private boolean isResourceType(String resourceType) {
+		return this.resourceRegistry.getEntry(resourceType) != null;
+	}
+
+	private FilterOperator findOperator(String lastElement) {
+		for (FilterOperator op : supportedOperators) {
+			if (op.getName().equalsIgnoreCase(lastElement)) {
+				return op;
+			}
+		}
+		return null;
+	}
+
+	private ResourceInformation getResourceInformation(String resourceType, String parameterName) {
+		RegistryEntry registryEntry = resourceRegistry.getEntry(resourceType);
+		if (registryEntry == null) {
+			throw new ParametersDeserializationException("failed to parse parameter " + parameterName + ", resourceType=" + resourceType + " not found");
+		}
+		return registryEntry.getResourceInformation();
 	}
 
 	class Parameter {
+
+		String pageParameter;
 
 		String fullKey;
 
@@ -331,7 +399,9 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 
 		ResourceInformation resourceInformation;
 
-		String name;
+		FilterOperator operator;
+
+		List<String> attributePath;
 
 		Set<String> values;
 
@@ -352,20 +422,15 @@ public class DefaultQuerySpecDeserializer implements QuerySpecDeserializer {
 		}
 	}
 
-	private List<String> splitKeyPath(String pathString, Parameter param) {
-		if (!pathString.startsWith("[") || !pathString.endsWith("]")) {
-			throw new ParametersDeserializationException("invalid attribute path in " + param.toString());
-		}
-		String temp = pathString.substring(1, pathString.length() - 1);
-		String[] elements = temp.split("\\]\\[");
-		List<String> results = new ArrayList<>();
-		for (String element : elements) {
-			results.addAll(Arrays.asList(element.split("\\.")));
-		}
-		return results;
-	}
-
 	private List<String> splitAttributePath(String pathString, Parameter param) {
 		return Arrays.asList(pathString.split("\\."));
+	}
+
+	public void setIgnoreParseExceptions(boolean ignoreParseExceptions) {
+		this.ignoreParseExceptions = ignoreParseExceptions;
+	}
+
+	public boolean isIgnoreParseExceptions() {
+		return ignoreParseExceptions;
 	}
 }
