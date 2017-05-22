@@ -47,6 +47,7 @@ public abstract class BaseControllerTest {
 	protected ObjectMapper objectMapper;
 	protected PathBuilder pathBuilder;
 	protected ResourceRegistry resourceRegistry;
+	protected ModuleRegistry moduleRegistry;
 	protected TypeParser typeParser;
 	protected DocumentMapper documentMapper;
 	protected QueryParamsBuilder queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
@@ -56,11 +57,12 @@ public abstract class BaseControllerTest {
 
 	@Before
 	public void prepare() {
-		ModuleRegistry moduleRegistry = new ModuleRegistry();
+		moduleRegistry = new ModuleRegistry();
 		ResourceInformationBuilder resourceInformationBuilder = new AnnotationResourceInformationBuilder(new ResourceFieldNameTransformer());
 		ResourceRegistryBuilder registryBuilder = new ResourceRegistryBuilder(moduleRegistry, new SampleJsonServiceLocator(), resourceInformationBuilder);
 		resourceRegistry = registryBuilder.build(ResourceRegistryBuilderTest.TEST_MODELS_PACKAGE, moduleRegistry, new ConstantServiceUrlProvider(ResourceRegistryTest.TEST_MODELS_URL));
 		pathBuilder = new PathBuilder(resourceRegistry);
+		moduleRegistry.setResourceRegistry(resourceRegistry);
 		typeParser = moduleRegistry.getTypeParser();
 		objectMapper = new ObjectMapper();
 		objectMapper.registerModule(new JsonApiModuleBuilder().build(resourceRegistry, false));

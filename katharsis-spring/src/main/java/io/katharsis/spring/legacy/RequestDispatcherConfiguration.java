@@ -53,7 +53,7 @@ public class RequestDispatcherConfiguration {
 			queryAdapterBuilder = new QuerySpecAdapterBuilder(querySpecDeserializer, moduleRegistry);
 		}
 		else {
-			queryAdapterBuilder = new QueryParamsAdapterBuilder(paramsBuilder, resourceRegistry);
+			queryAdapterBuilder = new QueryParamsAdapterBuilder(paramsBuilder, moduleRegistry);
 		}
 
 		return new RequestDispatcher(moduleRegistry, controllerRegistry, exceptionMapperRegistry, queryAdapterBuilder);
