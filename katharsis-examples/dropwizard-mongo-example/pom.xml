@@ -3,6 +3,7 @@
         <artifactId>katharsis-examples</artifactId>
         <groupId>io.katharsis</groupId>
         <version>3.0.4-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -12,17 +13,20 @@
     <name>Katharsis Dropwizard + MongoDB Example</name>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <morphia.version>0.111</morphia.version>
         <mongo-driver.version>2.13.0</mongo-driver.version>
-        <commons-beantuils.version>1.9.2</commons-beantuils.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-core</artifactId>
-            <version>${dropwizard.version}</version>
+            <version>1.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
+            <version>1.9.2</version>
         </dependency>
         <dependency>
             <groupId>com.hubspot.dropwizard</groupId>
@@ -63,18 +67,15 @@
         <dependency>
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-validation</artifactId>
-            <version>${dropwizard.version}</version>
+            <version>1.1.0</version>
         </dependency>
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongo-java-driver</artifactId>
             <version>${mongo-driver.version}</version>
         </dependency>
-        <dependency>
-            <groupId>commons-beanutils</groupId>
-            <artifactId>commons-beanutils</artifactId>
-            <version>${commons-beantuils.version}</version>
-        </dependency>
+
+
     </dependencies>
 
     <build>

@@ -4,18 +4,14 @@
         <artifactId>katharsis-examples</artifactId>
         <groupId>io.katharsis</groupId>
         <version>3.0.4-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>jersey-example</artifactId>
     <name>Katharsis Jersey Example</name>
 
-    <properties>
-        <javax.ws.rs-api.version>2.0.1</javax.ws.rs-api.version>
-        <javax.servlet-api.version>3.0.1</javax.servlet-api.version>
-        <jersey.version>2.20</jersey.version>
-        <jackson.version>2.7.6</jackson.version>
-    </properties>
+
     <dependencies>
         <dependency>
             <groupId>javax.ws.rs</groupId>
