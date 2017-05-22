@@ -25,7 +25,7 @@ public class InMemoryEvaluatorTest {
 		project2.setId(14L);
 
 		tasks = new ArrayList<>();
-		for (long i = 0; i < 5; i++) {
+		for (long i = 0; i < 6; i++) {
 			Task task = new Task();
 			task.setId(i);
 			task.setName("test" + i);
@@ -38,14 +38,16 @@ public class InMemoryEvaluatorTest {
 			if (i < 2) {
 				task.getProjects().add(project2);
 			}
+			if (i == 5){
+				task.setProjects(null);
+			}
 		}
-
 	}
 
 	@Test
 	public void testAll() {
 		QuerySpec spec = new QuerySpec(Task.class);
-		Assert.assertEquals(5, spec.apply(tasks).size());
+		Assert.assertEquals(6, spec.apply(tasks).size());
 	}
 
 	@Test
@@ -59,7 +61,7 @@ public class InMemoryEvaluatorTest {
 	public void setOffset() {
 		QuerySpec spec = new QuerySpec(Task.class);
 		spec.setOffset(2L);
-		Assert.assertEquals(3, spec.apply(tasks).size());
+		Assert.assertEquals(4, spec.apply(tasks).size());
 	}
 
 	@Test
@@ -77,7 +79,7 @@ public class InMemoryEvaluatorTest {
 		QuerySpec spec = new QuerySpec(Task.class);
 		spec.addSort(new SortSpec(Arrays.asList("name"), Direction.ASC));
 		List<Task> results = spec.apply(tasks);
-		Assert.assertEquals(5, results.size());
+		Assert.assertEquals(6, results.size());
 		Assert.assertEquals("test0", results.get(0).getName());
 	}
 
@@ -105,8 +107,8 @@ public class InMemoryEvaluatorTest {
 		QuerySpec spec = new QuerySpec(Task.class);
 		spec.addSort(new SortSpec(Arrays.asList("name"), Direction.DESC));
 		List<Task> results = spec.apply(tasks);
-		Assert.assertEquals(5, results.size());
-		Assert.assertEquals("test4", results.get(0).getName());
+		Assert.assertEquals(6, results.size());
+		Assert.assertEquals("test5", results.get(0).getName());
 	}
 
 	@Test
@@ -125,6 +127,14 @@ public class InMemoryEvaluatorTest {
 	public void testFilterByMultiValuedAttribute1() {
 		QuerySpec spec = new QuerySpec(Task.class);
 		spec.addFilter(new FilterSpec(Arrays.asList("projects", "id"), FilterOperator.EQ, 13L));
+		ResourceList<Task> results = spec.apply(tasks);
+		Assert.assertEquals(1, results.size());
+	}
+
+	@Test
+	public void testFilterByNullValue() {
+		QuerySpec spec = new QuerySpec(Task.class);
+		spec.addFilter(new FilterSpec(Arrays.asList("projects"), FilterOperator.EQ, null));
 		ResourceList<Task> results = spec.apply(tasks);
 		Assert.assertEquals(1, results.size());
 	}
@@ -150,7 +160,7 @@ public class InMemoryEvaluatorTest {
 		QuerySpec spec = new QuerySpec(Task.class);
 		spec.addFilter(new FilterSpec(Arrays.asList("name"), FilterOperator.NEQ, "test1"));
 		List<Task> results = spec.apply(tasks);
-		Assert.assertEquals(4, results.size());
+		Assert.assertEquals(5, results.size());
 	}
 
 	@Test
@@ -178,7 +188,7 @@ public class InMemoryEvaluatorTest {
 		FilterSpec spec2 = new FilterSpec(Arrays.asList("id"), FilterOperator.GT, 3L);
 		spec.addFilter(FilterSpec.or(spec1, spec2));
 		List<Task> results = spec.apply(tasks);
-		Assert.assertEquals(3, results.size());
+		Assert.assertEquals(4, results.size());
 	}
 
 	@Test
@@ -187,7 +197,7 @@ public class InMemoryEvaluatorTest {
 		FilterSpec spec1 = new FilterSpec(Arrays.asList("id"), FilterOperator.LE, 1L);
 		spec.addFilter(FilterSpec.not(spec1));
 		List<Task> results = spec.apply(tasks);
-		Assert.assertEquals(3, results.size());
+		Assert.assertEquals(4, results.size());
 	}
 
 	@Test(expected = UnsupportedOperationException.class)
@@ -211,7 +221,7 @@ public class InMemoryEvaluatorTest {
 		QuerySpec spec = new QuerySpec(Task.class);
 		spec.addFilter(new FilterSpec(Arrays.asList("id"), FilterOperator.GE, 1L));
 		List<Task> results = spec.apply(tasks);
-		Assert.assertEquals(4, results.size());
+		Assert.assertEquals(5, results.size());
 	}
 
 	@Test
@@ -219,6 +229,6 @@ public class InMemoryEvaluatorTest {
 		QuerySpec spec = new QuerySpec(Task.class);
 		spec.addFilter(new FilterSpec(Arrays.asList("id"), FilterOperator.GT, 1L));
 		List<Task> results = spec.apply(tasks);
-		Assert.assertEquals(3, results.size());
+		Assert.assertEquals(4, results.size());
 	}
 }
