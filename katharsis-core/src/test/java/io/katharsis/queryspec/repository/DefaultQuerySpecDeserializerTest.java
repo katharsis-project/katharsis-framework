@@ -155,6 +155,18 @@ public class DefaultQuerySpecDeserializerTest extends AbstractQuerySpecTest {
 	}
 
 	@Test
+	public void testFilterWithNullValue() throws InstantiationException, IllegalAccessException {
+		QuerySpec expectedSpec = new QuerySpec(Task.class);
+		expectedSpec.addFilter(new FilterSpec(Arrays.asList("name"), FilterOperator.EQ, null));
+
+		Map<String, Set<String>> params = new HashMap<>();
+		add(params, "filter[tasks][name]", "null");
+
+		QuerySpec actualSpec = deserializer.deserialize(taskInformation, params);
+		Assert.assertEquals(expectedSpec, actualSpec);
+	}
+
+	@Test
 	public void testFilterWithDotNotation() throws InstantiationException, IllegalAccessException {
 		QuerySpec expectedSpec = new QuerySpec(Task.class);
 		expectedSpec.addFilter(new FilterSpec(Arrays.asList("project", "name"), FilterOperator.EQ, "value"));

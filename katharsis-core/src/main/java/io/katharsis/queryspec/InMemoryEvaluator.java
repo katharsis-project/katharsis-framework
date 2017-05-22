@@ -97,12 +97,11 @@ public class InMemoryEvaluator {
 		Object value = PropertyUtils.getProperty(object, filterSpec.getAttributePath());
 		FilterOperator operator = filterSpec.getOperator();
 		Object filterValue = filterSpec.getValue();
-		if (value instanceof Collection) {
-			return matchesAny((Collection<?>) value, operator, filterValue);
+		boolean result = false;
+		if (filterValue != null ||  (filterValue == null && (operator.equals(FilterOperator.EQ) || operator.equals(FilterOperator.NEQ)))) {
+			result = value instanceof Collection ? matchesAny((Collection<?>) value, operator, filterValue) : operator.matches(value, filterValue);
 		}
-		else {
-			return operator.matches(value, filterValue);
-		}
+		return result;
 	}
 
 	private static boolean matchesAny(Collection<?> col, FilterOperator operator, Object filterValue) {
