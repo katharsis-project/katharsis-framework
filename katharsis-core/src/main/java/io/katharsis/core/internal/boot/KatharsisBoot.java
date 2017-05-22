@@ -221,7 +221,7 @@ public class KatharsisBoot {
 
 		QueryAdapterBuilder queryAdapterBuilder;
 		if (queryParamsBuilder != null) {
-			queryAdapterBuilder = new QueryParamsAdapterBuilder(queryParamsBuilder, resourceRegistry);
+			queryAdapterBuilder = new QueryParamsAdapterBuilder(queryParamsBuilder, moduleRegistry);
 		} else {
 			queryAdapterBuilder = new QuerySpecAdapterBuilder(querySpecDeserializer, moduleRegistry);
 		}
