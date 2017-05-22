@@ -26,7 +26,7 @@ public class QueryParamsAdapterTest {
 		builder.init(new DefaultResourceInformationBuilderContext(builder, moduleRegistry.getTypeParser()));
 		ResourceInformation info = builder.build(Task.class);
 		
-		QueryParamsAdapter adapter = new QueryParamsAdapter(info, params, resourceRegistry);
+		QueryParamsAdapter adapter = new QueryParamsAdapter(info, params, moduleRegistry);
 		Assert.assertEquals(Task.class, adapter.getResourceInformation().getResourceClass());
 		Assert.assertEquals(resourceRegistry, adapter.getResourceRegistry());
 	}

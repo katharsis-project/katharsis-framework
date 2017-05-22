@@ -5,6 +5,7 @@ import io.katharsis.legacy.queryParams.params.IncludedFieldsParams;
 import io.katharsis.legacy.queryParams.params.IncludedRelationsParams;
 import io.katharsis.legacy.queryParams.params.TypedParams;
 import io.katharsis.module.ModuleRegistry;
+import io.katharsis.queryspec.QuerySpec;
 import io.katharsis.repository.request.QueryAdapter;
 import io.katharsis.resource.information.ResourceInformation;
 import io.katharsis.resource.registry.ResourceRegistry;
@@ -16,11 +17,14 @@ public class QueryParamsAdapter implements QueryAdapter {
 	private ResourceInformation resourceInformation;
 
 	private ResourceRegistry resourceRegistry;
+	private ModuleRegistry moduleRegistry;
 
-	public QueryParamsAdapter(ResourceInformation resourceInformation, QueryParams queryParams, ResourceRegistry resourceRegistry) {
+	public QueryParamsAdapter(ResourceInformation resourceInformation, QueryParams queryParams, ModuleRegistry
+			moduleRegistry) {
 		this.queryParams = queryParams;
 		this.resourceInformation = resourceInformation;
-		this.resourceRegistry = resourceRegistry;
+		this.moduleRegistry = moduleRegistry;
+		this.resourceRegistry = moduleRegistry.getResourceRegistry();
 	}
 
 	public QueryParamsAdapter(QueryParams queryParams) {
@@ -84,5 +88,16 @@ public class QueryParamsAdapter implements QueryAdapter {
 	@Override
 	public void setOffset(long offset) {
 		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public QueryParams toQueryParams() {
+		return getQueryParams();
+	}
+
+	@Override
+	public QuerySpec toQuerySpec() {
+		DefaultQuerySpecConverter converter = new DefaultQuerySpecConverter(moduleRegistry);
+		return converter.fromParams(getResourceInformation().getResourceClass(), getQueryParams());
 	}
 }

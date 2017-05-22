@@ -229,4 +229,18 @@ public class QuerySpec {
 	public QuerySpec getOrCreateQuerySpec(ResourceInformation resourceInformation) {
 		return getOrCreateQuerySpec(resourceInformation.getResourceClass());
 	}
+
+	@Override
+	public String toString() {
+		return "QuerySpec{" +
+				"resourceClass=" + resourceClass +
+				", limit=" + limit +
+				", offset=" + offset +
+				", filters=" + filters +
+				", sort=" + sort +
+				", includedFields=" + includedFields +
+				", includedRelations=" + includedRelations +
+				", relatedSpecs=" + relatedSpecs +
+				'}';
+	}
 }

@@ -140,7 +140,6 @@ public class DefaultQuerySpecSerializer implements QuerySpecSerializer {
 	}
 
 	private static String serializeValue(Object value) {
-		return value.toString();
+		return "" + value;
 	}
-
 }

@@ -196,7 +196,7 @@ public class KatharsisInvokerBuilder {
             if (queryParamsBuilder == null) {
                 queryParamsBuilder = new QueryParamsBuilder(new DefaultQueryParamsParser());
             }
-            queryAdapterBuilder = new QueryParamsAdapterBuilder(queryParamsBuilder, resourceRegistry);
+            queryAdapterBuilder = new QueryParamsAdapterBuilder(queryParamsBuilder, moduleRegistry);
         }
 
         return new RequestDispatcher(moduleRegistry, controllerRegistry, exceptionMapperRegistry, queryAdapterBuilder);

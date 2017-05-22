@@ -31,9 +31,6 @@
 		<version.compiler.plugin>3.1</version.compiler.plugin>
 		<version.war.plugin>2.5</version.war.plugin>
 
-		<!-- maven-compiler-plugin -->
-		<maven.compiler.target>1.7</maven.compiler.target>
-		<maven.compiler.source>1.7</maven.compiler.source>
 	</properties>
 
 	<dependencyManagement>
@@ -114,16 +111,6 @@
 				<groupId>org.wildfly.plugins</groupId>
 				<artifactId>wildfly-maven-plugin</artifactId>
 				<version>${version.wildfly.maven.plugin}</version>
-			</plugin>
-			<!-- Compiler plugin enforces Java 1.6 compatibility and activates annotation 
-				processors -->
-			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>${version.compiler.plugin}</version>
-				<configuration>
-					<source>${maven.compiler.source}</source>
-					<target>${maven.compiler.target}</target>
-				</configuration>
 			</plugin>
 
 			<plugin>
