@@ -24,6 +24,8 @@ public class Schedule {
 	@JsonApiToMany(opposite = "schedule")
 	private List<Task> tasks;
 
+	private List<String> stringList;
+
 	public Long getId() {
 		return id;
 	}
