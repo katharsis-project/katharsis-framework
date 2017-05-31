@@ -4,7 +4,7 @@ language: java
 jdk:
   - oraclejdk8
 
-script: mvn clean install
+script: mvn -s settings.xml clean install
 
 notifications:
   webhooks:
