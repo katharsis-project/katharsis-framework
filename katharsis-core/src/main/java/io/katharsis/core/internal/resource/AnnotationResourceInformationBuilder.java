@@ -11,7 +11,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -110,11 +109,11 @@ public class AnnotationResourceInformationBuilder implements ResourceInformation
 			ResourceFieldType resourceFieldType = AnnotatedResourceField.getResourceFieldType(annotations);
 			String oppositeResourceType = resourceFieldType == ResourceFieldType.RELATIONSHIP ? getResourceType(field.getGenericType(), context) : null;
 			AnnotatedResourceField resourceField = new AnnotatedResourceField(jsonName, underlyingName, field.getType(), field.getGenericType(), oppositeResourceType, annotations);
-			if (Modifier.isTransient(field.getModifiers()) || Modifier.isStatic(field.getModifiers())) {
-				fieldWrappers.add(new ResourceFieldWrapper(resourceField, true));
-			} else {
-				fieldWrappers.add(new ResourceFieldWrapper(resourceField, false));
-			}
+
+			boolean shouldBeDiscarded = Modifier.isTransient(field.getModifiers())
+					|| Modifier.isStatic(field.getModifiers())
+					|| resourceField.isAnnotationPresent(JsonIgnore.class);
+			fieldWrappers.add(new ResourceFieldWrapper(resourceField, shouldBeDiscarded));
 		}
 		return fieldWrappers;
 	}
@@ -132,16 +131,13 @@ public class AnnotationResourceInformationBuilder implements ResourceInformation
 		List<ResourceFieldWrapper> fieldWrappers = new ArrayList<>(classGetters.size());
 		for (Method getter : classGetters) {
 			String jsonName = resourceFieldNameTransformer.getName(getter);
-			String underlyingName = resourceFieldNameTransformer.getMethodName(getter);
+			String underlyingName = ClassUtils.getGetterFieldName(getter);
 			List<Annotation> annotations = Arrays.asList(getter.getAnnotations());
 			ResourceFieldType resourceFieldType = AnnotatedResourceField.getResourceFieldType(annotations);
 			String oppositeResourceType = resourceFieldType == ResourceFieldType.RELATIONSHIP ? getResourceType(getter.getGenericReturnType(), context) : null;
 			AnnotatedResourceField resourceField = new AnnotatedResourceField(jsonName, underlyingName, getter.getReturnType(), getter.getGenericReturnType(), oppositeResourceType, annotations);
-			if (Modifier.isStatic(getter.getModifiers())) {
-				fieldWrappers.add(new ResourceFieldWrapper(resourceField, true));
-			} else {
-				fieldWrappers.add(new ResourceFieldWrapper(resourceField, false));
-			}
+			boolean shouldBeDiscarded = Modifier.isStatic(getter.getModifiers()) || resourceField.isAnnotationPresent(JsonIgnore.class);
+			fieldWrappers.add(new ResourceFieldWrapper(resourceField, shouldBeDiscarded));
 		}
 		return fieldWrappers;
 	}
@@ -155,32 +151,28 @@ public class AnnotationResourceInformationBuilder implements ResourceInformation
 		}
 
 		for (ResourceFieldWrapper fieldWrapper : resourceGetterFields) {
-			if (!fieldWrapper.isDiscarded()) {
-				String originalName = fieldWrapper.getResourceField().getUnderlyingName();
-				AnnotatedResourceField field = fieldWrapper.getResourceField();
-				if (resourceFieldMap.containsKey(originalName)) {
-					resourceFieldMap.put(originalName, mergeAnnotations(resourceFieldMap.get(originalName), field, context));
-				} else if (!hasDiscardedField(fieldWrapper, resourceClassFields)) {
-					resourceFieldMap.put(originalName, field);
-				}
+			String originalName = fieldWrapper.getResourceField().getUnderlyingName();
+			AnnotatedResourceField field = fieldWrapper.getResourceField();
+			boolean getterIsIgnored = fieldWrapper.isDiscarded();
+			boolean didAddField = resourceFieldMap.containsKey(originalName);
+			boolean didDiscardField = !didAddField && hasField(fieldWrapper, resourceClassFields);
+
+			if (didAddField && getterIsIgnored) {
+				// we added the field, but the getter is ignored, so we discard the field too
+				resourceFieldMap.remove(originalName);
+			} else if (didAddField) {
+				// we added the field, so merge the field and getter's annotations
+				resourceFieldMap.put(originalName, mergeAnnotations(resourceFieldMap.get(originalName), field, context));
+			} else if (!didDiscardField && !getterIsIgnored) {
+				// we didn't add the field, and the getter isn't ignored, so we add the getter as property
+				resourceFieldMap.put(originalName, field);
 			}
 		}
 
-		return discardIgnoredField(resourceFieldMap.values());
+		return new ArrayList<>(resourceFieldMap.values());
 	}
 
-	private List<AnnotatedResourceField> discardIgnoredField(Collection<AnnotatedResourceField> resourceFieldValues) {
-		List<AnnotatedResourceField> resourceFields = new LinkedList<>();
-		for (AnnotatedResourceField resourceField : resourceFieldValues) {
-			if (!resourceField.isAnnotationPresent(JsonIgnore.class)) {
-				resourceFields.add(resourceField);
-			}
-		}
-
-		return resourceFields;
-	}
-
-	private static boolean hasDiscardedField(ResourceFieldWrapper fieldWrapper, List<ResourceFieldWrapper> resourceClassFields) {
+	private static boolean hasField(ResourceFieldWrapper fieldWrapper, List<ResourceFieldWrapper> resourceClassFields) {
 		for (ResourceFieldWrapper resourceFieldWrapper : resourceClassFields) {
 			if (fieldWrapper.getResourceField().getUnderlyingName().equals(resourceFieldWrapper.getResourceField().getUnderlyingName())) {
 				return true;
