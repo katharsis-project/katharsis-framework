@@ -6,6 +6,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.From;
 
+import io.katharsis.validation.ValidationModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +27,6 @@ import io.katharsis.jpa.mapping.JpaMapper;
 import io.katharsis.jpa.query.Tuple;
 import io.katharsis.jpa.query.criteria.JpaCriteriaExpressionFactory;
 import io.katharsis.jpa.query.criteria.JpaCriteriaQueryFactory;
-import io.katharsis.validation.ValidationModule;
 import zipkin.reporter.Reporter;
 
 @Configuration
@@ -38,14 +38,6 @@ public class ModuleConfig {
 	@Autowired
 	private TransactionRunner transactionRunner;
 
-	/**
-	 * Bean Validation
-	 * @return module
-	 */
-	@Bean
-	public ValidationModule validationModule() {
-		return ValidationModule.newInstance();
-	}
 
 	/**
 	 * Basic monitoring setup with Brave

@@ -5,20 +5,21 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
 
+import javax.validation.Validator;
+
 @Configuration
 public class BeanValidationConfig {
 	
     @Bean
-    public MethodValidationPostProcessor methodValidationPostProcessor() {
+    public MethodValidationPostProcessor methodValidationPostProcessor(Validator validator) {
         final MethodValidationPostProcessor methodValidationPostProcessor = new MethodValidationPostProcessor();
-        methodValidationPostProcessor.setValidator(validator());
+        methodValidationPostProcessor.setValidator(validator);
         return methodValidationPostProcessor;
     }
 
     @Bean
     public LocalValidatorFactoryBean validator() {
-        final LocalValidatorFactoryBean localValidatorFactoryBean = new LocalValidatorFactoryBean();
-        return localValidatorFactoryBean;   
+        return new LocalValidatorFactoryBean();
     }
     
 }

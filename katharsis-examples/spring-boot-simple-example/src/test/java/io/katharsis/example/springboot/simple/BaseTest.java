@@ -20,7 +20,6 @@ import com.jayway.restassured.response.ValidatableResponse;
 
 import io.katharsis.client.KatharsisClient;
 import io.katharsis.jpa.JpaModule;
-import io.katharsis.validation.ValidationModule;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = SpringBootSimpleExampleApplication.class)
@@ -40,7 +39,6 @@ public abstract class BaseTest {
 		loadJsonApiSchema();
 
 		client = new KatharsisClient("http://localhost:" + port + "/api");
-		client.addModule(ValidationModule.newInstance());
 		client.addModule(JpaModule.newClientModule("io.katharsis.example.springboot.simple.domain.jpa"));
 	}
 
