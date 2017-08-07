@@ -19,6 +19,7 @@ import io.katharsis.errorhandling.mapper.ExceptionMapper;
 import io.katharsis.repository.request.HttpMethod;
 import io.katharsis.resource.Document;
 import io.katharsis.utils.Optional;
+import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
 
 public class AbstractStub {
 
@@ -87,7 +88,7 @@ public class AbstractStub {
 		ErrorResponse errorResponse = null;
 		String body = response.body();
 		String contentType = response.getResponseHeader("content-type");
-		if (body.length() > 0 && CONTENT_TYPE.equalsIgnoreCase(contentType)) {
+		if (body.length() > 0 && containsIgnoreCase(contentType, CONTENT_TYPE)) {
 
 			ObjectMapper objectMapper = client.getObjectMapper();
 			Document document = objectMapper.readValue(body, Document.class);
