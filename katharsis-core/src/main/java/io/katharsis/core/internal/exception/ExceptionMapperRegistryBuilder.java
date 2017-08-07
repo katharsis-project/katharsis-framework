@@ -1,10 +1,12 @@
 package io.katharsis.core.internal.exception;
 
+import io.katharsis.errorhandling.exception.KatharsisMappableException;
 import io.katharsis.errorhandling.mapper.ExceptionMapper;
 import io.katharsis.errorhandling.mapper.JsonApiExceptionMapper;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.reflect.TypeUtils;
 
@@ -16,15 +18,20 @@ public final class ExceptionMapperRegistryBuilder {
     }
 
     public ExceptionMapperRegistry build(ExceptionMapperLookup exceptionMapperLookup) {
-        addKatharsisDefaultMappers();
         for (JsonApiExceptionMapper<?> exceptionMapper : exceptionMapperLookup.getExceptionMappers()) {
             registerExceptionMapper(exceptionMapper);
         }
+        addKatharsisDefaultMappers();
         return new ExceptionMapperRegistry(exceptionMappers);
     }
 
     private void addKatharsisDefaultMappers() {
-        registerExceptionMapper(new KatharsisExceptionMapper());
+        Optional<ExceptionMapperType> customKatharsisMappableHandler = exceptionMappers.stream()
+                .filter(mapperType -> KatharsisMappableException.class.equals(mapperType.getExceptionClass()))
+                .findFirst();
+        if(!customKatharsisMappableHandler.isPresent()) {
+            registerExceptionMapper(new KatharsisExceptionMapper());
+        }
     }
 
     private void registerExceptionMapper(JsonApiExceptionMapper<? extends Throwable> exceptionMapper) {
