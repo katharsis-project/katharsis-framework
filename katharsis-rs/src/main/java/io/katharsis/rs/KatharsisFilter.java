@@ -213,7 +213,7 @@ public class KatharsisFilter implements ContainerRequestFilter {
         if (is == null) {
             return null;
         }
-        Scanner s = new Scanner(is).useDelimiter("\\A");
+        Scanner s = new Scanner(is, "UTF-8").useDelimiter("\\A");
         String requestBody = s.hasNext() ? s.next() : "";
         if (requestBody == null || requestBody.isEmpty()) {
             return null;
