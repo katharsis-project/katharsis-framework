@@ -361,8 +361,8 @@ public class DefaultQueryParamsConverterTest extends AbstractQueryParamsTest {
         QueryParams expectedParams = defaultQueryParamsWithOffset0(params);
 
         QuerySpec inputSpec = new QuerySpec(Task.class);
-        inputSpec.includeRelation(Collections.singletonList("projects"));
         inputSpec.includeRelation(Collections.singletonList("project"));
+        inputSpec.includeRelation(Collections.singletonList("projects"));
 
         transitivityCheckTask(inputSpec, expectedParams);
 

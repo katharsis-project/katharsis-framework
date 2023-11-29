@@ -47,7 +47,7 @@ public abstract class AbstractQueryParamsTest {
 
 			@Override
 			public Set<Class<?>> getResourceRepositoryClasses() {
-				Set<Class<?>> set = new HashSet<>();
+				Set<Class<?>> set = new LinkedHashSet<>();
 				set.addAll(super.getResourceRepositoryClasses());
 				set.add(ScheduleRepositoryImpl.class); // not yet recognized by reflections for some reason
 				return set;
@@ -56,6 +56,6 @@ public abstract class AbstractQueryParamsTest {
 	}
 
 	protected static void addParams(Map<String, Set<String>> params, String key, String ... values ) {
-		params.put(key, new HashSet<String>(Arrays.asList(values)));
+		params.put(key, new LinkedHashSet<String>(Arrays.asList(values)));
 	}
 }
