@@ -84,7 +84,6 @@ public class JsonApiUrlBuilder {
 		if (query instanceof QuerySpec) {
 			QuerySpec querySpec = (QuerySpec) query;			
 			urlBuilder.addQueryParameters(new TreeMap<>(querySpecSerializer.serialize(querySpec)));
-
 		}
 		else if (query instanceof QueryParams) {
 			QueryParams queryParams = (QueryParams) query;
