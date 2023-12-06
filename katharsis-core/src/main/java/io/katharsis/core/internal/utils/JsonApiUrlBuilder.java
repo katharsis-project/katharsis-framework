@@ -5,6 +5,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
+import java.util.TreeMap;
 
 import io.katharsis.core.internal.query.QuerySpecAdapter;
 import io.katharsis.legacy.internal.QueryParamsAdapter;
@@ -81,8 +82,8 @@ public class JsonApiUrlBuilder {
 
 		UrlParameterBuilder urlBuilder = new UrlParameterBuilder(url);
 		if (query instanceof QuerySpec) {
-			QuerySpec querySpec = (QuerySpec) query;
-			urlBuilder.addQueryParameters(querySpecSerializer.serialize(querySpec));
+			QuerySpec querySpec = (QuerySpec) query;			
+			urlBuilder.addQueryParameters(new TreeMap<>(querySpecSerializer.serialize(querySpec)));
 		}
 		else if (query instanceof QueryParams) {
 			QueryParams queryParams = (QueryParams) query;
